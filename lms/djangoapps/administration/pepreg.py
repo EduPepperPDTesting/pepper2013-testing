@@ -1278,6 +1278,7 @@ def download_calendar_pdf(request):
         c.rect(444, ty, 138, tr_height, fill=0)
 
         if (training_name):
+            c.drawCentredString(99, ty + tr_height - 10, str(training_name))
             string_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_desc and string_desc_length > 130):
                 num_string = (string_desc_length / 130) #number of lines to draw
@@ -1291,7 +1292,7 @@ def download_calendar_pdf(request):
                     else:
                         training_desc_length += 1 #add to end index to increase line size
 
-                c.drawString(32, ty + tr_height - 10, str(training_name))
+                c.drawCentredString(32, ty + tr_height - 10, str(training_name))
                 num = 1
                 start_index = 0
                 while(num <= num_string):
@@ -1299,14 +1300,12 @@ def download_calendar_pdf(request):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
                         start_index = end_index
-                        training_desc_length = end_index + training_desc_length
+                        training_desc_length = end_index + 130
                     else:
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
                     num += 1
-            else:
-                c.drawCentredString(99, ty + tr_height - 10, str(training_name))
-                if(len(training_desc) > 0):
-                    c.drawCentredString(99, ty + tr_height - 20, str(training_desc))
+            elif(len(training_desc) > 0):
+                c.drawCentredString(99, ty + tr_height - 20, str(training_desc))
 
         if (training_date):
             c.drawCentredString(237, ty + tr_height - 15, str(training_date))
@@ -1315,6 +1314,8 @@ def download_calendar_pdf(request):
             c.drawCentredString(375, ty + tr_height - 15, str(training_time))
 
         if (training_room or training_geo):
+            if(len(training_room) > 0):
+                    c.drawCentredString(513, ty + tr_height - 10, str(training_room))
             string_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
             if (training_geo and string_geo_length > 130):
                 num_string = (string_geo_length / 130) #number of lines to draw
@@ -1337,15 +1338,12 @@ def download_calendar_pdf(request):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
                         start_index = end_index
-                        training_geo_length = end_index + training_geo_length
+                        training_geo_length = end_index + 130
                     else:
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
                     num += 1
-            else:
-                if(len(training_room) > 0):
-                    c.drawCentredString(513, ty + tr_height - 10, str(training_room))
-                if(len(training_geo) > 0):
-                    c.drawCentredString(513, ty + tr_height - 20, str(training_geo))
+            elif(len(training_geo) > 0):
+                c.drawCentredString(513, ty + tr_height - 20, str(training_geo))
 
         if training_index == lastpos:
             c.showPage()
