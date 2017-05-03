@@ -626,11 +626,11 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
 
             i += 1
 
-        table_tr_content += "<tr class='printview' style='height:38px;'>" \
-                            "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \
-                            "<img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>" \
-                            "</td>" \
-                            "</tr>"
+        # table_tr_content += "<tr class='printview' style='height:38px;'>" \
+        #                     "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \
+        #                     "<img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>" \
+        #                     "</td>" \
+        #                     "</tr>"
 
         return table_tr_content
 
