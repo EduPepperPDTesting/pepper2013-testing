@@ -1268,11 +1268,11 @@ def download_calendar_pdf(request):
 
     # ------------------------------------------------------------------------------------tr
     base_font_size = 8
-    ty = base_table_y - 30
+    ty = base_table_y #- 30
     training_index = 0
     training_list = json.loads(traininglistObj)
     lastpos = len(training_list) - 1
-    after_long_text = 0
+    # after_long_text = 0
 
     table_style = styleSheet['BodyText']
     table_style.fontName = "Helvetica"
@@ -1281,10 +1281,11 @@ def download_calendar_pdf(request):
     c.setFont("Helvetica", base_font_size)
 
     for training_id in training_list:
-        tr_height = 30
 
         if (training_id):
             try:
+                tr_height = 30
+
                 training = PepRegTraining.objects.get(id=training_id)
 
                 training_name = training.name
@@ -1304,31 +1305,26 @@ def download_calendar_pdf(request):
 
                 if (long_text_width > 170):
 
-                    try:
-                        old_num_lines = num_lines
-                    except:
-                        old_num_lines = 0
-
                     num_lines = (long_text_width / 170)  # number of lines to fit
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
 
                     tr_height += 10 * num_lines
 
-                    if(not after_long_text):
-                        ty -= tr_height #10 * num_lines
+                    # if(not after_long_text):
+                    ty -= tr_height #10 * num_lines
                     # else:
                     #     ty += old_num_lines - 10
+                    #after_long_text = 1
 
-                    after_long_text = 1
-
-                elif(after_long_text):
-                    after_long_text = 0
-                    ty -= 30
-                    #ty += 10 * num_lines
+                # elif(after_long_text):
+                    #after_long_text = 0
+                    #
+                    # ty -= 30
+                    # #ty += 10 * num_lines
 
                 else:
-                    ty -= 30
+                    ty -= tr_height
             except:
                 raise Exception('No Training ' + str(training_id))
 
