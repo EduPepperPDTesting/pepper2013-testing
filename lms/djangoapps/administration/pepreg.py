@@ -1268,11 +1268,10 @@ def download_calendar_pdf(request):
 
     # ------------------------------------------------------------------------------------tr
     base_font_size = 8
-    ty = base_table_y #- 30
+    ty = base_table_y
     training_index = 0
     training_list = json.loads(traininglistObj)
     lastpos = len(training_list) - 1
-    # after_long_text = 0
 
     table_style = styleSheet['BodyText']
     table_style.fontName = "Helvetica"
@@ -1309,7 +1308,7 @@ def download_calendar_pdf(request):
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
 
-                    tr_height = 10 * num_lines
+                    tr_height += 10 * (num_lines - 1)
 
                 ty -= tr_height
 
@@ -1424,12 +1423,7 @@ def download_calendar_pdf(request):
                 c.drawCentredString(358, ty + 10, "Start Time")
                 c.drawCentredString(496, ty + 10, "Location")
 
-                #ty -= 30
-                after_long_text = 0
-
                 c.setFont("Helvetica", base_font_size)
-            # else:
-            #     ty -= 30 #tr_height
 
             training_index += 1
 
