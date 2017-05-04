@@ -1304,6 +1304,9 @@ def download_calendar_pdf(request):
 
                 if (long_text_width > 170):
 
+                    if(num_lines):
+                        old_num_lines = num_lines
+
                     num_lines = (long_text_width / 170)  # number of lines to fit
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
@@ -1313,7 +1316,7 @@ def download_calendar_pdf(request):
                     if(not after_long_text):
                         ty -= 10 * num_lines
                     else:
-                        ty += 10
+                        ty += old_num_lines
 
                     after_long_text = 1
 
