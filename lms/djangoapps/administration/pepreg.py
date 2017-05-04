@@ -1374,7 +1374,7 @@ def download_calendar_pdf(request):
             if (training_geo and string_geo_length > 160):
                 num_string = (string_geo_length / 160) #number of lines to draw
                 if (round(num_string) < num_string): #round up
-                    num_string += 1
+                    num_string = 5
                 training_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
                 while 1: #get first line size
                     string_geo_length = stringWidth(training_geo[0: int(training_geo_length)], "Helvetica", base_font_size)
