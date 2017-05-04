@@ -1309,22 +1309,10 @@ def download_calendar_pdf(request):
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
 
-                    tr_height += 10 * num_lines
+                    tr_height = 10 * num_lines
 
-                    # if(not after_long_text):
-                    ty -= tr_height #10 * num_lines
-                    # else:
-                    #     ty += old_num_lines - 10
-                    #after_long_text = 1
+                ty -= tr_height
 
-                # elif(after_long_text):
-                    #after_long_text = 0
-                    #
-                    # ty -= 30
-                    # #ty += 10 * num_lines
-
-                else:
-                    ty -= tr_height
             except:
                 raise Exception('No Training ' + str(training_id))
 
