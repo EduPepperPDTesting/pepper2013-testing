@@ -24,6 +24,7 @@ from django.conf import settings
 from PIL import Image
 import os
 import os.path
+import shutil
 
 #-------------------------------------------------------------------main
 def main(request):
@@ -115,6 +116,7 @@ def organization_check(request):
 @login_required
 def organization_add(request):
     name = request.POST.get('organizational_name', False)
+    copyfromId = request.POST.get('organizational_copy_from', False)
     oid = request.POST.get('oid', False)
     data = {'Success': False}
 
@@ -127,6 +129,61 @@ def organization_add(request):
         try:
             organization.OrganizationName = name
             organization.save()
+
+            if copyfromId:
+                organization_old = OrganizationMetadata.objects.get(id=copyfromId) 
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization.id) + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                # --------------OrganizationMenuitem
+                for bean1 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=0):
+                    org_menu_item = OrganizationMenuitem()
+                    org_menu_item.MenuItem = bean1.MenuItem
+                    org_menu_item.Url = bean1.Url
+                    org_menu_item.Icon = bean1.Icon
+                    org_menu_item.isAdmin = bean1.isAdmin                 
+                    org_menu_item.rowNum = bean1.rowNum
+                    org_menu_item.ParentID = 0
+                    org_menu_item.organization = organization
+                    org_menu_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)   
+
+                    for bean2 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=bean1.id):
+                        org_menu_item2 = OrganizationMenuitem()
+                        org_menu_item2.MenuItem = bean2.MenuItem
+                        org_menu_item2.Url = bean2.Url
+                        org_menu_item2.isAdmin = bean2.isAdmin                 
+                        org_menu_item2.rowNum = bean2.rowNum
+                        org_menu_item2.ParentID = org_menu_item.id
+                        org_menu_item2.organization = organization
+                        org_menu_item2.save()
+
+                # --------------OrganizationMenu
+                for bean1 in OrganizationMenu.objects.filter(organization=organization_old):
+                    org_menu = OrganizationMenu()
+                    org_menu.itemType = bean1.itemType
+                    org_menu.itemValue = bean1.itemValue
+                    org_menu.organization = organization
+                    org_menu.save()
+                    
+                    if bean1.itemType == "logo" and bean1.itemValue != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)                
+
+                # --------------OrganizationDashboard
+                for bean1 in OrganizationDashboard.objects.filter(organization=organization_old):
+                    org_dashboard = OrganizationDashboard()
+                    org_dashboard.itemType = bean1.itemType
+                    org_dashboard.itemValue = bean1.itemValue
+                    org_dashboard.organization = organization
+                    org_dashboard.save()
 
             data = {'Success': True}
         except Exception as e:
@@ -144,6 +201,9 @@ def organization_delete(request):
             OrganizationDataitems.objects.filter(organization=org).delete()
             OrganizationDistricts.objects.filter(organization=org).delete()
             OrganizationAttributes.objects.filter(organization=org).delete()
+            OrganizationMenuitem.objects.filter(organization=org).delete()
+            OrganizationMenu.objects.filter(organization=org).delete()
+            OrganizationDashboard.objects.filter(organization=org).delete()
 
             org.delete()
 

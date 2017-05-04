@@ -16,11 +16,6 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
-<script>
-
-	
-	
-</script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
@@ -378,9 +373,41 @@
                     <label><input type="radio" name="organizational_dashboard_option" value="2" />Curriculumn Dashboard</label>
                 </td>
             </tr>
+        	<tr id="organization_pd_dashboard_set">
+                <td colspan="3" class="org_td1">
+                	<table width="300" border="1" class="org_table1" bordercolor="#555" style="margin-left:50px;">
+                    	<tr>
+                        	<th>Title</th>
+                            <th width="80">Show</th>
+                            <th width="80">Default</th>
+                        </tr>
+                        <tr>
+                        	<td align="center">My Feed</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show" checked="checked" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="1" checked="checked" /></td>
+                        </tr>
+                        <tr>
+                        	<td align="center">My Activities</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" checked="checked" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" /></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="org_td1">
+                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
+                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="1" />New Menu</label>
+                </td>
+            </tr>
             <tr>
                 <td width="250" class="org_td1">Top Menu Color: </td>
                 <td width="280"><input id="organizational_menu_color" type="color" /> </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="org_td1">Organization Logo: </td>
+                <td id="organizational_base_organization_logo_p"></td>
                 <td></td>
             </tr>
             <tr>
@@ -396,7 +423,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="org_td1 org_td1_demo">Menu Text Settings: </td>
+                <td class="org_td1 org_td1_demo">Menu Text Settings (Maximum 9 items): </td>
                 <td></td>
                 <td></td>
             </tr>
@@ -455,7 +482,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="org_td1">Menu Items: </td>
+                <td class="org_td1">Menu Items (Maximum 9 items): </td>
                 <td></td>
                 <td></td>
             </tr>
@@ -490,7 +517,7 @@
                             </span>
                             <span class="organizational_dashboard_menu_btn"><input type="button" onclick="org_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
                             <fieldset>
-                                <legend>Sub Menu</legend>
+                                <legend>Sub Menu (Maximum 20 items)</legend>
                                 <div class="organizational_dashboard_menu_head1">
                                     <span class="organizational_dashboard_menu_item">Menu Item</span>
                                     <span class="organizational_dashboard_menu_url">URL</span>
@@ -569,6 +596,8 @@
 	var open_org3 = false;
 	var open_org4 = false;
 	var org_current_menu_items = "";
+	var maximum_items = 9;
+	var maximum_sub_items = 20;
 	
 	//-----------------------------------------------------------------------organization_district__school_list
 	var organization_district_list = new Array();
@@ -805,7 +834,7 @@
 		if(type != "edit"){
 			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Oraganiztion</option>';
 			$(".organization_next").each(function(){
-				content += '<option value="' + $(this).attr("href") + '">' + $(this).html() + '</option>';
+				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
 			});
 			content += "</select></label>";
 		}
@@ -884,10 +913,13 @@
 								if(r.find){	
 									$("#org_btn_reset_state").click();
 									$(".expand_title_parent").show();
+									
+									organizationAddFileImg("organizational_base_organization_logo", r.organization_logo);
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
 									organizationAddFileImg("organizational_base_profile_logo", r.profile_logo);
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
+									organizationAddFileImgInit("organizational_base_organization_logo");
 									
 									$(".organization-item-select").attr("checked", false);									
 									$(".organization-state-select").parent().parent().remove();
@@ -914,7 +946,7 @@
 									$("#organizational_base_for_district").val(r.DistrictType);
 									$("#organizational_base_for_school").val(r.SchoolType);										
 									$("#organizational_base_motto").val(r.motto);
-									try{
+									
 									//----------
 									$("input[name='organizational_dashboard_option'][value='" + r["Dashboard option etc"] + "']").attr("checked", "checked");
 									if(r["Menu Color"]){
@@ -944,6 +976,7 @@
 											$(this).find(".menu_items_url").val("");
 											$(this).find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' id='menu_items_icon_1' name='menu_items_icon_1'>");
 											$(this).find(".organizational_dashboard_menu_icon_view").html("");
+											$(this).find(".organizational_dashboard_menu_icon_view").removeAttr("icon_name");
 											$(this).find(".menu_items_admin").prop("checked", false);
 											$(this).find("fieldset .sub_menu_item").val("");
 											$(this).find("fieldset .sub_menu_url").val("");
@@ -1028,9 +1061,7 @@
 										$(this).find(".sub_menu_btn").val("-");
 										$(this).find(".sub_menu_btn:last").val("+");
 									});	
-									}catch(edee){
-										alert(edee);
-									}
+									
 									if(r.New){
 										//----------
 										$(".expand_title_parent").each(function(i){
@@ -1058,6 +1089,9 @@
 										open_org2 = false;
 										open_org3 = false;
 										open_org4 = false;
+
+										$("#organization-table2_all").prop('checked', true);
+										$(".organization-item-select").prop('checked', true);
 									}else{
 										//----------
 										$("#org_btn_first_next").hide();
@@ -1078,6 +1112,7 @@
 							loadwin.hide();
 							organizational_dashboard_demo_div_reload();
 							isIconChange($("input[name='organizational_dashboard_is_icon']:checked").val());
+							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
 						});
 					});
 				}
@@ -1329,47 +1364,44 @@
 		}else{
 			if(isSubMenu){
 				//menu item -> sub menu
-				var clonex = $(el).parent().parent().clone(true);
-				clonex.find(".sub_menu_item").val("");
-				clonex.find(".sub_menu_url").val("");
-				clonex.find(".sub_menu_admin").prop("checked", false);
-				
-				$(el).parent().parent().parent().append(clonex);
+				if($(el).parent().parent().parent().find(".organizational_dashboard_menu_body2").length < maximum_sub_items){
+					var clonex = $(el).parent().parent().clone(true);
+					clonex.find(".sub_menu_item").val("");
+					clonex.find(".sub_menu_url").val("");
+					clonex.find(".sub_menu_admin").prop("checked", false);
+					
+					$(el).parent().parent().parent().append(clonex);
+					$(el).val("-");
+				}
 			}else{
 				//menu item
-				var clonex = $(el).parent().parent().clone(true);
-				
-				clonex.find(".menu_items_menu_item").val("");
-				clonex.find(".menu_items_url").val("");
-				clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' >");
-				clonex.find(".organizational_dashboard_menu_icon_view").empty();
-				clonex.find(".menu_items_admin").prop("checked", false);
-				clonex.find("fieldset .sub_menu_item").val("");
-				clonex.find("fieldset .sub_menu_url").val("");
-				clonex.find("fieldset .sub_menu_admin").prop("checked", false);			
-				clonex.find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
-				clonex.find("fieldset .organizational_dashboard_menu_body2").each(function(i){
-					if(i > 0){
-						$(this).remove();
-					}
-				});
-				clonex.find(".sub_menu_btn").val("+");
-				
-				$(".organizational_dashboard_menu_div").append(clonex);
-				clonex.find("fieldset").hide();
-				
-				/*$(".menu_items_icon").each(function(i){
-					$(this).attr("id", "menu_items_icon_" + (i + 1));
-					$(this).attr("name", "menu_items_icon_" + (i + 1));
-				});*/
+				if($(".organizational_dashboard_menu_body1").length < maximum_items){
+					var clonex = $(el).parent().parent().clone(true);
+					
+					clonex.find(".menu_items_menu_item").val("");
+					clonex.find(".menu_items_url").val("");
+					clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' >");
+					clonex.find(".organizational_dashboard_menu_icon_view").empty();
+					clonex.find(".menu_items_admin").prop("checked", false);
+					clonex.find("fieldset .sub_menu_item").val("");
+					clonex.find("fieldset .sub_menu_url").val("");
+					clonex.find("fieldset .sub_menu_admin").prop("checked", false);			
+					clonex.find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
+					clonex.find("fieldset .organizational_dashboard_menu_body2").each(function(i){
+						if(i > 0){
+							$(this).remove();
+						}
+					});
+					$(".organizational_dashboard_menu_div").append(clonex);
+					clonex.find("fieldset").hide();
+					$(el).val("-");
+				}
 			}
-			$(el).val("-");
 		}
 	}
 	
 	//-----------------------------------------------------------------------organizational_dashboard_demo_div_reload
 	function organizational_dashboard_demo_div_reload(){
-		try{
 		$("#organizational_dashboard_demo_div").empty();
 		var menu_color = $("#organizational_menu_color").val();
 		$("#organizational_dashboard_demo_div").css("backgroundColor", menu_color);
@@ -1377,10 +1409,7 @@
 		if(logo.length > 0){
 			logo.removeAttr("width");
 			logo.attr("height", 58);
-			logo.css({
-				"float": "left",
-				"margin": "8px 0 0 5px"
-			});
+			logo.css({"float": "left", "margin": "8px 0 0 5px"});
 			$("#organizational_dashboard_demo_div").append(logo);
 		}
 		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
@@ -1402,13 +1431,8 @@
 							img_src = el_tmp2.attr("src");
 						}
 					}
-					tmp_item = $("<span><img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' /></span>");
-					tmp_item.css({
-						"float": "right",
-						"margin": "15px " + space + "px 0 0",
-						"width": "45px",
-						"height": "45px"
-					});
+					tmp_item = $("<table><tr><td align='center'><img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' /></td></tr><tr><td align='center' style='font-size:10px;'>" + $(this).val() + "</td></tr></table>");
+					tmp_item.css({"float": "right", "text-align": "center", "margin": "5px " + space + "px 0 0"});					
 				}else{
 					tmp_item = $("<span>" + $(this).val() + "</span>");
 					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
@@ -1416,10 +1440,6 @@
 				$("#organizational_dashboard_demo_div").prepend(tmp_item);
 			}
 		});
-		
-		}catch(e1){
-			alert(e1);
-		}
 	}
 	
 	//-----------------------------------------------------------------------document ready
@@ -1827,10 +1847,10 @@
 			
 			//---------------------------------------------------specific_items
 			var specific_items = "{";
-			/*$(".organization-item-select").each(function(){
+			$(".organization-item-select").each(function(){
 				if($(this).attr('checked'))	specific_items += ",'" + $(this).attr("id") + "': true";
 			});			
-			specific_items = specific_items.replace(",", "");*/
+			specific_items = specific_items.replace(",", "");
 			specific_items += "}";
 			if(specific_items == "{}")	specific_items = "";
 			
@@ -1879,6 +1899,7 @@
 				loadwin.hide();
 				return;
 			}
+			
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
 			var menu_color = $("#organizational_menu_color").val();//document.getElementById('organizational_menu_color').jscolor.toHEXString();
 			var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
@@ -2062,6 +2083,11 @@
 		$("input[name='organizational_dashboard_is_icon']").change(function(){
 			isIconChange($(this).val());
 		});
+		
+		//--------------------------organizational_dashboard_option change
+		$("input[name='organizational_dashboard_option']").change(function(){
+			isPDDashboardChange($(this).val());
+		});
     });	
 	
 	//--------------------------isIconChange
@@ -2084,6 +2110,15 @@
 			
 			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
 			$(".org_td1_demo").removeClass("organizational_dashboard_demo1");
+		}
+	}
+	
+	//--------------------------isPDDashboardChange
+	function isPDDashboardChange(pd_val){
+		if(pd_val == "1"){
+			$("#organization_pd_dashboard_set").show();
+		}else{
+			$("#organization_pd_dashboard_set").hide();
 		}
 	}
 	
