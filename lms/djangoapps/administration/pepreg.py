@@ -1324,9 +1324,8 @@ def download_calendar_pdf(request):
             c.drawCentredString(116, ty + tr_height - 10, str(training_name))
             string_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_desc and string_desc_length > 160):
-                num_string = (string_desc_length / 160) #number of lines to draw
-                if(round(num_string) < num_string): #round up
-                    num_string += 1
+                num_string = (string_desc_length / 160) + 1 #number of lines to draw
+
                 training_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
                 while 1: #get first line size
                     string_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
@@ -1337,15 +1336,17 @@ def download_calendar_pdf(request):
 
                 num = 1
                 start_index = 0
-                while(num <= num_string):
+                end_draw = 0
+                while(num < num_string):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         end_index = end_index + start_index  if end_index > 0 else training_desc_length - 1
                         c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_desc_length = start_index + training_desc_length
-                    else:
+                    elif(end_draw == 0):
                         c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]).encode('utf-8'))
+                        end_draw = 1
                     num += 1
             elif(len(training_desc) > 0):
                 c.drawCentredString(116, ty + tr_height - 20, str(training_desc).encode('utf-8'))
@@ -1372,9 +1373,8 @@ def download_calendar_pdf(request):
                     c.drawCentredString(496, ty + tr_height - 10, str(training_room))
             string_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
             if (training_geo and string_geo_length > 160):
-                num_string = (string_geo_length / 160) #number of lines to draw
-                if (round(num_string) < num_string): #round up
-                    num_string = 5
+                num_string = (string_geo_length / 160) + 1 #number of lines to draw
+
                 training_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
                 while 1: #get first line size
                     string_geo_length = stringWidth(training_geo[0: int(training_geo_length)], "Helvetica", base_font_size)
@@ -1385,15 +1385,17 @@ def download_calendar_pdf(request):
 
                 num = 1
                 start_index = 0
-                while (num <= num_string):
+                end_draw = 0
+                while (num < num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         end_index = end_index + start_index if end_index > 0 else training_geo_length - 1
-                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(num_string) + str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
+                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_geo_length = start_index + training_geo_length
-                    else:
+                    elif(end_draw == 0):
                         c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]).encode('utf-8'))
+                        end_draw = 1
                     num += 1
             elif(len(training_geo) > 0):
                 c.drawCentredString(496, ty + tr_height - 20, str(training_geo).encode('utf-8'))
