@@ -1340,7 +1340,7 @@ def download_calendar_pdf(request):
                 while(num <= num_string):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
-                        end_index = end_index if end_index > 0 else training_desc_length - 1
+                        end_index = end_index + start_index  if end_index > 0 else training_desc_length - 1
                         c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_desc_length = start_index + training_desc_length
@@ -1351,7 +1351,7 @@ def download_calendar_pdf(request):
                 c.drawCentredString(116, ty + tr_height - 20, str(training_desc).encode('utf-8'))
 
         if (training_date):
-            c.drawCentredString(254, ty + tr_height - 15, str(training_date))
+            c.drawCentredString(254, ty + tr_height - 10, str(training_date))
 
         if (training_time):
             get_hour_str = str(training_time)[0: 2]
@@ -1365,7 +1365,7 @@ def download_calendar_pdf(request):
                 else:
                     hour_str = get_hour_str
 
-            c.drawCentredString(358, ty + tr_height - 15, hour_str + str(training_time)[2: -3] + ampm_str)
+            c.drawCentredString(358, ty + tr_height - 10, hour_str + str(training_time)[2: -3] + ampm_str)
 
         if (training_room or training_geo):
             if(len(training_room) > 0):
@@ -1388,7 +1388,7 @@ def download_calendar_pdf(request):
                 while (num <= num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
-                        end_index = end_index if end_index > 0 else training_geo_length - 1
+                        end_index = end_index + start_index if end_index > 0 else training_geo_length - 1
                         c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_geo_length = start_index + training_geo_length
@@ -1426,7 +1426,6 @@ def download_calendar_pdf(request):
                 c.setFont("Helvetica", base_font_size)
 
             training_index += 1
-
 
     c.save()
 
