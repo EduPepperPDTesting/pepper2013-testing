@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <%! from django.utils.translation import ugettext as _ %>
 <%!
     from django.core.urlresolvers import reverse
@@ -935,30 +936,27 @@ $(document).ready(function(){
         }
     });
 
-    $('.con-ma-rows-out').on('scroll', function() {
-        if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
-            if(skip_rows_scroll >= data_all){
-                //$(".info_div").hide();
-                $(".info_div").html(html_end);
-            }
-            get_my_activites(get_rows_scroll,skip_rows_scroll)
-            skip_rows_scroll += get_rows_scroll;
-        }
-    });
-
     $(window).bind("scroll", function(){
         var scrollTop = $(this).scrollTop();
-　　    var scrollHeight = $(document).height();
 　　    var windowHeight = $(this).height();
-        if(scrollTop + windowHeight == scrollHeight)
+        var scrollHeight = $(document).height();
+
+        console.log("scrollTop:",scrollTop);
+        console.log("windowHeight:",windowHeight);
+        console.log("scrollHeight:",scrollHeight);
+
+        if(scrollTop + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
+                console.log("111");
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
             }else{
+                console.log("now_show:",now_show);
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show ==2 ){
+                    console.log("333");
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
