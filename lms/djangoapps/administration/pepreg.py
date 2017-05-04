@@ -632,28 +632,28 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         table_tr_content = ""
         while(i < array_length):
 
-            row_hight = "30"
+            row_height = "30"
             ti_text_span = str(print_row[i][1])
             tg_text_span = str(print_row[i][5])
-            if(len(str(print_row[i][1])) > 23 or len(str(print_row[i][5])) > 23):
+            if(len(str(print_row[i][1])) > 36 or len(str(print_row[i][5])) > 36):
                 if(len(str(print_row[i][1])) >= len(str(print_row[i][5]))):
-                    row_hight = str((1 + len(str(print_row[i][1])) / 23) * 15)
+                    row_height = str((1 + len(str(print_row[i][1])) / 36) * 15)
                     ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
-                    if (len(str(print_row[i][5])) > 23):
+                    if (len(str(print_row[i][5])) > 36):
                         tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
                 else:
-                    row_hight = str((1 + len(str(print_row[i][5])) / 23) * 15)
+                    row_height = str((1 + len(str(print_row[i][5])) / 36) * 15)
                     tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
-                    if (len(str(print_row[i][1])) > 23):
+                    if (len(str(print_row[i][1])) > 36):
                         ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
 
-            row_hight += "px !important"
-            table_tr_content += "<tr class='printview' style='padding: 2px; height:" + str(row_hight) + "'>"
+            row_height += "px !important"
+            table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25% !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25% !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
+            table_tr_content += "<td>" + str(print_row[i][2]) + "</td>"
+            table_tr_content += "<td>" + str(print_row[i][3]) + "</td>"
+            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
