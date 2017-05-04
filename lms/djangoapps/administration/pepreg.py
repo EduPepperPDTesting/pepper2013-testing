@@ -632,23 +632,23 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         table_tr_content = ""
         while(i < array_length):
 
-            row_hight = ""
+            row_hight = "15"
             ti_text_span = str(print_row[i][1])
             tg_text_span = str(print_row[i][5])
             if(len(str(print_row[i][1])) > 23 or len(str(print_row[i][5])) > 23):
                 if(len(str(print_row[i][1])) >= len(str(print_row[i][5]))):
-                    row_hight = str((len(str(print_row[i][1])) / 23) * 11)
+                    row_hight = str((len(str(print_row[i][1])) / 23) * 15)
                     ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
                     if (len(str(print_row[i][5])) > 23):
                         tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
                 else:
-                    row_hight = str((len(str(print_row[i][5])) / 23) * 11)
+                    row_hight = str((len(str(print_row[i][5])) / 23) * 15)
                     tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
                     if (len(str(print_row[i][1])) > 23):
                         ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
                 row_hight += " !important"
 
-            table_tr_content += "<tr class='printview' style='" + str(row_hight) + "'>"
+            table_tr_content += "<tr class='printview' style='padding: 2px; height:" + str(row_hight) + "px;'>"
 
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25%;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
