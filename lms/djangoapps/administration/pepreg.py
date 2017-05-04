@@ -641,11 +641,15 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
                     if (len(tg_text_span) > 36):
                         tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</span>"
+                    else:
+                        tg_text_span = "<div style='margin: 2px;'>" + tg_text_span + "</div>"
                 else:
                     row_height = str((1 + len(tg_text_span) / 36) * 15)
                     tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</div>"
                     if (len(ti_text_span) > 36):
                         ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
+                    else:
+                        ti_text_span = "<div style='margin: 2px;'>" + ti_text_span + "</div>"
             else:
                 ti_text_span =  "<div style='margin: 2px;'>" + ti_text_span + "</div>"
                 tg_text_span = "<div style='margin: 2px;'>" + tg_text_span + "</div>"
