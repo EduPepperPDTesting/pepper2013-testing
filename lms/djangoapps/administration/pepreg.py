@@ -1316,18 +1316,19 @@ def download_calendar_pdf(request):
                     tr_height += 10 * num_lines
 
                     if(not after_long_text):
-                        ty -= 10 * num_lines
-                    else:
-                        ty += old_num_lines - 10
+                        ty -= tr_height #10 * num_lines
+                    # else:
+                    #     ty += old_num_lines - 10
 
                     after_long_text = 1
 
                 elif(after_long_text):
                     after_long_text = 0
-                    ty += 10 * num_lines
+                    ty -= 30
+                    #ty += 10 * num_lines
 
                 else:
-                    after_long_text = 0
+                    ty -= 30
             except:
                 raise Exception('No Training ' + str(training_id))
 
@@ -1439,11 +1440,12 @@ def download_calendar_pdf(request):
                 c.drawCentredString(358, ty + 10, "Start Time")
                 c.drawCentredString(496, ty + 10, "Location")
 
-                ty -= 30
+                #ty -= 30
+                after_long_text = 0
 
                 c.setFont("Helvetica", base_font_size)
             else:
-                ty -= tr_height
+                #ty -= 30 #tr_height
 
             training_index += 1
 
