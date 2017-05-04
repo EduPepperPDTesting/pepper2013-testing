@@ -1341,11 +1341,11 @@ def download_calendar_pdf(request):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         end_index = end_index + start_index  if end_index > 0 else training_desc_length - 1
-                        c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
+                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_desc_length = start_index + training_desc_length
                     elif(end_draw == 0):
-                        c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]).encode('utf-8'))
+                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]).encode('utf-8'))
                         end_draw = 1
                     num += 1
             elif(len(training_desc) > 0):
@@ -1390,11 +1390,11 @@ def download_calendar_pdf(request):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         end_index = end_index + start_index if end_index > 0 else training_geo_length - 1
-                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
+                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
                         start_index = end_index + 1
                         training_geo_length = start_index + training_geo_length
                     elif(end_draw == 0):
-                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]).encode('utf-8'))
+                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]).encode('utf-8'))
                         end_draw = 1
                     num += 1
             elif(len(training_geo) > 0):
