@@ -646,6 +646,9 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</div>"
                     if (len(ti_text_span) > 36):
                         ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
+            else:
+                ti_text_span =  "<div style='margin: 2px;'>" + ti_text_span + "</div>"
+                tg_text_span = "<div style='margin: 2px;'>" + tg_text_span + "</div>"
 
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
