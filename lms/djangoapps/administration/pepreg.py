@@ -1444,8 +1444,8 @@ def download_calendar_pdf(request):
                 after_long_text = 0
 
                 c.setFont("Helvetica", base_font_size)
-            else:
-                #ty -= 30 #tr_height
+            # else:
+            #     ty -= 30 #tr_height
 
             training_index += 1
 
