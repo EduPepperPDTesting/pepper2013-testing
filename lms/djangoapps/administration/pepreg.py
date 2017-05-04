@@ -635,17 +635,17 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height = "30"
             ti_text_span = str(print_row[i][1])
             tg_text_span = str(print_row[i][5])
-            if(len(str(print_row[i][1])) > 36 or len(str(print_row[i][5])) > 36):
-                if(len(str(print_row[i][1])) >= len(str(print_row[i][5]))):
-                    row_height = str((1 + len(str(print_row[i][1])) / 36) * 15)
-                    ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
-                    if (len(str(print_row[i][5])) > 36):
-                        tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
+            if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
+                if(len(ti_text_span) >= len(tg_text_span)):
+                    row_height = str((1 + len(ti_text_span) / 36) * 15)
+                    ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
+                    if (len(tg_text_span) > 36):
+                        tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</span>"
                 else:
-                    row_height = str((1 + len(str(print_row[i][5])) / 36) * 15)
-                    tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
-                    if (len(str(print_row[i][1])) > 36):
-                        ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
+                    row_height = str((1 + len(tg_text_span) / 36) * 15)
+                    tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</div>"
+                    if (len(ti_text_span) > 36):
+                        ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
 
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
