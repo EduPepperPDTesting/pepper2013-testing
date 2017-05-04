@@ -646,14 +646,14 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     tg_text_span = "<span style='text-align: left !important'>" + str(print_row[i][5]) + "</span>"
                     if (len(str(print_row[i][1])) > 23):
                         ti_text_span = "<span style='text-align: left !important'>" + str(print_row[i][1]) + "</span>"
-                row_hight += "px !important"
 
+            row_hight += "px !important"
             table_tr_content += "<tr class='printview' style='padding: 2px; height:" + str(row_hight) + "'>"
 
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25%;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25% !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25%;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid; width: 25% !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
