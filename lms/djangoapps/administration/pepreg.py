@@ -599,6 +599,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
 
     dates_list = []
     for date_item in daterangelist:
+        raise Exception(date_item)
         if (getrange == "0" or getrange == "1" or getrange == "3"):
             dates_list.append(datetime.datetime(year, month, date_item))
         else:
