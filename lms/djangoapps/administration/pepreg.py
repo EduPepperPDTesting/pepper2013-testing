@@ -525,7 +525,7 @@ def getCalendarMonth(request):
         training_list = []
 
         date_list =[]
-        date_list = getdatelist(daterangelist, _getrange)
+        date_list = getdatelist(daterangelist, _getrange, _year, _month)
 
         for item in all_occurrences:
 
@@ -566,7 +566,7 @@ def getCalendarMonth(request):
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
-def getdatelist(daterangelist, getrange):
+def getdatelist(daterangelist, getrange, year, month):
     dates_list = []
     for date_item in daterangelist:
         # raise Exception(date_item)
