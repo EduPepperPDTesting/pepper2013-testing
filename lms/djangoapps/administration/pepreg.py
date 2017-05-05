@@ -573,7 +573,7 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, _getrange, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -592,17 +592,17 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterangelist):
+def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, daterangelist):
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
 
     dates_list = []
-    for date in daterangelist:
-        if (_getrange == "0" or getrange == "1" or _getrange == "3"):
-            dates_list.append(datetime.datetime(year, month, date))
+    for date_item in daterangelist:
+        if (getrange == "0" or getrange == "1" or getrange == "3"):
+            dates_list.append(datetime.datetime(year, month, date_item))
         else:
-            dates_list.append(date)
+            dates_list.append(date_item)
 
     for item in all_occurrences:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
