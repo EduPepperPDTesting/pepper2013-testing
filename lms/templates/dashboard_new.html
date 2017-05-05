@@ -1,4 +1,3 @@
-<!DOCTYPE HTML>
 <%! from django.utils.translation import ugettext as _ %>
 <%!
     from django.core.urlresolvers import reverse
@@ -97,9 +96,9 @@
     display:block;
     float:left;
     width:220px;
-    position: fixed;
+    /*position: fixed;
 
-    /*height:780px;
+    height:780px;
     border:1px solid #f00;*/
 }
 
@@ -227,8 +226,6 @@
     display:block;
     float:right;
     width:220px;
-
-    border:1px solid;
 }
 
 .my-district{
@@ -278,7 +275,8 @@
 .ds-view-all-communities{
     width:215px;
     text-align:right;
-    /*margin-top:-15px;
+    
+    /*margin-top:-40px;
     margin-bottom: 20px;*/
 }
 .ds-view-all-communities a{
@@ -545,40 +543,6 @@
     <section class="container dashboard">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <!--Community Dashboard-->
-        <div class="con-my-communities">
-            <div style="border:1px solid #f00;position:fixed;">
-                <div class="my-title" style="">
-                    <a href="/communities">Coaching & Collaboration</a>
-                </div>
-                <div class="my-communities-cards" style="border:1px solid #0ff;">
-                    %for i,community in enumerate(communities):
-                        %if i < 3:
-                        <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                            <div style="height:80px;"></div>
-                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                        </div>
-                        %endif
-                    %endfor 
-
-                    <div class="ds-view-all-communities" style="border:1px solid;">
-                        <a href="/communities">View All</a>
-                    </div>
-
-                    %if len(communities) < 3:
-                        <div class="my-standards" style="border:1px solid #f00;margin-top:10px;">
-                            <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                            <div class="my-courses-cards" style="text-align: center;">
-                                <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                                        <div style="height:100px;"></div>
-                                        <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
-                                </div>
-                            </div>
-                        </div>
-                    %endif
-                </div>
-            </div>
-        </div>
         <div class="con-my-courses">
             <div class="my-title">
                 <a href="/courses">My Course & Workshops</a>
@@ -611,25 +575,12 @@
                         </div>
                     %endif
                 %endfor
-                <div class="ds-view-all-courses">
-                    <a href="/my_courses">View All</a>
-                </div>
-                %if len(courses_incomplated) < 3:
-                    <div class="my-content" style="float:left;">
-                        <div class="my-title">
-                            <span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span>
-                        </div>
-                        <div class="my-courses-cards" style="text-align: center">
-                            <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                                <div style="height:100px;"></div>
-                                <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
-                            </div>
-                        </div>
-                    </div>
-                %endif
+            </div>
+            <div class="ds-view-all-courses">
+                <a href="/my_courses">View All</a>
             </div>
         </div>
-        <div class="con-my-courses-placeholder"></div>
+        <!--<div class="con-my-courses-placeholder"></div>-->
 
         <div class="con-maincontent-all clearfix">
             <div class="con-feed-activity">
@@ -685,55 +636,33 @@
             </div>
         </div>
         
-
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $(".image-link-style1").each(function(){
-                    getCollectionIcon(this, 'district', $(this).attr("key"));
-                });
-                $(".image-link-style2").each(function(){
-                    getCollectionIcon1(this, 'state', $(this).attr("key"));
-                });
-            })
-            function getCollectionIcon(self, type , key){
-                var path = "/static/images/" + type + "/";
-                key = key.replace(new RegExp(" ", "gm"), "_");
-                key = key.replace(new RegExp("'", "gm"), "");
-                var img = new Image();
-                img.src = path + key + ".jpg";
-                $(self).css("background-image","url("+img.src+")");
-                img.onerror = function () {
-                    $(".my_course_4").show();
-                    $(self).parent().parent("div").hide();
-                    $(self).parent().parent("div").siblings().css("margin-left","965px");
-                    if($(".my_course_4").eq(1).length > 0 ){
-                        // $(self).parent().parent("div").siblings().css("position","absolute");
-                        // $(self).parent().parent("div").siblings().css("top","700px");
-                    }else{
-                        $(self).parent().parent("div").siblings().css("position","relative");
-                    }
-                    
-                };
-            }
-            function getCollectionIcon1(self, type , key){
-                var path = "/static/images/" + type + "/";
-                key = key.replace(new RegExp(" ", "gm"), "_");
-                key = key.replace(new RegExp("'", "gm"), "");
-                var img = new Image();
-                img.src = path + key + ".jpg";
-                $(self).css("background-image","url("+img.src+")");
-                img.onerror = function () {
-                    $("#communities_1").show();
-                    $(self).parent().parent("div").hide();
-                    // $(self).parent().parent("div").prev().css("margin-bottom","20px");
-                    if($("#communities_1").length > 0){
-                        // $(self).parent().parent("div").prev().css("margin-top","-220px");
-                    }
-                };
-            }
-        </script>
+        <!--Community Dashboard-->
+        <div class="con-my-communities">
+            <div class="my-title">
+                <a href="/communities">Coaching & Collaboration</a>
+            </div>
+            <div class="my-communities-cards">
+                <%
+                    community_count = len(communities)
+                %>
+                %for community in communities:
+                    %if community['order'] < 3:
+                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                        <div style="height:80px;"></div>
+                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                    </div>
+                    %endif
+                %endfor
+            </div>
+            %if community_count == 0:
+                <div class="ds-view-all-communities">   
+            %else:
+                <div class="ds-view-all-communities" style="margin-top:-40px;"> 
+            %endif
+                <a href="/communities">View All</a>
+            </div>
+        </div>
         <div style="clear:both;"></div>
-        </div>  
     </section>
 </section>
 
@@ -940,12 +869,14 @@ $(document).ready(function(){
         var scrollTop = $(this).scrollTop();
 　　    var windowHeight = $(this).height();
         var scrollHeight = $(document).height();
+        var scrollTop_round = Math.round(scrollTop);
 
         console.log("scrollTop:",scrollTop);
         console.log("windowHeight:",windowHeight);
         console.log("scrollHeight:",scrollHeight);
+        console.log("scrollTop_round:",scrollTop_round);
 
-        if(scrollTop + windowHeight >= scrollHeight)
+        if(scrollTop_round + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
                 console.log("111");

@@ -208,18 +208,12 @@ def newdashboard(request, user_id=None):
                                'order': i})
         i = i + 1;
 
-    #@begin:Get my activity Group
-    #@date:2017-04-24
-    my_activity_group_list = myactivitystaticstore().get_grouptype()
-    #@end
-
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
         'show_courseware_links_for': show_courseware_links_for,
         'curr_user': user,
-        'communities': community_list,
-        'ma_group_list': my_activity_group_list
+        'communities': community_list
     }   
 
     return render_to_response('dashboard_new.html', context)
