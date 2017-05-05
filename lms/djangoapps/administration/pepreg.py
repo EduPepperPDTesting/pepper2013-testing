@@ -609,7 +609,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             try:
                 dates_list.append(date(year, month, date_item.day))
             except AttributeError:
-                raise Exception(date_item)
+                continue
         else:
             dates_list.append(date_item)
 
