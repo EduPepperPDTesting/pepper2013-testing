@@ -657,10 +657,10 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
-            table_tr_content += "<td>" + str(print_row[i][2]) + "</td>"
-            table_tr_content += "<td>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 2px !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
+            table_tr_content += "<td style='padding: 2px !important;'>" + str(print_row[i][2]) + "</td>"
+            table_tr_content += "<td style='padding: 2px !important;'>" + str(print_row[i][3]) + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 2px !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
