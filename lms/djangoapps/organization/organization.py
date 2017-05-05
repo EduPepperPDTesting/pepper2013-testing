@@ -281,7 +281,7 @@ def organization_remove_img(request):
                             break;
                     elif (column == "OrganizationLogo"):
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):                           
-                            for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):                               
+                            for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
                                 tmp2.itemValue = ""
                                 tmp2.save()

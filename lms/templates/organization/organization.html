@@ -1099,6 +1099,12 @@
 
 										$("#organization-table2_all").prop('checked', true);
 										$(".organization-item-select").prop('checked', true);
+										
+										$("input[name='organizational_dashboard_option']").val("0");
+										$("input[name='organizational_dashboard_on_menu']").val("0");
+										
+										$("#organizational_menu_color").val("#ffffff");
+										$("#organizational_dashboard_menu_text_color").val("#ffffff");
 									}else{
 										//----------
 										$("#org_btn_first_next").hide();
@@ -1117,6 +1123,7 @@
 								alert("error: " + r.Error);
 							}
 							loadwin.hide();
+							
 							organizational_dashboard_demo_div_reload();
 							isIconChange($("input[name='organizational_dashboard_is_icon']:checked").val());
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
@@ -2185,20 +2192,23 @@
 	
 	//--------------------------isPDDashboardChange
 	function isPDDashboardChange(pd_val){
-		if(pd_val == "1"){
-			$("#organization_pd_dashboard_set").show();
-		}else{
-			$("#organization_pd_dashboard_set").hide();
-		}
+		//$("#press").html(pd_val);
+		//if(pd_val == "1"){
+			//$("#organization_pd_dashboard_set").show();
+			//$("#organization_pd_dashboard_set").css("display", "none");
+		//}else{
+			//$("#organization_pd_dashboard_set").hide();
+			//$("#organization_pd_dashboard_set").css("display", "block");
+		//}
 	}
 	
 	//--------------------------isNewMenuChange
 	function isNewMenuChange(pd_val){
-		if(pd_val == "1"){
-			$(".new_menu_tr").show();
-		}else{
-			$(".new_menu_tr").hide();
-		}
+		//if(pd_val == "1"){
+			//$(".new_menu_tr").show();
+		//}else{
+			//$(".new_menu_tr").hide();
+		//}
 	}
 	
 	//--------------------------filterStr
