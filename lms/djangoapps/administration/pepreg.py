@@ -604,9 +604,12 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             try:
                 dates_list.append(date(year, month, date_item))
             except ValueError:
-                pass
+                continue
         elif(getrange == "1" or getrange == "3"):
-            dates_list.append(date(year, month, date_item.day))
+            try:
+                dates_list.append(date(year, month, date_item.day))
+            except ValueError:
+                raise Exception(date_item)
         else:
             dates_list.append(date_item)
 
