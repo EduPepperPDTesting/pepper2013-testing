@@ -608,7 +608,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         elif(getrange == "1" or getrange == "3"):
             try:
                 dates_list.append(date(year, month, date_item.day))
-            except ValueError:
+            except AttributeError:
                 raise Exception(date_item)
         else:
             dates_list.append(date_item)
