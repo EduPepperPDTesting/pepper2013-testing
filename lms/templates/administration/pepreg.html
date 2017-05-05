@@ -1514,9 +1514,9 @@
 			}
 			//akogan
 			console.log('dest-'+dest)
-			if ( dest ){
+			if ( dest > -1 ){
 			    $(".close-modal").remove();
-                $("<div class='close-modal'>"+dest+"✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
                     dlg.hide();
                 });
             }
