@@ -524,7 +524,6 @@ def getCalendarMonth(request):
         array_length = len(all_occurrences)
         training_list = []
 
-        date_list =[]
         date_list = getdatelist(daterangelist, _getrange, _year, _month)
 
         for item in all_occurrences:
@@ -605,22 +604,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     i = 0
     array_length = len(all_occurrences)
 
-    dates_list = []
-    for date_item in daterangelist:
-        # raise Exception(date_item)
-        if (getrange == "0"):
-            try:
-                dates_list.append(date(year, month, date_item))
-            except ValueError:
-                continue
-        elif(getrange == "1" or getrange == "3"):
-            try:
-                dates_list.append(date(year, month, date_item.day))
-            except AttributeError:
-                continue
-        else:
-            dates_list.append(date_item.date())
-
+    date_list = getdatelist(daterangelist, getrange, year, month)
+    
     for item in all_occurrences:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
@@ -634,7 +619,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         except:
             status = ""
 
-        if(item.training_date in dates_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
+        if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
                                                                                                        or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
                                                                                                                                                                                                                     and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
