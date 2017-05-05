@@ -596,6 +596,14 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
+
+    dates_list = []
+    for date in daterangelist:
+        if (_getrange == "0" or getrange == "1" or _getrange == "3"):
+            dates_list.append(datetime.datetime(year, month, date))
+        else:
+            dates_list.append(date)
+
     for item in all_occurrences:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
@@ -609,9 +617,9 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         except:
             status = ""
 
-        if(arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
+        if(item.training_date in dates_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
                                                                                                        or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
-                                                                                                                                                                                                                    and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))):
+                                                                                                                                                                                                                    and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
             print_row[i].append(item.name)
