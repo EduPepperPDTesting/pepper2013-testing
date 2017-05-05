@@ -611,8 +611,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             except AttributeError:
                 continue
         else:
-            raise Exception(date_item)
-            dates_list.append(date_item)
+            dates_list.append(date_item.date())
 
     for item in all_occurrences:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
