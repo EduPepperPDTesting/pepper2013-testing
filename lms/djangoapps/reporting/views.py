@@ -12,7 +12,6 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-import logging
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
@@ -23,8 +22,6 @@ from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
-from xmodule.remindstore import myactivitystore
-log = logging.getLogger("tracking")
 
 def postpone(function):
     """
@@ -306,15 +303,7 @@ def report_save(request, report_id):
                 report.access_id = request.user.profile.district.id
             elif access_level == 'School':
                 report.access_id = request.user.profile.school.id
-            report.save()
-            
-            if action == 'new':
-                ma_db = myactivitystore()                
-                my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
-                "URLValues": {"report_id": report.id},    
-                "TokenValues": {"report_id": report.id}, 
-                "LogoValues": {"report_id": report.id}}
-                ma_db.insert_item(my_activity)
+            report.save()           
 
             ReportViews.objects.filter(report=report).delete()
             for i, view in views.iteritems():
@@ -384,10 +373,7 @@ def report_delete(request):
             rid = report.id
             rname = report.name
             
-            Reports.objects.get(id=report_id).delete()
-            
-            ma_db = myactivitystore()                
-            ma_db.set_item_reporting(rid, rname)
+            Reports.objects.get(id=report_id).delete()          
 
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
@@ -710,8 +696,8 @@ def get_query_distinct(is_distinct, columns):
         for col in columns:
             field = col.column.column
             field_value = '$' + col.column.column
-            distinct['$']['_id'][field] = field_value
-            distinct['$groupgroup'][field] = {'$push': field_value}
+            distinct['$group']['_id'][field] = field_value
+            distinct['$group'][field] = {'$push': field_value}
             column_str += "'" + field + "':{'$arrayElemAt': ['" + field_value + "', 0]},"
         return ',' + str(distinct) + ',{"$project":{' + column_str[:-1] + '}}'
     return distinct
