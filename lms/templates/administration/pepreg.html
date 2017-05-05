@@ -1515,7 +1515,7 @@
 			//akogan
 			if ( dest ){
 			    $(".close-modal").remove();
-                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                $("<div class='close-modal'>"+dest+"✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
                     dlg.hide();
                 });
             }
