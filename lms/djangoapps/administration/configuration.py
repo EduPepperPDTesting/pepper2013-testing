@@ -330,7 +330,9 @@ def save_school_year(task, request):
             i += 1
             task.process_lines = i
         remove_time()
+        log.debug("11111111111111111111111111111111111111111")
         remove_pepreg_training()
+        log.debug("66666666666666666666666666666666666")
     except Exception as e:
             db.transaction.rollback()
             log.debug("import error %s" % e)
@@ -355,6 +357,10 @@ def remove_time():
 
 
 def remove_pepreg_training():
+    log.debug("2222222222222222222222222222222222222222")
     PepRegTraining.objects.delete()
+    log.debug("33333333333333333333333333333333333333333")
     PepRegInstructor.objects.delete()
+    log.debug("44444444444444444444444444444444444444444444")
     PepRegStudent.objects.delete()
+    log.debug("5555555555555555555555555555555555555555555")

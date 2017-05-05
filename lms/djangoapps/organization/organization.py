@@ -279,7 +279,20 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break;
                             break;
-                            
+                    elif (column == "OrganizationLogo"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):                           
+                            for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):                               
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+                                
+                                data = {'Success': True}
+                                break;
+                            break;
+
                     elif (column == "LogoProfile"):
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationAttributes.objects.filter(organization=tmp1):
@@ -418,6 +431,10 @@ def organizational_save_base(request):
         menu_text_size = request.POST.get("menu_text_size", "")
         space_between_items = request.POST.get("space_between_items", "")
         menu_color = request.POST.get("menu_color", "")
+        is_new_menu = request.POST.get("is_new_menu", "")
+        my_feed_show = request.POST.get("my_feed_show", "")
+        my_activities_show = request.POST.get("my_activities_show", "")
+        is_my_feed_default = request.POST.get("is_my_feed_default", "")
 
         if(oid):
             # --------------OrganizationMetadata
@@ -525,6 +542,18 @@ def organizational_save_base(request):
             # --------------OrganizationMenu Space Betwwen Items
             org_OrganizationMenuSave(org_metadata, "Space Betwwen Items", space_between_items)
 
+            # --------------OrganizationMenu Is New Menu
+            org_OrganizationMenuSave(org_metadata, "Is New Menu", is_new_menu)
+
+            # --------------OrganizationMenu My Feed Show
+            org_OrganizationMenuSave(org_metadata, "My Feed Show", my_feed_show)
+
+            # --------------OrganizationMenu My Activities Show
+            org_OrganizationMenuSave(org_metadata, "My Activities Show", my_activities_show)
+
+            # --------------OrganizationMenu Is My Feed Default
+            org_OrganizationMenuSave(org_metadata, "Is My Feed Default", is_my_feed_default)
+
             # --------------organizationDashboard
             if(dashboard_option):
                 org_dashboard = OrganizationDashboard()
@@ -571,6 +600,9 @@ def org_upload(request):
 
             if file_type == "home_logo":
                 imgx = request.FILES.get("organizational_base_home_logo", None)
+            
+            elif file_type == "organization_logo":
+                imgx = request.FILES.get("organizational_base_organization_logo", None)
 
             elif file_type == "profile_logo":
                 imgx = request.FILES.get("organizational_base_profile_logo", None)
@@ -598,17 +630,28 @@ def org_upload(request):
                 org_attr = OrganizationAttributes()
                 for tmp1 in OrganizationAttributes.objects.filter(organization=organization):
                     org_attr = tmp1
-                    break;
-
-                org_menu = OrganizationMenu()
-                for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="logo"):
-                    org_menu = tmp1
-                    break;
+                    break;                
 
                 org_attr.organization = organization
-                org_menu.organization = organization
+                
+                org_menu = OrganizationMenu()
                 if file_type == "home_logo":
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="logo"):
+                        org_menu = tmp1
+                        break;
+
+                    org_menu.organization = organization
                     org_menu.itemType = "logo"
+                    org_menu.itemValue = file_type + ext
+                    org_menu.save()
+
+                elif file_type == "organization_logo":
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="organization_logo"):
+                        org_menu = tmp1
+                        break;
+
+                    org_menu.organization = organization
+                    org_menu.itemType = "organization_logo"
                     org_menu.itemValue = file_type + ext
                     org_menu.save()
 
