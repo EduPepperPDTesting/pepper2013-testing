@@ -357,10 +357,9 @@ def remove_time():
 
 
 def remove_pepreg_training():
-    log.debug("2222222222222222222222222222222222222222")
+    log.debug("222222222222222222222222222222222")
+    data = PepRegTraining.objects.all()
+    log.debug(data)
     PepRegTraining.objects.delete()
-    log.debug("33333333333333333333333333333333333333333")
     PepRegInstructor.objects.delete()
-    log.debug("44444444444444444444444444444444444444444444")
     PepRegStudent.objects.delete()
-    log.debug("5555555555555555555555555555555555555555555")
