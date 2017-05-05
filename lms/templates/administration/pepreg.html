@@ -650,6 +650,8 @@
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
 		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false'}, function(data){
 
+		    console.log("range-"+$("#calendar_select_range").val())
+
 	        if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
 	           $("#calendar-month-weekdays").css("text-align", "left");
 	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
@@ -1281,7 +1283,7 @@
                         topY += 2; //-= 269;
                         existingSlots = $(".completeSlot:not(" + iClass + ")").length;
                         if(existingSlots == 0){
-                            leftX = $(iClass).first().find("label").offset().left - 275; //453;
+                            leftX = $(iClass).first().find("label").offset().left - 375; //453;
                         }else{
                             //leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
                             leftX = $(".completeSlot:not(" + iClass + ")").last().position().left + 110;
