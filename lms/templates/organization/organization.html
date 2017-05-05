@@ -400,39 +400,39 @@
                     <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="1" />New Menu</label>
                 </td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td width="250" class="org_td1">Top Menu Color: </td>
                 <td width="280"><input id="organizational_menu_color" type="color" /> </td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1">Organization Logo: </td>
                 <td id="organizational_base_organization_logo_p"></td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1">Logo: </td>
                 <td id="organizational_base_home_logo_p"></td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" checked="checked" />All Words</label>
                     <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" />All Icons</label>
                     <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" />Text Below Icons</label>
                 </td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1 org_td1_demo">Menu Text Settings (Maximum 9 items): </td>
                 <td></td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1 org_td1_demo" style="padding-left:30px;">Color: </td>
                 <td><input id="organizational_dashboard_menu_text_color" type="color" /> </td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1 org_td1_demo" style="padding-left:30px;">Font: </td>
                 <td>
                 	<select id="organizational_dashboard_menu_text_font">
@@ -460,12 +460,12 @@
                 </td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1 org_td1_demo" style="padding-left:30px;">Size: </td>
                 <td><select id="organizational_dashboard_menu_text_size"></select></td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1">Space Between Items(0 ~ 100): </td>
                 <td>                   
                     <input type="button" id="organizational_dashboard_space_between_less" value="&ndash;" class="small_btn" />
@@ -474,19 +474,19 @@
                 </td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td colspan="3">
                 	<div id="organizational_dashboard_demo_div" style="float:left; width:975px; height:76px; border: 1px solid #c0c0c0; ">
                     </div>
                     <input type="button" onclick="organizational_dashboard_demo_div_reload()" value="Reload" class="small_btn" style="float:left; margin:50px 0 0 10px;" />
                 </td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1">Menu Items (Maximum 9 items): </td>
                 <td></td>
                 <td></td>
             </tr>
-            <tr>
+            <tr class="new_menu_tr">
                 <td colspan="3" class="org_td1">
                 	<div class="organizational_dashboard_menu_div">
                     	<div class="organizational_dashboard_menu_head1">
@@ -956,17 +956,24 @@
 
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
-									}									
-									
-									$("input[name='organizational_dashboard_is_icon']").change();
+									}
 									if(r["Text Color"]){
 										$("#organizational_dashboard_menu_text_color").val(r["Text Color"]);
-									}
-									
+									}									
 									$("#organizational_dashboard_menu_text_font").val(r["Text Font"]);
 									$("#organizational_dashboard_menu_text_size").val(r["Text Size"]);
-									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);
-												
+									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);									
+									$("input[name='organizational_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
+									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
+									if(r["My Feed Show"] == "1"){
+										$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");										
+									}
+									if(r["My Activities Show"] == "1"){
+										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
+									}									
+									if(r["Is New Menu"] == "1"){
+										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
+									}												
 									//----------
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
@@ -1113,6 +1120,7 @@
 							organizational_dashboard_demo_div_reload();
 							isIconChange($("input[name='organizational_dashboard_is_icon']:checked").val());
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
+							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
 						});
 					});
 				}
@@ -1339,6 +1347,8 @@
 				column = "LogoHome";
 			}else if(eid == "organizational_base_profile_logo"){
 				column = "LogoProfile";
+			}else if(eid == "organizational_base_organization_logo"){
+				column = "OrganizationLogo";
 			}
 			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: org_current_id, column: column, db: db}, function (r) {	
 				if (r.Success){
@@ -1412,6 +1422,14 @@
 			logo.css({"float": "left", "margin": "8px 0 0 5px"});
 			$("#organizational_dashboard_demo_div").append(logo);
 		}
+		var organization_logo = $("#organizational_base_organization_logo_p").next().find("img").clone(true);		
+		if(organization_logo.length > 0){
+			organization_logo.removeAttr("width");
+			organization_logo.attr("height", 58);
+			organization_logo.css({"float": "left", "margin": "8px 0 0 5px"});
+			$("#organizational_dashboard_demo_div").append(organization_logo);
+		}
+		
 		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
 		var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
 		var space = $("#organizational_dashboard_space_between").val();
@@ -1422,6 +1440,7 @@
 		$(".menu_items_menu_item").each(function(){
 			if($(this).val() != ""){
 				var tmp_item;				
+				//------------------all icons
 				if(is_icon == "1"){
 					var img_src = "";
 					var el_tmp1 = $(this).parent().parent().find(".organizational_dashboard_menu_icon_view");
@@ -1431,9 +1450,38 @@
 							img_src = el_tmp2.attr("src");
 						}
 					}
-					tmp_item = $("<table><tr><td align='center'><img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' /></td></tr><tr><td align='center' style='font-size:10px;'>" + $(this).val() + "</td></tr></table>");
-					tmp_item.css({"float": "right", "text-align": "center", "margin": "5px " + space + "px 0 0"});					
-				}else{
+
+					tmp_item = $("<span></span>");
+					if(is_icon_width_text == "0"){
+						tmp_item.css({"float": "right", "margin": "15px " + space + "px 0 0", "width": "45px", "height": "45px", "overflow": "hidden"});
+						tmp_item.append("<img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' />");
+					}else{
+						tmp_item.css({"float": "right", "margin": "5px " + space + "px 0 0", "width": "45px", "height": "65px", "overflow": "hidden"});
+						
+						tmp_item_img = $("<img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' />");
+						tmp_item_img.css({"float": "left"});
+						
+						tmp_item_txt = $("<span>" + $(this).val() + "</span>");
+						tmp_item_txt.css({
+							"float": "left", 
+							"width": "45px", 
+							"height": "20px", 
+							"line-height": "20px", 
+							"font-size": "10px", 
+							"text-align": "center",
+							"overflow": "hidden",
+							"text-overflow": "ellipsis",
+							"white-space": "nowrap"
+						});
+						
+						tmp_item.append(tmp_item_img);
+						tmp_item.append(tmp_item_txt);
+						tmp_item_txt.attr("title", tmp_item_txt.width());
+					}
+				}
+				    
+				//------------------all words
+				else{
 					tmp_item = $("<span>" + $(this).val() + "</span>");
 					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
 				}
@@ -1818,12 +1866,17 @@
 			$(".org_edit_selected").removeClass("org_edit_selected");
 		});
 		
-		//--------------------------org_btn_last_save 
+		//------------------------------------------------------------------------------org_btn_last_save 
 		$(".org_btn_last_save").click(function(){
 			var loadwin = new LoadingWin();
 						
 			if($("#organizational_base_home_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_home_logo").val())){
-				alert("Home Page Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				alert("Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
+			if($("#organizational_base_organization_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_organization_logo").val())){
+				alert("Organization Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
 				loadwin.hide();
 				return;
 			}
@@ -1909,6 +1962,11 @@
 			var menu_text_size = $("#organizational_dashboard_menu_text_size").val();
 			var space_between_items = $("#organizational_dashboard_space_between").val();				
 			
+			var is_new_menu = $("input[name='organizational_dashboard_on_menu']:checked").val();
+			var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
+			var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
+			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();			
+						
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
 				for_district: for_district,
@@ -1919,6 +1977,10 @@
 				dashboard_option: dashboard_option,
 				is_icon: is_icon,
 				is_icon_width_text: is_icon_width_text,
+				is_new_menu: is_new_menu,
+				my_feed_show: my_feed_show,
+				my_activities_show: my_activities_show,				
+				is_my_feed_default: is_my_feed_default,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,
@@ -1926,6 +1988,9 @@
 				menu_color: menu_color
 			}, function (r) {
 				if (r.Success){
+					if($("#organizational_base_organization_logo").val() != ""){
+						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
+					}
 					if($("#organizational_base_home_logo").val() != ""){
 						organizationUploadFile("organizational_base_home_logo", "home_logo");
 					}
@@ -2088,7 +2153,12 @@
 		$("input[name='organizational_dashboard_option']").change(function(){
 			isPDDashboardChange($(this).val());
 		});
-    });	
+		
+		//--------------------------organizational_dashboard_on_menu change
+		$("input[name='organizational_dashboard_on_menu']").change(function(){
+			isNewMenuChange($(this).val());
+		});
+	});	
 	
 	//--------------------------isIconChange
 	function isIconChange(is_icon){
@@ -2119,6 +2189,15 @@
 			$("#organization_pd_dashboard_set").show();
 		}else{
 			$("#organization_pd_dashboard_set").hide();
+		}
+	}
+	
+	//--------------------------isNewMenuChange
+	function isNewMenuChange(pd_val){
+		if(pd_val == "1"){
+			$(".new_menu_tr").show();
+		}else{
+			$(".new_menu_tr").hide();
 		}
 	}
 	
