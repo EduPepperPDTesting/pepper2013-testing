@@ -602,9 +602,9 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         # raise Exception(date_item)
         if (getrange == "0"):
             try:
-                dates_list.append(date(year, month, date_item + 1))
+                dates_list.append(date(year, month, date_item))
             except ValueError:
-                raise Exception(date_item)
+                pass
         elif(getrange == "1" or getrange == "3"):
             dates_list.append(date(year, month, date_item.day))
         else:
