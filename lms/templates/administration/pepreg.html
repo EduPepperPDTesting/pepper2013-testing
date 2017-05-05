@@ -47,6 +47,8 @@
 
 <style>
     /*akogan*/
+    html {font-size: 16px !important;}
+
     .label {color: #000000 !important;}
     .switch i{ bottom: 15px !important;}
     .step-page .move {right: 25px !important;}
@@ -54,7 +56,9 @@
     /*.training-row {font-family: "open sans" !important;}*/
     .step-content { width: 700px !important;}
 
-    .print_col {background-color: #9bf442; border: 1px #aaa solid;}
+    .print_col {background-color: #9bf442; border: 1px #aaa solid !important; text-align: center}
+
+    .printview tr td {padding: 2px !important; height: 100%; border: 1px #ccc solid;}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -320,12 +324,15 @@
             </table>
         </div>
         <div style="padding:10px;text-align:right;">
-          	<div>
+            <div class="cal_pdf" style="display:none;">
+                <img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>
+            </div>
+          	<div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">I can register: </span><span class="calendar_exp_color c3"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">I am registered: </span><span class="calendar_exp_color c2"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
             </div>
-            <div>
+            <div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
             </div>
@@ -1044,6 +1051,8 @@
 		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
 		        $(this).parent().parent().siblings().children().attr('disabled', false);
 		        $("#calendar_btn_previous_y").css("margin-left", "0px");
+		        $(".cal_pdf").hide();
+		        $(".training_legend").show();
                 _cal_view="screen";
             }else if(viewVal == "1"){
                 $("#view_select .btn-input-grp").val("Print View");
@@ -1054,10 +1063,12 @@
                 }else{
                     $("#calendar-month-weekdays th").hide();
                 }
-                $("#calendar-month-weekdays").append("<th class='print_col'>Training Name and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col'>Location</th>");
+                $("#calendar-month-weekdays").append("<th class='print_col' style='width:25% !important'>Training Name <br/>and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col' style='width:25% !important'>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
 		        $(this).parent().parent().siblings(":not(#calendar_select_categories)").children().attr('disabled', true);
 		        $("#calendar_btn_previous_y").css("margin-left", "15px");
+		        $(".training_legend").hide();
+		        $(".cal_pdf").show();
                  _cal_view="print";
             }
             console.log(_cal_view);
@@ -2318,21 +2329,23 @@
             });
         });
 
-        $("#calendar-month").on("click", "#download_calendar_pdf", function () {
-            $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
-            year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
-            catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'true'}, function(trainingList){
-                console.log(trainingList);
-                var allTrainings = [];
-                var i = 0;
+        $(".cal_pdf").on("click", "#download_calendar_pdf", function () {
+            if($(".printview").length > 0){
+                $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
+                year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
+                catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'true'}, function(trainingList){
+                    console.log(trainingList);
+                    var allTrainings = [];
+                    var i = 0;
 
-                for (var training_id in trainingList) {
-                    allTrainings.push(trainingList[training_id]);
-                    i++;
-                }
+                    for (var training_id in trainingList) {
+                        allTrainings.push(trainingList[training_id]);
+                        i++;
+                    }
 
-                window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
-            });
+                    window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                });
+            }
         });
     });
 

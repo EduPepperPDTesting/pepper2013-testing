@@ -81,6 +81,19 @@ from permissions.utils import check_access_level, check_user_perms
    font-weight: normal;
    font-style:normal;
  }
+ .smallcircle_comment{
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+ }
+ .comment-profile-image-div{
+  width:34px;
+  height:34px;
+  margin-top:5px;
+  position:relative;
+ }
 </style>
 <script type="text/javascript">
   String.prototype.escape = function(chars) {
@@ -258,9 +271,9 @@ from permissions.utils import check_access_level, check_user_perms
     <div class='post-total-likes'>{likes} Likes</div>
     <div class='post-total-comments'>{sub_count} Comments</div>
   </div>
-  <div class='comment-section' style="display:{is_announcement?none;}">
+  <div class='comment-section' style="display:{is_announcement?none;};width:97.3% !important;">
   {sub_html}
-  {comment_disabled!<img src='/user_photo/{user_id}' class='comment-profile-image'> </img>}
+  {comment_disabled!<img src='/user_photo/${request.user.id}' class='comment-profile-image'> </img>}
   {comment_disabled!<textarea class='add-comment-text' placeholder='Add a comment...'></textarea>}
   </div>
   <div class='ds-post-end_line'></div>
@@ -271,17 +284,17 @@ from permissions.utils import check_access_level, check_user_perms
   <table>
   <tbody>
   <tr>
-  <td>
+  <td style="width:38px;">
   <input type="hidden" name="comment_id" value="{_id}" />
   <a href="/dashboard/{user_id}" class="comment-anchor-text">
-  {online?:<img src='/static/images/online-3.png' class='smallcircle'></img>}
-  <img class="comment-profile-image hoverable-profile"
-  src="/user_photo/{user_id}"
-  data-name="{first_name} {last_name}"
-  data-id="{user_id}"
-  data-uname="{username}"
-  data-email="{email}"
-  {online?data-skype={skype_username}} />
+  <div class="comment-profile-image-div">
+    {online?<img src='/static/images/online-3.png' class='smallcircle_comment'></img>}
+    <img class="comment-profile-image hoverable-profile" style="margin-top:0px;" src="/user_photo/{user_id}"
+    data-name="{first_name} {last_name}"
+    data-id="{user_id}"
+    data-uname="{username}"
+    data-email="{email}"
+    {online?data-skype={skype_username}} /></div>
   </a>
   </td>
   <td>

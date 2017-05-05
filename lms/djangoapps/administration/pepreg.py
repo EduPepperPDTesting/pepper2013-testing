@@ -500,7 +500,7 @@ def getCalendarMonth(request):
     if(request.GET.get('printpdf') == 'true'):
         array_length = len(all_occurrences)
         training_list=[]
-        training_keys = list(range(array_length)) #['name', 'info', 'date', 'time', 'room', 'geo']
+
         training_dict = {}
         i = 0
 
@@ -514,15 +514,32 @@ def getCalendarMonth(request):
             # training_list[i].append(training_start_time)
             # training_list[i].append(item.classroom)
             # training_list[i].append(item.geo_location)
+            arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+            allow = "1" if item.allow_registration else "0"
+            r_l = "1" if reach_limit(item) else "0"
+            allow_student_attendance = "1" if item.allow_student_attendance else "0"
+            status = ""
+            try:
+                userObj = request.session.get('user_obj', None)
+                if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                    status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+            except:
+                status = ""
 
-            training_list.append(item.id)
+            if (arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or
+                                                                                                                  (status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2")))) or \
+                    (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))):
+                training_list.append(item.id)
+            else:
+                array_length -= 1
+
+        training_keys = list(range(array_length))  # ['name', 'info', 'date', 'time', 'room', 'geo']
 
         training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
 
             # if (i < array_length - 1):
             #     i += 1
             #     training_list.append([])
-
 
         return HttpResponse(json.dumps(training_dict), content_type="application/json")
 
@@ -575,45 +592,85 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist):
+def build_print_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterangelist):
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
     for item in all_occurrences:
+        arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+        allow = "1" if item.allow_registration else "0"
+        r_l = "1" if reach_limit(item) else "0"
+        allow_student_attendance = "1" if item.allow_student_attendance else "0"
+        status = ""
+        try:
+            userObj = request.session.get('user_obj', None)
+            if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+        except:
+            status = ""
 
-        training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+        if(arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
+                                                                                                       or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
+                                                                                                                                                                                                                    and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))):
+            training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
-        print_row[i].append(item.name)
-        print_row[i].append(item.description)
-        print_row[i].append(item.training_date)
-        print_row[i].append(training_start_time)
-        print_row[i].append(item.classroom)
-        print_row[i].append(item.geo_location)
+            print_row[i].append(item.name)
+            print_row[i].append(item.description)
+            print_row[i].append(item.training_date)
+            print_row[i].append(training_start_time)
+            print_row[i].append(item.classroom)
+            print_row[i].append(item.geo_location)
 
-        if(i < array_length - 1):
-            i += 1
-            print_row.append([])
+            if(i < array_length - 1):
+                i += 1
+                print_row.append([])
+        else:
+            array_length -= 1
 
     if(print_row):
         i = 0
         table_tr_content = ""
         while(i < array_length):
-            table_tr_content += "<tr class='printview'>"
 
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][0]) + "<br/>" + str(print_row[i][1]) +"</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + "<br/>" + str(print_row[i][5]) + "</td>"
+            row_height = "30"
+            ti_text_span = str(print_row[i][1])
+            tg_text_span = str(print_row[i][5])
+            if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
+                if(len(ti_text_span) >= len(tg_text_span)):
+                    row_height = str((1 + len(ti_text_span) / 36) * 15)
+                    ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
+                    if (len(tg_text_span) > 36):
+                        tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</span>"
+                    else:
+                        tg_text_span = "<div style='margin: 2px;'>" + tg_text_span + "</div>"
+                else:
+                    row_height = str((1 + len(tg_text_span) / 36) * 15)
+                    tg_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + tg_text_span + "</div>"
+                    if (len(ti_text_span) > 36):
+                        ti_text_span = "<div style='text-align: left; margin: 2px; line-height: 20px !important;'>" + ti_text_span + "</div>"
+                    else:
+                        ti_text_span = "<div style='margin: 2px;'>" + ti_text_span + "</div>"
+            else:
+                ti_text_span =  "<div style='margin: 2px;'>" + ti_text_span + "</div>"
+                tg_text_span = "<div style='margin: 2px;'>" + tg_text_span + "</div>"
+
+            row_height += "px !important"
+            table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
+
+            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][0]) + "<br/>" + ti_text_span +"</td>"
+            table_tr_content += "<td>" + str(print_row[i][2]) + "</td>"
+            table_tr_content += "<td>" + str(print_row[i][3]) + "</td>"
+            table_tr_content += "<td style='width: 25% !important;'>" + str(print_row[i][4]) + "<br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
             i += 1
 
-        table_tr_content += "<tr class='printview' style='height:38px;'>" \
-                            "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \
-                            "<img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>" \
-                            "</td>" \
-                            "</tr>"
+        # table_tr_content += "<tr class='printview' style='height:38px;'>" \
+        #                     "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \
+        #                     "<img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>" \
+        #                     "</td>" \
+        #                     "</tr>"
 
         return table_tr_content
 
@@ -1193,20 +1250,21 @@ def download_calendar_pdf(request):
     # ------------------------------------------------------------------------------------head
     c.setFillColor(colors.lawngreen)
 
-    base_table_y = 510
-    c.rect(10, base_table_y, 115, 30, fill=1)
-    c.rect(115, base_table_y, 115, 30, fill=1)
-    c.rect(220, base_table_y, 115, 30, fill=1)
-    c.rect(325, base_table_y, 115, 30, fill=1)
+    base_table_y = 650
+    c.rect(30, base_table_y, 172, 30, fill=1)
+    c.rect(202, base_table_y, 104, 30, fill=1)
+    c.rect(306, base_table_y, 104, 30, fill=1)
+    c.rect(410, base_table_y, 172, 30, fill=1)
 
     c.setStrokeColor(colors.black)
     c.setFillColor(colors.black)
     c.setFont("Helvetica", 10)
 
-    c.drawCentredString(50, base_table_y + 10, "Training Name and description")
-    c.drawCentredString(155, base_table_y + 10, "Training Date")
-    c.drawCentredString(260, base_table_y + 10, "Start Time")
-    c.drawCentredString(365, base_table_y + 10, "Location")
+    c.drawCentredString(116, base_table_y + 15, "Training Name")
+    c.drawCentredString(116, base_table_y + 5, "and description")
+    c.drawCentredString(254, base_table_y + 10, "Training Date")
+    c.drawCentredString(358, base_table_y + 10, "Start Time")
+    c.drawCentredString(496, base_table_y + 10, "Location")
 
     # ------------------------------------------------------------------------------------tr
     base_font_size = 8
@@ -1222,75 +1280,125 @@ def download_calendar_pdf(request):
     c.setFont("Helvetica", base_font_size)
 
     for training_id in training_list:
-        tr_height = 30
 
         if (training_id):
             try:
+                tr_height = 30
+
                 training = PepRegTraining.objects.get(id=training_id)
 
                 training_name = training.name
                 training_desc = training.description
-                training_info = training_name + training_desc
-                info_cell_width = int(len(training_info) / 3)
+                info_text_width = int(len(training_desc) / 2)
+
+                training_date = training.training_date
+
+                training_time = training.training_time_start
 
                 training_room = training.classroom
                 training_geo = training.geo_location
-                training_loc = training_room + training_geo
-                loc_cell_width = int(len(training_loc) / 3)
+                loc_text_width = int(len(training_geo) / 2)
 
-                long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
-                long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-                if (long_cell_width > 105):
-                    tr_height += 10
+                long_text = training_desc if info_text_width >= loc_text_width else training_geo
+                long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
+
+                if (long_text_width > 170):
+
+                    num_lines = (long_text_width / 170)  # number of lines to fit
+                    if (round(num_lines) < num_lines):  # round up
+                        num_lines += 1
+
+                    tr_height += 10 * (num_lines - 1)
+
+                ty -= tr_height
+
             except:
-                raise Exception(training_id + ' No Training')
+                raise Exception('No Training ' + str(training_id))
 
-        c.rect(10, ty, 115, tr_height, fill=0)
-        c.rect(115, ty, 115, tr_height, fill=0)
-        c.rect(220, ty, 115, tr_height, fill=0)
-        c.rect(325, ty, 115, tr_height, fill=0)
+        c.rect(30, ty, 172, tr_height, fill=0)
+        c.rect(202, ty, 104, tr_height, fill=0)
+        c.rect(306, ty, 104, tr_height, fill=0)
+        c.rect(410, ty, 172, tr_height, fill=0)
 
-        if (training_info):
-            training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
-            if (training_desc_length > 100):
-                training_desc_length = round((int(len(training_desc) / 2)), 0)
-                while 1:
-                    training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
-                    if (training_desc_length > 100):
+        if (training_name):
+            c.drawCentredString(116, ty + tr_height - 10, str(training_name))
+            string_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
+            if (training_desc and string_desc_length > 160):
+                num_string = (string_desc_length / 160) + 1 #number of lines to draw
+
+                training_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
+                while 1: #get first line size
+                    string_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
+                    if (string_desc_length >= 160):
                         break
                     else:
-                        training_desc_length += 1
+                        training_desc_length += 1 #add to end index to increase line size
 
-                c.drawString(13, ty + tr_height - 3, training_name)
-                c.drawString(13, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
-                c.drawString(13, ty + tr_height - 23, training_desc[int(training_desc_length):])
+                num = 1
+                start_index = 0
+                end_draw = 0
+                while(num < num_string):
+                    if (len(str(training_desc)) > int(training_desc_length)):
+                        end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
+                        end_index = end_index + start_index  if end_index > 0 else training_desc_length - 1
+                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
+                        start_index = end_index + 1
+                        training_desc_length = start_index + training_desc_length
+                    elif(end_draw == 0):
+                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]).encode('utf-8'))
+                        end_draw = 1
+                    num += 1
+            elif(len(training_desc) > 0):
+                c.drawCentredString(116, ty + tr_height - 20, str(training_desc).encode('utf-8'))
+
+        if (training_date):
+            c.drawCentredString(254, ty + tr_height - 10, str(training_date))
+
+        if (training_time):
+            get_hour_str = str(training_time)[0: 2]
+            if(int(get_hour_str) < 12):
+                ampm_str = " AM"
+                hour_str = get_hour_str
             else:
-                c.drawCentredString(60, ty + tr_height - 10, training_name)
-                c.drawCentredString(60, ty + tr_height - 20, training_desc)
+                ampm_str = " PM"
+                if(int(get_hour_str) > 12):
+                    hour_str = str(int(get_hour_str) - 12)
+                else:
+                    hour_str = get_hour_str
 
-        if (training.training_date):
-            c.drawCentredString(175, ty + tr_height - 15, training.training_date)
+            c.drawCentredString(358, ty + tr_height - 10, hour_str + str(training_time)[2: -3] + ampm_str)
 
-        if (training.training_time_start):
-            c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
+        if (training_room or training_geo):
+            if(len(training_room) > 0):
+                    c.drawCentredString(496, ty + tr_height - 10, str(training_room))
+            string_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
+            if (training_geo and string_geo_length > 160):
+                num_string = (string_geo_length / 160) + 1 #number of lines to draw
 
-        if (training_loc):
-            training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
-            if (training_geo_length > 100):
-                training_geo_length = round((int(len(training_geo) / 2)), 0)
-                while 1:
-                    training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
-                    if (training_geo_length > 100):
+                training_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
+                while 1: #get first line size
+                    string_geo_length = stringWidth(training_geo[0: int(training_geo_length)], "Helvetica", base_font_size)
+                    if (string_geo_length >= 160):
                         break
                     else:
-                        training_geo_length += 1
+                        training_geo_length += 1 #add to end index to increase line size
 
-                c.drawString(328, ty + tr_height - 3, training_room)
-                c.drawString(328, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
-                c.drawString(328, ty + tr_height - 23, training_geo[int(training_geo_length):])
-            else:
-                c.drawCentredString(385, ty + tr_height - 10, training_room)
-                c.drawCentredString(385, ty + tr_height - 20, training_geo)
+                num = 1
+                start_index = 0
+                end_draw = 0
+                while (num < num_string):
+                    if(len(str(training_geo)) > int(training_geo_length)):
+                        end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
+                        end_index = end_index + start_index if end_index > 0 else training_geo_length - 1
+                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
+                        start_index = end_index + 1
+                        training_geo_length = start_index + training_geo_length
+                    elif(end_draw == 0):
+                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]).encode('utf-8'))
+                        end_draw = 1
+                    num += 1
+            elif(len(training_geo) > 0):
+                c.drawCentredString(496, ty + tr_height - 20, str(training_geo).encode('utf-8'))
 
         if training_index == lastpos:
             c.showPage()
@@ -1298,8 +1406,25 @@ def download_calendar_pdf(request):
             if (ty < 60):
                 ty = 790
                 c.showPage()
+
+                c.setFillColor(colors.lawngreen)
                 c.setStrokeColor(colors.black)
+
+                c.setFont("Helvetica", 10)
+
+                c.rect(30, ty, 172, 30, fill=1)
+                c.rect(202, ty, 104, 30, fill=1)
+                c.rect(306, ty, 104, 30, fill=1)
+                c.rect(410, ty, 172, 30, fill=1)
+
                 c.setFillColor(colors.black)
+
+                c.drawCentredString(116, ty + 15, "Training Name")
+                c.drawCentredString(116, ty + 5, "and description")
+                c.drawCentredString(254, ty + 10, "Training Date")
+                c.drawCentredString(358, ty + 10, "Start Time")
+                c.drawCentredString(496, ty + 10, "Location")
+
                 c.setFont("Helvetica", base_font_size)
 
             training_index += 1
