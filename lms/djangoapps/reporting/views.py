@@ -562,9 +562,6 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
-    log.debug("111111111111111111111111111111111111")
-    log.debug(aggregate_query)
-    log.debug("111111111111111111111111111111111111")
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
@@ -713,8 +710,8 @@ def get_query_distinct(is_distinct, columns):
         for col in columns:
             field = col.column.column
             field_value = '$' + col.column.column
-            distinct['$group']['_id'][field] = field_value
-            distinct['$group'][field] = {'$push': field_value}
+            distinct['$']['_id'][field] = field_value
+            distinct['$groupgroup'][field] = {'$push': field_value}
             column_str += "'" + field + "':{'$arrayElemAt': ['" + field_value + "', 0]},"
         return ',' + str(distinct) + ',{"$project":{' + column_str[:-1] + '}}'
     return distinct
