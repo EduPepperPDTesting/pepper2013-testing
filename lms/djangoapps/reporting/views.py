@@ -22,6 +22,7 @@ from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
+from xmodule.remindstore import myactivitystore
 
 def postpone(function):
     """
@@ -303,7 +304,15 @@ def report_save(request, report_id):
                 report.access_id = request.user.profile.district.id
             elif access_level == 'School':
                 report.access_id = request.user.profile.school.id
-            report.save()           
+            report.save()
+
+            if action == 'new':
+                ma_db = myactivitystore()                
+                my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+                "URLValues": {"report_id": report.id},    
+                "TokenValues": {"report_id": report.id}, 
+                "LogoValues": {"report_id": report.id}}
+                ma_db.insert_item(my_activity)           
 
             ReportViews.objects.filter(report=report).delete()
             for i, view in views.iteritems():
@@ -373,7 +382,10 @@ def report_delete(request):
             rid = report.id
             rname = report.name
             
-            Reports.objects.get(id=report_id).delete()          
+            Reports.objects.get(id=report_id).delete()
+
+            ma_db = myactivitystore()                
+            ma_db.set_item_reporting(rid, rname)          
 
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
