@@ -475,7 +475,7 @@ def organizational_save_base(request):
                     org_dis.save();
 
             # --------------OrganizationAttributes            
-            org_menu = OrganizationMenu();
+            org_attr = OrganizationAttributes();
             org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
             for tmp1 in org_attr_list:
                 org_attr = tmp1
