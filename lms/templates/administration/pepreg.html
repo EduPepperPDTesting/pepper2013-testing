@@ -301,11 +301,11 @@
             </div>
 
             <div class="btn-group" id="view_select" value="0" style="margin-left: 10px !important;">
-                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
+                <input type="button" class="btn btn-primary btn-input-grp" value="View: Default">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Calendar View</li>
-                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Print View</li>
+                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Default</li> <!--Calendar View</li>-->
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Print</li> <!--View</li>-->
                 </ul>
             </div>
 
@@ -1037,7 +1037,7 @@
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
                 $(".printview").remove();
-                $("#view_select .btn-input-grp").val("Calendar View");
+                $("#view_select .btn-input-grp").val("View: Default"); //("Calendar View");
                 $("#calendar-month-weekdays .print_col").remove();
                 if($("#calendar_select_range").val() != "2"){
                     $("#calendar-month-weekdays th").show();
@@ -1055,7 +1055,7 @@
 		        $(".training_legend").show();
                 _cal_view="screen";
             }else if(viewVal == "1"){
-                $("#view_select .btn-input-grp").val("Print View");
+                $("#view_select .btn-input-grp").val("View: Print"); //("Print View");
                 if($("#calendar_select_range").val() == "2"){
                     var th_id = $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('id');
                     $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('value', th_id);
