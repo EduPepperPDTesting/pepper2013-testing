@@ -64,9 +64,6 @@ from permissions.utils import check_access_level, check_user_perms
    padding:2px;
    font-style:normal;
  }
- .user-info-div{
-   display:none;
- }
  .btn-filter{
    padding:10px;
    background-color: #556370;
@@ -93,6 +90,28 @@ from permissions.utils import check_access_level, check_user_perms
   height:34px;
   margin-top:5px;
   position:relative;
+ }
+.post-user-info{
+  background-color:#fff;
+  position:absolute;
+  border-radius:4px;
+  border:2px solid lightgrey;
+  top:30px;
+  left:5px;
+  padding:6px 4px;
+  display: none;
+  z-index: 1000 !important;
+ }
+ .comment-user-info{
+  background-color:#fff;
+  position:absolute;
+  border-radius:4px;
+  border:2px solid lightgrey;
+  top:22px;
+  left:0px;
+  padding:6px 4px;
+  display: none;
+  z-index: 1001 !important;
  }
 </style>
 <script type="text/javascript">
@@ -230,9 +249,6 @@ from permissions.utils import check_access_level, check_user_perms
     <div class="content"></div>
   </div>
 </div>
-<div id = 'user_info_div' class="user-info-div">
-  <span id='user_info' class="user_info_span"></span>
-</div>
 <script type="template" id="post-template">
   <tr class='post-content-row clearfix'>
   <td style="vertical-align:top"><img src="/static/images/{group_image}" class="" alt="" width="100" height=""/></td>
@@ -243,10 +259,15 @@ from permissions.utils import check_access_level, check_user_perms
   <table>
   <tr>
   <td class='ds-post-title-photo'>
-  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
-  <img src='/user_photo/{user_id}' class='post-profile-image hoverable-profile'
-  {online?data-skype={skype_username}}
-  data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'/>
+    <a href='/dashboard/{user_id}'>
+      <div>
+        {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+        <div class='post-user-info'></div>
+        <img src='/user_photo/{user_id}' class='post-profile-image hoverable-profile'
+        {online?data-skype='{skype_username}'}
+        data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'/>
+      </div>
+    </a>
   </td>
   <td class='ds-post-title-text'>
   <a class='ds-post-title-name' href='/dashboard/{user_id}'>
@@ -289,12 +310,13 @@ from permissions.utils import check_access_level, check_user_perms
   <a href="/dashboard/{user_id}" class="comment-anchor-text">
   <div class="comment-profile-image-div">
     {online?<img src='/static/images/online-3.png' class='smallcircle_comment'></img>}
+    <div class='comment-user-info'></div>
     <img class="comment-profile-image hoverable-profile" style="margin-top:0px;" src="/user_photo/{user_id}"
     data-name="{first_name} {last_name}"
     data-id="{user_id}"
     data-uname="{username}"
     data-email="{email}"
-    {online?data-skype={skype_username}} /></div>
+    {online?data-skype="{skype_username}"} /></div>
   </a>
   </td>
   <td>
@@ -468,22 +490,31 @@ from permissions.utils import check_access_level, check_user_perms
     });
     //show user_info when mouse on photo
     safety = 0;
-    $(".hoverable-profile").hover(function(event) {
+    $(".hoverable-profile").mouseenter(function(event) {
       safety++;
-      $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+      $(this).parent().children('div').html("<div style='white-space:nowrap;'><img class='info-tile-img' src='/static/images/name.png' width='16px' height='16px'/>"+$(this).data('name')+"</div><div style='white-space:nowrap;margin-top:5px;'><img class='info-tile-img' src='/static/images/username.png' width='16px' height='16px'/>"+$(this).data('uname')+"</div><div style='white-space:nowrap;margin-top:5px;'><img class='info-tile-img' src='/static/images/email.png' width='16px' height='16px'/><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a></div>");
       if ($(this).data("skype") !== undefined){
-        $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img><a href='skype:"+$(this).data('skype')+"?call'>"+$(this).data('skype')+"</a>")
-        $("#user_info").append("<br><img class='info-tile-img' src='/static/images/hangout_icon.png' width=16px height=16px></img><span style='float:right; padding-right:46px;'>"+$('#hangout_span_'+$(this).data("id")).html()+"</span>");
+        $(this).parent().children('div').append("<div style='white-space:nowrap;margin-top:5px;'><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img><a href='skype:"+$(this).data('skype')+"?call'>"+$(this).data('skype')+"</a></div>");
+        $(this).parent().children('div').append("<div style='white-space:nowrap;margin-top:5px;'><img class='info-tile-img' src='/static/images/hangout_icon.png' width=16px height=16px></img><span style='float:right; padding-right:46px;'>"+$('#hangout_span_'+$(this).data("id")).html()+"</span></div>");
       }
-      $("#user_info_div").css({top: $(this).offset().top+20, left: $(this).offset().left}).show();
-    }, function() {
-      if (!$("#user_info_div").is(":hover") && safety > 1){
-        $("#user_info_div").hide();
-        safety = 0;
-      }
+      $(this).parent().children('div').show();
     });
-    $("#user_info_div").hover(function(e){}, function(){
-      $(this).hide()
+    $('.hoverable-profile').mouseleave(function(){
+      $('.post-user-info').hide();
+      $('.comment-user-info').hide();
+    });
+    $('.post-user-info').mouseenter(function(){
+      $(this).show();
+    });
+    $('.post-user-info').mouseleave(function(){
+      $(this).hide();
+    });
+    $('.comment-user-info').mouseenter(function(){
+      $(this).show();
+    });
+
+    $('.comment-user-info').mouseleave(function(){
+      $(this).hide();
     });
   }
   // get posts
