@@ -624,9 +624,9 @@ def discussion_reply(request, discussion_id):
 def discussion_delete(request, discussion_id):
     domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    did = discussion.id
     dname = discussion.subject
     cid = discussion.community.id
-    #cname = discussion.community.name
 
     redirect_url = reverse('community_view', args=[discussion.community.id])
     # try:
@@ -640,7 +640,7 @@ def discussion_delete(request, discussion_id):
     discussion.delete()
     
     ma_db = myactivitystore()                
-    ma_db.set_item_community_discussion(cid, dname)
+    ma_db.set_item_community_discussion(cid, did, dname)
 
     send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:

@@ -272,7 +272,7 @@ class MongoMyActivityStore(object):
                 {'$set':{'LogoValues.logoName':community_name,'LogoValues.discussion_name':d['subject']}}, 
                 multi=True)
 
-    def set_item_community_discussion(self,community_id,discussion_name):
+    def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
         self.collection.update({'EventType':'community_creatediscussion','URLValues':{'discussion_id':discussion_id}},
             {'$set':{'LogoValues':{'community_id':community_id, 'discussion_name':discussion_name}}}, multi=True)
         
