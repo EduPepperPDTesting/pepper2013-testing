@@ -22,7 +22,7 @@ import time
 from pytz import UTC
 from datetime import datetime
 from reporting.school_year import school_year_collection
-from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining
+from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining,PepRegTraining_Backup,PepRegInstructor_Backup,PepRegStudent_Backup
 log = logging.getLogger("tracking")
 
 
@@ -324,6 +324,9 @@ def save_school_year(task, request):
         year = time.strftime('%Y', time.localtime(time.time()))
         year = str(int(year) - 1) + '-' + year
         i = 0
+        backup_training(year)
+        backup_training_student(year)
+        backup_training_instructor(year)
         for collection in school_year_collection:
             rs.set_collection(collection)
             rs.collection.update({'school_year': 'current'}, {'$set': {"school_year": year}}, multi=True)
@@ -358,3 +361,62 @@ def remove_pepreg_training():
     PepRegTraining.objects.all().delete()
     PepRegInstructor.objects.all().delete()
     PepRegStudent.objects.all().delete()
+
+def backup_training(year):
+    trainings = PepRegTraining.objects.all()
+    for train in trainings:
+        training_backup = PepRegTraining_Backup()
+        training_backup.school_year = year
+        training_backup.district =train.district
+        training_backup.description=train.description
+        training_backup.subject=train.subject
+        training_backup.name=train.name
+        training_backup.pepper_course=train.pepper_course
+        training_backup.training_date=train.training_date
+        training_backup.training_time_start=train.training_time_start
+        training_backup.training_time_end=train.training_time_end
+        training_backup.geo_location=train.geo_location
+        training_backup.geo_props=train.geo_props
+        training_backup.classroom=train.classroom
+        training_backup.credits=train.credits
+        training_backup.attendancel_id=train.attendancel_id
+        training_backup.allow_registration=train.allow_registration
+        training_backup.max_registration=train.max_registration
+        training_backup.allow_attendance=train.allow_attendance
+        training_backup.allow_student_attendance=train.allow_student_attendance
+        training_backup.allow_validation=train.allow_validation
+        training_backup.user_create=train.user_create
+        training_backup.date_create=train.date_create
+        training_backup.user_modify=train.user_modify
+        training_backup.date_modify=train.date_modify
+        training_backup.last_date=train.last_date
+        training_backup.school_id=train.school_id
+        training_backup.save()
+
+def backup_training_student(year):
+    trainings = PepRegStudent.objects.all()
+    for train in trainings:
+        training_backup = PepRegStudent_Backup()
+        training_backup.school_year = year
+        training_backup.training =train.training
+        training_backup.student=train.student
+        training_backup.student_status=train.student_status
+        training_backup.student_credit=train.student_credit
+        training_backup.user_create=train.user_create
+        training_backup.date_create=train.date_create
+        training_backup.user_modify=train.user_modify
+        training_backup.date_modify=train.date_modify
+        training_backup.save()
+
+def backup_training_instructor(year):
+    trainings = PepRegInstructor.objects.all()
+    for train in trainings:
+        training_backup = PepRegInstructor_Backup()
+        training_backup.school_year = year
+        training_backup.training =train.training
+        training_backup.instructor=train.instructor
+        training_backup.user_create=train.user_create
+        training_backup.date_create=train.date_create
+        training_backup.all_edit=train.all_edit
+        training_backup.all_delete=train.all_delete
+        training_backup.save()
