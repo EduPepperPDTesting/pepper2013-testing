@@ -325,16 +325,37 @@ def save_school_year(task, request):
         year = str(int(year) - 1) + '-' + year
         i = 0
         trainings = PepRegTraining.objects.all()
-        trainings_backup = []
+        trainings_backup = {}
         log.debug('11111111111111111111111111111111111111111')
         for train in trainings:
-            train.school_year = year
-            trainings_backup.append(PepRegTraining_Backup(train))
-
-        log.debug('2222222222222222222222222222222222222222222222')
-        PepRegTraining_Backup.objects.bulk_create(trainings_backup) 
-        log.debug('333333333333333333333333333333333333')
-
+            training_backup = PepRegTraining_Backup()
+            training_backup.school_year = year
+            training_backup.district =train.district
+            training_backup.description=train.description
+            training_backup.subject=train.subject
+            training_backup.name=train.name
+            training_backup.pepper_course=train.pepper_course
+            training_backup.training_date=train.training_date
+            training_backup.training_time_start=train.training_time_start
+            training_backup.training_time_end=train.training_time_end
+            training_backup.geo_location=train.geo_location
+            training_backup.geo_props=train.geo_props
+            training_backup.classroom=train.classroom
+            training_backup.credits=train.credits
+            training_backup.attendancel_id=train.attendancel_id
+            training_backup.allow_registration=train.allow_registration
+            training_backup.max_registration=train.max_registration
+            training_backup.allow_attendance=train.allow_attendance
+            training_backup.allow_student_attendance=train.allow_student_attendance
+            training_backup.allow_validation=train.allow_validation
+            training_backup.user_create=train.user_create
+            training_backup.date_create=train.date_create
+            training_backup.user_modify=train.user_modify
+            training_backup.date_modify=train.date_modify
+            training_backup.last_date=train.last_date
+            training_backup.school_id=train.school_id
+            training_backup.save()
+            log.debug('22222222222222222222222222222222222222222222')
         for collection in school_year_collection:
             rs.set_collection(collection)
             rs.collection.update({'school_year': 'current'}, {'$set': {"school_year": year}}, multi=True)
