@@ -55,7 +55,9 @@
     .ui-datepicker-month {color: black !important}
     /*.training-row{font-family: "open sans" !important;}*/
     .step-content{ width: 700px !important;}
-    .form-row span{font: 12px /*normal 1em/1.6em*/ "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+
+    .form-row span{font: 12px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+    .form-row span.label{font: normal 1em/1.6em "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
     .form-row select{color: #222 !important;}
     .form-row input{color: #222 !important;}
     .form-row textarea{color: #222 !important;}
@@ -450,7 +452,7 @@
                         <h5>Create Your Training or PD Event: Step 2 of 6</h5>
                         <h4>General Training Information</h4>
                         <div class="form-row">
-                            <span class="label" id="organization_pepreg_d1" style="margin-right:-5px;">District:</span>
+                            <span class="label" id="organization_pepreg_d1" style="">District:</span>
                             <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
@@ -463,7 +465,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label" id="organization_pepreg_s1" style="margin-right:-5px;">School:</span>
+                            <span class="label" id="organization_pepreg_s1" style="">School:</span>
                             %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                             <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
                             %elif check_access_level(request.user, 'pepreg', 'add_new_training') == "District":
@@ -476,16 +478,16 @@
                             %endif
                         </div>
                         <div class="form-row">
-                            <span class="label" style="padding-left: 0px;margin-right:-5px;">Training Name:</span>
+                            <span class="label" style="padding-left: 0px;">Training Name:</span>
                             <input type="text" name="name" value=""/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;">Description:</span>
+                            <span class="label" style="">Description:</span>
                             <textarea style="width:470px;height:100px;" name="description" id="" rows="" cols=""
                                       tabindex=""></textarea>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="padding-left: 0px;margin-right:-5px;">Pepper Course:</span>
+                            <span class="label" style="padding-left: 0px;">Pepper Course:</span>
                             <select name="pepper_course" style="max-width: 470px !important;" autocomplate="off">
                                 <option value=""></option>
                                 %for item in courses:
@@ -494,7 +496,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;">Subject Area:</span>
+                            <span class="label" style="">Subject Area:</span>
                             <select name="subject" autocomplate="off">
                                 <option value=""></option>
                                 <option value="AR">Assessments and Reporting</option>
@@ -586,7 +588,7 @@
                         <h4>Registration & Attendance Tracking</h4>
                         <div class="form-row"><!-- akogan. modified style. width from 230 to 260 & 270 -->
                             <span class="label"
-                                  style="width:260px;text-align:left;padding-left:20px;">Credit Hours:</span>
+                                  style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
                             <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
                             Time Credit will be automatically calculated from clock settings"></span>
@@ -594,35 +596,35 @@
 
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Registration:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
                             <input id="allow_registration" type="checkbox" name="allow_registration" value="true" onclick="resetCap()"/>
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
                               	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
                             </span>
                             <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Student can record attendance:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
                             <input type="checkbox" name="allow_student_attendance" value="true"/>
                             <span class="check-mark"
                                   alt="This should only be used for trainings or PD events that do not have an instructor."></span>
                         </div>
                         <div class="form-row">
                             <span class="label"
-                                  style="width:270px;text-align:left;padding-left:20px;">Training ID:</span>
+                                  style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
                             <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
                             <input type="checkbox" name="allow_attendance" value="true"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
                             <input type="checkbox" name="allow_validation" value="true"/>
                             <span class="check-mark"
                                   alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
