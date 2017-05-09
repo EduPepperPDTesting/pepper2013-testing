@@ -326,13 +326,14 @@ def save_school_year(task, request):
         i = 0
         trainings = PepRegTraining.objects.all()
         trainings_backup = []
-
+        log.debug('11111111111111111111111111111111111111111')
         for train in trainings:
             train.school_year = year
             trainings_backup.append(PepRegTraining_Backup(train))
-        
-        PepRegTraining_Backup.objects.bulk_create(trainings_backup) 
 
+        log.debug('2222222222222222222222222222222222222222222222')
+        PepRegTraining_Backup.objects.bulk_create(trainings_backup) 
+        log.debug('333333333333333333333333333333333333')
 
         for collection in school_year_collection:
             rs.set_collection(collection)
