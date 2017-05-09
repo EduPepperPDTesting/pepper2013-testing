@@ -22,7 +22,7 @@ import time
 from pytz import UTC
 from datetime import datetime
 from reporting.school_year import school_year_collection
-from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining
+from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining,PepRegTraining_Backup,PepRegInstructor_Backup,PepRegStudent_Backup
 log = logging.getLogger("tracking")
 
 
@@ -324,6 +324,16 @@ def save_school_year(task, request):
         year = time.strftime('%Y', time.localtime(time.time()))
         year = str(int(year) - 1) + '-' + year
         i = 0
+        trainings = PepRegTraining.objects.all()
+        trainings_backup = []
+
+        for train in trainings:
+            train.school_year = year
+            trainings_backup.append(PepRegTraining_Backup(train))
+        
+        PepRegTraining_Backup.objects.bulk_create(trainings_backup) 
+
+
         for collection in school_year_collection:
             rs.set_collection(collection)
             rs.collection.update({'school_year': 'current'}, {'$set': {"school_year": year}}, multi=True)
