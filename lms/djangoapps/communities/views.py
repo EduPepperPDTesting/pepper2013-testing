@@ -570,7 +570,7 @@ def discussion_add(request):
         my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
         "URLValues": {"discussion_id": discussion.id},
         "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-        "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+        "LogoValues": {"community_id": community.id}}
         rs.insert_item(my_activity)
 
         discussion_id = discussion.id
@@ -611,7 +611,7 @@ def discussion_reply(request, discussion_id):
     my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
     "URLValues": {"discussion_id": discussion.id},
     "TokenValues": {"discussion_id":discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
-    "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
+    "LogoValues": {"community_id": discussion.community.id}}
     rs.insert_item(my_activity)
     
     send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
@@ -624,9 +624,9 @@ def discussion_reply(request, discussion_id):
 def discussion_delete(request, discussion_id):
     domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
-    did = discussion.id
     dname = discussion.subject
     cid = discussion.community.id
+    #cname = discussion.community.name
 
     redirect_url = reverse('community_view', args=[discussion.community.id])
     # try:
@@ -640,7 +640,7 @@ def discussion_delete(request, discussion_id):
     discussion.delete()
     
     ma_db = myactivitystore()                
-    ma_db.set_item_community_discussion(cid, did, dname)
+    ma_db.set_item_community_discussion(cid, dname)
 
     send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:
@@ -703,10 +703,12 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-        community.delete()
 
+        discussions = CommunityDiscussions.objects.filter(community=community)
         ma_db = myactivitystore()                
-        ma_db.set_item_community(cid, cname)
+        ma_db.set_item_community(cid, cname, discussions)
+
+        community.delete()
 
         return redirect(reverse('communities'))
     except Exception as e:
