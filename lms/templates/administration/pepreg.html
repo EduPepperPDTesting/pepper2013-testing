@@ -1050,7 +1050,7 @@
                 }
 		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
 		        $(this).parent().parent().siblings().children().attr('disabled', false);
-		        $("#calendar_btn_previous_y").css("margin-left", "0px");
+		        //$("#calendar_btn_previous_y").css("margin-left", "0px");
 		        $(".cal_pdf").hide();
 		        $(".training_legend").show();
                 _cal_view="screen";
@@ -1066,7 +1066,7 @@
                 $("#calendar-month-weekdays").append("<th class='print_col' style='width:25% !important'>Training Name <br/>and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col' style='width:25% !important'>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
 		        $(this).parent().parent().siblings(":not(#calendar_select_categories)").children().attr('disabled', true);
-		        $("#calendar_btn_previous_y").css("margin-left", "15px");
+		        //$("#calendar_btn_previous_y").css("margin-left", "15px");
 		        $(".training_legend").hide();
 		        $(".cal_pdf").show();
                  _cal_view="print";
