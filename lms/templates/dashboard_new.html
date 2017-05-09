@@ -765,7 +765,9 @@ $(document).ready(function(){
                 data_all = data_obj.data_count;
                 my_activitis_create(data_obj);
                 data_loading = 0;
-                $(".info_div").hide();
+                if(data_all != 0){
+                    $(".info_div").hide();
+                } 
         });
     }
 
