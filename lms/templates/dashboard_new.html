@@ -871,14 +871,14 @@ $(document).ready(function(){
         var scrollTop = $(this).scrollTop();
 　　    var windowHeight = $(this).height();
         var scrollHeight = $(document).height();
-        var scrollTop_round = Math.round(scrollTop);
+        var scrollTop_ceil = Math.ceil(scrollTop);
 
         console.log("scrollTop:",scrollTop);
         console.log("windowHeight:",windowHeight);
         console.log("scrollHeight:",scrollHeight);
-        console.log("scrollTop_round:",scrollTop_round);
+        console.log("scrollTop_ceil:",scrollTop_ceil);
 
-        if(scrollTop_round + windowHeight >= scrollHeight)
+        if(scrollTop_ceil + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
                 console.log("111");
