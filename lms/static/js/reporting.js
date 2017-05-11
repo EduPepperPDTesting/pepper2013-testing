@@ -43,7 +43,6 @@ function viewSelect(related_url, columns_url) {
         if(type == 'Standard'){
             html = "<h2>Select Columns</h2><div id='order-title'>Select columns to show in the report:  <label> <input id='column-select-all' type='checkbox' >Select All</label><div>Column order:</div></div><ul id='selected-columns'></ul><div class='clearfix'><div>"
             $(".column-selector").html(html);
-            selectAll('#column-select-all', '.column-check');
             $(this).nextAll('select').remove();
             var view_num = getLineNumber($(this).attr('name')) + 1;
             var view_id = $(this).val();
@@ -102,6 +101,7 @@ function viewSelect(related_url, columns_url) {
                 });
                 $('.filter-column').html(options);
             });
+            selectAll('#column-select-all', '.column-check');
         }
         if(type=="Matrix"){
             $(this).nextAll('select').remove();
