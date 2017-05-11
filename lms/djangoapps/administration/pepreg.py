@@ -923,13 +923,13 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                             endHourAMPM = day[4][i][-2:]
 
                                             h = startHour
-                                            hourAMPM = "AM"
+                                            hourAMPM = startHourAMPM
 
                                             if(startHourAMPM != endHourAMPM):
                                                 endHourLast = endHour if(endHour == 12 or endHour <= 6) else 6
                                                 endHour = 12
                                             else:
-                                                endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
+                                                endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
                                                 endHourLast = endHour
 
                                             while(h <= endHour):
