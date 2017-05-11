@@ -39,7 +39,8 @@ from pytz import UTC
 from models import *
 from xmodule.remindstore import myactivitystore
 
-log = logging.getLogger(__name__)
+#log = logging.getLogger(__name__)
+log = logging.getLogger("tracking")
 
 s3_interface = {
             'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', ''),
@@ -339,6 +340,10 @@ def delete_thread(request, course_id, thread_id):
     this is ajax only
     """
     thread = cc.Thread.find(thread_id)
+    
+    ma_db = myactivitystore()                
+    ma_db.set_item_course_discussion(course_id,thread_id,thread.title)
+
     thread.delete()
     return JsonResponse(utils.safe_content(thread.to_dict()))
 

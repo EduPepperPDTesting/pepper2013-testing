@@ -288,6 +288,16 @@ class MongoMyActivityStore(object):
             {'$set':{'LogoValues':{'SourceID':'', 'chunkTitle':chunkTitle}}}, 
         multi=True)
 
+    def set_item_course_discussion(self,course_id,thread_id,discussiontitle):
+        self.collection.update(
+            {'EventType':'courses_creatediscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+        self.collection.update(
+            {'EventType':'courses_replydiscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+
 class MongoMyActivityStaticStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
