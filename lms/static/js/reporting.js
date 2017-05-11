@@ -145,7 +145,7 @@ function viewSelect(related_url, columns_url) {
                     html += "<select style='margin-left:120px;' name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
                     $(".column-selector").html(html);
                     var options = '';
-                    $.each(data, function (index, value) {
+                    $.each(datas, function (index, value) {
                         options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
                     });
                     $('.filter-column').html(options);
