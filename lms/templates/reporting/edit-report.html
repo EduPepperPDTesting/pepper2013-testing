@@ -26,8 +26,8 @@
             %else:
                 <input type="text" name="report_name" placeholder="Name"/>
                 <input type="text" name="report_description" class="description" placeholder="Description" >
-               <!--  <input type="radio" name="type" value="Standard" class="report_type" checked><span>Standard</span>
-                <input type="radio" name="type" value="Matrix" class="report_type"><span>Matrix</span> -->
+                <input type="radio" name="type" value="Standard" class="report_type" checked><span>Standard</span>
+                <input type="radio" name="type" value="Matrix" class="report_type"><span>Matrix</span>
             %endif
             <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             <input type="hidden" name="action" value="${action}">
