@@ -859,7 +859,6 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     font-weight: bold !important;
     font-size: 15px !important;
     cursor: pointer;
-    float: left;
     height:33px;
     margin-right: 50px;
     border:0px solid;
@@ -869,7 +868,6 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     font-weight: bold !important;
     font-size: 15px !important;
     cursor: pointer;
-    float: left;
     height:35px;
     margin-right: 50px;
     border:0px solid;
@@ -879,21 +877,22 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 15px !important;
-    float: left;
     height:27px;
     font-style: italic;
-    margin-right: 50px;
+    margin-right: 15px;
     border:0px solid;
+    cursor:pointer;
 }
 .post-total-comments{
     padding-top:8px;
     color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 15px !important;
-    float: left;
     height:27px;
     font-style: italic;
     border:0px solid;
+    cursor:pointer;
+    margin-right: 15px;
 }
 .smallcircle {
     width: 18px;
@@ -912,7 +911,6 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     background-color: #f2f2f2;*/
 }
 .post-content-row {
-    background-color: #fff;
     border: 0px;
 }
 .post-submit-profile-image {
@@ -924,6 +922,10 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     width: 72px;
     height: 72px;
     margin: 4px;
+}
+.hoverable-profile{
+    display:inline-block;
+    cursor:defaulte;
 }
 .new-post-textarea {
     border:0;
@@ -1036,6 +1038,7 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
+    z-index:999;
 }
 .user_info_span {
     position: relative;

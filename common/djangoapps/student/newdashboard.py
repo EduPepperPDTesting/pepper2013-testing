@@ -611,8 +611,6 @@ def attach_post_info(p, time_diff_m, user):
     store = dashboard_feeding_store()
 
     def format_feeding_date(post_time_utc):
-        now_utc = datetime.datetime.utcnow()
-
         if int(time_diff_m) != 0:
             post_time_local = time_to_local(post_time_utc, time_diff_m)
             # now_local = time_to_local(now_utc, time_diff_m)
@@ -628,12 +626,12 @@ def attach_post_info(p, time_diff_m, user):
         post_year = post_time_local.strftime("%Y")
         post_month = post_time_local.strftime("%b")
         post_day = post_time_local.strftime("%d")
-        
+
         if diff.days < 1 and post_day == unow.strftime("%d"):
             post_date = 'Today'
             # post_date = post_year + '-' + post_month + '-' + post_day
         else:
-            post_date =  post_month + ' ' + post_day + ", " + post_year
+            post_date = post_month + ' ' + post_day + ", " + post_year
         post_h = str(int(post_time_local.strftime("%I")))
         post_m = post_time_local.strftime("%M")
         post_ampm = post_time_local.strftime("%p")
@@ -655,7 +653,7 @@ def attach_post_info(p, time_diff_m, user):
         if len(buf) > 3:
             buf = buf[:3]
             ending = " and more"
-            
+
         return ", ".join(buf) + ending
 
     author = User.objects.get(id=p["user_id"])
@@ -678,7 +676,7 @@ def attach_post_info(p, time_diff_m, user):
     p["post_date_debug"] = debug
     p["is_owner"] = (author == user)
     p["removable"] = user.id == author.id or user.is_superuser
-    if p["type"] == "dashboard":
+    if p["type"] == "post":
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
     else:
@@ -692,7 +690,7 @@ def attach_post_info(p, time_diff_m, user):
             p["skype_username"] = "Not Set."
 
     for s in p["sub"]:
-        attach_post_info(s, time_diff_m, user)            
+        attach_post_info(s, time_diff_m, user)
 
 
 def get_post(request):
@@ -704,8 +702,16 @@ def get_post(request):
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
+def get_comment(request):
+    _id = request.POST.get("_id")
+    store = dashboard_feeding_store()
+    post = store.get_feeding(_id)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+    attach_post_info(post, time_diff_m, request.user)
+    return HttpResponse(json_util.dumps(post), content_type='application/json')
+
+
 def get_posts(request):
-    filter_group = request.POST.get("filter_group")
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
     # last_id = request.POST.get("last_id")
@@ -718,30 +724,91 @@ def get_posts(request):
         now_utc = time_to_local(now_utc, time_diff_m)
 
     store = dashboard_feeding_store()
-  
-    posts = store.top_level_for_user(request.user.id, type=filter_group,
-                                     year=filter_year, month=filter_month,
-                                     page_size=int(page_size), page=int(page), before=now_utc)
-            
+    posts = store.get_posts(request.user.id, year=filter_year, month=filter_month,
+                            page_size=int(page_size), page=int(page), before=now_utc)
+
     for a in posts:
-        attach_post_info(a,time_diff_m, request.user)
+        attach_post_info(a, time_diff_m, request.user)
 
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
+
+
+def dismiss_announcement(request):
+    _id = request.POST.get("_id")
+    try:
+        store = dashboard_feeding_store()
+        store.dismiss(_id, request.user.id)
+    except Exception as e:
+        return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
+    
+    return HttpResponse(json_util.dumps({"success": True}), content_type='application/json')
+
+
+def get_org_announcements(request):
+    org = request.POST.get("org")
+    store = dashboard_feeding_store()
+
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+
+    now_utc = datetime.datetime.utcnow()
+    if int(time_diff_m) != 0:
+        now_utc = time_to_local(now_utc, time_diff_m)
+
+    kwargs = {"before": now_utc}
+
+    posts = store.get_announcements(request.user.id, org, **kwargs)
+
+    for a in posts:
+        attach_post_info(a, time_diff_m, request.user)
+
+    return HttpResponse(json_util.dumps(posts), content_type='application/json')
+
+
+def get_announcements(request):
+    filter_year = request.POST.get("filter_year")
+    filter_month = request.POST.get("filter_month")
+    # last_id = request.POST.get("last_id")
+    page = request.POST.get("page", 0)
+    page_size = request.POST.get("page_size", 5)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+
+    now_utc = datetime.datetime.utcnow()
+    if int(time_diff_m) != 0:
+        now_utc = time_to_local(now_utc, time_diff_m)
+
+    store = dashboard_feeding_store()
+    # posts = store.top_level_for_user(request.user.id, type=filter_group,
+    #                                  year=filter_year, month=filter_month,
+    #                                  page_size=int(page_size), page=int(page), before=now_utc)
+
+    kwargs = {"year": filter_year, "month": filter_month, "before": now_utc}
+    data = {"orgs": []}
+    data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
+    data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
+    data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
+    data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
+    data["orgs"].append(store.get_announcements(request.user.id, "School", **kwargs))
+
+    for o in data["orgs"]:
+        for a in o:
+            attach_post_info(a, time_diff_m, request.user)
+
+    return HttpResponse(json_util.dumps(data), content_type='application/json')
 
 
 def submit_new_like(request):
     user_id = request.user.id
     feeding_id = request.POST.get('feeding_id')
-    
+
     store = dashboard_feeding_store()
-    
+
     if store.is_like(feeding_id, user_id):
         store.remove_like(feeding_id, request.user.id)
     else:
         date = datetime.datetime.utcnow()
         store.add_like(feeding_id, request.user.id, date)
-        
-    return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')    
+
+    return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')
 
 
 def delete_post(request):
@@ -755,7 +822,6 @@ def delete_comment(request):
     feeding_id = request.POST.get("comment_id")
     store = dashboard_feeding_store()
     store.remove_feeding(feeding_id)
-    
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
@@ -840,9 +906,19 @@ def submit_new_post(request):
                 data["embed"] = 0
             images.append(data)
 
-    _id = store.create(type=type, user_id=request.user.id, content=content,
-                       receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
-                       expiration_date=expiration_date, images=images)
+    if type == "post":
+        _id = store.create(type=type, user_id=request.user.id, content=content,
+                           receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
+                           expiration_date=expiration_date, images=images)
+    else:
+        if request.user.is_superuser:
+            organization_type = "Pepper"
+        else:
+            organization_type = check_access_level(request.user, "dashboard_announcement", "create")
+        _id = store.create(type=type, user_id=request.user.id, content=content,
+                           receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
+                           expiration_date=expiration_date, images=images, organization_type=organization_type)
+        
 
     return HttpResponse(json.dumps({'Success': 'True', "_id": str(_id), 'post': request.POST.get('post'),
                                     'master_id': request.POST.get('master_id')}), content_type='application/json')

@@ -159,9 +159,10 @@ urlpatterns = (
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
     url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
-    
+    url(r'^dashboard/announcements/get$', 'student.newdashboard.get_announcements', name='dashboard_get_announcements'),
+    url(r'^dashboard/announcements/getorg$', 'student.newdashboard.get_org_announcements', name='dashboard_get_org_announcements'),
     url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
-    
+    url(r'^dashboard/comment/get$', 'student.newdashboard.get_comment', name='dashboard_get_comment'),
     url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
     url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
     url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
@@ -169,6 +170,8 @@ urlpatterns = (
     url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
     url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
     url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
+
+    url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
