@@ -1283,7 +1283,7 @@
 		});
 	});	
 
-    function uniqueTrainingSlot() {
+    function uniqueTrainingSlot() {/*
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
             bLimit = (a == 0) ? 12 : 6;
@@ -1291,7 +1291,8 @@
             for ( var b = bStart; b <= bLimit; b++ ) {
                 dh = (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
-                var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
+                var cLimit = $(hClass).length;
+                console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
                     if($(iClass).length > 0) {
@@ -1315,7 +1316,8 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                         + labelHtml + "</div>");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
                         }).css({"padding": "5px", "height": "26px"});
@@ -1323,7 +1325,7 @@
                     }
                 }
             }
-        }
+        }*/
     };
 
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
