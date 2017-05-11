@@ -123,9 +123,11 @@ function viewSelect(related_url, columns_url) {
             var views = $('.view-select').val();
             var get_data = {};
             get_data['view[0]'] = views;
-            html = "Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>"
+            html = "Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
             $(".column-selector h2").after(html);
-            $.get(columns_url, get_data, function (data) {}
+            $.get(columns_url, get_data, function (data) {
+
+            }
         }
     });
 }
