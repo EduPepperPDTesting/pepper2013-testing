@@ -133,7 +133,6 @@ function viewSelect(related_url, columns_url) {
                 if (datas.length) {
                     var select = "";
                     for (var data in datas){
-                        console.log(datas)
                         select += "<option value="+datas[data].id+">"+datas[data].name+"</option>";
                     }
                     html = "<h2>Select Columns</h2>";
