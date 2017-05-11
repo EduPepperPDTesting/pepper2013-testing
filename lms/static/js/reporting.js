@@ -41,6 +41,8 @@ function viewSelect(related_url, columns_url) {
         // Get the related views if any and add a dropdown for them.
         var type = $("input[type='radio']:checked").val();
         if(type == 'Standard'){
+            html = "<div id='order-title>Select columns to show in the report: <label><input id='column-select-all' type='checkbox'>Select All</label><div>Column order</div></div><ul id='selected-colums'></ul><div class='clearfix'><div>"
+            $(".column-selector h2").after(html);
             $(this).nextAll('select').remove();
             var view_num = getLineNumber($(this).attr('name')) + 1;
             var view_id = $(this).val();
@@ -118,17 +120,12 @@ function viewSelect(related_url, columns_url) {
                     viewSelect(related_url, columns_url);
                 }
             });
-            $("#order-title").remove();
-            $("#selected-columns").remove();
-            // Get the columns and add them to the column selector and filter dropdowns.
             var views = $('.view-select').val();
             var get_data = {};
             get_data['view[0]'] = views;
-            Aggregate_Type = "Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>"
-            $("#order-title").after(Aggregate_Type)
-            $.get(columns_url, get_data, function (data) {
-                
-            });
+            html = "Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>"
+            $(".column-selector h2").after(html);
+            $.get(columns_url, get_data, function (data) {}
         }
     });
 }
