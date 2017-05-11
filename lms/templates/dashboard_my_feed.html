@@ -556,9 +556,16 @@ from permissions.utils import check_access_level, check_user_perms
   // [event scroll] all posts
   $(window).bind("scroll", function(){
     var scrollTop = $(this).scrollTop();
-    　　    var scrollHeight = $(document).height();
-    　　    var windowHeight = $(this).height();
-    if(scrollTop + windowHeight == scrollHeight) {
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    var scrollTop_ceil = Math.ceil(scrollTop);
+
+    console.log("scrollTop1:",scrollTop);
+    console.log("windowHeight1:",windowHeight);
+    console.log("scrollHeight1:",scrollHeight);
+    console.log("scrollTop_ceil1:",scrollTop_ceil);
+
+    if(scrollTop_ceil + windowHeight >= scrollHeight) {
       getPosts(true)
     }
   });
