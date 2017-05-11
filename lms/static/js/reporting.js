@@ -39,7 +39,7 @@ var data_types = ['text', 'int', 'date', 'time', 'url', 'clk'];
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
-        // alert($("input[type='radio']").prop("checked").val());
+        console.log($("input[type='radio']:checked").val());
         $(this).nextAll('select').remove();
         var view_num = getLineNumber($(this).attr('name')) + 1;
         var view_id = $(this).val();
