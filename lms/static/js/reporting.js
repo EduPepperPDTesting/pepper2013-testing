@@ -42,7 +42,7 @@ function viewSelect(related_url, columns_url) {
         var type = $("input[type='radio']:checked").val();
         if(type == 'Standard'){
             html = "<h2>Select Columns</h2><div id='order-title>Select columns to show in the report: <label><input id='column-select-all' type='checkbox'>Select All</label><div>Column order</div></div><ul id='selected-colums'></ul><div class='clearfix'><div>"
-            $(".column-selector").after(html);
+            $(".column-selector").html(html);
             $(this).nextAll('select').remove();
             var view_num = getLineNumber($(this).attr('name')) + 1;
             var view_id = $(this).val();
@@ -124,7 +124,7 @@ function viewSelect(related_url, columns_url) {
             var get_data = {};
             get_data['view[0]'] = views;
             html = "<h2>Select Columns</h2>Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
-            $(".column-selector").after(html);
+            $(".column-selector").html(html);
             $.get(columns_url, get_data, function (data) {
             });
         }
