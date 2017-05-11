@@ -241,17 +241,17 @@ function submitButton(selector, target) {
     });
 }
 
-function selectAll(trigger_selector, target_selector) {
-    $(trigger_selector).change(function () {
-        var checked = false;
-        if ($(this).is(':checked')) {
-            checked = true;
-        }
-        $(target_selector).each(function () {
-            $(this).prop('checked', checked);
-        });
-    });
-}
+// function selectAll(trigger_selector, target_selector) {
+//     $(trigger_selector).change(function () {
+//         var checked = false;
+//         if ($(this).is(':checked')) {
+//             checked = true;
+//         }
+//         $(target_selector).each(function () {
+//             $(this).prop('checked', checked);
+//         });
+//     });
+// }
 
 function updateViews() {
     $.get(view_update_url, function (data) {
