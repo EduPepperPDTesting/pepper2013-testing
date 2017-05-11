@@ -195,22 +195,23 @@
                 errors.push('Name is required.');
                 $(".report-name").addClass('error-box');
             }
-            if ($("select[name='view[0]']").val() == 'none') {
-                valid = false;
-                errors.push('At least one view must be selected.');
-                $(".view-selector").addClass('error-box');
-            }
-            if (!$('.column-check:checked').length) {
-                valid = false;
-                errors.push('You must select at least one column.');
-                $('.column-selector').addClass('error-box');
-            }
             var type = $("input[type='radio']:checked").val();
+            if (type== 'Standard'){
+                if ($("select[name='view[0]']").val() == 'none') {
+                    valid = false;
+                    errors.push('At least one view must be selected.');
+                    $(".view-selector").addClass('error-box');
+                }
+                if (!$('.column-check:checked').length) {
+                    valid = false;
+                    errors.push('You must select at least one column.');
+                    $('.column-selector').addClass('error-box');
+                }
+            }
             if (type == 'Matrix'){
                 var Column_Headers = $("select[name='Column_Headers']").val();
                 var Row_Headers = $("select[name='Row_Headers']").val();
                 var Aggregate_Data = $("select[name='Aggregate_Data']").val();
-                console.log(Column_Headers,Row_Headers,Aggregate_Data)
                 if(Column_Headers == Row_Headers || Row_Headers == Aggregate_Data || Aggregate_Data == Column_Headers){
                     valid = false;
                     errors.push('Column_Headers,Row_Headers,Aggregate_Data,These 3 fields must be different.');
