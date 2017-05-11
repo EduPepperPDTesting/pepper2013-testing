@@ -185,6 +185,7 @@
         filterLines();
         filterEnabler();
         submitHandler('#report-edit', function (data) {
+            alert(123)
             window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
         }, function () {
             $('.error-box').removeClass('error-box');
