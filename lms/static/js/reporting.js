@@ -125,9 +125,8 @@ function viewSelect(related_url, columns_url) {
             get_data['view[0]'] = views;
             html = "<h2>Select Columns</h2>Aggregate Type: <br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
             $(".column-selector").after(html);
-            $.get(columns_url, get_data, function (data)){
-
-            }
+            $.get(columns_url, get_data, function (data) {
+            });
         }
     });
 }
