@@ -916,26 +916,33 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
-                                        startHour = startHour if(startHourAMPM == "AM" and startHour >= 6) else 6
 
-                                        if((startHourAMPM == "PM" and (startHour == 12 or startHour <= 6)) or (startHourAMPM == "AM" and startHour >= 6)):
+                                        if (not ((startHourAMPM == "AM" and startHour >= 6) or (startHourAMPM == "PM" and startHour <=6))):
+                                            if (startHourAMPM == "PM" and startHour == 12):
+                                                startHour = 0
+                                            else:
+                                                startHour = 6
+
+                                        if((startHourAMPM == "PM" and startHour <= 6) or (startHourAMPM == "AM" and startHour >= 6)):
                                             endHour = int(day[4][i][:day[4][i].index(":")])
                                             endHourAMPM = day[4][i][-2:]
 
                                             h = startHour
                                             hourAMPM = startHourAMPM
 
-                                            if(startHourAMPM != endHourAMPM):
-                                                endHourLast = endHour if(endHour == 12 or endHour <= 6) else 6
+                                            if(startHourAMPM != endHourAMPM and endHour != 12):
+                                                endHourLast = endHour if(endHour <= 6) else 6
                                                 endHour = 12
                                             else:
                                                 endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
                                                 endHourLast = endHour
 
                                             while(h <= endHour):
+                                                
+                                                strHour = str(h) if(h > 0) else "12"
 
-                                                fullHour = str(h) + ":00 " + hourAMPM
-                                                midHour = str(h) + ":30 " + hourAMPM
+                                                fullHour = strHour + ":00 " + hourAMPM
+                                                midHour = strHour + ":30 " + hourAMPM
 
                                                 firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
                                                 if ((fullHour == dayHour and firstHalfHour) or (midHour == dayHour and not firstHalfHour)): break
@@ -944,6 +951,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                 if(h == endHour and endHour != endHourLast):
                                                     h = 1
                                                     endHour = endHourLast
+                                                    hourAMPM = "PM"
+                                                elif(h == 12 and endHourAMPM == "PM"):
                                                     hourAMPM = "PM"
 
                                         if (h <= endHour):
