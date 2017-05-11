@@ -129,13 +129,18 @@ function viewSelect(related_url, columns_url) {
             var views = $('.view-select').val();
             var get_data = {};
             get_data['view[0]'] = views;
-            $.get(columns_url, get_data, function (data) {
+            $.get(columns_url, get_data, function (datas) {
+                var select = "";
+                for (var data in datas){
+                    var select += "<option value="+data.id+">"+data.name+"</option>";
+                }
                 html = "<h2>Select Columns</h2>";
-                console.log(data)
-                html += "<span>Column Headers:</span> <br><br>";
-                html += "<span>Row Headers:</span> <br><br>";
-                html += "<span>Aggregate Data:</span> <br><br>";
-                html += "<span>Aggregate Type: </span> <br><br> <select name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
+                html += "<span>Column Headers:</span>";
+                html += "<span style='margin-left:150px;'>Row Headers:</span>";
+                html += "<span style='margin-left:150px;'>Aggregate Data:</span>";
+                html += "<span style='margin-left:150px;'>Aggregate Type: </span> <br><br>";
+                html += "<select name='Column_Headers'>"+select+"</select><select style='margin-left:150px; name='Row_Headers'>"+select+"</select><select style='margin-left:150px; name='Aggregate_Data'>"+select+"</select>";
+                html += "<select style='margin-left:150px; name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
                 $(".column-selector").html(html);
             });
         }
