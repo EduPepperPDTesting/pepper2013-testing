@@ -195,13 +195,13 @@
                 errors.push('Name is required.');
                 $(".report-name").addClass('error-box');
             }
-            var type = $("input[type='radio']:checked").val();
-            if (type== 'Standard'){
-                if ($("select[name='view[0]']").val() == 'none') {
+            if ($("select[name='view[0]']").val() == 'none') {
                     valid = false;
                     errors.push('At least one view must be selected.');
                     $(".view-selector").addClass('error-box');
                 }
+            var type = $("input[type='radio']:checked").val();
+            if (type== 'Standard'){
                 if (!$('.column-check:checked').length) {
                     valid = false;
                     errors.push('You must select at least one column.');
