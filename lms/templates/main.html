@@ -2,7 +2,10 @@
 
 <%namespace name='static' file='static_content.html'/>
 <%! from django.utils import html %>
-
+<%!
+    from organization.models import OrganizationMetadata    
+    list = OrganizationMetadata.objects.prefetch_related().all()
+%>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
 ## templates have access to these functions, and we can import these
@@ -30,6 +33,9 @@
 <!--@end-->
 
       <script type="text/javascript">
+	  	% for tmp1 in list:		  
+			//${tmp1.OrganizationName}
+		% endfor
         /* immediately break out of an iframe if coming from the marketing website */
         (function(window) {
           if (window.location !== window.top.location) {
