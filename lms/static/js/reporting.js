@@ -132,7 +132,8 @@ function viewSelect(related_url, columns_url) {
             $.get(columns_url, get_data, function (datas) {
                 var select = "";
                 for (var data in datas){
-                    select += "<option value="+data[id]+">"+data[name]+"</option>";
+                    console.log(data)
+                    select += "<option value="+data.id+">"+data.name.+"</option>";
                 }
                 html = "<h2>Select Columns</h2>";
                 html += "<span>Column Headers:</span>";
