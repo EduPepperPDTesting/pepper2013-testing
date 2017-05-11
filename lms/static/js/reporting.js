@@ -140,8 +140,8 @@ function viewSelect(related_url, columns_url) {
                 html += "<span style='margin-left:150px;'>Row Headers:</span>";
                 html += "<span style='margin-left:150px;'>Aggregate Data:</span>";
                 html += "<span style='margin-left:150px;'>Aggregate Type: </span> <br><br>";
-                html += "<select name='Column_Headers'>"+select+"</select><select style='margin-left:150px; name='Row_Headers'>"+select+"</select><select style='margin-left:150px; name='Aggregate_Data'>"+select+"</select>";
-                html += "<select style='margin-left:150px; name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
+                html += "<select name='Column_Headers' style='width:200px;'>"+select+"</select><select style='margin-left:130px;width:200px;' name='Row_Headers'>"+select+"</select><select style='margin-left:100px;width:200px;' name='Aggregate_Data'>"+select+"</select>";
+                html += "<select style='margin-left:120px;' name='Aggregate_Type'><option value='Sum'>Sum</option><option value='Count'>Count</option><option value='Average'>Average</option><option value='Max'>Max</option><option value='Min'>Min</option></select>";
                 $(".column-selector").html(html);
             });
         }
