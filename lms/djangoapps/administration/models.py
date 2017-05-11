@@ -265,7 +265,7 @@ class UserLoginInfo(models.Model):
 
 class PepRegTraining_Backup(models.Model):
     class Meta:
-        db_table = 'pepreg_training_backup'
+        db_table = 'pepreg_training_hist'
     type = models.CharField(blank=False, max_length=50, db_index=False)
     district = models.ForeignKey(District)
     description = models.TextField(blank=False, null=True)
@@ -296,7 +296,7 @@ class PepRegTraining_Backup(models.Model):
 
 class PepRegInstructor_Backup(models.Model):
     class Meta:
-        db_table = 'pepreg_instructor_backup'
+        db_table = 'pepreg_instructor_hist'
     training = models.ForeignKey(PepRegTraining)
     instructor = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
@@ -308,7 +308,7 @@ class PepRegInstructor_Backup(models.Model):
 
 class PepRegStudent_Backup(models.Model):
     class Meta:
-        db_table = 'pepreg_student_backup'
+        db_table = 'pepreg_student_hist'
     training = models.ForeignKey(PepRegTraining)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
