@@ -1307,6 +1307,7 @@
                 console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
+                    console.log(iClass + " spans #: " + $(iClass).length);
                     if($(iClass).length > 0) {
                         //var bottomY = $(iClass).last().find("label").offset().top + 16;
                         //var topY = $(iClass).first().find("label").offset().top;
