@@ -286,9 +286,6 @@ def report_save(request, report_id):
         filter_operators = get_request_array(request.POST, 'filter-operator')
         filter_values = get_request_array(request.POST, 'filter-value')
         action = request.POST.get('action', '')
-        log.debug('11111111111111111111111111111111')
-        log.debug(views)
-        log.debug('22222222222222222222222222222222')
         report = False
         if action == 'new':
             report = Reports()
@@ -347,11 +344,8 @@ def report_save(request, report_id):
                 report_filter.save()
            
             rs = reporting_store()
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-            log.debug('333333333333333333333')
-            log.debug(selected_columns)
-            log.debug('4444444444444444444444')            
-            if report_has_school_year(selected_columns):                
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+            if report_has_school_year(selected_columns) || views[0] == '8':                
                 for item in get_school_year_item():
                     collection = get_cache_collection(request, report_id, item)
                     rs.del_collection(collection)
@@ -359,7 +353,7 @@ def report_save(request, report_id):
                 collection = get_cache_collection(request, report_id, "all")
                 rs.del_collection(collection)
 
-            
+
             collection = get_cache_collection(request, report_id, "")
             rs.del_collection(collection)
 
