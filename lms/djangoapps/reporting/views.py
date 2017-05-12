@@ -345,7 +345,7 @@ def report_save(request, report_id):
            
             rs = reporting_store()
             selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
-            if report_has_school_year(selected_columns) || views[0] == '8':                
+            if report_has_school_year(selected_columns) or views[0] == '8':                
                 for item in get_school_year_item():
                     collection = get_cache_collection(request, report_id, item)
                     rs.del_collection(collection)
