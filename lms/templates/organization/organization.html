@@ -411,8 +411,18 @@
                 <td></td>
             </tr>
             <tr class="new_menu_tr">
+                <td class="org_td1">Organization URL: </td>
+                <td><input type="text" id="organizational_base_organization_logo_url" /> </td>
+                <td></td>
+            </tr>
+            <tr class="new_menu_tr">
                 <td class="org_td1">Logo: </td>
                 <td id="organizational_base_home_logo_p"></td>
+                <td></td>
+            </tr>
+            <tr class="new_menu_tr">
+                <td class="org_td1">Logo URL: </td>
+                <td><input type="text" id="organizational_base_logo_url" /> </td>
                 <td></td>
             </tr>
             <tr class="new_menu_tr">
@@ -973,7 +983,11 @@
 									}									
 									if(r["Is New Menu"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
-									}												
+									}
+									
+									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
+									$("#organizational_base_logo_url").val(r["Logo Url"]);
+			
 									//----------
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
@@ -1974,6 +1988,9 @@
 			var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 			var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
 			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();			
+			
+			var org_logo_url = $("#organizational_base_organization_logo_url").val();
+			var logo_url = $("#organizational_base_logo_url").val();
 						
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
@@ -1993,6 +2010,8 @@
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,
 				space_between_items: space_between_items,
+				org_logo_url: org_logo_url,
+				logo_url: logo_url,
 				menu_color: menu_color
 			}, function (r) {
 				if (r.Success){
