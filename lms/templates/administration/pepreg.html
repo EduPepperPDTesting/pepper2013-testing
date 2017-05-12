@@ -1259,8 +1259,8 @@
 		});
 
 		$('#calendar_select_data').change(function(){
-		    var rangeVal = ("#calendar_select_range").val();
-            if(rangeVal == "1" || rangeVal == "2" || rangeVal == "3"){
+            if($("#calendar_select_range").val() == "2"){
+                console.log("calendar_select_data-"+new Date($('#calendar_select_data').val()))
                 var picker_date = new Date($('#calendar_select_data').val());
                 picker_date.setUTCDate(picker_date.getDate());
                 setSysDate(picker_date);
