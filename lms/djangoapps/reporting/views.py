@@ -23,6 +23,8 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
+import logging
+log = logging.getLogger("tracking")
 
 def postpone(function):
     """
@@ -446,9 +448,8 @@ def report_view(request, report_id):
                 create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             view_id = ReportViews.objects.filter(report=report)[0].view_id;
-            pd_plan_id = ReportViews.objects.filter(name='PD Planner')[0].view_id;
             school_year_item = []
-            if report_has_school_year(selected_columns) or view_id == pd_plan_id:
+            if (report_has_school_year(selected_columns)) or (view_id == 8):
                 school_year_item = get_school_year_item()
         else:
             raise Exception('Not allowed.')
@@ -463,6 +464,8 @@ def report_view(request, report_id):
             'school_year': school_year,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
+    log.debug('11111111111111111111111111111111')
+    log.debug(school_year_item)
     return render_to_response('reporting/view-report.html', data)
 
 
