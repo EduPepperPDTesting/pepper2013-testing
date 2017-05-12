@@ -1257,6 +1257,12 @@
 			setPickerValue();
 			calendarOpen();
 		});
+
+		$('#calendar_select_data').change(fanction(){
+            if($("#calendar_select_range").val() == "2"){
+                calendarOpen();
+            }
+		})
 		
 		//-----------------------------------------------
 		$("#math_credits").click(function(){

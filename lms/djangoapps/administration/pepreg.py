@@ -938,7 +938,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                 endHourLast = endHour
 
                                             while(h <= endHour):
-                                                
+
                                                 strHour = str(h) if(h > 0) else "12"
 
                                                 fullHour = strHour + ":00 " + hourAMPM
