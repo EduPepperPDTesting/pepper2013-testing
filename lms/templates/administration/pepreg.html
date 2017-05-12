@@ -1305,7 +1305,7 @@
                 hClass = tClass + dh;
                 var cLimit = $(hClass).length;
                 console.log("# els: "+cLimit+" hClass: "+hClass);
-                for ( var c = 0; c < cLimit; c++ ) {
+                for ( var c = 0; c < cLimit + 1; c++ ) {
                     iClass = hClass + ".span-" + c;
                     console.log(iClass + " spans #: " + $(iClass).length);
                     if($(iClass).length > 0) {
