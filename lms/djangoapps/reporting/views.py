@@ -23,9 +23,6 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
-import logging
-
-log = logging.getLogger("tracking")
 
 def postpone(function):
     """
@@ -345,7 +342,7 @@ def report_save(request, report_id):
            
             rs = reporting_store()
             selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
-            if report_has_school_year(selected_columns) or views[0] == '8':                
+            if report_has_school_year(selected_columns):                
                 for item in get_school_year_item():
                     collection = get_cache_collection(request, report_id, item)
                     rs.del_collection(collection)
@@ -353,7 +350,7 @@ def report_save(request, report_id):
                 collection = get_cache_collection(request, report_id, "all")
                 rs.del_collection(collection)
 
-
+            
             collection = get_cache_collection(request, report_id, "")
             rs.del_collection(collection)
 
@@ -448,8 +445,10 @@ def report_view(request, report_id):
 
                 create_report_collection(request, report, selected_view, columns, filters, report_id)
 
+            view_id = ReportViews.objects.filter(report=report)[0].view_id;
+            pd_plan_id = ReportViews.objects.filter(name='PD Planner')[0].view_id;
             school_year_item = []
-            if report_has_school_year(selected_columns):
+            if report_has_school_year(selected_columns) or view_id == pd_plan_id:
                 school_year_item = get_school_year_item()
         else:
             raise Exception('Not allowed.')
