@@ -1259,7 +1259,7 @@
 		});
 
 		$('#calendar_select_data').change(function(){
-            if($("#calendar_select_range").val() == "2"){
+            if($("#calendar_select_range").val() == "2" || $("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "3"){
                 console.log("calendar_select_data-"+new Date($('#calendar_select_data').val()))
                 var picker_date = new Date($('#calendar_select_data').val());
                 picker_date.setUTCDate(picker_date.getDate());
