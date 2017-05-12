@@ -1291,7 +1291,8 @@
             for ( var b = bStart; b <= bLimit; b++ ) {
                 dh = (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
-                var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
+                var cLimit = $(hClass).length;
+                console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
                     if($(iClass).length > 0) {
@@ -1315,7 +1316,8 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                         + labelHtml + "</div>");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
                         }).css({"padding": "5px", "height": "26px"});
