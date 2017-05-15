@@ -34,9 +34,10 @@ def get_default_school_year_item(school_year_item):
 
 def get_query_school_year(request, report, columns):
     selected_view = ReportViews.objects.filter(report=report)[0]
-    view_id = selected_view.view_id
-    pd_planner_id = Views.objects.filter(name='PD Planner')[0].id
-    if (report_has_school_year(selected_columns)) or (view_id == pd_planner_id):
+    # view_id = ReportViews.objects.filter(report=report)[0].view_id
+    # pd_planner_id = Views.objects.filter(name='PD Planner')[0].id
+    # if (report_has_school_year(selected_columns)) or (view_id == pd_planner_id):
+    if report_has_school_year(columns):
         school_year_item = request.GET.get('school_year', '')
         school_year_item = get_default_school_year_item(school_year_item)
         if selected_view.view.collection in school_year_collection:
