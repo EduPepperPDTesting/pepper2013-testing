@@ -39,6 +39,9 @@
 </%block>
 
 <style type="text/css" media="screen">
+    html {font-size: 16px !important;}
+    html, body {line-height: 16px !important;}
+
     *{font-family:"open sans" !important;}
     p{font-family:"open sans" !important;}
 
@@ -53,11 +56,11 @@
         left: -140px !important;
     }
 
-    a:link, a:visited {font: normal 1.2em/1.2em "Open Sans",Verdana,Geneva,sans-serif;}
+    a:link, a:visited {font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif;}
 
-    a.cta{font: normal 1em/1em "Open Sans",Verdana,Geneva,sans-serif; !important;}
+    a.cta{font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif; !important;}
 
-    .admin-dropdown-menu a:link, a:visited {font-size: 1.2em !important;}
+    .admin-dropdown-menu a:link, a:visited {font-size: 16px !important;}
 
     a.blue{
         color:#556370 !important;
@@ -83,7 +86,7 @@
 
     a.main-link{
         font-family:'open sans';
-        font-size:16px;
+        font-size: 16px;
         text-transform:none;
         font-weight:normal !important;
     }
@@ -391,7 +394,7 @@
         <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-        <ol class="user admin" style="margin-top: 2px !important;"> <!-- akogan - added style-->
+        <ol class="user admin" style="margin-top: 3px !important;"> <!-- akogan - added style-->
             %if show_extended:
           <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->

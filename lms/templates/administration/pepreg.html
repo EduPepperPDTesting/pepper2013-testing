@@ -49,6 +49,8 @@
     /*akogan*/
 
     html {font-size: 16px !important;}
+    html, body {line-height: 16px !important;}
+
     *{font-family: "open sans" !important;}
 
     .label{color: #000000 !important;}
@@ -64,7 +66,7 @@
     .form-row input{color: #222 !important;}
     .form-row textarea{color: #222 !important;}
 
-    h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.3em/1.3em Georgia,Cambria,"Times New Roman",Times,serif !important;}
+    h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;}
 
     .table-filter select, .table-filter input {height: 30px !important;margin-bottom: 10px !important;}
 
@@ -1257,6 +1259,16 @@
 			setPickerValue();
 			calendarOpen();
 		});
+
+		$('#calendar_select_data').change(function(){
+            if($("#calendar_select_range").val() == "2" || $("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "3"){
+                console.log("calendar_select_data-"+new Date($('#calendar_select_data').val()))
+                var picker_date = new Date($('#calendar_select_data').val());
+                picker_date.setUTCDate(picker_date.getDate());
+                setSysDate(picker_date);
+                calendarOpen();
+            }
+		})
 		
 		//-----------------------------------------------
 		$("#math_credits").click(function(){
@@ -1293,8 +1305,9 @@
                 hClass = tClass + dh;
                 var cLimit = $(hClass).length;
                 console.log("# els: "+cLimit+" hClass: "+hClass);
-                for ( var c = 0; c < cLimit; c++ ) {
+                for ( var c = 0; c < cLimit + 1; c++ ) {
                     iClass = hClass + ".span-" + c;
+                    console.log(iClass + " spans #: " + $(iClass).length);
                     if($(iClass).length > 0) {
                         //var bottomY = $(iClass).last().find("label").offset().top + 16;
                         //var topY = $(iClass).first().find("label").offset().top;
