@@ -430,6 +430,7 @@ def report_save(request, report_id):
                 report_column.order = column_order[column]
                 report_column.save()
 
+<<<<<<< HEAD
                 ReportFilters.objects.filter(report=report).delete()
                 for i, column in filter_columns.iteritems():
                     report_filter = ReportFilters()
@@ -449,6 +450,24 @@ def report_save(request, report_id):
                         rs.del_collection(collection)
 
                     collection = get_cache_collection(request, report_id, "all")
+=======
+            ReportFilters.objects.filter(report=report).delete()
+            for i, column in filter_columns.iteritems():
+                report_filter = ReportFilters()
+                report_filter.report = report
+                report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                report_filter.column = ViewColumns.objects.get(id=int(column))
+                report_filter.value = filter_values[i].strip()
+                report_filter.operator = filter_operators[i]
+                report_filter.order = int(i)
+                report_filter.save()
+           
+            rs = reporting_store()
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+            if report_has_school_year(selected_columns):                
+                for item in get_school_year_item():
+                    collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+>>>>>>> 1841a77a773d64e833377eb1c0d0bbe358c9fc29
                     rs.del_collection(collection)
 
                 
