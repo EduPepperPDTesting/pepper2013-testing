@@ -1,5 +1,5 @@
 
-from .models import ReportViews
+from .models import ReportViews,Views
 from .models import reporting_store
 
 school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView','PepRegTrainingView']
