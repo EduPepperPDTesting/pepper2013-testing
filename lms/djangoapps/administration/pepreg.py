@@ -514,7 +514,7 @@ def getCalendarMonth(request):
         weekNumber = date(year=_year, month=_month, day=_day).isocalendar()[1]
         daterange = getweekdays(_year, weekNumber, _getrange)
     else:
-        raise Exception("month: "+str(_month)+" day: "+str(_day))
+        # raise Exception("month: "+str(_month)+" day: "+str(_day))
         getDay = datetime(year=_year, month=_month, day=_day)
         daterangelist.append(getDay)
 
