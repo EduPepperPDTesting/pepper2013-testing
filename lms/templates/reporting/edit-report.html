@@ -212,6 +212,11 @@
                 var Column_Headers = $("select[name='Column_Headers']").val();
                 var Row_Headers = $("select[name='Row_Headers']").val();
                 var Aggregate_Data = $("select[name='Aggregate_Data']").val();
+                if (Column_Headers == 'none' || Row_Headers == 'none') {
+                    valid = false;
+                    errors.push('Column Headers and Row_Headers must be selected.');
+                    $(".column-selector").addClass('error-box');
+                }
                 if(Column_Headers == Row_Headers || Row_Headers == Aggregate_Data || Aggregate_Data == Column_Headers){
                     valid = false;
                     errors.push('Column_Headers,Row_Headers,Aggregate_Data,These 3 fields must be different.');
