@@ -960,9 +960,11 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                     hourAMPM = "PM"
 
                                         if (h <= endHour):
+                                            if(h == startHour and int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) == ):
+                                                unique = " unique " if (h == startHour) else ""
                                             t = day[3][i][-2:]
                                             dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                            table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                            table_tr_content += "<span class='" + unique + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
 
                                     i += 1
 
