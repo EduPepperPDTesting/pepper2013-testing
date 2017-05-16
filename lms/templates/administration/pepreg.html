@@ -1352,7 +1352,7 @@
             coords.push(leftX);
         }
         for(n = 0; n < coords.length; n++){
-            for(m = 1; m < coords.length; m++){
+            for(m = n + 1; m < coords.length; m++){
                 if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
             }
         }
