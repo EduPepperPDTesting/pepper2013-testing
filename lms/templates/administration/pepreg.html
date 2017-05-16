@@ -683,7 +683,8 @@
 	           $("#calendar-month-weekdays " + dayID).show();
 	           var displayDate=getDateDay.toUTCString().slice(5, 16);
 	           if($("#calendar-month-weekdays th[id='time']").length == 0){
-                  $("#calendar-month-weekdays").prepend("<th id='time' style='width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" + displayDate + "</th>");
+                  //$("#calendar-month-weekdays").prepend("<th id='time' style='width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" + displayDate + "</th>");
+                  $("#calendar-month-weekdays").prepend("<th id='time' style='width: 154px !important;'>" + displayDate + "</th>");
                }else{
                   $("#time").text(displayDate);
                }
@@ -1347,11 +1348,10 @@
         var coords = [];
         for(var n = 0; n <= existingSlots; n++){
             leftX = $(".unique:eq(" + n + ")").find("div").position().left;
-            //if(coords[n-1] && coords[n-1] == leftX){leftX += 110;}
             coords.push(leftX);
         }
         console.log(coords)
-        for(n = 0; n < coords.length; n++){
+        for(n = 0; n < coords.length - 1; n++){
             for(m = n + 1; m < coords.length; m++){
                 if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
             }
@@ -1359,6 +1359,11 @@
         console.log(coords)
         for(n = 0; n < coords.length; n++){
             $(".span-" + n).find("div").css("left", coords[n] + "px");
+        }
+
+        if(coords[m] + 110 > parseInt($("#calendar-month").width())){
+            tableWidth = coords[m] + 110;
+            $("#calendar-month").css("width", tableWidth + "px")
         }
     };
 
