@@ -718,7 +718,7 @@
 				if($("#calendar_select_range").val() != "2"){
                     tmp1.top += 30;
 				}else{
-				    tmp1.top = e.clientY;
+				    tmp1.top = e.clientY + 30;
 				}
 				tmp1.top -= $(document).scrollTop();
 				var tmp3 = $(this).attr("titlex").split("::");
