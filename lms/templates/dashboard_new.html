@@ -15,6 +15,58 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
 #image_uploading{display:none;}
+a.btnx:hover,input[type=button].btnx:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+ }
+ a.btnx, input[type=button].btnx{
+    border:none;
+    text-decoration:none;
+    background:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ a.btnx:normal, input[type=button].btnx{
+    background-color:#556370;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ ._del_line{
+    text-decoration: none !important;
+ }
+ .course-register{
+    display:block;
+    width:195px;
+    margin-top:10px;
+    text-align:center;
+    float:left;
+    font-size:16px;
+ }
 /*--from .css-----------------------------------------------------------------*/
 #searching-text{
     border:0;
@@ -209,16 +261,17 @@
     cursor: pointer;
 }
 
-.ds-my-status{
-    width:185px;
-    /*font-size: 20px;*/
-    /*font-weight: bold;*/
-    /*border-radius: 6px;*/
-    margin-top: 20px;
-    margin-bottom: 20px;
-    /*padding: 15px 15px 15px 15px;*/
+.ds-view-allowed-courses{
+    width:215px;
+    text-align:right;
     float: left;
-    /*border:1px solid #666;*/
+    margin-top:10px;
+}
+.ds-view-allowed-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
 }
 /*--right My Communities---------------------------------------------*/
 .con-my-communities-outer{
@@ -558,36 +611,60 @@
                 <a href="/courses">My Courses</a>
             </div>
             <div class="my-courses-cards">
-                %for i,course in enumerate(courses_incomplated):
-                    %if i < 3:
-                        <%
-                            course_target = reverse('courseware', args=[course.id])
-                        %>
-                        <div class="course-card">
-                            <div>
-                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
-                            </div>
-                            <div class="course-title">
-                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
-                            </div>  
+                %for course in courses_incomplated:
+                    <%
+                        course_target = reverse('courseware', args=[course.id])
+                    %>
+                    <div class="course-card">
+                        <div>
+                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
                         </div>
-                        <div class="ds-course-btn">
-                            %if course.id in show_courseware_links_for:
-                                %if curr_user == request.user:              
-                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
-                                %else:
-                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
-                                %endif
-                                %if curr_user == request.user and not course.close_course:      
-                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
-                                %endif
+                        <div class="course-title">
+                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                        </div>  
+                    </div>
+                    <div class="ds-course-btn">
+                        %if course.id in show_courseware_links_for:
+                            %if curr_user == request.user:              
+                                 <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                            %else:
+                                <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                             %endif
-                        </div>
-                    %endif
+                            %if curr_user == request.user and not course.close_course:      
+                                <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                            %endif
+                        %endif
+                    </div>
                 %endfor
             </div>
             <div class="ds-view-all-courses">
                 <a href="/my_courses">View All</a>
+            </div>
+            <!--allowedcourse-->
+            <div class="my-title" style="float:left;margin-top:10px;border:0px solid;">
+                <a href="/courses">Courses Available to Me</a>
+            </div>
+            <div class="my-courses-cards">
+                %for course in allowedcourses:
+                    <form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+                        <fieldset class="enroll_fieldset">
+                            <input name="course_id" type="hidden" value="${course.id}">
+                            <input name="enrollment_action" type="hidden" value="enroll">
+                        </fieldset>
+                    </form>
+                    <div class="course-card">
+                        <div>
+                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                        </div>
+                        <div class="course-title">
+                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                        </div>  
+                    </div>
+                    <a href="#" id="course_register" class="course-register btnx _del_line">Sign Up & Start Course</a>
+                %endfor
+            </div>
+            <div class="ds-view-allowed-courses">
+                <a href="/more_courses_available">View All</a>
             </div>
         </div>
         </div>
@@ -683,17 +760,6 @@
 var size = 0;
 
 $(document).ready(function(){
-    //@begin:Add for Dashboard Posts
-    //@date:2016-12-29
-    size = 5;
-
-    //--Post function--------------------------------------------
-    //--post button--
-
-    waiting = false;
-
-    //@end
-
     //20170221=================================================================================================
     $(window).on('unload', function() {
         $(window).scrollTop(0);
