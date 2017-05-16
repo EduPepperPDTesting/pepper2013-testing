@@ -606,7 +606,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     array_length = len(all_occurrences)
 
     date_list = getdatelist(daterangelist, getrange, year, month)
-    raise Exception("datelist ".join(date_list))
+    raise Exception(date_list)
     for item in all_occurrences:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
