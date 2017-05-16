@@ -1302,6 +1302,7 @@
 	});	
 
     function uniqueTrainingSlot() {
+        var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
             bLimit = (a == 0) ? 12 : 6;
