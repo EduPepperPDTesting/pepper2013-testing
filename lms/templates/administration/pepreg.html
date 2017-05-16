@@ -703,7 +703,7 @@
 
 			$(".training-row").has("label").css("padding", "0px");
 
-			if($("#calendar_select_range").val() == "2"){
+			if($("#calendar_select_range").val() == "2" && $("label").length > 0){
 			    uniqueTrainingSlot();
 
                 var labelElem = $(".training-row label");
