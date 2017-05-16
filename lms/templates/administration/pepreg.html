@@ -1345,9 +1345,14 @@
             }
         }
         console.log("# of slots: " + existingSlots);
-        for(var n = 0; n <= existingSlots; n++){
-            leftX = $(".span-" + n).find("div").position().left + 110;
-            $(".span-" + (n + 1)).find("div").css({"left": leftX + "px", "border":"1px red solid"});
+        var coords = [];
+        for(var n = 0; n < existingSlots; n++){
+            leftX = $(".unique:eq(" + n + ")").find("div").position().left;
+            if(coords[n-1] && coords[n-1] == leftX){leftX += 110;}
+            coords.push(leftX);
+        }
+        for(n = 0; n < coords.length; n++){
+            $(".span-" + n).find("div").css("left", coords[n] + "px");
         }
     };
 
