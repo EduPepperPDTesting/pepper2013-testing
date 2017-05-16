@@ -1319,11 +1319,12 @@
                         console.log("#els not with #" + iClass + ": " + $(".completeSlot").length);
                         if(existingSlots == 0){
                             //leftX = $(iClass).first().find("label").offset().left - 453;
-                            leftX = $(iClass).first().find("label").position().left;
+                            leftX = $(iClass).first().find("label").position().left + 5;
                         }else{
                             //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
-                            leftX = $(".completeSlot").last().position().left + 110;
-                            $(".completeSlot").css("border","1px solid red");
+                            slIndex = existingSlots - 1;
+                            leftX = $(".completeSlot:eq(" + slIndex + ")").last().position().left + 110;
+                            $(".completeSlot:eq(" + slIndex + ")").css("border","1px solid red");
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
