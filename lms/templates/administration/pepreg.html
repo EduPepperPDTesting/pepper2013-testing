@@ -1342,11 +1342,11 @@
                         $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
                     }
                 }
-                for(var n = 0; n < existingSlots; n++){
-                    leftX = $(".span-" + n).position().left + 110;
-                    $(".span-" + (n + 1)).css("left", leftX + "px");
-                }
             }
+        }
+        for(var n = 0; n < existingSlots; n++){
+            leftX = $(".span-" + n).position().left + 110;
+            $(".span-" + (n + 1)).css("left", leftX + "px");
         }
     };
 
