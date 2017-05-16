@@ -264,7 +264,7 @@ def report_edit(request, report_id):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def report_save(request, report_id):
-   """
+    """
     Save edited or new reports.
     :param request: Request object.
     :param report_id: The ID of the report to be edited. 'new' if this is a new report.
@@ -355,6 +355,7 @@ def report_save(request, report_id):
     else:
         transaction.commit()
         return render_json_response({'success': True, 'report_id': report.id})
+
 
 
 @ensure_csrf_cookie
