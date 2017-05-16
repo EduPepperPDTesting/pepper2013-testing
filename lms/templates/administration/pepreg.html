@@ -1325,7 +1325,7 @@
                             //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
                             slIndex = existingSlots - 1;
                             //leftX = $(".completeSlot:eq(" + slIndex + ")").position().left + 110;
-                            leftX = $(".unique:has(.completeSlot)").last().position().left + 110;
+                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + 110;
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
