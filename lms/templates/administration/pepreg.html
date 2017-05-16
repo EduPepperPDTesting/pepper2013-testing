@@ -1315,13 +1315,13 @@
                         var topY = $(iClass).first().find("label").position().top;
                         height = bottomY - topY;
                         topY += 2; //-= 269;
-                        existingSlots = $(".completeSlot:not(" + iClass + ")").length;
-                        console.log("#els with " + iClass + ": " + $(iClass).length);
+                        existingSlots = $(".completeSlot:not(#" + iClass + ")").length;
+                        console.log("#els with #" + iClass + ": " + $("#"+iClass).length);
                         if(existingSlots == 0){
                             leftX = $(iClass).first().find("label").offset().left - 453;
                         }else{
-                            //leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
-                            leftX = $(".completeSlot:not(" + iClass + ")").last().position().left + 110;
+                            //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
+                            leftX = $(".completeSlot:not(#" + iClass + ")").last().position().left + 110;
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
