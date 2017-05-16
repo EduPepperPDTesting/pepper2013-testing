@@ -1305,7 +1305,7 @@
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
                 console.log("# els: "+cLimit+" hClass: "+hClass);
-                for ( var c = 0; c < cLimit; c++ ) {
+                for ( var c = 0; c <= cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
                     console.log(iClass + " spans #: " + $(iClass).length);
                     if($(iClass).length > 0) {
@@ -1347,7 +1347,7 @@
         console.log("# of slots: " + existingSlots);
         for(var n = 0; n <= existingSlots; n++){
             leftX = $(".span-" + n).position().left + 110;
-            $(".span-" + (n + 1)).css("left", leftX + "px");
+            $(".span-" + (n + 1)).css({"left": leftX + "px", "border":"1px red solid"});
         }
     };
 
