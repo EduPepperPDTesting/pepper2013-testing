@@ -711,11 +711,15 @@
                 labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
 			}
 			
-			$(".alert").mouseover(function () {
+			$(".alert").mouseover(function (e) {
 				$("#calendar_alert_title").empty();
 				var this_x = $(this).parent().position().left;
-				var tmp1 = $(this).offset();
-				tmp1.top += 30;
+                var tmp1 = $(this).offset();
+				if($("#calendar_select_range").val( != "2"){
+                    tmp1.top += 30;
+				}else{
+				    tmp1.top += e.clientY;
+				}
 				tmp1.top -= $(document).scrollTop();
 				var tmp3 = $(this).attr("titlex").split("::");
 				for(var i in tmp3){
