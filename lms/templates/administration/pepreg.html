@@ -1351,12 +1351,13 @@
             //if(coords[n-1] && coords[n-1] == leftX){leftX += 110;}
             coords.push(leftX);
         }
+        console.log(coords)
         for(n = 0; n < coords.length; n++){
             for(m = n + 1; m < coords.length; m++){
                 if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
             }
         }
-
+        console.log(coords)
         for(n = 0; n < coords.length; n++){
             $(".span-" + n).find("div").css("left", coords[n] + "px");
         }
