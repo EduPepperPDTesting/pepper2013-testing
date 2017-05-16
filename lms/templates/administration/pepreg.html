@@ -1311,13 +1311,11 @@
                     if($(iClass).length > 0) {
                         //var bottomY = $(iClass).last().find("label").offset().top + 16;
                         //var topY = $(iClass).first().find("label").offset().top;
-
                         var bottomY = $(iClass).last().find("label").position().top + 19;
                         var topY = $(iClass).first().find("label").position().top;
                         height = bottomY - topY;
                         topY += 2; //-= 269;
                         existingSlots = $(".completeSlot").length;
-
                         console.log("#els not with #" + iClass + ": " + $(".completeSlot").length);
 
                         if(existingSlots == 0){
@@ -1326,7 +1324,7 @@
                         }else{
                             //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
                             slIndex = existingSlots - 1;
-                            leftX = $(".completeSlot" + slIndex).position().left + 110;
+                            leftX = $(".completeSlot:eq(" + slIndex + ")").position().left + 110;
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
@@ -1335,7 +1333,7 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot" + existingSlots + "' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
                          + labelHtml + "</div>");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
