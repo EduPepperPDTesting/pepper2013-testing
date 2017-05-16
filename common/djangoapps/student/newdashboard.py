@@ -188,11 +188,11 @@ def newdashboard(request, user_id=None):
 
     #@begin:Add for Dashboard My Courses
     #@date:2017-02-19
-    #Just choose the last 3 courses_incomplated of the user.
+    #Just choose the last 2 courses_incomplated of the user.
     courses_incomplated_list = list()
     for k, v in enumerate(courses_incomplated):
         courses_incomplated_list.append(v)
-        if k > 1:
+        if k > 0:
             break
     #@end
 
