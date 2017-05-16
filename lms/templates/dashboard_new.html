@@ -92,26 +92,25 @@
 }
 
 /*--left My Courses--------------------------------------------*/
-.con-my-courses{
-    display:block;
+.con-my-courses-outer{
     float:left;
+    width:220px;
+    height:50px;
+}
+.con-my-courses{
+    /*display:block;
+    float:left;*/
     width:220px;
     /*position: fixed;
 
     height:780px;
     border:1px solid #f00;*/
 }
-
-.con-my-courses-placeholder{
-    display:block;
-    float:left;
-    width:220px;
-    height:50px;
-}
-
 .my-title{
-    width:215px;
-    text-align:center;
+    /*width:215*/
+    width:212px;
+    /*text-align:center;*/
+    padding-left: 3px;
 }
 .my-title a{
     font-size:16px;
@@ -222,9 +221,17 @@
     /*border:1px solid #666;*/
 }
 /*--right My Communities---------------------------------------------*/
+.con-my-communities-outer{
+    float:left;
+    width:220px;
+    height:50px;
+    margin-left: 27px;
+}
 .con-my-communities{
+    /*
     display:block;
     float:right;
+    */
     width:220px;
 }
 
@@ -545,9 +552,10 @@
     <section class="container dashboard">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <div class="con-my-courses">
+        <div class="con-my-courses-outer">
+        <div class="con-my-courses" style="position:fixed;">
             <div class="my-title">
-                <a href="/courses">My Course & Workshops</a>
+                <a href="/courses">My Courses</a>
             </div>
             <div class="my-courses-cards">
                 %for i,course in enumerate(courses_incomplated):
@@ -582,7 +590,7 @@
                 <a href="/my_courses">View All</a>
             </div>
         </div>
-        <!--<div class="con-my-courses-placeholder"></div>-->
+        </div>
 
         <div class="con-maincontent-all clearfix">
             <div class="con-feed-activity">
@@ -640,7 +648,8 @@
         </div>
         
         <!--Community Dashboard-->
-        <div class="con-my-communities">
+        <div class="con-my-communities-outer">
+        <div class="con-my-communities" style="position:fixed;">
             <div class="my-title">
                 <a href="/communities">Coaching & Collaboration</a>
             </div>
@@ -664,6 +673,7 @@
             %endif
                 <a href="/communities">View All</a>
             </div>
+        </div>
         </div>
         <div style="clear:both;"></div>
     </section>
