@@ -619,8 +619,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 status = PepRegStudent.objects.get(student=userObj, training=item).student_status
         except:
             status = ""
-        if(item.training_date in date_list):
-            raise Exception(item.training_date)
+        # if(item.training_date in date_list):
+        #     raise Exception(item.training_date)
         if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
                                                                                                        or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
                                                                                                                                                                                                                     and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
