@@ -1156,11 +1156,11 @@
 			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
             calendarOpen();
@@ -1179,12 +1179,12 @@
 			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
             calendarOpen();
@@ -1211,11 +1211,11 @@
                     picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                     picker_date.setUTCDate(picker_date.getDate() - monthDays);
 			    }
-                setSysDate(picker_date);
+                setSysDate(picker_date, 0);
             }else{
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
             }
 			setPickerValue();
 			calendarOpen();
@@ -1231,24 +1231,24 @@
                 console.log("monthDays: "+monthDays);
                 picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + monthDays);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
             }else{
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
-                setSysDate(picker_date);
+                setSysDate(picker_date, 0);
             }
 			setPickerValue();
 			calendarOpen();
 		});
 
-		function setSysDate(picker_date){
+		function setSysDate(picker_date, addMonth){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
 
             _old_month = _sys_calendar_month;
 
             _sys_calendar_month = picker_date.getUTCMonth();
-            if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
+            if(addMonth && $("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
             _sys_calendar_year = picker_date.getUTCFullYear();
             if(_sys_calendar_month == 0){
                 _sys_calendar_month = 12;
@@ -1350,25 +1350,27 @@
                 }
             }
         }
-        var coords = [];
-        for(var n = 0; n <= existingSlots; n++){
-            leftX = $(".unique:eq(" + n + ")").find("div").position().left;
-            coords.push(leftX);
-        }
-        console.log(coords)
-        for(n = 0; n < coords.length - 1; n++){
-            for(m = n + 1; m < coords.length; m++){
-                if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
+        if(existingSlots > 0){
+            var coords = [];
+            for(var n = 0; n <= existingSlots; n++){
+                leftX = $(".unique:eq(" + n + ")").find("div").position().left;
+                coords.push(leftX);
             }
-        }
-        console.log(coords)
-        for(n = 0; n < coords.length; n++){
-            $(".span-" + n).find("div").css("left", coords[n] + "px");
-        }
+            console.log(coords)
+            for(n = 0; n < coords.length - 1; n++){
+                for(m = n + 1; m < coords.length; m++){
+                    if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
+                }
+            }
+            console.log(coords)
+            for(n = 0; n < coords.length; n++){
+                $(".span-" + n).find("div").css("left", coords[n] + "px");
+            }
 
-        if(coords[m] + 110 > parseInt($("#calendar-month").width())){
-            tableWidth = coords[m] + 110;
-            $("#calendar-month").css("width", tableWidth + "px")
+            if(coords[m] + 110 > parseInt($("#calendar-month").width())){
+                tableWidth = coords[m] + 110;
+                $("#calendar-month").css("width", tableWidth + "px")
+            }
         }
     };
 
