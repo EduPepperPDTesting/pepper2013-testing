@@ -1348,9 +1348,15 @@
         var coords = [];
         for(var n = 0; n < existingSlots; n++){
             leftX = $(".unique:eq(" + n + ")").find("div").position().left;
-            if(coords[n-1] && coords[n-1] == leftX){leftX += 110;}
+            //if(coords[n-1] && coords[n-1] == leftX){leftX += 110;}
             coords.push(leftX);
         }
+        for(n = 0; n < coords.length; n++){
+            for(m = 1; m < coords.length; m++){
+                if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
+            }
+        }
+
         for(n = 0; n < coords.length; n++){
             $(".span-" + n).find("div").css("left", coords[n] + "px");
         }
