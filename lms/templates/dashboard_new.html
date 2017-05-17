@@ -65,7 +65,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     margin-top:10px;
     text-align:center;
     float:left;
-    font-size:13px;
+    font-size:13px !important;
  }
 /*--from .css-----------------------------------------------------------------*/
 #searching-text{
@@ -757,8 +757,6 @@ a.btnx:hover,input[type=button].btnx:hover {
 </section>
 
 <script>
-var size = 0;
-
 $(document).ready(function(){
     //20170221=================================================================================================
     $(window).on('unload', function() {
@@ -975,6 +973,48 @@ $(document).ready(function(){
             }
         }
     });
+});
+
+jQuery(function(){
+    var register_click = 0;
+    $("#course_register").click(function(event) {
+        %if not user.is_staff: 
+            if($(this).hasClass("disabled")){
+                return false;
+            }
+        %endif
+        if(register_click == 0){
+            register_click = 1;
+            $("#class_enroll_form").submit();
+            console.log("register_click-------------------------");
+        }
+        event.preventDefault();
+    });
+    ## making the conditional around this entire JS block for sanity
+    %if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+        $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+            if(xhr.status == 200) {
+                location.href = "${reverse('newdashboard')}";
+            } else if (xhr.status == 403) {
+                location.href = "${reverse('course-specific-register', args=[course.id])}?course_id=${course.id}&enrollment_action=enroll";
+            } else if (xhr.status == 400) { //This means the user did not have permission
+                $('#register_error').html('This course has restricted enrollment.  Sorry, you do not have permission to enroll.<br />' + 
+                    'You may need to log out and re-login with a university account, such as WebAuth').css("display", "block");
+            } else {
+                $('#register_error').html((xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')).css("display", "block");
+            }
+        });
+    %else:
+        $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+            if(xhr.status == 200) {
+                location.href = "${reverse('newdashboard')}";
+            } else if (xhr.status == 403) {
+                location.href = "${reverse('register_user',args=[''])}?course_id=${course.id}&enrollment_action=enroll";
+            } else {
+                $('#register_error').html((xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')).css("display", "block");
+            }
+        });
+    %endif
 });
 </script>
 

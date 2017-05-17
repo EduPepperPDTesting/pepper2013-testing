@@ -3,8 +3,51 @@
 <%namespace name='static' file='static_content.html'/>
 <%! from django.utils import html %>
 <%!
-    from organization.models import OrganizationMetadata    
-    list = OrganizationMetadata.objects.prefetch_related().all()
+    from student.models import State,District,School,User,UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+%>
+% if context.get("curr_user"):
+    <% curr_user=context.get("curr_user") %>
+% else:
+    <% curr_user=user %>
+% endif
+<%
+    OrganizationOK = False
+    if curr_user == request.user:
+        if curr_user.is_authenticated():            
+            try:
+                state_id = request.user.profile.district.state.id
+                district_id = request.user.profile.district.id
+                school_id = request.user.profile.school.id
+            except:
+                state_id = -1
+                district_id = -1
+                school_id = -1
+                
+            organization_obj = OrganizationMetadata()
+            if (school_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                    organization_obj = tmp1.organization
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and district_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                    organization_obj = tmp1.organization
+                    OrganizationOK = True
+                    break;
+            
+            if (not(OrganizationOK) and state_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                    OrganizationOK = True
+                    organization_obj = tmp1.organization
+                    break;
+                    
+            data = {}
+            if OrganizationOK:
+                data["org_id"] = organization_obj.id;
+                for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                    data[tmp1.itemType] = tmp1.itemValue
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
@@ -33,9 +76,6 @@
 <!--@end-->
 
       <script type="text/javascript">
-	  	% for tmp1 in list:		  
-			//${tmp1.OrganizationName}
-		% endfor
         /* immediately break out of an iframe if coming from the marketing website */
         (function(window) {
           if (window.location !== window.top.location) {
@@ -89,7 +129,11 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-header.html" />
 % elif not suppress_toplevel_navigation:
-  <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
+    % if OrganizationOK and data["Is New Menu"] == "1":
+        <%include file="navigation_new.html" args="show_extended=self.attr.navbar_show_extended"/>
+    % else:
+        <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
+    % endif    
 % endif
   
 <!--@begin:Main module page, change the bottom margin in the body text-->

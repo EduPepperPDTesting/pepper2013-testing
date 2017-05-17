@@ -128,13 +128,14 @@ def newdashboard(request, user_id=None):
     courses_incomplated = []
     courses = []
     exists = 0
+
     allowedcourses_id = []
+    allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+    
     # get none enrolled course count for current login user
     rts = record_time_store()
     if user_id != request.user.id:
         allowed = CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).values_list('course_id', flat=True)
-        allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
-     
         # make sure the course exists
         for course_id in allowed:
             try:
@@ -144,13 +145,14 @@ def newdashboard(request, user_id=None):
                 pass
 
     for enrollment in CourseEnrollment.enrollments_for_user(user):
+        if enrollment.course_id in allowedcourses_id:
+            allowedcourses_id.remove(enrollment.course_id)
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
 
             if enrollment.course_id in allowed:
                 exists = exists - 1
-                allowedcourses_id.remove(enrollment.course_id)
             courses.append(c)
 
             field_data_cache = FieldDataCache([c], c.id, user)
@@ -215,21 +217,24 @@ def newdashboard(request, user_id=None):
     #@begin:get newest allowedcourse
     #@date:2017-05-16
     allowedcourses = []
-    if allowedcourses_id:
+    for course_id in allowedcourses_id:
         try:
-            c = course_from_id(allowedcourses_id[0])
-            allowedcourses.append(c)
+            course = course_from_id(course_id)
+            allowedcourses.append(course)
         except:
             pass
+    allowedcourse_list = []
+    if allowedcourses:
+        allowedcourse_list.append(allowedcourses[0])
     #@end
-
+    
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
         'show_courseware_links_for': show_courseware_links_for,
         'curr_user': user,
         'communities': community_list,
-        'allowedcourses': allowedcourses
+        'allowedcourses': allowedcourse_list
     }   
 
     return render_to_response('dashboard_new.html', context)
