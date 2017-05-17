@@ -511,10 +511,18 @@
          <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:15px;}      
         </style>
-        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+        % if OrganizationOK and data['Is New Menu'] == "1":
+            <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+        % else:	
+	        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+        % endif
     % else:
         % if curr_user==request.user:
-          <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+            % if OrganizationOK and data['Is New Menu'] == "1":
+                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+            % else:	
+                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+            % endif
         % else:
           <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
         % endif
