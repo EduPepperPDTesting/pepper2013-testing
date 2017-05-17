@@ -434,82 +434,82 @@
                 base_src = "/static/uploads/organization/" + str(data['org_id']) + "/";
                 
                 #---------------OrganizationDashboard 
-                for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
-                    data[tmp1.itemType] = tmp1.itemValue
+                #for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                #    data[tmp1.itemType] = tmp1.itemValue
                 
                 base_logo = "";
-                if data['Dashboard option etc'] != "0":
-                    #---------------OrganizationMenu 
-                    for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                        data[tmp1.itemType] = tmp1.itemValue
-                    
-                    if data['logo'] != "":
-                        base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Logo Url'] + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
-                    
-                    if data['organization_logo'] != "":
-                        base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Organization Logo Url'] + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
+                #if data['Dashboard option etc'] != "0":
+                #---------------OrganizationMenu 
+                for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                    data[tmp1.itemType] = tmp1.itemValue
                 
-                    #---------------OrganizationMenuitem 
-                    if data['Is Icon With Text'] == "1":
-                        menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:9px !important;'>"
-                    else:
-                        menu_items = "<ol class='authenticated nav-option-ol'>"
-                  
-                    for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
-                        if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and curr_user.is_superuser):
-                            #---------------Sub Menu
-                            liClass = ""
-                            menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu'>"
-                            for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
-                                if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and curr_user.is_superuser):
-                                    if liClass == "":
-                                        liClass = " class='admin-menu-holder'"
-                                    
-                                    menu_items_child = menu_items_child + "<li><a href='" + tmp2.Url + "'>" + tmp2.MenuItem + "</a></li>"
-                                    
-                            menu_items_child = menu_items_child + "</ul>";
-                            
-                            if data['Is Icon'] == "1":
+                if data['logo'] != "":
+                    base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Logo Url'] + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
+                
+                if data['organization_logo'] != "":
+                    base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Organization Logo Url'] + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
+            
+                #---------------OrganizationMenuitem 
+                if data['Is Icon With Text'] == "1":
+                    menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:9px !important;'>"
+                else:
+                    menu_items = "<ol class='authenticated nav-option-ol'>"
+              
+                for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
+                    if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and curr_user.is_superuser):
+                        #---------------Sub Menu
+                        liClass = ""
+                        menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu'>"
+                        for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
+                            if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and curr_user.is_superuser):
                                 if liClass == "":
-                                    icon_a = "<a href='" + tmp1.Url + "'>"    
-                                else:
-                                    icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
-                                    
-                                #---------------icon
-                                if data['Is Icon With Text'] == "1":                            
-                                    menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                                    menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a></span>"
-                                    menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt'>" + tmp1.MenuItem + "</span>"
-                                else:
-                                    menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                                    menu_items_tmp1 = menu_items_tmp1 + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a>"
-                                    
-                                menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1.MenuItem + "</div>"        
-                                if liClass != "":
-                                    menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                                    
-                                menu_items_tmp1 = menu_items_tmp1 + "</li>"
+                                    liClass = " class='admin-menu-holder'"
                                 
+                                menu_items_child = menu_items_child + "<li><a href='" + tmp2.Url + "'>" + tmp2.MenuItem + "</a></li>"
+                                
+                        menu_items_child = menu_items_child + "</ul>";
+                        
+                        if data['Is Icon'] == "1":
+                            if liClass == "":
+                                icon_a = "<a href='" + tmp1.Url + "'>"    
                             else:
-                                #---------------text
-                                tmp_menu_icon = " &#9662;"
-                                if liClass == "":
-                                    text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
-                                    tmp_menu_icon = ""
-                                else:
-                                    text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
-                                    
-                                menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
+                                icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
                                 
-                                if liClass != "":
-                                    menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                                    
-                                menu_items_tmp1 = menu_items_tmp1 + "</li>"
-    
-                            #menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
-                            menu_items = menu_items + menu_items_tmp1
+                            #---------------icon
+                            if data['Is Icon With Text'] == "1":                            
+                                menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a></span>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt'>" + tmp1.MenuItem + "</span>"
+                            else:
+                                menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
+                                menu_items_tmp1 = menu_items_tmp1 + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a>"
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1.MenuItem + "</div>"        
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
+                            
+                        else:
+                            #---------------text
+                            tmp_menu_icon = " &#9662;"
+                            if liClass == "":
+                                text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
+                                tmp_menu_icon = ""
+                            else:
+                                text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                                
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
+                            
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
 
-                    data["menu_items"] = menu_items + "</ol>"
+                        #menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
+                        menu_items = menu_items + menu_items_tmp1
+
+                data["menu_items"] = menu_items + "</ol>"
         else:
             organization_flag = "no_login"
     else:
