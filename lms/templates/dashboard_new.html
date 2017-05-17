@@ -976,13 +976,18 @@ $(document).ready(function(){
 });
 
 jQuery(function(){
+    var register_click = 0;
     $("#course_register").click(function(event) {
         %if not user.is_staff: 
             if($(this).hasClass("disabled")){
                 return false;
             }
         %endif
-        $("#class_enroll_form").submit();
+        if(register_click == 0){
+            register_click = 1;
+            $("#class_enroll_form").submit();
+            console.log("register_click-------------------------");
+        }
         event.preventDefault();
     });
     ## making the conditional around this entire JS block for sanity
