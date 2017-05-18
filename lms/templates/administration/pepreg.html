@@ -737,6 +737,9 @@
 			$(".alert").mouseleave(function () {
 				$("#calendar_alert_title").hide();
 			});
+			$(".alert").click(function () {
+				$("#calendar_alert_title").hide();
+			});
 			 
 			$(".alert").each(function(){
 				if($(this).find("input").length > 0){
