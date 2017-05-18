@@ -274,83 +274,167 @@ def report_save(request, report_id):
     :return: JSON reporting success or failure of the operation.
     """
     try:
-        name = request.POST.get('report_name', '')
-        description = request.POST.get('report_description', '')
-        distinct = not request.POST.get('distinct-enable', False) == 'yes'
-        views = get_request_array(request.POST, 'view')
-        columns = get_request_array(request.POST, 'column')
-        column_order = get_request_array(request.POST, 'selected-column')
-        filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
-        filter_columns = get_request_array(request.POST, 'filter-column')
-        filter_operators = get_request_array(request.POST, 'filter-operator')
-        filter_values = get_request_array(request.POST, 'filter-value')
-        action = request.POST.get('action', '')
+        report_type = request.POST.get('type', '')
+        if report_type == 'Standard':
+            name = request.POST.get('report_name', '')
+            description = request.POST.get('report_description', '')
+            distinct = not request.POST.get('distinct-enable', False) == 'yes'
+            views = get_request_array(request.POST, 'view')
+            columns = get_request_array(request.POST, 'column')
+            column_order = get_request_array(request.POST, 'selected-column')
+            filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+            filter_columns = get_request_array(request.POST, 'filter-column')
+            filter_operators = get_request_array(request.POST, 'filter-operator')
+            filter_values = get_request_array(request.POST, 'filter-value')
+            action = request.POST.get('action', '')
 
-        report = False
-        if action == 'new':
-            report = Reports()
-            report.author = request.user
-        elif action == 'edit':
-            report = Reports.objects.get(id=int(report_id))
+            report = False
+            if action == 'new':
+                report = Reports()
+                report.author = request.user
+            elif action == 'edit':
+                report = Reports.objects.get(id=int(report_id))
 
-        if report:
-            access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
+            if report:
+                access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
 
-            report.name = name
-            report.description = description
-            report.distinct = distinct
-            report.access_level = access_level
-            if access_level == 'State':
-                report.access_id = request.user.profile.district.state.id
-            elif access_level == 'District':
-                report.access_id = request.user.profile.district.id
-            elif access_level == 'School':
-                report.access_id = request.user.profile.school.id
-            report.save()           
+                report.name = name
+                report.description = description
+                report.distinct = distinct
+                report.access_level = access_level
+                if access_level == 'State':
+                    report.access_id = request.user.profile.district.state.id
+                elif access_level == 'District':
+                    report.access_id = request.user.profile.district.id
+                elif access_level == 'School':
+                    report.access_id = request.user.profile.school.id
+                report.save()           
 
-            ReportViews.objects.filter(report=report).delete()
-            for i, view in views.iteritems():
-                report_view = ReportViews()
-                report_view.report = report
-                report_view.order = int(i)
-                report_view.view = Views.objects.get(id=int(view))
-                report_view.save()
+                ReportViews.objects.filter(report=report).delete()
+                for i, view in views.iteritems():
+                    report_view = ReportViews()
+                    report_view.report = report
+                    report_view.order = int(i)
+                    report_view.view = Views.objects.get(id=int(view))
+                    report_view.save()
 
-            ReportViewColumns.objects.filter(report=report).delete()
-            for i, column in columns.iteritems():
-                report_column = ReportViewColumns()
-                report_column.report = report
-                report_column.column = ViewColumns.objects.get(id=int(column))
-                report_column.order = column_order[column]
-                report_column.save()
+                ReportViewColumns.objects.filter(report=report).delete()
+                for i, column in columns.iteritems():
+                    report_column = ReportViewColumns()
+                    report_column.report = report
+                    report_column.column = ViewColumns.objects.get(id=int(column))
+                    report_column.order = column_order[column]
+                    report_column.save()
 
-            ReportFilters.objects.filter(report=report).delete()
-            for i, column in filter_columns.iteritems():
-                report_filter = ReportFilters()
-                report_filter.report = report
-                report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
-                report_filter.column = ViewColumns.objects.get(id=int(column))
-                report_filter.value = filter_values[i].strip()
-                report_filter.operator = filter_operators[i]
-                report_filter.order = int(i)
-                report_filter.save()
-           
-            rs = reporting_store()
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
-            if report_has_school_year(selected_columns):                
-                for item in get_school_year_item():
-                    collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                ReportFilters.objects.filter(report=report).delete()
+                for i, column in filter_columns.iteritems():
+                    report_filter = ReportFilters()
+                    report_filter.report = report
+                    report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                    report_filter.column = ViewColumns.objects.get(id=int(column))
+                    report_filter.value = filter_values[i].strip()
+                    report_filter.operator = filter_operators[i]
+                    report_filter.order = int(i)
+                    report_filter.save()
+               
+                rs = reporting_store()
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+                if report_has_school_year(selected_columns):                
+                    for item in get_school_year_item():
+                        collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                        rs.del_collection(collection)
+
+                    collection = get_cache_collection(request, report_id, "all")
                     rs.del_collection(collection)
 
-                collection = get_cache_collection(request, report_id, "all")
+                
+                collection = get_cache_collection(request, report_id, "")
                 rs.del_collection(collection)
 
-            
-            collection = get_cache_collection(request, report_id, "")
-            rs.del_collection(collection)
+            else:
+                raise Exception('Report could not be located or created.')
 
-        else:
-            raise Exception('Report could not be located or created.')
+        if report_type == 'Matrix':
+            name = request.POST.get('report_name', '')
+            description = request.POST.get('report_description', '')
+            distinct = not request.POST.get('distinct-enable', False) == 'yes'
+            views = get_request_array(request.POST, 'view')
+            Column_Headers = request.POST.get('Column_Headers', '')
+            Row_Headers = request.POST.get('Row_Headers', '')
+            Aggregate_Data = request.POST.get('Aggregate_Data', '')
+            Aggregate_Type =request.POST.get('Aggregate_Type', '')
+            filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+            filter_columns = get_request_array(request.POST, 'filter-column')
+            filter_operators = get_request_array(request.POST, 'filter-operator')
+            filter_values = get_request_array(request.POST, 'filter-value')
+            action = request.POST.get('action', '')
+
+            report = False
+            if action == 'new':
+                report = Reports()
+                report.author = request.user
+            elif action == 'edit':
+                report = Reports.objects.get(id=int(report_id))
+
+            if report:
+                access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
+
+                report.name = name
+                report.description = description
+                report.distinct = distinct
+                report.access_level = access_level
+                if access_level == 'State':
+                    report.access_id = request.user.profile.district.state.id
+                elif access_level == 'District':
+                    report.access_id = request.user.profile.district.id
+                elif access_level == 'School':
+                    report.access_id = request.user.profile.school.id
+                report.save()           
+
+                ReportViews.objects.filter(report=report).delete()
+                for i, view in views.iteritems():
+                    report_view = ReportViews()
+                    report_view.report = report
+                    report_view.order = int(i)
+                    report_view.view = Views.objects.get(id=int(view))
+                    report_view.save()
+
+                ReportViewColumns.objects.filter(report=report).delete()
+                for i, column in columns.iteritems():
+                    report_column = ReportViewColumns()
+                    report_column.report = report
+                    report_column.column = ViewColumns.objects.get(id=int(column))
+                    report_column.order = column_order[column]
+                    report_column.save()
+
+                ReportFilters.objects.filter(report=report).delete()
+                for i, column in filter_columns.iteritems():
+                    report_filter = ReportFilters()
+                    report_filter.report = report
+                    report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                    report_filter.column = ViewColumns.objects.get(id=int(column))
+                    report_filter.value = filter_values[i].strip()
+                    report_filter.operator = filter_operators[i]
+                    report_filter.order = int(i)
+                    report_filter.save()
+               
+                rs = reporting_store()
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+                if report_has_school_year(selected_columns):                
+                    for item in get_school_year_item():
+                        collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                        rs.del_collection(collection)
+
+                    collection = get_cache_collection(request, report_id, "all")
+                    rs.del_collection(collection)
+
+                
+                collection = get_cache_collection(request, report_id, "")
+                rs.del_collection(collection)
+
+            else:
+                raise Exception('Report could not be located or created.')
+
     except Exception as e:
         transaction.rollback()
         exc_type, exc_value, exc_traceback = sys.exc_info()

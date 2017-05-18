@@ -267,7 +267,7 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades, mor
             if len(course.display_subject) > 1:
                 more_subjects_courses[0].append(course)
             else:
-                if course.display_subject != currSubject[0]:`
+                if course.display_subject != currSubject[0]:
                     currSubject[0] = course.display_subject
                     subject_index[0] += 1
                     g_courses[0].append([])
