@@ -688,11 +688,13 @@
                }else{
                   $("#time").text(displayDate);
                }
+               $("#calendar-week tr td").css("width", "auto !important");
 	        }else if($("#view_select").val() == "0"){
 	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
                $("#calendar-month-weekdays th[id='time']").remove();
                $("#calendar-month-weekdays th").show();
+               $("#calendar-week tr td").css({"width": "14.28%", "width": "-moz-calc(12.5%)", "width": "-webkit-calc(12.5%)", "width": "calc(12.5%)"});
 	        }
 
 	        _calendar_panel.show();

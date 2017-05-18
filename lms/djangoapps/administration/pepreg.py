@@ -849,7 +849,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
         if isday:   #"<td style='position: relative; height: 100%; width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>"\
             table_tr_content += "<td style='position: relative; height: 100%; max-width: 154px !important;'>" \
-                                "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
+                                "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 154px;'>"
 
             for dayHour in dayHours:
                 table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; height: 27px; padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
