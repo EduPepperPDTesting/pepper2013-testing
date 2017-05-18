@@ -39,6 +39,9 @@ import comment_client as cc
 from administration.models import PepRegTraining
 from reporting.models import Reports
 from django.core.urlresolvers import reverse
+from student.models import State,District,School,User,UserProfile
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from django.http import HttpResponseRedirect
 
 log = logging.getLogger("tracking")
 
@@ -119,6 +122,44 @@ def newdashboard(request, user_id=None):
         user = User.objects.get(id=user_id)
     else:
         user = User.objects.get(id=request.user.id)
+
+    OrganizationOK = False
+    try:
+        state_id = user.profile.district.state.id
+        district_id = user.profile.district.id
+        school_id = user.profile.school.id
+    except:
+        state_id = -1
+        district_id = -1
+        school_id = -1
+        
+    organization_obj = OrganizationMetadata()
+    if (school_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+            organization_obj = tmp1.organization
+            OrganizationOK = True
+            break;
+
+    if (not(OrganizationOK) and district_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+            organization_obj = tmp1.organization
+            OrganizationOK = True
+            break;
+    
+    if (not(OrganizationOK) and state_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+            OrganizationOK = True
+            organization_obj = tmp1.organization
+            break;
+            
+    data = {}
+    if OrganizationOK:
+        data["org_id"] = organization_obj.id;
+        for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+            data[tmp1.itemType] = tmp1.itemValue
+
+    if OrganizationOK and data["Dashboard option etc"] == "0":
+        return HttpResponseRedirect('/dashboard')
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those

@@ -583,16 +583,16 @@ def organizational_save_base(request):
 
 #-------------------------------------------------------------------org_OrganizationMenuSave
 def org_OrganizationMenuSave(organization, itemType, itemValue):
-    if(itemValue):
-        org_menu_tmp = OrganizationMenu()
-        for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType=itemType):
-            org_menu_tmp = tmp1
-            break;
+    #if(itemValue):
+    org_menu_tmp = OrganizationMenu()
+    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType=itemType):
+        org_menu_tmp = tmp1
+        break;
 
-        org_menu_tmp.organization = organization               
-        org_menu_tmp.itemType = itemType
-        org_menu_tmp.itemValue = itemValue
-        org_menu_tmp.save()
+    org_menu_tmp.organization = organization               
+    org_menu_tmp.itemType = itemType
+    org_menu_tmp.itemValue = itemValue
+    org_menu_tmp.save()
 
 #-------------------------------------------------------------------organizational_save_base
 @login_required
