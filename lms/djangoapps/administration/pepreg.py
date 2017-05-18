@@ -890,7 +890,11 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
             if(not (day[0] == 0 and isweek)):
 
-                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                width_class = ""
+                if isday:
+                    width_class = " day-view"
+
+                table_tr_content += "<td class='" + class_name + width_class +"' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 

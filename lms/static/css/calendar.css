@@ -4,6 +4,7 @@
 #calendar-week tr th,
 #calendar-month tr td,
 #calendar-week tr td{width: 14.28% !important; height1:auto !important; /* 100% / 8 */ width: -moz-calc(12.5%); width: -webkit-calc(12.5%); width: calc(12.5%);}
+#calendar-month tr #day-view{width:auto !important},
 #calendar-month tr th,
 #calendar-week tr th{border: none;}
 #calendar-month tr td:last-child,
