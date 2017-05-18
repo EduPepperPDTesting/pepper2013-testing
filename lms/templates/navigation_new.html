@@ -444,10 +444,18 @@
                     data[tmp1.itemType] = tmp1.itemValue
                 
                 if data['logo'] != "":
-                    base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Logo Url'] + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
+                    if data['Logo Url'] != "":
+                        tmp_url = base_src + data['Logo Url'];
+                    else:
+                        tmp_url = "javascript:void(0);"
+                    base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
                 
                 if data['organization_logo'] != "":
-                    base_logo = base_logo + "<a style='float:left' href='" + base_src + data['Organization Logo Url'] + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
+                    if data['Organization Logo Url'] != "":
+                        tmp_url = base_src + data['Organization Logo Url'];
+                    else:
+                        tmp_url = "javascript:void(0);"
+                    base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
             
                 #---------------OrganizationMenuitem 
                 if data['Is Icon With Text'] == "1":
