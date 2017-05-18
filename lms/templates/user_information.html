@@ -225,7 +225,7 @@
 <style type="text/css" media="screen">
   #image_uploading{display:none;}
 </style>
-<%inherit file="main_new.html" />
+<%inherit file="main.html" />
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Profile")}</title></%block>
 
@@ -1173,8 +1173,7 @@
                 }           
             });
         });
-        
-        
+		$(".information_left_top_left").css("backgroundColor", $(".nav-fixed").css("backgroundColor"));
     });
 </script>
 </%block>
