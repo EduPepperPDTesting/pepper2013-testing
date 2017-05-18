@@ -688,7 +688,7 @@
                }else{
                   $("#time").text(displayDate);
                }
-               $("#calendar-week tr td:eq(1)").css("width", "");
+               $("#calendar-week tr td:eq(1)").attr("style", "width: auto;");
 	        }else if($("#view_select").val() == "0"){
 	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
