@@ -81,17 +81,33 @@ db.user_info.aggregate({
             $sum: '$pd_time.credit'
         },
         current_course: {
-            $sum: {
-                $map: {
-                    input: '$enrollment',
-                    as: 'item',
-                    in : {
-                        $cond: [{
-                            $eq: ['$$item.is_active', 1]
-                        }, 1, 0]
+            $subtract:[
+                {
+                    $sum: {
+                        $map: {
+                            input: '$enrollment',
+                            as: 'item',
+                            in : {
+                                $cond: [{
+                                    $eq: ['$$item.is_active', 1]
+                                }, 1, 0]
+                            }
+                        }
+                    }
+                },{
+                    $sum: {
+                        $map: {
+                            input: '$studentmodule',
+                            as: 'item',
+                            in : {
+                                $cond: [{
+                                    $eq: ['$$item.state.complete_course', true]
+                                }, 1, 0]
+                            }
+                        }
                     }
                 }
-            }
+            ]
         },
         complete_course: {
             $sum: {
