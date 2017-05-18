@@ -336,7 +336,7 @@ def report_save(request, report_id):
             selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
             if report_has_school_year(selected_columns):                
                 for item in get_school_year_item():
-                    collection = get_cache_collection(request, report_id, item)
+                    collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
                     rs.del_collection(collection)
 
                 collection = get_cache_collection(request, report_id, "all")
