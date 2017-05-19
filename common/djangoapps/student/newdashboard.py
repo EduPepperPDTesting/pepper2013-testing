@@ -42,6 +42,7 @@ from django.core.urlresolvers import reverse
 from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
 from django.http import HttpResponseRedirect
+from communities.views import get_trending
 
 log = logging.getLogger("tracking")
 
@@ -239,23 +240,19 @@ def newdashboard(request, user_id=None):
             break
     #@end
 
-    #@begin:Add for Dashboard My Communities
+    #@begin:get My Learning Communities
     #@date:2017-02-16
     community_list = list()
-    i = 0
-    # Just filter the last 3 communities the user belongs to.
-    # items = CommunityUsers.objects.select_related().filter().order_by('-id')[0:4]
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:4]
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,
                                'logo': item.community.logo.upload.url if item.community.logo else '',
-                               'private': item.community.private,
-                               'order': i})
-        i = i + 1;
+                               'private': item.community.private})
     #@end
 
-    #@begin:get newest allowedcourse
+    #@begin:get Courses Available to Me
     #@date:2017-05-16
     allowedcourses = []
     for course_id in allowedcourses_id:
@@ -268,6 +265,27 @@ def newdashboard(request, user_id=None):
     if allowedcourses:
         allowedcourse_list.append(allowedcourses[0])
     #@end
+
+    #@begin:get Community Trending Topics
+    #@date:2017-05-18
+    communit_tt_list = []
+    community_joined_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=1).order_by('community__name')
+    community_joined_p = list(community_joined_p.values_list('community__id', flat=True))
+    communit_tt_list_add(community_joined_p,1,communit_tt_list)
+
+    if len(communit_tt_list) < 3:
+        community_joined_not_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=0).order_by('community__name')
+        community_joined_not_p = list(community_joined_not_p.values_list('community__id', flat=True))
+        communit_tt_list_add(community_joined_not_p,1,communit_tt_list)
+
+    if len(communit_tt_list) < 3:
+        community_joined = list(CommunityUsers.objects.select_related().filter(user=request.user).values_list('community__id', flat=True))
+        community_all = list(CommunityCommunities.objects.select_related().filter().order_by('name').values_list('id', flat=True))
+        for cid in community_joined:
+            if cid in community_all:
+                community_all.remove(cid)
+        communit_tt_list_add(community_all,0,communit_tt_list)
+    #@end
     
     context = {
         'courses_complated': courses_complated,
@@ -275,10 +293,39 @@ def newdashboard(request, user_id=None):
         'show_courseware_links_for': show_courseware_links_for,
         'curr_user': user,
         'communities': community_list,
-        'allowedcourses': allowedcourse_list
-    }   
+        'allowedcourses': allowedcourse_list,
+        'community_trending_topics':communit_tt_list
+    }    
 
     return render_to_response('dashboard_new.html', context)
+
+def communit_tt_list_add(community_ids,joined,communit_tt_list):
+    for c in community_ids:
+        if len(communit_tt_list) < 3:
+            trending_topic = get_tt(c,joined)
+            if trending_topic:
+                communit_tt_list.append(trending_topic)
+        else:
+            break
+
+def get_tt(c,joined):
+    tt = {}
+    trending = get_trending(c)
+    if trending:
+        tt['cname'] = trending[0].community.name
+        tt['date_create'] = trending[0].date_create
+        if joined:
+            tt['btntext'] = 'Reply'
+        else:
+            tt['btntext'] = 'Add'
+
+        if hasattr(trending[0], "subject"):
+            tt['content'] = trending[0].subject
+            tt['btnurl'] = '/community/discussion/' + str(trending[0].id)
+        else:
+            tt['content'] = trending[0].post
+            tt['btnurl'] = '/community/' + str(trending[0].community.id)
+        return tt
 
 def get_my_activities(request):
     #filter_condition

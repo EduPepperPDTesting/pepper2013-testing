@@ -160,14 +160,14 @@ a.btnx:hover,input[type=button].btnx:hover {
 }
 .my-title{
     /*width:215*/
-    width:212px;
+    width:214px;
     /*text-align:center;*/
-    padding-left: 3px;
+    padding-left: 1px;
 }
 .my-title a{
     font-size:16px;
     color:#3C4646;
-    text-decoration:none;
+    text-decoration:none !important;
     cursor:pointer;
     font-weight:bold;
 }
@@ -335,9 +335,6 @@ a.btnx:hover,input[type=button].btnx:hover {
 .ds-view-all-communities{
     width:215px;
     text-align:right;
-    
-    /*margin-top:-40px;
-    margin-bottom: 20px;*/
 }
 .ds-view-all-communities a{
     font-size: 16px;
@@ -540,7 +537,45 @@ a.btnx:hover,input[type=button].btnx:hover {
     white-space:nowrap;
     overflow:hidden;
 }
-
+.ma-community-simple{
+    background: rgba(18,111,154,0.95);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    margin-bottom: 10px;
+}
+.ma-community-simple-table{
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    width: 215px;
+    height: 50px;
+    color: #fff;
+    font-size: 13px !important;
+}
+.trending-topic{
+    margin-top: 10px;
+}
+.trending-topic table{
+    margin-bottom: 15px;
+}
+.community-trending-topics{
+    margin-bottom: 20px;
+}
+.trending-topic .tt-basic{
+    padding:3px;
+    font-size:14px;
+}
+.trending-topic .tt-title{
+    font-weight: bold;
+    color:#92c900;
+}
+.trending-topic .tt-post{
+    color:#29b7ec;
+}
+.trending-topic .tt-time{
+    
+}
 /*--my activity course ico--*/
 .ma-course-course-card{
     background-color: #FFFFFF;
@@ -717,7 +752,7 @@ a.btnx:hover,input[type=button].btnx:hover {
                 
                 <div class="con-ma-rows">
                 </div>
-                <div class="info_div" style="width:670px;height:81px;font-size:15px;border:0px solid #f00;float:left;display:auto;">
+                <div class="info_div" style="width:670px;height:81px;font-size:15px;float:left;display:auto;">
                     <center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>
                 </div>
    
@@ -726,31 +761,52 @@ a.btnx:hover,input[type=button].btnx:hover {
         
         <!--Community Dashboard-->
         <div class="con-my-communities-outer">
-        <div class="con-my-communities" style="position:fixed;">
-            <div class="my-title">
-                <a href="/communities">Coaching & Collaboration</a>
-            </div>
-            <div class="my-communities-cards">
-                <%
-                    community_count = len(communities)
-                %>
-                %for community in communities:
-                    %if community['order'] < 3:
-                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                        <div style="height:80px;"></div>
-                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+            <div class="con-my-communities" style="position:fixed;">
+                <div class="community-trending-topics">
+                    <div class="my-title">
+                        <a href="/communities">Trending Topics</a>
                     </div>
-                    %endif
-                %endfor
+                    <div class="trending-topic" >
+                        %for c in community_trending_topics:
+                            <table width="100%">
+                                <tr>
+                                    <td class="tt-basic tt-title">${c['cname']}</td>
+                                </tr>
+                                <tr>
+                                    <td class="tt-basic tt-post">${c['content']}</td>
+                                </tr>
+                                <tr>
+                                    <td class="tt-basic">
+                                        <span style="font-weight:bold;">Posted: </span>
+                                        <span>${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_create'])}</span>&nbsp;&nbsp;&nbsp;
+                                        <a href=${c['btnurl']} style="font-weight:bold;color:#29b7ec;text-decoration:none;font-size:14px;">${c['btntext']}</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        %endfor
+                    </div>
+                </div>
+                <div class="my-learning-communities">
+                    <div class="my-title">
+                        <a href="/communities">My Learning Communities</a>
+                    </div>
+                    <div class="my-communities-cards">
+                        <%
+                            community_count = len(communities)
+                        %>
+                        %for community in communities:
+                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
+                                <div class="ma-community-simple">
+                                    <div class="ma-community-simple-table">
+                                        ${community['name']}
+                                    </div>
+                                </div>
+                            </a>
+                        %endfor
+                    </div>
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
+                </div>
             </div>
-            %if community_count == 0:
-                <div class="ds-view-all-communities">   
-            %else:
-                <div class="ds-view-all-communities" style="margin-top:-40px;"> 
-            %endif
-                <a href="/communities">View All</a>
-            </div>
-        </div>
         </div>
         <div style="clear:both;"></div>
     </section>
@@ -986,7 +1042,6 @@ jQuery(function(){
         if(register_click == 0){
             register_click = 1;
             $("#class_enroll_form").submit();
-            console.log("register_click-------------------------");
         }
         event.preventDefault();
     });
