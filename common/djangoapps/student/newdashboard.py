@@ -245,6 +245,8 @@ def newdashboard(request, user_id=None):
     community_list = list()
     # Just choose the last 2 communities the user belongs to.
     items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
+    if not items:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,
@@ -317,7 +319,7 @@ def get_tt(c,joined):
         if joined:
             tt['btntext'] = 'Reply'
         else:
-            tt['btntext'] = 'Add'
+            tt['btntext'] = 'Add Me'
 
         if hasattr(trending[0], "subject"):
             tt['content'] = trending[0].subject

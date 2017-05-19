@@ -675,32 +675,35 @@ a.btnx:hover,input[type=button].btnx:hover {
             <div class="ds-view-all-courses">
                 <a href="/my_courses">View All</a>
             </div>
-            <!--allowedcourse-->
-            <div class="my-title" style="float:left;margin-top:10px;border:0px solid;">
-                <a href="/courses">Courses Available to Me</a>
-            </div>
-            <div class="my-courses-cards">
-                %for course in allowedcourses:
-                    <form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
-                        <fieldset class="enroll_fieldset">
-                            <input name="course_id" type="hidden" value="${course.id}">
-                            <input name="enrollment_action" type="hidden" value="enroll">
-                        </fieldset>
-                    </form>
-                    <div class="course-card">
-                        <div>
-                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+
+            %if len(allowedcourses) > 0:
+                <!--allowedcourse-->
+                <div class="my-title" style="float:left;margin-top:10px;border:0px solid;">
+                    <a href="/courses">Courses Available to Me</a>
+                </div>
+                <div class="my-courses-cards">
+                    %for course in allowedcourses:
+                        <form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+                            <fieldset class="enroll_fieldset">
+                                <input name="course_id" type="hidden" value="${course.id}">
+                                <input name="enrollment_action" type="hidden" value="enroll">
+                            </fieldset>
+                        </form>
+                        <div class="course-card">
+                            <div>
+                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                            </div>
+                            <div class="course-title">
+                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                            </div>  
                         </div>
-                        <div class="course-title">
-                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
-                        </div>  
-                    </div>
-                    <a href="#" id="course_register" class="course-register btnx _del_line">Sign Up & Start Course</a>
-                %endfor
-            </div>
-            <div class="ds-view-allowed-courses">
-                <a href="/more_courses_available">View All</a>
-            </div>
+                        <a href="#" id="course_register" class="course-register btnx _del_line">Sign Up & Start Course</a>
+                    %endfor
+                </div>
+                <div class="ds-view-allowed-courses">
+                    <a href="/more_courses_available">View All</a>
+                </div>
+            %endif
         </div>
         </div>
 
