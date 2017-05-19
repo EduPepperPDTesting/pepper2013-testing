@@ -393,8 +393,7 @@
     <div style="width:100%;height:77px"></div>
 % endif
 
-<%
-    organization_flag = "null"
+<%    
     OrganizationOK = False
     if curr_user == request.user:
     	if curr_user.is_authenticated():
@@ -518,46 +517,16 @@
                         menu_items = menu_items + menu_items_tmp1
 
                 data["menu_items"] = menu_items + "</ol>"
-        else:
-            organization_flag = "no_login"
-    else:
-        organization_flag = "login_other"
 %>
 
 <!--header-->
-% if curr_user.is_authenticated():
-    % if course:
-         <style type="text/css" media="screen">
-            header.global.slim h1.logo::before{top:15px;}      
-        </style>
-        % if OrganizationOK and data['Is New Menu'] == "1":
-            <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
-        % else:	
-	        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
-        % endif
-    % else:
-        % if curr_user==request.user:
-            % if OrganizationOK and data['Is New Menu'] == "1":
-                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
-            % else:	
-                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
-            % endif
-        % else:
-          <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
-        % endif
-    % endif
-% else:
-    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#fff;">
-% endif
+<header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
 
 <!--nav-->
 <nav id="page-nav" style="height:76px;width:1180px;padding:0px;">
 <!--sub logo-->
-    % if course:
-      <h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:30px;">
-    % else:
-      <h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:0px;">
-    % endif
+   
+	<h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:0px;">   
         <!--@begin:Choose the link of the top logo according user's login status-->
         % if OrganizationOK and data['Is New Menu'] == "1" and base_logo != "":
             ${base_logo}
@@ -590,58 +559,35 @@
     <!--sub userphoto and dropdown menu--> 
     <span style="float:right;">
     % if curr_user.is_authenticated():
-        % if curr_user==request.user:
-            %if show_extended:
-                <ol class="user admin">
-                    <!-- Dashboard button with dropdown -->
-                    <!-- <li class="primary">
-                        <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
-                            <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
-                        </a>
-                    </li> -->
-                    <li class="primary" style="margin-top:8px;">
-                        <span><a href="javascript:void(0)" class="" id="dropdown">
-                            <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
-                            <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
-                            <div class="nav-option-text-left">${curr_user.username} </div>
-                        </a></span>
-                        <ul class="dropdown-menu" style="width:300px;top:64px;"> 
-                            <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
-                                margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
-                                <div style="float:left;">   
-                                    <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
-                                </div>
-                                <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
-                                    <span class="dropdownusername" >${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
-                                    <a style="text-decoration:none;font-weight: bold;font-size:15px;"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
-                                </div>
-                            </li>
-                            <%block name="navigation_dropdown_menu_links" >
-                                <li><a href="/static/resource/Pepper_User_Guide.pdf" target="_blank">${_("Help")}</a></li>
-                            </%block>
-                            <li><a href="/course_credits" class="main-link">Course Credits</a></li>
-                            <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
-                            
-                        </ul>
-                    </li>
-                </ol>
-                <!-- Userphoto -->
-                <!-- <div class="userphoto-div">
-                    <a href="${reverse('user_information',args=[curr_user.id])}">
-                        <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
-                    </a>
-                </div> -->
-            %endif
-        %endif
-<!--sub dashboard button--> 
-        %if not show_extended:
-            <ol class="right nav-courseware" id="btn-dashboard">
-                <li class="nav-courseware-01">
-                    <a class="cta cta-login" href="/dashboard">Dashboard</a>
+        % if curr_user==request.user:           
+            <ol class="user admin">
+                <li class="primary" style="margin-top:8px;">
+                    <span><a href="javascript:void(0)" class="" id="dropdown">
+                        <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
+                        <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
+                        <div class="nav-option-text-left">${curr_user.username} </div>
+                    </a></span>
+                    <ul class="dropdown-menu" style="width:300px;top:64px;"> 
+                        <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
+                            margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
+                            <div style="float:left;">   
+                                <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
+                            </div>
+                            <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
+                                <span class="dropdownusername" >${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
+                                <a style="text-decoration:none;font-weight: bold;font-size:15px;"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
+                            </div>
+                        </li>
+                        <%block name="navigation_dropdown_menu_links" >
+                            <li><a href="/static/resource/Pepper_User_Guide.pdf" target="_blank">${_("Help")}</a></li>
+                        </%block>
+                        <li><a href="/course_credits" class="main-link">Course Credits</a></li>
+                        <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>                        
+                    </ul>
                 </li>
-            </ol>
-        %endif
-<!--unlogin status-->         
+            </ol>        
+        %endif		
+	<!--unlogin status-->         
     % else:
         <%block name="navigation_global_links">
             % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
@@ -657,8 +603,7 @@
                     </li>
                 </ol>
             % endif
-        </%block>
- 
+        </%block> 
         <ol class="right nav-courseware" style="margin-top:-5px;">
 <!--sub shopping ico-->
             <li><a class="main-link" href="/shopping" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
@@ -680,198 +625,54 @@
     </span>
     
     % if course:
-        <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
-        </h2>
-    % else:
-        % if curr_user.is_authenticated():
-            % if curr_user==request.user:
-            	% if OrganizationOK and data['Is New Menu'] == "1":
-                    ${data["menu_items"]}
-                    <script type="text/javascript">
-						$(document).on('click', function(event) {
-							if (!$(event.target).closest('.admin-menu-holder').length) {
-								$(".admin-dropdown-menu").hide();
-							} else if ($(event.target).closest(".outside_menu").length) {
-								$(".admin-dropdown-menu").hide();
-							}
-						});
-						$(document).ready(function(){
-							$(".configuration").click(function(event){								
-								var e = window.event || event;
-								if(e.stopPropagation){
-									e.stopPropagation();
-								}else{
-									e.cancelBubble = true;
-								}
-								var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
-								if(tmp_el.length > 0){
-									if(tmp_el.is(":visible"))
-										tmp_el.hide();
-									else{
-										$(".admin-dropdown-menu").hide();
-										tmp_el.show();
-									}
-								}
-							});
-							$("#dropdown").find("span").css("cssText", "text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;font-family:${data['Text Font']} !important;");
-						});
-					</script>
-                % else:
-                    <ol class="authenticated nav-option-ol">
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="/my_courses"><img src="/static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Courses</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="#"><img src="/static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Standards</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="#"><img src="/static/images/newdashboard/header_my_content_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Content</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="/communities"><img src="/static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Communities</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="/pepreg"><img src="/static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
-                            <div class="nav-option-text">My PD Planner</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="/reporting"><img src="/static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Reports</div>
-                        </li>
-                        <li style="margin-left:25px;margin-right:0px;">
-                            <a href="/people"><img src="/static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
-                            <div class="nav-option-text">My Network / People Search</div>
-                        </li>
-                        <!--sub nav option Tools-->
-                        %if show_extended:
-                            <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
-                            <!-- Administration -->
-                            <li style="margin-left:25px;margin-right:0px;" class="admin-menu-holder">
-                                <a href="javascript:void(0)" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
-                                    <img src="/static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
-                                    <div class="nav-option-text">Tools</div>
-                                </a>
-                                <ul class="admin-dropdown-menu">
-                                    %if check_user_perms(curr_user, 'certificate'):
-                                        <li><a href="${reverse('configuration')}">Configuration</a></li>
-                                    %endif  
-                                    <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
-                                    %if check_user_perms(curr_user, 'pepconn'):
-                                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                                    %endif
-                                    %if curr_user.is_superuser:
-                                        <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
-                                    %endif
-                                    %if check_user_perms(curr_user, 'permissions'):
-                                        <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
-                                    %endif
-                                    %if check_user_perms(curr_user, 'time_report'):
-                                        <li><a href="${reverse('time_report')}">Time Report</a></li>
-                                    %endif
-                                    <!--<li><a href="${reverse('reporting_reports')}">Reporting</a></li>-->
-                                    %if check_user_perms(curr_user, 'sso'):
-                                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                                    %endif
-                                    %if check_user_perms(curr_user, 'tnl'):
-                                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                                    %endif
-                                    %if check_user_perms(curr_user, 'studio'):
-                                        <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                                    %endif
-                                    %if check_user_perms(curr_user, 'alert_message'):
-                                        <li><a href="${reverse('alert_message')}">Alert</a></li>
-                                    %endif
-                                    <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
-                                    %if curr_user.is_superuser:
-                                        <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
-                                    %endif
-                                    <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
-                                    <li><a href="${reverse('access_resource_library_list')}">Resource Library</a></li>
-                                    <li><a href="${reverse('mychunks')}">My Content Chunks</a></li>
-                                    <script type="text/javascript">
-                                        $(document).on('click', function(event) {
-                                            if (!$(event.target).closest('.admin-menu-holder').length) {
-                                                $(".admin-dropdown-menu").hide();
-                                            } else if ($(event.target).closest(".outside_menu").length) {
-                                                $(".admin-dropdown-menu").hide();
-                                            }
-                                        });
-                                    </script>
-                                    <!-- endif -->
-                                    <script type="text/javascript">
-                                        url_split_array = window.location.href.split('/');
-                                        split_array_1 = "";
-                                        split_keyword = "";
-                                        url_using = "#";
-                                        str1 = "https://studio";
-                                        str2 = ".pepperpd.com";
-    
-                                        if (url_split_array.length>2){
-                                            split_array_1 = url_split_array[2].split('.');
-                                            split_keyword = split_array_1[0];
-                                        }
-                                        
-                                        if (split_keyword == "www0"){
-                                           url_using = str1 + "0" + str2;
-                                        }
-                                        else if(split_keyword == "www"){
-                                            url_using = str1 + str2;
-                                        }
-                                        else{
-                                            url_using = str1 + "-" + split_keyword + str2;
-                                        }
-                                        $("#studio_url").attr("href",url_using);
-                                    </script>
-                                </ul>
-                            </li>
-                        %endif
-    <!--sub nav option Notifications--> 
-                        %if show_extended:
-                            <!-- Notifications -->
-                            <li class="imessage_style" style="margin-left:25px;margin-right:0px;">
-                                <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
-                                    <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_50.png);display:none;">
-                                        <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
-                                            <tr height="26">
-                                                <td width="19"></td>
-                                                <td width="31"></td>
-                                            </tr>
-                                            <tr height="24">
-                                                <td width="19" >&nbsp;</td>
-                                                <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_none_50.png);"></div>
-                                    <div class="nav-option-text">Notifications</div>
-                                </a>
-                            </li>
-                        %endif
-                    </ol>
-                % endif
-            % else:
-                <ol class="authenticated nav-option-otheruser">
-                    <li id="org_tm_course_workshop_obj"><a href="" class="main-link" onclick="return false;">Courses &amp; Workshops</a></li>
-                    <li id="org_tm_communities_obj"><a href="" class="main-link" onclick="return false;">Communities</a></li>
-                    <li id="org_tm_my_chunks_obj"><a href="" class="main-link" onclick="return false;">My Chunks</a></li>
-                    <li id="org_tm_resources_obj"><a href="" class="main-link" onclick="return false;">Resources</a></li>
-                    <li id="org_tm_people_obj"><a href="" class="main-link" onclick="return false;">People</a></li>
-                </ol>
-            % endif          
-        % else:
-            <ol class="left nav-global" style="margin-top:5px;">
-                <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
-                <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
-                <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
-            </ol>    
-        % endif
+        <!--<h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
+        </h2>-->
+        <script type="text/javascript">			
+			$(document).ready(function(){				
+				//$("#dropdown").find("span").css("cssText", "text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;font-family:${data['Text Font']} !important;");				
+				var tmp1 = "<div style=\"text-align:left; padding:5px 0 5px 22px; font-family:'Open Sans',Verdana,Geneva,sans-serif; font-weight:bold\">";
+				tmp1 += "<span style='color:#3c3c3c;'>${course.display_org_with_default | h}: </span><span style='color:#646464;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
+				tmp1 += "</div>";
+				$(".inner-wrapper").prepend(tmp1);
+				$(".course-tabs").css("paddingTop", "0");
+			});
+		</script>
     % endif
-
-	
+    % if curr_user.is_authenticated():
+        % if curr_user==request.user:
+            % if OrganizationOK and data['Is New Menu'] == "1":
+                ${data["menu_items"]}
+                <script type="text/javascript">
+                    $(document).on('click', function(event) {
+                        if (!$(event.target).closest('.admin-menu-holder').length) {
+                            $(".admin-dropdown-menu").hide();
+                        } else if ($(event.target).closest(".outside_menu").length) {
+                            $(".admin-dropdown-menu").hide();
+                        }
+                    });
+                    $(document).ready(function(){
+                        $(".configuration").click(function(event){								
+                            var e = window.event || event;
+                            if(e.stopPropagation){
+                                e.stopPropagation();
+                            }else{
+                                e.cancelBubble = true;
+                            }
+                            var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
+                            if(tmp_el.length > 0){
+                                if(tmp_el.is(":visible"))
+                                    tmp_el.hide();
+                                else{
+                                    $(".admin-dropdown-menu").hide();
+                                    tmp_el.show();
+                                }
+                            }
+                        });
+                    });
+                </script>
+            % endif
+        % endif 
+    % endif    
 </nav>
 </header>
 
