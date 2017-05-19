@@ -14,6 +14,8 @@
     from status.status import get_site_status_msg
     from permissions.utils import check_user_perms
     from django.core.urlresolvers import resolve
+    from student.models import State,District,School,User,UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -262,6 +264,7 @@
     border:2px solid #41719c;
     float: left;
     margin-top: 5px;
+
     margin-left:10px;
     border-radius: 5px;
     background-color:#fff; 
@@ -320,12 +323,13 @@
 .nav-option-otheruser a:link{
     text-decoration: none;
 }
-.nav-option-ol{
-    margin-top:14px;
-    margin-left:10px;
-    float:left;
-    width:auto;
-}
+.nav-option-ol{margin-top:14px; margin-left:10px; float:right; width:auto;}
+.nav-option-ol-li{float:left; width:45px; height:65px; }
+.nav-option-ol-icon{float:left;}
+.nav-option-ol-txt{float:left; width:45px; height:20px; line-height:20px; font-size:10px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.nav-option-ol-only-txt{float:left; height:61px; line-height:61px; }
+.nav-option-ol-only-txt a{text-decoration: none;}
+.nav-option-ol-only-txt a:link{text-decoration: none;}
 .nav-option-text{
     position:absolute;
     top:50px;
@@ -388,16 +392,156 @@
 % if curr_user.is_authenticated():
     <div style="width:100%;height:77px"></div>
 % endif
+
+<%
+    organization_flag = "null"
+    OrganizationOK = False
+    if curr_user == request.user:
+    	if curr_user.is_authenticated():
+            organization_flag = "login"
+            
+            try:
+                state_id = request.user.profile.district.state.id
+                district_id = request.user.profile.district.id
+                school_id = request.user.profile.school.id
+            except:
+                state_id = -1
+                district_id = -1
+                school_id = -1
+                
+            organization_obj = OrganizationMetadata()
+            if (school_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                    organization_obj = tmp1.organization
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and district_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                    organization_obj = tmp1.organization
+                    OrganizationOK = True
+                    break;
+            
+            if (not(OrganizationOK) and state_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                    OrganizationOK = True
+                    organization_obj = tmp1.organization
+                    break;
+                    
+            data = {}
+            if OrganizationOK:
+                data["org_id"] = organization_obj.id;
+                base_src = "/static/uploads/organization/" + str(data['org_id']) + "/";
+                
+                #---------------OrganizationDashboard 
+                #for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                #    data[tmp1.itemType] = tmp1.itemValue
+                
+                base_logo = "";
+                #if data['Dashboard option etc'] != "0":
+                #---------------OrganizationMenu 
+                for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                    data[tmp1.itemType] = tmp1.itemValue
+                
+                if data['logo'] != "":
+                    if data['Logo Url'] != "":
+                        tmp_url = base_src + data['Logo Url'];
+                    else:
+                        tmp_url = "javascript:void(0);"
+                    base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
+                
+                if data['organization_logo'] != "":
+                    if data['Organization Logo Url'] != "":
+                        tmp_url = base_src + data['Organization Logo Url'];
+                    else:
+                        tmp_url = "javascript:void(0);"
+                    base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
+            
+                #---------------OrganizationMenuitem 
+                if data['Is Icon With Text'] == "1":
+                    menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:9px !important;'>"
+                else:
+                    menu_items = "<ol class='authenticated nav-option-ol'>"
+              
+                for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
+                    if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and curr_user.is_superuser):
+                        #---------------Sub Menu
+                        liClass = ""
+                        menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu'>"
+                        for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
+                            if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and curr_user.is_superuser):
+                                if liClass == "":
+                                    liClass = " class='admin-menu-holder'"
+                                
+                                menu_items_child = menu_items_child + "<li><a href='" + tmp2.Url + "'>" + tmp2.MenuItem + "</a></li>"
+                                
+                        menu_items_child = menu_items_child + "</ul>";
+                        
+                        if data['Is Icon'] == "1":
+                            if liClass == "":
+                                icon_a = "<a href='" + tmp1.Url + "'>"    
+                            else:
+                                icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
+                                
+                            #---------------icon
+                            if data['Is Icon With Text'] == "1":                            
+                                menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a></span>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt'>" + tmp1.MenuItem + "</span>"
+                            else:
+                                menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
+                                menu_items_tmp1 = menu_items_tmp1 + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a>"
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1.MenuItem + "</div>"        
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
+                            
+                        else:
+                            #---------------text
+                            tmp_menu_icon = " &#9662;"
+                            if liClass == "":
+                                text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
+                                tmp_menu_icon = ""
+                            else:
+                                text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                                
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
+                            
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
+
+                        #menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
+                        menu_items = menu_items + menu_items_tmp1
+
+                data["menu_items"] = menu_items + "</ol>"
+        else:
+            organization_flag = "no_login"
+    else:
+        organization_flag = "login_other"
+%>
+
 <!--header-->
 % if curr_user.is_authenticated():
     % if course:
          <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:15px;}      
         </style>
-        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+        % if OrganizationOK and data['Is New Menu'] == "1":
+            <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+        % else:	
+	        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+        % endif
     % else:
         % if curr_user==request.user:
-          <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+            % if OrganizationOK and data['Is New Menu'] == "1":
+                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+            % else:	
+                <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+            % endif
         % else:
           <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
         % endif
@@ -415,209 +559,36 @@
       <h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:0px;">
     % endif
         <!--@begin:Choose the link of the top logo according user's login status-->
-        <!--@date:2013-11-02-->
-        % if curr_user==request.user:
-            % if curr_user.is_authenticated():
-                <a href="/dashboard">
-            % else:
-                <a href="/">
-            % endif
+        % if OrganizationOK and data['Is New Menu'] == "1" and base_logo != "":
+            ${base_logo}
         % else:
-            <a href="" style="cursor:default;" onclick="return false;">
-        % endif
-        <!--@end-->
-
-        <%block name="navigation_logo">
-            <!--@begin:Choose the image of the top logo according to user login status-->
-            % if index != 1:
-                <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+        	<!--@date:2013-11-02-->
+            % if curr_user==request.user:
+                % if curr_user.is_authenticated():
+                    <a href="/dashboard">
+                % else:
+                    <a href="/">
+                % endif
+            % else:
+                <a href="" style="cursor:default;" onclick="return false;">
             % endif
             <!--@end-->
-        </%block>
-        </a>
-    </h1>
-<!--sub searching-->
-    % if not course:
-        % if curr_user.is_authenticated():
-            % if curr_user==request.user:
-                <div class="tempdiv"></div>
-                <!--
-                <div class="searching">
-                    <div class="searching-text-div">
-                        <input id="searching_keyword" type="text" placeholder="Search Pepper"/>
-                    </div>
-                    <div id="searching_btn">
-                        <img src="static/images/newdashboard/search.png" width="20"/>
-                    </div>
-                </div>
-                -->
-            % endif
+            <%block name="navigation_logo">
+                <!--@begin:Choose the image of the top logo according to user login status-->
+                % if index != 1:
+                   <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+                % endif
+                <!--@end-->
+            </%block>
+            </a>
         % endif
-    % endif
-
-<!--sub nav option-->
+    </h1>
+	
+	<!--sub nav option-->
     <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
     <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
-    % if course:
-        <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
-        </h2>
-    % else:
-        % if curr_user.is_authenticated():
-            % if curr_user==request.user:
-                <ol class="authenticated nav-option-ol">
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="/my_courses"><img src="/static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Courses</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="#"><img src="/static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Standards</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="#"><img src="/static/images/newdashboard/header_my_content_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Content</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="/communities"><img src="/static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Communities</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="/pepreg"><img src="/static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
-                        <div class="nav-option-text">My PD Planner</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="/reporting"><img src="/static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Reports</div>
-                    </li>
-                    <li style="margin-left:25px;margin-right:0px;">
-                        <a href="/people"><img src="/static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
-                        <div class="nav-option-text">My Network / People Search</div>
-                    </li>
-<!--sub nav option Tools-->
-                    %if show_extended:
-                        <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
-                        <!-- Administration -->
-                        <li style="margin-left:25px;margin-right:0px;" class="admin-menu-holder">
-                            <a href="#" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
-                                <img src="/static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
-                                <div class="nav-option-text">Tools</div>
-                            </a>
-                            <ul class="admin-dropdown-menu">
-                                %if check_user_perms(curr_user, 'certificate'):
-                                    <li><a href="${reverse('configuration')}">Configuration</a></li>
-                                %endif  
-                                <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
-                                %if check_user_perms(curr_user, 'pepconn'):
-                                    <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                                %endif
-                                %if curr_user.is_superuser:
-                                    <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
-                                %endif
-                                %if check_user_perms(curr_user, 'permissions'):
-                                    <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
-                                %endif
-                                %if check_user_perms(curr_user, 'time_report'):
-                                    <li><a href="${reverse('time_report')}">Time Report</a></li>
-                                %endif
-                                <!--<li><a href="${reverse('reporting_reports')}">Reporting</a></li>-->
-                                %if check_user_perms(curr_user, 'sso'):
-                                    <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                                %endif
-                                %if check_user_perms(curr_user, 'tnl'):
-                                    <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                                %endif
-                                %if check_user_perms(curr_user, 'studio'):
-                                    <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                                %endif
-                                %if check_user_perms(curr_user, 'alert_message'):
-                                    <li><a href="${reverse('alert_message')}">Alert</a></li>
-                                %endif
-                                <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
-                                %if curr_user.is_superuser:
-                                    <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
-                                %endif
-                                <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
-                                <li><a href="${reverse('access_resource_library_list')}">Resource Library</a></li>
-                                <li><a href="${reverse('mychunks')}">My Content Chunks</a></li>
-                                <script type="text/javascript">
-                                    $(document).on('click', function(event) {
-                                        if (!$(event.target).closest('.admin-menu-holder').length) {
-                                            $(".admin-dropdown-menu").hide();
-                                        } else if ($(event.target).closest(".outside_menu").length) {
-                                            $(".admin-dropdown-menu").hide();
-                                        }
-                                    });
-                                </script>
-                                <!-- endif -->
-                                <script type="text/javascript">
-                                    url_split_array = window.location.href.split('/');
-                                    split_array_1 = "";
-                                    split_keyword = "";
-                                    url_using = "#";
-                                    str1 = "https://studio";
-                                    str2 = ".pepperpd.com";
-
-                                    if (url_split_array.length>2){
-                                        split_array_1 = url_split_array[2].split('.');
-                                        split_keyword = split_array_1[0];
-                                    }
-                                    
-                                    if (split_keyword == "www0"){
-                                       url_using = str1 + "0" + str2;
-                                    }
-                                    else if(split_keyword == "www"){
-                                        url_using = str1 + str2;
-                                    }
-                                    else{
-                                        url_using = str1 + "-" + split_keyword + str2;
-                                    }
-                                    $("#studio_url").attr("href",url_using);
-                                </script>
-                            </ul>
-                        </li>
-                    %endif
-<!--sub nav option Notifications--> 
-                    %if show_extended:
-                        <!-- Notifications -->
-                        <li class="imessage_style" style="margin-left:25px;margin-right:0px;">
-                            <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
-                                <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_50.png);display:none;">
-                                    <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
-                                        <tr height="26">
-                                            <td width="19"></td>
-                                            <td width="31"></td>
-                                        </tr>
-                                        <tr height="24">
-                                            <td width="19" >&nbsp;</td>
-                                            <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_none_50.png);"></div>
-                                <div class="nav-option-text">Notifications</div>
-                            </a>
-                        </li>
-                    %endif
-                </ol>
-            % else:
-                <ol class="authenticated nav-option-otheruser">
-                    <li id="org_tm_course_workshop_obj"><a href="" class="main-link" onclick="return false;">Courses &amp; Workshops</a></li>
-                    <li id="org_tm_communities_obj"><a href="" class="main-link" onclick="return false;">Communities</a></li>
-                    <li id="org_tm_my_chunks_obj"><a href="" class="main-link" onclick="return false;">My Chunks</a></li>
-                    <li id="org_tm_resources_obj"><a href="" class="main-link" onclick="return false;">Resources</a></li>
-                    <li id="org_tm_people_obj"><a href="" class="main-link" onclick="return false;">People</a></li>
-                </ol>
-            % endif          
-        % else:
-            <ol class="left nav-global" style="margin-top:5px;">
-                <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
-                <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
-                <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
-            </ol>    
-        % endif
-    % endif
-
-<!--sub userphoto and dropdown menu--> 
+    <!--sub userphoto and dropdown menu--> 
+    <span style="float:right;">
     % if curr_user.is_authenticated():
         % if curr_user==request.user:
             %if show_extended:
@@ -629,7 +600,7 @@
                         </a>
                     </li> -->
                     <li class="primary" style="margin-top:8px;">
-                        <span><a href="#" class="" id="dropdown">
+                        <span><a href="javascript:void(0)" class="" id="dropdown">
                             <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
                             <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
                             <div class="nav-option-text-left">${curr_user.username} </div>
@@ -706,6 +677,201 @@
             </li>
         </ol>
     % endif
+    </span>
+    
+    % if course:
+        <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
+        </h2>
+    % else:
+        % if curr_user.is_authenticated():
+            % if curr_user==request.user:
+            	% if OrganizationOK and data['Is New Menu'] == "1":
+                    ${data["menu_items"]}
+                    <script type="text/javascript">
+						$(document).on('click', function(event) {
+							if (!$(event.target).closest('.admin-menu-holder').length) {
+								$(".admin-dropdown-menu").hide();
+							} else if ($(event.target).closest(".outside_menu").length) {
+								$(".admin-dropdown-menu").hide();
+							}
+						});
+						$(document).ready(function(){
+							$(".configuration").click(function(event){								
+								var e = window.event || event;
+								if(e.stopPropagation){
+									e.stopPropagation();
+								}else{
+									e.cancelBubble = true;
+								}
+								var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
+								if(tmp_el.length > 0){
+									if(tmp_el.is(":visible"))
+										tmp_el.hide();
+									else{
+										$(".admin-dropdown-menu").hide();
+										tmp_el.show();
+									}
+								}
+							});
+							$("#dropdown").find("span").css("cssText", "text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;font-family:${data['Text Font']} !important;");
+						});
+					</script>
+                % else:
+                    <ol class="authenticated nav-option-ol">
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="/my_courses"><img src="/static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Courses</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="#"><img src="/static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Standards</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="#"><img src="/static/images/newdashboard/header_my_content_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Content</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="/communities"><img src="/static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Communities</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="/pepreg"><img src="/static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
+                            <div class="nav-option-text">My PD Planner</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="/reporting"><img src="/static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Reports</div>
+                        </li>
+                        <li style="margin-left:25px;margin-right:0px;">
+                            <a href="/people"><img src="/static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
+                            <div class="nav-option-text">My Network / People Search</div>
+                        </li>
+                        <!--sub nav option Tools-->
+                        %if show_extended:
+                            <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
+                            <!-- Administration -->
+                            <li style="margin-left:25px;margin-right:0px;" class="admin-menu-holder">
+                                <a href="javascript:void(0)" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
+                                    <img src="/static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
+                                    <div class="nav-option-text">Tools</div>
+                                </a>
+                                <ul class="admin-dropdown-menu">
+                                    %if check_user_perms(curr_user, 'certificate'):
+                                        <li><a href="${reverse('configuration')}">Configuration</a></li>
+                                    %endif  
+                                    <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
+                                    %if check_user_perms(curr_user, 'pepconn'):
+                                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                                    %endif
+                                    %if curr_user.is_superuser:
+                                        <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
+                                    %endif
+                                    %if check_user_perms(curr_user, 'permissions'):
+                                        <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                                    %endif
+                                    %if check_user_perms(curr_user, 'time_report'):
+                                        <li><a href="${reverse('time_report')}">Time Report</a></li>
+                                    %endif
+                                    <!--<li><a href="${reverse('reporting_reports')}">Reporting</a></li>-->
+                                    %if check_user_perms(curr_user, 'sso'):
+                                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                                    %endif
+                                    %if check_user_perms(curr_user, 'tnl'):
+                                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                                    %endif
+                                    %if check_user_perms(curr_user, 'studio'):
+                                        <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                                    %endif
+                                    %if check_user_perms(curr_user, 'alert_message'):
+                                        <li><a href="${reverse('alert_message')}">Alert</a></li>
+                                    %endif
+                                    <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                                    %if curr_user.is_superuser:
+                                        <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
+                                    %endif
+                                    <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                                    <li><a href="${reverse('access_resource_library_list')}">Resource Library</a></li>
+                                    <li><a href="${reverse('mychunks')}">My Content Chunks</a></li>
+                                    <script type="text/javascript">
+                                        $(document).on('click', function(event) {
+                                            if (!$(event.target).closest('.admin-menu-holder').length) {
+                                                $(".admin-dropdown-menu").hide();
+                                            } else if ($(event.target).closest(".outside_menu").length) {
+                                                $(".admin-dropdown-menu").hide();
+                                            }
+                                        });
+                                    </script>
+                                    <!-- endif -->
+                                    <script type="text/javascript">
+                                        url_split_array = window.location.href.split('/');
+                                        split_array_1 = "";
+                                        split_keyword = "";
+                                        url_using = "#";
+                                        str1 = "https://studio";
+                                        str2 = ".pepperpd.com";
+    
+                                        if (url_split_array.length>2){
+                                            split_array_1 = url_split_array[2].split('.');
+                                            split_keyword = split_array_1[0];
+                                        }
+                                        
+                                        if (split_keyword == "www0"){
+                                           url_using = str1 + "0" + str2;
+                                        }
+                                        else if(split_keyword == "www"){
+                                            url_using = str1 + str2;
+                                        }
+                                        else{
+                                            url_using = str1 + "-" + split_keyword + str2;
+                                        }
+                                        $("#studio_url").attr("href",url_using);
+                                    </script>
+                                </ul>
+                            </li>
+                        %endif
+    <!--sub nav option Notifications--> 
+                        %if show_extended:
+                            <!-- Notifications -->
+                            <li class="imessage_style" style="margin-left:25px;margin-right:0px;">
+                                <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+                                    <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_50.png);display:none;">
+                                        <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
+                                            <tr height="26">
+                                                <td width="19"></td>
+                                                <td width="31"></td>
+                                            </tr>
+                                            <tr height="24">
+                                                <td width="19" >&nbsp;</td>
+                                                <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_none_50.png);"></div>
+                                    <div class="nav-option-text">Notifications</div>
+                                </a>
+                            </li>
+                        %endif
+                    </ol>
+                % endif
+            % else:
+                <ol class="authenticated nav-option-otheruser">
+                    <li id="org_tm_course_workshop_obj"><a href="" class="main-link" onclick="return false;">Courses &amp; Workshops</a></li>
+                    <li id="org_tm_communities_obj"><a href="" class="main-link" onclick="return false;">Communities</a></li>
+                    <li id="org_tm_my_chunks_obj"><a href="" class="main-link" onclick="return false;">My Chunks</a></li>
+                    <li id="org_tm_resources_obj"><a href="" class="main-link" onclick="return false;">Resources</a></li>
+                    <li id="org_tm_people_obj"><a href="" class="main-link" onclick="return false;">People</a></li>
+                </ol>
+            % endif          
+        % else:
+            <ol class="left nav-global" style="margin-top:5px;">
+                <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
+                <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
+                <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
+            </ol>    
+        % endif
+    % endif
+
+	
 </nav>
 </header>
 

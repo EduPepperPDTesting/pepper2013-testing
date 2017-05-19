@@ -15,6 +15,58 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
 #image_uploading{display:none;}
+a.btnx:hover,input[type=button].btnx:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+ }
+ a.btnx, input[type=button].btnx{
+    border:none;
+    text-decoration:none;
+    background:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ a.btnx:normal, input[type=button].btnx{
+    background-color:#556370;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ ._del_line{
+    text-decoration: none !important;
+ }
+ .course-register{
+    display:block;
+    width:195px;
+    margin-top:10px;
+    text-align:center;
+    float:left;
+    font-size:13px !important;
+ }
 /*--from .css-----------------------------------------------------------------*/
 #searching-text{
     border:0;
@@ -92,26 +144,25 @@
 }
 
 /*--left My Courses--------------------------------------------*/
-.con-my-courses{
-    display:block;
-    float:left;
-    width:220px;
-    position: fixed;
-
-    /*height:780px;
-    border:1px solid #f00;*/
-}
-
-.con-my-courses-placeholder{
-    display:block;
+.con-my-courses-outer{
     float:left;
     width:220px;
     height:50px;
 }
+.con-my-courses{
+    /*display:block;
+    float:left;*/
+    width:220px;
+    /*position: fixed;
 
+    height:780px;
+    border:1px solid #f00;*/
+}
 .my-title{
-    width:215px;
-    text-align:center;
+    /*width:215*/
+    width:212px;
+    /*text-align:center;*/
+    padding-left: 3px;
 }
 .my-title a{
     font-size:16px;
@@ -210,24 +261,31 @@
     cursor: pointer;
 }
 
-.ds-my-status{
-    width:185px;
-    /*font-size: 20px;*/
-    /*font-weight: bold;*/
-    /*border-radius: 6px;*/
-    margin-top: 20px;
-    margin-bottom: 20px;
-    /*padding: 15px 15px 15px 15px;*/
+.ds-view-allowed-courses{
+    width:215px;
+    text-align:right;
     float: left;
-    /*border:1px solid #666;*/
+    margin-top:10px;
+}
+.ds-view-allowed-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
 }
 /*--right My Communities---------------------------------------------*/
+.con-my-communities-outer{
+    float:left;
+    width:220px;
+    height:50px;
+    margin-left: 27px;
+}
 .con-my-communities{
+    /*
     display:block;
     float:right;
+    */
     width:220px;
-
-    border:1px solid;
 }
 
 .my-district{
@@ -277,7 +335,8 @@
 .ds-view-all-communities{
     width:215px;
     text-align:right;
-    /*margin-top:-15px;
+    
+    /*margin-top:-40px;
     margin-bottom: 20px;*/
 }
 .ds-view-all-communities a{
@@ -506,6 +565,7 @@
     display: block;
     width:110px;
     height:69px;
+    cursor: pointer;
 }
 .ma-course-course-title {
     display: table;
@@ -523,6 +583,7 @@
     -webkit-border-radius: 0px 0px 3px 3px;
     color:#fff;
     font-size: 12px;
+    cursor: pointer;
 
     white-space:nowrap;
     overflow:hidden;
@@ -530,7 +591,7 @@
 }
 </style>
 <!--@end-->
-<%inherit file="main_new.html" />
+<%inherit file="main.html" />
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
 
@@ -544,91 +605,69 @@
     <section class="container dashboard">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <!--Community Dashboard-->
-        <div class="con-my-communities">
-            <div style="border:1px solid #f00;position:fixed;">
-                <div class="my-title" style="">
-                    <a href="/communities">Coaching & Collaboration</a>
-                </div>
-                <div class="my-communities-cards" style="border:1px solid #0ff;">
-                    %for i,community in enumerate(communities):
-                        %if i < 3:
-                        <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                            <div style="height:80px;"></div>
-                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                        </div>
-                        %endif
-                    %endfor 
-
-                    <div class="ds-view-all-communities" style="border:1px solid;">
-                        <a href="/communities">View All</a>
-                    </div>
-
-                    %if len(communities) < 3:
-                        <div class="my-standards" style="border:1px solid #f00;margin-top:10px;">
-                            <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                            <div class="my-courses-cards" style="text-align: center;">
-                                <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                                        <div style="height:100px;"></div>
-                                        <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
-                                </div>
-                            </div>
-                        </div>
-                    %endif
-                </div>
-            </div>
-        </div>
-        <div class="con-my-courses">
+        <div class="con-my-courses-outer">
+        <div class="con-my-courses" style="position:fixed;">
             <div class="my-title">
-                <a href="/courses">My Course & Workshops</a>
+                <a href="/courses">My Courses</a>
             </div>
             <div class="my-courses-cards">
-                %for i,course in enumerate(courses_incomplated):
-                    %if i < 3:
-                        <%
-                            course_target = reverse('courseware', args=[course.id])
-                        %>
-                        <div class="course-card">
-                            <div>
-                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
-                            </div>
-                            <div class="course-title">
-                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
-                            </div>  
+                %for course in courses_incomplated:
+                    <%
+                        course_target = reverse('courseware', args=[course.id])
+                    %>
+                    <div class="course-card">
+                        <div>
+                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
                         </div>
-                        <div class="ds-course-btn">
-                            %if course.id in show_courseware_links_for:
-                                %if curr_user == request.user:              
-                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
-                                %else:
-                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
-                                %endif
-                                %if curr_user == request.user and not course.close_course:      
-                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
-                                %endif
-                            %endif
-                        </div>
-                    %endif
-                %endfor
-                <div class="ds-view-all-courses">
-                    <a href="/my_courses">View All</a>
-                </div>
-                %if len(courses_incomplated) < 3:
-                    <div class="my-content" style="float:left;">
-                        <div class="my-title">
-                            <span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span>
-                        </div>
-                        <div class="my-courses-cards" style="text-align: center">
-                            <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                                <div style="height:100px;"></div>
-                                <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
-                            </div>
-                        </div>
+                        <div class="course-title">
+                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                        </div>  
                     </div>
-                %endif
+                    <div class="ds-course-btn">
+                        %if course.id in show_courseware_links_for:
+                            %if curr_user == request.user:              
+                                 <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                            %else:
+                                <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                            %endif
+                            %if curr_user == request.user and not course.close_course:      
+                                <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                            %endif
+                        %endif
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-courses">
+                <a href="/my_courses">View All</a>
+            </div>
+            <!--allowedcourse-->
+            <div class="my-title" style="float:left;margin-top:10px;border:0px solid;">
+                <a href="/courses">Courses Available to Me</a>
+            </div>
+            <div class="my-courses-cards">
+                %for course in allowedcourses:
+                    <form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+                        <fieldset class="enroll_fieldset">
+                            <input name="course_id" type="hidden" value="${course.id}">
+                            <input name="enrollment_action" type="hidden" value="enroll">
+                        </fieldset>
+                    </form>
+                    <div class="course-card">
+                        <div>
+                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                        </div>
+                        <div class="course-title">
+                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                        </div>  
+                    </div>
+                    <a href="#" id="course_register" class="course-register btnx _del_line">Sign Up & Start Course</a>
+                %endfor
+            </div>
+            <div class="ds-view-allowed-courses">
+                <a href="/more_courses_available">View All</a>
             </div>
         </div>
-        <div class="con-my-courses-placeholder"></div>
+        </div>
 
         <div class="con-maincontent-all clearfix">
             <div class="con-feed-activity">
@@ -649,6 +688,7 @@
                         <option value = 'Courses'>Courses</option>
                         <option value = 'Messages'>Messages</option>
                         <option value = 'MyChunks'>My Chunks</option>
+                        <option value = 'MyFeed'>My Feed</option>
                         <option value = 'PDPlanner'>PD Planner</option>
                         <option value = 'Reports'>Reports</option>
                     </select>
@@ -684,73 +724,40 @@
             </div>
         </div>
         
-
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $(".image-link-style1").each(function(){
-                    getCollectionIcon(this, 'district', $(this).attr("key"));
-                });
-                $(".image-link-style2").each(function(){
-                    getCollectionIcon1(this, 'state', $(this).attr("key"));
-                });
-            })
-            function getCollectionIcon(self, type , key){
-                var path = "/static/images/" + type + "/";
-                key = key.replace(new RegExp(" ", "gm"), "_");
-                key = key.replace(new RegExp("'", "gm"), "");
-                var img = new Image();
-                img.src = path + key + ".jpg";
-                $(self).css("background-image","url("+img.src+")");
-                img.onerror = function () {
-                    $(".my_course_4").show();
-                    $(self).parent().parent("div").hide();
-                    $(self).parent().parent("div").siblings().css("margin-left","965px");
-                    if($(".my_course_4").eq(1).length > 0 ){
-                        // $(self).parent().parent("div").siblings().css("position","absolute");
-                        // $(self).parent().parent("div").siblings().css("top","700px");
-                    }else{
-                        $(self).parent().parent("div").siblings().css("position","relative");
-                    }
-                    
-                };
-            }
-            function getCollectionIcon1(self, type , key){
-                var path = "/static/images/" + type + "/";
-                key = key.replace(new RegExp(" ", "gm"), "_");
-                key = key.replace(new RegExp("'", "gm"), "");
-                var img = new Image();
-                img.src = path + key + ".jpg";
-                $(self).css("background-image","url("+img.src+")");
-                img.onerror = function () {
-                    $("#communities_1").show();
-                    $(self).parent().parent("div").hide();
-                    // $(self).parent().parent("div").prev().css("margin-bottom","20px");
-                    if($("#communities_1").length > 0){
-                        // $(self).parent().parent("div").prev().css("margin-top","-220px");
-                    }
-                };
-            }
-        </script>
+        <!--Community Dashboard-->
+        <div class="con-my-communities-outer">
+        <div class="con-my-communities" style="position:fixed;">
+            <div class="my-title">
+                <a href="/communities">Coaching & Collaboration</a>
+            </div>
+            <div class="my-communities-cards">
+                <%
+                    community_count = len(communities)
+                %>
+                %for community in communities:
+                    %if community['order'] < 3:
+                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                        <div style="height:80px;"></div>
+                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                    </div>
+                    %endif
+                %endfor
+            </div>
+            %if community_count == 0:
+                <div class="ds-view-all-communities">   
+            %else:
+                <div class="ds-view-all-communities" style="margin-top:-40px;"> 
+            %endif
+                <a href="/communities">View All</a>
+            </div>
+        </div>
+        </div>
         <div style="clear:both;"></div>
-        </div>  
     </section>
 </section>
 
 <script>
-var size = 0;
-
 $(document).ready(function(){
-    //@begin:Add for Dashboard Posts
-    //@date:2016-12-29
-    size = 5;
-
-    //--Post function--------------------------------------------
-    //--post button--
-
-    waiting = false;
-
-    //@end
-
     //20170221=================================================================================================
     $(window).on('unload', function() {
         $(window).scrollTop(0);
@@ -835,7 +842,9 @@ $(document).ready(function(){
                 data_all = data_obj.data_count;
                 my_activitis_create(data_obj);
                 data_loading = 0;
-                $(".info_div").hide();
+                if(data_all != 0){
+                    $(".info_div").hide();
+                } 
         });
     }
 
@@ -935,36 +944,77 @@ $(document).ready(function(){
         }
     });
 
-    $('.con-ma-rows-out').on('scroll', function() {
-        if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
-            if(skip_rows_scroll >= data_all){
-                //$(".info_div").hide();
-                $(".info_div").html(html_end);
-            }
-            get_my_activites(get_rows_scroll,skip_rows_scroll)
-            skip_rows_scroll += get_rows_scroll;
-        }
-    });
-
     $(window).bind("scroll", function(){
         var scrollTop = $(this).scrollTop();
-　　    var scrollHeight = $(document).height();
 　　    var windowHeight = $(this).height();
-        if(scrollTop + windowHeight == scrollHeight)
+        var scrollHeight = $(document).height();
+        var scrollTop_ceil = Math.ceil(scrollTop);
+
+        console.log("scrollTop:",scrollTop);
+        console.log("windowHeight:",windowHeight);
+        console.log("scrollHeight:",scrollHeight);
+        console.log("scrollTop_ceil:",scrollTop_ceil);
+
+        if(scrollTop_ceil + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
+                console.log("111");
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
             }else{
+                console.log("now_show:",now_show);
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show ==2 ){
+                    console.log("333");
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
             }
         }
     });
+});
+
+jQuery(function(){
+    var register_click = 0;
+    $("#course_register").click(function(event) {
+        %if not user.is_staff: 
+            if($(this).hasClass("disabled")){
+                return false;
+            }
+        %endif
+        if(register_click == 0){
+            register_click = 1;
+            $("#class_enroll_form").submit();
+            console.log("register_click-------------------------");
+        }
+        event.preventDefault();
+    });
+    ## making the conditional around this entire JS block for sanity
+    %if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+        $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+            if(xhr.status == 200) {
+                location.href = "${reverse('newdashboard')}";
+            } else if (xhr.status == 403) {
+                location.href = "${reverse('course-specific-register', args=[course.id])}?course_id=${course.id}&enrollment_action=enroll";
+            } else if (xhr.status == 400) { //This means the user did not have permission
+                $('#register_error').html('This course has restricted enrollment.  Sorry, you do not have permission to enroll.<br />' + 
+                    'You may need to log out and re-login with a university account, such as WebAuth').css("display", "block");
+            } else {
+                $('#register_error').html((xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')).css("display", "block");
+            }
+        });
+    %else:
+        $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+            if(xhr.status == 200) {
+                location.href = "${reverse('newdashboard')}";
+            } else if (xhr.status == 403) {
+                location.href = "${reverse('register_user',args=[''])}?course_id=${course.id}&enrollment_action=enroll";
+            } else {
+                $('#register_error').html((xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')).css("display", "block");
+            }
+        });
+    %endif
 });
 </script>
 

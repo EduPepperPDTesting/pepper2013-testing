@@ -141,10 +141,7 @@ f.close()
                         </label><br/>
                         <label class="label required">District ID:<br/>
                             <select id="district_id_single" name="district_id" autocomplete="off" chkmsg="You must select a district." chktype="Require">
-                                <option class="null_case" value="null_case"></option>
-                                %for item in District.objects.all().order_by('name'):
-                                    <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
-                                %endfor
+
                             </select>
                         </label><br/>
                     </div>
@@ -246,10 +243,7 @@ f.close()
                     </label><br/>
                     <label class="label required">District:<br/>
                         <select id="user_district_id" name="district" autocomplete="off" chkmsg="You must select a district." chktype="Require">
-                            <option class="null_case" value=""></option>
-                            %for item in District.objects.all().order_by('name'):
-                                <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
-                            %endfor
+
                         </select>
                     </label><br/>
                     <label class="label required">E-Mail:<br/>
@@ -280,10 +274,7 @@ f.close()
                 </label><br/>
                 <label class="label required">District:<br/>
                     <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District can't be empty." chkType="Require">
-                        <option class="null_case" value=""></option>
-                        %for item in District.objects.all():
-                            <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
-                        %endfor
+
                     </select>
                 </label><br/>
                 <label class="label required">Licences:<br/>
@@ -586,10 +577,7 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
-                    <option value="" class="null_case">Select District</option>
-                    %for item in District.objects.all().order_by('name'):
-                        <option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
                 <input placeholder="Search Cohorts" class="search-cohorts" type="search" data-column="0" id="Cohort_search">
                 <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
@@ -1221,6 +1209,32 @@ $(document).ready(function () {
             $(select).html('');
         }
     }
+
+    function filterImportDropOptions(item, id, select) {
+        if (id != 'null_case') {
+            var url = '';
+            var data = {};
+            if (item == 'state') {
+                url = "${reverse('pepper_utilities_drop_states')}";
+            } else if (item == 'district') {
+                url = "${reverse('pepper_utilities_drop_districts')}";
+                data['state'] = id;
+            } else if (item == 'school') {
+                url = "${reverse('pepper_utilities_drop_schools')}";
+                data['district'] = id;
+            }
+            $.get(url, data, function (r) {
+                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                $.each(r, function (k, v) {
+                    options += '<option value="' + v.id + '" class="' + v.id + '">' + v.name + '</option>';
+                });
+                $(select).html(options);
+            });
+        } else {
+            $(select).html('');
+        }
+    }
+
     function filterUserDropOptions(item, id, select) {
         if (id != 'null_case') {
             var url = '';
@@ -1258,32 +1272,24 @@ $(document).ready(function () {
     }
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#user_district_id > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterImportDropOptions('district', id, "#user_district_id");
     });
     $("#cohort_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#cohort_district_id > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterImportDropOptions('district', id, "#cohort_district_id");
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        filterUserDropOptions('district', id, '#School_district_select')
+        filterUserDropOptions('district', id, '#School_district_select');
     });
     $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#Cohort_district_select > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterUserDropOptions('district', id, '#Cohort_district_select');
     });
 
     $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#district_id_single > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterImportDropOptions('district', id, "#district_id_single");
     });
 });
 function addToSSO(){

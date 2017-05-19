@@ -47,12 +47,42 @@
 
 <style>
     /*akogan*/
-    .label {color: #000000 !important;}
+
+    html {font-size: 16px !important;}
+    html, body {line-height: 16px !important;}
+
+    *{font-family: "open sans" !important;}
+
+    .label{color: #000000 !important;}
     .switch i{ bottom: 15px !important;}
-    .step-page .move {right: 25px !important;}
+    .step-page .move{right: 25px !important;}
     .ui-datepicker-month {color: black !important}
-    /*.training-row {font-family: "open sans" !important;}*/
-    .step-content { width: 700px !important;}
+    /*.training-row{font-family: "open sans" !important;}*/
+    .step-content{ width: 700px !important;}
+
+    .form-row span{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+    .form-row span.label{font: 12px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+    .form-row select{color: #222 !important;}
+    .form-row input{color: #222 !important;}
+    .form-row textarea{color: #222 !important;}
+
+    h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;}
+
+    .table-filter select, .table-filter input {height: 30px !important;margin-bottom: 10px !important;}
+
+    #close_registration{font-size: 16px !important;font-style: normal !important;line-height: 16px !important;color: #00e !important;}
+    .add-area{font-size: 16px !important;font-style: normal !important;line-height: 16px !important;}
+
+    select{color: #222 !important;font-size: 16px !important;margin: 0 !important;vertical-align: baseline !important;}
+    .pagedisplay{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important;}
+
+    #User_state_select{max-width: 155px !important;}
+    #User_district_select{min-width: 531px !important;}
+    #User_school_select{min-width: 797px !important;}
+
+    .print_col{background-color: #9bf442; border: 1px #aaa solid !important; text-align: center}
+
+    .printview tr td{padding: 2px !important; height: 100%; border: 1px #ccc solid;}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -110,7 +140,7 @@
 
     #view_select .list-active{background-color:#204d74;}
 
-    #dlg-warning {height: 310px;}
+    #dlg-warning{height: 310px;}
 
     .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;}
 
@@ -171,14 +201,14 @@
                         </a>
                     </div>
                 %endif
-                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
+                <!--if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):-->
                 <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
                     <a href="#">
                         <div class="icon"></div>
                         <div>My Calendar</div>
                     </a>
                 </div>
-                %endif
+                <!--endif-->
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
                     <option value="">Select Pepper Courses</option>
@@ -295,11 +325,11 @@
             </div>
 
             <div class="btn-group" id="view_select" value="0" style="margin-left: 10px !important;">
-                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
+                <input type="button" class="btn btn-primary btn-input-grp" value="View: Default">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Calendar View</li>
-                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Print View</li>
+                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Default</li> <!--Calendar View</li>-->
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Print</li> <!--View</li>-->
                 </ul>
             </div>
 
@@ -318,12 +348,15 @@
             </table>
         </div>
         <div style="padding:10px;text-align:right;">
-          	<div>
+            <div class="cal_pdf" style="display:none;">
+                <img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>
+            </div>
+          	<div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">I can register: </span><span class="calendar_exp_color c3"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">I am registered: </span><span class="calendar_exp_color c2"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
             </div>
-            <div>
+            <div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
             </div>
@@ -436,7 +469,7 @@
                         <h5>Create Your Training or PD Event: Step 2 of 6</h5>
                         <h4>General Training Information</h4>
                         <div class="form-row">
-                            <span class="label" id="organization_pepreg_d1" style="margin-right:-5px;">District:</span>
+                            <span class="label" id="organization_pepreg_d1" style="">District:</span>
                             <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
@@ -449,7 +482,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label" id="organization_pepreg_s1" style="margin-right:-5px;">School:</span>
+                            <span class="label" id="organization_pepreg_s1" style="">School:</span>
                             %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                             <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
                             %elif check_access_level(request.user, 'pepreg', 'add_new_training') == "District":
@@ -462,16 +495,16 @@
                             %endif
                         </div>
                         <div class="form-row">
-                            <span class="label" style="padding-left: 0px;margin-right:-5px;">Training Name:</span>
+                            <span class="label" style="padding-left: 0px;">Training Name:</span>
                             <input type="text" name="name" value=""/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;">Description:</span>
+                            <span class="label" style="">Description:</span>
                             <textarea style="width:470px;height:100px;" name="description" id="" rows="" cols=""
                                       tabindex=""></textarea>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="padding-left: 0px;margin-right:-5px;">Pepper Course:</span>
+                            <span class="label" style="padding-left: 0px;">Pepper Course:</span>
                             <select name="pepper_course" style="max-width: 470px !important;" autocomplate="off">
                                 <option value=""></option>
                                 %for item in courses:
@@ -480,7 +513,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;">Subject Area:</span>
+                            <span class="label" style="">Subject Area:</span>
                             <select name="subject" autocomplate="off">
                                 <option value=""></option>
                                 <option value="AR">Assessments and Reporting</option>
@@ -572,7 +605,7 @@
                         <h4>Registration & Attendance Tracking</h4>
                         <div class="form-row"><!-- akogan. modified style. width from 230 to 260 & 270 -->
                             <span class="label"
-                                  style="width:260px;text-align:left;padding-left:20px;">Credit Hours:</span>
+                                  style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
                             <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
                             Time Credit will be automatically calculated from clock settings"></span>
@@ -580,35 +613,35 @@
 
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Registration:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
                             <input id="allow_registration" type="checkbox" name="allow_registration" value="true" onclick="resetCap()"/>
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
                               	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
                             </span>
                             <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Student can record attendance:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
                             <input type="checkbox" name="allow_student_attendance" value="true"/>
                             <span class="check-mark"
                                   alt="This should only be used for trainings or PD events that do not have an instructor."></span>
                         </div>
                         <div class="form-row">
                             <span class="label"
-                                  style="width:270px;text-align:left;padding-left:20px;">Training ID:</span>
+                                  style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
                             <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;word-break: keep-all;white-space: normal;">Turn-on Instructor Attendance Recording:</span>
                             <input type="checkbox" name="allow_attendance" value="true"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
                             <input type="checkbox" name="allow_validation" value="true"/>
                             <span class="check-mark"
                                   alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
@@ -639,9 +672,9 @@
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
-		catype: $("#calendar_select_categories").val(), calview: _cal_view}, function(data){
+		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false'}, function(data){
 
-	        if($("#calendar_select_range").val() == "2"){
+		    if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
 	           $("#calendar-month-weekdays").css("text-align", "left");
 	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
 	           var dayNum = getDateDay.getUTCDay()-1;
@@ -650,11 +683,12 @@
 	           $("#calendar-month-weekdays " + dayID).show();
 	           var displayDate=getDateDay.toUTCString().slice(5, 16);
 	           if($("#calendar-month-weekdays th[id='time']").length == 0){
-                  $("#calendar-month-weekdays").prepend("<th id='time' style='width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" + displayDate + "</th>");
+                  //$("#calendar-month-weekdays").prepend("<th id='time' style='width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" + displayDate + "</th>");
+                  $("#calendar-month-weekdays").prepend("<th id='time' style='max-width: 154px !important;'>" + displayDate + "</th>");
                }else{
                   $("#time").text(displayDate);
                }
-	        }else{
+	        }else if($("#view_select").val() == "0"){
 	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
                $("#calendar-month-weekdays th[id='time']").remove();
@@ -669,7 +703,7 @@
 
 			$(".training-row").has("label").css("padding", "0px");
 
-			if($("#calendar_select_range").val() == "2"){
+			if($("#calendar_select_range").val() == "2" && $("label").length > 0){
 			    uniqueTrainingSlot();
 
                 var labelElem = $(".training-row label");
@@ -677,11 +711,15 @@
                 labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
 			}
 			
-			$(".alert").mouseover(function () {
+			$(".alert").mouseover(function (e) {
 				$("#calendar_alert_title").empty();
 				var this_x = $(this).parent().position().left;
-				var tmp1 = $(this).offset();
-				tmp1.top += 30;
+                var tmp1 = $(this).offset();
+				if($("#calendar_select_range").val() != "2"){
+                    tmp1.top += 30;
+				}else{
+				    tmp1.top = e.clientY + 30;
+				}
 				tmp1.top -= $(document).scrollTop();
 				var tmp3 = $(this).attr("titlex").split("::");
 				for(var i in tmp3){
@@ -697,6 +735,9 @@
 				$("#calendar_alert_title").show();
 			});
 			$(".alert").mouseleave(function () {
+				$("#calendar_alert_title").hide();
+			});
+			$(".alert").click(function () {
 				$("#calendar_alert_title").hide();
 			});
 			 
@@ -1028,15 +1069,38 @@
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
                 $(".printview").remove();
-                $("#view_select .btn-input-grp").val("Calendar View");
-                $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
-                if($("#calendar_select_range").val() != "3"){
-                    $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+                $("#view_select .btn-input-grp").val("View: Default"); //("Calendar View");
+                $("#calendar-month-weekdays .print_col").remove();
+                if($("#calendar_select_range").val() != "2"){
+                    $("#calendar-month-weekdays th").show();
+                }else{
+                    $("#calendar-month-weekdays").find("th[id='time']").show();
+                    for(i=0; i<7; i++){
+                        if($("#calendar-month-weekdays th[value='day"+i+"']").length > 0)
+                            $("#calendar-month-weekdays").find("th[value='day"+i+"']").attr('value', '').show();
+                    }
                 }
+		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
+		        $(this).parent().parent().siblings().children().attr('disabled', false);
+		        //$("#calendar_btn_previous_y").css("margin-left", "0px");
+		        $(".cal_pdf").hide();
+		        $(".training_legend").show();
                 _cal_view="screen";
             }else if(viewVal == "1"){
-                $("#view_select .btn-input-grp").val("Print View");
-                $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
+                $("#view_select .btn-input-grp").val("View: Print"); //("Print View");
+                if($("#calendar_select_range").val() == "2"){
+                    var th_id = $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('id');
+                    $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('value', th_id);
+                    $("#calendar-month-weekdays").find("th:visible").hide();
+                }else{
+                    $("#calendar-month-weekdays th").hide();
+                }
+                $("#calendar-month-weekdays").append("<th class='print_col' style='width:25% !important'>Training Name <br/>and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col' style='width:25% !important'>Location</th>");
+                $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
+		        $(this).parent().parent().siblings(":not(#calendar_select_categories)").children().attr('disabled', true);
+		        //$("#calendar_btn_previous_y").css("margin-left", "15px");
+		        $(".training_legend").hide();
+		        $(".cal_pdf").show();
                  _cal_view="print";
             }
             console.log(_cal_view);
@@ -1095,11 +1159,11 @@
 			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
             calendarOpen();
@@ -1118,12 +1182,12 @@
 			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
             calendarOpen();
@@ -1150,11 +1214,11 @@
                     picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                     picker_date.setUTCDate(picker_date.getDate() - monthDays);
 			    }
-                setSysDate(picker_date);
+                setSysDate(picker_date, 0);
             }else{
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
             }
 			setPickerValue();
 			calendarOpen();
@@ -1167,26 +1231,27 @@
                 _sys_calendar_year += 1;
             }else if(rangeVal == "1" || rangeVal == "3"){
                 monthDays = new Date(_sys_calendar_year, _sys_calendar_month, 0).getDate();
+                console.log("monthDays: "+monthDays);
                 picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + monthDays);
-			    setSysDate(picker_date);
+			    setSysDate(picker_date, 0);
             }else{
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
-                setSysDate(picker_date);
+                setSysDate(picker_date, 0);
             }
 			setPickerValue();
 			calendarOpen();
 		});
 
-		function setSysDate(picker_date){
+		function setSysDate(picker_date, addMonth){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
 
             _old_month = _sys_calendar_month;
 
             _sys_calendar_month = picker_date.getUTCMonth();
-            if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
+            if(addMonth && $("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
             _sys_calendar_year = picker_date.getUTCFullYear();
             if(_sys_calendar_month == 0){
                 _sys_calendar_month = 12;
@@ -1203,6 +1268,16 @@
 			setPickerValue();
 			calendarOpen();
 		});
+
+		$('#calendar_select_data').change(function(){
+            if($("#calendar_select_range").val() == "2" || $("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "3"){
+                console.log("calendar_select_data-"+new Date($('#calendar_select_data').val()))
+                var picker_date = new Date($('#calendar_select_data').val());
+                picker_date.setUTCDate(picker_date.getDate());
+                setSysDate(picker_date);
+                calendarOpen();
+            }
+		})
 		
 		//-----------------------------------------------
 		$("#math_credits").click(function(){
@@ -1230,6 +1305,7 @@
 	});	
 
     function uniqueTrainingSlot() {
+        var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
             bLimit = (a == 0) ? 12 : 6;
@@ -1237,9 +1313,11 @@
             for ( var b = bStart; b <= bLimit; b++ ) {
                 dh = (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
-                var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
-                for ( var c = 0; c < cLimit; c++ ) {
+                var cLimit = $(".unique").length;
+                console.log("# els: "+cLimit+" hClass: "+hClass);
+                for ( var c = 0; c <= cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
+                    console.log(iClass + " spans #: " + $(iClass).length);
                     if($(iClass).length > 0) {
                         //var bottomY = $(iClass).last().find("label").offset().top + 16;
                         //var topY = $(iClass).first().find("label").offset().top;
@@ -1247,12 +1325,17 @@
                         var topY = $(iClass).first().find("label").position().top;
                         height = bottomY - topY;
                         topY += 2; //-= 269;
-                        existingSlots = $(".completeSlot:not(" + iClass + ")").length;
+                        existingSlots = $(".completeSlot").length;
+                        console.log("#els not with #" + iClass + ": " + $(".completeSlot").length);
+
                         if(existingSlots == 0){
-                            leftX = $(iClass).first().find("label").offset().left - 453;
+                            //leftX = $(iClass).first().find("label").offset().left - 453;
+                            leftX = $(iClass).first().find("label").position().left + 5;
                         }else{
-                            //leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
-                            leftX = $(".completeSlot:not(" + iClass + ")").last().position().left + 110;
+                            //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
+                            slIndex = existingSlots - 1;
+                            //leftX = $(".completeSlot:eq(" + slIndex + ")").position().left + 110;
+                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + 110;
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
@@ -1261,13 +1344,36 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                         + labelHtml + "</div>");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
                         }).css({"padding": "5px", "height": "26px"});
                         $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
                     }
                 }
+            }
+        }
+        if(existingSlots > 0){
+            var coords = [];
+            for(var n = 0; n <= existingSlots; n++){
+                leftX = $(".unique:eq(" + n + ")").find("div").position().left;
+                coords.push(leftX);
+            }
+            console.log(coords)
+            for(n = 0; n < coords.length - 1; n++){
+                for(m = n + 1; m < coords.length; m++){
+                    if(coords[n] == coords[m]){coords[m] = coords[m] + 110}
+                }
+            }
+            console.log(coords)
+            for(n = 0; n < coords.length; n++){
+                $(".span-" + n).find("div").css("left", coords[n] + "px");
+            }
+
+            if(coords[m] + 110 > parseInt($("#calendar-month").width())){
+                tableWidth = coords[m] + 110;
+                $("#calendar-month").css("width", tableWidth + "px")
             }
         }
     };
@@ -1392,7 +1498,12 @@
         if (dlgFlyOn)
             dlgFlyOn.hideOverlay();
         var dlg = new Dialog($("#dlg-warning"));
-        dlg.show("Warning", s);
+        if(s && s.indexOf("Thank you")===0){
+            dailogTitle = "Info";
+        }else{
+            dailogTitle = "Warning";
+        }
+        dlg.show(dailogTitle, s);
         dlg.lift(100);
         $("#dlg-warning").bind("hide", function () {
             $(this).unbind('hide');
@@ -1455,8 +1566,7 @@
                 ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
         // ************* add dlg close button to each step
         $("#dlg-add-training").find(".close-modal").remove();
-        //akogan - modified style, right from 0 to -50
-        $("<div class='close-modal' style='right:-50px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
+        $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(0)")).click(function () {//style='right:-50px;'
             dlg.hide();
         });
         // ************* before switch to another page
@@ -1481,7 +1591,13 @@
 					mathCreditsChecked();
 				}
 			}
-			
+			//akogan
+			if ( dest > -1 ){
+			    $(".step-page .close-modal").remove();
+                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                    dlg.hide();
+                });
+            }
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
         };
         // ************* when finish form
@@ -2272,6 +2388,9 @@
             return false;
         });
 
+        $("#view_select").attr("value", "");
+        $("#view_select").attr("value", "0");
+
         if($("#calendar_select_range li.list-active").val=="0")
             $("#calendar_select_range .btn-input-grp").val("Month");
         else if($("#calendar_select_range li.list-active").val=="1")
@@ -2296,6 +2415,25 @@
                 "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
             });
         });
+
+        $(".cal_pdf").on("click", "#download_calendar_pdf", function () {
+            if($(".printview").length > 0){
+                $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
+                year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
+                catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'true'}, function(trainingList){
+                    console.log(trainingList);
+                    var allTrainings = [];
+                    var i = 0;
+
+                    for (var training_id in trainingList) {
+                        allTrainings.push(trainingList[training_id]);
+                        i++;
+                    }
+
+                    window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                });
+            }
+        });
     });
 
     function resetCap(){
@@ -2316,7 +2454,7 @@
             console.log("old month-"+_old_month +" new month-"+_sys_calendar_month)
             if(nextMonth == true){
                 console.log("nextMonth");_sys_calendar_month += 1
-            }else if(prevMonth == true){
+            }else if(prevMonth == true && _old_month != _sys_calendar_month){
                 console.log("prevMonth");_sys_calendar_month -= 1
             }
         }

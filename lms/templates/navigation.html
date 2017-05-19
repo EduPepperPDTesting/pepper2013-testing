@@ -39,8 +39,28 @@
 </%block>
 
 <style type="text/css" media="screen">
+    html {font-size: 16px !important;}
+    html, body {line-height: 16px !important;}
+
     *{font-family:"open sans" !important;}
     p{font-family:"open sans" !important;}
+
+    .expanded{
+        position: absolute;
+        left: -140px !important;
+    }
+
+    ul.admin-dropdown-menu.expanded {
+        display: block;
+        position: absolute !important;
+        left: -140px !important;
+    }
+
+    a:link, a:visited {font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif;}
+
+    a.cta{font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif; !important;}
+
+    .admin-dropdown-menu a:link, a:visited {font-size: 16px !important;}
 
     a.blue{
         color:#556370 !important;
@@ -66,7 +86,7 @@
 
     a.main-link{
         font-family:'open sans';
-        font-size:16px;
+        font-size: 16px;
         text-transform:none;
         font-weight:normal !important;
     }
@@ -209,6 +229,8 @@
     }
     ul.admin-dropdown-menu.expanded {
         display: block;
+        position: absolute !important;
+        left: -140px !important;
     }
     ul.admin-dropdown-menu {
         background: #FCFCFC none repeat scroll 0% 0%;
@@ -336,9 +358,9 @@
         %endif
 
         % if curr_user==request.user and not curr_user.is_authenticated():
-            <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
-            <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
-            <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
+            <li><a href="/contact" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Membership</b></a></li>
+            <li><a href="/our_team" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Our Team</b></a></li>
+            <li><a href="/press" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>In the News</b></a></li>
         % endif
 
         %if request.user.is_authenticated():
@@ -372,7 +394,7 @@
         <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-        <ol class="user admin" style="margin-top: 2px !important;"> <!-- akogan - added style-->
+        <ol class="user admin" style="margin-top: 3px !important;"> <!-- akogan - added style-->
             %if show_extended:
           <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->
@@ -477,7 +499,7 @@
                     <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
                         <span class="avatar"></span>
                         <span class="sr">${_("Dashboard for:")} </span>
-                        <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        <span style="display:block;max-width:60px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                     </a>
                 </li>
                 <li class="primary">

@@ -846,7 +846,7 @@ Add info that you would like to share about yourself here:
   <header>
     <h2>${_("MY LEARNING PLAN")}</h2>
   </header>
-    % if request.user.id == 1:
+    % if (request.user.id == 10) or (request.user.id == 11) or (request.user.id == 12):
       <article class="my-course">
           <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="cover" style="cursor:default;" onclick="return false;">
               <img src="/static/images/Paths to College and Career.png" style="width:200px;height:104px;" alt="Paths to College and Career" />

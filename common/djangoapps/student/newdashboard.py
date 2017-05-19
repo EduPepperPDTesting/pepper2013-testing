@@ -39,6 +39,9 @@ import comment_client as cc
 from administration.models import PepRegTraining
 from reporting.models import Reports
 from django.core.urlresolvers import reverse
+from student.models import State,District,School,User,UserProfile
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from django.http import HttpResponseRedirect
 
 log = logging.getLogger("tracking")
 
@@ -120,6 +123,44 @@ def newdashboard(request, user_id=None):
     else:
         user = User.objects.get(id=request.user.id)
 
+    OrganizationOK = False
+    try:
+        state_id = user.profile.district.state.id
+        district_id = user.profile.district.id
+        school_id = user.profile.school.id
+    except:
+        state_id = -1
+        district_id = -1
+        school_id = -1
+        
+    organization_obj = OrganizationMetadata()
+    if (school_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+            organization_obj = tmp1.organization
+            OrganizationOK = True
+            break;
+
+    if (not(OrganizationOK) and district_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+            organization_obj = tmp1.organization
+            OrganizationOK = True
+            break;
+    
+    if (not(OrganizationOK) and state_id != -1):
+        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+            OrganizationOK = True
+            organization_obj = tmp1.organization
+            break;
+            
+    data = {}
+    if OrganizationOK:
+        data["org_id"] = organization_obj.id;
+        for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+            data[tmp1.itemType] = tmp1.itemValue
+
+    if OrganizationOK and data["Dashboard option etc"] == "0":
+        return HttpResponseRedirect('/dashboard')
+
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
@@ -129,6 +170,9 @@ def newdashboard(request, user_id=None):
     courses = []
     exists = 0
 
+    allowedcourses_id = []
+    allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+    
     # get none enrolled course count for current login user
     rts = record_time_store()
     if user_id != request.user.id:
@@ -142,6 +186,8 @@ def newdashboard(request, user_id=None):
                 pass
 
     for enrollment in CourseEnrollment.enrollments_for_user(user):
+        if enrollment.course_id in allowedcourses_id:
+            allowedcourses_id.remove(enrollment.course_id)
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
@@ -185,11 +231,11 @@ def newdashboard(request, user_id=None):
 
     #@begin:Add for Dashboard My Courses
     #@date:2017-02-19
-    #Just choose the last 3 courses_incomplated of the user.
+    #Just choose the last 2 courses_incomplated of the user.
     courses_incomplated_list = list()
     for k, v in enumerate(courses_incomplated):
         courses_incomplated_list.append(v)
-        if k > 2:
+        if k > 0:
             break
     #@end
 
@@ -207,19 +253,29 @@ def newdashboard(request, user_id=None):
                                'private': item.community.private,
                                'order': i})
         i = i + 1;
-
-    #@begin:Get my activity Group
-    #@date:2017-04-24
-    my_activity_group_list = myactivitystaticstore().get_grouptype()
     #@end
 
+    #@begin:get newest allowedcourse
+    #@date:2017-05-16
+    allowedcourses = []
+    for course_id in allowedcourses_id:
+        try:
+            course = course_from_id(course_id)
+            allowedcourses.append(course)
+        except:
+            pass
+    allowedcourse_list = []
+    if allowedcourses:
+        allowedcourse_list.append(allowedcourses[0])
+    #@end
+    
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
         'show_courseware_links_for': show_courseware_links_for,
         'curr_user': user,
         'communities': community_list,
-        'ma_group_list': my_activity_group_list
+        'allowedcourses': allowedcourse_list
     }   
 
     return render_to_response('dashboard_new.html', context)
@@ -320,7 +376,7 @@ def get_displayInfo(data):
             return info
 
         displayInfo_values[dt['key_name']] = value
-    info = replace_values(data["DisplayInfo"],displayInfo_values,dt['db'])
+    info = replace_values(data["DisplayInfo"],displayInfo_values)
     return info
 
 def get_logoInfo(data,ma_dict):
@@ -362,11 +418,8 @@ def get_logoInfo(data,ma_dict):
     if not logo_list:
         ma_dict['logoUrl'] = data["Logo"]
 
-def replace_values(body, values, dbtype):
-    if dbtype == 'mysql':
-        return re.sub("{[\w |,.()]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
-    else:
-        return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
+def replace_values(body, values):
+    return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
@@ -805,6 +858,14 @@ def submit_new_like(request):
     if store.is_like(feeding_id, user_id):
         store.remove_like(feeding_id, request.user.id)
     else:
+        postPublisher_id = int(store.get_feeding(feeding_id)['user_id'])
+        rs = myactivitystore()
+        my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_likePost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"postPublisher_id": postPublisher_id},
+        "TokenValues": {"postPublisher_id":postPublisher_id}, 
+        "LogoValues": {"postPublisher_id": postPublisher_id}}
+        rs.insert_item(my_activity)
+        
         date = datetime.datetime.utcnow()
         store.add_like(feeding_id, request.user.id, date)
 
@@ -848,6 +909,15 @@ def submit_new_comment(request):
     store = dashboard_feeding_store()
     post_id = request.POST.get('post_id', '')
     content = request.POST.get('content')
+
+    postPublisher_id = int(store.get_feeding(post_id)['user_id'])
+    rs = myactivitystore()
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"postPublisher_id": postPublisher_id},
+    "TokenValues": {"postPublisher_id":postPublisher_id}, 
+    "LogoValues": {"postPublisher_id": postPublisher_id}}
+    rs.insert_item(my_activity)
+
     _id = store.create(user_id=request.user.id,
                        type="comment",
                        content=content,
@@ -906,6 +976,13 @@ def submit_new_post(request):
                 data["embed"] = 0
             images.append(data)
 
+    rs = myactivitystore()
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_publishPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"postPublisher_id": request.user.id},
+    "TokenValues": {"postPublisher_id":request.user.id}, 
+    "LogoValues": {"postPublisher_id": request.user.id}}
+    rs.insert_item(my_activity)
+    
     if type == "post":
         _id = store.create(type=type, user_id=request.user.id, content=content,
                            receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
