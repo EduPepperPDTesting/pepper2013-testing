@@ -434,8 +434,10 @@ def report_view(request, report_id):
 
                 create_report_collection(request, report, selected_view, columns, filters, report_id)
 
+            view_id = ReportViews.objects.filter(report=report)[0].view_id;
+            pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;
             school_year_item = []
-            if report_has_school_year(selected_columns):
+            if (report_has_school_year(selected_columns)) or (view_id == pd_planner_id):
                 school_year_item = get_school_year_item()
         else:
             raise Exception('Not allowed.')
