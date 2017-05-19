@@ -67,6 +67,9 @@ from permissions.utils import check_access_level, check_user_perms
    padding:2px;
    font-style:normal;
  }
+ .user-info-div{
+   display:none;
+ }
  .btn-filter{
    padding:10px;
    background-color: #556370;
@@ -80,41 +83,6 @@ from permissions.utils import check_access_level, check_user_perms
    font-family: "open sans" !important;
    font-weight: normal;
    font-style:normal;
- }
- .smallcircle_comment{
-    width: 18px;
-    height: 18px;
-    position: absolute;
-    right: 0px;
-    top: 0px;
- }
- .comment-profile-image-div{
-  width:34px;
-  height:34px;
-  margin-top:5px;
-  position:relative;
- }
-.post-user-info{
-  background-color:#fff;
-  position:absolute;
-  border-radius:4px;
-  border:2px solid lightgrey;
-  top:30px;
-  left:5px;
-  padding:6px 4px;
-  display: none;
-  z-index: 1000 !important;
- }
- .comment-user-info{
-  background-color:#fff;
-  position:absolute;
-  border-radius:4px;
-  border:2px solid lightgrey;
-  top:22px;
-  left:0px;
-  padding:6px 4px;
-  display: none;
-  z-index: 1001 !important;
  }
 </style>
 <script type="text/javascript">
@@ -264,7 +232,6 @@ from permissions.utils import check_access_level, check_user_perms
     <div class="content"></div>
   </div>
 </div>
-<<<<<<< HEAD
 <div style="width:700px;margin-left:-350px;" id="fixed-dialog-posts" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
@@ -301,37 +268,10 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div style="display:inline-block;">
   <a class='ds-post-title-name' href='/dashboard/{user_id}'> {first_name} {last_name}</a>
-=======
-<script type="template" id="post-template">
-  <tr class='post-content-row clearfix'>
-  <td style="vertical-align:top"><img src="/static/images/{group_image}" class="" alt="" width="100" height=""/></td>
-  <td>
-  {exp}
-  <div class='ds-post-title'>
-  <input type="hidden" name="post_id" value="{_id}" />
-  <table>
-  <tr>
-  <td class='ds-post-title-photo'>
-    <a href='/dashboard/{user_id}'>
-      <div>
-        {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
-        <div class='post-user-info'></div>
-        <img src='/user_photo/{user_id}' class='post-profile-image hoverable-profile'
-        {online?data-skype='{skype_username}'}
-        data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'/>
-      </div>
-    </a>
-  </td>
-  <td class='ds-post-title-text'>
-  <a class='ds-post-title-name' href='/dashboard/{user_id}'>
-  {first_name} {last_name}</a>&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;
-  <span class='ds-post-title-position'>{district_name}</span><br/>
->>>>>>> be25d46f85816ad45f50a7866be60f7a91d1cd42
   <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
   <div style="width:570px">{content}{image_code}</div>
   </div>
   </div>
-<<<<<<< HEAD
 </script>
 <script type="template" id="top-announcement-template">
   <tr class="post-content-row announcement">
@@ -352,12 +292,6 @@ from permissions.utils import check_access_level, check_user_perms
   <div style="text-align:right;">
   <a class="view-all-announcements" data-org-type="{organization_type}"
   style="background:#fff;padding:3px;display:inline-block;">View All ({count})</a>
-=======
-  <div class='comment-section' style="display:{is_announcement?none;};width:97.3% !important;">
-  {sub_html}
-  {comment_disabled!<img src='/user_photo/${request.user.id}' class='comment-profile-image'> </img>}
-  {comment_disabled!<textarea class='add-comment-text' placeholder='Add a comment...'></textarea>}
->>>>>>> be25d46f85816ad45f50a7866be60f7a91d1cd42
   </div>
   <div class='ds-post-end_line'></div>
   </td>
@@ -415,7 +349,6 @@ from permissions.utils import check_access_level, check_user_perms
   <div class='post-row'>
   <table>
   <tr>
-<<<<<<< HEAD
   <td class='ds-post-title-photo' style="vertical-align:top;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
   {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
@@ -424,21 +357,6 @@ from permissions.utils import check_access_level, check_user_perms
       <img src='/user_photo/{user_id}' class='post-profile-image'/>
     </a>
   <div>
-=======
-  <td style="width:38px;">
-  <input type="hidden" name="comment_id" value="{_id}" />
-  <a href="/dashboard/{user_id}" class="comment-anchor-text">
-  <div class="comment-profile-image-div">
-    {online?<img src='/static/images/online-3.png' class='smallcircle_comment'></img>}
-    <div class='comment-user-info'></div>
-    <img class="comment-profile-image hoverable-profile" style="margin-top:0px;" src="/user_photo/{user_id}"
-    data-name="{first_name} {last_name}"
-    data-id="{user_id}"
-    data-uname="{username}"
-    data-email="{email}"
-    {online?data-skype="{skype_username}"} /></div>
-  </a>
->>>>>>> be25d46f85816ad45f50a7866be60f7a91d1cd42
   </td>
   <td class='ds-post-title-text'>
   <div class="clearfix">
@@ -785,24 +703,10 @@ from permissions.utils import check_access_level, check_user_perms
   // [event scroll] all posts
   $(window).bind("scroll", function(){
     var scrollTop = $(this).scrollTop();
-<<<<<<< HEAD
     　　    var scrollHeight = $(document).height();
     　　    var windowHeight = $(this).height();
     if(scrollTop + windowHeight == scrollHeight) {
       getTopPosts(true)
-=======
-    var scrollHeight = $(document).height();
-    var windowHeight = $(this).height();
-    var scrollTop_ceil = Math.ceil(scrollTop);
-
-    console.log("scrollTop1:",scrollTop);
-    console.log("windowHeight1:",windowHeight);
-    console.log("scrollHeight1:",scrollHeight);
-    console.log("scrollTop_ceil1:",scrollTop_ceil);
-
-    if(scrollTop_ceil + windowHeight >= scrollHeight) {
-      getPosts(true)
->>>>>>> be25d46f85816ad45f50a7866be60f7a91d1cd42
     }
   });
   // update one of the posts
