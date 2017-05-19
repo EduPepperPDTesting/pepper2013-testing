@@ -995,7 +995,6 @@ def submit_new_post(request):
         _id = store.create(type=type, user_id=request.user.id, content=content,
                            receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
                            expiration_date=expiration_date, images=images, organization_type=organization_type)
-        
 
     return HttpResponse(json.dumps({'Success': 'True', "_id": str(_id), 'post': request.POST.get('post'),
                                     'master_id': request.POST.get('master_id')}), content_type='application/json')
