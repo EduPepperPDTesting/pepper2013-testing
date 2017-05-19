@@ -245,13 +245,19 @@ def newdashboard(request, user_id=None):
     community_list = list()
     # Just choose the last 2 communities the user belongs to.
     items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
-    if not items:
-        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-    for item in items:
-        community_list.append({'id': item.community.id,
+    if items:
+        for item in items:
+            community_list.append({'id': item.community.id,
                                'name': item.community.name,
                                'logo': item.community.logo.upload.url if item.community.logo else '',
                                'private': item.community.private})
+    else:
+         items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+         for item in items:
+            community_list.append({'id': item.id,
+                               'name': item.name,
+                               'logo': item.logo.upload.url if item.logo else '',
+                               'private': item.private})
     #@end
 
     #@begin:get Courses Available to Me
