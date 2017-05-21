@@ -927,6 +927,13 @@ def submit_new_like(request):
     return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')
 
 
+def delete_announcement(request):
+    feeding_id = request.POST.get("_id")
+    store = dashboard_feeding_store()
+    store.remove_feeding(feeding_id)
+    return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
+
+
 def delete_post(request):
     feeding_id = request.POST.get("post_id")
     store = dashboard_feeding_store()

@@ -165,6 +165,7 @@ urlpatterns = (
     url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
     url(r'^dashboard/comment/get$', 'student.newdashboard.get_comment', name='dashboard_get_comment'),
     url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
+    url(r'^dashboard/delete/announcement', 'student.newdashboard.delete_announcement', name='dashboard_delete_announcement'),
     url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
     url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
     url(r'^dashboard/post/comment', 'student.newdashboard.submit_new_comment', name='dashboard_submit_new_comment'),
