@@ -13,41 +13,40 @@
 % endif
 <%
     OrganizationOK = False
-    if curr_user == request.user:
-        if curr_user.is_authenticated():            
-            try:
-                state_id = request.user.profile.district.state.id
-                district_id = request.user.profile.district.id
-                school_id = request.user.profile.school.id
-            except:
-                state_id = -1
-                district_id = -1
-                school_id = -1
-                
-            organization_obj = OrganizationMetadata()
-            if (school_id != -1):
-                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-                    organization_obj = tmp1.organization
-                    OrganizationOK = True
-                    break;
-
-            if (not(OrganizationOK) and district_id != -1):
-                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-                    organization_obj = tmp1.organization
-                    OrganizationOK = True
-                    break;
+    if request.user.is_authenticated():            
+        try:
+            state_id = request.user.profile.district.state.id
+            district_id = request.user.profile.district.id
+            school_id = request.user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
             
-            if (not(OrganizationOK) and state_id != -1):
-                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                    OrganizationOK = True
-                    organization_obj = tmp1.organization
-                    break;
-                    
-            data = {}
-            if OrganizationOK:
-                data["org_id"] = organization_obj.id;
-                for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                    data[tmp1.itemType] = tmp1.itemValue
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+                
+        data = {}
+        if OrganizationOK:
+            data["org_id"] = organization_obj.id;
+            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting

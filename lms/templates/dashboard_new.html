@@ -165,7 +165,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     padding-left: 1px;
 }
 .my-title a{
-    font-size:16px;
+    font-size:18px;
     color:#3C4646;
     text-decoration:none !important;
     cursor:pointer;
@@ -542,7 +542,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 .ma-community-simple-table{
     display: table-cell;
@@ -560,7 +560,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     margin-bottom: 15px;
 }
 .community-trending-topics{
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 .trending-topic .tt-basic{
     padding:3px;
@@ -570,8 +570,27 @@ a.btnx:hover,input[type=button].btnx:hover {
     font-weight: bold;
     color:#92c900;
 }
-.trending-topic .tt-post{
+.trending-topic .tt-title div{
+    width: 220px;
+    height: 18px;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.trending-topic .tt-post div{
+    width: 220px;
+    height: 18px;
     color:#29b7ec;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.trending-topic .tt-post a{
+    color:#29b7ec;
+    font-size:14px;
+    text-decoration:none !important;
 }
 .trending-topic .tt-time{
     
@@ -636,7 +655,7 @@ a.btnx:hover,input[type=button].btnx:hover {
 <!--@end-->
 <script src="/static/js/datetime/moment.js"></script>
 
-<section class="content-wrapper1" style="margin-top:0px;background-color:#eee;">
+<section class="content-wrapper1" style="margin-top:0px;background-color:#F0F0F0;">
     <section class="container dashboard">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
@@ -678,8 +697,8 @@ a.btnx:hover,input[type=button].btnx:hover {
 
             %if len(allowedcourses) > 0:
                 <!--allowedcourse-->
-                <div class="my-title" style="float:left;margin-top:10px;border:0px solid;">
-                    <a href="/courses">Courses Available to Me</a>
+                <div class="my-title" style="float:left;margin-top:30px;border:0px solid;">
+                    <a href="/courses">New Courses Available to Me</a>
                 </div>
                 <div class="my-courses-cards">
                     %for course in allowedcourses:
@@ -767,16 +786,18 @@ a.btnx:hover,input[type=button].btnx:hover {
             <div class="con-my-communities" style="position:fixed;">
                 <div class="community-trending-topics">
                     <div class="my-title">
-                        <a href="/communities">Trending Topics</a>
+                        <a href="/communities">Community Trending Topics</a>
                     </div>
                     <div class="trending-topic" >
                         %for c in community_trending_topics:
                             <table width="100%">
                                 <tr>
-                                    <td class="tt-basic tt-title">${c['cname']}</td>
+                                    <td class="tt-basic tt-title"><div>${c['cname']}</div></td>
                                 </tr>
                                 <tr>
-                                    <td class="tt-basic tt-post">${c['content']}</td>
+                                    <td class="tt-basic tt-post">
+                                        <div><a href=${c['btnurl']}>${c['content']}</a></div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="tt-basic">
@@ -807,7 +828,7 @@ a.btnx:hover,input[type=button].btnx:hover {
                             </a>
                         %endfor
                     </div>
-                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
+                    <div class="ds-view-all-communities" style="margin-top:-10px;"><a href="/communities">View All</a></div>
                 </div>
             </div>
         </div>

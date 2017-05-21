@@ -505,7 +505,7 @@ def create_filter_key(filter_con):
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
     elif filter_month:
         filter_key["$or"] = []
-        year_0 = 2016
+        year_0 = 2014
         year_now = int(datetime.datetime.utcnow().strftime("%Y"))
         while year_0 <= year_now:
             if filter_month == "12":

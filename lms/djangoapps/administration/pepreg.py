@@ -337,6 +337,14 @@ def save_training(request):
         training.date_modify = datetime.now(UTC)
         training.save()
 
+        if not id:
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_createTraining", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"training_id": training.id},
+            "TokenValues": {"training_id": training.id},
+            "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
+
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
             for emails in request.POST.get("instructor_emails", "").split(","):
