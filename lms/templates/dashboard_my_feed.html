@@ -115,9 +115,6 @@ from permissions.utils import check_access_level, check_user_perms
           r = v(m[1]) ? m[2] : (typeof(m[3]) !="undefined" ? m[3] : "");
         } else {
           var t = v(key);
-
-          /* if(t.indexOf(":")>-1)
-           *   alert(t)*/
           r = typeof(t) != "undefined" ? String(t).escape("?:!", false) : "";
         }
         c = 1;
@@ -241,7 +238,7 @@ from permissions.utils import check_access_level, check_user_perms
       <h3 class="dialog-title"></h3>
       <div class="close-modal" id="dialog_close">✕</div>
     </div>
-    <div style="padding:10px 10px;">
+    <div style="padding:10px 10px;" class="add-comment">
         <img src='/user_photo/${request.user.id}' class='post-profile-image'/>
         <input type="" class="comment-input" value="" placeholder="Add a comment" style="width:85%;"/>
     </div>
@@ -266,14 +263,14 @@ from permissions.utils import check_access_level, check_user_perms
 </style>
 <script type="template" id="announcement-template">
   <div style="margin-bottom:20px;">
-  <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+  <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
   <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
   </div>
   <div style="display:inline-block;">
   <a class='ds-post-title-name' href='/dashboard/{user_id}'> {first_name} {last_name}</a>
-  <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
-  <div style="width:570px;">{content}{image_code}</div>
+  <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
   </div>
+  <div>{content}{image_code}</div>
   </div>
 </script>
 <script type="template" id="top-announcement-template">
@@ -281,7 +278,7 @@ from permissions.utils import check_access_level, check_user_perms
   <td style="position:relative;background:#E4E4E4;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
   <div class="feed-title">My {organization_type} Announcements</div>
-  <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+  <div class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
     <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
   </div>
   <div style="float:right;">
@@ -324,9 +321,9 @@ from permissions.utils import check_access_level, check_user_perms
                 <a class='ds-post-title-name' target="_blank" href='/dashboard/{last_comment?last_comment.user_id:user_id}'> 
                   {last_comment?{last_comment.first_name} {last_comment.last_name}:{first_name} {last_name}}
                 </a>
-                <div class="post-title-link">
+  <div class="post-title-link" style="font-style:italic;">
                   {last_comment?replied to a post in your network:created a new post in your network}.
-                  <span class='ds-post-title-time'>
+                  <span class='ds-post-title-time' style="float:right;">
                     {last_comment?{last_comment.post_date}:{post_date}} at
                     {last_comment?{last_comment.post_h}:{post_h}}:{last_comment?{last_comment.post_m}:{post_m}}
                     {last_comment?{last_comment.post_ampm}:{post_ampm}}
@@ -349,7 +346,7 @@ from permissions.utils import check_access_level, check_user_perms
                   <span class="post-comments-label" data-post-id="{_id.$oid}" style="color:#555;cursor:pointer;">
                     <img src='/static/images/newdashboard/Comment-512.png' width='35'/> <span style="display:inline-block;vertical-align:middle;">({feeding_count})</span>
                   </span>&nbsp;&nbsp;
-                  {removable?<img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align\:middle;line-height\:20px;"></img>}
+                  <img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden;}"></img>
                 </div>              
             </td>
           </tr>
@@ -360,7 +357,7 @@ from permissions.utils import check_access_level, check_user_perms
 </script>
 <script type="template" id="post-template">
   <div class='post-row'>
-  <table>
+  <table width="100%">
   <tr>
   <td class='ds-post-title-photo' style="vertical-align:top;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
@@ -374,17 +371,27 @@ from permissions.utils import check_access_level, check_user_perms
   <td class='ds-post-title-text'>
   <div class="clearfix">
   <a class='ds-post-title-name' target="_blank" href='/dashboard/{last_comment?last_comment.user_id:user_id}'> 
-    {first_name} {last_name}
-   </a>
-  <div class='ds-post-title-time' style="float:right;">  <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;"> {is_my_like?Unlike:Like} ({likes})</span> &nbsp;{post_date} at {post_h}:{post_m} {post_ampm}</div>  
+  {first_name} {last_name}
+  </a>
+  <div class='ds-post-title-time'>
+  {post_date} at {post_h}:{post_m} {post_ampm}  
   </div>
+  </div>
+  </td>
+  </tr>
+  <tr>
+  <td colspan="2">
   <div>{content}{image_code}</div>
+  <div style="text-align:right;">
+  <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
+  <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?post:comment}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
+  </div>
   </td>
   </tr>
   </table>
   </div>
 </script>
-<script type="text/javascript">
+<script type="text/javascript">  
   function renderTopAnnouncement(p){
     var template = $("#top-announcement-template").html();
     $('#announcement_content_table').append(template.fillData(p));   
@@ -468,6 +475,7 @@ from permissions.utils import check_access_level, check_user_perms
         });
         // click on like
         bindLikeEvent();
+        $("#fixed-dialog-posts").find("div.add-comment").show();
         // on submit comment
         $("#fixed-dialog-posts .post-likes-label").off("click").on("click", function(e){
           var local_time =  new Date();
@@ -480,6 +488,25 @@ from permissions.utils import check_access_level, check_user_perms
           });
         });
         bindHover();
+        $(".dlg-delete-post").off("click").on("click", function(){
+          var $row = $(this).closest("div.post-row");
+          var _id = $row.find("input[name=_id]").val();
+          $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+            $("#fixed-dialog-posts").find("div.post-row").remove();
+            $("#fixed-dialog-posts").find("div.add-comment").hide()
+            $("#fixed-dialog-posts").addClass("changed");
+            $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+          });          
+        });
+        $(".dlg-delete-comment").off("click").on("click", function(){
+          var $row = $(this).closest("div.post-row");
+          var _id = $row.find("input[name=_id]").val();
+          $.post("${reverse('dashboard_delete_comment')}", {_id:_id}, function(data){
+            $row.remove();
+            $("#fixed-dialog-posts").addClass("changed");
+            $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+          });                
+        });
       });
       $("#fixed-dialog-posts .comment-input").off("keyup").on("keyup", function(e){
         var self = this;
@@ -587,20 +614,9 @@ from permissions.utils import check_access_level, check_user_perms
     $(".post-delete").off("click").on("click", function(){
         var $row = $(this).closest("tr.post-content-row");
         var _id = $row.find("input[name=post_id]").val();
-        $.post("${reverse('dashboard_delete_post')}", {post_id:_id}, function(data){
+        $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
           $row.remove();
         });
-
-      /*
-      if($(this).hasClass("comment-delete")){
-        var $row = $(this).closest("tr");
-        var _id = $row.find("input[name=comment_id]").val();
-        $.post("${reverse('dashboard_delete_comment')}", {comment_id:_id}, function(data){
-          $row.remove();
-        });
-      }
-      */
-      
     });
     // [event click] show all like dialog
     $(".like-members-anchor").off("click").on("click", function(e){

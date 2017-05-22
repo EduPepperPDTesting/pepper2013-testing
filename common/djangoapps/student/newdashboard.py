@@ -935,14 +935,14 @@ def delete_announcement(request):
 
 
 def delete_post(request):
-    feeding_id = request.POST.get("post_id")
+    feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
     store.remove_feeding(feeding_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
 def delete_comment(request):
-    feeding_id = request.POST.get("comment_id")
+    feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
     store.remove_feeding(feeding_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
