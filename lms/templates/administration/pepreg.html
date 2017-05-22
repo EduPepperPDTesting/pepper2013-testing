@@ -201,14 +201,14 @@
                         </a>
                     </div>
                 %endif
-                <!--if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):-->
+                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
                 <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
                     <a href="#">
                         <div class="icon"></div>
                         <div>My Calendar</div>
                     </a>
                 </div>
-                <!--endif-->
+                %endif
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
                     <option value="">Select Pepper Courses</option>
