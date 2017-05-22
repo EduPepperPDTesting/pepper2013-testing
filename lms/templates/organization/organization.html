@@ -383,13 +383,13 @@
                         </tr>
                         <tr>
                         	<td align="center">My Feed</td>
-                            <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show" checked="checked" /></td>
-                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="1" checked="checked" /></td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show" checked="checked" onclick="selectPDTable()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="1" checked="checked" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
                         	<td align="center">My Activities</td>
-                            <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" checked="checked" /></td>
-                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" /></td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" checked="checked" onclick="selectPDTable()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
                     </table>
                 </td>
@@ -427,13 +427,13 @@
             </tr>
             <tr class="new_menu_tr">
                 <td colspan="3" class="org_td1">
-                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" checked="checked" />All Words</label>
-                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" />All Icons</label>
-                    <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" />Text Below Icons</label>
+                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" onclick="isIconChange()" />All Words</label>
+                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" onclick="isIconChange()" />All Icons</label>
+                    <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" onclick="isIconChange()" />Text Below Icons</label>
                 </td>
             </tr>
             <tr class="new_menu_tr">
-                <td class="org_td1 org_td1_demo">Menu Text Settings (Maximum 9 items): </td>
+                <td class="org_td1 org_td1_demo">Menu Text Settings: </td>
                 <td></td>
                 <td></td>
             </tr>
@@ -1137,7 +1137,7 @@
 							}
 							
 							organizational_dashboard_demo_div_reload();
-							isIconChange($("input[name='organizational_dashboard_is_icon']:checked").val());
+							isIconChange();
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
 							
@@ -2168,12 +2168,7 @@
 				$(tmp_body1).parent().find(".sub_menu_btn").val("-");
 				$(tmp_body1).parent().find(".sub_menu_btn:last").val("+");
 			}
-		});
-		
-		//--------------------------organizational_dashboard_is_icon change
-		$("input[name='organizational_dashboard_is_icon']").change(function(){
-			isIconChange($(this).val());
-		});
+		});		
 		
 		//--------------------------organizational_dashboard_option change
 		$("input[name='organizational_dashboard_option']").change(function(){
@@ -2187,25 +2182,44 @@
 	});	
 	
 	//--------------------------isIconChange
-	function isIconChange(is_icon){
+	function isIconChange(){
+		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
+		var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+		
 		if(is_icon == "1"){
 			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", false);
-			
-			$("#organizational_dashboard_menu_text_color").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_font").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_size").attr("disabled", true);
-
 			$(".org_td1_demo2").removeClass("organizational_dashboard_demo1");
-			$(".org_td1_demo").addClass("organizational_dashboard_demo1");
 		}else{
 			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", true);
-			
+			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
+		}
+		
+		if(is_icon == "1" && is_icon_width_text == "0"){
+			$("#organizational_dashboard_menu_text_color").attr("disabled", true);
+			$("#organizational_dashboard_menu_text_font").attr("disabled", true);
+			$("#organizational_dashboard_menu_text_size").attr("disabled", true);			
+			$(".org_td1_demo").addClass("organizational_dashboard_demo1");
+		}else{
 			$("#organizational_dashboard_menu_text_color").attr("disabled", false);
 			$("#organizational_dashboard_menu_text_font").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_size").attr("disabled", false);			
-			
-			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
+			$("#organizational_dashboard_menu_text_size").attr("disabled", false);
 			$(".org_td1_demo").removeClass("organizational_dashboard_demo1");
+		}
+	}
+	
+	//--------------------------selectPDTable
+	function selectPDTable(){
+		var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
+		var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
+		
+		if(my_feed_show == "0" && my_activities_show == "0"){
+			alert("At least one item needs to be selected.");
+			$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");
+			$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
+		}else if(my_feed_show == "1" && my_activities_show == "0"){
+			$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
+		}else if(my_feed_show == "0" && my_activities_show == "1"){
+			$("input[name='organizational_dashboard_feed_default'][value='0']").attr("checked", "checked");
 		}
 	}
 	
