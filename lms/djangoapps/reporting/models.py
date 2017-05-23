@@ -27,7 +27,7 @@ class Reports(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     order = models.IntegerField(default=0)
-    type = models.IntegerField(default=0)   #0(standard)，1(Matrix).
+    report_type = models.IntegerField(default=0)   #0(standard)，1(Matrix).
 
 
 class Views(models.Model):

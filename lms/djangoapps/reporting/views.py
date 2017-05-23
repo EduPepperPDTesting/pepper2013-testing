@@ -302,7 +302,7 @@ def report_save(request, report_id):
                 report.description = description
                 report.distinct = distinct
                 report.access_level = access_level
-                report.type = 0
+                report.report_type = 0
                 if access_level == 'State':
                     report.access_id = request.user.profile.district.state.id
                 elif access_level == 'District':
@@ -383,7 +383,7 @@ def report_save(request, report_id):
                 report.name = name
                 report.description = description
                 report.distinct = distinct
-                report.type = 1
+                report.report_type = 1
                 report.access_level = access_level
                 if access_level == 'State':
                     report.access_id = request.user.profile.district.state.id
@@ -501,7 +501,7 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
-        if report.type == 0
+        if report.report_type == 0
             selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
         else
             reportmatrixcolumns = ReportMatrixColumns.objects.filter(report=report)
