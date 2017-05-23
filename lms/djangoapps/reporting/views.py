@@ -501,9 +501,9 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
-        if report.report_type == 0
+        if report.report_type == 0:
             selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-        else
+        else:
             reportmatrixcolumns = ReportMatrixColumns.objects.filter(report=report)
         if report.access_level == 'System':
             allowed = True
