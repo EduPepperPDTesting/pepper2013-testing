@@ -545,6 +545,7 @@ def getCalendarMonth(request):
             if (item.training_date == pdfDate.date()):
                 if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                     continue;
+
                 arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                 allow = "1" if item.allow_registration else "0"
                 r_l = "1" if reach_limit(item) else "0"
@@ -559,9 +560,10 @@ def getCalendarMonth(request):
 
                 if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
                     training_list.append(item.id)
+        raise Exception(training_list)
 
         try:
-            raise Exception(training_list)
+
             training_keys = list(range(len(training_list)))
             training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
             return HttpResponse(json.dumps(training_dict), content_type="application/json")
