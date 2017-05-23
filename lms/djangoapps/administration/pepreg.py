@@ -570,7 +570,7 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, _getrange, tmp_school_id, daterangelist)
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -616,44 +616,59 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, tmp_school_id, daterangelist):
+def build_print_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
 
-    date_list = getdatelist(daterangelist, getrange, year, month)
-    # raise Exception(date_list)
-    for item in all_occurrences:
-        arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-        allow = "1" if item.allow_registration else "0"
-        r_l = "1" if reach_limit(item) else "0"
-        allow_student_attendance = "1" if item.allow_student_attendance else "0"
-        status = ""
-        try:
-            userObj = request.session.get('user_obj', None)
-            if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                status = PepRegStudent.objects.get(student=userObj, training=item).student_status
-        except:
-            status = ""
-        # if(item.training_date in date_list):
-        #     raise Exception(item.training_date)
+    #date_list = getdatelist(daterangelist, getrange, year, month)
 
-        if (item.training_date in date_list and not (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id) and ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3"))))):
+    isweek = 1 if len(daterange) == 7 else 0
+    isday = 1 if len(daterange) == 1 else 0
 
-            training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
-
-            print_row[i].append(item.name)
-            print_row[i].append(item.description)
-            print_row[i].append(item.training_date)
-            print_row[i].append(training_start_time)
-            print_row[i].append(item.classroom)
-            print_row[i].append(item.geo_location)
-
-            if(i < array_length - 1):
-                i += 1
-                print_row.append([])
+    for day in daterange:
+        if (isweek or isday):
+            printDate = utc.localize(day)
         else:
-            array_length -= 1
+            printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+
+
+    # raise Exception(date_list)
+        for item in all_occurrences:
+            if(item.training_date == printDate.date()):
+                if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                    continue;
+
+                arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+                allow = "1" if item.allow_registration else "0"
+                r_l = "1" if reach_limit(item) else "0"
+                allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                status = ""
+                try:
+                    userObj = request.session.get('user_obj', None)
+                    if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                        status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+                except:
+                    status = ""
+                # if(item.training_date in date_list):
+                #     raise Exception(item.training_date)
+
+                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+
+                    training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+                    print_row[i].append(item.name)
+                    print_row[i].append(item.description)
+                    print_row[i].append(item.training_date)
+                    print_row[i].append(training_start_time)
+                    print_row[i].append(item.classroom)
+                    print_row[i].append(item.geo_location)
+
+                    if(i < array_length - 1):
+                        i += 1
+                        print_row.append([])
+                else:
+                    array_length -= 1
 
     if(print_row):
         i = 0
