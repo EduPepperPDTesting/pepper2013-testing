@@ -84,7 +84,7 @@ class ReportFilters(models.Model):
 
 class ReportMatrixColumns(models.Model):
     class Meta:
-        db_table = 'reporting_Matrix_Columns'
+        db_table = 'reporting_matrix_columns'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     column_headers = models.IntegerField(blank=False, null=False,)
     row_headers = models.IntegerField(blank=False, null=False,)
