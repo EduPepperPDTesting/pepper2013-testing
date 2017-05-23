@@ -666,18 +666,15 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     if(i < array_length - 1):
                         i += 1
                         print_row.append([])
-                else:
-                    array_length -= 1
-    raise Exception(str(array_length))
 
     if(print_row):
-        i = 0
+        n = 0
         table_tr_content = ""
-        while(i < array_length):
+        while(n < i):
 
             row_height = "30"
-            ti_text_span = str(print_row[i][1])
-            tg_text_span = str(print_row[i][5])
+            ti_text_span = str(print_row[n][1])
+            tg_text_span = str(print_row[n][5])
             if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
                 if(len(ti_text_span) >= len(tg_text_span)):
                     row_height = str((1 + len(ti_text_span) / 36) * 15)
@@ -700,14 +697,14 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'>" + str(print_row[i][0]) + "<br/><br/>" + ti_text_span + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[i][2]) + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'>" + str(print_row[i][4]) + "<br/><br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'>" + str(print_row[n][0]) + "<br/><br/>" + ti_text_span + "</td>"
+            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][2]) + "</td>"
+            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][3]) + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'>" + str(print_row[n][4]) + "<br/><br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
-            i += 1
+            n += 1
 
         # table_tr_content += "<tr class='printview' style='height:38px;'>" \
         #                     "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \
