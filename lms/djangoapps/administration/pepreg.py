@@ -636,7 +636,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
 
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
-            print_row[i].append(i + " " + item.name)
+            print_row[i].append(str(i) + " " + item.name)
             print_row[i].append(item.description)
             print_row[i].append(item.training_date)
             print_row[i].append(training_start_time)
