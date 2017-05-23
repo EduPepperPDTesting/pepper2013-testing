@@ -561,6 +561,7 @@ def getCalendarMonth(request):
                     training_list.append(item.id)
 
         try:
+            raise Exception(training_list)
             training_keys = list(range(len(training_list)))
             training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
             return HttpResponse(json.dumps(training_dict), content_type="application/json")
