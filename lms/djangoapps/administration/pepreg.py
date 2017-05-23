@@ -610,6 +610,7 @@ def getweekdays(year, weekNumber, getrange):
 
 def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, daterangelist):
     print_row = [[]]
+    del print_row[:]
     i = 0
     array_length = len(all_occurrences)
 
