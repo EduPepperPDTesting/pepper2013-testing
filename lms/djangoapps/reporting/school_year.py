@@ -3,7 +3,6 @@ from .models import ReportViews,Views
 from .models import reporting_store
 
 school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView','PepRegTrainingView']
-# school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView']
 
 
 def report_has_school_year(columns):
@@ -37,7 +36,6 @@ def get_query_school_year(request, report, columns):
     view_id = ReportViews.objects.filter(report=report)[0].view_id
     pd_planner_id = Views.objects.filter(name='PD Planner')[0].id
     if (report_has_school_year(columns)) or (view_id == pd_planner_id):
-    # if report_has_school_year(columns):
         school_year_item = request.GET.get('school_year', '')
         school_year_item = get_default_school_year_item(school_year_item)
         if selected_view.view.collection in school_year_collection:
