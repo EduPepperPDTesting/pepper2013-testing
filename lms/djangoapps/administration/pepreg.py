@@ -632,7 +632,6 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         else:
             printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
 
-
     # raise Exception(date_list)
         for item in all_occurrences:
             if(item.training_date == printDate.date()):
@@ -669,6 +668,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         print_row.append([])
                 else:
                     array_length -= 1
+    raise Exception(print_row)
 
     if(print_row):
         i = 0
