@@ -668,7 +668,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         print_row.append([])
                 else:
                     array_length -= 1
-    raise Exception(print_row)
+    raise Exception(str(i))
 
     if(print_row):
         i = 0
