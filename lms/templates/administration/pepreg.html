@@ -1902,10 +1902,11 @@
 		$("#calendar_select_range .btn-input-grp").val("Calendar Week");
 
 		if($("#view_select").val() == "1"){
-            $("#view_select").attr("value", "");
+		    $("#view_select li:not(.list-active)").trigger('click');
+            /*$("#view_select").attr("value", "");
             $("#view_select").attr("value", "0");
             $("#view_select li").toggleClass("list-active");
-            $("#view_select .btn-input-grp").val("View: Default");
+            $("#view_select .btn-input-grp").val("View: Default");*/
         }
 
 		_calendar_picker_day = _sys_calendar_day;
