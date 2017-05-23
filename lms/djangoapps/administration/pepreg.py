@@ -539,7 +539,7 @@ def getCalendarMonth(request):
             if (isweek or isday):
                 pdfDate = utc.localize(day)
             else:
-                pdfDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
 
         for item in all_occurrences:
             if (item.training_date == pdfDate.date()):
@@ -560,10 +560,8 @@ def getCalendarMonth(request):
 
                 if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
                     training_list.append(item.id)
-        raise Exception(training_list)
 
         try:
-
             training_keys = list(range(len(training_list)))
             training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
             return HttpResponse(json.dumps(training_dict), content_type="application/json")
