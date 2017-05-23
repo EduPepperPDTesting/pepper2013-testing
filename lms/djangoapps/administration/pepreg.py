@@ -570,7 +570,7 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, _getrange, daterangelist)
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, _getrange, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -608,7 +608,7 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, daterangelist):
+def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, tmp_school_id, daterangelist):
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
@@ -632,7 +632,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         # if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
         #                                                                                                or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
         #                                                                                                                                                                                                             and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
-        if (item.training_date in date_list and ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3"))))):
+        if (item.training_date in date_list and not (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id) and ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3"))))):
 
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
