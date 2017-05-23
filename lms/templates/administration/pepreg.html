@@ -290,7 +290,7 @@
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
-            <div class="close-modal">✕</div>
+            <div class="close-modal" id="close-calendar">✕</div>
         </div>
         <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
         	<span id="math_width" style="position:absolute; top:-1000px;"></span>
@@ -2435,6 +2435,17 @@
                 });
             }
         });
+
+        $(".inner-wrapper").on("click", "#close-calendar", function () {
+            if($("#view_select").val() == "1"){
+                $("#view_select").attr("value", "");
+                $("#view_select").attr("value", "0");
+                $("#view_select .list-active:eq(1)).removeClass("list-active");
+                $("#view_select .list-active:eq(0)).addClass("list-active");
+                $("#view_select .btn-input-grp").val("View: Default");
+            }
+        })
+
     });
 
     function resetCap(){
