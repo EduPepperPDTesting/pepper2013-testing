@@ -541,25 +541,25 @@ def getCalendarMonth(request):
             else:
                 pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
 
-        for item in all_occurrences:
-            if (item.training_date == pdfDate.date()):
-                if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
-                    continue;
+            for item in all_occurrences:
+                if (item.training_date == pdfDate.date()):
+                    if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                        continue;
 
-                arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-                allow = "1" if item.allow_registration else "0"
-                r_l = "1" if reach_limit(item) else "0"
-                allow_student_attendance = "1" if item.allow_student_attendance else "0"
-                status = ""
-                try:
-                    userObj = request.session.get('user_obj', None)
-                    if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                        status = PepRegStudent.objects.get(student=userObj, training=item).student_status
-                except:
+                    arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+                    allow = "1" if item.allow_registration else "0"
+                    r_l = "1" if reach_limit(item) else "0"
+                    allow_student_attendance = "1" if item.allow_student_attendance else "0"
                     status = ""
+                    try:
+                        userObj = request.session.get('user_obj', None)
+                        if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                            status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+                    except:
+                        status = ""
 
-                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
-                    training_list.append(item.id)
+                    if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+                        training_list.append(item.id)
 
         try:
             training_keys = list(range(len(training_list)))
