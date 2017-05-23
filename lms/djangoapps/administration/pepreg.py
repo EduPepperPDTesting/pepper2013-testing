@@ -629,9 +629,11 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             status = ""
         # if(item.training_date in date_list):
         #     raise Exception(item.training_date)
-        if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
-                                                                                                       or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
-                                                                                                                                                                                                                    and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
+        # if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
+        #                                                                                                or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
+        #                                                                                                                                                                                                             and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
+        if (item.training_date in date_list and ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3"))))):
+
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
             print_row[i].append(item.name)
