@@ -1900,6 +1900,15 @@
 		$("#calendar_select_range").val("1");
 		$("#calendar_select_range").find("li[value='1']").addClass("list-active");
 		$("#calendar_select_range .btn-input-grp").val("Calendar Week");
+
+		if($("#view_select").val() == "1"){
+            $("#view_select").attr("value", "");
+            $("#view_select").attr("value", "0");
+            $("#view_select").find(".list-active:eq(1)").removeClass("list-active");
+            $("#view_select").find(".list-active:eq(0)").addClass("list-active");
+            $("#view_select .btn-input-grp").val("View: Default");
+        }
+
 		_calendar_picker_day = _sys_calendar_day;
 		setPickerValue();
 	   	calendarOpen();
