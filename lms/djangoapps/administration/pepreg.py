@@ -530,38 +530,42 @@ def getCalendarMonth(request):
         daterangelist = list(daterange)
 
     if (request.GET.get('printpdf') == 'true'):
-        array_length = len(all_occurrences)
         training_list = []
 
-        date_list = getdatelist(daterangelist, _getrange, _year, _month)
+        isweek = 1 if len(daterangelist) == 7 else 0
+        isday = 1 if len(daterangelist) == 1 else 0
+
+        for day in daterangelist:
+            if (isweek or isday):
+                pdfDate = utc.localize(day)
+            else:
+                pdfDate = datetime(year=year, month=month, day=day, tzinfo=utc)
 
         for item in all_occurrences:
-
-            arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-            allow = "1" if item.allow_registration else "0"
-            r_l = "1" if reach_limit(item) else "0"
-            allow_student_attendance = "1" if item.allow_student_attendance else "0"
-            status = ""
-            try:
-                userObj = request.session.get('user_obj', None)
-                if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                    status = PepRegStudent.objects.get(student=userObj, training=item).student_status
-            except:
+            if (item.training_date == pdfDate.date()):
+                if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                    continue;
+                arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+                allow = "1" if item.allow_registration else "0"
+                r_l = "1" if reach_limit(item) else "0"
+                allow_student_attendance = "1" if item.allow_student_attendance else "0"
                 status = ""
+                try:
+                    userObj = request.session.get('user_obj', None)
+                    if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                        status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+                except:
+                    status = ""
 
-            if (item.training_date in date_list and (arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and
-                                                                                                ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3")) or
-                                                                                                     (_catype == "0" or _catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and
-                                                                                                                                                                                                                          (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3")))):
-                training_list.append(item.id)
-            else:
-                array_length -= 1
+                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+                    training_list.append(item.id)
 
-        training_keys = list(range(array_length))
-
-        training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
-
-        return HttpResponse(json.dumps(training_dict), content_type="application/json")
+        try:
+            training_keys = list(range(len(training_list)))
+            training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
+            return HttpResponse(json.dumps(training_dict), content_type="application/json")
+        except Exception as e:
+            return HttpResponse(json.dumps({'error': '%s' % e}), content_type="application/json")
 
     userObj = request.user
     request.session['user_obj'] = userObj
@@ -573,33 +577,6 @@ def getCalendarMonth(request):
         name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
-
-def getdatelist(daterangelist, getrange, year, month):
-    dates_list = []
-    for date_item in daterangelist:
-        # raise Exception(date_item)
-        if (getrange == "0"):
-            try:
-                dates_list.append(date(year, month, date_item))
-            except ValueError:
-                continue
-        elif(getrange == "1" or getrange == "3"):
-            try:
-                dates_list.append(date(year, month, date_item.day))
-            except AttributeError:
-                try:
-                    if (month == 12):
-                        month = 1
-                        year += 1
-                    else:
-                        month += 1
-                    dates_list.append(date(year, month, date_item.day))
-                except:
-                    continue
-        else:
-            dates_list.append(date_item.date())
-
-    return dates_list
 
 #akogan
 def getweekdays(year, weekNumber, getrange):
@@ -621,8 +598,6 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     i = 0
     array_length = len(all_occurrences)
 
-    #date_list = getdatelist(daterangelist, getrange, year, month)
-
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
 
@@ -632,7 +607,6 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         else:
             printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
 
-    # raise Exception(date_list)
         for item in all_occurrences:
             if(item.training_date == printDate.date()):
                 if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):

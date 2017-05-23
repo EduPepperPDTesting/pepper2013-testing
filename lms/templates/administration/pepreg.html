@@ -2439,21 +2439,14 @@
                         allTrainings.push(trainingList[training_id]);
                         i++;
                     }
-
-                    window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                    if (trainingList.error){
+                        console.log(trainingList.error);
+                    }else{
+                        window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                    }
                 });
             }
         });
-
-        /*akogan - reset to default view on calendar close
-        $(".inner-wrapper").on("click", "#close-calendar", function () {
-            if($("#view_select").val() == "1"){
-                $("#view_select").attr("value", "");
-                $("#view_select").attr("value", "0");
-                $("#view_select li").toggleClass("list-active");
-                $("#view_select .btn-input-grp").val("View: Default");
-            }
-        });*/
 
     });
 
