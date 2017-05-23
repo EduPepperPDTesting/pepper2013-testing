@@ -587,7 +587,15 @@ def getdatelist(daterangelist, getrange, year, month):
             try:
                 dates_list.append(date(year, month, date_item.day))
             except AttributeError:
-                continue
+                try:
+                    if (month == 12):
+                        month = 1
+                        year += 1
+                    else:
+                        month += 1
+                    dates_list.append(date(year, month, date_item.day))
+                except:
+                    continue
         else:
             dates_list.append(date_item.date())
 
@@ -629,9 +637,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             status = ""
         # if(item.training_date in date_list):
         #     raise Exception(item.training_date)
-        # if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
-        #                                                                                                or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
-        #                                                                                                                                                                                                             and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
+                                                                                                                                                                                                                   and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
         if (item.training_date in date_list and not (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id) and ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3"))))):
 
             training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
