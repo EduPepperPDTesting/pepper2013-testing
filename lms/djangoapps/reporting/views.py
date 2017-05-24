@@ -404,9 +404,9 @@ def report_save(request, report_id):
                 ReportMatrixColumns.objects.filter(report=report).delete()
                 report_column = ReportMatrixColumns()
                 report_column.report = report
-                report_column.column_headers = ViewColumns.objects.get(id=int(Column_Headers))
-                report_column.row_headers = ViewColumns.objects.get(id=int(Row_Headers))
-                report_column.aggregate_data = ViewColumns.objects.get(id=int(Aggregate_Data))
+                report_column.column_headers = int(Column_Headers)
+                report_column.row_headers = int(Row_Headers)
+                report_column.aggregate_data = int(Aggregate_Data)
                 if Aggregate_Type == 'Sum':
                     report_column.aggregate_type = 0
                 elif Aggregate_Type == 'Count':
