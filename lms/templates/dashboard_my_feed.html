@@ -306,27 +306,28 @@ from permissions.utils import check_access_level, check_user_perms
   <tr class='post-content-row post'>
     <td>
       <div class='ds-post-row'>
-        <input type="hidden" name="post_id" value="{_id.$oid}" />
-        <input type="hidden" name="_id" value="{last_comment?{last_comment._id.$oid}:{_id.$oid}}" />
+        <input type="hidden" name="post_id" value="{post_id.$oid}" />
+        <input type="hidden" name="_id" value="{_id.$oid}" />
         <table width="100%">
           <tr>
-            <td class='ds-post-title-photo' style="vertical-align:top;">
-              {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+  <td class='ds-post-title-photo' style="vertical-align:top;">
+  
+  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+  
               <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
-                <a href="/dashboard/{last_comment?{last_comment.user_id}:{user_id}}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
+  <a href="/dashboard/{user_id}" target="_blank">
+  <img src='/user_photo/{user_id}' class='post-profile-image' /></a>
               </div>
             </td>
             <td class='ds-post-title-text'>
               <div>
-                <a class='ds-post-title-name' target="_blank" href='/dashboard/{last_comment?last_comment.user_id:user_id}'> 
-                  {last_comment?{last_comment.first_name} {last_comment.last_name}:{first_name} {last_name}}
+                <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> 
+                  {first_name} {last_name}
                 </a>
   <div class="post-title-link" style="font-style:italic;">
                   {last_comment?replied to a post in your network:created a new post in your network}.
                   <span class='ds-post-title-time' style="float:right;">
-                    {last_comment?{last_comment.post_date}:{post_date}} at
-                    {last_comment?{last_comment.post_h}:{post_h}}:{last_comment?{last_comment.post_m}:{post_m}}
-                    {last_comment?{last_comment.post_ampm}:{post_ampm}}
+                    {post_date} at {post_h}:{post_m} {post_ampm}
                   </span>  
                 </div>
               </div>
@@ -336,14 +337,14 @@ from permissions.utils import check_access_level, check_user_perms
           </tr>
           <tr>
             <td colspan="2">
-              <div style="width:650px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding:3px 0;">{last_comment?{last_comment.content}:{content}}</div>
+              <div style="width:650px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding:3px 0;">{content}</div>
               <div>
                 <div style="text-align:right;padding-right:30px;">
                   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
-                    {last_comment?{last_comment.is_my_like?Unlike:Like}:{is_my_like?Unlike:Like}}
-                    ({last_comment?{last_comment.likes}:{likes}})
+                    {is_my_like?Unlike:Like}
+                    ({likes})
                   </span>&nbsp;&nbsp;
-                  <span class="post-comments-label" data-post-id="{_id.$oid}" style="color:#555;cursor:pointer;">
+                  <span class="post-comments-label" data-post-id="{post_id.$oid}" style="color:#555;cursor:pointer;">
                     <img src='/static/images/newdashboard/Comment-512.png' width='35'/> <span style="display:inline-block;vertical-align:middle;">({feeding_count})</span>
                   </span>&nbsp;&nbsp;
                   <img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden;}"></img>
@@ -370,7 +371,7 @@ from permissions.utils import check_access_level, check_user_perms
   </td>
   <td class='ds-post-title-text'>
   <div class="clearfix">
-  <a class='ds-post-title-name' target="_blank" href='/dashboard/{last_comment?last_comment.user_id:user_id}'> 
+  <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> 
   {first_name} {last_name}
   </a>
   <div class='ds-post-title-time'>
@@ -416,7 +417,6 @@ from permissions.utils import check_access_level, check_user_perms
     return ""
   }
   function renderTopPost(p, $row){
-    p.feeding_count = p.sub.length + 1;
     var template = $("#top-post-template").html();
     // rendering
     if($row){
@@ -613,9 +613,9 @@ from permissions.utils import check_access_level, check_user_perms
     // [event click] delete post or comment
     $(".post-delete").off("click").on("click", function(){
         var $row = $(this).closest("tr.post-content-row");
-        var _id = $row.find("input[name=post_id]").val();
-        $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
-          $row.remove();
+        var _id = $row.find("input[name=_id]").val();
+      $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+        getTopPosts();
         });
     });
     // [event click] show all like dialog
@@ -726,8 +726,11 @@ from permissions.utils import check_access_level, check_user_perms
     next_page ++;
     $.post("${reverse('dashboard_get_posts')}", params, function (posts){
       $("#posts_loading_image").hide();
-      $.each(posts, function(i, p){
-        p.last_comment = p.sub.length ? p.sub[p.sub.length-1]:null;
+      $.each(posts, function(i, post){
+        p = post.sub.length ? post.sub[post.sub.length-1]:post;
+        p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
+        p.feeding_count = post.sub.length + 1;
+        p.post_id=post._id
         renderTopPost(p);
       });
       if(posts.length > 0) {
@@ -755,8 +758,11 @@ from permissions.utils import check_access_level, check_user_perms
     var local_time =  new Date();
     var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
     $.post("${reverse('dashboard_get_post')}", {_id: _id, local_utc_diff_m: local_utc_diff_m}, function (post){
-      post.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
-      renderTopPost(post, $row)
+      var p = post.sub.length ? post.sub[post.sub.length-1]:post;
+      p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
+      p.feeding_count = post.sub.length + 1;
+      p.post_id=post._id
+      renderTopPost(p, $row)
     });
   }
   // [event click] date picker
