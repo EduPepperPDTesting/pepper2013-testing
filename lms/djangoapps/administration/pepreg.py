@@ -784,7 +784,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                 # checked false
                                 if (catype == "0" or catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
-                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "ak-test</span>"+itemData+"</label>");
+                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
