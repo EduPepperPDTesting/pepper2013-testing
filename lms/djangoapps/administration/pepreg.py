@@ -672,10 +672,10 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'><span  style='margin-top:5px;>" + str(print_row[n][0]) + "</span><br/><span style='margin-top:5px;'>" + ti_text_span + "</span></td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'><span style='margin-top:5px;'>" + str(print_row[n][0]) + "</span><br/><span style='margin-top:5px;'>" + ti_text_span + "</span></td>"
             table_tr_content += "<td style='padding: 10px !important;'>" + str(print_row[n][2]) + "</td>"
             table_tr_content += "<td style='padding: 10px !important;'>" + str(print_row[n][3]) + "</td>"
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'><span  style='margin-top:5px;>" + str(print_row[n][4]) + "</span><br/><span style='margin-top:5px;'>" + tg_text_span + "</span></td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'><span style='margin-top:5px;'>" + str(print_row[n][4]) + "</span><br/><span style='margin-top:5px;'>" + tg_text_span + "</span></td>"
 
             table_tr_content += "</tr>"
 
