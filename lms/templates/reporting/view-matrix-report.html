@@ -44,6 +44,7 @@
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
             <table class="tblReport tablesorter">
+            
             </table>
             </div>
         </div>
@@ -74,11 +75,6 @@
                                 <option value=${item}>${item}</option>
                             %endfor
                         </select>
-                    %endif
-                    %if check_user_perms(request.user, 'reporting', 'administer') or \
-                            (check_user_perms(request.user, 'reporting', 'create_reports') and \
-                            report.access_level == check_access_level(request.user, 'reporting', 'create_reports')):
-                        <input type="button" id="btnEditReport" value="EDIT REPORT" name="" style="font-size:14px;">
                     %endif
                </div>
             </div>
