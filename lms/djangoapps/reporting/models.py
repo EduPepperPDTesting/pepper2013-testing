@@ -86,9 +86,9 @@ class ReportMatrixColumns(models.Model):
     class Meta:
         db_table = 'reporting_matrix_columns'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
-    column_headers = models.IntegerField(blank=False, null=False,)
-    row_headers = models.IntegerField(blank=False, null=False,)
-    aggregate_data = models.IntegerField(blank=False, null=False,)
+    column_headers = models.IntegerField(blank=False, null=False)
+    row_headers = models.IntegerField(blank=False, null=False)
+    aggregate_data = models.IntegerField(blank=False, null=False)
     aggregate_type = models.IntegerField(default=0)
 
 

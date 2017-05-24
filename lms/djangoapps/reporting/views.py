@@ -539,6 +539,7 @@ def report_view(request, report_id):
 
                     create_report_collection(request, report, selected_view, columns, filters, report_id)
                 else:
+                    school_year_item = []
                     school_year_item = get_school_year_item()
                     data = {'report': report,
                             'school_year': school_year,
