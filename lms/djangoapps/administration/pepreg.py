@@ -821,7 +821,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
     if isweek:
         colstyle = "style='min-height: 355px !important;'"
     elif isday:
-        colstyle = "style='min-height: 590px !important;'"
+        colstyle = "style='min-height: 600px !important;'"
     else:
         colstyle = "style='min-height: 60px;'"
 
