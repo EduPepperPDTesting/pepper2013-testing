@@ -43,25 +43,8 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <!-- <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
-                <thead>
-                    %for col in display_columns:
-                        %if col.column.data_type in ['url', 'time']:
-                            <th class="filter-false">${col.column.name}</th>
-                        %elif col.column.custom_filter > 0:
-                            <th class="filter-select" data-placeholder="Select an option">${col.column.name}</th>
-                        %else:
-                            <th>${col.column.name}</th>
-                        %endif
-                    %endfor
-                    <th class="sorter-false filter-false table-menu" style="width:30px;">
-                        <a href="#" class="columnSelectorButton"></a>
-                    </th>
-                </thead>
-                <tbody></tbody>
-            </table> -->
-            <div id="columnSelector" class="columnSelector">
-                <!-- this div is where the column selector is added -->
+            <table class="tblReport tablesorter">
+            </table>
             </div>
         </div>
         <span class="footer">
