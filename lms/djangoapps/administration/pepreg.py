@@ -829,17 +829,17 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
         dayHours = []
         for p in range(2):
             for i in range(0, 13):
-                if((p == 0 and i < 6) or i == 0): continue
+                if((p == 0 and i < 7) or i == 0): continue
                 if (p == 0 and i < 12):
                     d = "AM"
                 elif (p == 1 and i < 12) or (p == 0 and i == 12):
                     d = "PM"
                 getHour = str(i) if i > 0 else "12"
-                if ((p == 0) or i < 6): getHalfHour = getHour + ":30 " + d
+                if ((p == 0) or i < 8): getHalfHour = getHour + ":30 " + d
                 getHour += ":00 " + d
                 dayHours.append(getHour)
-                if ((p == 0) or i < 6): dayHours.append(getHalfHour)
-                if (p == 1 and i == 6): break
+                if ((p == 0) or i < 8): dayHours.append(getHalfHour)
+                if (p == 1 and i == 8): break
 
     weekLen = len(rangedates) - 2
     for weekNum, week in enumerate(rangedates):
@@ -926,13 +926,13 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
 
-                                        if (not ((startHourAMPM == "AM" and startHour >= 6) or (startHourAMPM == "PM" and startHour <=6))):
+                                        if (not ((startHourAMPM == "AM" and startHour >= 7) or (startHourAMPM == "PM" and startHour <=8))):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
                                             else:
-                                                startHour = 6
+                                                startHour = 7
 
-                                        if((startHourAMPM == "PM" and startHour <= 6) or (startHourAMPM == "AM" and startHour >= 6)):
+                                        if((startHourAMPM == "PM" and startHour <= 8) or (startHourAMPM == "AM" and startHour >= 7)):
                                             endHour = int(day[4][i][:day[4][i].index(":")])
                                             endHourAMPM = day[4][i][-2:]
 
@@ -940,10 +940,10 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                             hourAMPM = startHourAMPM
 
                                             if(startHourAMPM == "AM" and endHourAMPM == "PM" and endHour != 12):
-                                                endHourLast = endHour if(endHour <= 6) else 6
+                                                endHourLast = endHour if(endHour <= 8) else 8
                                                 endHour = 12
-                                            elif(endHourAMPM == "PM" and ((endHour == 6 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 6 and endHour != 12))):
-                                                endHour = 6
+                                            elif(endHourAMPM == "PM" and ((endHour == 8 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 8 and endHour != 12))):
+                                                endHour = 8
                                                 endHourLast = endHour
                                             else:
                                                 #endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
@@ -1272,7 +1272,7 @@ def download_calendar_pdf(request):
     c.drawImage(logo, 330, 750, 200, 73);
 
     c.setFont("Helvetica", 20)
-    c.drawString(370, 710, "Training Calendar")
+    c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
     styleSheet = getSampleStyleSheet()
     style = styleSheet['BodyText']
