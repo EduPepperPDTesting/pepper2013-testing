@@ -784,7 +784,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                 # checked false
                                 if (catype == "0" or catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
-                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "ak-test</span>"+itemData+"</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
@@ -899,7 +899,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                 table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "ak-test</span>";
+                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
                         for tmp1 in day[1]:
