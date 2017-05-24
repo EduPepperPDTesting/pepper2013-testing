@@ -1440,12 +1440,12 @@
 				//menu item
 				if($(".organizational_dashboard_menu_body1").length < maximum_items){
 					var clonex = $(el).parent().parent().clone(true);
-					
 					clonex.find(".menu_items_menu_item").val("");
 					clonex.find(".menu_items_url").val("");
 					clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' >");
 					clonex.find(".organizational_dashboard_menu_icon_view").empty();
 					clonex.find(".menu_items_admin").prop("checked", false);
+					clonex.find(".organizational_dashboard_menu_icon_view").attr("icon_name", "");
 					clonex.find("fieldset .sub_menu_item").val("");
 					clonex.find("fieldset .sub_menu_url").val("");
 					clonex.find("fieldset .sub_menu_admin").prop("checked", false);			
@@ -1482,7 +1482,6 @@
 			organization_logo.css({"float": "left", "margin": "8px 0 0 5px"});
 			$("#organizational_dashboard_demo_div").append(organization_logo);
 		}
-		
 		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
 		var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
 		var space = $("#organizational_dashboard_space_between").val();
@@ -1496,7 +1495,9 @@
 		
 		$(".menu_items_menu_item").each(function(){
 			if($(this).val() != ""){
-				var tmp_item;				
+				var tmp_item;
+				var tmp_name = $(this).val();
+				
 				//------------------all icons
 				if(is_icon == "1"){
 					var img_src = "";
@@ -1507,42 +1508,58 @@
 							img_src = el_tmp2.attr("src");
 						}
 					}
+					if(tmp_name == "#Messenger"){
+						img_src = "/static/images/ppd-iMessage-default.png";
+					}
 
 					tmp_item = $("<span></span>");
 					if(is_icon_width_text == "0"){
 						tmp_item.css({"float": "right", "margin": "15px " + space + "px 0 0", "width": "45px", "height": "45px", "overflow": "hidden"});
-						tmp_item.append("<img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' />");
+						tmp_item.append("<img src='" + img_src + "' title='" + tmp_name + "' width='45' height='45' />");
 					}else{
-						tmp_item.css({"float": "right", "margin": "5px " + space + "px 0 0", "width": "45px", "height": "65px", "overflow": "hidden"});
-						
-						tmp_item_img = $("<img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' />");
-						tmp_item_img.css({"float": "left"});
-						
-						tmp_item_txt = $("<span>" + $(this).val() + "</span>");
-						tmp_item_txt.css({
-							"float": "left", 
-							"width": "45px", 
-							"height": "20px", 
-							"line-height": "20px", 
-							"font-size": "10px", 
-							"text-align": "center",
-							"overflow": "hidden",
-							"text-overflow": "ellipsis",
-							"white-space": "nowrap",
-							"font-family": menu_text_font_icons,
-							"color": menu_text_color_icons,
-							"font-size": menu_text_size_icons + "px"
-						});
-						
-						tmp_item.append(tmp_item_img);
-						tmp_item.append(tmp_item_txt);
-						tmp_item_txt.attr("title", tmp_item_txt.width());
+						if(tmp_name == "#Messenger"){
+							tmp_item_txt = '<table border="0" cellpadding="0" cellspacing="0" style="float:right; margin: 5px ' + space + 'px 0 0">';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="45" align="center"><img src="' + img_src + '" title="' + tmp_name + '" width="45" height="45" /></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="20"><span style="float:left; height:20px; line-height:20px; margin-top:-5px; font-family:' + menu_text_font_icons + '; color:' + menu_text_color_icons + '; font-size:' + menu_text_size_icons + 'px;">Messenger</span></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '</table>';
+							tmp_item.append(tmp_item_txt);
+						}else{
+							tmp_item.css({"float": "right", "margin": "5px " + space + "px 0 0", "width": "45px", "height": "65px", "overflow": "hidden", "text-align": "center"});
+														
+							tmp_item_img = $("<img src='" + img_src + "' title='" + tmp_name + "' width='45' height='45' />");
+							tmp_item_img.css({"float": "left"});
+							
+							tmp_item_txt = $("<span>" + tmp_name + "</span>");
+							tmp_item_txt.css({
+								"float": "left", 
+								"width": "45px",
+								"height": "20px", 
+								"line-height": "20px", 
+								"font-size": "10px", 
+								"text-align": "center",
+								"overflow": "hidden",
+								"text-overflow": "ellipsis",
+								"white-space": "nowrap",
+								"font-family": menu_text_font_icons,
+								"color": menu_text_color_icons,
+								"font-size": menu_text_size_icons + "px"
+							});
+							tmp_item.append(tmp_item_img);
+							tmp_item.append(tmp_item_txt);
+						}
 					}
 				}
 				    
 				//------------------all words
 				else{
-					tmp_item = $("<span>" + $(this).val() + "</span>");
+					if(tmp_name == "#Messenger"){
+						tmp_name = "Messenger";
+					}
+					tmp_item = $("<span>" + tmp_name + "</span>");
 					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
 				}
 				$("#organizational_dashboard_demo_div").prepend(tmp_item);
