@@ -784,6 +784,7 @@ a.btnx:hover,input[type=button].btnx:hover {
         <!--Community Dashboard-->
         <div class="con-my-communities-outer">
             <div class="con-my-communities" style="position:fixed;">
+                <!--width:220px-->
                 <div class="community-trending-topics">
                     <div class="my-title">
                         <a href="/communities">My Trending Topics</a>
@@ -801,9 +802,14 @@ a.btnx:hover,input[type=button].btnx:hover {
                                 </tr>
                                 <tr>
                                     <td class="tt-basic">
-                                        <span style="font-weight:bold;">Posted: </span>
-                                        <span>${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_create'])}</span>&nbsp;&nbsp;&nbsp;
-                                        <a href=${c['btnurl']} style="font-weight:bold;color:#29b7ec;text-decoration:none;font-size:14px;">${c['btntext']}</a>
+                                        <table border="0">
+                                            <tr>
+                                                <td width="158"><span style="font-weight:bold;">Last Post: </span><span>${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</span>
+                                                </td>
+                                                <td width="58" align="right"><a href=${c['btnurl']} style="font-weight:bold;color:#29b7ec;text-decoration:none;font-size:14px;">${c['btntext']}</a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>

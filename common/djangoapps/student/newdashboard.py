@@ -321,16 +321,17 @@ def get_tt(c,joined):
     trending = get_trending(c)
     if trending:
         tt['cname'] = trending[0].community.name
-        tt['date_create'] = trending[0].date_create
         if joined:
             tt['btntext'] = 'Reply'
         else:
             tt['btntext'] = 'Add Me'
 
         if hasattr(trending[0], "subject"):
+            tt['date_reply'] = trending[0].date_reply
             tt['content'] = trending[0].subject
             tt['btnurl'] = '/community/discussion/' + str(trending[0].id)
         else:
+            tt['date_reply'] = trending[0].date_update
             tt['content'] = trending[0].post
             tt['btnurl'] = '/community/' + str(trending[0].community.id)
         return tt

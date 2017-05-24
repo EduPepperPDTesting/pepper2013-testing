@@ -530,38 +530,43 @@ def getCalendarMonth(request):
         daterangelist = list(daterange)
 
     if (request.GET.get('printpdf') == 'true'):
-        array_length = len(all_occurrences)
         training_list = []
 
-        date_list = getdatelist(daterangelist, _getrange, _year, _month)
+        isweek = 1 if len(daterangelist) == 7 else 0
+        isday = 1 if len(daterangelist) == 1 else 0
 
-        for item in all_occurrences:
-
-            arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-            allow = "1" if item.allow_registration else "0"
-            r_l = "1" if reach_limit(item) else "0"
-            allow_student_attendance = "1" if item.allow_student_attendance else "0"
-            status = ""
-            try:
-                userObj = request.session.get('user_obj', None)
-                if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                    status = PepRegStudent.objects.get(student=userObj, training=item).student_status
-            except:
-                status = ""
-
-            if (item.training_date in date_list and (arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and
-                                                                                                ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3")) or
-                                                                                                     (_catype == "0" or _catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and
-                                                                                                                                                                                                                          (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3")))):
-                training_list.append(item.id)
+        for day in daterangelist:
+            if (isweek or isday):
+                pdfDate = utc.localize(day)
             else:
-                array_length -= 1
+                pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
 
-        training_keys = list(range(array_length))
+            for item in all_occurrences:
+                if (item.training_date == pdfDate.date()):
+                    if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                        continue;
 
-        training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
+                    arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+                    allow = "1" if item.allow_registration else "0"
+                    r_l = "1" if reach_limit(item) else "0"
+                    allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                    status = ""
+                    try:
+                        userObj = request.session.get('user_obj', None)
+                        if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                            status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+                    except:
+                        status = ""
 
-        return HttpResponse(json.dumps(training_dict), content_type="application/json")
+                    if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
+                        training_list.append(item.id)
+
+        try:
+            training_keys = list(range(len(training_list)))
+            training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
+            return HttpResponse(json.dumps(training_dict), content_type="application/json")
+        except Exception as e:
+            return HttpResponse(json.dumps({'error': '%s' % e}), content_type="application/json")
 
     userObj = request.user
     request.session['user_obj'] = userObj
@@ -570,28 +575,9 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, _getrange, daterangelist)
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
-
-def getdatelist(daterangelist, getrange, year, month):
-    dates_list = []
-    for date_item in daterangelist:
-        # raise Exception(date_item)
-        if (getrange == "0"):
-            try:
-                dates_list.append(date(year, month, date_item))
-            except ValueError:
-                continue
-        elif(getrange == "1" or getrange == "3"):
-            try:
-                dates_list.append(date(year, month, date_item.day))
-            except AttributeError:
-                continue
-        else:
-            dates_list.append(date_item.date())
-
-    return dates_list
 
 #akogan
 def getweekdays(year, weekNumber, getrange):
@@ -608,53 +594,62 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, year, month, catype, all_occurrences, current_day, getrange, daterangelist):
+def build_print_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
     print_row = [[]]
     i = 0
     array_length = len(all_occurrences)
 
-    date_list = getdatelist(daterangelist, getrange, year, month)
-    # raise Exception(date_list)
-    for item in all_occurrences:
-        arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-        allow = "1" if item.allow_registration else "0"
-        r_l = "1" if reach_limit(item) else "0"
-        allow_student_attendance = "1" if item.allow_student_attendance else "0"
-        status = ""
-        try:
-            userObj = request.session.get('user_obj', None)
-            if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                status = PepRegStudent.objects.get(student=userObj, training=item).student_status
-        except:
-            status = ""
-        # if(item.training_date in date_list):
-        #     raise Exception(item.training_date)
-        if(item.training_date in date_list and (arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))
-                                                                                                       or (catype == "0" or catype == "2")))) or (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated")
-                                                                                                                                                                                                                    and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3")))):
-            training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+    isweek = 1 if len(daterange) == 7 else 0
+    isday = 1 if len(daterange) == 1 else 0
 
-            print_row[i].append(item.name)
-            print_row[i].append(item.description)
-            print_row[i].append(item.training_date)
-            print_row[i].append(training_start_time)
-            print_row[i].append(item.classroom)
-            print_row[i].append(item.geo_location)
-
-            if(i < array_length - 1):
-                i += 1
-                print_row.append([])
+    for day in daterange:
+        if (isweek or isday):
+            printDate = utc.localize(day)
         else:
-            array_length -= 1
+            printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+
+        for item in all_occurrences:
+            if(item.training_date == printDate.date()):
+                if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                    continue;
+
+                arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+                allow = "1" if item.allow_registration else "0"
+                r_l = "1" if reach_limit(item) else "0"
+                allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                status = ""
+                try:
+                    userObj = request.session.get('user_obj', None)
+                    if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                        status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+                except:
+                    status = ""
+                # if(item.training_date in date_list):
+                #     raise Exception(item.training_date)
+
+                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+
+                    training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+                    print_row[i].append(item.name)
+                    print_row[i].append(item.description)
+                    print_row[i].append(item.training_date)
+                    print_row[i].append(training_start_time)
+                    print_row[i].append(item.classroom)
+                    print_row[i].append(item.geo_location)
+
+                    if(i < array_length - 1):
+                        i += 1
+                        print_row.append([])
 
     if(print_row):
-        i = 0
+        n = 0
         table_tr_content = ""
-        while(i < array_length):
+        while(n < i):
 
             row_height = "30"
-            ti_text_span = str(print_row[i][1])
-            tg_text_span = str(print_row[i][5])
+            ti_text_span = str(print_row[n][1])
+            tg_text_span = str(print_row[n][5])
             if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
                 if(len(ti_text_span) >= len(tg_text_span)):
                     row_height = str((1 + len(ti_text_span) / 36) * 15)
@@ -677,14 +672,14 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'>" + str(print_row[i][0]) + "<br/><br/>" + ti_text_span + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[i][2]) + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'>" + str(print_row[i][4]) + "<br/><br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'>" + str(print_row[n][0]) + "<br/><br/>" + ti_text_span + "</td>"
+            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][2]) + "</td>"
+            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][3]) + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'>" + str(print_row[n][4]) + "<br/><br/>" + tg_text_span + "</td>"
 
             table_tr_content += "</tr>"
 
-            i += 1
+            n += 1
 
         # table_tr_content += "<tr class='printview' style='height:38px;'>" \
         #                     "<td colspan='4' style='border-right-color: white !important; border-bottom-color: white !important;'>" \

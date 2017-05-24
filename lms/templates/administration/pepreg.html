@@ -201,14 +201,14 @@
                         </a>
                     </div>
                 %endif
-                <!--if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):-->
+                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
                 <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
                     <a href="#">
                         <div class="icon"></div>
                         <div>My Calendar</div>
                     </a>
                 </div>
-                <!--endif-->
+                %endif
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
                     <option value="">Select Pepper Courses</option>
@@ -290,7 +290,7 @@
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
-            <div class="close-modal">✕</div>
+            <div class="close-modal" id="close-calendar">✕</div>
         </div>
         <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
         	<span id="math_width" style="position:absolute; top:-1000px;"></span>
@@ -1094,6 +1094,7 @@
                     $("#calendar-month-weekdays").find("th:visible").hide();
                 }else{
                     $("#calendar-month-weekdays th").hide();
+                    $("#calendar-month-weekdays tr").remove();
                 }
                 $("#calendar-month-weekdays").append("<th class='print_col' style='width:25% !important'>Training Name <br/>and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col' style='width:25% !important'>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
@@ -1344,7 +1345,7 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:110px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
                          + labelHtml + "</div>");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
@@ -1899,6 +1900,15 @@
 		$("#calendar_select_range").val("1");
 		$("#calendar_select_range").find("li[value='1']").addClass("list-active");
 		$("#calendar_select_range .btn-input-grp").val("Calendar Week");
+
+		if($("#view_select").val() == "1"){
+		    $("#view_select li:not(.list-active)").trigger('click');
+            /*$("#view_select").attr("value", "");
+            $("#view_select").attr("value", "0");
+            $("#view_select li").toggleClass("list-active");
+            $("#view_select .btn-input-grp").val("View: Default");*/
+        }
+
 		_calendar_picker_day = _sys_calendar_day;
 		setPickerValue();
 	   	calendarOpen();
@@ -2429,11 +2439,15 @@
                         allTrainings.push(trainingList[training_id]);
                         i++;
                     }
-
-                    window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                    if (trainingList.error){
+                        console.log(trainingList.error);
+                    }else{
+                        window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
+                    }
                 });
             }
         });
+
     });
 
     function resetCap(){

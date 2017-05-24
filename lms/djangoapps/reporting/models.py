@@ -27,6 +27,7 @@ class Reports(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     order = models.IntegerField(default=0)
+    report_type = models.IntegerField(default=0)
 
 
 class Views(models.Model):
@@ -80,6 +81,15 @@ class ReportFilters(models.Model):
     value = models.CharField(blank=False, max_length=255)
     operator = models.CharField(blank=False, max_length=2)
     order = models.IntegerField(blank=False, null=False, default=0)
+
+class ReportMatrixColumns(models.Model):
+    class Meta:
+        db_table = 'reporting_matrix_columns'
+    report = models.ForeignKey(Reports, on_delete=models.CASCADE)
+    column_headers = models.IntegerField(blank=False, null=False,)
+    row_headers = models.IntegerField(blank=False, null=False,)
+    aggregate_data = models.IntegerField(blank=False, null=False,)
+    aggregate_type = models.IntegerField(default=0)
 
 
 class MongoReportingStore(object):
