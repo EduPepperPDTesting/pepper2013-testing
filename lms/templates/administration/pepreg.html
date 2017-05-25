@@ -2470,7 +2470,7 @@
             console.log("old month-"+_old_month +" new month-"+_sys_calendar_month)
             if(nextMonth == true){
                 console.log("nextMonth");_sys_calendar_month += 1
-            }else if(prevMonth == true && _old_month != _sys_calendar_month){
+            }else if(prevMonth == true){ // && _old_month != _sys_calendar_month){
                 console.log("prevMonth");_sys_calendar_month -= 1
             }
         }
