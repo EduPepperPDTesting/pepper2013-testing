@@ -483,10 +483,10 @@ def getCalendarMonth(request):
         _catype = "0";
 
     if _go_back:
-        _go_back == 0 if _go_back =="false" else 1
+        _go_back = 0 if _go_back =="false" else 1
 
     if _go_forth:
-        _go_forth == 0 if _go_forth == "false" else 1
+        _go_forth = 0 if _go_forth == "false" else 1
 
     if (_old_month):
         _old_month = int(_old_month)
