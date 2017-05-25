@@ -918,12 +918,12 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     month = 12
                     year -= 1
 
-                if old_month < month:
+                if go_forth == 1 and isweek and week[0][0] > day[0]: #old_month < month:
                     oldmlsnewm = "true"
                 else:
                     oldmlsnewm = "false"
 
-                if old_month > month:
+                if go_back == 1 and isweek and dateToCompare < day[0]: #old_month > month:
                     oldmgrnewm = "true"
                 else:
                     oldmgrnewm = "false"
