@@ -454,6 +454,9 @@ def getCalendarMonth(request):
 
     _cal_view = request.GET.get('calview')
 
+    _go_back = request.GET.get('go_back');
+    _go_forth = request.GET.get('go_forth');
+
     if (_year):
         _year = int(_year);
 
@@ -477,6 +480,12 @@ def getCalendarMonth(request):
 
     if not(_catype):
         _catype = "0";
+
+    if _go_back:
+        _go_back = int(_go_back);
+
+    if _go_forth:
+        _go_forth = int(_go_forth);
 
     firstweekday = 0 + SHIFT_WEEKSTART
     while firstweekday < 0:
@@ -873,7 +882,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(not isday and day[0]):
-                if(isweek and week[0][0] > day[0]):
+                if(_go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
                 else:
                     nextMonth = "false"
@@ -882,7 +891,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     dateToCompare = week[6][0]
                 else:
                     dateToCompare = week[6][0].day
-                if (isweek and dateToCompare < day[0]):
+                if (_go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
                 else:
                     prevMonth = "false"
