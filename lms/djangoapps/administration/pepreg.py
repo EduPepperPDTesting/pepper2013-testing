@@ -918,7 +918,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     month = 12
                     year -= 1
 
-                if go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0]: #old_month < month:
+                if week[0][0] <= day[0]: #old_month < month:
                     oldmlsnewm = "true"
                 else:
                     oldmlsnewm = "false"
