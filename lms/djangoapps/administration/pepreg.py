@@ -891,9 +891,6 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
                     month += 1
-                    if month == 13:
-                        month = 1
-                        year += 1
                 else:
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0]):
                         month -= 1
@@ -914,7 +911,14 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         month += 1
                     prevMonth = "false"
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ")'"
+                if month == 13:
+                    month = 1
+                    year += 1
+                elif month == 0:
+                    month = 12
+                    year -= 1
+
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + str(old_month < month) + ", " + str(old_month > month) + ")'"
             else:
                 clickFunc = ""
 

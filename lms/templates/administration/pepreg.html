@@ -2461,13 +2461,13 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth){
+    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew){
         event.preventDefault();
         console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
 
         var rangeVal = $("#calendar_select_range").val();
         if(rangeVal == "1" || rangeVal == "3"){
-            console.log("old month-"+oldmonth +" new month-"+_sys_calendar_month)
+            console.log("old month-"+oldmonth +" new month-"+_sys_calendar_month + "old m < new m-"+oldlsnew + "old m > new m-"+oldgrnew)
             if(nextMonth == true){
                 console.log("nextMonth");
                 //_sys_calendar_month = parseInt(newMonth); //+= 1
