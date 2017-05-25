@@ -881,8 +881,6 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             else:
                 class_name = "calendarium-day";
 
-            nextMonth = ""
-            prevMonth = ""
             if(not isday and day[0]):
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
@@ -908,7 +906,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if isday:
                     width_id = "day-view"
 
-                table_tr_content += "<td class='" + str(day[0]) + " " + nextMonth + " " + prevMonth + " " + str(dateToCompare) + " " + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
