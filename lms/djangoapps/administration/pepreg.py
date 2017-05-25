@@ -586,7 +586,7 @@ def getCalendarMonth(request):
 
     # akogan
     if(_cal_view == 'screen'):
-        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist, _go_back, _go_forth)
+        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist, _go_back, _go_forth, _old_month)
     elif(_cal_view == 'print'):
         name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
