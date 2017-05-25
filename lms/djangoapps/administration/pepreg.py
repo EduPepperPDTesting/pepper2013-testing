@@ -582,7 +582,7 @@ def getCalendarMonth(request):
 
     # akogan
     if(_cal_view == 'screen'):
-        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
+        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist, _go_back, _go_forth)
     elif(_cal_view == 'print'):
         name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
@@ -699,7 +699,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         return table_tr_content
 
 #akogan
-def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
+def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange, go_back, go_forth):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
@@ -882,7 +882,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(not isday and day[0]):
-                if(_go_forth == 1 and isweek and week[0][0] > day[0]):
+                if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
                 else:
                     nextMonth = "false"
@@ -891,7 +891,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     dateToCompare = week[6][0]
                 else:
                     dateToCompare = week[6][0].day
-                if (_go_back == 1 and isweek and dateToCompare < day[0]):
+                if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
                 else:
                     prevMonth = "false"
