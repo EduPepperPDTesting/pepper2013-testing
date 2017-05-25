@@ -245,12 +245,30 @@ def newdashboard(request, user_id=None):
     community_list = list()
     # Just choose the last 2 communities the user belongs to.
     items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
+
+    log.debug("====================================")
+    log.debug(len(items))
     if items:
         for item in items:
             community_list.append({'id': item.community.id,
-                               'name': item.community.name,
-                               'logo': item.community.logo.upload.url if item.community.logo else '',
-                               'private': item.community.private})
+                                'name': item.community.name,
+                                'logo': item.community.logo.upload.url if item.community.logo else '',
+                                'private': item.community.private})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    community_list.append({'id': itmes_all[0].id,
+                               'name': itmes_all[0].name,
+                               'logo': itmes_all[0].logo.upload.url if itmes_all[0].logo else '',
+                               'private': itmes_all[0].private})
+                else:
+                    if len(itmes_all) > 1:
+                        community_list.append({'id': itmes_all[1].id,
+                               'name': itmes_all[1].name,
+                               'logo': itmes_all[1].logo.upload.url if itmes_all[1].logo else '',
+                               'private': itmes_all[1].private})
+
     else:
          items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
          for item in items:
