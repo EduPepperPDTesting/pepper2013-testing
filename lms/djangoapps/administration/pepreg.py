@@ -904,7 +904,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 else:
                     prevMonth = "false"
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + month + ", " + year + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ")'"
             else:
                 clickFunc = ""
 
