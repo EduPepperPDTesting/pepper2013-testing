@@ -881,6 +881,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             else:
                 class_name = "calendarium-day";
 
+            nextMonth = ""
+            prevMonth = ""
             if(not isday and day[0]):
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
