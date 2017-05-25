@@ -489,7 +489,9 @@ def getCalendarMonth(request):
         _go_forth == 0 if _go_forth == "false" else 1
 
     if (_old_month):
-        _old_month = int(_old_month);
+        _old_month = int(_old_month)
+    else:
+        _old_month = 0
 
     firstweekday = 0 + SHIFT_WEEKSTART
     while firstweekday < 0:
