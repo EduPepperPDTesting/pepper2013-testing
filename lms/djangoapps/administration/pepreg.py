@@ -449,13 +449,14 @@ def getCalendarMonth(request):
     _month_n = request.GET.get('month_n');
     _day = request.GET.get('day');
     _day_n = request.GET.get('day_n');
-    _getrange = request.GET.get('daterange'); #akogan
-    _catype = request.GET.get('catype');
+    _getrange = request.GET.get('daterange') #akogan
+    _catype = request.GET.get('catype')
 
     _cal_view = request.GET.get('calview')
 
-    _go_back = request.GET.get('go_back');
-    _go_forth = request.GET.get('go_forth');
+    _go_back = request.GET.get('go_back')
+    _go_forth = request.GET.get('go_forth')
+    _old_month = request.GET.get('old_month')
 
     if (_year):
         _year = int(_year);
@@ -486,6 +487,9 @@ def getCalendarMonth(request):
 
     if _go_forth:
         _go_forth == 0 if _go_forth == "false" else 1
+
+    if (_old_month):
+        _old_month = int(_old_month);
 
     firstweekday = 0 + SHIFT_WEEKSTART
     while firstweekday < 0:
@@ -699,7 +703,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         return table_tr_content
 
 #akogan
-def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange, go_back, go_forth):
+def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange, go_back, go_forth, old_month):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
@@ -889,22 +893,26 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         month = 1
                         year += 1
                 else:
+                    if(go_forth == 1 and isweek and week[0][0] <= day[0]):
+                        month -= 1
                     nextMonth = "false"
 
                 if(type(week[6][0]) is not datetime):
                     dateToCompare = week[6][0]
                 else:
                     dateToCompare = week[6][0].day
-                if (go_back == 1 and isweek and dateToCompare < day[0]):
+                if (go_back == 1 and isweek and old_month < month and dateToCompare < day[0]):
                     prevMonth = "true"
                     month -= 1
                     if month == 0:
                         month = 12
                         year -= 1
                 else:
+                    if(go_back == 1 and isweek and old_month > month and dateToCompare >= day[0]):
+                        month += 1
                     prevMonth = "false"
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ")'"
             else:
                 clickFunc = ""
 
