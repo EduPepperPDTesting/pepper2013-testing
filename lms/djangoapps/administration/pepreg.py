@@ -1363,6 +1363,19 @@ def download_calendar_pdf(request):
 
                 training = PepRegTraining.objects.get(id=training_id)
 
+                district = District.objects.get(id=training.district)
+                dist_name = district.name
+
+                try:
+                    dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                    c.drawImage(dist_logo, 30, 750, 200, 73)
+                except:
+                    try:
+                        dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                        c.drawImage(dist_logo, 30, 750, 200, 73)
+                    except:
+                      console.log('no logo')
+
                 training_name = training.name
                 training_desc = training.description
                 info_text_width = int(len(training_desc) / 2)
