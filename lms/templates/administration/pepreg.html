@@ -1502,7 +1502,7 @@
             dlgFlyOn.hideOverlay();
         var dlg = new Dialog($("#dlg-warning"));
         if(s && s.indexOf("Thank you")===0){
-            dailogTitle = "Info";
+            dailogTitle = "Confirmation";
         }else{
             dailogTitle = "Warning";
         }
@@ -2467,7 +2467,7 @@
 
         var rangeVal = $("#calendar_select_range").val();
         if(rangeVal == "1" || rangeVal == "3"){
-            console.log("old month-"+oldmonth +" new month-"+_sys_calendar_month + " old m < new m-"+oldlsnew + " old m > new m-"+oldgrnew)
+            console.log("old month-"+oldmonth +" new month-"+ newMonth + " old m < new m-"+oldlsnew + " old m > new m-"+oldgrnew)
             if(nextMonth == true){
                 console.log("nextMonth");
                 //_sys_calendar_month = parseInt(newMonth); //+= 1
