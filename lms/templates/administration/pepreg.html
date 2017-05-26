@@ -713,27 +713,29 @@
 			}
 			
 			$(".alert").mouseover(function (e) {
-				$("#calendar_alert_title").empty();
-				var this_x = $(this).parent().position().left;
-                var tmp1 = $(this).offset();
-				if($("#calendar_select_range").val() != "2"){
-                    tmp1.top += 30;
-				}else{
-				    tmp1.top = e.clientY + 30;
+			    if($("#view_select").val() == "0"){
+                    $("#calendar_alert_title").empty();
+                    var this_x = $(this).parent().position().left;
+                    var tmp1 = $(this).offset();
+                    if($("#calendar_select_range").val() != "2"){
+                        tmp1.top += 30;
+                    }else{
+                        tmp1.top = e.clientY + 30;
+                    }
+                    tmp1.top -= $(document).scrollTop();
+                    var tmp3 = $(this).attr("titlex").split("::");
+                    for(var i in tmp3){
+                        $("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");
+                    }
+                    if(this_x > 800){
+                        tmp1.left -= ($("#calendar_alert_title").width() - 100);
+                    }else if(this_x > 600){
+                        tmp1.left -= ($("#calendar_alert_title").width() - 200);
+                    }
+                    $("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
+
+                    $("#calendar_alert_title").show();
 				}
-				tmp1.top -= $(document).scrollTop();
-				var tmp3 = $(this).attr("titlex").split("::");
-				for(var i in tmp3){
-					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
-				}
-				if(this_x > 800){
-					tmp1.left -= ($("#calendar_alert_title").width() - 100);
-				}else if(this_x > 600){
-					tmp1.left -= ($("#calendar_alert_title").width() - 200);
-				}
-				$("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
-				
-				$("#calendar_alert_title").show();
 			});
 			$(".alert").mouseleave(function () {
 				$("#calendar_alert_title").hide();
