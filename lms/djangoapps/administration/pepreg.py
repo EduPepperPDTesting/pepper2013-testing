@@ -1374,7 +1374,7 @@ def download_calendar_pdf(request):
                             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
                             c.drawImage(dist_logo, 30, 750, 200, 73)
                         except:
-                          console.log('no logo')
+                            console.log('no logo')
                 except:
                     console.log("couldn't load logo")
 
