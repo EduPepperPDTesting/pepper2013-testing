@@ -669,11 +669,11 @@
 	var _cal_view = "screen";
 	
 	//-----------------------------------------------calendarOpen
-	function calendarOpen(back = "0", forth = "0"){
+	function calendarOpen(goback = "false", goforth = "true"){
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
-		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false', go_back: back, go_forth: forth, old_month: _old_month}, function(data){
+		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false', go_back: goback, go_forth: goforth, old_month: _old_month}, function(data){
 
 		    if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
 	           $("#calendar-month-weekdays").css("text-align", "left");
@@ -1168,7 +1168,7 @@
 			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
-            calendarOpen("1", "0");
+            calendarOpen("true", "false");
 		});
 		
 		//-----------------------------------------------next
@@ -1192,7 +1192,7 @@
 			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
-            calendarOpen("0", "1");
+            calendarOpen("false", "true");
 		});
 		
 		//-----------------------------------------------previous
@@ -1223,7 +1223,7 @@
 			    setSysDate(picker_date, 0);
             }
 			setPickerValue();
-			calendarOpen("1", 0);
+			calendarOpen("true", "false");
 		});
 		
 		//-----------------------------------------------next
@@ -1243,7 +1243,7 @@
                 setSysDate(picker_date, 0);
             }
 			setPickerValue();
-			calendarOpen("0", "1");
+			calendarOpen("false", "true");
 		});
 
 		function setSysDate(picker_date, addMonth){
