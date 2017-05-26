@@ -888,6 +888,17 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(not isday and day[0]):
+
+                if (old_month < month):
+                    oldmlsnewm = "true"
+                else:
+                    oldmlsnewm = "false"
+
+                if (old_month > month):
+                    oldmgrnewm = "true"
+                else:
+                    oldmgrnewm = "false"
+
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
                     month += 1
@@ -911,16 +922,6 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     if(go_back == 1 and isweek and old_month > month and dateToCompare >= day[0]):
                         month += 1
                     prevMonth = "false"
-
-                if(old_month < month):
-                    oldmlsnewm = "true"
-                else:
-                    oldmlsnewm = "false"
-
-                if(old_month > month):
-                    oldmgrnewm = "true"
-                else:
-                    oldmgrnewm = "false"
 
                 if month == 13:
                     month = 1
