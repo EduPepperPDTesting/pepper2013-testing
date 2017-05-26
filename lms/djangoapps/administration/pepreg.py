@@ -916,6 +916,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     dateToCompare = week[6][0].day
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
+                    thismonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and dateToCompare >= day[0]):
                         thismonth += 1
