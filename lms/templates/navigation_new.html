@@ -324,8 +324,8 @@
     text-decoration: none;
 }
 .nav-option-ol{margin-top:14px; margin-left:10px; float:right; width:auto;}
-.nav-option-ol-li{float:left; width:45px; height:65px; }
-.nav-option-ol-li-messenger{float:left; wi1dth:45px; height:65px; }
+.nav-option-ol-li{float:left; height:65px; }
+.nav-option-ol-li-messenger{float:left; height:65px; }
 .nav-option-ol-icon{float:left;}
 .nav-option-ol-txt{float:left; width:45px; height:20px; line-height:20px; font-size:10px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .nav-option-ol-only-txt{float:left; height:61px; line-height:61px; }
@@ -494,6 +494,7 @@
                                 menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'><span style='float:left; height:20px; line-height:20px; margin-top1:-5px; font-family:" + data['Text Font Icons'] + "; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px;'>Messenger</span></td></tr>";
                                 menu_items_tmp1 = menu_items_tmp1 + "</table>";
                                 menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:20px; height:20px; text-align:center; top:20px; left:42px; color:#f00;font-weight:bold;font-size:13px;'>33</span>"
+                                
                                 newMeStyleFlag = True;
                                 newMeStyleFont = data['Text Font Icons'];
                                 newMeStyleColor = data['Text Color Icons'];
@@ -515,13 +516,22 @@
                                 icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
                                 
                             #---------------icon
-                            if data['Is Icon With Text'] == "1":                            
-                                menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + icon_a + "<img src='" + img_src + "' width='45'/></a></span>"
+                            if data['Is Icon With Text'] == "1":
+                                if liClass != "":
+                                    menu_items_tmp1 = "<li style='width:60px' class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a
+                                else:
+                                    menu_items_tmp1 = "<li style='width:45px' class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a
+                                    
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + "<img src='" + img_src + "' width='45'/></span>"
                                 menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt' style='font-family:" + data['Text Font Icons'] + "; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px;'>" + tmp1_MenuItem_txt + "</span>"
+                                if liClass != "":
+                                    menu_items_tmp1 = menu_items_tmp1 + "<span style='float:left;'>&#9662;</span>" 
+                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
                             else:
-                                menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                                menu_items_tmp1 = menu_items_tmp1 + icon_a + "<img src='" + img_src + "' width='45'/></a>"
+                                menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<img style='float:left;' src='" + img_src + "' width='45'/>"
+                                if liClass != "":
+                                    menu_items_tmp1 = menu_items_tmp1 + "<span style='float:left; padding-top:15px;'>&#9662;</span>" 
+                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
                                 
                             menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1_MenuItem_txt + "</div>"        
                             if liClass != "":
