@@ -875,6 +875,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             table_tr_content += "</div></td>";
 
         for day in week:
+            if(isweek):
+                thismonth = month
+                thisyear = year
             if(isweek or isday):
                 if day[0] != 0: day[0]=day[0].day
             class_name = "";
@@ -901,10 +904,10 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
-                    month += 1
+                    thismonth += 1
                 else:
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0]):
-                        month -= 1
+                        thismonth -= 1
                     nextMonth = "false"
 
                 dateToCompare = 32
@@ -914,23 +917,20 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     dateToCompare = week[6][0].day
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
-                    month -= 1
-                    if month == 0:
-                        month = 12
-                        year -= 1
+                    thismonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and dateToCompare >= day[0]):
-                        month += 1
+                        thismonth += 1
                     prevMonth = "false"
 
-                if month == 13:
-                    month = 1
-                    year += 1
-                elif month == 0:
-                    month = 12
-                    year -= 1
+                if thismonth == 13:
+                    thismonth = 1
+                    thisyear += 1
+                elif thismonth == 0:
+                    thismonth = 12
+                    thisyear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(month) + ", " + str(year) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ")'"
             else:
                 clickFunc = ""
 
