@@ -875,9 +875,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             table_tr_content += "</div></td>";
 
         for day in week:
-            if(isweek):
-                thismonth = month
-                thisyear = year
+
             if(isweek or isday):
                 if day[0] != 0: day[0]=day[0].day
             class_name = "";
@@ -890,7 +888,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             else:
                 class_name = "calendarium-day";
 
-            if(not isday and day[0]):
+            if(isweek and day[0]):
+                thismonth = month
+                thisyear = year
 
                 if (old_month < month):
                     oldmlsnewm = "true"
