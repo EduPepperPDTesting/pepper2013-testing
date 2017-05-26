@@ -895,7 +895,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0]):
                         month -= 1
                     nextMonth = "false"
-
+                    
+                dateToCompare = 32
                 if(type(week[6][0]) is not datetime):
                     dateToCompare = week[6][0]
                 else:
