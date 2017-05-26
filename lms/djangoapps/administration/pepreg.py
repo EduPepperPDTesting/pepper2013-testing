@@ -905,9 +905,11 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if(go_forth == 1 and isweek and week[0][0] > day[0]):
                     nextMonth = "true"
                 else:
+                    nextMonth = "false"
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0]):
                         thismonth -= 1
-                    nextMonth = "false"
+                    elif(go_forth == 1 and isweek and old_month == month and week[0][0] <= day[0]):
+                        thismonth -= 1
 
                 dateToCompare = 32
                 if(type(week[6][0]) is not datetime):
@@ -929,7 +931,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     thismonth = 12
                     thisyear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ")'"
             else:
                 clickFunc = ""
 
