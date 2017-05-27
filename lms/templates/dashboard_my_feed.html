@@ -136,23 +136,26 @@ from permissions.utils import check_access_level, check_user_perms
          </select> -->
     <select name="year" autocomplete="off">
       <option value=''>Year</OPTION>
-      <option value='2016'>2016</option>
-      <option value='2017'>2017</option>
+      %if feeding_year_start:
+      %for y in range(feeding_year_start, feeding_year_end+1):
+      <option value='${y}'>${y}</option>
+      %endfor
+      %endif
     </select>
     <select name="month" autocomplete="off">
       <OPTION VALUE=''>Month</option>
-      <option value='1'>1</option>
-      <option value='2'>2</option>
-      <option value='3'>3</option>
-      <option value='4'>4</option>
-      <option value='5'>5</option>
-      <option value='6'>6</option>
-      <option value='7'>7</option>
-      <option value='8'>8</option>
-      <option value='9'>9</option>
-      <option value='10'>10</option>
-      <option value='11'>11</option>
-      <option value='12'>12</option>
+      <option value='1'> January      </option>
+      <option value='2'> February     </option>
+      <option value='3'> March        </option>
+      <option value='4'> April        </option>
+      <option value='5'> May          </option>
+      <option value='6'> June         </option>
+      <option value='7'> July         </option>
+      <option value='8'> August       </option>
+      <option value='9'> September    </option>
+      <option value='10'>October      </option>
+      <option value='11'>November     </option>
+      <option value='12'>December     </option>
     </select>
     <span name="filter-button" value="Filter" class="btn-filter">Filter</span>
   </div>  
@@ -166,6 +169,7 @@ from permissions.utils import check_access_level, check_user_perms
         </td>
       </tr>
     </table>
+
     <table style="width:240px;float:right;" border="0">
       <tr>
         <td width="" align="left">
@@ -193,10 +197,9 @@ from permissions.utils import check_access_level, check_user_perms
             <input type="checkbox" id="announce-checkbox" name="" value="" autocomplete="off"/> Announcement
           </label><br />
           <span id="announce-expir-date-div" style="display:inline-block;visibility:hidden;">
-            <input class="datePickText" id="announce-expir-date" placeholder="Expiration" readonly="1" autocomplete="off" style=""/>
+            <input class="datePickText lock_past" id="announce-expir-date" placeholder="Expiration" readonly="1" autocomplete="off" style="" />
             <img src="/static/images/calendar-icon-2.png" class="announce-date-icon" alt="" width="24" style="vertical-align:middle"/>
           </span>
-         
           <a id="submit_new_post_button" class="post_btn" value="Post" style="">Post</a>
         </td>        
       </tr>
@@ -262,12 +265,16 @@ from permissions.utils import check_access_level, check_user_perms
  #fixed-dialog-announcements, #fixed-dialog-posts{position:fixed;}
 </style>
 <script type="template" id="announcement-template">
-  <div style="margin-bottom:20px;">
+  <div style="margin-bottom:20px;" class="announcement-row">
+  <input type="hidden" name="_id" value="{_id.$oid}" />
   <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
   <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
   </div>
-  <div style="display:inline-block;">
+  <div style="display:inline-block;width:550px;">
+  <div class="clearfix">
   <a class='ds-post-title-name' href='/dashboard/{user_id}'> {first_name} {last_name}</a>
+  {removable?<img src='/static/images/trash-small.png' class='delete-something dlg-announcement-delete' style="float\:right;"></img>}
+  </div>
   <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
   </div>
   <div>{content}{image_code}</div>
@@ -327,7 +334,7 @@ from permissions.utils import check_access_level, check_user_perms
   <div class="post-title-link" style="font-style:italic;">
                   {last_comment?replied to a post in your network:created a new post in your network}.
                   <span class='ds-post-title-time' style="float:right;">
-                    {post_date} at {post_h}:{post_m} {post_ampm}
+  {post_date} at {post_h}:{post_m} {post_ampm}
                   </span>  
                 </div>
               </div>
@@ -375,7 +382,7 @@ from permissions.utils import check_access_level, check_user_perms
   {first_name} {last_name}
   </a>
   <div class='ds-post-title-time'>
-  {post_date} at {post_h}:{post_m} {post_ampm}  
+  {post_date} at {post_h}:{post_m} {post_ampm}
   </div>
   </div>
   </td>
@@ -652,9 +659,9 @@ from permissions.utils import check_access_level, check_user_perms
     var params = {
       page: 0,
       page_size: 1,
-      filter_group: $filter.find("*[name=group]").val(),
-      filter_year: $filter.find("*[name=year]").val(),
-      filter_month: $filter.find("*[name=month]").val(),
+      /* filter_group: $filter.find("*[name=group]").val(),
+       * filter_year: $filter.find("*[name=year]").val(),
+       * filter_month: $filter.find("*[name=month]").val(),*/
       local_utc_diff_m: local_utc_diff_m};
     $.post("${reverse('dashboard_get_announcements')}", params, function (anns){
       $("#posts_loading_image").hide();
@@ -685,22 +692,43 @@ from permissions.utils import check_access_level, check_user_perms
       });
       $(".view-all-announcements").off("click").on("click", function(){
         var org = $(this).data("org-type");
-        var local_time =  new Date();
-        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
-        $.post("${reverse('dashboard_get_org_announcements')}", {org: org, local_utc_diff_m: local_utc_diff_m}, function(d){
-          new Dialog($('#fixed-dialog-announcements')).show(org + " Announcements (" + d.length +")", "<center></center>");
-          var $content_area = $('#fixed-dialog-announcements .content');
-          $content_area.html("");
-          var template_post = $("#announcement-template").html();
-          $.each(d, function(i, p){
-            var c = template_post.fillData(p);
-            $content_area.append(c);
+        function loadDialogAnnouncements(org){
+          var local_time =  new Date();
+          var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+          $.post("${reverse('dashboard_get_org_announcements')}", {org: org, local_utc_diff_m: local_utc_diff_m}, function(d){
+            $("#fixed-dialog-announcements .dialog-title").html(org + " Announcements (" + d.length + ")");
+            
+            var $content_area = $('#fixed-dialog-announcements .content');
+            $content_area.html("");
+            var template_post = $("#announcement-template").html();
+            $.each(d, function(i, p){
+              var c = template_post.fillData(p);
+              $content_area.append(c);
+            });
+            bindHover();
+            $(".dlg-announcement-delete").off("click").on("click", function(){
+              var _id = $(this).closest("div.announcement-row").find("input[name=_id]").val();
+       
+              $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
+
+                $("#fixed-dialog-announcements").addClass("changed");
+                loadDialogAnnouncements(org);
+              });        
+            });
           });
-          bindHover();
+        }
+        var dlg = new Dialog($('#fixed-dialog-announcements'));
+        dlg.show(org + " Announcements", "<center></center>");
+        loadDialogAnnouncements(org);
+        $('#fixed-dialog-announcements').find('.close-modal').off("click").click(function(){
+          dlg.hide();
+          if($("#fixed-dialog-announcements").hasClass("changed"))
+            getTopAnnouncements();
         });
       });
     });
-  }  
+  }
+
   // get posts
   var next_page = null;
   var lock_event = false;
@@ -719,7 +747,7 @@ from permissions.utils import check_access_level, check_user_perms
     var params = {
       page: is_continue ? next_page : 0,
       page_size: 5,
-      filter_group: $filter.find("*[name=group]").val(),
+      /* filter_group: $filter.find("*[name=group]").val(),*/
       filter_year: $filter.find("*[name=year]").val(),
       filter_month: $filter.find("*[name=month]").val(),
       local_utc_diff_m: local_utc_diff_m};

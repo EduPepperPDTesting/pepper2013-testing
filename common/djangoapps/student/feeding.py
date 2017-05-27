@@ -97,7 +97,7 @@ class DashboardFeedingStore(MongoBaseStore):
                                   {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},      # for every one
                          {"__doc__.dismiss": {"$nin": [user_id]}}  # not dismissed
                          ],
-                "sub_of": None}  # is top leve;
+                "__doc__.sub_of": None}  # is top leve;
 
         cond.update(cond_ext)
         
@@ -173,6 +173,26 @@ class DashboardFeedingStore(MongoBaseStore):
     def get_posts(self, user_id, **kwargs):
         kwargs["type"] = "post"
         return self.top_level_for_user(user_id, **kwargs)
+
+    def get_post_year_range(self, user_id):
+        cond = {"$and": [{"$or": [{"__doc__.receivers": {"$in": [user_id]}},  # user is receiver
+                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},  # for every one
+                         {"__doc__.dismiss": {"$nin": [user_id]}}  # not dismissed
+                         ],
+                "__doc__.sub_of": None,   # is top leve;
+                "__doc__.type": "post"}
+
+        so = OrderedDict([("__doc__.date", 1)])
+        command = [{"$project": {"__doc__": "$$ROOT", "year": {"$year": "$date"}}}, {"$match": cond}, {"$sort": so}]
+
+        cursor = self.aggregate(command)
+
+        count = len(cursor["result"])
+
+        if count:
+            return cursor["result"][0]["year"], cursor["result"][count - 1]["year"]
+        else:
+            return None, None
 
 
 def dashboard_feeding_store():

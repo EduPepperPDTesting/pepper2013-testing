@@ -294,7 +294,9 @@ def newdashboard(request, user_id=None):
                 community_all.remove(cid)
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
-    
+
+    store = dashboard_feeding_store()
+    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
@@ -302,9 +304,11 @@ def newdashboard(request, user_id=None):
         'curr_user': user,
         'communities': community_list,
         'allowedcourses': allowedcourse_list,
-        'community_trending_topics':communit_tt_list
+        'community_trending_topics': communit_tt_list,
+        'feeding_year_start': feeding_year_start,
+        'feeding_year_end': feeding_year_end
     }    
-
+    
     return render_to_response('dashboard_new.html', context)
 
 def communit_tt_list_add(community_ids,joined,communit_tt_list):
@@ -736,7 +740,7 @@ def attach_post_info(p, time_diff_m, user):
         post_month = post_time_local.strftime("%b")
         post_day = post_time_local.strftime("%d")
 
-        if diff.days < 1 and post_day == unow.strftime("%d"):
+        if diff.days == 0 and post_day == unow.strftime("%d"):
             post_date = 'Today'
             # post_date = post_year + '-' + post_month + '-' + post_day
         else:
