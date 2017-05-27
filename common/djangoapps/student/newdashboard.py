@@ -311,9 +311,9 @@ def newdashboard(request, user_id=None):
     #@end
 
 
-    store = dashboard_feeding_store()
-    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    #feeding_year_start, feeding_year_end = None, None
+    #store = dashboard_feeding_store()
+    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    feeding_year_start, feeding_year_end = None, None
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
@@ -536,24 +536,28 @@ def create_filter_key(filter_con):
     elif filter_month:
         year_0, year_now = myactivitystore().get_my_activity_year_range()
         if not year_0:
-            filter_key["$or"] = []
-            while year_0 <= year_now:
-                if filter_month == "12":
-                    month1 = "%02d" %int(filter_month)
-                    month2 = "01"
-                    year1 = str(year_0)
-                    year2 = str(year_0 + 1)
-                else:
-                    month1 = "%02d" %int(filter_month)
-                    month2 = "%02d" %(int(filter_month)+1)
-                    year1 = str(year_0)
-                    year2 = str(year_0)
-                s1 = year1 + "-" + month1 + "-01 00:00:00"
-                s2 = year2 + "-" + month2 + "-01 00:00:00"
-                time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
-                time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
-                year_0 += 1
-                filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
+            year_0 = 2000
+        if not year_now:
+            year_now = 2000
+
+        filter_key["$or"] = []
+        while year_0 <= year_now:
+            if filter_month == "12":
+                month1 = "%02d" %int(filter_month)
+                month2 = "01"
+                year1 = str(year_0)
+                year2 = str(year_0 + 1)
+            else:
+                month1 = "%02d" %int(filter_month)
+                month2 = "%02d" %(int(filter_month)+1)
+                year1 = str(year_0)
+                year2 = str(year_0)
+            s1 = year1 + "-" + month1 + "-01 00:00:00"
+            s2 = year2 + "-" + month2 + "-01 00:00:00"
+            time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
+            time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
+            year_0 += 1
+            filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
 
 
