@@ -310,8 +310,15 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
+
     store = dashboard_feeding_store()
     feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+
+    #@begin:get my_activity filter year range
+    #@date:2017-05-27
+    my_activity_year_start, my_activity_year_end = myactivitystore().get_my_activity_year_range()
+    #@end
+
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
@@ -321,7 +328,9 @@ def newdashboard(request, user_id=None):
         'allowedcourses': allowedcourse_list,
         'community_trending_topics': communit_tt_list,
         'feeding_year_start': feeding_year_start,
-        'feeding_year_end': feeding_year_end
+        'feeding_year_end': feeding_year_end,
+        'my_activity_year_start': my_activity_year_start,
+        'my_activity_year_end': my_activity_year_end
     }    
     
     return render_to_response('dashboard_new.html', context)
@@ -495,6 +504,9 @@ def get_logoInfo(data,ma_dict):
 
 def replace_values(body, values):
     return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
+
+def get_filter_years(data,ma_dict):
+    myactivitystore().get_my_activity_year_range() 
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}

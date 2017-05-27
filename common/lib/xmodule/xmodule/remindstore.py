@@ -299,6 +299,17 @@ class MongoMyActivityStore(object):
             {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
             multi=True)
 
+    def get_my_activity_year_range(self):
+        my_activity_start = self.collection.find().sort('ActivityDateTime',1).limit(1)
+        my_activity_end = self.collection.find().sort('ActivityDateTime',-1).limit(1)
+        year_start = ''
+        year_end = ''
+        if my_activity_start:
+            year_start = str(my_activity_start[0]['ActivityDateTime'])[0:4]
+        if my_activity_end:
+            year_end = str(my_activity_end[0]['ActivityDateTime'])[0:4]
+        return int(year_start), int(year_end)
+
 class MongoMyActivityStaticStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores

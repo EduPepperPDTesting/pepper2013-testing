@@ -797,8 +797,11 @@ a.btnx:hover,input[type=button].btnx:hover {
                     </select>
                     <select id = "ma_select_year">
                         <option value = ''>Year</option>
-                        <option value = '2016'>2016</option>
-                        <option value = '2017'>2017</option>
+                        %if my_activity_year_start:
+                            %for y in range(my_activity_year_start, my_activity_year_end + 1):
+                                <option value='${y}'>${y}</option>
+                            %endfor
+                        %endif
                     </select>
                     <select id = "ma_select_month">
                         <option value = ''>Month</option>
