@@ -516,27 +516,46 @@ def report_view(request, report_id):
         elif request.user.is_superuser:
             allowed = True
         if allowed:
-            school_year = request.GET.get('school_year', '')
-            if school_year:
-                school_year = str(school_year).replace("-","_")
+            if report.report_type == 0:
+                school_year = request.GET.get('school_year', '')
+                if school_year:
+                    school_year = str(school_year).replace("-","_")
 
-            rs = reporting_store()
-            collection = get_cache_collection(request, report_id, school_year)
+                rs = reporting_store()
+                collection = get_cache_collection(request, report_id, school_year)
 
-            stats = int(rs.get_collection_stats(collection)['ok'])
-            if(not(stats)):
-                rs.del_collection(collection)
-                selected_view = ReportViews.objects.filter(report=report)[0]
-                report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+                stats = int(rs.get_collection_stats(collection)['ok'])
+                if(not(stats)):
+                    rs.del_collection(collection)
+                    selected_view = ReportViews.objects.filter(report=report)[0]
+                    report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-                columns = []
-                filters = []
-                for col in selected_columns:
-                    columns.append(col)    
-                for f in report_filters:
-                    filters.append(f)
+                    columns = []
+                    filters = []
+                    for col in selected_columns:
+                        columns.append(col)    
+                    for f in report_filters:
+                        filters.append(f)
 
-                create_report_collection(request, report, selected_view, columns, filters, report_id)
+                    create_report_collection(request, report, selected_view, columns, filters, report_id)
+            else:
+                school_year = request.GET.get('school_year', '')
+                if school_year:
+                    school_year = str(school_year).replace("-","_")
+
+                rs = reporting_store()
+                collection = get_cache_collection(request, report_id, school_year)
+
+                stats = int(rs.get_collection_stats(collection)['ok'])
+                # if(not(stats)):
+                    
+                # else:
+                school_year_item = []
+                school_year_item = get_school_year_item()
+                data = {'report': report,
+                        'school_year': school_year,
+                        'school_year_item': school_year_item}
+                return render_to_response('reporting/view-matrix-report.html', data)
 
             view_id = ReportViews.objects.filter(report=report)[0].view_id;
             pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;

@@ -449,10 +449,14 @@ def getCalendarMonth(request):
     _month_n = request.GET.get('month_n');
     _day = request.GET.get('day');
     _day_n = request.GET.get('day_n');
-    _getrange = request.GET.get('daterange'); #akogan
-    _catype = request.GET.get('catype');
+    _getrange = request.GET.get('daterange') #akogan
+    _catype = request.GET.get('catype')
 
     _cal_view = request.GET.get('calview')
+
+    _go_back = request.GET.get('go_back')
+    _go_forth = request.GET.get('go_forth')
+    _old_month = request.GET.get('old_month')
 
     if (_year):
         _year = int(_year);
@@ -477,6 +481,17 @@ def getCalendarMonth(request):
 
     if not(_catype):
         _catype = "0";
+
+    if _go_back:
+        _go_back = 1 if _go_back =="true" else 0
+
+    if _go_forth:
+        _go_forth = 1 if _go_forth == "true" else 0
+
+    if (_old_month):
+        _old_month = int(_old_month)
+    else:
+        _old_month = 0
 
     firstweekday = 0 + SHIFT_WEEKSTART
     while firstweekday < 0:
@@ -573,7 +588,7 @@ def getCalendarMonth(request):
 
     # akogan
     if(_cal_view == 'screen'):
-        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
+        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist, _go_back, _go_forth, _old_month)
     elif(_cal_view == 'print'):
         name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
@@ -672,10 +687,10 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             row_height += "px !important"
             table_tr_content += "<tr class='printview' style='height:" + str(row_height) + "'>"
 
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'>" + str(print_row[n][0]) + "<br/><br/>" + ti_text_span + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][2]) + "</td>"
-            table_tr_content += "<td style='padding: 5px !important;'>" + str(print_row[n][3]) + "</td>"
-            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'>" + str(print_row[n][4]) + "<br/><br/>" + tg_text_span + "</td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important; border-left: 1px solid #d5d5d5 !important;'><span style='margin-top:5px;'>" + str(print_row[n][0]) + "</span><br/><span style='margin-top:5px;'>" + ti_text_span + "</span></td>"
+            table_tr_content += "<td style='padding: 5px !important;'><span style='margin-top:5px;'>" + str(print_row[n][2]) + "</span></td>"
+            table_tr_content += "<td style='padding: 5px !important;'><span style='margin-top:5px;'>" + str(print_row[n][3]) + "</span></td>"
+            table_tr_content += "<td style='width: 25% !important;padding: 5px !important;'><span style='margin-top:5px;'>" + str(print_row[n][4]) + "</span><br/><span style='margin-top:5px;'>" + tg_text_span + "</span></td>"
 
             table_tr_content += "</tr>"
 
@@ -690,7 +705,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         return table_tr_content
 
 #akogan
-def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
+def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange, go_back, go_forth, old_month):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
@@ -767,24 +782,24 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                     if (arrive == "0" and allow == "0"):
                         if (catype == "0" or catype == "4"):
-                            occurrences.append("<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
+                            occurrences.append("<span class='alert short_name al_4' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append("<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
+                                occurrences.append("<span class='alert short_name al_7' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
                         else:
                             if (status == "Registered"):
                                 # checked true
                                 if (catype == "0" or catype == "3"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
-                                    occurrences.append("<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                    occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                             else:
                                 # checked false
                                 if (catype == "0" or catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
-                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                    occurrences.append("<label class='alert short_name al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
@@ -799,13 +814,13 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             # checked true
                             if (catype == "0" or catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
-                                occurrences.append("<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                occurrences.append("<label class='alert short_name al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                         else:
                             # checked false
                             if (catype == "0" or catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
-                                occurrences.append("<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
@@ -821,7 +836,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
     if isweek:
         colstyle = "style='min-height: 355px !important;'"
     elif isday:
-        colstyle = "style='min-height: 590px !important;'"
+        colstyle = "style='min-height: 40em !important;'"
     else:
         colstyle = "style='min-height: 60px;'"
 
@@ -829,17 +844,17 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
         dayHours = []
         for p in range(2):
             for i in range(0, 13):
-                if((p == 0 and i < 6) or i == 0): continue
+                if((p == 0 and i < 7) or i == 0): continue
                 if (p == 0 and i < 12):
                     d = "AM"
                 elif (p == 1 and i < 12) or (p == 0 and i == 12):
                     d = "PM"
                 getHour = str(i) if i > 0 else "12"
-                if ((p == 0) or i < 6): getHalfHour = getHour + ":30 " + d
+                if ((p == 0) or i < 8): getHalfHour = getHour + ":30 " + d
                 getHour += ":00 " + d
                 dayHours.append(getHour)
-                if ((p == 0) or i < 6): dayHours.append(getHalfHour)
-                if (p == 1 and i == 6): break
+                if ((p == 0) or i < 8): dayHours.append(getHalfHour)
+                if (p == 1 and i == 8): break
 
     weekLen = len(rangedates) - 2
     for weekNum, week in enumerate(rangedates):
@@ -860,6 +875,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             table_tr_content += "</div></td>";
 
         for day in week:
+
             if(isweek or isday):
                 if day[0] != 0: day[0]=day[0].day
             class_name = "";
@@ -872,22 +888,49 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
             else:
                 class_name = "calendarium-day";
 
-            if(not isday and day[0]):
-                if(isweek and week[0][0] > day[0]):
-                    nextMonth = "true"
-                else:
-                    nextMonth = "false"
+            if(isweek and day[0]):
+                thismonth = month
+                thisyear = year
 
-                if(type(week[6][0]) is not datetime):
+                if (old_month < month):
+                    oldmlsnewm = "true"
+                else:
+                    oldmlsnewm = "false"
+
+                if (old_month > month):
+                    oldmgrnewm = "true"
+                else:
+                    oldmgrnewm = "false"
+
+                dateToCompare = 32
+                if (type(week[6][0]) is not datetime):
                     dateToCompare = week[6][0]
                 else:
                     dateToCompare = week[6][0].day
-                if (isweek and dateToCompare < day[0]):
-                    prevMonth = "true"
+
+                if(go_forth == 1 and isweek and week[0][0] > day[0]):
+                    nextMonth = "true"
                 else:
+                    nextMonth = "false"
+                    if(go_forth == 1 and isweek and old_month <= month and week[0][0] <= day[0]):
+                        thismonth -= 1
+
+                if (go_back == 1 and isweek and dateToCompare < day[0]):
+                    prevMonth = "true"
+                    thismonth -= 1
+                else:
+                    if(go_back == 1 and isweek and old_month > month and week[0][0] > day[0] and dateToCompare < week[0][0]):
+                        thismonth += 1
                     prevMonth = "false"
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + nextMonth + "," + prevMonth + "," + str(dateToCompare) + ")'"
+                if thismonth == 13:
+                    thismonth = 1
+                    thisyear += 1
+                elif thismonth == 0:
+                    thismonth = 12
+                    thisyear -= 1
+
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ")'"
             else:
                 clickFunc = ""
 
@@ -926,13 +969,13 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
 
-                                        if (not ((startHourAMPM == "AM" and startHour >= 6) or (startHourAMPM == "PM" and startHour <=6))):
+                                        if (not ((startHourAMPM == "AM" and startHour >= 7) or (startHourAMPM == "PM" and startHour <=8))):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
                                             else:
-                                                startHour = 6
+                                                startHour = 7
 
-                                        if((startHourAMPM == "PM" and startHour <= 6) or (startHourAMPM == "AM" and startHour >= 6)):
+                                        if((startHourAMPM == "PM" and startHour <= 8) or (startHourAMPM == "AM" and startHour >= 7)):
                                             endHour = int(day[4][i][:day[4][i].index(":")])
                                             endHourAMPM = day[4][i][-2:]
 
@@ -940,10 +983,10 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                             hourAMPM = startHourAMPM
 
                                             if(startHourAMPM == "AM" and endHourAMPM == "PM" and endHour != 12):
-                                                endHourLast = endHour if(endHour <= 6) else 6
+                                                endHourLast = endHour if(endHour <= 8) else 8
                                                 endHour = 12
-                                            elif(endHourAMPM == "PM" and ((endHour == 6 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 6 and endHour != 12))):
-                                                endHour = 6
+                                            elif(endHourAMPM == "PM" and ((endHour == 8 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 8 and endHour != 12))):
+                                                endHour = 8
                                                 endHourLast = endHour
                                             else:
                                                 #endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
@@ -1272,7 +1315,7 @@ def download_calendar_pdf(request):
     c.drawImage(logo, 330, 750, 200, 73);
 
     c.setFont("Helvetica", 20)
-    c.drawString(370, 710, "Training Calendar")
+    c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
     styleSheet = getSampleStyleSheet()
     style = styleSheet['BodyText']
@@ -1319,6 +1362,21 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
+
+                # try:
+                #     district = District.objects.get(id=training.district)
+                #     dist_name = district.name
+                #     try:
+                #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                #         c.drawImage(dist_logo, 30, 750, 200, 73)
+                #     except:
+                #         try:
+                #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                #             c.drawImage(dist_logo, 30, 750, 200, 73)
+                #         except:
+                #             console.log('no logo')
+                # except:
+                #     console.log("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description

@@ -324,7 +324,8 @@
     text-decoration: none;
 }
 .nav-option-ol{margin-top:14px; margin-left:10px; float:right; width:auto;}
-.nav-option-ol-li{float:left; width:45px; height:65px; }
+.nav-option-ol-li{float:left; height:65px; }
+.nav-option-ol-li-messenger{float:left; height:65px; }
 .nav-option-ol-icon{float:left;}
 .nav-option-ol-txt{float:left; width:45px; height:20px; line-height:20px; font-size:10px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .nav-option-ol-only-txt{float:left; height:61px; line-height:61px; }
@@ -436,6 +437,7 @@
             #    data[tmp1.itemType] = tmp1.itemValue
             
             base_logo = "";
+            newMeStyleFlag = False;
             #if data['Dashboard option etc'] != "0":
             #---------------OrganizationMenu 
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
@@ -462,12 +464,12 @@
                 menu_items = "<ol class='authenticated nav-option-ol'>"
           
             for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
-                if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and curr_user.is_superuser):
+                if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
                     #---------------Sub Menu
                     liClass = ""
                     menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu'>"
                     for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
-                        if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and curr_user.is_superuser):
+                        if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser):
                             if liClass == "":
                                 liClass = " class='admin-menu-holder'"
                             
@@ -475,44 +477,90 @@
                             
                     menu_items_child = menu_items_child + "</ul>";
                     
+                    tmp1_MenuItem_txt = tmp1.MenuItem
                     if data['Is Icon'] == "1":
-                        if liClass == "":
-                            icon_a = "<a href='" + tmp1.Url + "'>"    
+                    	img_src = base_src + tmp1.Icon;
+                        
+                        if tmp1_MenuItem_txt == "#Messenger":
+                            img_src = "/static/images/ppd-iMessage-default.png";
+                            tmp1_MenuItem_txt = "Messenger"                            
+                            icon_a = "<a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important;'>"
+                            
+                            #---------------icon
+                            if data['Is Icon With Text'] == "1":
+                                menu_items_tmp1 = "<li class='nav-option-ol-li-messenger' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a
+                                menu_items_tmp1 = menu_items_tmp1 + "<table border='0' cellpadding='0' cellspacing='0' style1='float:right; margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px'>";
+                                menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' /></td></tr>";
+                                menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'><span style='float:left; height:20px; line-height:20px; margin-top1:-5px; font-family:" + data['Text Font Icons'] + "; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px;'>Messenger</span></td></tr>";
+                                menu_items_tmp1 = menu_items_tmp1 + "</table>";
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:20px; height:20px; text-align:center; top:20px; left:42px; color:#f00;font-weight:bold;font-size:13px;'>33</span>"
+                                
+                                newMeStyleFlag = True;
+                                newMeStyleFont = data['Text Font Icons'];
+                                newMeStyleColor = data['Text Color Icons'];
+                                newMeStyleSize = data['Text Size Icons'];
+                            else:
+                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 25px 0;'" + liClass + ">" + icon_a
+                                menu_items_tmp1 = menu_items_tmp1 + "<img src='" + img_src + "' width='45'/>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:20px; height:20px; text-align:center; top:20px; left:22px; color:#f00;font-weight:bold;font-size:13px;'>33</span>"
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1_MenuItem_txt + "</div>"        
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_childy
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
                         else:
-                            icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
-                            
-                        #---------------icon
-                        if data['Is Icon With Text'] == "1":                            
-                            menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                            menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a></span>"
-                            menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt'>" + tmp1.MenuItem + "</span>"
-                        else:
-                            menu_items_tmp1 = "<li style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" 
-                            menu_items_tmp1 = menu_items_tmp1 + icon_a + "<img src='" + base_src + tmp1.Icon + "' width='45'/></a>"
-                            
-                        menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1.MenuItem + "</div>"        
-                        if liClass != "":
-                            menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                            
-                        menu_items_tmp1 = menu_items_tmp1 + "</li>"
+                            if liClass == "":
+                                icon_a = "<a href='" + tmp1.Url + "'>"    
+                            else:
+                                icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
+                                
+                            #---------------icon
+                            if data['Is Icon With Text'] == "1":
+                                if liClass != "":
+                                    menu_items_tmp1 = "<li style='width:70px' class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a
+                                else:
+                                    menu_items_tmp1 = "<li style='width:45px' class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a
+                                    
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-icon'>" + "<img src='" + img_src + "' width='45'/></span>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='nav-option-ol-txt' style='font-family:" + data['Text Font Icons'] + "; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px;'>" + tmp1_MenuItem_txt + "</span>"
+                                if liClass != "":
+                                    menu_items_tmp1 = menu_items_tmp1 + "<span style='float:left;font-size:25px; margin:-8px 0 0 -5px; color:" + data['Text Color Icons'] + ";'>&#9662;</span>" 
+                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                            else:
+                                if liClass != "":
+                                    menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<img style='float:left;' src='" + img_src + "' width='45'/>"
+                                    menu_items_tmp1 = menu_items_tmp1 + "<span style='float:left; font-size:25px; width:45px; clear:both; text-align:center; margin-top:-12px;'>&#9662;</span>" 
+                                else:
+                                    menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 25px 0;'" + liClass + ">" + icon_a + "<img style='float:left;' src='" + img_src + "' width='45'/>"
+                                
+                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1_MenuItem_txt + "</div>"        
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
                         
                     else:
                         #---------------text
-                        tmp_menu_icon = " &#9662;"
-                        if liClass == "":
-                            text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
-                            tmp_menu_icon = ""
+                        if tmp1_MenuItem_txt == "#Messenger":
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger (<span class='info_count' style='color:#f00;font-weight:bold;font-size:13px;'>33</span>)</a></li>";
                         else:
-                            text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                            tmp_menu_icon = " &#9662;"
+                            if liClass == "":
+                                text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
+                                tmp_menu_icon = ""
+                            else:
+                                text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                                
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
                             
-                        menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
-                        
-                        if liClass != "":
-                            menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                            
-                        menu_items_tmp1 = menu_items_tmp1 + "</li>"
-
-                    #menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
+                            if liClass != "":
+                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+                                
+                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
+                                           
                     menu_items = menu_items + menu_items_tmp1
 
             data["menu_items"] = menu_items + "</ol>"
@@ -531,7 +579,7 @@
             ${base_logo}
         % else:
         	<!--@date:2013-11-02-->           
-            % if curr_user.is_authenticated():
+            % if request.user.is_authenticated():
                 <a href="/dashboard">
             % else:
                 <a href="/">
@@ -557,19 +605,23 @@
         <ol class="user admin">
             <li class="primary" style="margin-top:8px;">
                 <span><a href="javascript:void(0)" class="" id="dropdown">
-                    <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
-                    <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
-                    <div class="nav-option-text-left">${curr_user.username} </div>
+                    <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="45">
+                    % if OrganizationOK and newMeStyleFlag:
+                        <span style="text-align:center;display:block;max-width:70px;text-overflow:ellipsis;line-height:20px;overflow:hidden;vertical-align:bottom; color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">Me <font style="float:right; font-size:25px;">&#9662;</font></span>
+                    % else:
+                    	<span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me &#9662;</span>
+                    % endif
+                    <div class="nav-option-text-left">${request.user.username} </div>
                 </a></span>
                 <ul class="dropdown-menu" style="width:300px;top:64px;"> 
                     <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
                         margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
                         <div style="float:left;">   
-                            <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
+                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50"/>
                         </div>
                         <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
-                            <span class="dropdownusername" >${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
-                            <a style="text-decoration:none;font-weight: bold;font-size:15px;"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
+                            <span class="dropdownusername" >${ request.user.first_name | h } ${ request.user.last_name | h }</span>
+                            <a style="text-decoration:none;font-weight: bold;font-size:15px;"  href="${reverse('user_information',args=[request.user.id])}">View Profile</a>
                         </div>
                     </li>
                     <%block name="navigation_dropdown_menu_links" >
@@ -681,7 +733,7 @@
     <!--@begin:show_notifications-->
     <!--@date:2014-06-19-->
 %if request.user.is_authenticated():
-    <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
+    <section id="show_notifications" class="modal modal-wide" data-id="${request.user.id}" data-name="${request.user.username}" data-fullname="${request.user.first_name} ${request.user.last_name}">
         <div class="inner-wrapper" style="width:578px;">
             <header>
                 <h2>${_("notifications")}</h2>
@@ -756,7 +808,7 @@
         function pepper_stats_refresh() {
             if (document.URL.indexOf('user_profile') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
-                 'user_id': "${curr_user.id}"
+                 'user_id': "${request.user.id}"
                }, function(data) {
                  $('#all_course_time').html(data.all_course_time);
                  $('#collaboration_time').html(data.collaboration_time);
@@ -1101,7 +1153,7 @@
         }
 
         function interactive_update_activateItem(data) {
-            var user_id = "${curr_user.id}";
+            var user_id = "${request.user.id}";
             $.post("${reverse('set_interactive_update')}", {
                 _id: data._id,
                 _name: 'activate',
@@ -1172,7 +1224,7 @@
                 return 0;
             }
             if (data.location.indexOf("/my_coursework") >= 0) {
-                var curr_user_id = "${curr_user.id}";
+                var curr_user_id = "${request.user.id}";
                 var user_id = data.location.substring(data.location.indexOf("/my_coursework") + 15, data.location.lastIndexOf("/"));
                 if (curr_user_id != user_id) {
                     window.open(data.location, '_blank');
@@ -1180,7 +1232,7 @@
                 }
             }
             if (data.location.indexOf("/my_discussions") >= 0) {
-                var curr_user_id = "${curr_user.id}";
+                var curr_user_id = "${request.user.id}";
                 var user_id = data.location.substring(data.location.indexOf("/my_discussions") + 16, data.location.indexOf("?"));
                 if (curr_user_id != user_id) {
                     window.open(data.location, '_blank');
@@ -1406,7 +1458,7 @@
         }
 
         function message_board_multiplayerSend_init() {
-            var isStaff = "${curr_user.is_staff}";
+            var isStaff = "${request.user.is_staff}";
             var ms = $("#multiplayer_send_div");
             ms.find("input").attr("checked", false);
             if (isStaff == "True") {
@@ -1453,16 +1505,15 @@
                         <table width="530" border="0" cellpadding="0" cellspacing="0">
                             <tr height="30" style="color:#000;">
                                 <td widht="265" style="vertical-align:middle;">
-              <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-              </span>
-              
-              <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-              </span>
-
+                                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
+                                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
+                                  </span>
+                                  
+                                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
+                                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+                                  </span>
                                 </td>
                                 <td align="right" style="vertical-align:middle;">
                                     <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
@@ -1475,13 +1526,6 @@
                 <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
             </form>
             <br/>
-            <!--
-            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-            <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-            <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-            </a>
-            </div>
-            -->
             <div class="close-modal" id="message_board_close">
                 <div class="inner">
                     <p>&#10005;</p>

@@ -448,39 +448,44 @@ def more_courses_available(request):
 @login_required
 @ensure_csrf_cookie
 def dashboard(request, user_id=None):
+    flag_OrganizationOK = True
     if user_id:
         user = User.objects.get(id=user_id)
+
+        if request.user.id != user_id:
+            flag_OrganizationOK = False
     else:
         user = User.objects.get(id=request.user.id)
 
     OrganizationOK = False
-    try:
-        state_id = user.profile.district.state.id
-        district_id = user.profile.district.id
-        school_id = user.profile.school.id
-    except:
-        state_id = -1
-        district_id = -1
-        school_id = -1
-        
-    organization_obj = OrganizationMetadata()
-    if (school_id != -1):
-        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-            organization_obj = tmp1.organization
-            OrganizationOK = True
-            break;
+    if flag_OrganizationOK:
+        try:
+            state_id = user.profile.district.state.id
+            district_id = user.profile.district.id
+            school_id = user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
 
-    if (not(OrganizationOK) and district_id != -1):
-        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-            organization_obj = tmp1.organization
-            OrganizationOK = True
-            break;
-    
-    if (not(OrganizationOK) and state_id != -1):
-        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-            OrganizationOK = True
-            organization_obj = tmp1.organization
-            break;
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
             
     data = {}
     if OrganizationOK:

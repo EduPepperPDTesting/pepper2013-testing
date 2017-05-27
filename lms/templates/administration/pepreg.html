@@ -93,7 +93,7 @@
 	
 	#calendar-month{margin-top: 0 !important;}
 	#calendar-month tr th{height:35px !important;}
-	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
 	
 	#calendar-month tr td .al_3{ background-color:#22b14c;}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
@@ -144,6 +144,7 @@
 
     .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;}
 
+    #calendar-month tr td .short_name{min-width: 90% !important;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -668,11 +669,11 @@
 	var _cal_view = "screen";
 	
 	//-----------------------------------------------calendarOpen
-	function calendarOpen(){
+	function calendarOpen(goback = "false", goforth = "true"){
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
-		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false'}, function(data){
+		catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'false', go_back: goback, go_forth: goforth, old_month: _old_month}, function(data){
 
 		    if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
 	           $("#calendar-month-weekdays").css("text-align", "left");
@@ -712,27 +713,29 @@
 			}
 			
 			$(".alert").mouseover(function (e) {
-				$("#calendar_alert_title").empty();
-				var this_x = $(this).parent().position().left;
-                var tmp1 = $(this).offset();
-				if($("#calendar_select_range").val() != "2"){
-                    tmp1.top += 30;
-				}else{
-				    tmp1.top = e.clientY + 30;
+			    if($("#view_select").val() == "0"){
+                    $("#calendar_alert_title").empty();
+                    var this_x = $(this).parent().position().left;
+                    var tmp1 = $(this).offset();
+                    if($("#calendar_select_range").val() != "2"){
+                        tmp1.top += 30;
+                    }else{
+                        tmp1.top = e.clientY + 30;
+                    }
+                    tmp1.top -= $(document).scrollTop();
+                    var tmp3 = $(this).attr("titlex").split("::");
+                    for(var i in tmp3){
+                        $("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");
+                    }
+                    if(this_x > 800){
+                        tmp1.left -= ($("#calendar_alert_title").width() - 100);
+                    }else if(this_x > 600){
+                        tmp1.left -= ($("#calendar_alert_title").width() - 200);
+                    }
+                    $("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
+
+                    $("#calendar_alert_title").show();
 				}
-				tmp1.top -= $(document).scrollTop();
-				var tmp3 = $(this).attr("titlex").split("::");
-				for(var i in tmp3){
-					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
-				}
-				if(this_x > 800){
-					tmp1.left -= ($("#calendar_alert_title").width() - 100);
-				}else if(this_x > 600){
-					tmp1.left -= ($("#calendar_alert_title").width() - 200);
-				}
-				$("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
-				
-				$("#calendar_alert_title").show();
 			});
 			$(".alert").mouseleave(function () {
 				$("#calendar_alert_title").hide();
@@ -859,12 +862,12 @@
 	        if(picker_month == 13){
 	             picker_month = 1;
 	             picker_year = _sys_calendar_year + 1;}  }*/
-	function setPickerValue(){
+	function setPickerValue(calcDate = true){
 
         var picker_month = _sys_calendar_month;
         var picker_year = _sys_calendar_year;
 
-        if(picker_month == 13){
+        if(calcDate && picker_month == 13){
              picker_month = 1;
             picker_year = _sys_calendar_year + 1;
         }
@@ -1162,12 +1165,13 @@
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+			    var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                //var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
 			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
-            calendarOpen();
+            calendarOpen("true", "false");
 		});
 		
 		//-----------------------------------------------next
@@ -1185,13 +1189,14 @@
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                //var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
 			    setSysDate(picker_date, 1);
 			}
 			setPickerValue();
-            calendarOpen();
+            calendarOpen("false", "true");
 		});
 		
 		//-----------------------------------------------previous
@@ -1222,7 +1227,7 @@
 			    setSysDate(picker_date, 0);
             }
 			setPickerValue();
-			calendarOpen();
+			calendarOpen("true", "false");
 		});
 		
 		//-----------------------------------------------next
@@ -1242,7 +1247,7 @@
                 setSysDate(picker_date, 0);
             }
 			setPickerValue();
-			calendarOpen();
+			calendarOpen("false", "true");
 		});
 
 		function setSysDate(picker_date, addMonth){
@@ -1252,12 +1257,12 @@
             _old_month = _sys_calendar_month;
 
             _sys_calendar_month = picker_date.getUTCMonth();
-            if(addMonth && $("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
+            //if(addMonth && $("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
             _sys_calendar_year = picker_date.getUTCFullYear();
-            if(_sys_calendar_month == 0){
+           /* if(_sys_calendar_month == 0){
                 _sys_calendar_month = 12;
                 _sys_calendar_year -= 1;
-            }
+            }*/
 		}
 
 		//-----------------------------------------------today
@@ -1275,7 +1280,7 @@
                 console.log("calendar_select_data-"+new Date($('#calendar_select_data').val()))
                 var picker_date = new Date($('#calendar_select_data').val());
                 picker_date.setUTCDate(picker_date.getDate());
-                setSysDate(picker_date);
+                setSysDate(picker_date, 0);
                 calendarOpen();
             }
 		})
@@ -1347,6 +1352,7 @@
                         $(iClass+" label").remove();
                         $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:110px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
                          + labelHtml + "</div>");
+                        $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
                         }).css({"padding": "5px", "height": "26px"});
@@ -1500,7 +1506,7 @@
             dlgFlyOn.hideOverlay();
         var dlg = new Dialog($("#dlg-warning"));
         if(s && s.indexOf("Thank you")===0){
-            dailogTitle = "Info";
+            dailogTitle = "Confirmation";
         }else{
             dailogTitle = "Warning";
         }
@@ -2459,18 +2465,26 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate, nextMonth, prevMonth, dateToCompare){
+    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew, sysmonth){
         event.preventDefault();
         console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
 
         var rangeVal = $("#calendar_select_range").val();
         if(rangeVal == "1" || rangeVal == "3"){
-            console.log("old month-"+_old_month +" new month-"+_sys_calendar_month)
+            console.log("old month-"+oldmonth +" new month-"+ newMonth + " old m < new m-"+oldlsnew + " old m > new m-"+oldgrnew + " sysmonth-"+sysmonth)
             if(nextMonth == true){
-                console.log("nextMonth");_sys_calendar_month += 1
-            }else if(prevMonth == true && _old_month != _sys_calendar_month){
-                console.log("prevMonth");_sys_calendar_month -= 1
+                console.log("nextMonth");
+                //_sys_calendar_month = parseInt(newMonth); //+= 1
+                //if(newMonth == 1){_sys_calendar_year += 1;}
+            }else if(prevMonth == true){ // && _old_month != _sys_calendar_month){
+                console.log("prevMonth");
+                //_sys_calendar_month = parseInt(newMonth); //-= 1
+                //if(newMonth == 12){_sys_calendar_year -= 1;}
+            }else{
+                //_sys_calendar_year = parseInt(dayYear);
             }
+            _sys_calendar_month = parseInt(newMonth);
+            _sys_calendar_year = parseInt(dayYear);
         }
 
         $("#calendar_select_range").find(".list-active").removeClass("list-active");
@@ -2480,7 +2494,7 @@
         _sys_calendar_day = parseInt(pickDate);
         _calendar_picker_day = _sys_calendar_day;
         setPickerValue();
-        calendarOpen()
+        calendarOpen(false)
     }
 </script>
 
