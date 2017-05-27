@@ -2049,7 +2049,11 @@
 			var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 			var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
 			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();			
-			
+			if(dashboard_option == "2"){
+				my_feed_show = "1";
+				my_activities_show = "0";
+				is_my_feed_default = "1";	
+			}
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
 			var logo_url = $("#organizational_base_logo_url").val();
 						

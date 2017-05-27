@@ -774,8 +774,10 @@ a.btnx:hover,input[type=button].btnx:hover {
             % if OrganizationOK and data["My Activities Show"] == "1":
                 <div class="my-activity-btn" style="">My Activity</div>             
             % endif
-                <!--<div class="my-feed-btn mytab-active">My Feed</div>-->
-                <!--<div class="my-activity-btn" style="">My Activity</div>-->
+            % if not(OrganizationOK):
+                <div class="my-feed-btn mytab-active">My Feed</div>
+                <div class="my-activity-btn" style="">My Activity</div>
+            % endif
             </div>
             <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
