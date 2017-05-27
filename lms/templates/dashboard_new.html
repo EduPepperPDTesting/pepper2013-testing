@@ -10,6 +10,9 @@
     from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
     import datetime
+    
+    from student.models import State,District,School,User,UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem  
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -646,6 +649,43 @@ a.btnx:hover,input[type=button].btnx:hover {
 </style>
 <!--@end-->
 <%inherit file="main.html" />
+<%
+    OrganizationOK = False
+    if request.user.is_authenticated():            
+        try:
+            state_id = request.user.profile.district.state.id
+            district_id = request.user.profile.district.id
+            school_id = request.user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+                
+        data = {}
+        if OrganizationOK:
+            data["org_id"] = organization_obj.id;
+            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+%>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
 
@@ -728,8 +768,14 @@ a.btnx:hover,input[type=button].btnx:hover {
 
         <div class="con-maincontent-all clearfix">
             <div class="con-feed-activity">
-                <div class="my-feed-btn mytab-active">My Feed</div>
-                <div class="my-activity-btn" style="">My Activity</div>
+            % if OrganizationOK and data["My Feed Show"] == "1":
+                <div class="my-feed-btn mytab-active">My Feed</div>                
+            % endif
+            % if OrganizationOK and data["My Activities Show"] == "1":
+                <div class="my-activity-btn" style="">My Activity</div>             
+            % endif
+                <!--<div class="my-feed-btn mytab-active">My Feed</div>-->
+                <!--<div class="my-activity-btn" style="">My Activity</div>-->
             </div>
             <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
@@ -848,8 +894,11 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
-
-    var now_show = 1; //1:my feed;2:my activity
+    % if OrganizationOK and data["Is My Feed Default"] == "1":
+        var now_show = 1; //1:my feed;2:my activity
+    % else:
+        var now_show = 2; //1:my feed;2:my activity
+    % endif
     
     var data_all = 0;
     var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
