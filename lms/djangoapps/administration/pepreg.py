@@ -1363,9 +1363,9 @@ def download_calendar_pdf(request):
 
                 training = PepRegTraining.objects.get(id=training_id)
 
-                # try:
-                #     district = District.objects.get(id=training.district)
-                #     dist_name = district.name
+                try:
+                    district = District.objects.get(id=training.district)
+                    dist_name = district.name
                 #     try:
                 #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
                 #         c.drawImage(dist_logo, 30, 750, 200, 73)
@@ -1375,8 +1375,8 @@ def download_calendar_pdf(request):
                 #             c.drawImage(dist_logo, 30, 750, 200, 73)
                 #         except:
                 #             console.log('no logo')
-                # except:
-                #     console.log("couldn't load logo")
+                except:
+                    console.log("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description
