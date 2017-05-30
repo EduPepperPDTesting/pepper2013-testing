@@ -1899,6 +1899,7 @@
 	PepReg.prototype.openCalendar = function () {
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_old_month = _sys_calendar_month;
 		//if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
 		$("#calendar_select_range").find("li[value!='2']").filter(function() {
             return $(this).hasClass("list-active");
