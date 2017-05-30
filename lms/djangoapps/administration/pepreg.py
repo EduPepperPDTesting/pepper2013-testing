@@ -912,14 +912,14 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     nextMonth = "true"
                 else:
                     nextMonth = "false"
-                    if(go_forth == 1 and isweek and old_month <= month and week[0][0] <= day[0]):
+                    if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
                         thismonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
                     thismonth -= 1
                 else:
-                    if(go_back == 1 and isweek and old_month > month and week[0][0] > day[0] and dateToCompare < week[0][0]):
+                    if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
                         thismonth += 1
                     prevMonth = "false"
 
