@@ -923,6 +923,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         thismonth += 1
                     prevMonth = "false"
 
+                if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
+                    thismonth += 1
+
                 if thismonth == 13:
                     thismonth = 1
                     thisyear += 1
