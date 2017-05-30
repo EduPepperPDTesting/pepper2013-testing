@@ -664,7 +664,7 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_month;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_year, _old_month, _first_date;
 	var _calendar_date = new Date();
 	var _cal_view = "screen";
 	
@@ -1041,7 +1041,9 @@
             $("#calendar_select_range").val(rangeVal);
 
             if(_old_month != _sys_calendar_month){
+               _sys_calendar_year = _old_year;
                _sys_calendar_month = _old_month;
+               _sys_calendar_day = _first_date;
             }
 
 
@@ -2472,10 +2474,11 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew, sysmonth){
+    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew, sysmonth, firstdate, oldyear){
         event.preventDefault();
         console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
-
+        _old_year = oldyear;
+        _first_date = firstdate;
         var rangeVal = $("#calendar_select_range").val();
         if(rangeVal == "1" || rangeVal == "3"){
             console.log("old month-"+oldmonth +" new month-"+ newMonth + " old m < new m-"+oldlsnew + " old m > new m-"+oldgrnew + " sysmonth-"+sysmonth)
