@@ -1367,15 +1367,15 @@ def download_calendar_pdf(request):
                     # district = District.objects.get(id=training.district)
                     district = District.objects.get(id=training.district.id)
                     dist_name = district.name
-                    # try:
-                    #     dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                    #     c.drawImage(dist_logo, 30, 750, 200, 73)
-                    # except:
-                    #     try:
-                    #         dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                    #         c.drawImage(dist_logo, 30, 750, 200, 73)
-                    #     except:
-                    #         console.log('no logo')
+                    try:
+                        dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                        c.drawImage(dist_logo, 30, 750, 200, 73)
+                    except:
+                        try:
+                            dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                            c.drawImage(dist_logo, 30, 750, 200, 73)
+                        except:
+                            console.log('no logo')
                 except:
                     console.log("couldn't load logo")
 
