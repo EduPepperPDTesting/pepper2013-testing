@@ -1039,6 +1039,12 @@
             }
 
             $("#calendar_select_range").val(rangeVal);
+
+            if(_old_month != _sys_calendar_month){
+               _sys_calendar_month = _old_month;
+            }
+
+
             calendarOpen();
         });
 
