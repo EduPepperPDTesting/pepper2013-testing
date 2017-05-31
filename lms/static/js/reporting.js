@@ -71,8 +71,8 @@ function viewSelect(related_url, columns_url) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
                 var select = "<option value='none'>select...</option>";
-                for (var data in datas){
-                    select += "<option value="+datas[data].id+">"+datas[data].name+"</option>";
+                for (var value in data){
+                    select += "<option value="+data[value].id+">"+data[value].name+"</option>";
                 }
                 $("#Column_Headers").html(select)
                 $("#Row_Headers").html(select)
