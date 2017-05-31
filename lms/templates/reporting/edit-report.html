@@ -265,10 +265,14 @@
             $("#Standard").show();
             $("#Matrix").hide();
             viewSelect();
+            var view = $(".view-select").val();
+            $(".view-select").val(view);
         }else{
             $("#Standard").hide();
             $("#Matrix").show();
             viewSelect()
+            var view = $(".view-select").val();
+            $(".view-select").val(view);
         }
     })
 </script>
