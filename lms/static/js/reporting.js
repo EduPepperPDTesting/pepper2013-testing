@@ -40,6 +40,13 @@ function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
         var type = $("input[type='radio']:checked").val();
+        if(type == 'Standard'){
+            $("#Standard").show();
+            $("#Matrix").hide();
+        }else{
+            $("#Standard").hide();
+            $("#Matrix").show();
+        }
         $(this).nextAll('select').remove();
         var view_num = getLineNumber($(this).attr('name')) + 1;
         var view_id = $(this).val();

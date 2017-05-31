@@ -533,9 +533,13 @@ def report_view(request, report_id):
                     for col in selected_columns:
                         columns.append(col)
                 else:
-                    for col in reportmatrixcolumns:
-                        columns.append(col)
-
+                    column_headers = ViewColumns.objects.filter(id=reportmatrixcolumns.column_headers)[0]
+                    row_headers = ViewColumns.objects.filter(id=reportmatrixcolumns.row_headers)[0]
+                    aggregate_data = ViewColumns.objects.filter(id=reportmatrixcolumns.aggregate_data)[0]
+                    columns.append(column_headers)
+                    columns.append(row_headers)
+                    columns.append(aggregate_data)
+    
                 filters = []    
                 for f in report_filters:
                     filters.append(f)
