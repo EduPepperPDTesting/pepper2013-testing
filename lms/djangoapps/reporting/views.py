@@ -419,6 +419,23 @@ def report_save(request, report_id):
                     report_column.aggregate_type = 4   
                 report_column.save()
 
+                ReportViewColumns.objects.filter(report=report).delete()
+                Column_Headers = ReportViewColumns()
+                Column_Headers.report = report
+                Column_Headers.column = ViewColumns.objects.get(id=int(Column_Headers))
+                Column_Headers.order = 0
+                Column_Headers.save()
+                Row_Headers = ReportViewColumns()
+                Row_Headers.report = report
+                Row_Headers.column = ViewColumns.objects.get(id=int(Row_Headers))
+                Row_Headers.order = 1
+                Row_Headers.save()
+                Aggregate_Data = ReportViewColumns()
+                Aggregate_Data.report = report
+                Aggregate_Data.column = ViewColumns.objects.get(id=int(Aggregate_Data))
+                Aggregate_Data.order = 2
+                Aggregate_Data.save()
+
                 ReportFilters.objects.filter(report=report).delete()
                 for i, column in filter_columns.iteritems():
                     report_filter = ReportFilters()
@@ -501,10 +518,7 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
-        if report.report_type == 0:
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-        else:
-            reportmatrixcolumns = ReportMatrixColumns.objects.filter(report=report)
+        selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
         if report.access_level == 'System':
             allowed = True
         elif report.access_level == 'State' and request.user.profile.district.state.id == report.access_id:
@@ -529,17 +543,9 @@ def report_view(request, report_id):
                 selected_view = ReportViews.objects.filter(report=report)[0]
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
                 columns = []
-                if report.report_type == 0:
-                    for col in selected_columns:
-                        columns.append(col)
-                else:
-                    column_headers = ViewColumns.objects.filter(id=reportmatrixcolumns.column_headers)[0]
-                    row_headers = ViewColumns.objects.filter(id=reportmatrixcolumns.row_headers)[0]
-                    aggregate_data = ViewColumns.objects.filter(id=reportmatrixcolumns.aggregate_data)[0]
-                    columns.append(column_headers)
-                    columns.append(row_headers)
-                    columns.append(aggregate_data)
-    
+                for col in selected_columns:
+                    columns.append(col)
+                    
                 filters = []    
                 for f in report_filters:
                     filters.append(f)
