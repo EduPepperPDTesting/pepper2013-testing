@@ -39,64 +39,105 @@ var data_types = ['text', 'int', 'date', 'time', 'url', 'clk'];
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
-        $(this).nextAll('select').remove();
-        var view_num = getLineNumber($(this).attr('name')) + 1;
-        var view_id = $(this).val();
-        var self = this;
-        $.get(related_url, {view_id: view_id}, function (data) {
-            if (data.length) {
-                var dropdown = ' + <select class="view-select" name="view[' + view_num + ']">';
-                dropdown += '<option value="none">Select...</option>';
-                $.each(data, function (index, value) {
-                    dropdown += '<option value="' + value.id + '">' + value.name + '</option>';
-                });
-                dropdown += '</select>';
-                $(self).after(dropdown);
-                $('.view-select').off('change');
-                viewSelect(related_url, columns_url);
-            }
-        });
-
-        // Get the columns and add them to the column selector and filter dropdowns.
-        var views = $('.view-select').val();
-        var get_data = {};
-        /*
-        $.each(views, function (index, value) {
-            get_data['view[' + index + ']'] = value;
-        });
-        */
-        get_data['view[0]'] = views;
-        $.get(columns_url, get_data, function (data) {
-            // Add the checkbox selectors for the column selectors.
-            if (data.length) {
-                var second_column = Math.floor(data.length / 2);
-                var remainder = data.length % 2;
-                var first_column = second_column + remainder;
-
-                var columns = '<ul>';
-                for (var x = 0; x < data.length; x++) {
-                    if (x == first_column) {
-                        columns += '</ul><ul>';
-                    }
-                    columns += '<li><label>';
-                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '">';
-                    columns += ' <span class="column-name">' + data[x].name + '</span><span class="column-description"> - ' + data[x].description + '</span>';
-                    columns += '</label></li>';
+        var type = $("input[type='radio']:checked").val();
+        if(type == 'Standard'){
+            $(this).nextAll('select').remove();
+            var view_num = getLineNumber($(this).attr('name')) + 1;
+            var view_id = $(this).val();
+            var self = this;
+            $.get(related_url, {view_id: view_id}, function (data) {
+                if (data.length) {
+                    var dropdown = ' + <select class="view-select" name="view[' + view_num + ']">';
+                    dropdown += '<option value="none">Select...</option>';
+                    $.each(data, function (index, value) {
+                        dropdown += '<option value="' + value.id + '">' + value.name + '</option>';
+                    });
+                    dropdown += '</select>';
+                    $(self).after(dropdown);
+                    $('.view-select').off('change');
+                    viewSelect(related_url, columns_url);
                 }
-                columns += '</ul>';
-                $('.column-selector ul').not('#selected-columns').remove();
-                $('#selected-columns li').remove();
-                $('#order-title').after(columns);
-                columnChangeHandler();
-                descriptionPopups();
-            }
-            // Create the dropdown for the filters.
-            var options = '';
-            $.each(data, function (index, value) {
-                options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
             });
-            $('.filter-column').html(options);
-        });
+
+            // Get the columns and add them to the column selector and filter dropdowns.
+            var views = $('.view-select').val();
+            var get_data = {};
+            /*
+            $.each(views, function (index, value) {
+                get_data['view[' + index + ']'] = value;
+            });
+            */
+            get_data['view[0]'] = views;
+            $.get(columns_url, get_data, function (data) {
+                // Add the checkbox selectors for the column selectors.
+                if (data.length) {
+                    var second_column = Math.floor(data.length / 2);
+                    var remainder = data.length % 2;
+                    var first_column = second_column + remainder;
+
+                    var columns = '<ul>';
+                    for (var x = 0; x < data.length; x++) {
+                        if (x == first_column) {
+                            columns += '</ul><ul>';
+                        }
+                        columns += '<li><label>';
+                        columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '">';
+                        columns += ' <span class="column-name">' + data[x].name + '</span><span class="column-description"> - ' + data[x].description + '</span>';
+                        columns += '</label></li>';
+                    }
+                    columns += '</ul>';
+                    $('.column-selector ul').not('#selected-columns').remove();
+                    $('#selected-columns li').remove();
+                    $('#order-title').after(columns);
+                    columnChangeHandler();
+                    descriptionPopups();
+                }
+                // Create the dropdown for the filters.
+                var options = '';
+                $.each(data, function (index, value) {
+                    options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
+                });
+                $('.filter-column').html(options);
+            });
+        }
+        if(type=="Matrix"){ 
+            $(this).nextAll('select').remove();
+            var view_num = getLineNumber($(this).attr('name')) + 1;
+            var view_id = $(this).val();
+            var self = this;
+            $.get(related_url, {view_id: view_id}, function (data) {
+                if (data.length) {
+                    var dropdown = ' + <select class="view-select" name="view[' + view_num + ']">';
+                    dropdown += '<option value="none">Select...</option>';
+                    $.each(data, function (index, value) {
+                        dropdown += '<option value="' + value.id + '">' + value.name + '</option>';
+                    });
+                    dropdown += '</select>';
+                    $(self).after(dropdown);
+                    $('.view-select').off('change');
+                    viewSelect(related_url, columns_url);
+                }
+            });
+            var views = $('.view-select').val();
+            var get_data = {};
+            get_data['view[0]'] = views;
+            $.get(columns_url, get_data, function (datas) {
+                if (datas.length) {
+                    var select = "<option value='none'>select...</option>";
+                    for (var data in datas){
+                        select += "<option value="+datas[data].id+">"+datas[data].name+"</option>";
+                    }
+                    $("#Column_Headers").html(select)
+                    $("#Row_Headers").html(select)
+                    $("#Aggregate_Data").html(select)
+                    var options = '';
+                    $.each(datas, function (index, value) {
+                        options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
+                    });
+                    $('.filter-column').html(options);
+                }
+            });
+        }
     });
 }
 
