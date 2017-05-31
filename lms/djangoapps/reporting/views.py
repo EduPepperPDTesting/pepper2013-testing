@@ -420,21 +420,21 @@ def report_save(request, report_id):
                 report_column.save()
 
                 ReportViewColumns.objects.filter(report=report).delete()
-                Column_Headers = ReportViewColumns()
-                Column_Headers.report = report
-                Column_Headers.column = ViewColumns.objects.get(id=int(Column_Headers))
-                Column_Headers.order = 0
-                Column_Headers.save()
-                Row_Headers = ReportViewColumns()
-                Row_Headers.report = report
-                Row_Headers.column = ViewColumns.objects.get(id=int(Row_Headers))
-                Row_Headers.order = 1
-                Row_Headers.save()
-                Aggregate_Data = ReportViewColumns()
-                Aggregate_Data.report = report
-                Aggregate_Data.column = ViewColumns.objects.get(id=int(Aggregate_Data))
-                Aggregate_Data.order = 2
-                Aggregate_Data.save()
+                Column_Headers_object = ReportViewColumns()
+                Column_Headers_object.report = report
+                Column_Headers_object.column = ViewColumns.objects.get(id=int(Column_Headers))
+                Column_Headers_object.order = 0
+                Column_Headers_object.save()
+                Row_Headers_object = ReportViewColumns()
+                Row_Headers_object.report = report
+                Row_Headers_object.column = ViewColumns.objects.get(id=int(Row_Headers))
+                Row_Headers_object.order = 1
+                Row_Headers_object.save()
+                Aggregate_Data_object = ReportViewColumns()
+                Aggregate_Data_object.report = report
+                Aggregate_Data_object.column = ViewColumns.objects.get(id=int(Aggregate_Data))
+                Aggregate_Data_object.order = 2
+                Aggregate_Data_object.save()
 
                 ReportFilters.objects.filter(report=report).delete()
                 for i, column in filter_columns.iteritems():
@@ -545,7 +545,7 @@ def report_view(request, report_id):
                 columns = []
                 for col in selected_columns:
                     columns.append(col)
-                    
+
                 filters = []    
                 for f in report_filters:
                     filters.append(f)
