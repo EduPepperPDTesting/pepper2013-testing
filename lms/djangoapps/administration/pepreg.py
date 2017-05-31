@@ -1368,8 +1368,9 @@ def download_calendar_pdf(request):
 
                 try:
                     # district = District.objects.get(id=training.district)
-                    district = District.objects.get(id=training.district.id)
-                    dist_name = district.name
+                    #district = District.objects.get(id=training.district.id)
+                    #dist_name = district.name
+                    dist_name = training.district.name
                     #console.log("name "+str(district))
                     # try:
                     #     dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
