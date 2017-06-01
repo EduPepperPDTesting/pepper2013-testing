@@ -574,9 +574,9 @@ def report_view(request, report_id):
         return render_to_response('reporting/view-report.html', data)
     else:
         create_column_Headers(report,collection)
-        collection_column_Headers = collection_column_Headers(collection)
+        collection_column_headers = collection_column_headers(collection)
         rs = reporting_store()
-        column_headers = rs.get_column_Headers(collection_column_Headers)
+        column_headers = rs.get_column_headers(collection_column_headers)
         data = {'report': report,
                 'school_year': school_year,
                 'school_year_item': school_year_item,
@@ -1243,8 +1243,8 @@ def views_list(request):
 def get_column_Headers():
     pass
 
-def collection_column_Headers(collection):
-    return str(collection) + 'column_Header' 
+def collection_column_headers(collection):
+    return str(collection) + 'column_header' 
 
 def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers

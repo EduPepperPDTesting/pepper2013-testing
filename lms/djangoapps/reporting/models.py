@@ -130,7 +130,7 @@ class MongoReportingStore(object):
     #         set()
     #     )
     
-    def get_column_Headers(self,collection):
+    def get_column_headers(self,collection):
         self.set_collection(collection)
         return self.collection.find()
 
