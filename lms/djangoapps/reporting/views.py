@@ -574,9 +574,9 @@ def report_view(request, report_id):
         return render_to_response('reporting/view-report.html', data)
     else:
         create_column_Headers(report,collection)
-        collection_column_headers = collection_column_headers(collection)
+        collection_column_header = collection_column_headers(collection)
         rs = reporting_store()
-        column_headers = rs.get_column_headers(collection_column_headers)
+        column_headers = rs.get_column_headers(collection_column_header)
         data = {'report': report,
                 'school_year': school_year,
                 'school_year_item': school_year_item,
