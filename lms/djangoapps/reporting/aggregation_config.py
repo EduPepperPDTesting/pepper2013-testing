@@ -822,3 +822,19 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         }
     }
 },{pd_user_domain}{filters}{display_columns}{distinct}'''
+
+
+#get_create_column_Headers-------------------------------------------------------------------------------
+get_create_column_headers = '''
+    db.collection.aggregate([
+    {
+        $group:{
+            _id:{column_headers:"$column_headers"},
+            count:{$sum:1}
+        }
+    },
+    {
+        $out:"collection_column_headers"
+    }
+    ])
+'''

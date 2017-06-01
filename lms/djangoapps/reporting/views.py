@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig
+from .aggregation_config import AggregationConfig,get_create_column_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -573,9 +573,15 @@ def report_view(request, report_id):
                 'school_year_item': school_year_item}
         return render_to_response('reporting/view-report.html', data)
     else:
+        create_column_Headers(report,collection)
+        column_Headers = get_column_Headers(collection_column_Headers)
+        collection_column_Headers = collection_column_Headers(collection)
+        rs = reporting_store()
+        column_headers = rs.get_column_Headers(collection_column_Headers)
         data = {'report': report,
                 'school_year': school_year,
-                'school_year_item': school_year_item}
+                'school_year_item': school_year_item,
+                'column_headers':column_headers}
         return render_to_response('reporting/view-matrix-report.html', data)
 
 
@@ -1234,3 +1240,15 @@ def views_list(request):
 #     view_column_list = reporting.get_columns(view)
 #
 #     return render_json_response(view_column_list)
+
+def get_column_Headers():
+    pass
+
+def collection_column_Headers(collection):
+    return str(collection) + 'column_Headers' 
+
+def create_column_Headers(report,collection):
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
+    query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers)
+    get_aggregate(collection,query,report.distinct)

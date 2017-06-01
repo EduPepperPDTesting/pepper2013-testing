@@ -129,6 +129,10 @@ class MongoReportingStore(object):
     #         map(lambda d: d.keys(), self.collection.find()),
     #         set()
     #     )
+    
+    def get_column_Headers(self,collection):
+        self.set_collection(collection)
+        return self.collection.find()
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)
