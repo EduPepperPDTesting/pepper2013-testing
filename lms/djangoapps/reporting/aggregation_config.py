@@ -827,12 +827,12 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
 #get_create_column_Headers-------------------------------------------------------------------------------
 get_create_column_headers = '''
     {
-        $group:{
-            _id:{column_headers:"$column_headers"},
-            count:{$sum:1}
+        "$group":{
+            "_id":{"column_headers":"$column_headers"},
+            "count":{"$sum":1}
         }
     },
     {
-        $out:"collection_column_header"
+        "$out":"collection_column_header"
     }
 '''
