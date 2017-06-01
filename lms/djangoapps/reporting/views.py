@@ -1235,8 +1235,9 @@ def views_list(request):
 #
 #     return render_json_response(view_column_list)
 
-def get_column_headers(request, report_id):
+def get_column_headers(request):
     school_year = request.GET.get('school_year', '')
+    report_id = request.GET.get('report_id', '')
     collection = get_cache_collection(request, report_id, school_year)
     create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
