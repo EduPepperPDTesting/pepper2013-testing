@@ -826,7 +826,6 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
 
 #get_create_column_Headers-------------------------------------------------------------------------------
 get_create_column_headers = '''
-    db.collection.aggregate([
     {
         $group:{
             _id:{column_headers:"$column_headers"},
@@ -834,7 +833,6 @@ get_create_column_headers = '''
         }
     },
     {
-        $out:"collection_column_headers"
+        $out:"collection_column_header"
     }
-    ])
 '''
