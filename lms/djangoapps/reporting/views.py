@@ -1237,14 +1237,19 @@ def views_list(request):
 
 def get_column_headers(request):
     school_year = request.GET.get('school_year', '')
-    report_id = request.GET.get('report_id', '')
+    if school_year:
+        school_year = str(school_year).replace("-","_")
+    if school_year == "all":
+        school_year = ""
+
     collection = get_cache_collection(request, report_id, school_year)
+    report_id = request.GET.get('report_id', '')
+    report = Reports.objects.get(id=int(report_id))
     create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
     rs = reporting_store()
     column_headers = rs.get_column_headers(collection_column_header)
-    data = school_year
-    return render_json_response({'data': data})
+    return render_json_response({'data': column_headers})
 
 def collection_column_headers(collection):
     return str(collection) + 'column_header' 
