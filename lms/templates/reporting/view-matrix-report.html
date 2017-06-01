@@ -99,7 +99,7 @@
 <script type="text/javascript">
 $(document).ready(function () {
     var school_year = $(".school_year_select").val();
-    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function (data){
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(data){
         console.log(data)
     });
 })
