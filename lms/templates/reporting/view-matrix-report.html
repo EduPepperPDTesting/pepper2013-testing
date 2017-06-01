@@ -18,7 +18,12 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
-
+<script type="text/javascript">
+    var school_year = $(".school_year_select").val();
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function (data){
+        console.log(data)
+    });
+</script>
 <style>
     .lean-overlay .loading {
         width: 128px;
