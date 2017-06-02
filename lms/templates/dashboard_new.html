@@ -907,7 +907,7 @@ $(document).ready(function(){
     
     var data_all = 0;
     var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
-    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;"></div>';
+    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
     var data_loading = 0;
 
 
@@ -959,7 +959,7 @@ $(document).ready(function(){
         get_rows_scroll = 3;
         skip_rows_scroll = get_rows_init
         data_count = 0;
-        ////$(".info_div").html(html_loading);
+        $(".info_div").html(html_loading);
         $(".info_div").hide();
         $(window).scrollTop(0);
     }
@@ -984,7 +984,10 @@ $(document).ready(function(){
                 data_loading = 0;
                 if(data_all != 0){
                     $(".info_div").hide();
-                } 
+                }
+                else{
+                    $(".info_div").html(html_end);
+                }
         });
     }
 
@@ -1055,7 +1058,7 @@ $(document).ready(function(){
         displayDate = ""
 
         if(isToday(time)) {
-           displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+            displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
         }
         else{
             displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
