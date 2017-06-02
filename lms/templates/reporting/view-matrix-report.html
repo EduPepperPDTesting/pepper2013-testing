@@ -42,8 +42,10 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter">
-                <tr id="talbe_column"></tr>
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+                <thead id="talbe_column">
+                </thead>
+                <tbody></tbody>
             </table>
             </div>
         </div>
@@ -100,10 +102,13 @@
 $(document).ready(function () {
     var school_year = $(".school_year_select").val();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
-        var html = "";
+        column_header = datas.column_header;
+        datas = datas.data;
+        var html = "<th>"+column_header+"</th>";
         for (data in datas){
-            html += "<th>"+datas[data]+"</th>"
+            html += "<th>"+datas[data]+"</th>";
         }
+        html += "<th>Totol</th>";
         $("#talbe_column").html(html)
     });
 })
