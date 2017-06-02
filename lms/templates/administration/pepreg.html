@@ -1349,7 +1349,8 @@
                             //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
                             slIndex = existingSlots - 1;
                             //leftX = $(".completeSlot:eq(" + slIndex + ")").position().left + 110;
-                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + 110;
+                            lastWidth = $(".unique:has(.completeSlot)").last().find(".completeSlot").width();
+                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + (lastWidth + 5);
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
@@ -1358,7 +1359,7 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:110px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
                          + labelHtml + "</div>");
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
