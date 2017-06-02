@@ -18,7 +18,6 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
-
 <style>
     .lean-overlay .loading {
         width: 128px;
@@ -43,8 +42,10 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter">
-            
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+                <thead id="talbe_column">
+                </thead>
+                <tbody></tbody>
             </table>
             </div>
         </div>
@@ -97,3 +98,18 @@
     </div>
 </div>
 
+<script type="text/javascript">
+$(document).ready(function () {
+    var school_year = $(".school_year_select").val();
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
+        column_header = datas.column_header;
+        datas = datas.data;
+        var html = "<th>"+column_header+"</th>";
+        for (data in datas){
+            html += "<th>"+datas[data]+"</th>";
+        }
+        html += "<th>Totol</th>";
+        $("#talbe_column").html(html)
+    });
+})
+</script>

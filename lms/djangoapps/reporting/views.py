@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig
+from .aggregation_config import AggregationConfig,get_create_column_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -601,7 +601,7 @@ def report_get_rows(request):
     collection = get_cache_collection(request, report_id, school_year)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
-
+    
     for d in data:
         row = []
         for col in selected_columns:
@@ -1234,3 +1234,32 @@ def views_list(request):
 #     view_column_list = reporting.get_columns(view)
 #
 #     return render_json_response(view_column_list)
+
+def get_column_headers(request):
+    report_id = request.GET.get('report_id', '')
+    collection = get_cache_collection(request, report_id, '')
+    report = Reports.objects.get(id=int(report_id))
+    create_column_Headers(report,collection)
+    collection_column_header = collection_column_headers(collection)
+    rs = reporting_store()
+    data = rs.get_column_headers(collection_column_header)
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
+
+    row = []
+    for d in data:
+        row.append(d['_id'][column_header])
+
+    return render_json_response({'data': row,'column_header':column_header})
+
+def collection_column_headers(collection):
+    return str(collection) + '_column_header' 
+
+def create_column_Headers(report,collection):
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
+    query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    query = eval(query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,query,report.distinct)
