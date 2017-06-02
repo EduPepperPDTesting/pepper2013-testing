@@ -1433,13 +1433,13 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					for(var obj in r){
+					/*for(var obj in r){
 						if(obj.indexOf("_obj") > -1){
 							if(r[obj] == "-1"){
 								$("#" + obj).hide();
 							}
 						}
-					}
+					}*/
 					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}
