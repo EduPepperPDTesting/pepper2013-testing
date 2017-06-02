@@ -711,7 +711,7 @@
                 labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
                 labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
 			}
-			
+			//training slot mouseover
 			$(".alert").mouseover(function (e) {
 			    if($("#view_select").val() == "0"){
                     $("#calendar_alert_title").empty();
@@ -721,6 +721,7 @@
                         tmp1.top += 30;
                     }else{
                         tmp1.top = e.clientY + 30;
+                        tmp1.left = e.clientX;
                     }
                     tmp1.top -= $(document).scrollTop();
                     var tmp3 = $(this).attr("titlex").split("::");
