@@ -765,12 +765,12 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
-                        itemData = "<br/><div>Date: " + str(item.training_date)
+                        itemData = "<br/><div>" + str(item.training_date)
 
                         if not isday:
                             timeTxt = " From: "
                         else:
-                            timeTxt = "<br/>\nTime: "
+                            timeTxt = " at "
 
                         itemData += timeTxt + trainingStartTime
 
