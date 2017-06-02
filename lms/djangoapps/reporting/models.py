@@ -132,7 +132,7 @@ class MongoReportingStore(object):
     
     def get_column_headers(self,collection):
         self.set_collection(collection)
-        return self.collection.find()
+        return self.collection.find().sort('$natural', 1)
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)

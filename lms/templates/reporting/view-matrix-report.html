@@ -43,7 +43,7 @@
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
             <table class="tblReport tablesorter">
-            
+                <tr id="talbe_column"></tr>
             </table>
             </div>
         </div>
@@ -99,8 +99,12 @@
 <script type="text/javascript">
 $(document).ready(function () {
     var school_year = $(".school_year_select").val();
-    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(data){
-        console.log(data)
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
+        var html = "";
+        for (data in datas){
+            html += "<th>"+datas[data]+"</th>"
+        }
+        $("#talbe_column").html(html)
     });
 })
 </script>
