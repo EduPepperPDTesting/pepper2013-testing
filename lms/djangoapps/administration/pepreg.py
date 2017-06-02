@@ -765,18 +765,32 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
-                        itemData = "<br/><div>From: " + trainingStartTime + "<br/>\nTo: " + trainingEndTime
+                        if not isday:
+                            timeTxt = "From: "
+                        else:
+                            timeTxt = "Time: "
+
+                        itemData += "<br/><div>" + timeTxt + trainingStartTime
+
+                        if not isday:
+                            itemData += "<br/>\nTo: " + trainingEndTime
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
+
+                        if not isday:
+                            locTxt = "Classroom: "
+                        else:
+                            locTxt = "Location: "
+
                         titlex = titlex + "::" + item.classroom
-                        if isday: itemData += "<br/>\nClassroom: " + item.classroom
+                        if isday: itemData += "<br/>\n" + locTxt + item.classroom
 
                     if item.geo_location:
                         titlex = titlex + "::" + item.geo_location
-                        if isday: itemData += "<br/>\nLocation: " + item.geo_location
+                        # isday: itemData += "<br/>\nLocation: " + item.geo_location
 
                     if isday: itemData += "</div>"
 
