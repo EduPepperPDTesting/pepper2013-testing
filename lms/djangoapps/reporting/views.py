@@ -1244,13 +1244,14 @@ def get_column_headers(request):
     rs = reporting_store()
     data = rs.get_column_headers(collection_column_header)
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
     column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
 
     row = []
     for d in data:
         row.append(d['_id'][column_header])
 
-    return render_json_response({'data': row})
+    return render_json_response({'data': row,'column_header':column_header})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header' 
