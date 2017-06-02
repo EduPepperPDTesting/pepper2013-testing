@@ -601,7 +601,7 @@ def report_get_rows(request):
     collection = get_cache_collection(request, report_id, school_year)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
-
+    
     for d in data:
         row = []
         for col in selected_columns:
@@ -1242,11 +1242,18 @@ def get_column_headers(request):
     create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
     rs = reporting_store()
-    column_headers = rs.get_column_headers(collection_column_header)
-    return render_json_response({'data': column_headers})
+    data = rs.get_column_headers(collection_column_header)
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
+
+    row = []
+    for d in data:
+        row.append(d['_id'][column_header])
+
+    return render_json_response({'data': row})
 
 def collection_column_headers(collection):
-    return str(collection) + 'column_header' 
+    return str(collection) + '_column_header' 
 
 def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
