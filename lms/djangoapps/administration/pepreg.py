@@ -971,7 +971,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                     if not isday:
                         #sortedDay = sorted(day, key=itemgetter(3, 4))
-                        for tmp1 in sortedDay[1]:
+                        for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
                     if isday:
