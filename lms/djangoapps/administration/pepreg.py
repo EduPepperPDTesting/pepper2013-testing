@@ -47,7 +47,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from xmodule.remindstore import myactivitystore
 import logging
 
-from operator import attrgetter
+from operator import itemgetter
 
 @login_required
 def index(request):
@@ -970,7 +970,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
-                        sortedDay = sorted(day, key=attrgetter(day[3], day[4]))
+                        sortedDay = sorted(day, key=itemgetter(3, 4))
                         for tmp1 in sortedDay[1]:
                             table_tr_content += tmp1;
 
