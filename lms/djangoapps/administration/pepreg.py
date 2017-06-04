@@ -770,8 +770,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                         itemData = "<br/><div>" + str(item.training_date)
                     else:
-                        trainingStartHours.append(int(trainingStartTime[0:-6]))
-                        trainingEndHours.append(int(trainingEndTime[0:-6]))
+                        trainingStartHours.append(trainingStartTime[0:-6])
+                        trainingEndHours.append(trainingEndTime[0:-6])
 
                     if not isday:
                         timeTxt = " From: "
@@ -970,7 +970,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
-                        #sortedDay = sorted(day, key=itemgetter(3, 4))
+                        sortedDay = sorted(day, key=lambda day: int(day[3] + day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
