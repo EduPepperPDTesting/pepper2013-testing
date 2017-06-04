@@ -47,6 +47,8 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from xmodule.remindstore import myactivitystore
 import logging
 
+from operator import attrgetter
+
 @login_required
 def index(request):
     # courses = get_courses(request.user, request.META.get('HTTP_HOST'))
@@ -720,6 +722,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
         trainingEndHour = ""
         trainingStartHours = []
         trainingEndHours = []
+        sortedDay = []
 
         if day:
             if (isweek or isday):
@@ -766,16 +769,19 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingEndHours.append(trainingEndHour)
 
                         itemData = "<br/><div>" + str(item.training_date)
+                    else:
+                        trainingStartHours.append(int(trainingStartTime[0:-6]))
+                        trainingEndHours.append(int(trainingEndTime[0:-6]))
 
-                        if not isday:
-                            timeTxt = " From: "
-                        else:
-                            timeTxt = " at "
+                    if not isday:
+                        timeTxt = " From: "
+                    else:
+                        timeTxt = " at "
 
-                        itemData += timeTxt + trainingStartTime
+                    itemData += timeTxt + trainingStartTime
 
-                        if not isday:
-                            itemData += " To: " + trainingEndTime
+                    if not isday:
+                        itemData += " To: " + trainingEndTime
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
@@ -964,7 +970,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
-                        for tmp1 in day[1]:
+                        sortedDay = sorted(day, key=attrgetter(day[3], day[4]))
+                        for tmp1 in sortedDay[1]:
                             table_tr_content += tmp1;
 
                     if isday:
