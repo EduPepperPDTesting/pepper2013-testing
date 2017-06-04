@@ -970,7 +970,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
-                        sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
+                        #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
