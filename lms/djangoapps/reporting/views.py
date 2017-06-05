@@ -1264,12 +1264,12 @@ def get_column_headers(request):
     if aggregate_type_id == 1:
         for column in column_header_row:
             for row in row_data:
-            filter = {column_header:column,row_header:row}
-            count = rs.get_count(collection,filter)
-            data.append(count)
-        data.append(column[count])
+                filters = {column_header:column,row_header:row}
+                count = rs.get_count(collection,filters)
+                data.append(count)
+            data.append(column[count])
 
-    return render_json_response({'column_data': column_header_row,'column_header':column_header,'row_header':row_header_data})
+    return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header,'row_header':row_header_data})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'

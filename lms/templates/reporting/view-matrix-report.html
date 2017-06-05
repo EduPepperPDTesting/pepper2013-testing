@@ -103,13 +103,17 @@ $(document).ready(function () {
     var school_year = $(".school_year_select").val();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
         column_header = datas.column_header;
-        datas = datas.column_data;
+        column_datas = datas.column_data;
         var html = "<th>"+column_header+"</th>";
         for (data in datas){
             html += "<th>"+datas[data]+"</th>";
         }
         html += "<th>Totol</th>";
         $("#talbe_column").html(html)
+        row_data = datas.data
+        row_header = datas.row_header
+        console.log(row_data)
+        console.log(row_header)
     });
 })
 </script>
