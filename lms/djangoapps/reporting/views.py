@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -1262,12 +1262,13 @@ def get_column_headers(request):
 
     data = []
     if aggregate_type_id == 1:
-        for column in column_header_row:
-            for row in row_data:
-                filters = {column_header:column,row_header:row}
+        for row in row_data:
+            for column in column_header_row:
+                filters = {column_header:column,row_header:row['_id'][row_header]}
                 count = rs.get_count(collection,filters)
                 data.append(count)
-            data.append(column[count])
+            data.append(row_data[count])
+            data.append("|")
 
     return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header,'row_header':row_header_data})
 
