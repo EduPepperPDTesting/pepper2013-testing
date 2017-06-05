@@ -442,6 +442,7 @@
                 <td>
                 	<input id="organizational_dashboard_menu_text_color" type="color" />
                     <input id="organizational_dashboard_menu_text_color_icons" type="color" />
+                    <input id="organizational_dashboard_menu_text_color_me" type="color" />
                 </td>
                 <td></td>
             </tr>
@@ -492,6 +493,28 @@
                         <option value="Symbol, sans-serif">Symbol</option>
                         <option value="'Bookman Old Style', serif">Bookman Old Style</option>
                     </select>
+                    <select id="organizational_dashboard_menu_text_font_me">
+                        <option value="Arial, Helvetica, sans-serif">Arial</option>
+                        <option value="Arial Black’, Gadget, sans-serif">Arial Black</option>
+                        <option value="Arial Narrow’, sans-serif">Arial Narrow</option>
+                        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="'Trebuchet MS', Helvetica, sans-serif">Trebuchet MS</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                        <option value="Impact, Charcoal, sans-serif">Impact</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                        <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+                        <option value="Courier, monospace">Courier</option>
+                        <option value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif">Lucida Sans Unicode</option>
+                        <option value="'Lucida Console', Monaco, monospace">Lucida Console</option>
+                        <option value="Garamond, serif">Garamond</option>
+                        <option value="'MS Sans Serif', Geneva, sans-serif">MS Sans Serif</option>
+                        <option value="'MS Serif', 'New York', sans-serif">MS Serif</option>
+                        <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino Linotype</option>
+                        <option value="Symbol, sans-serif">Symbol</option>
+                        <option value="'Bookman Old Style', serif">Bookman Old Style</option>
+                    </select>
                 </td>
                 <td></td>
             </tr>
@@ -500,6 +523,7 @@
                 <td>
                 	<select id="organizational_dashboard_menu_text_size"></select>
                     <select id="organizational_dashboard_menu_text_size_icons"></select>
+                    <select id="organizational_dashboard_menu_text_size_me"></select>
                 </td>
                 <td></td>
             </tr>
@@ -652,6 +676,7 @@
 	for(var i = 9; i < 35; i++){
 		$("#organizational_dashboard_menu_text_size").append("<option value='" + i + "'>" + i + "</option>");
 		$("#organizational_dashboard_menu_text_size_icons").append("<option value='" + i + "'>" + i + "</option>");
+		$("#organizational_dashboard_menu_text_size_me").append("<option value='" + i + "'>" + i + "</option>");
 	}
 	
 	//-----------------------------------------------------------------------LoadingWin
@@ -1003,6 +1028,10 @@
 									$("#organizational_dashboard_menu_text_font_icons").val(r["Text Font Icons"]);
 									$("#organizational_dashboard_menu_text_size_icons").val(r["Text Size Icons"]);
 									
+									if(r["Text Color Me"])		$("#organizational_dashboard_menu_text_color_me").val(r["Text Color Me"]);
+									$("#organizational_dashboard_menu_text_font_me").val(r["Text Font Me"]);
+									$("#organizational_dashboard_menu_text_size_me").val(r["Text Size Me"]);
+									
 									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);									
 									$("input[name='organizational_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
 									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
@@ -1148,6 +1177,7 @@
 										$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
 										$("input[name='organizational_dashboard_on_menu'][value='0']").attr("checked", "checked");
 										
+
 										$("#organizational_menu_color").val("#ffffff");
 										$("#organizational_dashboard_menu_text_color").val("#ffffff");
 									}else{
@@ -2042,6 +2072,9 @@
 			var menu_text_color_icons = $("#organizational_dashboard_menu_text_color_icons").val();
 			var menu_text_font_icons = $("#organizational_dashboard_menu_text_font_icons").val();
 			var menu_text_size_icons = $("#organizational_dashboard_menu_text_size_icons").val();
+			var menu_text_color_me = $("#organizational_dashboard_menu_text_color_me").val();
+			var menu_text_font_me = $("#organizational_dashboard_menu_text_font_me").val();
+			var menu_text_size_me = $("#organizational_dashboard_menu_text_size_me").val();
 			
 			var space_between_items = $("#organizational_dashboard_space_between").val();				
 			
@@ -2077,6 +2110,9 @@
 				menu_text_color_icons: menu_text_color_icons,
 				menu_text_font_icons: menu_text_font_icons,
 				menu_text_size_icons: menu_text_size_icons,
+				menu_text_color_me: menu_text_color_me,
+				menu_text_font_me: menu_text_font_me,
+				menu_text_size_me: menu_text_size_me,
 				space_between_items: space_between_items,
 				org_logo_url: org_logo_url,
 				logo_url: logo_url,
@@ -2259,13 +2295,27 @@
 			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", false);
 			$(".org_td1_demo2").removeClass("organizational_dashboard_demo1");
 			
+			if(is_icon_width_text == "0"){
+				$("#organizational_dashboard_menu_text_color_icons").hide();
+				$("#organizational_dashboard_menu_text_font_icons").hide();
+				$("#organizational_dashboard_menu_text_size_icons").hide();
+				
+				$("#organizational_dashboard_menu_text_color_me").show();
+				$("#organizational_dashboard_menu_text_font_me").show();
+				$("#organizational_dashboard_menu_text_size_me").show();
+			}else{
+				$("#organizational_dashboard_menu_text_color_icons").show();
+				$("#organizational_dashboard_menu_text_font_icons").show();
+				$("#organizational_dashboard_menu_text_size_icons").show();
+				
+				$("#organizational_dashboard_menu_text_color_me").hide();
+				$("#organizational_dashboard_menu_text_font_me").hide();
+				$("#organizational_dashboard_menu_text_size_me").hide();
+			}
 			$("#organizational_dashboard_menu_text_color").hide();
 			$("#organizational_dashboard_menu_text_font").hide();
 			$("#organizational_dashboard_menu_text_size").hide();
 			
-			$("#organizational_dashboard_menu_text_color_icons").show();
-			$("#organizational_dashboard_menu_text_font_icons").show();
-			$("#organizational_dashboard_menu_text_size_icons").show();
 		}else{
 			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", true);
 			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
@@ -2277,9 +2327,13 @@
 			$("#organizational_dashboard_menu_text_color_icons").hide();
 			$("#organizational_dashboard_menu_text_font_icons").hide();
 			$("#organizational_dashboard_menu_text_size_icons").hide();
+			
+			$("#organizational_dashboard_menu_text_color_me").hide();
+			$("#organizational_dashboard_menu_text_font_me").hide();
+			$("#organizational_dashboard_menu_text_size_me").hide();
 		}
 		
-		if(is_icon == "1" && is_icon_width_text == "0"){
+		/*if(is_icon == "1" && is_icon_width_text == "0"){
 			$("#organizational_dashboard_menu_text_color").attr("disabled", true);
 			$("#organizational_dashboard_menu_text_font").attr("disabled", true);
 			$("#organizational_dashboard_menu_text_size").attr("disabled", true);
@@ -2295,7 +2349,7 @@
 			$("#organizational_dashboard_menu_text_font_icons").attr("disabled", false);
 			$("#organizational_dashboard_menu_text_size_icons").attr("disabled", false);
 			$(".org_td1_demo").removeClass("organizational_dashboard_demo1");
-		}
+		}*/
 	}
 	
 	//--------------------------selectPDTable

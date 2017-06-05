@@ -433,6 +433,9 @@ def organizational_save_base(request):
         menu_text_font_icons = request.POST.get("menu_text_font_icons", "")
         menu_text_size_icons = request.POST.get("menu_text_size_icons", "")
         space_between_items = request.POST.get("space_between_items", "")
+        menu_text_color_me = request.POST.get("menu_text_color_me", "")
+        menu_text_font_me = request.POST.get("menu_text_font_me", "")
+        menu_text_size_me = request.POST.get("menu_text_size_me", "")
         menu_color = request.POST.get("menu_color", "")
         is_new_menu = request.POST.get("is_new_menu", "")
         my_feed_show = request.POST.get("my_feed_show", "")
@@ -551,7 +554,16 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Text Font Icons", menu_text_font_icons) 
 
             # --------------OrganizationMenu Text Size Icons
-            org_OrganizationMenuSave(org_metadata, "Text Size Icons", menu_text_size_icons)       
+            org_OrganizationMenuSave(org_metadata, "Text Size Icons", menu_text_size_icons)    
+
+            # --------------OrganizationMenu Text Color Me
+            org_OrganizationMenuSave(org_metadata, "Text Color Me", menu_text_color_me) 
+
+            # --------------OrganizationMenu Text Font Me
+            org_OrganizationMenuSave(org_metadata, "Text Font Me", menu_text_font_me) 
+
+            # --------------OrganizationMenu Text Size Me
+            org_OrganizationMenuSave(org_metadata, "Text Size Me", menu_text_size_me)   
 
             # --------------OrganizationMenu Space Betwwen Items
             org_OrganizationMenuSave(org_metadata, "Space Betwwen Items", space_between_items)
