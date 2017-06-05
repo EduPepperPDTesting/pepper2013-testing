@@ -45,16 +45,9 @@
         <div class="body table_scroll">
             <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
                 <thead id="talbe_column">
-                    
-                    <th class="sorter-false filter-false table-menu" style="width:30px;">
-                        <a href="#" class="columnSelectorButton"></a>
-                    </th>
                 </thead>
                 <tbody id="table_data"></tbody>
             </table>
-            <div id="columnSelector" class="columnSelector">
-                <!-- this div is where the column selector is added -->
-            </div>
             </div>
         </div>
         <span class="footer">
@@ -162,9 +155,6 @@ $.extend($.tablesorter.themes.jui, {
             filter_reset: '.reset',
             filter_serversideFiltering: true,
             output_saveFileName: 'data.csv',
-            columnSelector_container : $('#columnSelector'),
-            columnSelector_columns : '',
-            columnSelector_mediaqueryName: 'All: '
         }
     };
 
@@ -218,7 +208,7 @@ $(document).ready(function () {
             }
         }
         aggregate_html += "</tr>";
-        $("#table_data").html(aggregate_html);
+        $("#table_data").append(aggregate_html);
         
     });
 })
