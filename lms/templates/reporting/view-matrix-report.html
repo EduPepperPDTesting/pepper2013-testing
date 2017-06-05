@@ -125,7 +125,7 @@ $.extend($.tablesorter.themes.jui, {
         even         : 'ui-widget-content', // even row zebra striping
         odd          : 'ui-state-default'   // odd row zebra striping
     });
-var pagerOptions = {
+    var pagerOptions = {
         container: $(".pager"),
         output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
         fixedHeight: false,
@@ -140,22 +140,25 @@ var pagerOptions = {
         size: 10,
         savePages: false
     };
-var tablesorterOptions = {
-    debug: false,
-    theme: 'jui',
-    headerTemplate : '{content} {icon}', // needed to add icon for jui theme
-    widthFixed: true,
-    widgets: ["zebra", "filter", "output", "uitheme"],
-    widgetOptions: {
-        filter_external: '',
-        filter_columnFilters: true,
-        filter_placeholder: {search: 'Search...'},
-        filter_saveFilters: false,
-        filter_reset: '.reset',
-        filter_serversideFiltering: true,
-        output_saveFileName: 'data.csv',
-    }
-};
+    var tablesorterOptions = {
+        debug: false,
+        theme: 'jui',
+        headerTemplate : '{content} {icon}', // needed to add icon for jui theme
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output", "columnSelector", "uitheme"],
+        widgetOptions: {
+            filter_external: '',
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false,
+            filter_reset: '.reset',
+            filter_serversideFiltering: true,
+            output_saveFileName: 'data.csv',
+            columnSelector_container : $('#columnSelector'),
+            columnSelector_columns : { '${len(display_columns)}': 'disable'},
+            columnSelector_mediaqueryName: 'All: '
+        }
+    };
 
 function safeJSON(j){
         j.csrfmiddlewaretoken="${csrf_token}";
@@ -181,10 +184,7 @@ function safeJSON(j){
     };
 
 $(document).ready(function () {
-    $(".tblReport").tablesorter().tablesorterPager();
-
     var school_year = $(".school_year_select").val();
-    
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
         column_header = datas.column_header;
         column_datas = datas.column_data;
@@ -196,7 +196,7 @@ $(document).ready(function () {
         }
         html += "<th>Totol</th>";
         $("#talbe_column").html(html)
-        
+        $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         var aggregate_html = "<tr>"
         for (data in row_data){
             if (row_data[data] != 'end'){
@@ -207,7 +207,8 @@ $(document).ready(function () {
         }
         aggregate_html += "</tr>";
         $("#table_data").html(aggregate_html);
-
+        var len = len(column_datas)
+        
     });
 })
 
