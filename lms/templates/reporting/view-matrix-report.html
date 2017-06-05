@@ -105,8 +105,8 @@ $(document).ready(function () {
         column_header = datas.column_header;
         column_datas = datas.column_data;
         var html = "<th>"+column_header+"</th>";
-        for (data in datas){
-            html += "<th>"+datas[data]+"</th>";
+        for (data in column_datas){
+            html += "<th>"+column_datas[data]+"</th>";
         }
         html += "<th>Totol</th>";
         $("#talbe_column").html(html)

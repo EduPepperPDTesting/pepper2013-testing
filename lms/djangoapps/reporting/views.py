@@ -1261,10 +1261,16 @@ def get_column_headers(request):
         row_header_data.append(d['_id'][row_header])
 
     data = []
+    log.debug('1111111111111111')
+    log.debug(aggregate_type_id)
     if aggregate_type_id == 1:
+        log.debug('1111111111111111')
+        log.debug(aggregate_type_id)
         for row in row_data:
             for column in column_header_row:
                 filters = {column_header:column,row_header:row['_id'][row_header]}
+                log.debug('1111111111111111')
+                log.debug(filters)
                 count = rs.get_count(collection,filters)
                 data.append(count)
             data.append(row_data[count])
