@@ -1267,7 +1267,6 @@ def get_column_headers(request):
             for column in column_header_row:
                 filters = {column_header:column,row_header:d['_id'][row_header]}
                 count = rs.get_count(collection,filters)
-                data.append(d['_id'][row_header])
                 data.append(count)
             data.append(d['count'])
             data.append("end")
