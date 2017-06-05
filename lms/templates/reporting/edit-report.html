@@ -66,7 +66,7 @@
                 %endfor
             %endif
         </div>
-        <div class="edit-block column-selector">
+        <div class="edit-block column-selector" id="Standard">
             <h2>Select Columns</h2>
             <div id="order-title">Select columns to show in the report: <label><input type="checkbox" id="column-select-all"> Select All</label><div>Column order:</div></div>
             %if action == 'edit':
@@ -96,6 +96,23 @@
                 <ul id="selected-columns"></ul>
             %endif
             <div class="clearfix"></div>
+        </div>
+        <div class="edit-block column-selector" id="Matrix" style="display: none;">
+            <h2>Select Columns</h2>
+                <span>Column Headers:</span>
+                <span style="margin-left:200px;">Row Headers:</span>
+                <span style="margin-left:200px;">Aggregate Data:</span>
+                <span style="margin-left:200px;">Aggregate Type: </span> <br><br>
+                <select name="Column_Headers" id="Column_Headers" style="width:200px;"></select>
+                <select style="margin-left:130px;width:200px;" name="Row_Headers" id="Row_Headers"></select>
+                <select style="margin-left:100px;width:200px;" name="Aggregate_Data" id="Aggregate_Data"></select>
+                <select style="margin-left:120px;" name="Aggregate_Type">
+                    <option value="Sum">Sum</option>
+                    <option value="Count">Count</option>
+                    <option value="Average">Average</option>
+                    <option value="Max">Max</option>
+                    <option value="Min">Min</option>
+                </select>
         </div>
         <div class="edit-block where-selector">
             <h2>Select Filters</h2>
@@ -241,4 +258,17 @@
         descriptionPopups();
         selectAll('#column-select-all', '.column-check');
     });
+    
+    $("input[type='radio']").change(function(){
+        var type = $("input[type='radio']:checked").val();
+        if(type == 'Standard'){
+            $("#Standard").show();
+            $("#Matrix").hide();
+            viewSelect();
+        }else{
+            $("#Standard").hide();
+            $("#Matrix").show();
+            viewSelect();
+        }
+    })
 </script>

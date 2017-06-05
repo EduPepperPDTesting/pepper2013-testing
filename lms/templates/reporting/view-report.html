@@ -232,7 +232,7 @@
         show_progress: function(obj){
             var self = this;
             $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
-                if (data != null) {					
+                if (data != null) {                 
                     if(data.success)
                     {
                         obj.reloadTable()
@@ -240,15 +240,15 @@
                         loadwin.hide();
                         $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
                             set_custome_filters($(".tblReport"), data.data);
-							
-							$(".tablesorter-header-inner").each(function(){
-								var tmp1 = $(this).text().trim();
-								if(tmp1 == "District"){
-									$(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
-								}else if(tmp1 == "School"){
-									$(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
-								}
-							});
+                            
+                            $(".tablesorter-header-inner").each(function(){
+                                var tmp1 = $(this).text().trim();
+                                if(tmp1 == "District"){
+                                    $(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }else if(tmp1 == "School"){
+                                    $(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }
+                            });
                         });
                     }
                 }

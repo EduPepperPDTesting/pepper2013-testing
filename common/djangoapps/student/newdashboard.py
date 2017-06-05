@@ -313,8 +313,16 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
-    store = dashboard_feeding_store()
-    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+
+    #store = dashboard_feeding_store()
+    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    feeding_year_start, feeding_year_end = None, None
+
+    #@begin:get my_activity filter year range
+    #@date:2017-05-27
+    my_activity_year_start, my_activity_year_end = myactivitystore().get_my_activity_year_range()
+    #@end
+
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
@@ -324,7 +332,9 @@ def newdashboard(request, user_id=None):
         'allowedcourses': allowedcourse_list,
         'community_trending_topics': communit_tt_list,
         'feeding_year_start': feeding_year_start,
-        'feeding_year_end': feeding_year_end
+        'feeding_year_end': feeding_year_end,
+        'my_activity_year_start': my_activity_year_start,
+        'my_activity_year_end': my_activity_year_end
     }    
     
     return render_to_response('dashboard_new.html', context)
@@ -527,9 +537,13 @@ def create_filter_key(filter_con):
         time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
     elif filter_month:
+        year_0, year_now = myactivitystore().get_my_activity_year_range()
+        if not year_0:
+            year_0 = 2000
+        if not year_now:
+            year_now = 2000
+
         filter_key["$or"] = []
-        year_0 = 2014
-        year_now = int(datetime.datetime.utcnow().strftime("%Y"))
         while year_0 <= year_now:
             if filter_month == "12":
                 month1 = "%02d" %int(filter_month)

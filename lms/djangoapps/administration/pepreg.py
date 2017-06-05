@@ -47,6 +47,8 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from xmodule.remindstore import myactivitystore
 import logging
 
+from operator import itemgetter
+
 @login_required
 def index(request):
     # courses = get_courses(request.user, request.META.get('HTTP_HOST'))
@@ -720,6 +722,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
         trainingEndHour = ""
         trainingStartHours = []
         trainingEndHours = []
+        sortedDay = []
 
         if day:
             if (isweek or isday):
@@ -765,18 +768,37 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
-                        itemData = "<br/><div>From: " + trainingStartTime + "<br/>\nTo: " + trainingEndTime
+                        itemData = "<br/><div>" + str(item.training_date)
+                    else:
+                        trainingStartHours.append(trainingStartTime[0:-6])
+                        trainingEndHours.append(trainingEndTime[0:-6])
+
+                    if not isday:
+                        timeTxt = " From: "
+                    else:
+                        timeTxt = " at "
+
+                    itemData += timeTxt + trainingStartTime
+
+                    if not isday:
+                        itemData += " To: " + trainingEndTime
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
+
+                        if not isday:
+                            locTxt = " Classroom: "
+                        else:
+                            locTxt = "<br/>\nLocation: "
+
                         titlex = titlex + "::" + item.classroom
-                        if isday: itemData += "<br/>\nClassroom: " + item.classroom
+                        itemData += locTxt + item.classroom
 
                     if item.geo_location:
                         titlex = titlex + "::" + item.geo_location
-                        if isday: itemData += "<br/>\nLocation: " + item.geo_location
+                        if not isday: itemData += " Location: " + item.geo_location
 
                     if isday: itemData += "</div>"
 
@@ -912,16 +934,19 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     nextMonth = "true"
                 else:
                     nextMonth = "false"
-                    if(go_forth == 1 and isweek and old_month <= month and week[0][0] <= day[0]):
+                    if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
                         thismonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
                     thismonth -= 1
                 else:
-                    if(go_back == 1 and isweek and old_month > month and week[0][0] > day[0] and dateToCompare < week[0][0]):
+                    if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
                         thismonth += 1
                     prevMonth = "false"
+
+                if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
+                    thismonth += 1
 
                 if thismonth == 13:
                     thismonth = 1
@@ -930,7 +955,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     thismonth = 12
                     thisyear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ", " + str(week[0][0]) + ", " + str(year) + ")'"
             else:
                 clickFunc = ""
 
@@ -945,6 +970,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
+                        #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
@@ -1363,20 +1389,23 @@ def download_calendar_pdf(request):
 
                 training = PepRegTraining.objects.get(id=training_id)
 
-                # try:
-                #     district = District.objects.get(id=training.district)
-                #     dist_name = district.name
-                #     try:
-                #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #         c.drawImage(dist_logo, 30, 750, 200, 73)
-                #     except:
-                #         try:
-                #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #             c.drawImage(dist_logo, 30, 750, 200, 73)
-                #         except:
-                #             console.log('no logo')
-                # except:
-                #     console.log("couldn't load logo")
+                try:
+                    # district = District.objects.get(id=training.district)
+                    #district = District.objects.get(id=training.district.id)
+                    #dist_name = district.name
+                    dist_name = training.district.name
+                    console.log("name "+str(dist_name))
+                    # try:
+                    #     dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                    #     c.drawImage(dist_logo, 30, 750, 200, 73)
+                    # except:
+                    #     try:
+                    #         dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                    #         c.drawImage(dist_logo, 30, 750, 200, 73)
+                    #     except:
+                    #         console.log('no logo')
+                except:
+                    console.log("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description

@@ -225,29 +225,29 @@
                        width="" cellspacing="" cellpadding="" border=""
                        ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                     <thead>
-                    <tr>
-                        <th class="sorter-false filter-false">Edit/Delete</th>
-                        <th>State</th>
-                        <th>District</th>
-                        <th>Subject</th>
-                        <th>Course</th>
-                        <th>Training Name</th>
-                        <th>Description</th>
-                        <th>Training Date</th>
-                        <th>Training Start Time</th>
-                        <th>Training End Time</th>
-                        <th>Training Location</th>
-                        <th>Hours</th>
-                        <th class="sorter-false">Instructors</th>
-                        <th class="sorter-false">Creator</th>
-                        <th class="sorter-false">Register/Record Attendance</th>
-                        <th class="sorter-false filter-false table-menu" style="width:10px;">
-                            <div style="width:18px;height:20px;">
-                                <label class="columnSelectorButton" for="colSelect1"></label>
-                            </div>
-                        </th>
-                    </tr>
-                    </thread>
+                        <tr>
+                            <th class="sorter-false filter-false">Edit/Delete</th>
+                            <th>State</th>
+                            <th>District</th>
+                            <th>Subject</th>
+                            <th>Course</th>
+                            <th>Training Name</th>
+                            <th>Description</th>
+                            <th>Training Date</th>
+                            <th>Training Start Time</th>
+                            <th>Training End Time</th>
+                            <th>Training Location</th>
+                            <th>Hours</th>
+                            <th class="sorter-false">Instructors</th>
+                            <th class="sorter-false">Creator</th>
+                            <th class="sorter-false">Register/Record Attendance</th>
+                            <th class="sorter-false filter-false table-menu" style="width:10px;">
+                                <div style="width:18px;height:20px;">
+                                    <label class="columnSelectorButton" for="colSelect1"></label>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
                     <tbody id="user_data_tbody"></tbody>
                 </table>
             </div>
@@ -664,12 +664,12 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_month;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_year, _old_month, _first_date;
 	var _calendar_date = new Date();
 	var _cal_view = "screen";
 	
 	//-----------------------------------------------calendarOpen
-	function calendarOpen(goback = "false", goforth = "true"){
+	function calendarOpen(goback = "false", goforth = "false"){
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
@@ -711,7 +711,7 @@
                 labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
                 labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
 			}
-			
+			//training slot mouseover
 			$(".alert").mouseover(function (e) {
 			    if($("#view_select").val() == "0"){
                     $("#calendar_alert_title").empty();
@@ -721,6 +721,7 @@
                         tmp1.top += 30;
                     }else{
                         tmp1.top = e.clientY + 30;
+                        tmp1.left = e.clientX;
                     }
                     tmp1.top -= $(document).scrollTop();
                     var tmp3 = $(this).attr("titlex").split("::");
@@ -1039,6 +1040,14 @@
             }
 
             $("#calendar_select_range").val(rangeVal);
+
+            if(_old_month != _sys_calendar_month){
+               _sys_calendar_year = _old_year;
+               _sys_calendar_month = _old_month;
+               _sys_calendar_day = _first_date;
+            }
+
+
             calendarOpen();
         });
 
@@ -1341,7 +1350,8 @@
                             //leftX = $(".completeSlot:not(#" + iClass + ")").last().offset().left + 105;
                             slIndex = existingSlots - 1;
                             //leftX = $(".completeSlot:eq(" + slIndex + ")").position().left + 110;
-                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + 110;
+                            lastWidth = $(".unique:has(.completeSlot)").last().find(".completeSlot").width();
+                            leftX = $(".unique:has(.completeSlot)").last().find(".completeSlot").position().left + (lastWidth + 5);
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
@@ -1350,7 +1360,7 @@
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:110px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
                          + labelHtml + "</div>");
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
@@ -1899,6 +1909,7 @@
 	PepReg.prototype.openCalendar = function () {
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_old_month = _sys_calendar_month;
 		//if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
 		$("#calendar_select_range").find("li[value!='2']").filter(function() {
             return $(this).hasClass("list-active");
@@ -2465,10 +2476,11 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew, sysmonth){
+    function pickDayOnClick(event, pickDate, newMonth, dayYear, nextMonth, prevMonth, dateToCompare, oldmonth, oldlsnew, oldgrnew, sysmonth, firstdate, oldyear){
         event.preventDefault();
         console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
-
+        _old_year = oldyear;
+        _first_date = firstdate;
         var rangeVal = $("#calendar_select_range").val();
         if(rangeVal == "1" || rangeVal == "3"){
             console.log("old month-"+oldmonth +" new month-"+ newMonth + " old m < new m-"+oldlsnew + " old m > new m-"+oldgrnew + " sysmonth-"+sysmonth)
