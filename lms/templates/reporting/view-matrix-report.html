@@ -195,8 +195,6 @@ $(document).ready(function () {
         html += "<th>Totol</th>";
         $("#talbe_column").html(html)
 
-        tablesorterOptions.widgetOptions.columnSelector_columns = { column_datas.length: 'disable'}
-
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 
         var aggregate_html = "<tr>"
