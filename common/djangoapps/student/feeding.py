@@ -145,12 +145,20 @@ class DashboardFeedingStore(MongoBaseStore):
             results.append(p)
         return results
 
-    def create(self, user_id, type, content, date, receivers=[],
-               sub_of=None, top_level=None, expiration_date=None, images=None, **kwargs):
-        data = {"type": type, "user_id": user_id, "content": content, "receivers": receivers, "date": date}
+    def create(self, user_id, type, content, date, receivers=[], attachment_file=None,
+               sub_of=None, top_level=None, expiration_date=None, **kwargs):
+        data = {
+            "type": type,
+            "user_id": user_id,
+            "content": content,
+            "receivers": receivers,
+            "date": date}
 
         data.update(kwargs)
-
+        
+        if attachment_file:
+            data["attachment_file"] = attachment_file
+            
         if sub_of:
             data["sub_of"] = ObjectId(sub_of)
 
@@ -159,9 +167,6 @@ class DashboardFeedingStore(MongoBaseStore):
 
         if expiration_date:
             data["expiration_date"] = expiration_date
-
-        if images:
-            data["images"] = images
 
         return self.insert(data)
 

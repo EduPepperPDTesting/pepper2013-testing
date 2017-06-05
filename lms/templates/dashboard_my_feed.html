@@ -84,6 +84,12 @@ from permissions.utils import check_access_level, check_user_perms
    font-weight: normal;
    font-style:normal;
  }
+ td.no-search-results{
+   text-align:center;
+   font-weight:bold;
+   font-size:20px;
+   padding-bottom:30px;
+ }
 </style>
 <script type="text/javascript">
   String.prototype.escape = function(chars, slashed) {
@@ -170,7 +176,7 @@ from permissions.utils import check_access_level, check_user_perms
       </tr>
     </table>
 
-    <table style="width:240px;float:right;" border="0">
+    <table style="width:200px;float:right;" border="0">
       <tr>
         <td width="" align="left">
           <a href = "#" style="color:#06e !important;" id = "add_post_image">
@@ -181,10 +187,8 @@ from permissions.utils import check_access_level, check_user_perms
       </tr>
       <tr id="add_images_div" style="display:none;">
         <td style="" colspan="2">
-          <input id="image_link_input" type="text" 
-                 placeholder="Enter Image Link Here"
-                 style="padding:2px;font-style:normal;height:25px;font-size:14px;width:160px;"/>
-          <label class="myfeed-label"><input id="embed_checkbox" name="" type="checkbox" autocomplete="off"/> Embed</label>
+          <input id="image_link_input" type="file" placeholder=""
+                 style="padding:2px;font-style:normal;width:190px;"/>
         </td>
       </tr>
       <tr>
@@ -344,7 +348,10 @@ from permissions.utils import check_access_level, check_user_perms
           </tr>
           <tr>
             <td colspan="2">
-              <div style="width:650px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding:3px 0;">{content}</div>
+  <div style="width:650px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding:3px 0;">{content}</div>
+  <div id="">
+    {attachment}
+  </div>
               <div>
                 <div style="text-align:right;padding-right:30px;">
                   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
@@ -399,33 +406,33 @@ from permissions.utils import check_access_level, check_user_perms
   </table>
   </div>
 </script>
-<script type="text/javascript">  
+<script type="text/javascript">
   function renderTopAnnouncement(p){
+    p.content = translateImages(p.content)
     var template = $("#top-announcement-template").html();
     $('#announcement_content_table').append(template.fillData(p));   
   }
-  function translateImages(p){
-    if(p["images"]){
-      var image_code = "";
-      $.each(p["images"], function(i, image){
-        if(!image.link) return false;
-        if(image.link.indexOf("youtube") > -1){
-          image_code = "<br><br><iframe src='"+image.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>";
-        }else if(image.link.indexOf("youtu.be") > -1){
-          image_code = "<br><br><iframe src='"+image.link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>";
-        }else if(image.embed){
-          image_code = "<span class='img-span-code'><img src='" + image.link + "' style='max-width:400px;max-height:400px;'></img></span>";
-        }else{
-          image_code += "<p><a style='word-wrap: break-word;' href='" + image.link + "'>" + image.link + "</a></p>";
-        }
-      });
+  function translateImages(content){
+    return content.replace(/(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/g, function(link){
+      image_code = link;
+      if(link.indexOf("youtube") > -1){
+        image_code = "<br><br><iframe src='"+link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>";
+      }else if(link.indexOf("youtu.be") > -1){
+        image_code = "<br><br><iframe src='"+link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>";
+      }else{
+        image_code = "<span class='img-span-code'><img src='" + link + "' style='max-width:400px;max-height:400px;'></img></span>";
+      //}else{
+        //image_code += "<p><a style='word-wrap: break-word;' href='" + link + "'>" + link + "</a></p>";
+      }
       return image_code;
-    }
-    return ""
+    });
   }
   function renderTopPost(p, $row){
     var template = $("#top-post-template").html();
     // rendering
+
+    p.content = translateImages(p.content)
+
     if($row){
       $row.replaceWith(template.fillData(p));
     }else{
@@ -470,9 +477,10 @@ from permissions.utils import check_access_level, check_user_perms
       var local_time =  new Date();
       var local_utc_diff_m = -1 * local_time.getTimezoneOffset();      
       $.post("${reverse('dashboard_get_post')}", {_id: _id, local_utc_diff_m: local_utc_diff_m}, function(post){
-        post["image_code"] = translateImages(post);
+        // post["image_code"] = translateImages(post);
         // show post and comments
         var template_post = $("#post-template").html();
+        post.content = translateImages(post.content)
         var c = template_post.fillData(post);
         $content_area.append(c);
         $("#fixed-dialog-posts .dialog-title").html("Comments (" + (post.sub.length + 1) + ")");
@@ -702,6 +710,7 @@ from permissions.utils import check_access_level, check_user_perms
             $content_area.html("");
             var template_post = $("#announcement-template").html();
             $.each(d, function(i, p){
+              p.content = translateImages(p.content)
               var c = template_post.fillData(p);
               $content_area.append(c);
             });
@@ -753,12 +762,20 @@ from permissions.utils import check_access_level, check_user_perms
       local_utc_diff_m: local_utc_diff_m};
     next_page ++;
     $.post("${reverse('dashboard_get_posts')}", params, function (posts){
+
+      if(!is_continue && posts.length<1){
+        $(".post-content-row.post").remove(); 
+        $("<tr class='post-content-row post'><td class='no-search-results'>No Search Results Found</td></tr>").appendTo($("#post_content_table"));
+      }
+      
       $("#posts_loading_image").hide();
       $.each(posts, function(i, post){
         p = post.sub.length ? post.sub[post.sub.length-1]:post;
         p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
         p.feeding_count = post.sub.length + 1;
         p.post_id=post._id
+        if(p.attachment_file)
+          p.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + post._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"
         renderTopPost(p);
       });
       if(posts.length > 0) {
@@ -827,11 +844,6 @@ from permissions.utils import check_access_level, check_user_perms
     });
     $("#submit_new_post_button").click(function(){
       var post = $("#new_post_textarea").val().htmlEncode();
-      var images = $("#image_link_input").val()
-      var include_images = "no"
-      if (images != ""){
-        include_images = "yes";
-      }
       // check feilds for announcement
       var is_announce = $("#announce-checkbox").is(":checked");
       var announce_expir_date = $("#announce-expir-date").val();
@@ -850,16 +862,45 @@ from permissions.utils import check_access_level, check_user_perms
       $("#announce-expir-date").val("");
       // $('#announce-checkbox').prop('checked', false);
       $("#new_post_textarea").val("");
-      $("#image_link_input").val("");
-      $.post("${reverse('dashboard_submit_new_post')}",
-             {post: post, 
-              type: is_announce? "announcement":"post", expiration_date: announce_expir_date,
-              include_images: include_images, embed:embed, images:images}, function (data) {
-                if(is_announce)
-                  getTopAnnouncements();
-                else
-                  getTopPosts();
-              });
+      
+      var fd = new FormData();
+      if($("#image_link_input")[0].files.length > 0){
+        fd.append('attachment', $("#image_link_input")[0].files[0]);
+      }
+      fd.append('post', post)
+      fd.append('type', is_announce? "announcement":"post")
+      fd.append('expiration_date', announce_expir_date)
+      $.ajax({
+        url: "${reverse('dashboard_submit_new_post')}",
+        data: fd,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        //Before 1.5.1 you had to do this:
+        beforeSend: function (x) {
+          if (x && x.overrideMimeType) {
+            x.overrideMimeType("multipart/form-data");
+          }
+        },
+        enctype: 'multipart/form-data',
+        mimeType: 'multipart/form-data',
+        success: function(data){
+          if(is_announce)
+            getTopAnnouncements();
+          else
+            getTopPosts();
+        }
+      });
+      
+      /* $.post("${reverse('dashboard_submit_new_post')}",
+       *        {post: post, 
+       *         type: is_announce? "announcement":"post", expiration_date: announce_expir_date,
+       *         include_images: include_images, embed:embed, images:images}, function (data) {
+       *           if(is_announce)
+       *             getTopAnnouncements();
+       *           else
+       *             getTopPosts();
+       *         });*/
     });
     // start
     getTopAnnouncements();

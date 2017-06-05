@@ -43,6 +43,9 @@ from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
 from django.http import HttpResponseRedirect
 from communities.views import get_trending
+from mongo_user_store import MongoUserStore
+from django.conf import settings
+from bson import ObjectId
 
 log = logging.getLogger("tracking")
 
@@ -311,9 +314,8 @@ def newdashboard(request, user_id=None):
     #@end
 
 
-    #store = dashboard_feeding_store()
-    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    feeding_year_start, feeding_year_end = None, None
+    store = dashboard_feeding_store()
+    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
@@ -853,6 +855,22 @@ def get_comment(request):
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
+def download_attachment(request):
+    feeding_id = request.GET.get("feeding_id")
+
+    store = dashboard_feeding_store()
+    feeding = store.get_feeding(feeding_id)
+    
+    options = settings.USERSTORE.get("OPTIONS")
+    us = MongoUserStore(**options)
+    content = us.find_one(ObjectId(feeding_id), 'feeding_attachment')
+    response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=%s' % feeding["attachment_file"]
+    if content:
+        response.write(content.get("data"))
+    return response
+
+
 def get_posts(request):
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
@@ -1008,10 +1026,10 @@ def submit_new_comment(request):
 
     postPublisher_id = int(store.get_feeding(post_id)['user_id'])
     rs = myactivitystore()
-    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-    "URLValues": {"postPublisher_id": postPublisher_id},
-    "TokenValues": {"postPublisher_id":postPublisher_id}, 
-    "LogoValues": {"postPublisher_id": postPublisher_id}}
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                   "URLValues": {"postPublisher_id": postPublisher_id},
+                   "TokenValues": {"postPublisher_id": postPublisher_id},
+                   "LogoValues": {"postPublisher_id": postPublisher_id}}
     rs.insert_item(my_activity)
 
     _id = store.create(user_id=request.user.id,
@@ -1019,6 +1037,7 @@ def submit_new_comment(request):
                        content=content,
                        sub_of=post_id, top_level=post_id,
                        date=datetime.datetime.utcnow())
+
     return HttpResponse(json_util.dumps({'Success': 'True', '_id': _id}), content_type='application/json')
 
 
@@ -1051,46 +1070,46 @@ def get_full_likes(request):
     return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
 
 
+def upload_attachment(feeding_id, attachment):
+    options = settings.USERSTORE.get("OPTIONS")
+    us = MongoUserStore(**options)
+    _id = {"ref_id": ObjectId(feeding_id), "type": "feeding_attachment"}
+    us.save(_id, attachment.read())
+
+
 def submit_new_post(request):
     store = dashboard_feeding_store()
-    content = parse_urls(request.POST.get("post", ""))
+    content = request.POST.get("post", "")
+    attachment = request.FILES.get('attachment')
 
     type = request.POST.get("type")
     expiration_date = request.POST.get("expiration_date", None)
     expiration_date = datetime.datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S") if expiration_date else None
 
-    images = []
-
-    if request.POST.get('include_images') == "yes":
-        for image in request.POST.get('images', "").split(','):
-            image = image.rstrip('/').rstrip('\\')
-            ext = image[-3:]
-            data = {"link": image}
-            if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image) or ("youtu.be" in image):
-                data["embed"] = int(request.POST.get('embed'))
-            else:
-                data["embed"] = 0
-            images.append(data)
-
     rs = myactivitystore()
-    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_publishPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-    "URLValues": {"postPublisher_id": request.user.id},
-    "TokenValues": {"postPublisher_id":request.user.id}, 
-    "LogoValues": {"postPublisher_id": request.user.id}}
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_publishPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                   "URLValues": {"postPublisher_id": request.user.id},
+                   "TokenValues": {"postPublisher_id": request.user.id},
+                   "LogoValues": {"postPublisher_id": request.user.id}}
     rs.insert_item(my_activity)
+
+    attachment_file = attachment.name if (attachment is not None) else None
     
     if type == "post":
-        _id = store.create(type=type, user_id=request.user.id, content=content,
+        _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
                            receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
-                           expiration_date=expiration_date, images=images)
+                           expiration_date=expiration_date)
     else:
         if request.user.is_superuser:
             organization_type = "Pepper"
         else:
             organization_type = check_access_level(request.user, "dashboard_announcement", "create")
-        _id = store.create(type=type, user_id=request.user.id, content=content,
+        _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
                            receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
-                           expiration_date=expiration_date, images=images, organization_type=organization_type)
+                           expiration_date=expiration_date, organization_type=organization_type)
+
+    if attachment_file:
+        upload_attachment(_id, attachment)
 
     return HttpResponse(json.dumps({'Success': 'True', "_id": str(_id), 'post': request.POST.get('post'),
                                     'master_id': request.POST.get('master_id')}), content_type='application/json')
