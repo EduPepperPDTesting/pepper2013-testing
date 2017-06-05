@@ -44,9 +44,17 @@
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
             <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
-                <thead id="talbe_column"></thead>
+                <thead id="talbe_column">
+                    
+                    <th class="sorter-false filter-false table-menu" style="width:30px;">
+                        <a href="#" class="columnSelectorButton"></a>
+                    </th>
+                </thead>
                 <tbody id="table_data"></tbody>
             </table>
+            <div id="columnSelector" class="columnSelector">
+                <!-- this div is where the column selector is added -->
+            </div>
             </div>
         </div>
         <span class="footer">
@@ -155,7 +163,7 @@ $.extend($.tablesorter.themes.jui, {
             filter_serversideFiltering: true,
             output_saveFileName: 'data.csv',
             columnSelector_container : $('#columnSelector'),
-            columnSelector_columns : { '${len(display_columns)}': 'disable'},
+            columnSelector_columns : '',
             columnSelector_mediaqueryName: 'All: '
         }
     };
@@ -196,7 +204,11 @@ $(document).ready(function () {
         }
         html += "<th>Totol</th>";
         $("#talbe_column").html(html)
+
+        tablesorterOptions.widgetOptions.columnSelector_columns = { column_datas.length: 'disable'}
+
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
         var aggregate_html = "<tr>"
         for (data in row_data){
             if (row_data[data] != 'end'){
@@ -207,7 +219,6 @@ $(document).ready(function () {
         }
         aggregate_html += "</tr>";
         $("#table_data").html(aggregate_html);
-        var len = len(column_datas)
         
     });
 })
