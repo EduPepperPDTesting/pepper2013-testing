@@ -174,6 +174,9 @@ urlpatterns = (
     url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
 
     url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
+    url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
+
+    
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
