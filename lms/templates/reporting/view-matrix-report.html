@@ -103,7 +103,7 @@ $(document).ready(function () {
     var school_year = $(".school_year_select").val();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
         column_header = datas.column_header;
-        datas = datas.data;
+        datas = datas.column_data;
         var html = "<th>"+column_header+"</th>";
         for (data in datas){
             html += "<th>"+datas[data]+"</th>";

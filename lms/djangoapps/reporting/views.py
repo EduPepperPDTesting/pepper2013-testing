@@ -1241,20 +1241,41 @@ def get_column_headers(request):
     report = Reports.objects.get(id=int(report_id))
     create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
     rs = reporting_store()
-    data = rs.get_column_headers(collection_column_header)
+    column_data = rs.get_datas(collection_column_header)
+    row_data = rs.get_datas(collection_row_header)
+    data = rs.get_datas(collection)
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
-    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
     column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
+    row_header = ViewColumns.objects.filter(id=row_headers_id)[0].column
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
 
-    row = []
-    for d in data:
-        row.append(d['_id'][column_header])
+    column_header_row = []
+    for d in column_data:
+        column_header_row.append(d['_id'][column_header])
 
-    return render_json_response({'data': row,'column_header':column_header})
+    row_header_data = []
+    for d in row_data:
+        row_header_data.append(d['_id'][row_header])
+
+    data = []
+    if aggregate_type_id == 1:
+        for column in column_header_row:
+            for row in row_data:
+            filter = {column_header:column,row_header:row}
+            count = rs.get_count(collection,filter)
+            data.append(count)
+        data.append(column[count])
+
+    return render_json_response({'column_data': column_header_row,'column_header':column_header,'row_header':row_header_data})
 
 def collection_column_headers(collection):
-    return str(collection) + '_column_header' 
+    return str(collection) + '_column_header'
+
+def collection_row_headers(collection):
+    return str(collection) + '_row_header' 
 
 def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
@@ -1263,3 +1284,9 @@ def create_column_Headers(report,collection):
     query = eval(query)
     rs = reporting_store()
     rs.get_aggregate(collection,query,report.distinct)
+    row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
+    row_headers = ViewColumns.objects.filter(id=row_headers_id)[0].column
+    row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    row_query = eval(row_query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,row_query,report.distinct)
