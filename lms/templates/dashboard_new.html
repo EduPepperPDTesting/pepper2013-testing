@@ -300,8 +300,10 @@ a.btnx:hover,input[type=button].btnx:hover {
 }
 
 .ds-view-all-communities{
-    width:215px;
+    width:194px;
     text-align:right;
+    margin-top: 10px;
+    margin-left: 13px;
 }
 .ds-view-all-communities a{
     font-size: 16px;
@@ -568,7 +570,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     margin-bottom: 15px;
 }
 .community-trending-topics{
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 .trending-topic .tt-title{
     padding:1px 0px 1px 0px;
@@ -609,7 +611,7 @@ a.btnx:hover,input[type=button].btnx:hover {
     font-weight: bold;
     margin-top: 8px;
 }
-.trending-topic .tt-btn{
+.trending-topic .tt-btn-reply{
     width:80px;
     background-color:#F58221;
     border-radius: 5px;
@@ -618,7 +620,15 @@ a.btnx:hover,input[type=button].btnx:hover {
     color: #fff;
     padding: 4px 0px 4px 0px;
 }
-
+.trending-topic .tt-btn-addme{
+    width:80px;
+    background-color:#89C153;
+    border-radius: 5px;
+    text-align: center;
+    font-size:13px;
+    color: #fff;
+    padding: 4px 0px 4px 0px;
+}
 /*--my activity course ico--*/
 .ma-course-course-card{
     background-color: #FFFFFF;
@@ -695,6 +705,10 @@ a{
     margin-top: 10px;
     background-color: #fff;
 }
+.course-incomplated a{
+    font-size: 13px !important;
+    color: #000;
+}
 .my-title-blue{
     width:174px;
     padding:10px;
@@ -718,9 +732,13 @@ a{
 .my-community{
     width:180px;
     margin-left:18px;
-    padding-bottom:10px;
-
+    padding:8px 0px 10px 0px;
     border-bottom:1px solid #ccc;
+}
+.my-community-noline{
+    width:180px;
+    margin-left:18px;
+    padding:8px 0px 10px 0px;
 }
 </style>
 <!--@end-->
@@ -786,7 +804,14 @@ a{
                         course_target = reverse('courseware', args=[course.id])
                     %>
                     <div class="course-incomplated">
-                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                         %if curr_user == request.user:
+                            %if not course.close_course:      
+                                <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            %else:
+                                <a href="${reverse('cabout', args=[course.id])}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            %endif
+                            </a>
+                        %endif
                     </div>
                 %endfor
             </div>
@@ -802,7 +827,9 @@ a{
                 <div class="my-courses-cards">
                     %for course in allowedcourses:
                         <div class="course-incomplated">
-                            <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            </a>
                         </div>
                     %endfor
                 </div>
@@ -897,13 +924,23 @@ a{
                         <div class="my-title-blue">My Trending Topics</div>
                     </a>
                     <div class="trending-topic" style="border:0px solid;">
-                        <div class="my-community">
-                            <div class="tt-title">lvzh community private</div>
-                            <div class="tt-post"><a>private commutniy cotent</a></div>
-                            <div class="tt-time">Last Post:May 19,2017</div>
-                            <div class="tt-btn">Add Me</div>
-                        </div>
-                        %for c in community_trending_topics:
+                        %for k,c in enumerate(community_trending_topics):
+                            %if k + 1 == len(community_trending_topics):
+                                <div class="my-community-noline">
+                            %else:
+                                <div class="my-community">
+                            %endif
+                                <div class="tt-title">${c['cname']}</div>
+                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
+                                <div class="tt-time">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                %if c['btntext'] == "Reply":
+                                    <div class="tt-btn-reply">
+                                %else:
+                                    <div class="tt-btn-addme">
+                                %endif
+                                    <a href=${c['btnurl']} style="font-weight:bold;color:#fff;text-decoration:none;font-size:13px;">${c['btntext']}</a>
+                                </div>
+                            </div>
                         %endfor
                     </div>
                 </div>
@@ -923,7 +960,7 @@ a{
                             </a>
                         %endfor
                     </div>
-                    <!--<div class="ds-view-all-communities"><a href="/communities">View All</a></div>-->
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
                 </div>
             </div>
         </div>
