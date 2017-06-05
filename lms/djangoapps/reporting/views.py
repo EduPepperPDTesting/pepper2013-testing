@@ -1256,27 +1256,21 @@ def get_column_headers(request):
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
 
-    row_header_data = []
-    for d in row_data:
-        row_header_data.append(d['_id'][row_header])
+    # row_header_data = []
+    # for d in row_data:
+    #     row_header_data.append(d['_id'][row_header])
 
     data = []
-    log.debug('1111111111111111')
-    log.debug(aggregate_type_id)
     if aggregate_type_id == 1:
-        log.debug('1111111111111111')
-        log.debug(aggregate_type_id)
-        for row in row_data:
+        for d in row_data:
             for column in column_header_row:
-                filters = {column_header:column,row_header:row['_id'][row_header]}
-                log.debug('1111111111111111')
-                log.debug(filters)
+                filters = "{column_header:column,row_header:d['_id'][row_header]}"
+                filters.replace('column_header',column_header).replace('row_header',row_header).replace('column',column).replace("d['_id'][row_header]",d['_id'][row_header])
                 count = rs.get_count(collection,filters)
-                data.append(count)
-            data.append(row_data[count])
-            data.append("|")
+            data.append(d['count'])
+            data.append("end")
 
-    return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header,'row_header':row_header_data})
+    return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'
