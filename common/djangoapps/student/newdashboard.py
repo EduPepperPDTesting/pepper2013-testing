@@ -46,6 +46,8 @@ from communities.views import get_trending
 from mongo_user_store import MongoUserStore
 from django.conf import settings
 from bson import ObjectId
+from collections import OrderedDict
+
 
 log = logging.getLogger("tracking")
 
@@ -1073,7 +1075,7 @@ def get_full_likes(request):
 def upload_attachment(feeding_id, attachment):
     options = settings.USERSTORE.get("OPTIONS")
     us = MongoUserStore(**options)
-    _id = {"ref_id": ObjectId(feeding_id), "type": "feeding_attachment"}
+    _id = OrderedDict([("ref_id", ObjectId(feeding_id)), ("type", "feeding_attachment")])
     us.save(_id, attachment.read())
 
 

@@ -2,6 +2,7 @@ from pymongo import Connection
 import gridfs
 from gridfs.errors import NoFile
 from bson import ObjectId
+from collections import OrderedDict
 
 class MongoUserStore():
     def __init__(self, host, db, port=27017, user=None, password=None, bucket='fs', **kwargs):
@@ -30,8 +31,9 @@ class MongoUserStore():
             self.fs.delete(_id)
 
     def find_one(self, ref_id, type):
-        _id = {"ref_id": ref_id, "type": type}
-        doc = self.db["fs.files"].find_one({"_id.ref_id": ref_id, "_id.type": type})
+        _id = OrderedDict([("ref_id", ref_id), ("type", type)])
+        #_id = {"ref_id": ref_id, "type": type}
+        doc = self.db["fs.files"].find_one({"_id": _id})
         if doc:
             with self.fs.get(_id) as fp:
                 return {"_id": _id, "data": fp.read(), "length": fp.length}

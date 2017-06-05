@@ -187,7 +187,7 @@ from permissions.utils import check_access_level, check_user_perms
       </tr>
       <tr id="add_images_div" style="display:none;">
         <td style="" colspan="2">
-          <input id="image_link_input" type="file" placeholder=""
+          <input id="image_link_input" type="file" placeholder="" autocomplete="off"
                  style="padding:2px;font-style:normal;width:190px;"/>
         </td>
       </tr>
@@ -762,7 +762,6 @@ from permissions.utils import check_access_level, check_user_perms
       local_utc_diff_m: local_utc_diff_m};
     next_page ++;
     $.post("${reverse('dashboard_get_posts')}", params, function (posts){
-
       if(!is_continue && posts.length<1){
         $(".post-content-row.post").remove(); 
         $("<tr class='post-content-row post'><td class='no-search-results'>No Search Results Found</td></tr>").appendTo($("#post_content_table"));
@@ -870,6 +869,9 @@ from permissions.utils import check_access_level, check_user_perms
       fd.append('post', post)
       fd.append('type', is_announce? "announcement":"post")
       fd.append('expiration_date', announce_expir_date)
+
+      $("#image_link_input").val("");
+      
       $.ajax({
         url: "${reverse('dashboard_submit_new_post')}",
         data: fd,
