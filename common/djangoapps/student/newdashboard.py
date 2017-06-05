@@ -314,9 +314,8 @@ def newdashboard(request, user_id=None):
     #@end
 
 
-    #store = dashboard_feeding_store()
-    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    feeding_year_start, feeding_year_end = None, None
+    store = dashboard_feeding_store()
+    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
