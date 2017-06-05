@@ -91,6 +91,9 @@ from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
 from django.http import HttpResponseRedirect
 
+from collections import OrderedDict
+
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -2077,7 +2080,8 @@ def upload_user_photo(user_id, file_img):
                       options.get('password'))
 
     # img_name = up.photo
-    _id={"ref_id":user_id,"type":"photo"}
+    _id = OrderedDict([("ref_id", user_id), ("type", "photo")])
+    
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 
