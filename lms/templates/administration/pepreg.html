@@ -1094,7 +1094,7 @@
                 }
 		        $(this).parent().parent().siblings().attr('disabled', false);
 		        $(this).parent().parent().siblings().children().attr('disabled', false);
-		        $(".calendar_select_categories").each(function (){
+		        $("#calendar_select_categories").each(function (){
 		            this.style.setProperty( 'color', '#000', 'important' );
                 });
 		        //$(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
@@ -1113,7 +1113,7 @@
                     $("#calendar-month-weekdays tr").remove();
                 }
                 $("#calendar-month-weekdays").append("<th class='print_col' style='width:25% !important'>Training Name <br/>and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col' style='width:25% !important'>Location</th>");
-                $(".calendar_select_categories").each(function (){
+                $("#calendar_select_categories").each(function (){
 		            this.style.setProperty( 'color', '#808080', 'important' );
                 });
                $(this).parent().parent().siblings().attr('disabled', true);
