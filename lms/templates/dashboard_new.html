@@ -12,7 +12,7 @@
     import datetime
     
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem  
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes  
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -616,10 +616,17 @@ a{
                 break;
                 
         data = {}
+        data['profile_logo'] = ''
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
                 data[tmp1.itemType] = tmp1.itemValue
+            for tmp1 in OrganizationAttributes.objects.filter(organization=data["org_id"]):
+                data['profile_logo'] = tmp1.LogoProfile
+                break;
+            if data['profile_logo']:
+                data['profile_logo'] = "/static/uploads/organization/" + organization_obj.id + "/" + data['profile_logo']
+
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
@@ -759,7 +766,9 @@ a{
                 <!--width:220px-->
                 <div class="community-trending-topics">
                     <div class="my-profile-logo">
-                        <img src="/static/images/announcement.jpg" style="max-width:230px;max-height:170px;"/>
+                    %if data['profile_logo']:
+                        <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
+                    %endif
                     </div>
                     <a href="/communities">
                         <div class="my-title-blue">My Trending Topics</div>
