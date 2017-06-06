@@ -625,7 +625,7 @@ a{
                 data['profile_logo'] = tmp1.LogoProfile
                 break;
             if data['profile_logo']:
-                data['profile_logo'] = "/static/uploads/organization/" + organization_obj.id + "/" + data['profile_logo']
+                data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
 
 %>
 <%namespace name='static' file='static_content.html'/>
