@@ -1263,13 +1263,14 @@ def get_column_headers(request):
     data = []
     if aggregate_type_id == 1:
         for d in row_data:
-            data.append(d['_id'][row_header])
+            row = []
+            row.append(d['_id'][row_header])
             for column in column_header_row:
                 filters = {column_header:column,row_header:d['_id'][row_header]}
                 count = rs.get_count(collection,filters)
-                data.append(count)
-            data.append(d['count'])
-            data.append("end")
+                row.append(count)
+            row.append(d['count'])
+            data.append(row)
 
     return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header})
 

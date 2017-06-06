@@ -181,6 +181,107 @@ function safeJSON(j){
         }
     };
 
+var report_view = {
+        timeID:null,
+        dialog:null,
+        init:function(){
+            var self = this;
+            clearInterval(self.timeID);
+            loadwin = new LoadingWin();
+            self.timeID = setInterval(self.show_progress, 4000, self);
+            $("#btnEditReport").click(function(){
+                window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
+            });
+            $("#btnDownloadReportExcel").click(function(){
+                self.downloadReportExcel();
+            });
+            self.selectSchoolYear();
+        },
+        show_progress: function(obj){
+            var self = this;
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
+                if (data != null) {                 
+                    if(data.success)
+                    {
+                        obj.reloadTable()
+                        clearInterval(obj.timeID);
+                        loadwin.hide();
+                        $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
+                            set_custome_filters($(".tblReport"), data.data);
+                            
+                            $(".tablesorter-header-inner").each(function(){
+                                var tmp1 = $(this).text().trim();
+                                if(tmp1 == "District"){
+                                    $(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }else if(tmp1 == "School"){
+                                    $(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        },
+        reloadTable: function(){
+            var t = $(".tblReport")[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.ajaxUrl = $(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        },
+        postToNewTab: function(url, params) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", url);
+            form.setAttribute("target", "_blank");
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        },
+        downloadReportExcel: function(){
+            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+        },
+        selectSchoolYear: function(){
+            $(".school_year_select").change(function(){
+                window.location.href = "${reverse('reporting_report',args=[report.id])}?school_year=" + $(this).val();
+            });
+            var request_school_year = "${request.GET.get('school_year','')}";
+            $(".school_year_select").val(request_school_year);
+            if("${school_year_item}".indexOf('current') >= 0 && request_school_year == ''){
+                $(".school_year_select").val("current");
+            }
+        }
+    }
+
+    function set_custome_filters($table, data){
+        var selectSource = {};
+        for(var i = 0; i < data.length; i++)
+        {   
+            for(var j = 0; j < data[i].items.length; j++){
+                try{
+                    data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                }
+                catch(e){
+                    data[i].items[j] = "'" + data[i].items[j] + "'";
+                }
+            }
+           eval("selectSource[" + data[i].index + "] = function(table, column) {return [" + data[i].items + "]}")
+        }
+        $table[0].config.widgetOptions.filter_selectSource = selectSource;
+        $table.trigger("update");
+    }
+
+
 $(document).ready(function () {
     var school_year = $(".school_year_select").val();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
@@ -188,26 +289,25 @@ $(document).ready(function () {
         column_datas = datas.column_data;
         row_data = datas.data;
 
-        var html = "<th>"+column_header+"</th>";
+        var html = "<tr><th>"+column_header+"</th>";
         for (data in column_datas){
-            html += "<th>"+column_datas[data]+"</th>";
+            html += "<th class='filter-select'>"+column_datas[data]+"</th>";
         }
-        html += "<th>Totol</th>";
+        html += "<th>Totol</th></tr>";
         $("#talbe_column").html(html)
 
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        report_view.init();
 
-        var aggregate_html = "<tr>"
-        for (data in row_data){
-            if (row_data[data] != 'end'){
-                aggregate_html += "<td>"+row_data[data]+"</td>";
-            }else{
-                aggregate_html += "</tr><tr>";
+        for (datas in row_data){
+            var aggregate_html = "<tr>";
+            for ( data in row_data[datas]){
+                aggregate_html += "<td>"+row_data[datas][data]+"</td>";
             }
+            aggregate_html += "</tr>";
+            $("#table_data").append(aggregate_html);
         }
-        aggregate_html += "</tr>";
-        $("#table_data").append(aggregate_html);
-        
+
     });
 })
 
