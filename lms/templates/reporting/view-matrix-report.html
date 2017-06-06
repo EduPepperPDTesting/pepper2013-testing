@@ -43,7 +43,7 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_get_column_headers')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
                 <thead id="talbe_column">
                 </thead>
                 <tbody id="table_data"></tbody>
@@ -299,14 +299,14 @@ $(document).ready(function () {
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         report_view.init();
 
-        for (datas in row_data){
-            var aggregate_html = "<tr>";
-            for ( data in row_data[datas]){
-                aggregate_html += "<td>"+row_data[datas][data]+"</td>";
-            }
-            aggregate_html += "</tr>";
-            $("#table_data").append(aggregate_html);
-        }
+        // for (datas in row_data){
+        //     var aggregate_html = "<tr>";
+        //     for ( data in row_data[datas]){
+        //         aggregate_html += "<td>"+row_data[datas][data]+"</td>";
+        //     }
+        //     aggregate_html += "</tr>";
+        //     $("#table_data").append(aggregate_html);
+        // }
 
     });
 })

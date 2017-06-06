@@ -613,7 +613,6 @@ def report_get_rows(request):
         rows.append(row)
     return render_json_response({'total': total, 'rows': rows})
 
-
 def build_sorts_and_filters(columns, sorts, filters):
     """
     Builds the sorts and filters for mongo based on the input params from tablesorter.
@@ -1251,14 +1250,9 @@ def get_column_headers(request):
     column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
     row_header = ViewColumns.objects.filter(id=row_headers_id)[0].column
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
-
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
-
-    # row_header_data = []
-    # for d in row_data:
-    #     row_header_data.append(d['_id'][row_header])
 
     data = []
     if aggregate_type_id == 1:
@@ -1272,7 +1266,8 @@ def get_column_headers(request):
             row.append(d['count'])
             data.append(row)
 
-    return render_json_response({'data':data,'column_data': column_header_row,'column_header':column_header})
+    total = len(data)
+    return render_json_response({'rows':data,'total': ,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'
