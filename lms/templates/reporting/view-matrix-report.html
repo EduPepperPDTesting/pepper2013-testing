@@ -283,8 +283,7 @@ var report_view = {
 
 
 $(document).ready(function () {
-    var school_year = $(".school_year_select").val();
-    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
         column_header = datas.column_header;
         column_datas = datas.column_data;
         row_data = datas.data;
@@ -298,15 +297,6 @@ $(document).ready(function () {
 
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         report_view.init();
-
-        // for (datas in row_data){
-        //     var aggregate_html = "<tr>";
-        //     for ( data in row_data[datas]){
-        //         aggregate_html += "<td>"+row_data[datas][data]+"</td>";
-        //     }
-        //     aggregate_html += "</tr>";
-        //     $("#table_data").append(aggregate_html);
-        // }
 
     });
 })

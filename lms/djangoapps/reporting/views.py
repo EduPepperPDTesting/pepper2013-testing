@@ -1235,38 +1235,53 @@ def views_list(request):
 #     return render_json_response(view_column_list)
 
 def get_column_headers(request):
-    report_id = request.GET.get('report_id', '')
-    collection = get_cache_collection(request, report_id, '')
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
     report = Reports.objects.get(id=int(report_id))
     create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
     collection_row_header = collection_row_headers(collection)
     rs = reporting_store()
     column_data = rs.get_datas(collection_column_header)
-    row_data = rs.get_datas(collection_row_header)
-    data = rs.get_datas(collection)
-    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
-    row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
-    column_header = ViewColumns.objects.filter(id=column_headers_id)[0].column
-    row_header = ViewColumns.objects.filter(id=row_headers_id)[0].column
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
 
     data = []
-    if aggregate_type_id == 1:
-        for d in row_data:
-            row = []
-            row.append(d['_id'][row_header])
-            for column in column_header_row:
-                filters = {column_header:column,row_header:d['_id'][row_header]}
-                count = rs.get_count(collection,filters)
-                row.append(count)
-            row.append(d['count'])
-            data.append(row)
+    total = ''
 
-    total = len(data)
+    if request.GET.has_key('page'):
+        sorts = get_request_array(request.GET, 'col')
+        filters = get_request_array(request.GET, 'fcol')
+        page = int(request.GET['page'])
+        size = int(request.GET['size'])
+        start = page * size
+
+        matrix_filter = {}
+        for col, f in filters.iteritems():
+            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+            matrix_filter[column_header] = reg
+
+        row_data = rs.get_page(collection_row_header, start, size, matrix_filter)
+
+        if aggregate_type_id == 1:
+            for d in row_data:
+                row = []
+                row.append(d['_id'][row_header])
+                for column in column_header_row:
+                    filters = {column_header:column,row_header:d['_id'][row_header]}
+                    count = rs.get_count(collection,filters)
+                    row.append(count)
+                row.append(d['count'])
+                data.append(row)
+
+        total = len(data)
+    
     return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):
