@@ -1267,7 +1267,7 @@ def get_column_headers(request):
             data.append(row)
 
     total = len(data)
-    return render_json_response({'rows':data,'total': ,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
+    return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'
