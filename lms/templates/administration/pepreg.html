@@ -1411,8 +1411,8 @@
                 tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
                 $("#calendar-month").css("width", tableWidth + "px");
             }
-            //($("#calendar_content").scroll(function(){
-            $(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
+            $("#calendar_content").scroll(function(){
+            //$(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
                 var cont_height = $("#calendar_content").height();
                 var cont_right = $("#calendar_content").left + parseInt($("#calendar_content").width());
                 var cont_top = $("#calendar_content").position().top;
@@ -1440,7 +1440,7 @@
                     }).length){
                     if($("#btn_up").length == 0){
                         var btn_top = cont_top + 20;
-                        $("#calendar_content").append("<button id='btn_up' style='position:absolute; top:" + btn_top + "px; left" + btn_left + "px;'>Previous</button>");
+                        $("#calendar_content").append("<button id='btn_up' style='position:absolute; top:" + btn_top + "px; left" + btn_left + "px;'>More</button>");
                     }
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
