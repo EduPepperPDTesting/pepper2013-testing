@@ -1385,7 +1385,7 @@
         if($(".completeSlot").length > 0){
             existingSlots = $(".completeSlot").length;
             var coords = [];
-            for(var n = 0; n <= existingSlots; n++){
+            for(var n = 0; n < existingSlots; n++){
                 leftX = $(".unique:eq(" + n + ")").find("div").position().left;
                 coords.push(leftX);
             }
