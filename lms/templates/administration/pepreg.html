@@ -1383,7 +1383,7 @@
             }
         }
         if($(".completeSlot").length > 0){
-            existingSlots = $(".completeSlot").length;
+            /*existingSlots = $(".completeSlot").length;
             var coords = [];
             for(var n = 0; n < existingSlots; n++){
                 leftX = $(".unique:eq(" + n + ")").find("div").position().left;
@@ -1403,6 +1403,13 @@
             if(coords[m] + 110 > parseInt($("#calendar-month").width())){
                 tableWidth = coords[m] + 110;
                 $("#calendar-month").css("width", tableWidth + "px")
+            }*/
+
+            var lastSlotX = $(".completeSlot:last").position().left + parseInt($(".completeSlot:last").width()) + 5;
+            var tableX = $("#calendar-month").position().left + parseInt($("#calendar-month").width());
+            if(lastSlotX > tableX){
+                tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
+                $("#calendar-month").css("width", tableWidth + "px");
             }
 
             $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
