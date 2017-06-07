@@ -885,6 +885,59 @@ def report_download_excel(request, report_id):
     response.write(output.getvalue())
     return response
 
+def report_download_matrix_excel(request, report_id):
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=int(report_id))
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
+    row_data = rs.get_datas(collection_row_header)
+
+    column_header_row = []
+    data_last = ['total']
+    for d in column_data:
+        column_header_row.append(d['_id'][column_header])
+        data_last.append(d['count'])
+
+    for d in row_data:
+        row = []
+        row.append(d['_id'][row_header])
+        for column in column_header_row:
+            filters = {column_header:column,row_header:d['_id'][row_header]}
+            count = rs.get_count(collection,filters)
+            row.append(count)
+        row.append(d['count'])
+        data.append(row)
+
+    sum = 0
+    for val in data:
+        sum += val[-1]
+
+    data_last.append(sum)
+    data = data[start:end]
+    data.append(data_last)
+
+    row = 1
+    for key,val in enumerate(data):
+        for value in val:
+            worksheet.write(row, value, val[value])
+        row += 1
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
 
 @login_required
 def report_get_progress(request, report_id):
@@ -1253,7 +1306,7 @@ def get_column_headers(request):
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
 
     column_header_row = []
-    data_last = []
+    data_last = ['total']
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
         data_last.append(d['count'])
@@ -1281,7 +1334,6 @@ def get_column_headers(request):
                 row.append(d['count'])
                 data.append(row)
 
-
         filter_data = []
         if len(row_filters) > 0:
             for k in data:
@@ -1305,9 +1357,14 @@ def get_column_headers(request):
             data = filter_data
         
         total = len(data)
+        sum = 0
+        for val in data:
+            sum += val[-1]
+
+        data_last.append(sum)
         data = data[start:end]
         data.append(data_last)
-        
+
     return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):

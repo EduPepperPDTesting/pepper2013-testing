@@ -249,7 +249,7 @@ var report_view = {
             document.body.removeChild(form);
         },
         downloadReportExcel: function(){
-            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+            this.postToNewTab("${reverse('report_download_maxtrix_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
         },
         selectSchoolYear: function(){
             $(".school_year_select").change(function(){
@@ -287,10 +287,10 @@ $(document).ready(function () {
         column_header = datas.column_header;
         column_datas = datas.column_data;
         row_data = datas.data;
-
-        var html = "<tr><th>"+column_header+"</th>";
+        row_header = datas.row_header
+        var html = "<tr><th>"+column_header+"<br>"+row_header+</th>";
         for (data in column_datas){
-            html += "<th class='filter-select'>"+column_datas[data]+"</th>";
+            html += "<th>"+column_datas[data]+"</th>";
         }
         html += "<th>Totol</th></tr>";
         $("#talbe_column").html(html)
