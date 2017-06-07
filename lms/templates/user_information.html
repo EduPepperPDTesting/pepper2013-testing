@@ -1198,18 +1198,20 @@
 		var state = "-1";
 		var district = "-1";
 		% if curr_user.profile.district_id:
-        state = "${curr_user.profile.district.state.id}"
+        state = "${curr_user.profile.district.state.id}";
         % endif
 		% if curr_user.profile.district_id:
-		district = "${curr_user.profile.district.id}"
+		district = "${curr_user.profile.district.id}";
 		% endif
 					
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district}, function (r) {		
 			if (r.SiteURL_OK){
 				if(r.Success){
-					if(r.OrganizationOK){					
+					if(r.OrganizationOK){
 						$("#organization_ui_district").html(r.DistrictType + ": ");
 						$("#organization_ui_school").html(r.SchoolType + ": ");
+					}else{
+						//$("#organization_ui_district").html(": 1");
 					}
 				}
 			}

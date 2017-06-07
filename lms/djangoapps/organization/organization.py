@@ -853,7 +853,6 @@ def org_dashboard_upload(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organization_get_info
-@login_required
 def organization_get_info(request):
     source = request.POST.get('source', False)
     flag_main = request.POST.get('flag_main', False)
