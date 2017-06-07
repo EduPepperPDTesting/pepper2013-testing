@@ -1418,13 +1418,13 @@
                 var cont_bottom = cont_top + parseInt(cont_height);
 
                 if($(".completeSlot[top >= " + cont_bottom + "]").length){
-                    $("#calendar_content").append(<button id="btn_down" style="position:absolute; top:" + cont_bottom - 20 + "px; left" + cont_right - 50 + "px;">Next</button>);
+                    $("#calendar_content").append("<button id="btn_down" style="position:absolute; top:" + cont_bottom - 20 + "px; left" + cont_right - 50 + "px;">Next</button>");
                 }else if($("#btn_down").length){
                     $("#btn_down").remove();
                 }
 
                 if($(".completeSlot[top < " + cont_top + "]").length){
-                    $("#calendar_content").append(<button id="btn_up" style="position:absolute; top:" + cont_top + 20 + "px; left" + cont_right - 50 + "px;">Previous</button>);
+                    $("#calendar_content").append("<button id="btn_up" style="position:absolute; top:" + cont_top + 20 + "px; left" + cont_right - 50 + "px;">Previous</button>");
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
                 }
