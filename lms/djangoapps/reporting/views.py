@@ -885,7 +885,7 @@ def report_download_excel(request, report_id):
     response.write(output.getvalue())
     return response
 
-def report_download_matrix_excel(request, report_id):
+def report_download_maxtrix_excel(request, report_id):
     import xlsxwriter
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
