@@ -314,65 +314,96 @@ a{
     float:left;
     position: relative;
     margin-bottom:0px;
+    /*
     background-color:#e4e4e4;
     border-top:3px solid #fff;
     border-left:3px solid #fff;
     border-right:3px solid #fff;
+    */
+
 }
 .con-feed-activity{
     width:680px;
-    height:50px;
+    height:42px;
     float:left;
+    /*
     background-color:#e4e4e4;
     border:0px solid #000;
+    */
 }
 .my-feed-btn{
     width:130px;
-    height:30px;
-    padding-top:15px;
+    height:28px;
+    padding-top:11px;
 
-    margin-left: 7px;
-    margin-top:3px;
+    margin-left: 0px;
     float:left;
     text-align:center;
-    font-weight:bold;
-    color:#0b0bdd;
+    color:#fff;
     cursor: pointer;
-    font-size:18px;
+    font-size:15px;
+    background-color: #6e6e70;
+
+    border-left:3px solid #666668;
+    border-top:3px solid #666668;
+    border-right:3px solid #666668;
+    border-radius:10px 10px 0px 0px; 
+
+    position: absolute;
+    left:0px;
 }
 .my-activity-btn{
-    width:130px;
-    height:30px;
-    padding-top:15px;
+    width:150px;
+    height:28px;
+    padding-top:11px;
 
-    margin-top:3px;
     float:left;
     text-align:center;
-    font-weight:bold;
-    color:#0b0bdd;
+    color:#fff;
     cursor: pointer;
-    font-size:18px;
+    font-size:15px;
+    background-color: #6e6e70;
+
+    border-left:3px solid #666668;
+    border-top:3px solid #666668;
+    border-right:3px solid #666668;
+    border-radius:10px 10px 0px 0px; 
+    position: absolute;
+    left:121px;
+
 }
 .my-report-card-btn{
     width:180px;
-    height:30px;
-    padding-top:15px;
+    height:28px;
+    padding-top:11px;
 
-    margin-top:3px;
     float:left;
     text-align:center;
-    font-weight:bold;
-    color:#0b0bdd;
+    color:#fff;
     cursor: pointer;
-    font-size:18px;
+    font-size:15px;
+    background-color: #6e6e70;
+
+    border-left:3px solid #666668;
+    border-top:3px solid #666668;
+    border-right:3px solid #666668;
+    border-radius:10px 10px 0px 0px; 
+
+    position: absolute;
+    left:262px;
 }
 .mytab-active{
-    background-color:#fff;
-    border-left:2px solid #cbcbcb;
-    border-top:2px solid #cbcbcb;
-    border-right:2px solid #cbcbcb;
-    border-radius:5px 5px 0px 0px; 
+    background-color:#f58221;
+    border-left:3px solid #f58221;
+    border-top:3px solid #f58221;
+    border-right:3px solid #f58221;
+    border-radius:10px 10px 0px 0px; 
     cursor: auto !important;
+    z-index: 1000;
+
+    -moz-box-shadow:2px 0px 2px #a4a4a4;
+    -webkit-box-shadow:2px 0px 2px #a4a4a4;
+    box-shadow: 2px 0px 2px #a4a4a4;
 }
 .my-feed{
     width:674px;
@@ -385,16 +416,17 @@ a{
 
     min-height:727px;
     padding-bottom: 3px;
-  
 }
 .my-activity{
     width:674px;
     overflow: hidden;
     float:left;
+    /*
     border-top:3px solid #d9d9d9;
     border-left:3px solid #d9d9d9;
     border-right:3px solid #d9d9d9;
     border-radius: 6px 6px 0px 0px; 
+    */
     background-color: #fff;
 
     min-height:727px;
@@ -404,10 +436,12 @@ a{
     width:674px;
     overflow: hidden;
     float:left;
+    /*
     border-top:3px solid #d9d9d9;
     border-left:3px solid #d9d9d9;
     border-right:3px solid #d9d9d9;
     border-radius: 6px 6px 0px 0px; 
+    */
     background-color: #fff;
 
     min-height:727px;
@@ -579,8 +613,109 @@ a{
     overflow:hidden;
     text-overflow:ellipsis;
 }
+.my-report-card-left{
+    float:left;
+    width: 440px;
+    height:600px;
+    margin-top: 30px;
+    margin-left: 30px;
+
+    border:0px solid;
+}
+.my-report-card-right{
+    float:left;
+    width: 155px;
+    height:600px;
+    margin-top: 30px;
+    margin-left: 25px;
+    
+    border:0px solid;
+}
+.my-stats-title{
+    font-size: 16px;
+    font-weight: bold;
+    padding:10px 0px 10px 0px;
+    font-size: 16px;
+}
+.course-in-progress-title{
+    color: #fff;
+    background-color: #535556;
+    padding:10px 0px 10px 30px;
+    font-size: 16px;
+}
+.course-in-progress{
+    background-color: #f3f3f4;
+    height:500px;
+}
+.course-in-progress-row{
+    width: 400px;
+    margin-left:20px; 
+    margin-top: 25px;
+    border:0px solid;
+}
+.course-in-progress-t{
+    font-size: 14px;
+}
+.course-in-progress-p{
+    margin-top: 8px;
+    font-size: 14px;
+}
+.course-in-progress-tt{
+    margin-top: 35px;
+    font-size: 14px;
+    color: #757474;
+}
+.progress-table{
+    float:left;
+    margin-top:-3px;
+    margin-left:5px;
+}
+.progress-table td{
+    border-right:2px solid #f3f3f4;
+    font-size:12px;
+    color:#fff;
+    padding-right:5px;
+    background-color:#89c153;
+    text-align: right;
+}
 
 
+
+
+
+
+
+
+
+
+
+
+
+.total-time-title-top{
+    font-size: 14px;
+    font-weight: bold;
+}
+.total-time-title{
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.total-time{
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 2px;
+    color: #2CBAEC;
+}
+.enrolled-courses{
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.enrolled-courses span{
+    font-size: 14px;
+    font-weight: bold;
+    color: #2CBAEC;
+}
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -616,7 +751,7 @@ a{
                 break;
                 
         data = {}
-        data['profile_logo'] = ''
+        data['profile_logo'] = ""
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
@@ -626,6 +761,8 @@ a{
                 break;
             if data['profile_logo']:
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
+        if not data['profile_logo']:
+            data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
 
 %>
 <%namespace name='static' file='static_content.html'/>
@@ -756,7 +893,77 @@ a{
             <div id="my_report_card" class="my-report-card">
                 <!--Post Dashboard-->
                 <!--w:660,min-h:800-->
-                my_report_car
+                <div class="my-report-card-left">
+                    <div class="course-in-progress">
+                        <div class="course-in-progress-title">Course In Progress</div>
+                        <div class="course-in-progress">
+                            <div class="course-in-progress-row">
+                                <div class="course-in-progress-t"><b>Universal Design for Mathematics Learning|</b>POW121</div>
+                                <div class="course-in-progress-p">
+                                    <b style="float:left;font-size:14px;color:#757474;">Progress</b> 
+                                    <table class="progress-table" width='334'>
+                                        <tr height="22">
+                                            <td width='25%' style="background-color:#89c153;"></td>
+                                            <td width='25%' style="background-color:#89c153;"></td>
+                                            <td width='25%' style="background-color:#89c153;">75%</td>
+                                            <td width='25%' style="border-right:0px;background-color:#d2d3d5;"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="course-in-progress-tt">
+                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
+                                </div>
+                            </div>
+                            <div class="course-in-progress-row">
+                                <div class="course-in-progress-t"><b>Standards For Mathematical Practice (Grade K-5)|</b>ELA326</div>
+                                <div class="course-in-progress-p">
+                                    <b style="float:left;font-size:14px;color:#757474;">Progress</b> 
+                                    <table class="progress-table" width='334'>
+                                        <tr height="22">
+                                            <td width='25%' style="background-color:#ef3028;">25%</td>
+                                            <td width='25%' style="background-color:#d2d3d5;"></td>
+                                            <td width='25%' style="background-color:#d2d3d5;"></td>
+                                            <td width='25%' style="border-right:0px;background-color:#d2d3d5;"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="course-in-progress-tt">
+                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
+                                </div>
+                            </div>
+                            <div class="course-in-progress-row">
+                                <div class="course-in-progress-t"><b>Universal Design for Mathematics Learning|</b>MA12146</div>
+                                <div class="course-in-progress-p">
+                                    <b style="float:left;font-size:14px;color:#757474;">Progress</b> 
+                                    <table class="progress-table" width='334'>
+                                        <tr height="22">
+                                            <td width='42%' style="background-color:#fbba2e;">42%</td>
+                                            <td width='35%' style="background-color:#d2d3d5;"></td>
+                                            <td width='23%' style="border-right:0px;background-color:#d2d3d5;"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="course-in-progress-tt">
+                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="completed-courses"></div>
+                </div>
+                <div class="my-report-card-right">
+                    <div class="my-stats-title">My Stats</div>
+                    <div class="total-time-title-top">Total Time(YTD):</div>
+                    <div class="total-time">24 H 32 M</div>
+                    <div class="total-time-title">Course Time(YTD):</div>
+                    <div class="total-time">19 H 25 M</div>
+                    <div class="total-time-title">PD Time(YTD):</div>
+                    <div class="total-time">7 H</div>
+                    <div class="total-time-title">Last Logged In:</div>
+                    <div class="total-time">05/14/2017</div>
+                    <div class="enrolled-courses">Enrolled Courses: <span>4</span></div>
+                    <div class="enrolled-courses">Completed Courses: <span>88</span></div>
+                </div>
             </div>
         </div>
         
