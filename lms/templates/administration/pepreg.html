@@ -1414,6 +1414,7 @@
 
             $("#calendar_content").scroll(function(){
                 var cont_height = $("#calendar_content").height();
+                var cont_right = $("#calendar_content").left + parseInt($("#calendar_content").width());
                 var cont_top = $("#calendar_content").position().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
 
