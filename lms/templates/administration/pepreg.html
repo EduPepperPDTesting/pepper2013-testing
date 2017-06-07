@@ -1412,18 +1412,24 @@
                 $("#calendar-month").css("width", tableWidth + "px");
             }
 
-            /*$("#calendar_content").scroll(function(){
+            $("#calendar_content").scroll(function(){
 
                 var cont_top = $("#calendar_content").position().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
 
-                if($(".completeSlot[top >= " + cont_bottom + "]").length){
+                if($(".completeSlot").filter(function(cont_bottom){
+                       var top_slot = $(this).css('top');
+                       return parseInt(top_slot) >= cont_bottom;
+                    }).length){
                     $("#calendar_content").append('<button id="btn_down" style="position:absolute; top:' + cont_bottom - 20 + 'px; left' + cont_right - 50 + 'px;">Next</button>');
                 }else if($("#btn_down").length){
                     $("#btn_down").remove();
                 }
 
-                if($(".completeSlot[top < " + cont_top + "]").length){
+                if($(".completeSlot").filter(function(cont_top){
+                       var top_slot = $(this).css('top');
+                       return parseInt(top_slot) < cont_top;
+                    }).length){
                     $("#calendar_content").append('<button id="btn_up" style="position:absolute; top:' + cont_top + 20 + 'px; left' + cont_right - 50 + 'px;">Previous</button>');
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
@@ -1431,11 +1437,15 @@
 
                 if($("#btn_down").length){
                     $("#btn_down").click(function(){
-                        $("#calendar_content").animate({scrollTop: $(".completeSlot[top >= " + cont_bottom + "]:eq(0)").position().top}, 1000, function() {
-                            console.log("posY: "+$(".completeSlot[top >= " + cont_bottom + "]:eq(0)").position().top)
-                        });
+                        $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
+                           var top_slot = $(this).css('top');
+                           return parseInt(top_slot) >= cont_bottom;
+                        }).first().position().top}, 1000);
 
-                        if($(".completeSlot[top >= " + cont_bottom + "]").length == 0){
+                        if($(".completeSlot").filter(function(cont_bottom){
+                           var top_slot = $(this).css('top');
+                           return parseInt(top_slot) >= cont_bottom;
+                        }).length == 0){
                             $("#btn_down").remove();
                         }
                     });
@@ -1443,16 +1453,20 @@
 
                 if($("#btn_up").length){
                     $("#btn_up").click(function(){
-                        $("#calendar_content").animate({scrollTop: $(".completeSlot[top < " + cont_top + "]:eq(0)").position().top}, 1000, function() {
-                            console.log("posY: "+$(".completeSlot[top < " + cont_top + "]:eq(0)").position().top)
-                        });
+                        $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_top){
+                           var top_slot = $(this).css('top');
+                           return parseInt(top_slot) < cont_top;
+                        }).first().position().top}, 1000);
 
-                        if($(".completeSlot[top < " + cont_top + "]").length == 0){
+                        if($(".completeSlot").filter(function(cont_top){
+                           var top_slot = $(this).css('top');
+                           return parseInt(top_slot) < cont_top;
+                        }).length == 0){
                             $("#btn_up").remove();
                         }
                     });
                 }
-            });*/
+            });
 
             $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
                 console.log("posY: "+$(".completeSlot:eq(0)").position().top)
