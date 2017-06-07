@@ -391,6 +391,11 @@
                             <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
+                        <tr>
+                        	<td align="center">My Report Card</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_report_show" checked="checked" onclick="selectPDTable()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="2" onclick="selectPDTable()" /></td>
+                        </tr>
                     </table>
                 </td>
             </tr>
@@ -1043,6 +1048,9 @@
 									}
 									if(r["My Activities Show"] == "1"){
 										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
+									}
+									if(r["My Report Show"] == "1"){
+										$("input[name='organizational_dashboard_report_show']").attr("checked", "checked");										
 									}
 									
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
@@ -2081,7 +2089,8 @@
 			var is_new_menu = $("input[name='organizational_dashboard_on_menu']:checked").val();
 			var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 			var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
-			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();			
+			var my_report_show = ($("input[name='organizational_dashboard_report_show']").attr("checked")) ? "1" : "0";
+			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();
 			if(dashboard_option == "2"){
 				my_feed_show = "1";
 				my_activities_show = "0";
@@ -2102,7 +2111,8 @@
 				is_icon_width_text: is_icon_width_text,
 				is_new_menu: is_new_menu,
 				my_feed_show: my_feed_show,
-				my_activities_show: my_activities_show,				
+				my_activities_show: my_activities_show,
+				my_report_show: my_report_show,				
 				is_my_feed_default: is_my_feed_default,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
@@ -2356,15 +2366,41 @@
 	function selectPDTable(){
 		var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 		var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
+		var my_report_show = ($("input[name='organizational_dashboard_report_show']").attr("checked")) ? "1" : "0";
+		var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();
 		
-		if(my_feed_show == "0" && my_activities_show == "0"){
+		if(my_feed_show == "0" && my_activities_show == "0" && my_report_show == "0"){
 			alert("At least one item needs to be selected.");
 			$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");
-			$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
-		}else if(my_feed_show == "1" && my_activities_show == "0"){
-			$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
-		}else if(my_feed_show == "0" && my_activities_show == "1"){
-			$("input[name='organizational_dashboard_feed_default'][value='0']").attr("checked", "checked");
+			$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");			
+		}else{
+			if(my_feed_show == "1" && my_activities_show == "0" && my_report_show == "0"){
+				$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
+			}else if(my_feed_show == "0" && my_activities_show == "1" && my_report_show == "0"){
+				$("input[name='organizational_dashboard_feed_default'][value='0']").attr("checked", "checked");
+			}else if(my_feed_show == "0" && my_activities_show == "0" && my_report_show == "1"){
+				$("input[name='organizational_dashboard_feed_default'][value='2']").attr("checked", "checked");			
+			}
+			
+			if(is_my_feed_default == "1" &&  my_feed_show == "0"){
+				if(my_activities_show == "1"){
+					$("input[name='organizational_dashboard_feed_default'][value='0']").attr("checked", "checked");
+				}else{
+					$("input[name='organizational_dashboard_feed_default'][value='2']").attr("checked", "checked");
+				}
+			}else if(is_my_feed_default == "0" &&  my_activities_show == "0"){
+				if(my_feed_show == "1"){
+					$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
+				}else{
+					$("input[name='organizational_dashboard_feed_default'][value='2']").attr("checked", "checked");
+				}
+			}else if(is_my_feed_default == "2" &&  my_report_show == "0"){
+				if(my_feed_show == "1"){
+					$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");
+				}else{
+					$("input[name='organizational_dashboard_feed_default'][value='0']").attr("checked", "checked");
+				}
+			}
 		}
 	}
 	
