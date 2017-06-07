@@ -474,7 +474,7 @@
                         else:
                             menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:64px !important;'>"
                     else:
-                        menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu'>"
+                        menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:65px !important;'>"
                     
                     #---------------    
                     for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
@@ -563,7 +563,7 @@
                     else:                    
                         #---------------text
                         if tmp1_MenuItem_txt == "#Messenger":
-                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger (<span class='info_count' style='color:#f00;font-weight:bold;font-size:13px;'>33</span>)</a></li>";
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'>33</span>)</font></a></li>";
                         else:
                             tmp_menu_icon = " &#9662;"
                             if liClass == "":
@@ -734,13 +734,17 @@
                     }
                 });
                 $(document).ready(function(){
-                    $(".configuration").click(function(event){								
-                        var e = window.event || event;
-                        if(e.stopPropagation){
+                    $(".configuration").click(function(event){
+						var e = window.event || event;
+						if(e.stopPropagation){
                             e.stopPropagation();
                         }else{
                             e.cancelBubble = true;
                         }
+						if($('#dropdown').hasClass("active")){
+							$('ul.dropdown-menu').removeClass("expanded");
+							$('#dropdown').removeClass("active");
+						}                        
                         var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
                         if(tmp_el.length > 0){
                             if(tmp_el.is(":visible"))
@@ -797,16 +801,22 @@
     </section>
 %endif
     <script>
-            $(document).ready(function () {
+        $(document).ready(function () {
             $('#dropdown').click(function(event) {
-                $('ul.dropdown-menu').addClass("expanded");
-                $('#dropdown').addClass("active");
-                $(document).one("click", function(){
-                    $('ul.dropdown-menu').removeClass("expanded");
-                    $('#dropdown').removeClass("active");
-            });
+				if($(this).hasClass("active")){
+					$('ul.dropdown-menu').removeClass("expanded");
+					$(this).removeClass("active");
+				}else{
+					$('ul.dropdown-menu').addClass("expanded");
+					$('#dropdown').addClass("active");
+					$(".admin-dropdown-menu").hide();
+					$(document).one("click", function(){
+						$('ul.dropdown-menu').removeClass("expanded");
+						$('#dropdown').removeClass("active");
+					});
+				}
                 event.stopPropagation();
-          });
+          	});
         }); 
         $("#dropdown").mouseover(function(){
             $(this).find(".nav-option-text-left").show();
