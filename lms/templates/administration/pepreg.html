@@ -293,7 +293,7 @@
             <h3 class="dialog-title">My Calendar</h3>
             <div class="close-modal" id="close-calendar">✕</div>
         </div>
-        <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+        <div class="content" id="calendar_content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
         	<span id="math_width" style="position:absolute; top:-1000px;"></span>
             <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
             <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
@@ -711,6 +711,7 @@
                 labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
                 labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
 			}
+
 			//training slot mouseover
 			$(".alert").mouseover(function (e) {
 			    if($("#view_select").val() == "0"){
@@ -1402,6 +1403,11 @@
                 tableWidth = coords[m] + 110;
                 $("#calendar-month").css("width", tableWidth + "px")
             }
+
+            $("#calendar_content").animate({
+                    scrollTop: $(".completeSlot:eq(0)").offset().top
+                }, 2000);
+			}
         }
     };
 
