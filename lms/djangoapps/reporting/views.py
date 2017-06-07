@@ -902,7 +902,7 @@ def report_download_matrix_excel(request, report_id):
     row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
     row_data = rs.get_datas(collection_row_header)
     data = []
-    column_header_row = [column_header]
+    column_header_row = []
     data_last = ['total']
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
@@ -924,8 +924,9 @@ def report_download_matrix_excel(request, report_id):
 
     data_last.append(sum)
     data.append(data_last)
+    column_header_row.insert(0,column_header)
     column_header_row.append("total")
-    
+
     for i, k in enumerate(column_header_row):
         if k == "":
             k = "null"
