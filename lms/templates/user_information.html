@@ -295,13 +295,13 @@
                     % endif
                 </div>
                 <div class="user_profile_district">
-                    <span style="font-weight:bold;">District: </span> 
+                    <span style="font-weight:bold;" id="organization_ui_district">District: </span> 
                     % if curr_user.profile.district_id:
                     ${curr_user.profile.district.name}
                     % endif
                 </div>
                 <div class="user_profile_school" style="word-wrap:break-word">
-                    <span style="font-weight:bold;">School: </span> 
+                    <span style="font-weight:bold;" id="organization_ui_school">School: </span> 
                     % if curr_user.profile.school_id:
                     ${curr_user.profile.school.name}
                     % endif
@@ -1156,8 +1156,26 @@
     <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style>
     .disabled_btn{ cursor:default !important; color:#999999 !important; }
+	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 </style>
 <script>
+	function LoadingWin(){
+		this.$loader = null;
+		this.show();
+	}
+	LoadingWin.prototype.show = function () {
+		if (!this.$loader) {
+			this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+			this.$loader.appendTo(document.body);
+		}
+		this.$loader.css('display','block');
+	};
+	LoadingWin.prototype.hide = function () {
+		if (this.$loader) {
+			this.$loader.remove();
+			this.$loader = null;
+		}
+	};
     $(document).ready(function(){
         $(".portfolio-btn").each(function(){
             var user_id = "${curr_user.id}";
@@ -1174,6 +1192,29 @@
             });
         });
 		$(".information_left_top_left").css("backgroundColor", $(".nav-fixed").css("backgroundColor"));
+		
+		//------------------organization_get_info		
+		var loadwin = new LoadingWin();		
+		var state = "-1";
+		var district = "-1";
+		% if curr_user.profile.district_id:
+        state = "${curr_user.profile.district.state.id}"
+        % endif
+		% if curr_user.profile.district_id:
+		district = "${curr_user.profile.district.id}"
+		% endif
+					
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district}, function (r) {		
+			if (r.SiteURL_OK){
+				if(r.Success){
+					if(r.OrganizationOK){					
+						$("#organization_ui_district").html(r.DistrictType + ": ");
+						$("#organization_ui_school").html(r.SchoolType + ": ");
+					}
+				}
+			}
+			loadwin.hide();
+		});
     });
 </script>
 </%block>
