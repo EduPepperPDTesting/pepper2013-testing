@@ -1238,11 +1238,15 @@ def get_column_headers(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     collection = get_cache_collection(request, report_id, school_year)
-    report = Reports.objects.get(id=int(report_id))
-    create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
     collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=int(report_id))
     rs = reporting_store()
+    stats = int(rs.get_collection_stats(collection_row_header)['ok'])
+
+    if(not(stats)):
+        create_column_Headers(report,collection)
+
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
@@ -1257,17 +1261,12 @@ def get_column_headers(request):
 
     if request.GET.has_key('page'):
         sorts = get_request_array(request.GET, 'col')
-        filters = get_request_array(request.GET, 'fcol')
+        row_filters = get_request_array(request.GET, 'fcol')
         page = int(request.GET['page'])
         size = int(request.GET['size'])
         start = page * size
-
-        matrix_filter = {}
-        for col, f in filters.iteritems():
-            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-            matrix_filter[column_header] = reg
-
-        row_data = rs.get_page(collection_row_header, start, size, matrix_filter)
+        end = start + size
+        row_data = rs.get_datas(collection_row_header)
 
         if aggregate_type_id == 1:
             for d in row_data:
@@ -1280,8 +1279,32 @@ def get_column_headers(request):
                 row.append(d['count'])
                 data.append(row)
 
+
+        filter_data = []
+        if len(row_filters) > 0:
+            for k in data:
+                sign = True
+                for col, f in row_filters.iteritems():
+                    if f not in str(k[int(col)]):
+                        sign = False
+                        break
+                if sign:
+                    filter_data.append(k)
+        else:
+            filter_data = data
+            
+        if len(sorts) > 0:
+            for col,order in sorts.items():
+                if int(order) == 1:
+                    data = sorted(filter_data, key=lambda x:x[int(col)])
+                else:
+                    data = sorted(filter_data, key=lambda x:x[int(col)],reverse=True)
+        else:
+            data = filter_data
+        
         total = len(data)
-    
+        data = data[start:end]
+
     return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):
