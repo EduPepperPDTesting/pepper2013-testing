@@ -1412,7 +1412,7 @@
                 $("#calendar-month").css("width", tableWidth + "px");
             }
 
-            $("#calendar_content").scroll(function(){
+            /*$("#calendar_content").scroll(function(){
 
                 var cont_top = $("#calendar_content").position().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
@@ -1452,7 +1452,7 @@
                         }
                     });
                 }
-            });
+            });*/
 
             $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
                 console.log("posY: "+$(".completeSlot:eq(0)").position().top)
