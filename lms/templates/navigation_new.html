@@ -855,7 +855,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-            if (document.URL.indexOf('user_profile') >= 0) {
+            if (document.URL.indexOf('dashboard') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${request.user.id}"
                }, function(data) {
