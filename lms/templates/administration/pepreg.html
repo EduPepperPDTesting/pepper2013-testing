@@ -1422,7 +1422,7 @@
                 if($(".completeSlot").filter(function(cont_bottom){
                        var top_slot = $(this).css('top');
                        return parseInt(top_slot) >= cont_bottom;
-                    }).length){
+                    }).length && $("#btn_down").length == 0){
                     var btn_top = cont_bottom - 20;
                     $("#calendar_content").append("<button id='btn_down' style='position:absolute; top:" + btn_top + "px; left" + btn_right + "px;'>Next</button>");
                 }else if($("#btn_down").length){
@@ -1432,7 +1432,7 @@
                 if($(".completeSlot").filter(function(cont_top){
                        var top_slot = $(this).css('top');
                        return parseInt(top_slot) < cont_top;
-                    }).length){
+                    }).length && $("#btn_up").length == 0){
                     var btn_bot = cont_bottom + 20;
                     $("#calendar_content").append("<button id='btn_up' style='position:absolute; top:" + btn_bot + "px; left" + btn_right + "px;'>Previous</button>");
                 }else if($("#btn_up").length){
