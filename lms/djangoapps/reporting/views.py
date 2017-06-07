@@ -1253,8 +1253,10 @@ def get_column_headers(request):
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
 
     column_header_row = []
+    data_last = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
+        data_last.append(d['count'])
 
     data = []
     total = ''
@@ -1304,7 +1306,8 @@ def get_column_headers(request):
         
         total = len(data)
         data = data[start:end]
-
+        data.append(data_last)
+        
     return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
 
 def collection_column_headers(collection):
