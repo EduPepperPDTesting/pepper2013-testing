@@ -1418,7 +1418,7 @@
                 var cont_top = $("#calendar_content").position().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
                 var btn_right = cont_right - 50;
-
+                console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
                 if($(".completeSlot").filter(function(cont_bottom){
                        var top_slot = $(this).css('top');
                        console.log("down top_slot-"+top_slot+" cont_bottom-"+cont_bottom);
