@@ -815,6 +815,7 @@ def attach_post_info(p, time_diff_m, user):
     p["is_my_like"] = store.is_like(p["_id"], user.id)
     p["who_like_text"] = format_like(p.get("likes"))
     p["likes"] = len(p.get("likes")) if p.get("likes") else 0
+    p["expiration_date"] = p["expiration_date"].strftime('%Y-%m-%d %H:%M:%S') if p.get("expiration_date") else ''
     p["post_date"] = post_date
     p["post_h"] = post_h
     p["post_m"] = post_m
@@ -887,7 +888,7 @@ def get_posts(request):
 
     store = dashboard_feeding_store()
     posts = store.get_posts(request.user.id, year=filter_year, month=filter_month,
-                            page_size=int(page_size), page=int(page), before=now_utc)
+                            page_size=int(page_size), page=int(page), after=now_utc)
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
@@ -916,7 +917,7 @@ def get_org_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
-    kwargs = {"before": now_utc}
+    kwargs = {"after": now_utc}
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
 
@@ -941,9 +942,9 @@ def get_announcements(request):
     store = dashboard_feeding_store()
     # posts = store.top_level_for_user(request.user.id, type=filter_group,
     #                                  year=filter_year, month=filter_month,
-    #                                  page_size=int(page_size), page=int(page), before=now_utc)
+    #                                  page_size=int(page_size), page=int(page), after=now_utc)
 
-    kwargs = {"year": filter_year, "month": filter_month, "before": now_utc}
+    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
     data = {"orgs": []}
     data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))

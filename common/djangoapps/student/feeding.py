@@ -82,25 +82,28 @@ class DashboardFeedingStore(MongoBaseStore):
         self.update({"_id": ObjectId(feeding_id)},
                     {"$pull": {"likes": {"user_id": long(user_id)}}}, False, True)
 
-    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, before=None, cond_ext={}):
+    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, after=None, cond_ext={}):
         results = []
 
         # ** fields needed
         fields = {"__doc__": "$$ROOT", "keep_top": {"$and": [
             {"$eq": ["$type", "announcement"]},
-            {"$gte": ["$expiration_date", before]}]}}
+            {"$gte": ["$expiration_date", after]}]}}
         fields["month"] = {"$month": '$date'}
         fields["year"] = {"$year": '$date'}
 
         # ** cond
         cond = {"$and": [{"$or": [{"__doc__.receivers": {"$in": [user_id]}},  # user is receiver
-                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},      # for every one
-                         {"__doc__.dismiss": {"$nin": [user_id]}}  # not dismissed
+                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},  # for every one
+                         {"__doc__.dismiss": {"$nin": [user_id]}},  # not dismissed
+                         {"$or": [
+                             {"__doc__.type": {"$ne": "announcement"}},  # none announcement
+                             {"__doc__.expiration_date": {"$gte": after}}]}  # > after
                          ],
                 "__doc__.sub_of": None}  # is top leve;
 
         cond.update(cond_ext)
-        
+
         # *** filter cond
         if month:
             cond["month"] = int(month)
@@ -114,9 +117,10 @@ class DashboardFeedingStore(MongoBaseStore):
         # ** sort order
         so = OrderedDict([("keep_top", -1), ("__doc__.date", -1)])
 
+        # ** create command
         command = [{"$project": fields}, {"$match": cond}, {"$sort": so}]
 
-        # ** paged
+        # *** paged
         if page is not None:
             command.append({"$skip": page * page_size})
         if page_size is not None:
@@ -131,6 +135,7 @@ class DashboardFeedingStore(MongoBaseStore):
         for p in cursor["result"]:
             # p = dict((k, p[k]) for k in ("_id", "content", "user_id"))
             p.update(p["__doc__"])
+            del p["__doc__"]
             results.append(p)
         return results
 

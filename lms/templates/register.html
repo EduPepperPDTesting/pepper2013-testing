@@ -547,13 +547,15 @@ LoadingWin.prototype.hide = function () {
 $(document).ready(function(){	
 	//------------------organization_get_info
 	var loadwin = new LoadingWin();		
-	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", district: "${profile.district.state.id}", state: "${profile.district.id}"}, function (r) {
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {		
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){
-					$("#organization_info_state").html(r.SchoolType);
-					$("#organization_info_district").html(r.DistrictType);
-					
+					//$("#organization_info_state").html(r.SchoolType);
+					//$("#organization_info_district").html(r.DistrictType);					
+					$("#organization_info_district").parent().find("label").html(r.DistrictType);
+					$("#school_id").parent().find("label").html(r.SchoolType);
+		  
 					if(r.org_rg_major_subject == "-1")		$("#organization_info_org_rg_major_subject").hide();
 					if(r.org_rg_grade_level == "-1")		$("#organization_info_org_rg_grade_level").hide();
 					if(r.org_rg_my_learners == "-1")		$("#organization_info_org_rg_my_learners").hide();
