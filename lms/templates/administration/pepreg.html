@@ -1417,12 +1417,14 @@
                 var cont_right = $("#calendar_content").left + parseInt($("#calendar_content").width());
                 var cont_top = $("#calendar_content").position().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
+                var btn_right = cont_right - 50;
 
                 if($(".completeSlot").filter(function(cont_bottom){
                        var top_slot = $(this).css('top');
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
-                    $("#calendar_content").append('<button id="btn_down" style="position:absolute; top:' + cont_bottom - 20 + 'px; left' + cont_right - 50 + 'px;">Next</button>');
+                    var btn_top = cont_bottom - 20;
+                    $("#calendar_content").append("<button id='btn_down' style='position:absolute; top:" + btn_top + "px; left" + btn_right + "px;'>Next</button>");
                 }else if($("#btn_down").length){
                     $("#btn_down").remove();
                 }
@@ -1431,7 +1433,8 @@
                        var top_slot = $(this).css('top');
                        return parseInt(top_slot) < cont_top;
                     }).length){
-                    $("#calendar_content").append('<button id="btn_up" style="position:absolute; top:' + cont_top + 20 + 'px; left' + cont_right - 50 + 'px;">Previous</button>');
+                    var btn_bot = cont_bottom + 20;
+                    $("#calendar_content").append("<button id='btn_up' style='position:absolute; top:" + btn_bot + "px; left" + btn_right + "px;'>Previous</button>");
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
                 }
