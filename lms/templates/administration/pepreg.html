@@ -1404,7 +1404,7 @@
                 $("#calendar-month").css("width", tableWidth + "px")
             }
 
-            $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").offset().top}, 2000);
+            $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000);
         }
     };
 
