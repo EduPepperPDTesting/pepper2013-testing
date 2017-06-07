@@ -912,19 +912,32 @@ def organization_get_info(request):
 
             elif(source == "navigation"):
                 if request.user.is_authenticated():
-                    state = request.user.profile.district.state.id
-                    district = request.user.profile.district.id
-
+                    try:
+                        state = request.user.profile.district.state.id
+                        district = request.user.profile.district.id
+                        school = request.user.profile.school.id
+                    except:
+                        state = -1
+                        district = -1
+                        school = -1
+                    
                     data['OrganizationOK'] = False
 
-                    if (district):
+                    if (school != -1):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school,
+                                                                         EntityType="School"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
+
+                    if (not (data['OrganizationOK']) and district != -1):
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
                                                                          EntityType="District"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
                             break;
 
-                    if (not (data['OrganizationOK']) and state):
+                    if (not (data['OrganizationOK']) and state != -1):
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization

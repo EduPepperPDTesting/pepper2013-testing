@@ -855,7 +855,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-            if (document.URL.indexOf('user_profile') >= 0) {
+            if (document.URL.indexOf('dashboard') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${request.user.id}"
                }, function(data) {
@@ -1675,13 +1675,13 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					for(var obj in r){
+					/*for(var obj in r){
 						if(obj.indexOf("_obj") > -1){
 							if(r[obj] == "-1"){
 								$("#" + obj).hide();
 							}
 						}
-					}
+					}*/
 					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}
