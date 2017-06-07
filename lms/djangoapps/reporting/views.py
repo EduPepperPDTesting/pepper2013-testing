@@ -891,7 +891,6 @@ def report_download_matrix_excel(request, report_id):
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
 
-    report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
@@ -902,8 +901,8 @@ def report_download_matrix_excel(request, report_id):
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
     row_data = rs.get_datas(collection_row_header)
-
-    column_header_row = []
+    data = []
+    column_header_row = [column_header]
     data_last = ['total']
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
@@ -924,13 +923,18 @@ def report_download_matrix_excel(request, report_id):
         sum += val[-1]
 
     data_last.append(sum)
-    data = data[start:end]
     data.append(data_last)
+    column_header_row.append("total")
+    
+    for i, k in enumerate(column_header_row):
+        if k == "":
+            k = "null"
+        worksheet.write(0, i, k)
 
     row = 1
-    for key,val in enumerate(data):
-        for value in val:
-            worksheet.write(row, value, val[value])
+    for k,val in enumerate(data):
+        for key,value in enumerate(val):
+            worksheet.write(row, key, value)
         row += 1
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
