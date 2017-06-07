@@ -694,13 +694,16 @@ a{
                 <div class="my-feed-btn mytab-active">My Feed</div>                
             % endif
             % if OrganizationOK and data["My Activities Show"] == "1":
-                <div class="my-activity-btn" style="">My Activity</div>             
+                <div class="my-activity-btn mytab-active">My Activity</div>             
+            % endif
+            % if OrganizationOK and data["My Report Show"] == "1":
+                <div class="my-report-card-btn mytab-active">My Report Card</div>
             % endif
             % if not(OrganizationOK):
                 <div class="my-feed-btn mytab-active">My Feed</div>
                 <div class="my-activity-btn" style="">My Activity</div>
-            % endif
                 <div class="my-report-card-btn" style="">My Report Card</div>
+            % endif
             </div>
             <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
@@ -824,10 +827,16 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
-    % if OrganizationOK and data["Is My Feed Default"] == "1":
-        var now_show = 1; //1:my feed;2:my activity
+    % if OrganizationOK:
+        % if data["Is My Feed Default"] == "1":
+            var now_show = 1; //1:my feed;2:my activity
+        % elif data["Is My Feed Default"] == "0":
+            var now_show = 2; //1:my feed;2:my activity
+        % else:
+            var now_show = 3; //1:my feed;2:my activity
+		% endif
     % else:
-        var now_show = 2; //1:my feed;2:my activity
+        var now_show = 1; //1:my feed;2:my activity
     % endif
     
     var data_all = 0;
