@@ -516,11 +516,11 @@ def getCalendarMonth(request):
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            all_occurrences = PepRegTraining.objects.prefetch_related().filter(args, **kwargs)
+            all_occurrences = PepRegTraining.objects.prefetch_related().filter(args, **kwargs).order_by('training_date', 'training_time_start')
         else:
-            all_occurrences = PepRegTraining.objects.prefetch_related().filter(**kwargs)
+            all_occurrences = PepRegTraining.objects.prefetch_related().filter(**kwargs).order_by('training_date', 'training_time_start')
     else:
-        all_occurrences = PepRegTraining.objects.prefetch_related().all()
+        all_occurrences = PepRegTraining.objects.prefetch_related().all().order_by('training_date', 'training_time_start')
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)

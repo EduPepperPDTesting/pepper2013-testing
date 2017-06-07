@@ -1018,8 +1018,11 @@
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");
 
 									if(r["Is Icon With Text"] == "1"){
-										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
+										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", false);
 									}
+
 									if(r["Text Color"])		$("#organizational_dashboard_menu_text_color").val(r["Text Color"]);
 									$("#organizational_dashboard_menu_text_font").val(r["Text Font"]);
 									$("#organizational_dashboard_menu_text_size").val(r["Text Size"]);
@@ -1040,9 +1043,6 @@
 									}
 									if(r["My Activities Show"] == "1"){
 										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
-									}									
-									if(r["Is New Menu"] == "1"){
-										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
 									}
 									
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);

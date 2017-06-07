@@ -18,6 +18,7 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
+
 <style>
     .lean-overlay .loading {
         width: 128px;
@@ -42,8 +43,9 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
-                <thead id="talbe_column"></thead>
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_get_column_headers')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+                <thead id="talbe_column">
+                </thead>
                 <tbody id="table_data"></tbody>
             </table>
             </div>
@@ -76,6 +78,9 @@
                             %endfor
                         </select>
                     %endif
+                    %if check_user_perms(request.user, 'reporting', 'administer') or (check_user_perms(request.user, 'reporting', 'create_reports') and report.access_level == check_access_level(request.user, 'reporting', 'create_reports')):
+                        <input type="button" id="btnEditReport" value="EDIT REPORT" name="" style="font-size:14px;">
+                    %endif
                </div>
             </div>
         </span>
@@ -98,37 +103,6 @@
 </div>
 
 <script type="text/javascript">
-
-
-$(document).ready(function () {
-    $(".tblReport").tablesorter().tablesorterPager();
-    var school_year = $(".school_year_select").val();
-    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":school_year}, function(datas){
-        column_header = datas.column_header;
-        column_datas = datas.column_data;
-        row_data = datas.data;
-
-        var html = "<th>"+column_header+"</th>";
-        for (data in column_datas){
-            html += "<th>"+column_datas[data]+"</th>";
-        }
-        html += "<th>Totol</th>";
-        $("#talbe_column").html(html)
-        
-        var aggregate_html = "<tr>"
-        for (data in row_data){
-            if (row_data[data] != 'end'){
-                aggregate_html += "<td>"+row_data[data]+"</td>";
-            }else{
-                aggregate_html += "</tr><tr>";
-            }
-        }
-        aggregate_html += "</tr>";
-        $("#table_data").html(aggregate_html);
-
-    });
-})
-
 $.extend($.tablesorter.themes.jui, {
         // change default jQuery uitheme icons - find the full list of icons at
         // http://jqueryui.com/themeroller/ (hover over them for their name)
@@ -152,7 +126,7 @@ $.extend($.tablesorter.themes.jui, {
         even         : 'ui-widget-content', // even row zebra striping
         odd          : 'ui-state-default'   // odd row zebra striping
     });
-var pagerOptions = {
+    var pagerOptions = {
         container: $(".pager"),
         output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
         fixedHeight: false,
@@ -167,7 +141,6 @@ var pagerOptions = {
         size: 10,
         savePages: false
     };
-
     var tablesorterOptions = {
         debug: false,
         theme: 'jui',
@@ -182,9 +155,152 @@ var pagerOptions = {
             filter_reset: '.reset',
             filter_serversideFiltering: true,
             output_saveFileName: 'data.csv',
-            columnSelector_container : $('#columnSelector'),
-            columnSelector_columns : { '${len(display_columns)}': 'disable'},
-            columnSelector_mediaqueryName: 'All: '
         }
     };
+
+function safeJSON(j){
+        j.csrfmiddlewaretoken="${csrf_token}";
+        return j;
+    }
+
+    function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+
+var report_view = {
+        timeID:null,
+        dialog:null,
+        init:function(){
+            var self = this;
+            clearInterval(self.timeID);
+            loadwin = new LoadingWin();
+            self.timeID = setInterval(self.show_progress, 4000, self);
+            $("#btnEditReport").click(function(){
+                window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
+            });
+            $("#btnDownloadReportExcel").click(function(){
+                self.downloadReportExcel();
+            });
+            self.selectSchoolYear();
+        },
+        show_progress: function(obj){
+            var self = this;
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
+                if (data != null) {                 
+                    if(data.success)
+                    {
+                        obj.reloadTable()
+                        clearInterval(obj.timeID);
+                        loadwin.hide();
+                        $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
+                            set_custome_filters($(".tblReport"), data.data);
+                            
+                            $(".tablesorter-header-inner").each(function(){
+                                var tmp1 = $(this).text().trim();
+                                if(tmp1 == "District"){
+                                    $(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }else if(tmp1 == "School"){
+                                    $(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        },
+        reloadTable: function(){
+            var t = $(".tblReport")[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.ajaxUrl = $(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        },
+        postToNewTab: function(url, params) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", url);
+            form.setAttribute("target", "_blank");
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        },
+        downloadReportExcel: function(){
+            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+        },
+        selectSchoolYear: function(){
+            $(".school_year_select").change(function(){
+                window.location.href = "${reverse('reporting_report',args=[report.id])}?school_year=" + $(this).val();
+            });
+            var request_school_year = "${request.GET.get('school_year','')}";
+            $(".school_year_select").val(request_school_year);
+            if("${school_year_item}".indexOf('current') >= 0 && request_school_year == ''){
+                $(".school_year_select").val("current");
+            }
+        }
+    }
+
+    function set_custome_filters($table, data){
+        var selectSource = {};
+        for(var i = 0; i < data.length; i++)
+        {   
+            for(var j = 0; j < data[i].items.length; j++){
+                try{
+                    data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                }
+                catch(e){
+                    data[i].items[j] = "'" + data[i].items[j] + "'";
+                }
+            }
+           eval("selectSource[" + data[i].index + "] = function(table, column) {return [" + data[i].items + "]}")
+        }
+        $table[0].config.widgetOptions.filter_selectSource = selectSource;
+        $table.trigger("update");
+    }
+
+
+$(document).ready(function () {
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
+        column_header = datas.column_header;
+        column_datas = datas.column_data;
+        row_data = datas.data;
+
+        var html = "<tr><th>"+column_header+"</th>";
+        for (data in column_datas){
+            html += "<th class='filter-select'>"+column_datas[data]+"</th>";
+        }
+        html += "<th>Totol</th></tr>";
+        $("#talbe_column").html(html)
+
+        $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        report_view.init();
+
+    });
+})
+
+
+
 </script>

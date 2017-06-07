@@ -12,53 +12,12 @@
     import datetime
     
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem  
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes  
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
 #image_uploading{display:none;}
-a.btnx:hover,input[type=button].btnx:hover {
-    background:#6e8194;
-    transition-delay: 0s, 0s, 0s;
-    transition-duration: 0.25s, 0.25s, 0.25s;
-    transition-property:color, background,​ box-shadow;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    transition-duration:0.25s,​ 0.25s,​ 0.25s;
-    color:#fff;
- }
- a.btnx, input[type=button].btnx{
-    border:none;
-    text-decoration:none;
-    background:#556370;
-    text-decoration: none;
-    padding-bottom: 7px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 7px;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-    cursor: pointer;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    box-shadow: #949494 0px 2px 1px 0px;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
- }
- a.btnx:normal, input[type=button].btnx{
-    background-color:#556370;
-    text-decoration: none;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-    cursor: pointer;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    box-shadow: #949494 0px 2px 1px 0px;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
- }
  ._del_line{
     text-decoration: none !important;
  }
@@ -71,18 +30,6 @@ a.btnx:hover,input[type=button].btnx:hover {
     font-size:13px !important;
  }
 /*--from .css-----------------------------------------------------------------*/
-#searching-text{
-    border:0;
-    height:25px;
-    width: 255px;
-    margin-left: 5px;
-    outline: none;
-
-    color:#818181;
-    font-size: 15px;
-    font-family: "Arial" !important;
-    font-style:italic;
-}
 
 .ds-post-title{
     padding:5px 5px 5px 10px;
@@ -146,162 +93,213 @@ a.btnx:hover,input[type=button].btnx:hover {
     margin-bottom: 15px;
 }
 
+a{
+    text-decoration:none !important;
+}
 /*--left My Courses--------------------------------------------*/
 .con-my-courses-outer{
     float:left;
-    width:220px;
+    width:250px;
     height:50px;
 }
 .con-my-courses{
-    width:220px;
-    height:500px;
+    width:250px;
+    height:795px;
     background-color: #fff;
-    /*display:block;
-    float:left;*/
-    
-    /*position: fixed;
-
-    height:780px;
-    border:1px solid #f00;*/
-    
 }
-.my-title{
-    /*width:215*/
-    width:214px;
-    /*text-align:center;*/
-    padding-left: 1px;
-}
-.my-title a{
-    font-size:18px;
-    color:#3C4646;
+.my-title-green{
+    width:204px;
+    padding:10px;
+    background-color:#89C153;
+    text-align: center;
+    font-size:16px;
+    color:#fff;
     text-decoration:none !important;
     cursor:pointer;
-    font-weight:bold;
+    margin-left: 13px;
+    margin-top: 10px;
 }
-
-.my-courses-cards .course-card{
-    background-color: #FFFFFF;
-    border-radius: 6px;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);*/
+.my-courses-cards{
     float: left;
-    width: 215px;
-    height:134px;
-    position: relative;
-    cursor: auto!important;
-    text-align: center;
+    width: 250px;
+    border:0px solid;
 }
-.my-courses-cards .card-top{
-    position: relative;
+.course-incomplated{
+    width:194px;
+    padding:10px;
+    font-size: 14px;
+    margin-left: 13px;
+    margin-top: 10px;
+    background-color: #fff;
 }
-.my-courses-cards .image-style{
-    border-radius: 6px;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    display: block;
-    width:215px;
-    height:134px;
-
-}
-.my-courses-cards .course-title {
-    display: table;
-    position: absolute;
-    bottom: 0;
-}
-.my-courses-cards .card-link{
-    display: table-cell;
-    width: 215px;
-    height: 54px;
-    vertical-align: middle;
-    padding: 0 17px;
-    background: rgba(18,111,154,0.95);
-    text-decoration: none!important;
-    border-radius: 0px 0px 6px 6px;
-    -moz-border-radius: 0px 0px 6px 6px;
-    -webkit-border-radius: 0px 0px 6px 6px;
-}
-.my-courses-cards .card-link span{
-    color:#fff;
-    font-size: 13px;
-}
-.ds-course-btn{
-    float:left;
-    line-height:27px;
-    height:28px;
-    margin-top:3px;
-    margin-bottom: 20px;
-}
-.ds-course-btn .ds-btn-view-portfolio{
-    color: #fff;
-    text-decoration: none!important;
-    font-size:13px;
-
-    padding:5px 13px 5px 13px;
-    border-radius: 2px;
-    background-color:#556370;
-}
-.ds-course-btn .ds-btn-view-course{
-    color: #fff;
-    text-decoration: none!important;
-    font-size:13px;
-
-    padding:5px 13px 5px 13px;
-    border-radius: 2px;
-    background-color:#4ecdc4;
-    margin-left: 1px;
+.course-incomplated a{
+    font-size: 14px !important;
+    color: #000;
 }
 .ds-view-all-courses{
-    width:215px;
+    width:230px;
     text-align:right;
     float: left;
     /*margin-top:-10px;*/
+    padding-right:20px;
+    border: 0px solid;
+
 }
 .ds-view-all-courses a{
     font-size: 16px;
     color: #0070d5;
     text-decoration: none !important;
     cursor: pointer;
-    margin-right: 10px;
 }
-
 .ds-view-allowed-courses{
-    width:215px;
+    width:230px;
     text-align:right;
     float: left;
-    /*margin-top:10px;*/
+    padding-right:20px;
 }
 .ds-view-allowed-courses a{
     font-size: 16px;
     color: #0070d5;
     text-decoration: none !important;
     cursor: pointer;
-    margin-right: 10px;
-
 }
 /*--right My Communities---------------------------------------------*/
 .con-my-communities-outer{
     float:left;
-    width:220px;
-    height:50px;
+    width:250px;
+    height:820px;
     margin-left: 27px;
 }
 .con-my-communities{
-    width:220px;
+    width:250px;
+    height:790px;
     background-color: #fff;
     position:fixed;
-    padding-bottom: 15px;
+    padding-bottom: 5px;
 }
-
-.my-district{
-    display:block;
-    float:right;
-    width:220px;
+.my-profile-logo{
+    width:230px;
+    height:170px;
+    margin-left: 10px;
+    margin-top: 10px;
+    text-align: center;
 }
+.my-title-blue{
+    width:204px;
+    padding:10px;
+    background-color:#2CBAEC;
+    text-align: center;
+    font-size:16px;
+    color:#fff;
+    text-decoration:none !important;
+    cursor:pointer;
+    margin-left: 13px;
+    margin-top: 10px;
+}
+.community-trending-topics{
+    margin-bottom: 25px;
+}
+.my-community{
+    width:210px;
+    margin-left:18px;
+    padding:8px 0px 10px 0px;
+    border-bottom:1px solid #ccc;
+}
+.my-community-noline{
+    width:210px;
+    margin-left:18px;
+    padding:8px 0px 10px 0px;
+}
+.trending-topic{
+    margin-top: 10px;
+}
+.trending-topic .tt-title{
+    padding:1px 0px 1px 0px;
+    font-size:16px;
+    font-weight:bold;
+    /*color:#92c900;*/
 
+    width: 100%;
+    height: 18px;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+
+    border:0px solid;
+}
+.trending-topic .tt-post{
+    padding:1px 0px 1px 0px;
+    width: 100%;
+    height: 18px;
+    font-weight:bold;
+    color:#29b7ec;
+    font-size:14px;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.trending-topic .tt-post a{
+    font-weight:bold;
+    color:#29b7ec;
+    font-size:14px;
+    text-decoration:none !important;
+}
+.trending-topic .tt-time{
+    padding:1px 0px 1px 0px;
+    font-size:14px;
+    height: 18px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+.trending-topic .tt-btn-reply{
+    width:80px;
+    background-color:#F58221;
+    border-radius: 5px;
+    text-align: center;
+    padding: 4px 0px 4px 0px;
+}
+.trending-topic .tt-btn-addme{
+    width:80px;
+    background-color:#89C153;
+    border-radius: 5px;
+    text-align: center;
+    padding: 4px 0px 4px 0px;
+}
+.my-communities-cards{
+    width: 224px;
+    margin-left: 13px;
+    background-color: #4a4c4d;
+    padding: 18px 0px 1px 0px;
+}
+.ma-community-simple{
+    width:194px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    text-align: center;
+    padding: 8px 3px 8px 3px;
+    font-size: 14px;
+    color: #000;
+    margin-left: 12px;
+    margin-bottom:18px; 
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(0,0,0,.05) 51%, rgba(0,0,0,.1));
+    border:1px solid #ccc;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.ma-community-simple:hover{
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
+}
 .ds-view-all-communities{
-    width:215px;
+    width:224px;
     text-align:right;
+    margin-top: 10px;
+    margin-left: 13px;
 }
 .ds-view-all-communities a{
     font-size: 16px;
@@ -532,92 +530,6 @@ a.btnx:hover,input[type=button].btnx:hover {
     white-space:nowrap;
     overflow:hidden;
 }
-.my-communities-cards{
-    width: 194px;
-    margin-left: 13px;
-    background-color: #4a4c4d;
-    padding: 18px 0px 1px 0px;
-}
-.ma-community-simple{
-    width:164px;
-    background: #f5f5f5;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    text-align: center;
-    padding: 8px 3px 8px 3px;
-    font-size: 13px;
-    color: #000;
-    margin-left: 12px;
-    margin-bottom:18px; 
-    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(0,0,0,.05) 51%, rgba(0,0,0,.1));
-    border:1px solid #ccc;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-.ma-community-simple:hover{
-    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
-}
-
-.trending-topic{
-    margin-top: 10px;
-}
-.trending-topic table{
-    margin-bottom: 15px;
-}
-.community-trending-topics{
-    margin-bottom: 40px;
-}
-.trending-topic .tt-title{
-    padding:1px 0px 1px 0px;
-    font-size:15px;
-    font-weight:bold;
-    /*color:#92c900;*/
-
-    width: 100%;
-    height: 18px;
-
-    text-overflow:ellipsis;
-    overflow:hidden;
-    white-space:nowrap;
-
-    border:0px solid;
-}
-.trending-topic .tt-post{
-    padding:1px 0px 1px 0px;
-    font-size:13px;
-    width: 100%;
-    height: 18px;
-    color:#29b7ec;
-    font-weight:bold;
-
-    text-overflow:ellipsis;
-    overflow:hidden;
-    white-space:nowrap;
-}
-.trending-topic .tt-post a{
-    color:#29b7ec;
-    font-size:13px;
-    text-decoration:none !important;
-}
-.trending-topic .tt-time{
-    padding:1px 0px 1px 0px;
-    font-size:13px;
-    height: 18px;
-    font-weight: bold;
-    margin-top: 8px;
-}
-.trending-topic .tt-btn{
-    width:80px;
-    background-color:#F58221;
-    border-radius: 5px;
-    text-align: center;
-    font-size:13px;
-    color: #fff;
-    padding: 4px 0px 4px 0px;
-}
 
 /*--my activity course ico--*/
 .ma-course-course-card{
@@ -667,61 +579,8 @@ a.btnx:hover,input[type=button].btnx:hover {
     overflow:hidden;
     text-overflow:ellipsis;
 }
-a{
-    text-decoration:none !important;
-}
-.my-title-green{
-    width:174px;
-    padding:10px;
-    background-color:#89C153;
-    text-align: center;
-    font-size:15px;
-    color:#fff;
-    text-decoration:none !important;
-    cursor:pointer;
-    margin-left: 13px;
-    margin-top: 10px;
-}
-.my-courses-cards{
-    float: left;
-    width: 220px;
-    border:0px solid;
-}
-.course-incomplated{
-    width:174px;
-    padding:5px;
-    font-size: 13px;
-    margin-left: 13px;
-    margin-top: 10px;
-    background-color: #fff;
-}
-.my-title-blue{
-    width:174px;
-    padding:10px;
-    background-color:#2CBAEC;
-    text-align: center;
-    font-size:15px;
-    color:#fff;
-    text-decoration:none !important;
-    cursor:pointer;
-    margin-left: 13px;
-    margin-top: 10px;
-}
-.my-profile-logo{
-    width:194px;
-    height:194px;
-    background-color:#e8e8e8;
-    margin-left: 13px;
-    margin-top: 10px;
-    text-align: center;
-}
-.my-community{
-    width:180px;
-    margin-left:18px;
-    padding-bottom:10px;
 
-    border-bottom:1px solid #ccc;
-}
+
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -757,10 +616,17 @@ a{
                 break;
                 
         data = {}
+        data['profile_logo'] = ''
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
                 data[tmp1.itemType] = tmp1.itemValue
+            for tmp1 in OrganizationAttributes.objects.filter(organization=data["org_id"]):
+                data['profile_logo'] = tmp1.LogoProfile
+                break;
+            if data['profile_logo']:
+                data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
+
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
@@ -771,8 +637,8 @@ a{
 <!--@end-->
 <script src="/static/js/datetime/moment.js"></script>
 
-<section class="content-wrapper1" style="margin-top:0px;background-color:#F0F0F0;">
-    <section class="container dashboard">
+<section class="content-wrapper1" style="margin-top:0px;background-color:#e7e7e8;">
+    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:69px;">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
         <div class="con-my-courses-outer">
@@ -786,7 +652,14 @@ a{
                         course_target = reverse('courseware', args=[course.id])
                     %>
                     <div class="course-incomplated">
-                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                         %if curr_user == request.user:
+                            %if not course.close_course:      
+                                <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            %else:
+                                <a href="${reverse('cabout', args=[course.id])}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            %endif
+                            </a>
+                        %endif
                     </div>
                 %endfor
             </div>
@@ -802,7 +675,9 @@ a{
                 <div class="my-courses-cards">
                     %for course in allowedcourses:
                         <div class="course-incomplated">
-                            <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                            </a>
                         </div>
                     %endfor
                 </div>
@@ -891,19 +766,31 @@ a{
                 <!--width:220px-->
                 <div class="community-trending-topics">
                     <div class="my-profile-logo">
-                        <img src="/static/images/announcement.jpg" style="max-width:194px;max-height:194px;"/>
+                    %if data['profile_logo']:
+                        <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
+                    %endif
                     </div>
                     <a href="/communities">
                         <div class="my-title-blue">My Trending Topics</div>
                     </a>
                     <div class="trending-topic" style="border:0px solid;">
-                        <div class="my-community">
-                            <div class="tt-title">lvzh community private</div>
-                            <div class="tt-post"><a>private commutniy cotent</a></div>
-                            <div class="tt-time">Last Post:May 19,2017</div>
-                            <div class="tt-btn">Add Me</div>
-                        </div>
-                        %for c in community_trending_topics:
+                        %for k,c in enumerate(community_trending_topics):
+                            %if k + 1 == len(community_trending_topics):
+                                <div class="my-community-noline">
+                            %else:
+                                <div class="my-community">
+                            %endif
+                                <div class="tt-title">${c['cname']}</div>
+                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
+                                <div class="tt-time">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                %if c['btntext'] == "Reply":
+                                    <div class="tt-btn-reply">
+                                %else:
+                                    <div class="tt-btn-addme">
+                                %endif
+                                    <a href=${c['btnurl']} style="color:#fff;font-size:13px;">${c['btntext']}</a>
+                                </div>
+                            </div>
                         %endfor
                     </div>
                 </div>
@@ -923,7 +810,7 @@ a{
                             </a>
                         %endfor
                     </div>
-                    <!--<div class="ds-view-all-communities"><a href="/communities">View All</a></div>-->
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
                 </div>
             </div>
         </div>
