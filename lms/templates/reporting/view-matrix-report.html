@@ -249,7 +249,7 @@ var report_view = {
             document.body.removeChild(form);
         },
         downloadReportExcel: function(){
-            this.postToNewTab("${reverse('report_download_maxtrix_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+            this.postToNewTab("${reverse('report_download_matrix_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
         },
         selectSchoolYear: function(){
             $(".school_year_select").change(function(){
