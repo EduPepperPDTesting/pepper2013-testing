@@ -717,9 +717,7 @@ from permissions.utils import check_access_level, check_user_perms
             bindHover();
             $(".dlg-announcement-delete").off("click").on("click", function(){
               var _id = $(this).closest("div.announcement-row").find("input[name=_id]").val();
-       
               $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
-
                 $("#fixed-dialog-announcements").addClass("changed");
                 loadDialogAnnouncements(org);
               });        
@@ -859,9 +857,9 @@ from permissions.utils import check_access_level, check_user_perms
       var embed = $("#embed_checkbox").is(":checked") ? 1 : 0;
       // clear the fields
       $("#announce-expir-date").val("");
-      // $('#announce-checkbox').prop('checked', false);
+      $('#announce-checkbox').prop('checked', false);
       $("#new_post_textarea").val("");
-      
+      $("#announce-expir-date-div").css("visibility", "hidden");
       var fd = new FormData();
       if($("#image_link_input")[0].files.length > 0){
         fd.append('attachment', $("#image_link_input")[0].files[0]);
@@ -869,16 +867,14 @@ from permissions.utils import check_access_level, check_user_perms
       fd.append('post', post)
       fd.append('type', is_announce? "announcement":"post")
       fd.append('expiration_date', announce_expir_date)
-
       $("#image_link_input").val("");
-      
       $.ajax({
         url: "${reverse('dashboard_submit_new_post')}",
         data: fd,
         processData: false,
         contentType: false,
         type: 'POST',
-        //Before 1.5.1 you had to do this:
+        // Before 1.5.1 you had to do this:
         beforeSend: function (x) {
           if (x && x.overrideMimeType) {
             x.overrideMimeType("multipart/form-data");
