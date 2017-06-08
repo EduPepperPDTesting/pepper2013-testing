@@ -1045,12 +1045,18 @@
 									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
 									if(r["My Feed Show"] == "1"){
 										$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");										
+									}else{
+										$("input[name='organizational_dashboard_feed_show']").removeAttr("checked");
 									}
 									if(r["My Activities Show"] == "1"){
 										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
+									}else{
+										$("input[name='organizational_dashboard_activities_show']").removeAttr("checked");
 									}
 									if(r["My Report Show"] == "1"){
 										$("input[name='organizational_dashboard_report_show']").attr("checked", "checked");										
+									}else{
+										$("input[name='organizational_dashboard_report_show']").removeAttr("checked");
 									}
 									
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
@@ -1411,7 +1417,7 @@
 	
 	//-----------------------------------------------------------------------organizationCheckUploadFile
 	function organizationCheckUploadFile(filename){
-		var tmp1 = filename.substring(filename.length - 4);
+		var tmp1 = filename.substring(filename.length - 4).tolocaleUpperCase();
 		if(tmp1 == ".gif" || tmp1 == ".jpg" || tmp1 == ".jpeg" || tmp1 == ".png"){			
 			return true;
 		}else{			
@@ -2098,6 +2104,7 @@
 			if(dashboard_option == "2"){
 				my_feed_show = "1";
 				my_activities_show = "0";
+				my_report_show = "0";
 				is_my_feed_default = "1";	
 			}
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
