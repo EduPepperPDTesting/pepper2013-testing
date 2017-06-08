@@ -1307,6 +1307,43 @@ def get_column_headers(request):
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
     row_header = row_header_data.column
+
+    column_header_row = []
+    data_last = ['total']
+    for d in column_data:
+        column_header_row.append(d['_id'][column_header])
+        data_last.append(d['count'])
+
+    if column_header_type == 'time':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = study_time_format(k)
+    if column_header_type == 'url':
+        if is_excel:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = settings.LMS_BASE + k
+        else:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = '<a href="{0}" target="_blank">Link</a>'.format(k)
+    if column_header_type == 'date':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
+
+    return render_json_response({'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
+
+def report_get_matrix_rows(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=int(report_id))
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
+    column_header = column_header_data.column
+    column_header_type = column_header_data.data_type
+    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
+    row_header = row_header_data.column
     row_header_type = row_header_data.data_type
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
 
@@ -1380,21 +1417,7 @@ def get_column_headers(request):
         data = data[start:end]
         data.append(data_last)
 
-    if column_header_type == 'time':
-        for i,k in enumerate(column_header_row):
-            column_header_row[i] = study_time_format(k)
-    if column_header_type == 'url':
-        if is_excel:
-            for i,k in enumerate(column_header_row):
-                column_header_row[i] = settings.LMS_BASE + k
-        else:
-            for i,k in enumerate(column_header_row):
-                column_header_row[i] = '<a href="{0}" target="_blank">Link</a>'.format(k)
-    if column_header_type == 'date':
-        for i,k in enumerate(column_header_row):
-            column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
-
-    return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
+    return render_json_response({'rows':data,'total': total})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'

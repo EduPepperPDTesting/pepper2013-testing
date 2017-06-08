@@ -43,7 +43,7 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_get_column_headers')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_matrix_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
                 <thead id="talbe_column">
                 </thead>
                 <tbody id="table_data"></tbody>
