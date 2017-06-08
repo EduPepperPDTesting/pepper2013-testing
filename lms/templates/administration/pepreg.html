@@ -1414,10 +1414,8 @@
             $("#calendar_content").scroll(function(){
             //$(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
                 var cont_height = $("#calendar_content").height();
-                var cont_right = $("#calendar_content").left + parseInt($("#calendar_content").width());
                 var cont_top = $("#calendar_content").offset().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
-                var btn_left = cont_right - 50;
                 console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
 
                 if($(".completeSlot").filter(function(){
@@ -1425,9 +1423,8 @@
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
                     if($("#btn_down").length == 0){
-                        console.log("cont_bottom-"+cont_bottom); //down top_slot-"+top_slot+"
-                        //var btn_top = cont_bottom - 20;
-                        $("#calendar_content").append("<button id='btn_down' style='position:absolute; bottom: 20px; right: 50px;'>More</button>");
+                        console.log("cont_bottom-"+cont_bottom);
+                        $("#calendar_content").append("<button id='btn_down' style='position:absolute; bottom: 20px; right: 50px;'><i class="fa fa-arrow-down" aria-hidden="true"></i></button>");
                     }
                 }else if($("#btn_down").length){
                     $("#btn_down").remove();
@@ -1438,9 +1435,8 @@
                        return parseInt(top_slot) < cont_top;
                     }).length){
                     if($("#btn_up").length == 0){
-                        console.log("cont_top-"+cont_top); //up top_slot-"+top_slot+"
-                        //var btn_top = cont_top + 20;
-                        $("#calendar_content").append("<button id='btn_up' style='position:absolute; top: 20px; left: 50px;'>More</button>");
+                        console.log("cont_top-"+cont_top);
+                        $("#calendar_content").append("<button id='btn_up' style='position:absolute; top: 20px; left: 50px;'><i class="fa fa-arrow-up" aria-hidden="true"></i></button>");
                     }
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
