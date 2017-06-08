@@ -459,13 +459,18 @@ $(document).ready(function(){
 	var loadwin = new LoadingWin();		
 	var state = "-1";
 	var district = "-1";
+	var school = "-1";
 	% if portfolio_user.profile.cohort_id:
 	state = "${portfolio_user.profile.district.state.id}";
 	% endif	
 	% if portfolio_user.profile.cohort_id:
 	district = "${curr_user.profile.district.id}";
 	% endif
-	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district}, function (r) {		
+	% if portfolio_user.profile.school_id:
+    school = "${portfolio_user.profile.school.id}";
+    % endif
+	
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district, school: school}, function (r) {		
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){

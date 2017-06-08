@@ -1197,14 +1197,17 @@
 		var loadwin = new LoadingWin();		
 		var state = "-1";
 		var district = "-1";
+		var school = "-1";
 		% if curr_user.profile.district_id:
         state = "${curr_user.profile.district.state.id}";
         % endif
 		% if curr_user.profile.district_id:
 		district = "${curr_user.profile.district.id}";
 		% endif
-					
-		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district}, function (r) {		
+		% if curr_user.profile.school_id:
+		school = "${curr_user.profile.school.id}";
+		% endif			
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: state, district: district, school: school}, function (r) {		
 			if (r.SiteURL_OK){
 				if(r.Success){
 					if(r.OrganizationOK){

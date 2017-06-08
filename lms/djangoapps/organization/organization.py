@@ -172,10 +172,10 @@ def organization_add(request):
                     org_menu.organization = organization
                     org_menu.save()
                     
-                    if bean1.itemType == "logo" and bean1.itemValue != "":
+                    if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
                         tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
                         if os.path.exists(tmp_logo_src):
-                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)                
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
 
                 # --------------OrganizationDashboard
                 for bean1 in OrganizationDashboard.objects.filter(organization=organization_old):
@@ -608,7 +608,6 @@ def organizational_save_base(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
-
 #-------------------------------------------------------------------org_OrganizationMenuSave
 def org_OrganizationMenuSave(organization, itemType, itemValue):
     #if(itemValue):
@@ -713,7 +712,6 @@ def org_upload(request):
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
-
 
 #-------------------------------------------------------------------organization_main_page_configuration_get
 @login_required
@@ -879,10 +877,17 @@ def organization_get_info(request):
             if (source == "register"):
                 district = request.POST.get('district', False)
                 state = request.POST.get('state', False)
+                school = request.POST.get('school', False)
 
                 data['OrganizationOK'] = False
 
-                if (district):
+                if (school):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school, EntityType="School"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
+
+                if (not(data['OrganizationOK']) and district):
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
