@@ -1413,7 +1413,7 @@ def report_get_matrix_rows(request):
         for val in data:
             sum += val[-1]
 
-        rs.insert_datas(data,collection+"aggregate")
+        # rs.insert_datas(data,collection+"aggregate")
         data_last.append(sum)
         data = data[start:end]
         data.append(data_last)
