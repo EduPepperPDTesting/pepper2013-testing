@@ -1415,7 +1415,7 @@
             //$(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
                 var cont_height = $("#calendar_content").height();
                 var cont_right = $("#calendar_content").left + parseInt($("#calendar_content").width());
-                var cont_top = $("#calendar_content").position().top;
+                var cont_top = $("#calendar_content").offset().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
                 var btn_left = cont_right - 50;
                 console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
