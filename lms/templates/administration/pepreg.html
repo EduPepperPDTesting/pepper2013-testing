@@ -1422,10 +1422,10 @@
 
                 if($(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
-                       console.log("down top_slot-"+top_slot+" cont_bottom-"+cont_bottom);
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
                     if($("#btn_down").length == 0){
+                        console.log("down top_slot-"+top_slot+" cont_bottom-"+cont_bottom);
                         var btn_top = cont_bottom - 20;
                         $("#calendar_content").append("<button id='btn_down' style='position:absolute; top:" + btn_top + "px; left" + btn_left + "px;'>More</button>");
                     }
@@ -1435,10 +1435,10 @@
 
                 if($(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
-                       console.log("up top_slot-"+top_slot+" cont_top-"+cont_top);
                        return parseInt(top_slot) < cont_top;
                     }).length){
                     if($("#btn_up").length == 0){
+                        console.log("up top_slot-"+top_slot+" cont_top-"+cont_top);
                         var btn_top = cont_top + 20;
                         $("#calendar_content").append("<button id='btn_up' style='position:absolute; top:" + btn_top + "px; left" + btn_left + "px;'>More</button>");
                     }
