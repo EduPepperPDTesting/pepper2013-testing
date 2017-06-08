@@ -184,6 +184,7 @@ urlpatterns = (
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
     url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    url(r'^dashboard/my_course_in_progress/get$', 'student.newdashboard.get_my_course_in_progress', name='get_my_course_in_progress'),
     #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
