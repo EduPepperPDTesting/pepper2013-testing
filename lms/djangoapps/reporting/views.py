@@ -1306,8 +1306,8 @@ def get_column_headers(request):
     column_header = column_header_data.column
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
-    row_header = row_header.column
-    row_header_type = row_header.data_type
+    row_header = row_header_data.column
+    row_header_type = row_header_data.data_type
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
 
     column_header_row = []
