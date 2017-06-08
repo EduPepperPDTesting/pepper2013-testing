@@ -47,6 +47,7 @@ from mongo_user_store import MongoUserStore
 from django.conf import settings
 from bson import ObjectId
 from collections import OrderedDict
+from courseware import grades
 
 
 log = logging.getLogger("tracking")
@@ -219,7 +220,6 @@ def newdashboard(request, user_id=None):
     courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
     courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
 
-    
     course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
     message = ""
     if not user.is_active:
@@ -315,7 +315,6 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
-
     store = dashboard_feeding_store()
     feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
 
@@ -368,6 +367,59 @@ def get_tt(c,joined):
             tt['content'] = trending[0].post
             tt['btnurl'] = '/community/' + str(trending[0].community.id)
         return tt
+
+def get_my_course_in_progress(request,completed=False):
+    user = User.objects.get(id=request.user.id)
+
+    courses_complated = []
+    courses_incomplated = []
+    courses = []
+    exists = 0
+
+    allowed = CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).values_list('course_id', flat=True)
+    # make sure the course exists
+    for course_id in allowed:
+        try:
+            # course=course_from_id(course_id)
+            exists = exists + 1
+        except:
+            pass
+
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        try:
+            c = course_from_id(enrollment.course_id)
+            c.student_enrollment_date = enrollment.created
+
+            if enrollment.course_id in allowed:
+                exists = exists - 1
+            courses.append(c)
+
+            field_data_cache = FieldDataCache([c], c.id, user)
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
+
+            if course_instance.complete_course:
+                c.complete_date = course_instance.complete_date
+                c.student_enrollment_date = course_instance.complete_date
+                courses_complated.append(c)
+            else:
+                courses_incomplated.append(c)
+
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+
+    courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
+    courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
+
+    #courses_incomplated_progress = []
+    #courses_complated_progress = []
+    student = User.objects.prefetch_related("groups").get(id=user.id)
+    if not completed:
+        for k,course in enumerate(courses_incomplated):
+            field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, student, course, depth=None)
+            grade_summary = grades.grade(student, request, course, field_data_cache)
+            courses_incomplated[k].percentage = grade_summary['percent']
+
 
 def get_my_activities(request):
     #filter_condition
