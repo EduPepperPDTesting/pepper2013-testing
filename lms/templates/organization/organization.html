@@ -1182,12 +1182,12 @@
 										$("#organization-table2_all").prop('checked', true);
 										$(".organization-item-select").prop('checked', true);
 										
-										$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
-										$("input[name='organizational_dashboard_on_menu'][value='0']").attr("checked", "checked");
-										
-
-										$("#organizational_menu_color").val("#ffffff");
-										$("#organizational_dashboard_menu_text_color").val("#ffffff");
+										if(!r["Text Color"]){
+ 											$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
+											$("input[name='organizational_dashboard_on_menu'][value='0']").attr("checked", "checked");
+											$("#organizational_menu_color").val("#ffffff");
+											$("#organizational_dashboard_menu_text_color").val("#ffffff");
+										}
 									}else{
 										//----------
 										$("#org_btn_first_next").hide();
