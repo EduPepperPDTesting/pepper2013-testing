@@ -187,7 +187,6 @@ var report_view = {
         init:function(){
             var self = this;
             clearInterval(self.timeID);
-            loadwin = new LoadingWin();
             self.timeID = setInterval(self.show_progress, 4000, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
@@ -205,10 +204,9 @@ var report_view = {
                     {
                         obj.reloadTable()
                         clearInterval(obj.timeID);
-                        loadwin.hide();
                         $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
+                            loadwin.hide();
                             set_custome_filters($(".tblReport"), data.data);
-                            
                             $(".tablesorter-header-inner").each(function(){
                                 var tmp1 = $(this).text().trim();
                                 if(tmp1 == "District"){
@@ -284,6 +282,7 @@ var report_view = {
 
 $(document).ready(function () {
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
+        loadwin = new LoadingWin();
         column_header = datas.column_header;
         column_datas = datas.column_data;
         row_data = datas.data;
