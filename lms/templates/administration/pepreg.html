@@ -1421,7 +1421,7 @@
                 console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
 
                 if($(".completeSlot").filter(function(){
-                       var top_slot = $(this).position().top;
+                       var top_slot = $(this).offset().top;
                        console.log("down top_slot-"+top_slot+" cont_bottom-"+cont_bottom);
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
@@ -1434,7 +1434,7 @@
                 }
 
                 if($(".completeSlot").filter(function(){
-                       var top_slot = $(this).position().top;
+                       var top_slot = $(this).offset().top;
                        console.log("up top_slot-"+top_slot+" cont_top-"+cont_top);
                        return parseInt(top_slot) < cont_top;
                     }).length){
