@@ -1417,7 +1417,7 @@
 	
 	//-----------------------------------------------------------------------organizationCheckUploadFile
 	function organizationCheckUploadFile(filename){
-		var tmp1 = filename.substring(filename.toLocaleLowerCase().length - 4);
+		var tmp1 = filename.substring(filename.length - 4).toLocaleLowerCase();
 		if(tmp1 == ".gif" || tmp1 == ".jpg" || tmp1 == ".jpeg" || tmp1 == ".png"){			
 			return true;
 		}else{			
