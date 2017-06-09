@@ -732,7 +732,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
         if day:
             if(not (isweek or isday)):
-                raise Exception("type-"+type(day))
+                raise Exception(type(day))
             if (isweek or isday):
                 date = utc.localize(day)
             else:
