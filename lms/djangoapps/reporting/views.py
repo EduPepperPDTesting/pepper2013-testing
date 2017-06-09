@@ -1334,11 +1334,18 @@ def get_column_headers(request):
                     row['_id'] = d['_id'][row_header]
                 for index,column in enumerate(column_header_row):
                     if column == None:
-                        column = {"$exists": false}
-                    filters = {column_header:column,row_header:d['_id'][row_header]}
+                        column = 'none'
+                        filter1 = {"$exists": False}
+                    else:
+                        filter1 = column
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$exists": False}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
                     count = rs.get_count(collection,filters)
-                    row[column] = count
-                row['count'] = d['count']
+                    row[column] = str(count)
+                row['count'] = str(d['count'])
                 data.append(row)
             rs.insert_datas(data,collection+"aggregate")
 
@@ -1388,11 +1395,18 @@ def report_get_matrix_rows(request):
         else:
             order = [column_header_row[int(col)], 1, 0]
 
+    search = {}
+    for col, f in filters.iteritems():
+        if int(col) == 0:
+            column_header_row[int(col)] = '_id'
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        search[column_header_row[int(col)]] = reg
+
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     rows = []
-    data = rs.get_page(collection+"aggregate", start, size, filters, order)
+    data = rs.get_page(collection+"aggregate", start, size, search, order)
     total = rs.get_count(collection+"aggregate", filters)
     
     for d in data:
