@@ -1306,8 +1306,9 @@ def get_column_headers(request):
     column_header = column_header_data.column
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
     row_header = row_header_data.column
-
+    row_header_type = row_header_data.data_type
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
@@ -1333,7 +1334,7 @@ def get_column_headers(request):
                     row['_id'] = d['_id'][row_header]
                 for index,column in enumerate(column_header_row):
                     if column == None:
-                        column = 'none'
+                        column = {"$exists": false}
                     filters = {column_header:column,row_header:d['_id'][row_header]}
                     count = rs.get_count(collection,filters)
                     row[column] = count
@@ -1362,28 +1363,47 @@ def report_get_matrix_rows(request):
     school_year = request.GET.get('school_year', '')
     sorts = get_request_array(request.GET, 'col')
     filters = get_request_array(request.GET, 'fcol')
-    log.debug('1111111111111111111111111111')
-    log.debug(filters)
-    log.debug(sorts)
-    
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = ['Total']
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append('count')
+
+    column_header_row.append('count')
+
+    order = ['$natural', 1, 0]
+    for col, sort in sorts.iteritems():
+        if int(col) == 0:
+            column_header_row[int(col)] = '_id'
+        if sort == '1':
+            order = [column_header_row[int(col)], -1, 0]
+        else:
+            order = [column_header_row[int(col)], 1, 0]
+
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     rows = []
-    report = Reports.objects.get(id=report_id)
-    rs = reporting_store()
-    collection = get_cache_collection(request, report_id, school_year)
-    data = rs.get_page(collection+"aggregate", start, size, filters, sorts)
+    data = rs.get_page(collection+"aggregate", start, size, filters, order)
     total = rs.get_count(collection+"aggregate", filters)
-
+    
     for d in data:
         row = []
-        for col in selected_columns:
-            try:
-                row.append(data_format(col.column, d))
-            except Exception as e:
-                row.append('')
-        row.append('')
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                row.append(d['_id'])
+            else:
+                if val == None:
+                    val = 'none'
+                row.append(d[val])
         rows.append(row)
 
     return render_json_response({'total': total, 'rows': rows})
