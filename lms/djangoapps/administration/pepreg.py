@@ -620,19 +620,19 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     isday = 1 if len(daterange) == 1 else 0
 
     for day in daterange:
-        if (isweek or isday):
-            printDate = utc.localize(day)
+        if (type(day) is not int):
+            if (isweek or isday):
+                if(type(day) is not int):
+                    printDate = utc.localize(day)
+            else:
+                printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
         else:
-            raise Exception("isweek "+isweek)
-            try:
-                printDate = datetime(year=year, month=month, day=day) #, tzinfo=utc)
-            except:
-                printDate = utc.localize(day)
+            continue
 
         for item in all_occurrences:
             if(item.training_date == printDate.date()):
                 if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
-                    continue;
+                    continue
 
                 arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                 allow = "1" if item.allow_registration else "0"
