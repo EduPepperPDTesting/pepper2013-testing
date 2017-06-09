@@ -34,7 +34,7 @@ from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfil
 from permissions.utils import check_access_level
 from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers
 from xmodule.remindstore import myactivitystore, myactivitystaticstore, chunksstore
-from courseware.courses import get_course_by_id, course_image_url 
+from courseware.courses import get_course_by_id, course_image_url, get_course_about_section 
 import comment_client as cc
 from administration.models import PepRegTraining
 from reporting.models import Reports
@@ -317,6 +317,7 @@ def newdashboard(request, user_id=None):
 
     store = dashboard_feeding_store()
     feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    #feeding_year_start, feeding_year_end = False, False
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
@@ -368,8 +369,10 @@ def get_tt(c,joined):
             tt['btnurl'] = '/community/' + str(trending[0].community.id)
         return tt
 
-def get_my_course_in_progress(request,completed=False):
+def get_my_course_in_progress(request):
     user = User.objects.get(id=request.user.id)
+    course_type = "incompleted"
+    get_more = 0
 
     courses_complated = []
     courses_incomplated = []
@@ -407,18 +410,70 @@ def get_my_course_in_progress(request,completed=False):
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
-
     courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
     courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
 
-    #courses_incomplated_progress = []
-    #courses_complated_progress = []
+    course_unfin_list = []
     student = User.objects.prefetch_related("groups").get(id=user.id)
-    if not completed:
+    rs = reporting_store()
+    rs.set_collection('UserCourseView')
+    if course_type == "incompleted":
         for k,course in enumerate(courses_incomplated):
-            field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, student, course, depth=None)
-            grade_summary = grades.grade(student, request, course, field_data_cache)
-            courses_incomplated[k].percentage = grade_summary['percent']
+            if get_more:
+                if k > 2:
+                    couser_dict = {}
+                    #set user course percent
+                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, student, course, depth=None)
+                    grade_summary = grades.grade(student, request, course, field_data_cache)
+                    couser_dict['p'] = grade_summary['percent']
+
+                    #set user course total time
+                    if user.is_superuser:
+                        couser_dict['time'] = 0
+                    else:
+                        results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+                        total_time_user = 0
+                        for v in results:
+                            total_time_user = total_time_user + v['total_time']
+                        couser_dict['time'] = study_time_format(total_time_user)
+
+                    #set user course title
+                    couser_dict['name'] = get_course_about_section(course, 'title')
+
+                    #set user course number
+                    couser_dict['number'] = course.display_number_with_default
+
+                    course_unfin_list.append(couser_dict)
+            else:
+                couser_dict = {}
+                #set user course percent
+                field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, student, course, depth=None)
+                grade_summary = grades.grade(student, request, course, field_data_cache)
+                couser_dict['p'] = grade_summary['percent']
+
+                #set user course total time
+                if user.is_superuser:
+                    couser_dict['time'] = 0
+                else:
+                    results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+                    total_time_user = 0
+                    for v in results:
+                        total_time_user = total_time_user + v['total_time']
+                    couser_dict['time'] = study_time_format(total_time_user)
+
+                #set user course title
+                couser_dict['name'] = get_course_about_section(course, 'title')
+
+                #set user course number
+                couser_dict['number'] = course.display_number_with_default
+
+                course_unfin_list.append(couser_dict)
+                if k > 1:
+                    break
+    else:
+        pass
+
+    return HttpResponse(json.dumps({'data': course_unfin_list,'Success': 'True'}), content_type='application/json')
 
 
 def get_my_activities(request):
