@@ -4,7 +4,6 @@ import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
 from datetime import datetime, timedelta, date
-import datetime
 from pytz import UTC
 from django.contrib.auth.models import User
 
@@ -732,6 +731,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
         sortedDay = []
 
         if day:
+            if(not (isweek or isday)):
+                raise Exception("type-"+type(day))
             if (isweek or isday):
                 date = utc.localize(day)
             else:
