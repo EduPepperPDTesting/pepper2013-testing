@@ -891,7 +891,6 @@ def report_download_matrix_excel(request, report_id):
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
 
-    report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
@@ -927,6 +926,8 @@ def report_download_matrix_excel(request, report_id):
             else:
                 if val == None:
                     val = 'none'
+                else:
+                    val = val.replace('.',',')
                 worksheet.write(row, key, d[val])
         row += 1
 
@@ -1332,14 +1333,14 @@ def get_column_headers(request):
                 else:
                     row['_id'] = d['_id'][row_header]
                 for index,column in enumerate(column_header_row):
-                    column = column.replace('.',',')
                     if column == None:
                         column = 'none'
-                        filter1 = {"$exists": False}
+                        filter1 = {"$in": [None]}
                     else:
                         filter1 = column
+                        column = column.replace('.',',')
                     if d['_id'][row_header] == None:
-                        filter2 = {"$exists": False}
+                        filter2 = {"$in": [None]}
                     else:
                         filter2 = d['_id'][row_header]
                     filters = {column_header:filter1,row_header:filter2}
@@ -1418,6 +1419,8 @@ def report_get_matrix_rows(request):
             else:
                 if val == None:
                     val = 'none'
+                else:
+                    val=val.replace('.',',')
                 row.append(d[val])
         rows.append(row)
 
