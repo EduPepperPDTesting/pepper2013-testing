@@ -1356,69 +1356,31 @@ def report_get_matrix_rows(request):
     data = []
     total = ''
 
-    if request.GET.has_key('page'):
-        sorts = get_request_array(request.GET, 'col')
-        row_filters = get_request_array(request.GET, 'fcol')
-        page = int(request.GET['page'])
-        size = int(request.GET['size'])
-        start = page * size
-        end = start + size
-        row_data = rs.get_datas(collection_row_header)
+    row_data = rs.get_datas(collection_row_header)
 
-        if aggregate_type_id == 1:
-            for d in row_data:
-                row = []
-                if row_header_type == 'time':
-                    row.append(study_time_format(d['_id'][row_header]))
-                elif row_header_type == 'url':
-                    if is_excel:
-                        row.append(settings.LMS_BASE + d['_id'][row_header])
-                    else:
-                        row.append('<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header]))
-                elif row_header_type == 'date':
-                    row.append(time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d')))
+    if aggregate_type_id == 1:
+        for d in row_data:
+            row = {}
+            if row_header_type == 'time':
+                row['_id'] = study_time_format(d['_id'][row_header])
+            elif row_header_type == 'url':
+                if is_excel:
+                    row['_id'] = settings.LMS_BASE + d['_id'][row_header]
                 else:
-                    row.append(d['_id'][row_header])
-                for column in column_header_row:
-                    filters = {column_header:column,row_header:d['_id'][row_header]}
-                    count = rs.get_count(collection,filters)
-                    row.append(count)
-                row.append(d['count'])
-                data.append(row)
+                    row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+            elif row_header_type == 'date':
+                row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+            else:
+                row['_id'] = d['_id'][row_header]
+            for index,column in enumerate(column_header_row):
+                filters = {column_header:column,row_header:d['_id'][row_header]}
+                count = rs.get_count(collection,filters)
+                row[index] = count
+            row['count'] = d['count']
+            data.append(row)
 
-        filter_data = []
-        if len(row_filters) > 0:
-            for k in data:
-                sign = True
-                for col, f in row_filters.iteritems():
-                    if f not in str(k[int(col)]):
-                        sign = False
-                        break
-                if sign:
-                    filter_data.append(k)
-        else:
-            filter_data = data
-            
-        if len(sorts) > 0:
-            for col,order in sorts.items():
-                if int(order) == 1:
-                    data = sorted(filter_data, key=lambda x:x[int(col)])
-                else:
-                    data = sorted(filter_data, key=lambda x:x[int(col)],reverse=True)
-        else:
-            data = filter_data
-        
-        total = len(data)
-        sum = 0
-        for val in data:
-            sum += val[-1]
-
-        # rs.insert_datas(data,collection+"aggregate")
-        data_last.append(sum)
-        data = data[start:end]
-        data.append(data_last)
-        
-
+        rs.insert_datas(data,collection+"aggregate")
+     
     return render_json_response({'rows':data,'total': total})
 
 def collection_column_headers(collection):

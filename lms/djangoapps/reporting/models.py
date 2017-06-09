@@ -129,10 +129,12 @@ class MongoReportingStore(object):
     #         map(lambda d: d.keys(), self.collection.find()),
     #         set()
     #     )
-    # def insert_datas(self,datas,collection):
-    #     self.set_collection(collection)
-    #     self.collection.insert(datas)
-    #     return True
+    def insert_datas(self,datas,collection):
+        log.debug(collection)
+        self.set_collection(collection)
+        for index,val in enumerate(datas):
+            self.collection.insert(val)
+        return True
 
     def get_datas(self,collection):
         self.set_collection(collection)
