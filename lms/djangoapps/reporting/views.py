@@ -891,52 +891,50 @@ def report_download_matrix_excel(request, report_id):
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
 
+    report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
-    collection_row_header = collection_row_headers(collection)
-    report = Reports.objects.get(id=int(report_id))
+    report = Reports.objects.get(id=report_id)
     rs = reporting_store()
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
-    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
-    row_data = rs.get_datas(collection_row_header)
-    data = []
-    column_header_row = []
-    data_last = ['total']
+    column_header_row = [column_header]
+    row_last = []
     for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        data_last.append(d['count'])
+        row_last.append(d['count'])
 
-    for d in row_data:
-        row = []
-        row.append(d['_id'][row_header])
-        for column in column_header_row:
-            filters = {column_header:column,row_header:d['_id'][row_header]}
-            count = rs.get_count(collection,filters)
-            row.append(count)
-        row.append(d['count'])
-        data.append(row)
-
-    sum = 0
-    for val in data:
-        sum += val[-1]
-
-    data_last.append(sum)
-    data.append(data_last)
-    column_header_row.insert(0,column_header)
-    column_header_row.append("total")
+    column_header_row.append('count')
 
     for i, k in enumerate(column_header_row):
         if k == "":
             k = "null"
+        if k == "count":
+            k = "total"
         worksheet.write(0, i, k)
 
     row = 1
-    for k,val in enumerate(data):
-        for key,value in enumerate(val):
-            worksheet.write(row, key, value)
+    data = rs.collection+"aggregate".find()
+
+    for d in data:
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                worksheet.write(row, key, d['_id'])
+            else:
+                if val == None:
+                    val = 'none'
+                worksheet.write(row, key, d[val])
         row += 1
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+    
+    for key,value in enumerate(row_last):
+        worksheet.write(row, key, value)
+
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
@@ -1377,12 +1375,12 @@ def report_get_matrix_rows(request):
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     column_header_row = [column_header]
-    row_last = ['Total']
+    row_last = []
     for d in column_data:
         if d['_id'][column_header] == None:
             d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        row_last.append('count')
+        row_last.append(d['count'])
 
     column_header_row.append('count')
 
@@ -1407,7 +1405,7 @@ def report_get_matrix_rows(request):
     start = page * size
     rows = []
     data = rs.get_page(collection+"aggregate", start, size, search, order)
-    total = rs.get_count(collection+"aggregate", filters)
+    total = rs.get_count(collection+"aggregate", search)
     
     for d in data:
         row = []
@@ -1419,6 +1417,10 @@ def report_get_matrix_rows(request):
                     val = 'none'
                 row.append(d[val])
         rows.append(row)
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+    rows.append(row_last)
 
     return render_json_response({'total': total, 'rows': rows})
 

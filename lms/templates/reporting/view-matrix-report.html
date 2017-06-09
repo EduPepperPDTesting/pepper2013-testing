@@ -281,8 +281,8 @@ var report_view = {
 
 
 $(document).ready(function () {
+    loadwin = new LoadingWin();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
-        loadwin = new LoadingWin();
         column_header = datas.column_header;
         column_datas = datas.column_data;
         row_data = datas.data;
