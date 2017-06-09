@@ -917,7 +917,8 @@ def report_download_matrix_excel(request, report_id):
         worksheet.write(0, i, k)
 
     row = 1
-    data = rs.collection+"aggregate".find()
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
 
     for d in data:
         for key,val in enumerate(column_header_row):
@@ -931,7 +932,7 @@ def report_download_matrix_excel(request, report_id):
 
     row_last.append(sum(row_last))
     row_last.insert(0,'Total')
-    
+
     for key,value in enumerate(row_last):
         worksheet.write(row, key, value)
 
@@ -1331,6 +1332,7 @@ def get_column_headers(request):
                 else:
                     row['_id'] = d['_id'][row_header]
                 for index,column in enumerate(column_header_row):
+                    column = column.replace('.',',')
                     if column == None:
                         column = 'none'
                         filter1 = {"$exists": False}
@@ -1397,6 +1399,7 @@ def report_get_matrix_rows(request):
     for col, f in filters.iteritems():
         if int(col) == 0:
             column_header_row[int(col)] = '_id'
+        f = f.replace('.',',')
         reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
         search[column_header_row[int(col)]] = reg
 
