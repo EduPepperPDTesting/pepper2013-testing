@@ -1322,16 +1322,16 @@ def get_column_headers(request):
             for d in row_data:
                 row = {}
                 if row_header_type == 'time':
-                    row['_id'] = study_time_format(d['_id'][row_header])
+                    row['row_header'] = study_time_format(d['_id'][row_header])
                 elif row_header_type == 'url':
                     if is_excel:
-                        row['_id'] = settings.LMS_BASE + d['_id'][row_header]
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
                     else:
-                        row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
                 elif row_header_type == 'date':
-                    row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
                 else:
-                    row['_id'] = d['_id'][row_header]
+                    row['row_header'] = d['_id'][row_header]
                 for index,column in enumerate(column_header_row):
                     if column == None:
                         column = 'none'
@@ -1415,7 +1415,7 @@ def report_get_matrix_rows(request):
         row = []
         for key,val in enumerate(column_header_row):
             if key == 0:
-                row.append(d['_id'])
+                row.append(d['row_header'])
             else:
                 if val == None:
                     val = 'none'
