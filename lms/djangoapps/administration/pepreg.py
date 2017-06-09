@@ -557,7 +557,7 @@ def getCalendarMonth(request):
                 if (isweek or isday):
                     pdfDate = utc.localize(day)
                 else:
-                    pdfDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                    pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
             else:
                 continue
 
