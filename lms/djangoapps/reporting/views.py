@@ -1315,31 +1315,31 @@ def get_column_headers(request):
     data = []
     total = ''
     stats = int(rs.get_collection_stats(collection+"aggregate")['ok'])
-        if(not(stats)):
-            row_data = rs.get_datas(collection_row_header)
-            if aggregate_type_id == 1:
-                for d in row_data:
-                    row = {}
-                    if row_header_type == 'time':
-                        row['_id'] = study_time_format(d['_id'][row_header])
-                    elif row_header_type == 'url':
-                        if is_excel:
-                            row['_id'] = settings.LMS_BASE + d['_id'][row_header]
-                        else:
-                            row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
-                    elif row_header_type == 'date':
-                        row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+    if(not(stats)):
+        row_data = rs.get_datas(collection_row_header)
+        if aggregate_type_id == 1:
+            for d in row_data:
+                row = {}
+                if row_header_type == 'time':
+                    row['_id'] = study_time_format(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['_id'] = settings.LMS_BASE + d['_id'][row_header]
                     else:
-                        row['_id'] = d['_id'][row_header]
-                    for index,column in enumerate(column_header_row):
-                        if column == None:
-                            column = 'none'
-                        filters = {column_header:column,row_header:d['_id'][row_header]}
-                        count = rs.get_count(collection,filters)
-                        row[column] = count
-                    row['count'] = d['count']
-                    data.append(row)
-                rs.insert_datas(data,collection+"aggregate")
+                        row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['_id'] = d['_id'][row_header]
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                    filters = {column_header:column,row_header:d['_id'][row_header]}
+                    count = rs.get_count(collection,filters)
+                    row[column] = count
+                row['count'] = d['count']
+                data.append(row)
+            rs.insert_datas(data,collection+"aggregate")
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
