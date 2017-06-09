@@ -3,8 +3,8 @@ from django.http import HttpResponse
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
-import datetime
 from datetime import datetime, timedelta, date
+import datetime
 from pytz import UTC
 from django.contrib.auth.models import User
 
