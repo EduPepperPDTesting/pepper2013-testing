@@ -553,10 +553,13 @@ def getCalendarMonth(request):
         isday = 1 if len(daterangelist) == 1 else 0
 
         for day in daterangelist:
-            if (isweek or isday):
-                pdfDate = utc.localize(day)
+            if (type(day) is not int):
+                if (isweek or isday):
+                    pdfDate = utc.localize(day)
+                else:
+                    pdfDate = datetime(year=year, month=month, day=day, tzinfo=utc)
             else:
-                pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
+                continue
 
             for item in all_occurrences:
                 if (item.training_date == pdfDate.date()):
@@ -622,8 +625,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     for day in daterange:
         if (type(day) is not int):
             if (isweek or isday):
-                if(type(day) is not int):
-                    printDate = utc.localize(day)
+                printDate = utc.localize(day)
             else:
                 printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
         else:
@@ -778,7 +780,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingEndHours.append(trainingEndTime[0:-6])
 
                     if not isday:
-                        timeTxt = " From: "
+                        timeTxt = "" # From: "
                     else:
                         timeTxt = " at "
 
