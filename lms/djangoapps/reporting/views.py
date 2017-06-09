@@ -1309,10 +1309,37 @@ def get_column_headers(request):
     row_header = row_header_data.column
 
     column_header_row = []
-    data_last = ['total']
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
-        data_last.append(d['count'])
+
+    data = []
+    total = ''
+    stats = int(rs.get_collection_stats(collection+"aggregate")['ok'])
+        if(not(stats)):
+            row_data = rs.get_datas(collection_row_header)
+            if aggregate_type_id == 1:
+                for d in row_data:
+                    row = {}
+                    if row_header_type == 'time':
+                        row['_id'] = study_time_format(d['_id'][row_header])
+                    elif row_header_type == 'url':
+                        if is_excel:
+                            row['_id'] = settings.LMS_BASE + d['_id'][row_header]
+                        else:
+                            row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                    elif row_header_type == 'date':
+                        row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                    else:
+                        row['_id'] = d['_id'][row_header]
+                    for index,column in enumerate(column_header_row):
+                        if column == None:
+                            column = 'none'
+                        filters = {column_header:column,row_header:d['_id'][row_header]}
+                        count = rs.get_count(collection,filters)
+                        row[column] = count
+                    row['count'] = d['count']
+                    data.append(row)
+                rs.insert_datas(data,collection+"aggregate")
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
@@ -1333,55 +1360,33 @@ def get_column_headers(request):
 def report_get_matrix_rows(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    collection = get_cache_collection(request, report_id, school_year)
-    collection_column_header = collection_column_headers(collection)
-    collection_row_header = collection_row_headers(collection)
-    report = Reports.objects.get(id=int(report_id))
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+    log.debug('1111111111111111111111111111')
+    log.debug(filters)
+    log.debug(sorts)
+    
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    rows = []
+    report = Reports.objects.get(id=report_id)
     rs = reporting_store()
-    column_data = rs.get_datas(collection_column_header)
-    column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
-    column_header = column_header_data.column
-    column_header_type = column_header_data.data_type
-    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
-    row_header = row_header_data.column
-    row_header_type = row_header_data.data_type
-    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    collection = get_cache_collection(request, report_id, school_year)
+    data = rs.get_page(collection+"aggregate", start, size, filters, sorts)
+    total = rs.get_count(collection+"aggregate", filters)
 
-    column_header_row = []
-    data_last = ['total']
-    for d in column_data:
-        column_header_row.append(d['_id'][column_header])
-        data_last.append(d['count'])
+    for d in data:
+        row = []
+        for col in selected_columns:
+            try:
+                row.append(data_format(col.column, d))
+            except Exception as e:
+                row.append('')
+        row.append('')
+        rows.append(row)
 
-    data = []
-    total = ''
-
-    row_data = rs.get_datas(collection_row_header)
-
-    if aggregate_type_id == 1:
-        for d in row_data:
-            row = {}
-            if row_header_type == 'time':
-                row['_id'] = study_time_format(d['_id'][row_header])
-            elif row_header_type == 'url':
-                if is_excel:
-                    row['_id'] = settings.LMS_BASE + d['_id'][row_header]
-                else:
-                    row['_id'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
-            elif row_header_type == 'date':
-                row['_id'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
-            else:
-                row['_id'] = d['_id'][row_header]
-            for index,column in enumerate(column_header_row):
-                filters = {column_header:column,row_header:d['_id'][row_header]}
-                count = rs.get_count(collection,filters)
-                row[index] = count
-            row['count'] = d['count']
-            data.append(row)
-
-        rs.insert_datas(data,collection+"aggregate")
-     
-    return render_json_response({'rows':data,'total': total})
+    return render_json_response({'total': total, 'rows': rows})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'
