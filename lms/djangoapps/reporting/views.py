@@ -922,7 +922,7 @@ def report_download_matrix_excel(request, report_id):
     for d in data:
         for key,val in enumerate(column_header_row):
             if key == 0:
-                worksheet.write(row, key, d['_id'])
+                worksheet.write(row, key, d['row_header'])
             else:
                 if val == None:
                     val = 'none'
