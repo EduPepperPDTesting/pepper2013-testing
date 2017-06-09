@@ -642,7 +642,7 @@ a{
 }
 .course-in-progress{
     background-color: #f3f3f4;
-    height:500px;
+    padding-bottom: 30px;
 }
 .course-in-progress-row{
     width: 400px;
@@ -672,7 +672,6 @@ a{
     font-size:12px;
     color:#fff;
     padding-right:5px;
-    background-color:#89c153;
     text-align: right;
 }
 
@@ -896,57 +895,8 @@ a{
                 <div class="my-report-card-left">
                     <div class="course-in-progress">
                         <div class="course-in-progress-title">Course In Progress</div>
-                        <div class="course-in-progress">
-                            <div class="course-in-progress-row">
-                                <div class="course-in-progress-t"><b>Universal Design for Mathematics Learning|</b>POW121</div>
-                                <div class="course-in-progress-p">
-                                    <b style="float:left;font-size:13px;color:#757474;">Progress</b> 
-                                    <table class="progress-table" width='334'>
-                                        <tr height="22">
-                                            <td width='25%' style="background-color:#89c153;"></td>
-                                            <td width='25%' style="background-color:#89c153;"></td>
-                                            <td width='25%' style="background-color:#89c153;">75%</td>
-                                            <td width='25%' style="border-right:0px;background-color:#d2d3d5;"></td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="course-in-progress-tt">
-                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
-                                </div>
-                            </div>
-                            <div class="course-in-progress-row">
-                                <div class="course-in-progress-t"><b>Standards For Mathematical Practice (Grade K-5)|</b>ELA326</div>
-                                <div class="course-in-progress-p">
-                                    <b style="float:left;font-size:13px;color:#757474;">Progress</b> 
-                                    <table class="progress-table" width='334'>
-                                        <tr height="22">
-                                            <td width='25%' style="background-color:#ef3028;">25%</td>
-                                            <td width='25%' style="background-color:#d2d3d5;"></td>
-                                            <td width='25%' style="background-color:#d2d3d5;"></td>
-                                            <td width='25%' style="border-right:0px;background-color:#d2d3d5;"></td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="course-in-progress-tt">
-                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
-                                </div>
-                            </div>
-                            <div class="course-in-progress-row">
-                                <div class="course-in-progress-t"><b>Universal Design for Mathematics Learning|</b>MA12146</div>
-                                <div class="course-in-progress-p">
-                                    <b style="float:left;font-size:13px;color:#757474;">Progress</b> 
-                                    <table class="progress-table" width='334'>
-                                        <tr height="22">
-                                            <td width='42%' style="background-color:#fbba2e;">42%</td>
-                                            <td width='35%' style="background-color:#d2d3d5;"></td>
-                                            <td width='23%' style="border-right:0px;background-color:#d2d3d5;"></td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="course-in-progress-tt">
-                                    <b style="color:#757474;">Time Spent: </b>0 Hours and 32 Minutes
-                                </div>
-                            </div>
+                        <div class="course-in-progress-rows">
+    
                         </div>
                     </div>
                     <div class="completed-courses"></div>
@@ -1238,6 +1188,7 @@ $(document).ready(function(){
         }
     });
     
+    //tab btn event--------------------------------------------------------------------
     $(".my-feed-btn").click(function(){
         if(now_show != 1){
             btn_switch($(this).attr("class"));
@@ -1268,6 +1219,62 @@ $(document).ready(function(){
                 $(content_btn).removeClass("mytab-active");
                 $(content).hide();
             }
+        }
+    }
+
+    get_course_in_progress();
+    //course in progress--------------------------------------------------------------------
+    function get_course_in_progress(){
+        $.post("${reverse('get_my_course_in_progress')}", 
+            {'user_id':'${request.user.id}'},
+            function(data_obj){
+                create_course_in_progress(data_obj);
+        });
+    }
+    function create_course_in_progress(data_obj){
+        for(var i=0;i<data_obj.data.length;i++){
+            cp = data_obj.data[i];
+            console.log(cp.p);
+            p_color = "";
+            if(cp.p <= 0.25){
+                p_color = "#ef3028";
+            }
+            else if(cp.p > 0.25 && cp.p < 0.75){
+                p_color = "#fbba2e";
+            }
+            else{
+                 p_color = "#89c153";
+            }
+
+            width_1 = Math.round(334 * cp.p);
+            width_2 = String(334 - width_1) + "px";
+            width_1 = String(width_1) + "px";
+
+            element_html = '<div class="course-in-progress-row">';
+            element_html += '<div class="course-in-progress-t"><b>'+cp.name+'</b>|'+cp.number+'</div>';
+            element_html += '<div class="course-in-progress-p">';
+            element_html += '<b style="float:left;font-size:13px;color:#757474;">Progress</b>';
+            element_html += '<div class="progress-table" style="width:334px;">';
+            element_html += '<div style="width:'+width_1+';height:22px;background-color:'+p_color+';float:left;"></div>';
+            element_html += '<div style="width:'+width_2+';height:22px;background-color:#d2d3d5;float:left;"></div>';
+            element_html += '<table width=334 style="margin-top:-22px;float:left;">';
+            element_html += '<tr height=22>';
+            element_html += '<td width=25%></td>';
+            element_html += '<td width=25%></td>';
+            element_html += '<td width=25%></td>';
+            element_html += '<td width=25%></td>';
+            element_html += '</tr>';
+            element_html += '</table>';
+            element_html += '</div>';
+            element_html += '</div>';
+            element_html += '<div class="course-in-progress-tt">';
+            element_html += '<b style="color:#757474;">Time Spent: </b>'+cp.time;
+            element_html += '</div>';
+            element_html += '</div>';
+
+            element = $(element_html);
+            $('.course-in-progress-rows').append(element);
+
         }
     }
 });
