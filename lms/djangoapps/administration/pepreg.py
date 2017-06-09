@@ -630,7 +630,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 try:
                     printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
                 except:
-                    raise Exception(month)
+                    raise Exception(day)
         else:
             continue
 
