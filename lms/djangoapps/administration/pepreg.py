@@ -554,7 +554,7 @@ def getCalendarMonth(request):
         isday = 1 if len(daterangelist) == 1 else 0
 
         for day in daterangelist:
-            if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and isinstance(day, datetime.date))):
+            if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and isinstance(day, date))):
                 if (isweek or isday):
                     pdfDate = utc.localize(day)
                 else:
@@ -624,7 +624,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     isday = 1 if len(daterange) == 1 else 0
 
     for day in daterange:
-        if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and isinstance(day, datetime.date))):
+        if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and isinstance(day, date))):
             if (isweek or isday):
                 printDate = utc.localize(day)
             else:
