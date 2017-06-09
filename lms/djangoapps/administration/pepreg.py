@@ -627,7 +627,10 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             if (isweek or isday):
                 printDate = utc.localize(day)
             else:
-                printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                try:
+                    printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                except:
+                    raise Exception(month)
         else:
             continue
 
