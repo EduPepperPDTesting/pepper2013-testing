@@ -1322,7 +1322,7 @@ def get_column_headers(request):
             for d in row_data:
                 row = {}
                 if row_header_type == 'time':
-                    row['row_header'] = study_time_format(d['_id'][row_header])
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
                 elif row_header_type == 'url':
                     if is_excel:
                         row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
@@ -1352,7 +1352,7 @@ def get_column_headers(request):
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
-            column_header_row[i] = study_time_format(k)
+            column_header_row[i] = study_time_format_2(k)
     if column_header_type == 'url':
         if is_excel:
             for i,k in enumerate(column_header_row):
@@ -1449,3 +1449,30 @@ def create_column_Headers(report,collection):
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
+
+def study_time_format_2(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour, '
+    minute_unit = ' Minute'
+    second_unit = 'Second'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    second = int(t % 60)
+    if second != 1:
+        second_unit = 'Seconds'
+    if hour != 1:
+        hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    if minute > 0:
+        minute_unit = str(minute) + minute_unit
+    else:
+        minute_unit = ''
+    return ('{0}{1} {2} {3} {4}').format(sign, hour_full, minute_unit, second, second_unit)
