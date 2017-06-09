@@ -557,7 +557,7 @@ def getCalendarMonth(request):
                 if (isweek or isday):
                     pdfDate = utc.localize(day)
                 else:
-                    pdfDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                    pdfDate = datetime(year=year, month=month, day=+1, tzinfo=utc)
             else:
                 continue
 
@@ -628,7 +628,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 printDate = utc.localize(day)
             else:
                 try:
-                    printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                    printDate = datetime(year=year, month=month, day=day+1, tzinfo=utc)
                 except:
                     raise Exception(day)
         else:
