@@ -1403,7 +1403,8 @@ def report_get_matrix_rows(request):
             column_header_row[int(col)] = 'row_header'
         f = f.replace('.',',')
         reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-        search[str(column_header_row[int(col)])] = reg
+        index = str(column_header_row[int(col)]).replace('.',',')
+        search[index] = reg
 
     page = int(request.GET['page'])
     size = int(request.GET['size'])
