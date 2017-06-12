@@ -13,11 +13,14 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/morris.min.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/raphael-min.js"></script>
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
+<link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
 
 <style>
     .lean-overlay .loading {
@@ -98,6 +101,18 @@
 </div>
 </div>
 </div>
+</div>
+<!-- chart -->
+<div id = 'graphable' style="display: none;">
+    <div id="graph">
+            <ul>
+                <li>Line</li>
+                <li>Area</li>
+                <li>Bar</li>
+                <li>Donut</li>
+            </ul>
+        </div>
+    <div id="chart" style="width:1000px"></div>
 </div>
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
@@ -286,8 +301,41 @@ var report_view = {
         $table.trigger("update");
     }
 
+    function getEvent() {
+        if (document.all) {
+            return window.event; //如果是ie
+        }
+        func = getEvent.caller;
+        while (func != null) {
+            var arg0 = func.arguments[0];
+            if (arg0) {
+                if ((arg0.constructor == Event || arg0.constructor == MouseEvent) || (typeof(arg0) == "object" && arg0.preventDefault && arg0.stopPropagation)) {
+                    return arg0;
+                }
+            }
+            func = func.caller;
+        }
+        return null;
+    }
+
+    function stopevt() {
+        var ev = getEvent();
+        if (ev.stopPropagation) {
+            ev.stopPropagation();
+        } else if (window.ev) {
+            window.ev.cancelBubble = true;
+        }
+    }
+
+    function graphable(){
+        $("#graphable").show();
+        stopevt();
+    }
 
 $(document).ready(function () {
+    
+
+
     loadwin = new LoadingWin();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
         column_header = datas.column_header;
@@ -300,9 +348,9 @@ $(document).ready(function () {
         column_header_type = datas.column_header_type
         if (column_header_type == 'time' || column_header_type == 'int'){
             for (data in column_datas){
-                html += "<th><a href='#'><image src='/static/images/icon_reporting.png'></image></a>"+column_datas[data]+"</th>";
+                html += "<th><a href='javascript:void(0);' onclick='graphable()'><image src='/static/images/icon_reporting.png' style='z-index:100;'></image></a>"+column_datas[data]+"</th>";
             }
-            html += "<th><a href='#'><image src='/static/images/icon_reporting.png'></image></a>Total</th></tr>";
+            html += "<th><a href='#'><image src='/static/images/icon_reporting.png' style='z-index:100;'></image></a>Total</th></tr>";
         }else{
             for (data in column_datas){
                 html += "<th>"+column_datas[data]+"</th>";
@@ -310,11 +358,44 @@ $(document).ready(function () {
             html += "<th>Total</th></tr>";
         }
         
-        
         $("#talbe_column").html(html)
-
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         report_view.init();
+
+
+
+        $("#graph ul li").click(function(){
+            var shape = $(this).html();
+            $("#chart").html("");
+            if(shape != "Donut"){
+                graph(shape);
+            }else{
+                new Morris.Donut({
+                    // ID of the element in which to draw the chart.
+                    element: 'chart',
+                    // Chart data records -- each entry in this array corresponds to a point on the chart.
+                    data: [
+                        { label: 'EDU101', value: 3900 },
+                        { label: 'EDU103', value: 0 },
+                        { label: 'EDU506', value: 8400 },
+                        { label: 'ELA201M', value: 300 },
+                        { label: 'ELAM3', value: 72300 },
+                        { label: 'E1012', value: 12600 },
+                        { label: 'MA1-612', value: 0 },
+                        { label: 'MA101M', value: 2100 }
+                    ],
+                    // Formats the time string.
+                    formatter: function(y) {
+                        return dateFormatter(y);
+                    }
+                });
+            }
+        });
+
+        function graph(shape){
+            string = "new Morris."+shape+"({ element: 'chart',data: [{ course: 'EDU101', value: 3900 },{ course: 'EDU103', value: 0 },{ course: 'EDU506', value: 8400 },{ course: 'ELA201M', value: 300 },{ course: 'ELAM3', value: 72300 },{ course: 'E1012', value: 12600 },{ course: 'MA1-612', value: 0 },{ course: 'MA101M', value: 2100 }],xkey: 'course', ykeys: ['value'],labels: ['Time'],yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })";
+            eval(string);
+        }
 
     });
 })

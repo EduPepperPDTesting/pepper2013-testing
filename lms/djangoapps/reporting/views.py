@@ -1338,8 +1338,7 @@ def get_column_headers(request):
                         filter1 = {"$in": [None]}
                     else:
                         filter1 = column
-
-                        column = column.replace('.',',')
+                        column = str(column).replace('.',',')
                     if d['_id'][row_header] == None:
                         filter2 = {"$in": [None]}
                     else:
