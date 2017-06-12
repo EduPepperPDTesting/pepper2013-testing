@@ -1364,7 +1364,7 @@ def get_column_headers(request):
         for i,k in enumerate(column_header_row):
             column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
 
-    return render_json_response({'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
+    return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'column_header':column_header,'row_header':row_header})
 
 def report_get_matrix_rows(request):
     report_id = request.GET['report_id']
