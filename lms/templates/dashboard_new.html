@@ -168,6 +168,7 @@ a{
     width:250px;
     height:820px;
     margin-left: 27px;
+    border:0px solid #f00;
 }
 .con-my-communities{
     width:250px;
@@ -318,7 +319,7 @@ a{
     border-left:3px solid #fff;
     border-right:3px solid #fff;
     */
-
+    border: 0px solid;
 }
 .con-feed-activity{
     width:680px;
@@ -347,8 +348,10 @@ a{
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
 
+    /*
     position: absolute;
     left:0px;
+    */
 }
 .my-activity-btn{
     width:150px;
@@ -366,8 +369,12 @@ a{
     border-top:3px solid #666668;
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
+
+    margin-left: -14px;
+    /*
     position: absolute;
     left:121px;
+    */
 
 }
 .my-report-card-btn{
@@ -387,8 +394,11 @@ a{
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
 
+    margin-left: -14px;
+    /*
     position: absolute;
     left:262px;
+    */
 }
 .mytab-active{
     background-color:#f58221;
@@ -416,7 +426,7 @@ a{
     padding-bottom: 3px;
 }
 .my-activity{
-    width:674px;
+    width:680px;
     overflow: hidden;
     float:left;
     /*
@@ -431,7 +441,7 @@ a{
     padding-bottom: 3px;
 }
 .my-report-card{
-    width:674px;
+    width:680px;
     overflow: hidden;
     float:left;
     /*
@@ -625,7 +635,7 @@ a{
     width: 155px;
     height:600px;
     margin-top: 30px;
-    margin-left: 25px;
+    margin-left: 30px;
     
     border:0px solid;
 }
@@ -771,7 +781,6 @@ a{
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
         if not data['profile_logo']:
             data['profile_logo'] = "/static/images/newdashboard/profile_logo_default_ss.png"
-
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
@@ -1005,6 +1014,9 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
+
+    var btn_list = ['my-feed','my-activity','my-report-card'];
+    var position_list = new Array();
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
             var now_show = 1; //1:my feed;2:my activity;3:my report card
@@ -1013,16 +1025,40 @@ $(document).ready(function(){
         % else:
             var now_show = 3;
         % endif
+
+        % if data["My Feed Show"] == "1":
+            position_list.push(btn_list[0]);
+        % endif
+
+        % if data["My Activities Show"] == "1":
+            position_list.push(btn_list[1]);
+        % endif
+
+        % if data["My Report Show"] == "1":
+            position_list.push(btn_list[2]);
+        % endif
     % else:
         var now_show = 1;
+        position_list = btn_list;
     % endif
-    
+
     var data_all = 0;
     var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
     var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
     var data_loading = 0;
 
-    btn_list = ['my-feed','my-activity','my-report-card'];
+    //tab btn position
+    for(var i=0;i<position_list.length;i++){
+        content_btn = "." + position_list[i] + "-btn";
+        if(i == 0){
+            $(content_btn).css({"margin-left":"0px"});
+        }
+        else{
+            $(content_btn).css({"margin-left":"-14px"});
+        }
+    }
+
+    //tab btn and content show or hide
     for(var i=0;i<btn_list.length;i++){
         content_btn = "." + btn_list[i] + "-btn";
         content = "." + btn_list[i];
