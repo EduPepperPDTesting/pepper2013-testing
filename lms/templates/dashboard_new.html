@@ -910,7 +910,9 @@ a{
                         <div class="course-in-progress-rows">
     
                         </div>
-                        <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
+                        <div class="course-in-progress-more-outer">
+                            <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
+                        </div>
                     </div>
                     <div class="completed-courses"></div>
                 </div>
@@ -1241,12 +1243,18 @@ $(document).ready(function(){
 
     get_course_in_progress('incompleted','no'); 
     //course in progress--------------------------------------------------------------------
-    function get_course_in_progress(course_type,get_more){
-        //value of get_more:yes, no
+    function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
+        if(get_more == 'yes'){
+            $(".course-in-progress-more-outer").html('<center><img id="progress_rows_loading_image" src="/static/images/posts-loading.gif"></img></center>');
+        }
+
         $.post("${reverse('get_my_course_in_progress')}", 
             {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
             function(data_obj){
                 create_course_in_progress(data_obj);
+                if(get_more == 'yes'){
+                    $(".course-in-progress-more-outer").html('');
+                }  
         });
     }
     function create_course_in_progress(data_obj){

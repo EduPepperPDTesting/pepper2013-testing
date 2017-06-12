@@ -473,8 +473,8 @@ def get_my_course_in_progress(request):
 
     course_unfin_list = []
     student = User.objects.prefetch_related("groups").get(id=user.id)
-    #rs = reporting_store()
-    #rs.set_collection('UserCourseView')
+    rs = reporting_store()
+    rs.set_collection('UserCourseView')
     if course_type == "incompleted":
         for k,course in enumerate(courses_incomplated):
             if get_more == 'yes':
