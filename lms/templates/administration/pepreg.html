@@ -1405,7 +1405,7 @@
                 $("#calendar-month").css("width", tableWidth + "px")
             }*/
 
-            var lastSlotX = $(".completeSlot:last").position().left + parseInt($(".completeSlot:last").width()) + 5;
+            var lastSlotX = $(".completeSlot:last").position().left + parseInt($(".completeSlot:last").width()) + 20;
             var tableX = $("#calendar-month").position().left + parseInt($("#calendar-month").width());
             if(lastSlotX > tableX){
                 tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
