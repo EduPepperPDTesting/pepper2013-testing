@@ -104,7 +104,7 @@ a{
 }
 .con-my-courses{
     width:250px;
-    height:770px;
+    height:610px;
     background-color: #fff;
 }
 .my-title-green{
@@ -171,14 +171,14 @@ a{
 }
 .con-my-communities{
     width:250px;
-    height:770px;
+    height:610px;
     background-color: #fff;
     position:fixed;
     padding-bottom: 5px;
 }
 .my-profile-logo{
     width:210px;
-    height:155px;
+    /*height:155px;*/
     margin-left: 20px;
     margin-top: 10px;
     text-align: center;
@@ -252,18 +252,18 @@ a{
     margin-top: 8px;
 }
 .trending-topic .tt-btn-reply{
-    width:80px;
+    width:70px;
     background-color:#F58221;
     border-radius: 5px;
     text-align: center;
-    padding: 4px 0px 4px 0px;
+    padding: 3px 0px 4px 0px;
 }
 .trending-topic .tt-btn-addme{
-    width:80px;
+    width:70px;
     background-color:#89C153;
     border-radius: 5px;
     text-align: center;
-    padding: 4px 0px 4px 0px;
+    padding: 3px 0px 4px 0px;
 }
 .my-communities-cards{
     width: 224px;
@@ -770,7 +770,7 @@ a{
             if data['profile_logo']:
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
         if not data['profile_logo']:
-            data['profile_logo'] = "/static/images/newdashboard/profile_logo_default_s.png"
+            data['profile_logo'] = "/static/images/newdashboard/profile_logo_default_ss.png"
 
 %>
 <%namespace name='static' file='static_content.html'/>
@@ -943,7 +943,7 @@ a{
                 <div class="community-trending-topics">
                     <div class="my-profile-logo">
                     %if data['profile_logo']:
-                        <img src="${data['profile_logo']}" style="max-width:210px;max-height:155px;"/>
+                        <img src="${data['profile_logo']}" style="max-width:105px;max-height:78px;"/>
                     %endif
                     </div>
                     <a href="/communities">
@@ -958,14 +958,19 @@ a{
                             %endif
                                 <div class="tt-title">${c['cname']}</div>
                                 <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
-                                <div class="tt-time">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
-                                %if c['btntext'] == "Reply":
-                                    <div class="tt-btn-reply">
-                                %else:
-                                    <div class="tt-btn-addme">
-                                %endif
-                                    <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
+                                <div class="tt-time">
+                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
+                                         %if c['btntext'] == "Reply":
+                                            <div class="tt-btn-reply">
+                                        %else:
+                                            <div class="tt-btn-addme">
+                                        %endif
+                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
+                                            </div>
+                                    </div>
                                 </div>
+                               
                             </div>
                         %endfor
                     </div>
