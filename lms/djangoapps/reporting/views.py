@@ -1391,16 +1391,16 @@ def report_get_matrix_rows(request):
     order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
         if int(col) == 0:
-            column_header_row[int(col)] = '_id'
+            column_header_row[int(col)] = 'row_header'
         if sort == '1':
-            order = [column_header_row[int(col)], -1, 0]
+            order = [str(column_header_row[int(col)]), -1, 0]
         else:
-            order = [column_header_row[int(col)], 1, 0]
+            order = [str(column_header_row[int(col)]), 1, 0]
 
     search = {}
     for col, f in filters.iteritems():
         if int(col) == 0:
-            column_header_row[int(col)] = '_id'
+            column_header_row[int(col)] = 'row_header'
         f = f.replace('.',',')
         reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
         search[column_header_row[int(col)]] = reg
@@ -1421,7 +1421,7 @@ def report_get_matrix_rows(request):
                 if val == None:
                     val = 'none'
                 else:
-                    val=val.replace('.',',')
+                    val=str(val).replace('.',',')
                 row.append(d[val])
         rows.append(row)
 
