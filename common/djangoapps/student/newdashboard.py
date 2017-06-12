@@ -21,10 +21,9 @@ from external_auth.models import ExternalAuthMap
 from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
-from administration.models import site_setting_store
+from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
 from feeding import dashboard_feeding_store
 from django.db.models import Sum
-from administration.models import PepRegStudent
 from reporting.models import reporting_store
 from bson import json_util
 from views import course_from_id, cert_info, exam_registration_info, study_time_format, upload_user_photo
@@ -36,7 +35,6 @@ from communities.models import CommunityCommunities, CommunityDiscussions, Commu
 from xmodule.remindstore import myactivitystore, myactivitystaticstore, chunksstore
 from courseware.courses import get_course_by_id, course_image_url, get_course_about_section 
 import comment_client as cc
-from administration.models import PepRegTraining
 from reporting.models import Reports
 from django.core.urlresolvers import reverse
 from student.models import State,District,School,User,UserProfile
@@ -48,7 +46,6 @@ from django.conf import settings
 from bson import ObjectId
 from collections import OrderedDict
 from courseware import grades
-
 
 log = logging.getLogger("tracking")
 
@@ -175,6 +172,9 @@ def newdashboard(request, user_id=None):
     courses_complated = []
     courses_incomplated = []
     courses = []
+
+    external_time = 0
+    external_times = {}
     exists = 0
 
     allowedcourses_id = []
@@ -203,9 +203,16 @@ def newdashboard(request, user_id=None):
                 exists = exists - 1
             courses.append(c)
 
+            #external_time
+            if user.is_superuser:
+                external_times[c.id] = 0
+            else:
+                external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+                external_time += external_times[c.id]
+                external_times[c.id] = study_time_format(external_times[c.id])
+
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
-
             if course_instance.complete_course:
                 c.complete_date = course_instance.complete_date
                 c.student_enrollment_date = course_instance.complete_date
@@ -324,10 +331,61 @@ def newdashboard(request, user_id=None):
     my_activity_year_start, my_activity_year_end = myactivitystore().get_my_activity_year_range()
     #@end
 
+    #@begin:get user last logged in time
+    #@date:2017-06-12
+    user_last_logged_in = ''
+    user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
+    for d in user_log_info:
+        #user_last_logged_in = datetime.datetime.strptime(d.login_time,"%Y-%m-%d %H:%M:%S")
+        #user_last_logged_in = user_last_logged_in.strftime('%m') + "/" +  user_last_logged_in.strftime('%d') + "/" + user_last_logged_in.strftime('%Y')
+        user_last_logged_in = d.login_time[5:7] + "/" + d.login_time[8:10] + "/" + d.login_time[0:4]
+        break
+    #@end
+
+    '''
+    get user stats time
+    2017-06-12
+    '''
+    #@begin:add pd_time to total_time
+    #@date:2016-06-06
+    id_of_user = ''
+    if user_id:
+        id_of_user = user_id
+    else:
+        id_of_user = request.user.id
+    pd_time = 0;
+    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
+    if pd_time_tmp:
+        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+    #@end
+    if user.is_superuser:
+        course_time = 0
+        discussion_time = 0
+        portfolio_time = 0
+        all_course_time = 0
+        collaboration_time = 0
+        adjustment_time_totle = 0
+        total_time_in_pepper = 0
+    else:
+        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+        all_course_time = course_time + external_time
+        collaboration_time = discussion_time + portfolio_time
+        adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+        #@begin:add pd_time to total_time
+        #@date:2016-06-06
+        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
+        #@end
+
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
         'show_courseware_links_for': show_courseware_links_for,
+        'all_course_time': study_time_format(all_course_time),
+        'collaboration_time': study_time_format(collaboration_time),
+        'total_time_in_pepper': study_time_format(total_time_in_pepper),
+        'pd_time': study_time_format(pd_time),
+        'user_last_logged_in': user_last_logged_in,
         'curr_user': user,
         'communities': community_list,
         'allowedcourses': allowedcourse_list,
@@ -371,8 +429,8 @@ def get_tt(c,joined):
 
 def get_my_course_in_progress(request):
     user = User.objects.get(id=request.user.id)
-    course_type = "incompleted"
-    get_more = 0
+    course_type = request.POST.get('course_type')
+    get_more = request.POST.get('get_more')
 
     courses_complated = []
     courses_incomplated = []
@@ -415,11 +473,11 @@ def get_my_course_in_progress(request):
 
     course_unfin_list = []
     student = User.objects.prefetch_related("groups").get(id=user.id)
-    rs = reporting_store()
-    rs.set_collection('UserCourseView')
+    #rs = reporting_store()
+    #rs.set_collection('UserCourseView')
     if course_type == "incompleted":
         for k,course in enumerate(courses_incomplated):
-            if get_more:
+            if get_more == 'yes':
                 if k > 2:
                     couser_dict = {}
                     #set user course percent

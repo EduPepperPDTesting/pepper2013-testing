@@ -642,7 +642,7 @@ a{
 }
 .course-in-progress{
     background-color: #f3f3f4;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
 }
 .course-in-progress-row{
     width: 400px;
@@ -674,6 +674,18 @@ a{
     padding-right:5px;
     text-align: right;
 }
+.course-in-progress-more{
+    text-align:right;
+    color: #2CBAEC;
+    font-size: 15px;
+    padding: 10px 27px 0px 0px;
+    border:0px solid;
+}
+.course-in-progress-more b{
+    cursor: pointer;
+}
+
+
 
 
 
@@ -898,21 +910,26 @@ a{
                         <div class="course-in-progress-rows">
     
                         </div>
+                        <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
                     </div>
                     <div class="completed-courses"></div>
                 </div>
                 <div class="my-report-card-right">
                     <div class="my-stats-title">My Stats</div>
                     <div class="total-time-title-top">Total Time(YTD):</div>
-                    <div class="total-time">24 H 32 M</div>
+                    <div class="total-time">${total_time_in_pepper}</div>
                     <div class="total-time-title">Course Time(YTD):</div>
-                    <div class="total-time">19 H 25 M</div>
+                    <div class="total-time">${all_course_time}</div>
                     <div class="total-time-title">PD Time(YTD):</div>
-                    <div class="total-time">7 H</div>
+                    <div class="total-time">${pd_time}</div>
                     <div class="total-time-title">Last Logged In:</div>
-                    <div class="total-time">05/14/2017</div>
-                    <div class="enrolled-courses">Enrolled Courses: <span>4</span></div>
-                    <div class="enrolled-courses">Completed Courses: <span>88</span></div>
+                    <div class="total-time">${user_last_logged_in}</div>
+                    <%
+                        completed_ourses_count = len(courses_complated)
+                        enrolled_ourses_count = len(courses_complated) + len(courses_incomplated)
+                    %>
+                    <div class="enrolled-courses">Enrolled Courses: <span>${enrolled_ourses_count}</span></div>
+                    <div class="enrolled-courses">Completed Courses: <span>${completed_ourses_count}</span></div>
                 </div>
             </div>
         </div>
@@ -988,7 +1005,7 @@ $(document).ready(function(){
             var now_show = 2;
         % else:
             var now_show = 3;
-		% endif
+        % endif
     % else:
         var now_show = 1;
     % endif
@@ -1222,11 +1239,12 @@ $(document).ready(function(){
         }
     }
 
-    get_course_in_progress();
+    get_course_in_progress('incompleted','no'); 
     //course in progress--------------------------------------------------------------------
-    function get_course_in_progress(){
+    function get_course_in_progress(course_type,get_more){
+        //value of get_more:yes, no
         $.post("${reverse('get_my_course_in_progress')}", 
-            {'user_id':'${request.user.id}'},
+            {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
             function(data_obj){
                 create_course_in_progress(data_obj);
         });
@@ -1234,7 +1252,6 @@ $(document).ready(function(){
     function create_course_in_progress(data_obj){
         for(var i=0;i<data_obj.data.length;i++){
             cp = data_obj.data[i];
-            console.log(cp.p);
             p_color = "";
             if(cp.p <= 0.25){
                 p_color = "#ef3028";
@@ -1277,6 +1294,14 @@ $(document).ready(function(){
 
         }
     }
+
+    var btn_more_incompleted_click = 0;
+    $(".btn-more-incompleted").click(function(){
+        if(btn_more_incompleted_click == 0){
+            get_course_in_progress('incompleted','yes'); 
+            btn_more_incompleted_click = 1
+        }
+    });
 });
 </script>
 
