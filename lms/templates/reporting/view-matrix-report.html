@@ -103,13 +103,14 @@
 </div>
 </div>
 <!-- chart -->
-<div id = 'graphable' style="display: none;">
-    <div id="graph">
-            <ul>
-                <li>Line</li>
-                <li>Area</li>
-                <li>Bar</li>
-                <li>Donut</li>
+<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 400px;background-color: gray;">
+    <div id="graph" style="border:1px solid red;height:50px;">
+            <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Area</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Bar</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Donut</li>
+                <li style="width: 100px;height: 48px;float: right;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">X</li>
             </ul>
         </div>
     <div id="chart" style="width:1000px"></div>
@@ -333,22 +334,22 @@ var report_view = {
     }
 
     function dateFormatter(x) {
-                var hour_unit = ' Hour, ';
-                var minute_unit = ' Minute';
-                var hour = Math.floor(x / 60 / 60);
-                var minute = Math.floor(x / 60 % 60);
-                if (hour != 1) {
-                    hour_unit = ' Hours, ';
-                }
-                if (minute != 1) {
-                    minute_unit = ' Minutes';
-                }
-                var hour_full = '';
-                if (hour > 0) {
-                    hour_full = hour + hour_unit;
-                }
-                return hour_full + minute + minute_unit;
-            }
+        var hour_unit = ' Hour, ';
+        var minute_unit = ' Minute';
+        var hour = Math.floor(x / 60 / 60);
+        var minute = Math.floor(x / 60 % 60);
+        if (hour != 1) {
+            hour_unit = ' Hours, ';
+        }
+        if (minute != 1) {
+            minute_unit = ' Minutes';
+        }
+        var hour_full = '';
+        if (hour > 0) {
+            hour_full = hour + hour_unit;
+        }
+        return hour_full + minute + minute_unit;
+    }
 
 $(document).ready(function () {
 

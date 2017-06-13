@@ -1390,11 +1390,13 @@ def report_get_matrix_rows(request):
     order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
         if int(col) == 0:
-            column_header_row[int(col)] = 'row_header'
-        if sort == '1':
-            order = [str(column_header_row[int(col)]), -1, 0]
+            index = 'row_header'
         else:
-            order = [str(column_header_row[int(col)]), 1, 0]
+            index = str(column_header_row[int(col)]).replace('.',',')
+        if sort == '1':
+            order = [index, -1, 0]
+        else:
+            order = [index, 1, 0]
 
     search = {}
     for col, f in filters.iteritems():
