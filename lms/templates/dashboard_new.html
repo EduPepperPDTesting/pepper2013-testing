@@ -321,7 +321,7 @@ a{
     */
     border: 0px solid;
 }
-.con-feed-activity{
+.con-tab-btns{
     width:680px;
     height:42px;
     float:left;
@@ -330,12 +330,13 @@ a{
     border:0px solid #000;
     */
 }
-.my-feed-btn{
-    width:130px;
+.tab-btn-common{
+    /*
     height:28px;
     padding-top:11px;
+    */
+    padding:11px 35px 12px 35px;
 
-    margin-left: 0px;
     float:left;
     text-align:center;
     color:#fff;
@@ -348,57 +349,19 @@ a{
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
 
-    /*
-    position: absolute;
-    left:0px;
-    */
+    margin-left: -14px;
+}
+.featured-content-btn{
+    /*width:180px;*/
+}
+.my-feed-btn{
+    /*width:130px;*/
 }
 .my-activity-btn{
-    width:150px;
-    height:28px;
-    padding-top:11px;
-
-    float:left;
-    text-align:center;
-    color:#fff;
-    cursor: pointer;
-    font-size:14px;
-    background-color: #6e6e70;
-
-    border-left:3px solid #666668;
-    border-top:3px solid #666668;
-    border-right:3px solid #666668;
-    border-radius:10px 10px 0px 0px; 
-
-    margin-left: -14px;
-    /*
-    position: absolute;
-    left:121px;
-    */
-
+    /*width:150px;*/
 }
 .my-report-card-btn{
-    width:180px;
-    height:28px;
-    padding-top:11px;
-
-    float:left;
-    text-align:center;
-    color:#fff;
-    cursor: pointer;
-    font-size:14px;
-    background-color: #6e6e70;
-
-    border-left:3px solid #666668;
-    border-top:3px solid #666668;
-    border-right:3px solid #666668;
-    border-radius:10px 10px 0px 0px; 
-
-    margin-left: -14px;
-    /*
-    position: absolute;
-    left:262px;
-    */
+    /*width:180px;*/
 }
 .mytab-active{
     background-color:#f58221;
@@ -407,11 +370,28 @@ a{
     border-right:3px solid #f58221;
     border-radius:10px 10px 0px 0px; 
     cursor: auto !important;
-    z-inde1x: 1000;
 
     -moz-box-shadow:2px 0px 2px #a4a4a4;
     -webkit-box-shadow:2px 0px 2px #a4a4a4;
     box-shadow: 2px 0px 2px #a4a4a4;
+}
+.featured-content{
+    width:680px;
+    overflow: hidden;
+    float:left;
+    /*
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+    */
+    background-color: #fff;
+
+    min-height:727px;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+
+    display: none;
 }
 .my-feed{
     width:674px;
@@ -454,6 +434,7 @@ a{
 
     min-height:727px;
     padding-bottom: 3px;
+    margin-bottom: 10px;
 
     display: none;
 }
@@ -843,27 +824,34 @@ a{
         </div>
 
         <div class="con-maincontent-all clearfix">
-            <div class="con-feed-activity">
+            <div class="con-tab-btns">
+                <div class="featured-content-btn tab-btn-common">Featured Content</div>          
             % if OrganizationOK and data["My Feed Show"] == "1":
-                <div class="my-feed-btn mytab-active">My Feed</div>                
+                <div class="my-feed-btn tab-btn-common">My Feed</div>                
             % endif
             % if OrganizationOK and data["My Activities Show"] == "1":
-                <div class="my-activity-btn mytab-active">My Activity</div>             
+                <div class="my-activity-btn tab-btn-common">My Activity</div>             
             % endif
             % if OrganizationOK and data["My Report Show"] == "1":
-                <div class="my-report-card-btn mytab-active">My Report Card</div>
+                <div class="my-report-card-btn tab-btn-common">My Report Card</div>
             % endif
             % if not(OrganizationOK):
-                <div class="my-feed-btn mytab-active">My Feed</div>
-                <div class="my-activity-btn" style="">My Activity</div>
-                <div class="my-report-card-btn" style="">My Report Card</div>
+                <div class="my-feed-btn tab-btn-common">My Feed</div>
+                <div class="my-activity-btn tab-btn-common" style="">My Activity</div>
+                <div class="my-report-card-btn tab-btn-common" style="">My Report Card</div>
             % endif
             </div>
+
+            <div id="featured_content" class="featured-content">
+                Featured Content
+            </div>
+
             <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
                 <!--w:660,min-h:800-->
                 <%include file="dashboard_my_feed.html" />
             </div>
+
             <!--w:674 = 680-3*2-->
             <div id="my_activity" class="my-activity">
                 <div class="con-ma-filter">
@@ -915,13 +903,14 @@ a{
                 <!--w:660,min-h:800-->
                 <div class="my-report-card-left">
                     <div class="course-in-progress">
-                        <div class="course-in-progress-title">Course In Progress</div>
+                        <div class="course-in-progress-title">Courses In Progress</div>
                         <div class="course-in-progress-rows">
-    
                         </div>
+                        %if len(courses_complated) > 3:
                         <div class="course-in-progress-more-outer">
                             <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
                         </div>
+                        %endif
                     </div>
                     <div class="completed-courses"></div>
                 </div>
@@ -1010,59 +999,33 @@ a{
 
 <script>
 $(document).ready(function(){
-    //20170221=================================================================================================
+    /*----------------------------------------------------------------*/
+    /*common*/
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
 
-    var btn_list = ['my-feed','my-activity','my-report-card'];
-    var position_list = new Array();
+    var btn_list = ['featured-content','my-feed','my-activity','my-report-card'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
-            var now_show = 1; //1:my feed;2:my activity;3:my report card
+            var now_show = 'my-feed';        
         % elif data["Is My Feed Default"] == "0":
-            var now_show = 2;
+            var now_show = 'my-activity';
         % else:
-            var now_show = 3;
-        % endif
-
-        % if data["My Feed Show"] == "1":
-            position_list.push(btn_list[0]);
-        % endif
-
-        % if data["My Activities Show"] == "1":
-            position_list.push(btn_list[1]);
-        % endif
-
-        % if data["My Report Show"] == "1":
-            position_list.push(btn_list[2]);
+            var now_show = 'my-report-card';
         % endif
     % else:
-        var now_show = 1;
-        position_list = btn_list;
+        var now_show = 'featured-content';
     % endif
 
-    var data_all = 0;
-    var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
-    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
-    var data_loading = 0;
+    //initial tab btn position
+    $(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
 
-    //tab btn position
-    for(var i=0;i<position_list.length;i++){
-        content_btn = "." + position_list[i] + "-btn";
-        if(i == 0){
-            $(content_btn).css({"margin-left":"0px"});
-        }
-        else{
-            $(content_btn).css({"margin-left":"-14px"});
-        }
-    }
-
-    //tab btn and content show or hide
+    //initial tab btn and content show or hide
     for(var i=0;i<btn_list.length;i++){
         content_btn = "." + btn_list[i] + "-btn";
         content = "." + btn_list[i];
-        if(i+1 == now_show){
+        if(btn_list[i] == now_show){
             $(content_btn).addClass("mytab-active");
             $(content).show();   
         }
@@ -1071,6 +1034,49 @@ $(document).ready(function(){
             $(content).hide();
         }
     }
+
+    //tab btn event--------------------------------------------------
+    $(".featured-content-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-feed-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-activity-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-report-card-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    
+    function btn_switch(classname){
+        name = classname.replace("mytab-active","");
+        name = name.replace("tab-btn-common","").trim();
+        if(now_show != name){
+            for(var i=0;i<btn_list.length;i++){
+                content_btn = "." + btn_list[i] + "-btn";
+                content = "." + btn_list[i];
+                
+                if(name == (btn_list[i]+"-btn")){
+                    $(content_btn).addClass("mytab-active");
+                    $(content).show(); 
+                    now_show = btn_list[i];
+                }
+                else{
+                    $(content_btn).removeClass("mytab-active");
+                    $(content).hide();
+                }
+            }
+        }
+    }
+
+
+    /*----------------------------------------------------------------*/
+    /*my activity*/
+    var data_all = 0;
+    var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
+    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
+    var data_loading = 0;
 
     //variable for init
     var get_rows_init = 0;
@@ -1083,7 +1089,6 @@ $(document).ready(function(){
     //ma start
     get_my_activites(get_rows_init,skip_rows_init); 
 
-    //my activity----------------------------------------------------------------
     function my_activitis_init(){
         get_rows_init = 10;
         skip_rows_init = 0;
@@ -1208,7 +1213,7 @@ $(document).ready(function(){
             return false;
         }
     }
-    //my activity event--------------------------------------------------------------------
+    //my activity event-----------------------------------------------------
     $(".ma-btn-filter").click(function(){
         if(!data_loading){
             my_activitis_init();
@@ -1239,7 +1244,7 @@ $(document).ready(function(){
                 //console.log("now_show:",now_show);
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
-                if(now_show ==2 ){
+                if(now_show == 'my-activity' ){
                     //console.log("333");
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
@@ -1248,42 +1253,12 @@ $(document).ready(function(){
         }
     });
     
-    //tab btn event--------------------------------------------------------------------
-    $(".my-feed-btn").click(function(){
-        if(now_show != 1){
-            btn_switch($(this).attr("class"));
-        } 
-    });
-    $(".my-activity-btn").click(function(){
-        if(now_show != 2){
-            btn_switch($(this).attr("class"));
-        }
-    });
-    $(".my-report-card-btn").click(function(){
-        if(now_show != 3){
-            btn_switch($(this).attr("class"));
-        }
-    });
-
-    function btn_switch(classname){
-        for(var i=0;i<btn_list.length;i++){
-            content_btn = "." + btn_list[i] + "-btn";
-            content = "." + btn_list[i];
-            name = classname.replace(" mytab-active","")
-            if(name == (btn_list[i]+"-btn")){
-                $(content_btn).addClass("mytab-active");
-                $(content).show(); 
-                now_show = i+1;
-            }
-            else{
-                $(content_btn).removeClass("mytab-active");
-                $(content).hide();
-            }
-        }
-    }
-
+    
+    /*----------------------------------------------------------------*/
+    /*my report card*/
+    //my report card - course in progress-----------------------------------------------
     get_course_in_progress('incompleted','no'); 
-    //course in progress--------------------------------------------------------------------
+    
     function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
         if(get_more == 'yes'){
             $(".course-in-progress-more-outer").html('<center><img id="progress_rows_loading_image" src="/static/images/posts-loading.gif"></img></center>');
@@ -1351,6 +1326,9 @@ $(document).ready(function(){
             btn_more_incompleted_click = 1
         }
     });
+
+    //my report card - completed courses-----------------------------------------------
+
 });
 </script>
 
