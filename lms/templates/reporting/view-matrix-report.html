@@ -333,7 +333,16 @@ var report_view = {
         stopevt();
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
         $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
-            console.log(datas)
+            rows = datas.rows
+            tws = []
+            for (var key in rows){
+                for (var key2 in rows[key]){
+                    row['label'] = key2 
+                    row['value'] = rows[key][key2]
+                    tws.push(row)
+                }       
+            }
+            graph('Line',tws)
         })
     }
 
@@ -355,6 +364,11 @@ var report_view = {
         return hour_full + minute + minute_unit;
     }
 
+    function graph(shape,tws){
+        string = "new Morris."+shape+"({ element: 'chart',data:"+tws+",xkey: 'label', ykeys: ['value'],labels: ['Time'],yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })";
+        eval(string);
+    }
+
 $(document).ready(function () {
 
     loadwin = new LoadingWin();
@@ -369,9 +383,9 @@ $(document).ready(function () {
         column_header_type = datas.column_header_type
         // if (column_header_type == 'time' || column_header_type == 'int'){
             for (data in column_datas){
-                html += "<th><image onclick='graphable()' src='/static/images/icon_reporting.png' style='z-index:100;'></image>"+column_datas[data]+"</th>";
+                html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>"+column_datas[data]+"</th>";
             }
-            html += "<th><image onclick='graphable()' src='/static/images/icon_reporting.png' style='z-index:100;'></image>Total</th></tr>";
+            html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>Total</th></tr>";
         // }else{
         //     for (data in column_datas){
         //         html += "<th>"+column_datas[data]+"</th>";
@@ -384,43 +398,16 @@ $(document).ready(function () {
         report_view.init();
 
 
-
         $("#graph ul li").click(function(){
             var shape = $(this).html();
             $("#chart").html("");
             if (shape == 'X'){
                 $("#graphable").hide()
-            }
-            if(shape != "Donut"){
-                graph(shape);
+                return
             }else{
-                new Morris.Donut({
-                    // ID of the element in which to draw the chart.
-                    element: 'chart',
-                    // Chart data records -- each entry in this array corresponds to a point on the chart.
-                    data: [
-                        { label: 'EDU101', value: 3900 },
-                        { label: 'EDU103', value: 0 },
-                        { label: 'EDU506', value: 8400 },
-                        { label: 'ELA201M', value: 300 },
-                        { label: 'ELAM3', value: 72300 },
-                        { label: 'E1012', value: 12600 },
-                        { label: 'MA1-612', value: 0 },
-                        { label: 'MA101M', value: 2100 }
-                    ],
-                    // Formats the time string.
-                    formatter: function(y) {
-                        return dateFormatter(y);
-                    }
-                });
+                graph(shape);
             }
         });
-
-        function graph(shape){
-            string = "new Morris."+shape+"({ element: 'chart',data: [{ course: 'EDU101', value: 3900 },{ course: 'EDU103', value: 0 },{ course: 'EDU506', value: 8400 },{ course: 'ELA201M', value: 300 },{ course: 'ELAM3', value: 72300 },{ course: 'E1012', value: 12600 },{ course: 'MA1-612', value: 0 },{ course: 'MA101M', value: 2100 }],xkey: 'course', ykeys: ['value'],labels: ['Time'],yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })";
-            eval(string);
-        }
-
     });
 })
 
