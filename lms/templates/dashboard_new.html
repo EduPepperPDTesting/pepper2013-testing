@@ -926,7 +926,7 @@ a{
                     <div class="total-time">${user_last_logged_in}</div>
                     <%
                         completed_ourses_count = len(courses_complated)
-                        enrolled_ourses_count = len(courses_complated) + len(courses_incomplated)
+                        enrolled_ourses_count = len(courses_complated) + courses_incomplated_all_count
                     %>
                     <div class="enrolled-courses">Enrolled Courses: <span>${enrolled_ourses_count}</span></div>
                     <div class="enrolled-courses">Completed Courses: <span>${completed_ourses_count}</span></div>
