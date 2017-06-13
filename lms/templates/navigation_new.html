@@ -213,7 +213,7 @@
         position: absolute;
         right: -12px;
         top: 50px;
-        width: 262px;
+        width1: 262px;
         z-index: 3;
     }
     ul.admin-dropdown-menu li {
@@ -230,7 +230,7 @@
         display: block;
         margin: 5px 0px;
         overflow: hidden;
-        padding: 3px 5px 4px;
+        padding: 3px 10px 4px;
         text-overflow: ellipsis;
         transition: padding 0.15s linear 0s;
         white-space: nowrap;
@@ -491,7 +491,7 @@
                     newMeStyleFont = data['Text Font'];
                     newMeStyleColor = data['Text Color'];
                     newMeStyleSize = data['Text Size'];
-                    
+                    meBorderColor = data['Text Color Icons'];
                     if data['Is Icon'] == "1":
                     	img_src = base_src + tmp1.Icon;
                         
@@ -621,13 +621,13 @@
     <span style="float:right;">
     % if request.user.is_authenticated():         
         <ol class="user admin">
-            <li class="primary" style="margin-top:8px;">
+            <li class="primary" style="margin-top:6px;">
                 <span><a href="javascript:void(0)" class="" id="dropdown">                    
                     % if OrganizationOK:
                         % if newMeStyleFlag == 0:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
@@ -637,7 +637,7 @@
                         % else:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
@@ -855,7 +855,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-            if (document.URL.indexOf('dashboard') >= 0) {
+             if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${request.user.id}"
                }, function(data) {
