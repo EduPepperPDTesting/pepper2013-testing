@@ -1505,7 +1505,8 @@ def reporting_get_graphable(request):
     rs.set_collection(collection+"aggregate")
     data = rs.collection.find()
     for d in data:
-        row = {d['row_header']:d[column_header_row[filter]]}
+        row = {}
+        row[d['row_header']] = d[column_header_row[filter]]
         rows.append(row)
 
     return render_json_response({'rows': rows})
