@@ -100,6 +100,9 @@ from permissions.utils import check_access_level, check_user_perms
    font-size:20px;
    padding-bottom:30px;
  }
+ .hoverable-profile{
+   position:relative;
+ }
 </style>
 <script type="text/javascript">
   String.prototype.escape = function(chars, slashed) {
@@ -330,8 +333,8 @@ from permissions.utils import check_access_level, check_user_perms
   <td style="background-color:#f5f5f5;width:auto;padding:20px;">
   <input type="hidden" name="post_id" value="{post_id.$oid}" />
   <input type="hidden" name="_id" value="{_id.$oid}" />
-  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
   <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
   <a href="/dashboard/{user_id}" target="_blank">
   <img src='/user_photo/{user_id}' class='post-profile-image' style="vertical-align:top;"/></a>
   </div>
@@ -365,8 +368,8 @@ from permissions.utils import check_access_level, check_user_perms
   <tr>
   <td class='ds-post-title-photo' style="vertical-align:top;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
-  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
   <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+    {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
     <a href="/dashboard/{user_id}" target="_blank">
       <img src='/user_photo/{user_id}' class='post-profile-image'/>
     </a>
