@@ -1479,3 +1479,33 @@ def study_time_format_2(t, is_sign=False):
     else:
         minute_unit = ''
     return ('{0}{1} {2} {3} {4}').format(sign, hour_full, minute_unit, second, second_unit)
+
+def reporting_get_graphable(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    filter = request.GET.get('filter', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    rows = []
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
+    for d in data:
+        row = {d['row_header']:d[column_header_row[filter]]}
+        rows.append(row)
+
+    return render_json_response({'rows': rows})
