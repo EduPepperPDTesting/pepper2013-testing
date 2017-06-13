@@ -103,7 +103,6 @@
 </div>
 </div>
 <!-- chart -->
-<input type='hidden' id='graphdata'>
 <div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 400px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
@@ -344,7 +343,28 @@ var report_view = {
                     tws.push(row)
                 }       
             }
-            $("#graphdata").val(tws)
+            window.tws = tws
+            graph('Line',tws)
+        })
+    }
+
+    function row_graphable(x){
+        $("#graphable").show();
+        stopevt();
+        var filter =  x.getAttribute('row');
+        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
+            rows = datas.rows
+            tws = []
+            console.log(rows)
+            for (var key in rows){
+                for (var key2 in rows[key]){
+                    row = {}
+                    row['label'] = key2 
+                    row['value'] = rows[key][key2]
+                    tws.push(row)
+                }       
+            }
+            window.tws = tws
             graph('Line',tws)
         })
     }
@@ -385,7 +405,7 @@ var report_view = {
             labels: ['Time'],
             yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
         }else if(shape == 'Bar'){
-            new Morris.Line({
+            new Morris.Bar({
             element: 'chart',
             data:tws,
             xkey: 'label',
@@ -442,7 +462,7 @@ $(document).ready(function () {
                 $("#graphable").hide()
                 return
             }else{
-                tws = $("#graphdata").val()
+                tws = window.tws
                 graph(shape,tws);
             }
         });

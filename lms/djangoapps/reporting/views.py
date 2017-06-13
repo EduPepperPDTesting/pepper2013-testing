@@ -1510,3 +1510,25 @@ def reporting_get_graphable(request):
         rows.append(row)
 
     return render_json_response({'rows': rows})
+
+def reporting_get_row_graphable(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    filter = request.GET.get('filter', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    rs = reporting_store()
+    rows = []
+    rs.set_collection(collection+"aggregate")
+    search = {}
+    search["row_header"] = filter
+    data = rs.collection.find(search)
+    for d in data:
+        del d['_id']
+        del d['row_header']
+        log.debug('11111111111111111')
+        log.debug(d)
+        rows.append(d)       
+
+    log.debug('2222222222222222')
+    log.debug(rows)
+    return render_json_response({'rows': rows})
