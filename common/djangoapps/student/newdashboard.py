@@ -379,7 +379,8 @@ def newdashboard(request, user_id=None):
 
     context = {
         'courses_complated': courses_complated,
-        'courses_incomplated': courses_incomplated_list,
+        'courses_incomplated_top2': courses_incomplated_list,
+        'courses_incomplated_all_count':len(courses_incomplated),
         'show_courseware_links_for': show_courseware_links_for,
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),

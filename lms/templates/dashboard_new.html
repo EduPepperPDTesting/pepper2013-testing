@@ -782,7 +782,7 @@ a{
                 <div class="my-title-green">My Courses</div>
             </a>
             <div class="my-courses-cards">
-                %for course in courses_incomplated:
+                %for course in courses_incomplated_top2:
                     <%
                         course_target = reverse('courseware', args=[course.id])
                     %>
@@ -906,7 +906,7 @@ a{
                         <div class="course-in-progress-title">Courses In Progress</div>
                         <div class="course-in-progress-rows">
                         </div>
-                        %if len(courses_incomplated) > 3:
+                        %if courses_incomplated_all_count > 3:
                         <div class="course-in-progress-more-outer">
                             <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
                         </div>
@@ -926,7 +926,7 @@ a{
                     <div class="total-time">${user_last_logged_in}</div>
                     <%
                         completed_ourses_count = len(courses_complated)
-                        enrolled_ourses_count = len(courses_complated) + len(courses_incomplated)
+                        enrolled_ourses_count = len(courses_complated) + courses_incomplated_all_count
                     %>
                     <div class="enrolled-courses">Enrolled Courses: <span>${enrolled_ourses_count}</span></div>
                     <div class="enrolled-courses">Completed Courses: <span>${completed_ourses_count}</span></div>
