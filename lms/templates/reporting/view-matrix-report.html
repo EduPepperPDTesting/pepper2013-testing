@@ -334,7 +334,7 @@ var report_view = {
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
         $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
             console.log(datas)
-        }
+        })
     }
 
     function dateFormatter(x) {
