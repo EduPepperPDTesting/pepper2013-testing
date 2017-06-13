@@ -103,6 +103,7 @@
 </div>
 </div>
 <!-- chart -->
+<input type='hidden' id='graphdata'>
 <div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 400px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
@@ -337,11 +338,13 @@ var report_view = {
             tws = []
             for (var key in rows){
                 for (var key2 in rows[key]){
+                    row = {}
                     row['label'] = key2 
                     row['value'] = rows[key][key2]
                     tws.push(row)
                 }       
             }
+            $("#graphdata").val(tws)
             graph('Line',tws)
         })
     }
@@ -365,8 +368,42 @@ var report_view = {
     }
 
     function graph(shape,tws){
-        string = "new Morris."+shape+"({ element: 'chart',data:"+tws+",xkey: 'label', ykeys: ['value'],labels: ['Time'],yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })";
-        eval(string);
+        if (shape == 'Line'){
+            new Morris.Line({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Area'){
+            new Morris.Area({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Bar'){
+            new Morris.Line({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'], 
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Donut'){
+            new Morris.Donut({
+                // ID of the element in which to draw the chart.
+                element: 'chart',
+                // Chart data records -- each entry in this array corresponds to a point on the chart.
+                data: tws,
+                // Formats the time string.
+                formatter: function(y) {
+                    return dateFormatter(y);
+                }
+            });
+        }
     }
 
 $(document).ready(function () {
@@ -405,7 +442,8 @@ $(document).ready(function () {
                 $("#graphable").hide()
                 return
             }else{
-                graph(shape);
+                tws = $("#graphdata").val()
+                graph(shape,tws);
             }
         });
     });
