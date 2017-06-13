@@ -351,11 +351,9 @@ var report_view = {
     function row_graphable(x){
         $("#graphable").show();
         stopevt();
-        var filter =  x.getAttribute('row');
-        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
+        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':x}, function(datas){
             rows = datas.rows
             tws = []
-            console.log(rows)
             for (var key in rows){
                 for (var key2 in rows[key]){
                     row = {}
@@ -394,34 +392,32 @@ var report_view = {
             data:tws,
             xkey: 'label',
             ykeys: ['value'],
-            labels: ['Time'],
-            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+            labels: ['Count'],
+            gridTextColor:'#000',
+            parseTime: false })
         }else if(shape == 'Area'){
             new Morris.Area({
             element: 'chart',
             data:tws,
             xkey: 'label',
             ykeys: ['value'],
-            labels: ['Time'],
-            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+            labels: ['Count'],
+            gridTextColor:'#000',
+            parseTime: false })
         }else if(shape == 'Bar'){
             new Morris.Bar({
             element: 'chart',
             data:tws,
             xkey: 'label',
             ykeys: ['value'], 
-            labels: ['Time'],
-            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+            gridTextColor:'#000',
+            labels: ['Count'],
+            parseTime: false })
         }else if(shape == 'Donut'){
             new Morris.Donut({
-                // ID of the element in which to draw the chart.
                 element: 'chart',
-                // Chart data records -- each entry in this array corresponds to a point on the chart.
                 data: tws,
-                // Formats the time string.
-                formatter: function(y) {
-                    return dateFormatter(y);
-                }
+                gridTextColor:'#000',
             });
         }
     }

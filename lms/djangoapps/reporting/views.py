@@ -1518,17 +1518,25 @@ def reporting_get_row_graphable(request):
     collection = get_cache_collection(request, report_id, school_year)
     rs = reporting_store()
     rows = []
-    rs.set_collection(collection+"aggregate")
     search = {}
-    search["row_header"] = filter
-    data = rs.collection.find(search)
-    for d in data:
-        del d['_id']
-        del d['row_header']
-        log.debug('11111111111111111')
-        log.debug(d)
-        rows.append(d)       
+    if filter == 'Total':
+        collection_column_header = collection_column_headers(collection)
+        column_data = rs.get_datas(collection_column_header)
+        column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+        column_header_row = [column_header]
+        for d in column_data:
+            if d['_id'][column_header] == None:
+                d['_id'][column_header] = 'none'
+            rows[str(d['_id'][column_header])] = d['count']
 
-    log.debug('2222222222222222')
-    log.debug(rows)
+    else:
+        search["row_header"] = filter
+        rs.set_collection(collection+"aggregate")
+        data = rs.collection.find(search)
+        for d in data:
+            del d['_id']
+            del d['row_header']
+            del d['count']
+            rows.append(d)  
+
     return render_json_response({'rows': rows})
