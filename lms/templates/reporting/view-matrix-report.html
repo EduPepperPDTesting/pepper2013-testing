@@ -13,11 +13,14 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/morris.min.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/raphael-min.js"></script>
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
+<link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
 
 <style>
     .lean-overlay .loading {
@@ -30,7 +33,14 @@
         top: 300px;
         margin-left: -64px;
     }
+    .graphable {
+        background-image:url(/static/images/icon_reporting.png);
+        width:16px;
+        text-align: left;
+        height: 10px;
+    }
 </style>
+<input type='hidden' value='text' id='row_header_type'>
 <span id="organization_obj" o_name="report"></span>
 <div id="reporting">
     <div id="back">
@@ -43,7 +53,7 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_get_column_headers')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_matrix_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
                 <thead id="talbe_column">
                 </thead>
                 <tbody id="table_data"></tbody>
@@ -91,6 +101,20 @@
 </div>
 </div>
 </div>
+</div>
+<!-- chart -->
+<input type='hidden' id='graphdata'>
+<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 400px;background-color: gray;">
+    <div id="graph" style="border:1px solid red;height:50px;">
+            <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Area</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Bar</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Donut</li>
+                <li style="width: 100px;height: 48px;float: right;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">X</li>
+            </ul>
+        </div>
+    <div id="chart" style="width:1000px"></div>
 </div>
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
@@ -187,7 +211,6 @@ var report_view = {
         init:function(){
             var self = this;
             clearInterval(self.timeID);
-            loadwin = new LoadingWin();
             self.timeID = setInterval(self.show_progress, 4000, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
@@ -205,10 +228,9 @@ var report_view = {
                     {
                         obj.reloadTable()
                         clearInterval(obj.timeID);
-                        loadwin.hide();
                         $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
+                            loadwin.hide();
                             set_custome_filters($(".tblReport"), data.data);
-                            
                             $(".tablesorter-header-inner").each(function(){
                                 var tmp1 = $(this).text().trim();
                                 if(tmp1 == "District"){
@@ -249,7 +271,7 @@ var report_view = {
             document.body.removeChild(form);
         },
         downloadReportExcel: function(){
-            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+            this.postToNewTab("${reverse('report_download_matrix_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
         },
         selectSchoolYear: function(){
             $(".school_year_select").change(function(){
@@ -281,23 +303,149 @@ var report_view = {
         $table.trigger("update");
     }
 
+    function getEvent() {
+        if (document.all) {
+            return window.event; //如果是ie
+        }
+        func = getEvent.caller;
+        while (func != null) {
+            var arg0 = func.arguments[0];
+            if (arg0) {
+                if ((arg0.constructor == Event || arg0.constructor == MouseEvent) || (typeof(arg0) == "object" && arg0.preventDefault && arg0.stopPropagation)) {
+                    return arg0;
+                }
+            }
+            func = func.caller;
+        }
+        return null;
+    }
+
+    function stopevt() {
+        var ev = getEvent();
+        if (ev.stopPropagation) {
+            ev.stopPropagation();
+        } else if (window.ev) {
+            window.ev.cancelBubble = true;
+        }
+    }
+
+    function graphable(x){
+        $("#graphable").show();
+        stopevt();
+        var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
+        $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
+            rows = datas.rows
+            tws = []
+            for (var key in rows){
+                for (var key2 in rows[key]){
+                    row = {}
+                    row['label'] = key2 
+                    row['value'] = rows[key][key2]
+                    tws.push(row)
+                }       
+            }
+            $("#graphdata").val(tws)
+            graph('Line',tws)
+        })
+    }
+
+    function dateFormatter(x) {
+        var hour_unit = ' Hour, ';
+        var minute_unit = ' Minute';
+        var hour = Math.floor(x / 60 / 60);
+        var minute = Math.floor(x / 60 % 60);
+        if (hour != 1) {
+            hour_unit = ' Hours, ';
+        }
+        if (minute != 1) {
+            minute_unit = ' Minutes';
+        }
+        var hour_full = '';
+        if (hour > 0) {
+            hour_full = hour + hour_unit;
+        }
+        return hour_full + minute + minute_unit;
+    }
+
+    function graph(shape,tws){
+        if (shape == 'Line'){
+            new Morris.Line({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Area'){
+            new Morris.Area({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Bar'){
+            new Morris.Line({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'], 
+            labels: ['Time'],
+            yLabelFormat: function(y) { return dateFormatter(y);},parseTime: false })
+        }else if(shape == 'Donut'){
+            new Morris.Donut({
+                // ID of the element in which to draw the chart.
+                element: 'chart',
+                // Chart data records -- each entry in this array corresponds to a point on the chart.
+                data: tws,
+                // Formats the time string.
+                formatter: function(y) {
+                    return dateFormatter(y);
+                }
+            });
+        }
+    }
 
 $(document).ready(function () {
+
+    loadwin = new LoadingWin();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
         column_header = datas.column_header;
         column_datas = datas.column_data;
         row_data = datas.data;
-
-        var html = "<tr><th>"+column_header+"</th>";
-        for (data in column_datas){
-            html += "<th class='filter-select'>"+column_datas[data]+"</th>";
-        }
-        html += "<th>Totol</th></tr>";
+        row_header = datas.row_header
+        row_header_type = datas.row_header_type
+        $('#row_header_type').val(row_header_type)
+        var html = "<tr><th>"+column_header+"<br>"+row_header+"</th>";
+        column_header_type = datas.column_header_type
+        // if (column_header_type == 'time' || column_header_type == 'int'){
+            for (data in column_datas){
+                html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>"+column_datas[data]+"</th>";
+            }
+            html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>Total</th></tr>";
+        // }else{
+        //     for (data in column_datas){
+        //         html += "<th>"+column_datas[data]+"</th>";
+        //     }
+        //     html += "<th>Total</th></tr>";
+        // }
+        
         $("#talbe_column").html(html)
-
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         report_view.init();
 
+
+        $("#graph ul li").click(function(){
+            var shape = $(this).html();
+            $("#chart").html("");
+            if (shape == 'X'){
+                $("#graphable").hide()
+                return
+            }else{
+                tws = $("#graphdata").val()
+                graph(shape,tws);
+            }
+        });
     });
 })
 

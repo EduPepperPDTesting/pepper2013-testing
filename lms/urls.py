@@ -146,10 +146,13 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
+    url(r'^reporting/report/get_matrix_rows$', 'reporting.views.report_get_matrix_rows', name='reporting_report_get_matrix_rows'),
     url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
     url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
+    url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
@@ -182,6 +185,7 @@ urlpatterns = (
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
     url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    url(r'^dashboard/my_course_in_progress/get$', 'student.newdashboard.get_my_course_in_progress', name='get_my_course_in_progress'),
     #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),

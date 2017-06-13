@@ -229,7 +229,7 @@
                 var Column_Headers = $("select[name='Column_Headers']").val();
                 var Row_Headers = $("select[name='Row_Headers']").val();
                 var Aggregate_Data = $("select[name='Aggregate_Data']").val();
-                if (Column_Headers == 'none' || Row_Headers == 'none') {
+                if (Column_Headers == 'none' || Row_Headers == 'none' || Aggregate_Data == 'none') {
                     valid = false;
                     errors.push('Column Headers and Row_Headers must be selected.');
                     $(".column-selector").addClass('error-box');

@@ -553,10 +553,13 @@ def getCalendarMonth(request):
         isday = 1 if len(daterangelist) == 1 else 0
 
         for day in daterangelist:
-            if (isweek or isday):
-                pdfDate = utc.localize(day)
+            if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and type(day) is int) and day > 0):
+                if (isweek or isday):
+                    pdfDate = utc.localize(day)
+                else:
+                    pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
             else:
-                pdfDate = datetime(year=_year, month=_month, day=day, tzinfo=utc)
+                continue
 
             for item in all_occurrences:
                 if (item.training_date == pdfDate.date()):
@@ -575,7 +578,8 @@ def getCalendarMonth(request):
                     except:
                         status = ""
 
-                    if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
+                    #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
+                    if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
                         training_list.append(item.id)
 
         try:
@@ -620,15 +624,21 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     isday = 1 if len(daterange) == 1 else 0
 
     for day in daterange:
-        if (isweek or isday):
-            printDate = utc.localize(day)
+        if (((isweek or isday) and type(day) is not int) or (not (isweek or isday) and type(day) is int) and day > 0):
+            if (isweek or isday):
+                printDate = utc.localize(day)
+            else:
+                try:
+                    printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+                except:
+                    raise Exception(day)
         else:
-            printDate = datetime(year=year, month=month, day=day, tzinfo=utc)
+            continue
 
         for item in all_occurrences:
             if(item.training_date == printDate.date()):
                 if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
-                    continue;
+                    continue
 
                 arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                 allow = "1" if item.allow_registration else "0"
@@ -644,7 +654,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 # if(item.training_date in date_list):
                 #     raise Exception(item.training_date)
 
-                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+                #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
+                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
 
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
@@ -774,7 +785,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         trainingEndHours.append(trainingEndTime[0:-6])
 
                     if not isday:
-                        timeTxt = " From: "
+                        timeTxt = "" # From: "
                     else:
                         timeTxt = " at "
 
@@ -822,6 +833,11 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                 if (catype == "0" or catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
                                     occurrences.append("<label class='alert short_name al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+
+                    elif (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")):
+                        # The registration date has passed for this training but student is registered
+                        tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked disabled='disabled'/> "
+                        occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training

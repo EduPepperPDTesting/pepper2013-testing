@@ -885,6 +885,64 @@ def report_download_excel(request, report_id):
     response.write(output.getvalue())
     return response
 
+def report_download_matrix_excel(request, report_id):
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    for i, k in enumerate(column_header_row):
+        if k == "":
+            k = "null"
+        if k == "count":
+            k = "total"
+        worksheet.write(0, i, k)
+
+    row = 1
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
+
+    for d in data:
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                worksheet.write(row, key, d['row_header'])
+            else:
+                if val == None:
+                    val = 'none'
+                else:
+                    val = val.replace('.',',')
+                worksheet.write(row, key, d[val])
+        row += 1
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+
+    for key,value in enumerate(row_last):
+        worksheet.write(row, key, value)
+
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
 
 @login_required
 def report_get_progress(request, report_id):
@@ -1238,51 +1296,142 @@ def get_column_headers(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     collection = get_cache_collection(request, report_id, school_year)
-    report = Reports.objects.get(id=int(report_id))
-    create_column_Headers(report,collection)
     collection_column_header = collection_column_headers(collection)
     collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=int(report_id))
     rs = reporting_store()
+    create_column_Headers(report,collection)
     column_data = rs.get_datas(collection_column_header)
-    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
-    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
+    column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
+    column_header = column_header_data.column
+    column_header_type = column_header_data.data_type
+    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
-
+    row_header = row_header_data.column
+    row_header_type = row_header_data.data_type
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
 
     data = []
     total = ''
-
-    if request.GET.has_key('page'):
-        sorts = get_request_array(request.GET, 'col')
-        filters = get_request_array(request.GET, 'fcol')
-        page = int(request.GET['page'])
-        size = int(request.GET['size'])
-        start = page * size
-
-        matrix_filter = {}
-        for col, f in filters.iteritems():
-            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-            matrix_filter[column_header] = reg
-
-        row_data = rs.get_page(collection_row_header, start, size, matrix_filter)
-
+    stats = int(rs.get_collection_stats(collection+"aggregate")['ok'])
+    if(not(stats)):
+        row_data = rs.get_datas(collection_row_header)
         if aggregate_type_id == 1:
             for d in row_data:
-                row = []
-                row.append(d['_id'][row_header])
-                for column in column_header_row:
-                    filters = {column_header:column,row_header:d['_id'][row_header]}
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = d['_id'][row_header]
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
                     count = rs.get_count(collection,filters)
-                    row.append(count)
-                row.append(d['count'])
+                    row[column] = str(count)
+                row['count'] = str(d['count'])
                 data.append(row)
+            rs.insert_datas(data,collection+"aggregate")
 
-        total = len(data)
+    if column_header_type == 'time':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = study_time_format_2(k)
+    if column_header_type == 'url':
+        if is_excel:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = settings.LMS_BASE + k
+        else:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = '<a href="{0}" target="_blank">Link</a>'.format(k)
+    if column_header_type == 'date':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
+
+    return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'row_header_type':row_header_type,'column_header':column_header,'row_header':row_header})
+
+def report_get_matrix_rows(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    order = ['$natural', 1, 0]
+    for col, sort in sorts.iteritems():
+        if int(col) == 0:
+            index = 'row_header'
+        else:
+            index = str(column_header_row[int(col)]).replace('.',',')
+        if sort == '1':
+            order = [index, -1, 0]
+        else:
+            order = [index, 1, 0]
+
+    search = {}
+    for col, f in filters.iteritems():
+        if int(col) == 0:
+            column_header_row[int(col)] = 'row_header'
+        f = f.replace('.',',')
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        index = str(column_header_row[int(col)]).replace('.',',')
+        search[index] = reg
+
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    rows = []
+    data = rs.get_page(collection+"aggregate", start, size, search, order)
+    total = rs.get_count(collection+"aggregate", search)
     
-    return render_json_response({'rows':data,'total': total,'column_data': column_header_row,'column_header':column_header,'row_header':row_header})
+    for d in data:
+        row = []
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                row.append(d['row_header'])
+            else:
+                if val == None:
+                    val = 'none'
+                else:
+                    val=str(val).replace('.',',')
+                row.append(d[val])
+        rows.append(row)
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+    rows.append(row_last)
+
+    return render_json_response({'total': total, 'rows': rows})
 
 def collection_column_headers(collection):
     return str(collection) + '_column_header'
@@ -1303,3 +1452,61 @@ def create_column_Headers(report,collection):
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
+
+def study_time_format_2(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour, '
+    minute_unit = ' Minute'
+    second_unit = 'Second'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    second = int(t % 60)
+    if second != 1:
+        second_unit = 'Seconds'
+    if hour != 1:
+        hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    if minute > 0:
+        minute_unit = str(minute) + minute_unit
+    else:
+        minute_unit = ''
+    return ('{0}{1} {2} {3} {4}').format(sign, hour_full, minute_unit, second, second_unit)
+
+def reporting_get_graphable(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    filter = request.GET.get('filter', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    rows = []
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
+    for d in data:
+        row = {}
+        row[d['row_header']] = d[column_header_row[int(filter)]]
+        rows.append(row)
+
+    return render_json_response({'rows': rows})

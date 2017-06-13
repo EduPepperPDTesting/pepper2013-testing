@@ -213,7 +213,7 @@
         position: absolute;
         right: -12px;
         top: 50px;
-        width: 262px;
+        width1: 262px;
         z-index: 3;
     }
     ul.admin-dropdown-menu li {
@@ -230,7 +230,7 @@
         display: block;
         margin: 5px 0px;
         overflow: hidden;
-        padding: 3px 5px 4px;
+        padding: 3px 10px 4px;
         text-overflow: ellipsis;
         transition: padding 0.15s linear 0s;
         white-space: nowrap;
@@ -491,7 +491,7 @@
                     newMeStyleFont = data['Text Font'];
                     newMeStyleColor = data['Text Color'];
                     newMeStyleSize = data['Text Size'];
-                    
+                    meBorderColor = data['Text Color Icons'];
                     if data['Is Icon'] == "1":
                     	img_src = base_src + tmp1.Icon;
                         
@@ -517,10 +517,10 @@
                             if data['Is Icon With Text'] == "1":
                                 menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>";
                                 menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />";
-                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:42px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr>"
                                 menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>";
                             else:                                
-                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' alt='photo' width='45' height='45' style='border-radius:50px;'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr><tr><td height='20'></td></tr></table></a>"                                
+                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' alt='photo' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr><tr><td height='20'></td></tr></table></a>"                                
                                 
                             menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text'>" + tmp1_MenuItem_txt + "</div>"        
                             if liClass != "":
@@ -537,16 +537,16 @@
                             if data['Is Icon With Text'] == "1":
                                 menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"                                
                                 if liClass != "":
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45' style='border-radius:50px;'></td></tr>"
+                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
                                     menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
                                 else:
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45' style='border-radius:50px;'></td></tr>"
+                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
                                     menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' clas1s='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
                                 
                                 menu_items_tmp1 = menu_items_tmp1 + "</a>"
                                 
                             else:
-                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' alt='photo' width='45' height='45' style='border-radius:50px;'></td></tr><tr>"
+                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' alt='photo' width='45' height='45'></td></tr><tr>"
                                 if liClass != "":
                                     menu_items_tmp1 = menu_items_tmp1 + "<td height='20' align='center' style='font-size:25px; color:" + newMeStyleColor + ";'>&#9662;</td></tr></table>"    
                                 else:
@@ -621,27 +621,27 @@
     <span style="float:right;">
     % if request.user.is_authenticated():         
         <ol class="user admin">
-            <li class="primary" style="margin-top:8px;">
+            <li class="primary" style="margin-top:6px;">
                 <span><a href="javascript:void(0)" class="" id="dropdown">                    
                     % if OrganizationOK:
                         % if newMeStyleFlag == 0:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
-                                	<td height="20" width="30" align="center">Me</td>
-                                    <td>&#9662;</td>
+                                	<td height="20" align="right">Me</td>
+                                    <td width="20" style="font-size:25px !important;">&#9662;</td>
                                 </tr>
                             </table>
                         % else:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
-                                	<td height="20" width="30" align="center">Me</td>
-                                    <td>&#9662;</td>
+                                	<td height="20" align="right">Me</td>
+                                    <td width="20" style="font-size:25px !important;">&#9662;</td>
                                 </tr>
                             </table>
                         % endif
@@ -855,7 +855,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-            if (document.URL.indexOf('user_profile') >= 0) {
+             if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${request.user.id}"
                }, function(data) {
@@ -1675,13 +1675,13 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					for(var obj in r){
+					/*for(var obj in r){
 						if(obj.indexOf("_obj") > -1){
 							if(r[obj] == "-1"){
 								$("#" + obj).hide();
 							}
 						}
-					}
+					}*/
 					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}

@@ -129,10 +129,15 @@ class MongoReportingStore(object):
     #         map(lambda d: d.keys(), self.collection.find()),
     #         set()
     #     )
-    
+    def insert_datas(self,datas,collection):
+        self.set_collection(collection)
+        for index,val in enumerate(datas):
+            self.collection.insert(val)
+        return True
+
     def get_datas(self,collection):
         self.set_collection(collection)
-        return self.collection.find().sort('$natural', 1)
+        return self.collection.find().sort('_id')
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)
