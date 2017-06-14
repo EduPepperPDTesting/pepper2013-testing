@@ -1520,14 +1520,19 @@ def reporting_get_row_graphable(request):
     rows = []
     search = {}
     if filter == 'Total':
+        report = Reports.objects.get(id=report_id)
         collection_column_header = collection_column_headers(collection)
         column_data = rs.get_datas(collection_column_header)
         column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
         column_header_row = [column_header]
+        row = {}
         for d in column_data:
             if d['_id'][column_header] == None:
                 d['_id'][column_header] = 'none'
-            rows[str(d['_id'][column_header])] = d['count']
+            d[str(d['_id'][column_header])] = d['count']
+            del d['_id']
+            del d['count']
+            rows.append(d)
 
     else:
         search["row_header"] = filter

@@ -103,7 +103,7 @@
 </div>
 </div>
 <!-- chart -->
-<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 400px;background-color: gray;">
+<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 370px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
                 <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
@@ -302,35 +302,9 @@ var report_view = {
         $table.trigger("update");
     }
 
-    function getEvent() {
-        if (document.all) {
-            return window.event; //如果是ie
-        }
-        func = getEvent.caller;
-        while (func != null) {
-            var arg0 = func.arguments[0];
-            if (arg0) {
-                if ((arg0.constructor == Event || arg0.constructor == MouseEvent) || (typeof(arg0) == "object" && arg0.preventDefault && arg0.stopPropagation)) {
-                    return arg0;
-                }
-            }
-            func = func.caller;
-        }
-        return null;
-    }
-
-    function stopevt() {
-        var ev = getEvent();
-        if (ev.stopPropagation) {
-            ev.stopPropagation();
-        } else if (window.ev) {
-            window.ev.cancelBubble = true;
-        }
-    }
-
     function graphable(x){
         $("#graphable").show();
-        stopevt();
+        $("#chart").html('')
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
         $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
             rows = datas.rows
@@ -350,8 +324,9 @@ var report_view = {
 
     function row_graphable(x){
         $("#graphable").show();
-        stopevt();
-        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':x}, function(datas){
+        $("#chart").html('')
+        filter = x.nextSibling.nodeValue;
+        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
             rows = datas.rows
             tws = []
             for (var key in rows){
