@@ -667,12 +667,11 @@
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_year, _old_month, _first_date;
 	var _calendar_date = new Date();
 	var _cal_view = "screen";
-	var donot="";
-
-	function donothing(donot){}
 	
 	//-----------------------------------------------calendarOpen
-	function calendarOpen(goback = "false", goforth = "false"){
+	function calendarOpen(goback, goforth){
+	   goback = goback || "false";
+	   goforth = goforth || "false";
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
