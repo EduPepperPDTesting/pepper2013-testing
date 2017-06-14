@@ -431,27 +431,25 @@
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             base_src = "/static/uploads/organization/" + str(data['org_id']) + "/";
-            
-            #---------------OrganizationDashboard 
-            #for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
-            #    data[tmp1.itemType] = tmp1.itemValue
-            
             base_logo = "";
-            newMeStyleFlag = 0;
+            newMeStyleFlag = 0;            
+            newMeStyleFont = "";
+            newMeStyleColor = "";
+            newMeStyleSize = "";
+            meBorderColor = "";     
             
-            #if data['Dashboard option etc'] != "0":
             #---------------OrganizationMenu 
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
                 data[tmp1.itemType] = tmp1.itemValue
             
-            if data['logo'] != "":
+            if data.has_key('logo') and data['logo'] != "":
                 if data['Logo Url'] != "":
                     tmp_url = data['Logo Url'];
                 else:
                     tmp_url = "javascript:void(0);"
                 base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
             
-            if data['organization_logo'] != "":
+            if data.has_key('organization_logo') and data['organization_logo'] != "":
                 if data['Organization Logo Url'] != "":
                     tmp_url = data['Organization Logo Url'];
                 else:
@@ -459,11 +457,11 @@
                 base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
         
             #---------------OrganizationMenuitem 
-            if data['Is Icon With Text'] == "1":
+            if data.has_key('Is Icon With Text') and data['Is Icon With Text'] == "1":
                 menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:10px !important;'>"
             else:
-                menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:11px !important;'>"
-          
+                menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:11px !important;'>"                
+                 
             for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
                 if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
                     #---------------Sub Menu
