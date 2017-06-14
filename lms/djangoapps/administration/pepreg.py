@@ -788,8 +788,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         timeTxt = "" # From: "
                     else:
                         timeTxt = " at "
-
-                    itemData += timeTxt + trainingStartTime
+                        itemData += timeTxt + trainingStartTime
 
                     if not isday:
                         itemData += "" #" To: " + trainingEndTime
@@ -803,9 +802,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             locTxt = "" #" Classroom: "
                         else:
                             locTxt = "<br/>\nLocation: "
+                            itemData += locTxt + item.classroom
 
                         titlex = titlex + "::" + item.classroom
-                        itemData += locTxt + item.classroom
 
                     if item.geo_location:
                         titlex = titlex + "::" + item.geo_location
