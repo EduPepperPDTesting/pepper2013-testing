@@ -89,6 +89,18 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('organization', ['OrganizationDashboard'])
 
+        # Adding model 'OrganizationCmsitem'
+        db.create_table('organization_cmsitem', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('CmsItem', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('Url', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('Icon', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('rowNum', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('Grade', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
+        ))
+        db.send_create_signal('organization', ['OrganizationCmsitem'])
+
 
     def backwards(self, orm):
         # Deleting model 'OrganizationMetadata'
@@ -114,6 +126,10 @@ class Migration(SchemaMigration):
 
         # Deleting model 'OrganizationDashboard'
         db.delete_table('organization_dashboard')
+
+        # Deleting model 'OrganizationMenuitem'
+        db.delete_table('organization_menuitem')
+
 
 
     models = {
@@ -181,6 +197,16 @@ class Migration(SchemaMigration):
             'SchoolType': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'organization.organizationcmsitem': {
+            'Icon': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'CmsItem': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'Meta': {'object_name': 'OrganizationCmsitem', 'db_table': "'organization_cmsitem'"},
+            'Grade': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'Url': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),            
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"}),
+            'rowNum': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         }
     }
 
