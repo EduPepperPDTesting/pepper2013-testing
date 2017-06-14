@@ -866,8 +866,8 @@
 	        if(picker_month == 13){
 	             picker_month = 1;
 	             picker_year = _sys_calendar_year + 1;}  }*/
-	function setPickerValue(calcDate = true){
-
+	function setPickerValue(calcDate){
+        name = name || true;
         var picker_month = _sys_calendar_month;
         var picker_year = _sys_calendar_year;
 
