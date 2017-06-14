@@ -900,7 +900,7 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     position: absolute;
     right: 6px;
     top: 6px;
-    z-index:998;
+    z-index:9;
     /*
     right: 0px;
     bottom: 1px;
