@@ -379,6 +379,7 @@ def newdashboard(request, user_id=None):
 
     context = {
         'courses_complated': courses_complated,
+        'courses_complated_all_count':len(courses_complated),
         'courses_incomplated_top2': courses_incomplated_list,
         'courses_incomplated_all_count':len(courses_incomplated),
         'show_courseware_links_for': show_courseware_links_for,
@@ -472,7 +473,7 @@ def get_my_course_in_progress(request):
     courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
     courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
 
-    course_unfin_list = []
+    course_unfin_list = list()
     student = User.objects.prefetch_related("groups").get(id=user.id)
     rs = reporting_store()
     rs.set_collection('UserCourseView')
@@ -502,6 +503,9 @@ def get_my_course_in_progress(request):
                     #set user course number
                     couser_dict['number'] = course.display_number_with_default
 
+                    #set user course url
+                    couser_dict['url'] = "/courses/" + course.id + "/courseware"
+
                     course_unfin_list.append(couser_dict)
             else:
                 couser_dict = {}
@@ -526,11 +530,43 @@ def get_my_course_in_progress(request):
                 #set user course number
                 couser_dict['number'] = course.display_number_with_default
 
+                #set user course url
+                couser_dict['url'] = "/courses/" + course.id + "/courseware"
+
                 course_unfin_list.append(couser_dict)
                 if k > 1:
                     break
     else:
-        pass
+        for k,course in enumerate(courses_complated):
+            if get_more == 'yes':
+                pass
+            else:
+                couser_dict = {}
+                #set user course total time
+                if user.is_superuser:
+                    couser_dict['time'] = 0
+                else:
+                    results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+                    total_time_user = 0
+                    for v in results:
+                        total_time_user = total_time_user + v['total_time']
+                    couser_dict['time'] = study_time_format(total_time_user)
+
+                #set user course title
+                couser_dict['name'] = get_course_about_section(course, 'title')
+
+                #set user course number
+                couser_dict['number'] = course.display_number_with_default
+
+                #set user course url
+                couser_dict['url'] = "/courses/" + course.id + "/courseware"
+
+                #set user course certificate url
+                couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
+
+                course_unfin_list.append(couser_dict)
+                if k > 0:
+                    break
 
     return HttpResponse(json.dumps({'data': course_unfin_list,'Success': 'True'}), content_type='application/json')
 

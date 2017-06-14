@@ -441,6 +441,7 @@ def organizational_save_base(request):
         my_feed_show = request.POST.get("my_feed_show", "")
         my_activities_show = request.POST.get("my_activities_show", "")
         my_report_show = request.POST.get("my_report_show", "")
+        my_featured_show = request.POST.get("my_featured_show", "")
         is_my_feed_default = request.POST.get("is_my_feed_default", "")        
         org_logo_url = request.POST.get("org_logo_url", "")
         logo_url = request.POST.get("logo_url", "")
@@ -581,13 +582,16 @@ def organizational_save_base(request):
             # --------------OrganizationMenu My Report Show
             org_OrganizationMenuSave(org_metadata, "My Report Show", my_report_show)
 
+            # --------------OrganizationMenu My Featured Show
+            org_OrganizationMenuSave(org_metadata, "My Featured Show", my_featured_show)
+
             # --------------OrganizationMenu Is My Feed Default
             org_OrganizationMenuSave(org_metadata, "Is My Feed Default", is_my_feed_default)
 
-            # --------------OrganizationMenu Is My Feed Default
+            # --------------OrganizationMenu Organization Logo Url
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
 
-            # --------------OrganizationMenu Is My Feed Default
+            # --------------OrganizationMenu Logo Url
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
 
             # --------------organizationDashboard
