@@ -820,7 +820,9 @@ a{
 
         <div class="con-maincontent-all clearfix">
             <div class="con-tab-btns">
+            % if OrganizationOK and data["My Featured Show"] == "1":
                 <div class="featured-content-btn tab-btn-common">Featured Content</div>          
+            % endif
             % if OrganizationOK and data["My Feed Show"] == "1":
                 <div class="my-feed-btn tab-btn-common">My Feed</div>                
             % endif
@@ -831,6 +833,7 @@ a{
                 <div class="my-report-card-btn tab-btn-common">My Report Card</div>
             % endif
             % if not(OrganizationOK):
+                <div class="featured-content-btn tab-btn-common">Featured Content</div>
                 <div class="my-feed-btn tab-btn-common">My Feed</div>
                 <div class="my-activity-btn tab-btn-common" style="">My Activity</div>
                 <div class="my-report-card-btn tab-btn-common" style="">My Report Card</div>
@@ -1003,11 +1006,13 @@ $(document).ready(function(){
     var btn_list = ['featured-content','my-feed','my-activity','my-report-card'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
-            var now_show = 'my-feed';        
+            var now_show = 'my-feed';
         % elif data["Is My Feed Default"] == "0":
             var now_show = 'my-activity';
-        % else:
+        % elif data["Is My Feed Default"] == "2":
             var now_show = 'my-report-card';
+        % else:
+            var now_show = 'featured-content';
         % endif
     % else:
         var now_show = 'featured-content';
