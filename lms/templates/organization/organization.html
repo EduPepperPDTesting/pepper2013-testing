@@ -51,6 +51,7 @@
 	#organizational_dashboard_space_between{width:60px; text-align:center}
 	#organizational_dashboard_space_between_less,#organizational_dashboard_space_between_plus{ font-size:14px; margin-top:5px;}
 	
+	/*menu items*/
 	.organizational_dashboard_menu_div{float:left; width:1100px; margin-left:50px;}	
 	
 	.organizational_dashboard_menu_head1,.organizational_dashboard_menu_body1{float:left; clear:both;}
@@ -85,6 +86,33 @@
 	.organizational_dashboard_menu_body1 fieldset {float:left; border: 1px solid #c0c0c0 !important; margin: 10px 2px !important; padding: 10px 0 10px 40px !important; display:none;}
 	
 	.organizational_dashboard_demo1{color:#ccc !important;}
+	
+	/*cms items*/
+	.organizational_dashboard_cms_div{float:left; width:1100px; margin-left:50px;}	
+	
+	.organizational_dashboard_cms_head1,.organizational_dashboard_cms_body1{float:left; clear:both;}
+	.organizational_dashboard_cms_head1,.organizational_dashboard_cms_body2{float:left; clear:both;}
+	.organizational_dashboard_cms_head1 span{float:left; height:45px !important; line-height:45px !important; font-weight:bold; }
+	.organizational_dashboard_cms_head1 .organizational_dashboard_cms_row{float:left; width:100%; clear:both}
+	
+	.organizational_dashboard_cms_body1 span{float:left; height:40px; line-height:40px; }
+	.organizational_dashboard_cms_body2 span{float:left; height:40px; line-height:40px; }
+	.organizational_dashboard_cms_item{width:200px;}
+	.organizational_dashboard_cms_item input{width:98% !important;}
+	.organizational_dashboard_cms_url{width:270px;}
+	.organizational_dashboard_cms_url input{width:98% !important;}
+	.organizational_dashboard_cms_icon{width:180px; overflow:hidden}
+	.organizational_dashboard_cms_icon_view{width:70px; overflow:hidden}
+	.organizational_dashboard_cms_grade{width:195px; text-align:center;}
+	.organizational_dashboard_cms_grade input{width:98% !important;}
+	.organizational_dashboard_cms_sort{width:30px; text-align:center;}
+	.organizational_dashboard_cms_btn{width:50px; text-align:center;}
+		
+	.organizational_dashboard_cms_sort span{float:right; cursor:pointer; width:16px !important; height:16px !important; clear:both;}
+	.organizational_dashboard_cms_sort .cms_btn_up{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat 0 -48px; margin-top:2px;}
+	.organizational_dashboard_cms_sort .cms_btn_dn{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat -64px -48px;}
+	
+	.organizational_dashboard_cms_btn input{margin-top:7px;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -377,7 +405,7 @@
                 <td colspan="3" class="org_td1">
                 	<table width="350" border="1" class="org_table1" bordercolor="#555" style="margin-left:50px;">
                     	<tr>
-                        	<th id="abc">Title</th>
+                        	<th>Title</th>
                             <th width="80">Show</th>
                             <th width="80">Default</th>
                         </tr>
@@ -605,6 +633,43 @@
                                     <span class="organizational_dashboard_menu_btn"><input type="button" onclick="org_menu_item_clone(this,true)" value="+" class="sub_menu_btn small_btn" /></span>
                                 </div>
                             </fieldset>                            
+                        </div>                        
+                    </div>
+                </td>
+            </tr>
+            <tr class="new_menu_tr">
+                <td class="org_td1"></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="new_menu_tr">
+                <td class="org_td1">CMS Items: </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="new_menu_tr">
+                <td colspan="3" class="org_td1">
+                	<div class="organizational_dashboard_cms_div">
+                    	<div class="organizational_dashboard_cms_head1">
+                        	<span class="organizational_dashboard_cms_item">CMS Item</span>
+                            <span class="organizational_dashboard_cms_url">URL</span>
+                            <span class="organizational_dashboard_cms_icon">Icon</span>
+                            <span class="organizational_dashboard_cms_icon_view"></span>
+                            <span class="organizational_dashboard_cms_grade">Grade</span>
+                            <span class="organizational_dashboard_cms_sort"></span>
+                            <span class="organizational_dashboard_cms_btn"></span>
+                        </div>
+                        <div class="organizational_dashboard_cms_body1">
+                            <span class="organizational_dashboard_cms_item"><input type="text" class="cms_items_cms_item" /></span>
+                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /></span>
+                            <span class="organizational_dashboard_cms_icon"><input type="file" class="cms_items_icon" id="cms_items_icon_1" name="cms_items_icon_1"></span>
+                            <span class="organizational_dashboard_cms_icon_view"></span>
+                            <span class="organizational_dashboard_cms_grade"><input type="text" class="cms_items_grade" /></span>
+                            <span class="organizational_dashboard_cms_sort">
+                                <span class="cms_btn_up"></span>
+                                <span class="cms_btn_dn"></span>
+                            </span>
+                            <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>                      
                         </div>                        
                     </div>
                 </td>
@@ -1072,7 +1137,7 @@
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
 			
-									//----------
+									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
 											$(this).remove();
@@ -1166,6 +1231,61 @@
 										$(this).find(".sub_menu_btn").val("-");
 										$(this).find(".sub_menu_btn:last").val("+");
 									});	
+									
+									//----------cms item
+									$(".organizational_dashboard_cms_body1").each(function(i){
+										if(i > 0){
+											$(this).remove();
+										}else{											
+											$(this).find(".cms_items_cms_item").val("");
+											$(this).find(".cms_items_url").val("");
+											$(this).find(".cms_items_grade").val("");
+											$(this).find(".cms_items_icon").parent().html("").append("<input type='file' class='cms_items_icon' id='cms_items_icon_1' name='cms_items_icon_1'>");
+											$(this).find(".organizational_dashboard_cms_icon_view").html("");
+											$(this).find(".organizational_dashboard_cms_icon_view").removeAttr("icon_name");
+											$(this).find(".cms_item_btn").val("+");
+										}
+									});
+									
+									if(r.cms_items != ""){
+										var tmp_clonex = $(".organizational_dashboard_cms_body1:first").clone(true);
+										//var tmp_sub_clonex = $(".organizational_dashboard_menu_body2:first").clone(true);
+										
+										org_current_cms_items = r.cms_items;
+										var flag_first = true;
+										var tmp1 = org_current_cms_items.split("=<=");
+										for(var i in tmp1){
+											var tmp2 = tmp1[i].split("=>=");
+											var tmp_el;
+											if(flag_first){
+												flag_first = false;
+												tmp_el = $(".organizational_dashboard_cms_body1:first");
+											}else{
+												tmp_el = tmp_clonex.clone(true);
+												$(".organizational_dashboard_cms_div").append(tmp_el);
+											}
+											tmp_el.find(".cms_items_cms_item").val(tmp2[1]);
+											tmp_el.find(".cms_items_url").val(tmp2[2]);
+											tmp_el.find(".cms_items_grade").val(tmp2[3]);											
+											if(tmp2[4] != ""){
+												var src = "/static/uploads/organization/cms/" + org_current_id + "/" + tmp2[4];
+												tmp_el.find(".organizational_dashboard_cms_icon_view").attr("icon_name", tmp2[4]);
+												tmp_el.find(".organizational_dashboard_cms_icon_view").append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
+											}else{
+												tmp_el.find(".organizational_dashboard_cms_icon_view").html();
+											}
+										}
+									}else{
+										org_current_cms_items = "";
+									}
+									//----------
+									$(".cms_items_icon").each(function(i){
+										$(this).attr("id", "cms_items_icon_" + (i + 1));
+										$(this).attr("name", "cms_items_icon_" + (i + 1));
+									});
+									//----------
+									$(".cms_item_btn").val("-");
+									$(".cms_item_btn:last").val("+");
 									
 									if(r.New){
 										//----------
@@ -1425,6 +1545,45 @@
 		}
 	}
 	
+	//-----------------------------------------------------------------------organizationDashboardUploadFileCms
+	function organizationDashboardUploadFileCms(fileElementId){
+		if($("#" + fileElementId).val() != ""){
+			var loadwin = new LoadingWin();			
+			var rowNum = fileElementId.replace("cms_items_icon_", "");			
+			
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				secureuri: false,
+				fileElementId: fileElementId,
+				dataType: 'JSON',
+				data: {flag: 'org_dashboard_upload_cms', rowNum: rowNum, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");					
+					if(tmp2.Success){						
+						var el_parent = $("#" + fileElementId).parent();
+						el_parent.empty();
+						el_parent.append('<input type="file" class="cms_items_icon" id="' + fileElementId + '" name="' + fileElementId + '">');
+						
+						var el_view = el_parent.next();
+						el_parent.next().empty();
+						if(tmp2.name){
+							var src = "/static/uploads/organization/cms/" + org_current_id + "/" + tmp2.name;				
+							el_parent.next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
+							el_parent.next().attr("icon_name", tmp2.name);
+						}
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+					loadwin.hide();
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+					loadwin.hide();
+				}
+			})
+		}
+	}
+	
 	//-----------------------------------------------------------------------organizationCheckUploadFile
 	function organizationCheckUploadFile(filename){
 		var tmp1 = filename.substring(filename.length - 4).toLocaleLowerCase();
@@ -1514,6 +1673,26 @@
 					$(el).val("-");
 				}
 			}
+		}
+	}
+	
+	//-----------------------------------------------------------------------org_cms_item_clone
+	function org_cms_item_clone(el){
+		if($(el).val() == "-"){
+			$(el).parent().parent().remove();
+		}else{
+			//cms item
+			var clonex = $(el).parent().parent().clone(true);
+			clonex.find(".cms_items_cms_item").val("");
+			clonex.find(".cms_items_url").val("");
+			clonex.find(".cms_items_icon").parent().html("").append("<input type='file' class='cms_items_icon' >");
+			clonex.find(".cms_items_grade").val("");
+			clonex.find(".organizational_dashboard_cms_icon_view").empty();
+			clonex.find(".organizational_dashboard_cms_icon_view").attr("icon_name", "");
+			
+			$(".organizational_dashboard_cms_div").append(clonex);
+			clonex.find("fieldset").hide();
+			$(el).val("-");		
 		}
 	}
 	
@@ -2080,7 +2259,33 @@
 					
 					sn1++;
 				}
-			});		
+			});	
+			
+			//---------------------------------------------------cms_items
+			var cms_items = "", cms_flag_icon_error = false;			
+			var cms_sn1 = 1; 
+			$(".organizational_dashboard_cms_body1").each(function(){
+				var cms_item = filterStr($(this).find(".cms_items_cms_item").val());
+				if(cms_item != ""){					
+					var cms_url = filterStr($(this).find(".cms_items_url").val());
+					var cms_grade = filterStr($(this).find(".cms_items_grade").val());
+					var cms_icon = $(this).find(".cms_items_icon").val();
+					var cms_icon_name = $(this).find(".organizational_dashboard_cms_icon_view").attr("icon_name");					
+					if(!cms_icon_name || cms_icon_name == "undefined")	cms_icon_name = "";
+					
+					if(cms_icon != "" && !organizationCheckUploadFile(cms_icon)){
+						cms_flag_icon_error = true;
+						return false;
+					}					
+					$(this).find(".cms_items_icon").attr("id", "cms_items_icon_" + cms_sn1);
+					$(this).find(".cms_items_icon").attr("name", "cms_items_icon_" + cms_sn1);
+					
+					if(cms_items != "")	cms_items += "=<=";
+					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name;	
+					
+					cms_sn1++;
+				}
+			});	
 			
 			if(flag_icon_error){
 				alert("Icon: Please upload image in .gif, .jpg, .jpeg, .png format.");
@@ -2129,6 +2334,7 @@
 				specific_items: specific_items,
 				motto: motto,
 				menu_items: menu_items,
+				cms_items: cms_items,
 				dashboard_option: dashboard_option,
 				is_icon: is_icon,
 				is_icon_width_text: is_icon_width_text,
@@ -2167,6 +2373,13 @@
 						var menu_icon = $(this).find(".menu_items_icon").val();
 						if(menu_item != "" && menu_icon != ""){
 							organizationDashboardUploadFile($(this).find(".menu_items_icon").attr("id"));
+						}
+					});	
+					$(".organizational_dashboard_cms_body1").each(function(){
+						var cms_item = filterStr($(this).find(".cms_items_cms_item").val());
+						var cms_icon = $(this).find(".cms_items_icon").val();
+						if(cms_item != "" && cms_icon != ""){
+							organizationDashboardUploadFileCms($(this).find(".cms_items_icon").attr("id"));
 						}
 					});					
 					
@@ -2306,6 +2519,30 @@
 				
 				$(tmp_body1).parent().find(".sub_menu_btn").val("-");
 				$(tmp_body1).parent().find(".sub_menu_btn:last").val("+");
+			}
+		});		
+		
+		//--------------------------cms_btn_up
+		$(".cms_btn_up").click(function(){
+			var tmp_body1 = $(this).parent().parent();
+			if($(tmp_body1).prev().hasClass("organizational_dashboard_cms_body1")){
+				$(tmp_body1).insertBefore($(tmp_body1).prev());
+				
+				$(".cms_item_btn").val("-");				
+				$(".cms_item_btn:last").val("+");
+				
+			}
+		});
+		
+		//--------------------------cms_btn_dn
+		$(".cms_btn_dn").click(function(){
+			var tmp_body1 = $(this).parent().parent();			
+			if($(tmp_body1).next().hasClass("organizational_dashboard_cms_body1")){
+				$(tmp_body1).insertAfter($(tmp_body1).next());
+				
+				$(".cms_item_btn").val("-");				
+				$(".cms_item_btn:last").val("+");
+				
 			}
 		});		
 		
