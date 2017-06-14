@@ -562,7 +562,7 @@ def get_my_course_in_progress(request):
                 couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
                 #set user course certificate url
-                couser_dict['url_c'] = "/" + course.id + "/" + course.complete_date + "/download_certificate"
+                couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
 
                 course_unfin_list.append(couser_dict)
                 if k > 0:

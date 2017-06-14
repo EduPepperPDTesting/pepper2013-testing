@@ -981,19 +981,8 @@ a{
                             <div class="apply-for-ceu">Apply for CEU</div>
                         </div>
                         <div class="completed-courses-rows">
-                            <table class="completed-courses-row">
-                                <tr>
-                                    <td width="55" class="completed-courses-row-ico">
-                                        <a href="#"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>
-                                    </td>
-                                    <td>
-                                        <div class="completed-courses-row-title"><a href="#"><b>Universal Design for Mathematics Learning|</b>POW121</a></div>
-                                        <div class="completed-courses-row-time">Time Spent: <b>1 Hours and 35 Minutes</b></div>
-                                    </td>
-                                </tr>
-                            </table>
                         </div>
-                        %if courses_incomplated_all_count > 2:
+                        %if courses_complated_all_count > 2:
                         <div class="completed-courses-more-outer">
                             <div class="completed-courses-more"><b class="btn-more-completed">More</b></div>
                         </div>
@@ -1382,7 +1371,7 @@ $(document).ready(function(){
             width_1 = String(width_1) + "px";
 
             element_html = '<div class="course-in-progress-row">';
-            element_html += '<div class="course-in-progress-t"><b>'+cp.name+'</b>|'+cp.number+'</div>';
+            element_html += '<div class="course-in-progress-t"><a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a></div>';
             element_html += '<div class="course-in-progress-p">';
             element_html += '<b style="float:left;font-size:13px;color:#757474;">Progress</b>';
             element_html += '<div class="progress-table" style="width:334px;">';
