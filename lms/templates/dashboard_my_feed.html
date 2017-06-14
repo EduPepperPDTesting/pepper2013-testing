@@ -294,8 +294,11 @@ from permissions.utils import check_access_level, check_user_perms
   {removable?<img src='/static/images/trash-small.png' class='delete-something dlg-announcement-delete' style="float\:right;"></img>}
   </div>
   <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
+  <div>
+  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment}  
+  </div>  
   <div>{content}</div>
-  <div>{attachment}</div>
   </div>
   </div>
 </script>
@@ -321,8 +324,11 @@ from permissions.utils import check_access_level, check_user_perms
           {first_name} {last_name}</a>
         <br />
   <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
+  <div>
+  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment}  
+  </div>  
   <div style="font-weight:bold;margin-top:1em;">{content}</div>
-  <div>{attachment}</div>
       </div>
     </div>
   </td>
@@ -341,6 +347,16 @@ from permissions.utils import check_access_level, check_user_perms
   <div style="display:inline-block;vertical-align:top;width:510px;">
   <span class='ds-post-title-time' style="float:right;text">
   {post_date} at {post_h}:{post_m} {post_ampm}
+  </span>
+  <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> {first_name} {last_name} </a>
+  <div class="post-title-link" style="font-style:italic;display:block;">
+  {last_comment?replied to a post in your network:created a new post in your network}.
+  </div>
+  <div>
+  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment}
+  </div>
+  <div style="width:100%;margin-top:1em;">{content}</div>
   <div style="text-align:right;">
   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
   {is_my_like?Unlike:Like}
@@ -350,14 +366,7 @@ from permissions.utils import check_access_level, check_user_perms
   <img src='/static/images/newdashboard/Comment-512.png' width='35'/> <span style="display:inline-block;vertical-align:middle;">({feeding_count})</span>
   </span>&nbsp;&nbsp;
   <img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden;}"></img>
-  </div>              
-  </span>
-  <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> {first_name} {last_name} </a>
-  <div class="post-title-link" style="font-style:italic;display:block;">
-  {last_comment?replied to a post in your network:created a new post in your network}.
   </div>
-  <div style="margin-top:1em;height:1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">{content}</div>
-  <div>{attachment}</div>
   </div>
   </td>
   </tr>
@@ -383,13 +392,16 @@ from permissions.utils import check_access_level, check_user_perms
   <div class='ds-post-title-time'>
   {post_date} at {post_h}:{post_m} {post_ampm}
   </div>
+  <div>
+  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment}  
+  </div>  
   </div>
   </td>
   </tr>
   <tr>
   <td colspan="2">
   <div>{content}</div>
-  <div>{attachment}</div>
   <div style="text-align:right;">
   <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
   <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?post:comment}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
@@ -474,10 +486,8 @@ from permissions.utils import check_access_level, check_user_perms
         // show post and comments
         var template_post = $("#post-template").html();
         post.content = translateImages(post.content)
-
         if(post.attachment_file)
           post.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + post._id.$oid + "' target='_blank'>"+post.attachment_file+"</a>"
-
         var c = template_post.fillData(post);
         $content_area.append(c);
         $("#fixed-dialog-posts .dialog-title").html("Comments (" + (post.sub.length + 1) + ")");
@@ -702,7 +712,6 @@ from permissions.utils import check_access_level, check_user_perms
           var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
           $.post("${reverse('dashboard_get_org_announcements')}", {org: org, local_utc_diff_m: local_utc_diff_m}, function(d){
             $("#fixed-dialog-announcements .dialog-title").html(org + " Announcements (" + d.length + ")");
-            
             var $content_area = $('#fixed-dialog-announcements .content');
             $content_area.html("");
             var template_post = $("#announcement-template").html();
@@ -734,7 +743,6 @@ from permissions.utils import check_access_level, check_user_perms
       });
     });
   }
-
   // get posts
   var next_page = null;
   var lock_event = false;
@@ -763,7 +771,6 @@ from permissions.utils import check_access_level, check_user_perms
         $(".post-content-row.post").remove(); 
         $("<tr class='post-content-row post'><td class='no-search-results'>No Search Results Found</td></tr>").appendTo($("#post_content_table"));
       }
-      
       $("#posts_loading_image").hide();
       $.each(posts, function(i, post){
         p = post.sub.length ? post.sub[post.sub.length-1]:post;
@@ -889,7 +896,6 @@ from permissions.utils import check_access_level, check_user_perms
             getTopPosts();
         }
       });
-      
       /* $.post("${reverse('dashboard_submit_new_post')}",
        *        {post: post, 
        *         type: is_announce? "announcement":"post", expiration_date: announce_expir_date,
