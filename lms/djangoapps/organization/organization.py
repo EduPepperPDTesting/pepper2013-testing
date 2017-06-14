@@ -583,15 +583,15 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "My Report Show", my_report_show)
 
             # --------------OrganizationMenu My Featured Show
-            org_OrganizationMenuSave(org_metadata, "My Featured Show", my_report_show)
+            org_OrganizationMenuSave(org_metadata, "My Featured Show", my_featured_show)
 
             # --------------OrganizationMenu Is My Feed Default
             org_OrganizationMenuSave(org_metadata, "Is My Feed Default", is_my_feed_default)
 
-            # --------------OrganizationMenu Is My Feed Default
+            # --------------OrganizationMenu Organization Logo Url
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
 
-            # --------------OrganizationMenu Is My Feed Default
+            # --------------OrganizationMenu Logo Url
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
 
             # --------------organizationDashboard
