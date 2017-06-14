@@ -620,15 +620,16 @@ a{
     font-weight: bold;
     padding:10px 0px 10px 0px;
 }
+.course-in-progress{
+    background-color: #f3f3f4;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
 .course-in-progress-title{
     color: #fff;
     background-color: #535556;
     padding:10px 0px 10px 30px;
     font-size: 15px;
-}
-.course-in-progress{
-    background-color: #f3f3f4;
-    padding-bottom: 20px;
 }
 .course-in-progress-row{
     width: 400px;
@@ -638,6 +639,10 @@ a{
 }
 .course-in-progress-t{
     font-size: 13px;
+}
+.course-in-progress-t a{
+   font-size: 13px;
+   color: #000;
 }
 .course-in-progress-p{
     margin-top: 8px;
@@ -671,11 +676,71 @@ a{
     cursor: pointer;
 }
 
-
-
-
-
-
+.completed-courses{
+    background-color: #f3f3f4;
+    padding-bottom: 20px;
+}
+.completed-courses-title{
+    color: #fff;
+    background-color: #535556;
+    padding:10px 0px 10px 30px;
+    font-size: 15px;
+}
+.apply-for-ceu{
+    float:right;
+    background: #f5f5f5;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    text-align: center;
+    padding: 3px 35px 3px 35px;
+    font-size: 12px;
+    color: #000;
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(0,0,0,.05) 51%, rgba(0,0,0,.1));
+    border:1px solid #ccc;
+    cursor: pointer;
+    margin-top: -4px;
+    margin-right:15px;
+    
+}
+.apply-for-ceu:hover{
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
+}
+.completed-courses-row{
+    width: 400px;
+    margin-left:20px; 
+    margin-top: 25px;
+    border:0px solid;
+}
+.completed-courses-row-title{
+    border: 0px solid;
+}
+.completed-courses-row-title a{
+    color: #000;
+    font-size: 13px;
+}
+.completed-courses-row-time{
+    margin-top: 7px;
+    font-size: 13px;
+    color: #757474;
+    border: 0px solid;
+}
+.completed-courses-row-time b{
+    color: #2CBAEC;
+}
+.completed-courses-row-ico{
+    vertical-align: middle;
+}
+.completed-courses-more{
+    text-align:right;
+    color: #2CBAEC;
+    font-size: 15px;
+    padding: 10px 27px 0px 0px;
+    border:0px solid;
+}
+.completed-courses-more b{
+    cursor: pointer;
+}
 
 
 
@@ -910,8 +975,33 @@ a{
                         </div>
                         %endif
                     </div>
-                    <div class="completed-courses"></div>
+                    %if courses_complated_all_count > 0:
+                    <div class="completed-courses">
+                        <div class="completed-courses-title">Completed Courses
+                            <div class="apply-for-ceu">Apply for CEU</div>
+                        </div>
+                        <div class="completed-courses-rows">
+                            <table class="completed-courses-row">
+                                <tr>
+                                    <td width="55" class="completed-courses-row-ico">
+                                        <a href="#"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>
+                                    </td>
+                                    <td>
+                                        <div class="completed-courses-row-title"><a href="#"><b>Universal Design for Mathematics Learning|</b>POW121</a></div>
+                                        <div class="completed-courses-row-time">Time Spent: <b>1 Hours and 35 Minutes</b></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        %if courses_incomplated_all_count > 2:
+                        <div class="completed-courses-more-outer">
+                            <div class="completed-courses-more"><b class="btn-more-completed">More</b></div>
+                        </div>
+                        %endif
+                    </div>
+                    %endif
                 </div>
+
                 <div class="my-report-card-right">
                     <div class="my-stats-title">My Stats</div>
                     <div class="total-time-title-top">Total Time(YTD):</div>
@@ -1328,6 +1418,44 @@ $(document).ready(function(){
     });
 
     //my report card - completed courses-----------------------------------------------
+    %if courses_complated_all_count > 0:
+        get_completed_courses('completed','no'); 
+    %endif
+    
+    function get_completed_courses(course_type,get_more){ //value of get_more:yes, no
+        if(get_more == 'yes'){
+            $(".completed-courses-more-outer").html('<center><img id="completed_courses_loading_image" src="/static/images/posts-loading.gif"></img></center>');
+        }
+
+        $.post("${reverse('get_my_course_in_progress')}", 
+            {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
+            function(data_obj){
+                create_completed_courses(data_obj);
+                if(get_more == 'yes'){
+                    $(".completed-courses-more-outer").html('');
+                }  
+        });
+    }
+
+    function create_completed_courses(data_obj){
+        for(var i=0;i<data_obj.data.length;i++){
+            cc =  data_obj.data[i];
+            element_html = '<table class="completed-courses-row">';
+            element_html += '<tr>';
+            element_html += '<td width="55" class="completed-courses-row-ico">';
+            element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            element_html += '</td>';
+            element_html += '<td>';
+            element_html += '<div class="completed-courses-row-title"><a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a></div>';
+            element_html += '<div class="completed-courses-row-time">Time Spent: <b>'+cc.time+'</b></div>';
+            element_html += '</td>';
+            element_html += '</tr>';
+            element_html += '</table>';
+
+            element = $(element_html);
+            $('.completed-courses-rows').append(element);
+        }
+    }
 
 });
 </script>
