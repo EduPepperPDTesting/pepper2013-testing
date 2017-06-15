@@ -12,7 +12,7 @@
     import datetime
     
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes  
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -777,6 +777,10 @@ a{
     color: #2CBAEC;
 }
 </style>
+<style>
+	.organization_cms_grade{float:left; width:100%; height:40px; line-height:40px; text-indent:30px; font-weight:bold;color:#ffffff;background-color:#495354;font-size:20px;margin:10px 0 10px 0;}
+	.organization_cms_icon{float:left; margin:5px 9px;}
+</style>
 <!--@end-->
 <%inherit file="main.html" />
 <%
@@ -812,6 +816,7 @@ a{
                 
         data = {}
         data['profile_logo'] = ""
+        cms_items = ""
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
@@ -821,6 +826,21 @@ a{
                 break;
             if data['profile_logo']:
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
+            
+            cms_grade = ""
+            for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
+                #if cms_items != "":
+                #    cms_items = cms_items + "=<="
+                #cms_items = cms_items + tmp1.Url + "=>=" + tmp1.Grade + "=>=" + tmp1.Icon            
+
+                if cms_grade != tmp1.Grade:
+                    cms_grade = tmp1.Grade
+                    cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
+                
+                cms_items = cms_items + "<span class='organization_cms_icon'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                        
+            data["cms_items"] = cms_items
+            
         if not data['profile_logo']:
             data['profile_logo'] = "/static/images/newdashboard/profile_logo_default_ss.png"
 %>
@@ -907,7 +927,10 @@ a{
             </div>
 
             <div id="featured_content" class="featured-content">
-                Featured Content
+                <!--Featured Content-->
+                % if OrganizationOK:
+                    ${data["cms_items"]} 
+                % endif
             </div>
 
             <div id="my_feed" class="my-feed ">
