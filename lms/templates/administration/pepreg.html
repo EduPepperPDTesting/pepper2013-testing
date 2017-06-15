@@ -1458,6 +1458,12 @@
                             $("#btn_down").remove();
                         }
                     });
+
+                    $('#btn_down').scroll(function(e) {
+                        if ($(this).is(':not(:animated')) && e.originalEvent) {
+                            consolee.log('scroll happen manual scroll');
+                        }
+                    });
                 }
 
                 if($("#btn_up").length){
