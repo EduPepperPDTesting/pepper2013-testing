@@ -1462,6 +1462,7 @@
                            isanimated = true;
                            return parseInt(top_slot) >= cont_bottom;
                         }).first().position().top}, 1000, function(){
+                            $("#calendar_content").stop(true, false);
                             console.log('isanimated-'+isanimated);
                             isanimated = false;
                         });
