@@ -2262,8 +2262,11 @@
 			});	
 			
 			//---------------------------------------------------cms_items
-			var cms_items = "", cms_flag_icon_error = false;			
-			var cms_sn1 = 1; 
+			var cms_items = "", cms_flag_icon_error = false;
+			var cms_sn1 = 1;
+			var isRepeat = false;
+			var repeatList = new Array();
+			
 			$(".organizational_dashboard_cms_body1").each(function(){
 				var cms_item = filterStr($(this).find(".cms_items_cms_item").val());
 				if(cms_item != ""){					
@@ -2283,9 +2286,23 @@
 					if(cms_items != "")	cms_items += "=<=";
 					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name;	
 					
+					repeatList.push(cms_item + "__" + cms_grade);
+					
 					cms_sn1++;
 				}
 			});	
+
+			for(var i = 0; i < repeatList.length; i++){
+				if (repeatList[i] == repeatList[i+1]){
+					isRepeat = true;
+					break;
+				} 
+			}
+			if(isRepeat){
+				alert("You can not have the same CMS item name in one category.");
+				loadwin.hide();
+				return;
+			}			
 			
 			if(flag_icon_error){
 				alert("Icon: Please upload image in .gif, .jpg, .jpeg, .png format.");
