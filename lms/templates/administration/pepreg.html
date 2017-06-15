@@ -1460,9 +1460,10 @@
                     });
 
                     $('#calendar_content').scroll(function(e) {
-                        console.log('scroll '+e);
-                        if (e.originalEvent) {//!$(this).is(':animated') &&
-                            console.log('scroll happen manual scroll');
+                        if ($(this).is(':animated')) {
+                            console.log('animate scroll');
+                        }else if(e.originalEvent) {
+                            console.log('manual scroll');
                             $("#calendar_content").stop(false, true);
                         }
                     });
