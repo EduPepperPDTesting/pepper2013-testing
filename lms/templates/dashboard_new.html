@@ -1002,12 +1002,8 @@ a{
                     <div class="total-time">${pd_time}</div>
                     <div class="total-time-title">Last Logged In:</div>
                     <div class="total-time">${user_last_logged_in}</div>
-                    <%
-                        completed_ourses_count = len(courses_complated)
-                        enrolled_ourses_count = len(courses_complated) + courses_incomplated_all_count
-                    %>
-                    <div class="enrolled-courses">Enrolled Courses: <span>${enrolled_ourses_count}</span></div>
-                    <div class="enrolled-courses">Completed Courses: <span>${completed_ourses_count}</span></div>
+                    <div class="enrolled-courses">Enrolled Courses: <span>${courses_incomplated_all_count}</span></div>
+                    <div class="enrolled-courses">Completed Courses: <span>${courses_complated_all_count}</span></div>
                 </div>
             </div>
         </div>
@@ -1446,6 +1442,14 @@ $(document).ready(function(){
             $('.completed-courses-rows').append(element);
         }
     }
+
+    var btn_more_completed_click = 0;
+    $(".btn-more-completed").click(function(){
+        if(btn_more_completed_click == 0){
+            get_course_in_progress('completed','yes'); 
+            btn_more_completed_click = 1
+        }
+    });
 
 });
 </script>
