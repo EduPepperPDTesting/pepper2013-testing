@@ -670,6 +670,11 @@ a{
     margin-top: 8px;
     font-size: 13px;
 }
+.course-in-progress-p b{
+  float:left;
+  font-size:13px;
+  color:#757474;  
+}
 .course-in-progress-tt{
     margin-top: 35px;
     font-size: 13px;
@@ -679,14 +684,49 @@ a{
     float:left;
     margin-top:-3px;
     margin-left:5px;
+    width: 334px;
+}
+.progress-table table{
+    margin-top:-22px;
+    float:left;
 }
 .progress-table td{
+    /*
     border-right:2px solid #f3f3f4;
     font-size:12px;
     color:#fff;
     padding-right:5px;
     text-align: right;
+    */
 }
+.progress-left{
+    height:22px;
+    float:left;
+}
+.progress-right{
+    height:22px;
+    background-color:#d2d3d5;
+    float:left;
+}
+.progress-table .td-right-border{
+    border-right:2px solid #f3f3f4;
+}
+.progress-p-text{
+    float:left;
+    color:#fff;
+    margin-top:-22px;
+
+    height:19px;
+    padding-top:3px;
+    /*
+    padding-left:2px;
+    */
+}
+
+
+
+
+
 .course-in-progress-more{
     text-align:right;
     color: #2CBAEC;
@@ -1034,6 +1074,7 @@ a{
                     <div class="course-in-progress">
                         <div class="course-in-progress-title">Courses In Progress</div>
                         <div class="course-in-progress-rows">
+                            
                         </div>
                         %if courses_incomplated_all_count > 3:
                         <div class="course-in-progress-more-outer">
@@ -1047,6 +1088,7 @@ a{
                             <div class="apply-for-ceu">Apply for CEU</div>
                         </div>
                         <div class="completed-courses-rows">
+
                         </div>
                         %if courses_complated_all_count > 2:
                         <div class="completed-courses-more-outer">
@@ -1341,7 +1383,7 @@ $(document).ready(function(){
         var local_time =  new Date();
         var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
         var local_utc_diff_h = local_utc_diff_m / 60;
-        displayDate = ""
+        var displayDate = ""
 
         if(isToday(time)) {
             displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
@@ -1424,9 +1466,19 @@ $(document).ready(function(){
         });
     }
     function create_course_in_progress(data_obj){
+        var cp = '';
+        var p_color = '';
+        var width_1 = '';
+        var width_1px = '';
+        var width_2px = '';
+        var p_text = '';
+        var p_text_style = '';
+        var element_html = '';
+        var element = '';
+
         for(var i=0;i<data_obj.data.length;i++){
             cp = data_obj.data[i];
-            p_color = "";
+            //cp.p = 0.28;
             if(cp.p <= 0.25){
                 p_color = "#ef3028";
             }
@@ -1438,24 +1490,38 @@ $(document).ready(function(){
             }
 
             width_1 = Math.round(334 * cp.p);
-            width_2 = String(334 - width_1) + "px";
-            width_1 = String(width_1) + "px";
+            width_2px = String(334 - width_1) + "px";
+            width_1px = String(width_1) + "px";
+
+            //percent text
+            p_text = String(Math.round(cp.p*100)) + "%";
+            if(cp.p == 0){
+                p_text_style = "width:83px;padding-left:2px;"
+            }
+            else if(cp.p >= 0.02 && cp.p <= 0.15 ){
+                p_text_style = 'width:'+String(width_1+24)+'px;text-align:right;'
+        
+            }
+            else if(cp.p > 0.15){
+                p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
+            }
 
             element_html = '<div class="course-in-progress-row">';
             element_html += '<div class="course-in-progress-t"><a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a></div>';
             element_html += '<div class="course-in-progress-p">';
-            element_html += '<b style="float:left;font-size:13px;color:#757474;">Progress</b>';
-            element_html += '<div class="progress-table" style="width:334px;">';
-            element_html += '<div style="width:'+width_1+';height:22px;background-color:'+p_color+';float:left;"></div>';
-            element_html += '<div style="width:'+width_2+';height:22px;background-color:#d2d3d5;float:left;"></div>';
-            element_html += '<table width=334 style="margin-top:-22px;float:left;">';
+            element_html += '<b>Progress</b>';
+            element_html += '<div class="progress-table">';
+            element_html += '<div class="progress-left" style="width:'+width_1px+';background-color:'+p_color+';"></div>';
+            element_html += '<div class="progress-right" style="width:'+width_2px+';"></div>';
+            element_html += '<table width=334>';
             element_html += '<tr height=22>';
-            element_html += '<td width=25%></td>';
-            element_html += '<td width=25%></td>';
-            element_html += '<td width=25%></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
             element_html += '<td width=25%></td>';
             element_html += '</tr>';
             element_html += '</table>';
+            element_html += '<div class="progress-p-text" style="'+p_text_style+'">'+p_text+'</div>';
             element_html += '</div>';
             element_html += '</div>';
             element_html += '<div class="course-in-progress-tt">';
