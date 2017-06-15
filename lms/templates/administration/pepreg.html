@@ -1461,7 +1461,7 @@
                            var top_slot = $(this).css('top');
                            isanimated = true;
                            return parseInt(top_slot) >= cont_bottom;
-                        }).first().position().top}, 500, function(){
+                        }).first().position().top}, 1000, function(){
                             console.log('isanimated-'+isanimated);
                             isanimated = false;
                         });
@@ -1471,7 +1471,6 @@
                            return parseInt(top_slot) >= cont_bottom;
                         }).length == 0){
                             $("#btn_down").remove();
-                            isanimated = false;
                         }
                     });
                 }
