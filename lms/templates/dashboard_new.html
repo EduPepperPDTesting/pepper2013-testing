@@ -1586,7 +1586,7 @@ $(document).ready(function(){
     var btn_more_completed_click = 0;
     $(".btn-more-completed").click(function(){
         if(btn_more_completed_click == 0){
-            get_course_in_progress('completed','yes'); 
+            get_completed_courses('completed','yes'); 
             btn_more_completed_click = 1
         }
     });
