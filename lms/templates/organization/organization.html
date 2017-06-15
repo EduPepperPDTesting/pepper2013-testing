@@ -2292,11 +2292,16 @@
 				}
 			});	
 
-			for(var i = 0; i < repeatList.length; i++){
-				if (repeatList[i] == repeatList[i+1]){
-					isRepeat = true;
+			for(var i = 0; i < repeatList.length - 1; i++){
+				for(var j = i + 1; j < repeatList.length; j++){
+					if (repeatList[i] == repeatList[j]){
+						isRepeat = true;
+						break;
+					} 
+				}
+				if(isRepeat){
 					break;
-				} 
+				}
 			}
 			if(isRepeat){
 				alert("You can not have the same CMS item name in one category.");
