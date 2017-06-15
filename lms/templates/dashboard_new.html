@@ -918,17 +918,29 @@ a{
 
         <div class="con-maincontent-all clearfix">
             <div class="con-tab-btns">
-            % if OrganizationOK and data["My Featured Show"] == "1":
-                <div class="featured-content-btn tab-btn-common">Featured Content</div>          
-            % endif
             % if OrganizationOK and data["My Feed Show"] == "1":
-                <div class="my-feed-btn tab-btn-common">My Feed</div>                
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>        
             % endif
             % if OrganizationOK and data["My Activities Show"] == "1":
-                <div class="my-activity-btn tab-btn-common">My Activity</div>             
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>         
             % endif
             % if OrganizationOK and data["My Report Show"] == "1":
-                <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+            % endif
+            % if OrganizationOK and data["My Featured Show"] == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>          
             % endif
             % if not(OrganizationOK):
                 <div class="tab-btn-common-outer">
