@@ -1336,6 +1336,13 @@
         removeScrollBtns()
     });
 
+    $('#calendar_select_data').change(function(){
+        removeScrollBtns();
+        $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+            console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+        });
+    });
+
     function removeScrollBtns(){
         if($('#btn_down').length > 0){
             $('#btn_down').remove();
@@ -1344,12 +1351,6 @@
             $('#btn_up').remove();
         }
     };
-
-    $('#calendar_select_data').change(function(){
-        $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
-            console.log("posY: "+$(".completeSlot:eq(0)").position().top)
-        });
-    });
 
     function uniqueTrainingSlot() {
         var existingSlots = 0;
