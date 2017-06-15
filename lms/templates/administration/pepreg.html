@@ -951,6 +951,12 @@
 		        $(".printview").remove()
 		    }
 			calendarOpen();
+			if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
+			    removeScrollBtns();
+                $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+                    console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+                });
+			}
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
@@ -1334,14 +1340,6 @@
 
     $('.list-group-item, .forBtnRemoval').click(function(){
         removeScrollBtns();
-    });
-
-    $('#calendar_select_data').change(function(){
-        console.log('calendar_select_data changed');
-        removeScrollBtns();
-        $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
-            console.log("posY: "+$(".completeSlot:eq(0)").position().top)
-        });
     });
 
     function removeScrollBtns(){
