@@ -1474,15 +1474,6 @@
                             isanimated = false;
                         }
                     });
-
-                    $('#calendar_content').scroll(function(e) {
-                        if ($(this).is(':animated')) {
-                            console.log('animate scroll');
-                        }else if(e.originalEvent) {
-                            console.log('manual scroll');
-                            $("#calendar_content").stop(true, false);
-                        }
-                    });
                 }
 
                 if($("#btn_up").length){
