@@ -1333,13 +1333,21 @@
 	});	
 
     $('.list-group-item').click(function(){
+        removeScrollBtns()
+    });
+
+    $('#calendar_select_data, #calendar_select_categories').change(function(){
+        removeScrollBtns()
+    });
+
+    function removeScrollBtns(){
         if($('#btn_down').length > 0){
             $('#btn_down').remove();
         }
         if($('#btn_up').length > 0){
             $('#btn_up').remove();
         }
-    });
+    };
 
     function uniqueTrainingSlot() {
         var existingSlots = 0;
