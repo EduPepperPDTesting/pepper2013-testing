@@ -1449,7 +1449,7 @@
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');
                            return parseInt(top_slot) >= cont_bottom;
-                        }).first().position().top}, 10);
+                        }).first().position().top}, 500);
 
                         if($(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');
