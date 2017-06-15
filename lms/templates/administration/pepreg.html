@@ -1463,6 +1463,7 @@
                         console.log('scroll '+e);
                         if (e.originalEvent) {//!$(this).is(':animated') &&
                             console.log('scroll happen manual scroll');
+                            $("calendar_content").stop(true, true);
                         }
                     });
                 }
