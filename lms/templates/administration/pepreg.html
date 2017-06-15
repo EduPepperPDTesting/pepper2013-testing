@@ -1460,7 +1460,7 @@
                     });
 
                     $('#btn_down').scroll(function(e) {
-                        if (!$(this).is(':animated') && e.originalEvent) {
+                        if (e.originalEvent) {//!$(this).is(':animated') &&
                             console.log('scroll happen manual scroll');
                         }
                     });
