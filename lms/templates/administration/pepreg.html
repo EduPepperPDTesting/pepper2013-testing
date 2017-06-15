@@ -1413,12 +1413,23 @@
                 tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
                 $("#calendar-month").css("width", tableWidth + "px");
             }
+
+            var isanimated = false;
+
             $("#calendar_content").scroll(function(){
             //$(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
                 var cont_height = $("#calendar_content").height();
                 var cont_top = $("#calendar_content").offset().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
                 console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
+
+                if ($(this).is(':animated')) {
+                    console.log('animate scroll');
+                }else if(e.originalEvent && isanimated) {
+                    console.log('manual scroll');
+                    $("#calendar_content").stop(true, false);
+                    isanimated = false;
+                }
 
                 if($(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
@@ -1448,14 +1459,19 @@
                     $("#btn_down").click(function(){
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');
+                           isanimated = true;
                            return parseInt(top_slot) >= cont_bottom;
-                        }).first().position().top}, 500);
+                        }).first().position().top}, 500, function(){
+                            console.log('isanimated-'+isanimated);
+                            isanimated = false;
+                        });
 
                         if($(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');
                            return parseInt(top_slot) >= cont_bottom;
                         }).length == 0){
                             $("#btn_down").remove();
+                            isanimated = false;
                         }
                     });
 
