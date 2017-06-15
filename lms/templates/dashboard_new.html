@@ -323,58 +323,70 @@ a{
 }
 .con-tab-btns{
     width:680px;
-    height:42px;
     float:left;
+    border-bottom: 2px solid #cfd0d4; 
     /*
+    height:42px;
     background-color:#e4e4e4;
     border:0px solid #000;
     */
+}
+.tab-btn-common-outer{
+   float:left;
+   background-color:#fff; 
+   border: 0px solid;
 }
 .tab-btn-common{
     /*
     height:28px;
     padding-top:11px;
-    */
-    padding:11px 35px 12px 35px;
-
     float:left;
+    */
+    padding:11px 15px 12px 15px;
+    
     text-align:center;
-    color:#fff;
+    color:#999;
     cursor: pointer;
-    font-size:14px;
-    background-color: #6e6e70;
-
+    font-size:15px;
+    background-color: #fff;
+    /*
     border-left:3px solid #666668;
     border-top:3px solid #666668;
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
-
     margin-left: -14px;
+
+    border:1px solid #000;
+    */
 }
-.featured-content-btn{
-    /*width:180px;*/
+.tab-btn-line-common{
+    height:4px;
+    /*background-color:#72c434;*/
+    background-color:#fff;
+    margin-left:15px;
 }
-.my-feed-btn{
-    /*width:130px;*/
+
+.my-feed-btn-line{
+    width:58px;
 }
-.my-activity-btn{
-    /*width:150px;*/
+
+.my-activity-btn-line{
+    width:78px;
 }
-.my-report-card-btn{
-    /*width:180px;*/
+.my-report-card-btn-line{
+    width:108px;
+}
+.featured-content-btn-line{
+    width:123px;
 }
 .mytab-active{
-    background-color:#f58221;
-    border-left:3px solid #f58221;
-    border-top:3px solid #f58221;
-    border-right:3px solid #f58221;
-    border-radius:10px 10px 0px 0px; 
     cursor: auto !important;
-
-    -moz-box-shadow:2px 0px 2px #a4a4a4;
-    -webkit-box-shadow:2px 0px 2px #a4a4a4;
-    box-shadow: 2px 0px 2px #a4a4a4;
+    color: #000;
 }
+.mytab-line-active{
+    background-color:#72c434;
+}
+
 .featured-content{
     width:680px;
     overflow: hidden;
@@ -919,10 +931,22 @@ a{
                 <div class="my-report-card-btn tab-btn-common">My Report Card</div>
             % endif
             % if not(OrganizationOK):
-                <div class="featured-content-btn tab-btn-common">Featured Content</div>
-                <div class="my-feed-btn tab-btn-common">My Feed</div>
-                <div class="my-activity-btn tab-btn-common" style="">My Activity</div>
-                <div class="my-report-card-btn tab-btn-common" style="">My Report Card</div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>
             % endif
             </div>
 
@@ -1102,7 +1126,7 @@ $(document).ready(function(){
         $(window).scrollTop(0);
     });
 
-    var btn_list = ['featured-content','my-feed','my-activity','my-report-card'];
+    var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
             var now_show = 'my-feed';
@@ -1118,18 +1142,24 @@ $(document).ready(function(){
     % endif
 
     //initial tab btn position
-    $(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
+    //$(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
 
     //initial tab btn and content show or hide
     for(var i=0;i<btn_list.length;i++){
         content_btn = "." + btn_list[i] + "-btn";
+        content_btn_line = content_btn + "-line";
         content = "." + btn_list[i];
         if(btn_list[i] == now_show){
+
             $(content_btn).addClass("mytab-active");
+            $(content_btn_line).addClass("mytab-line-active");
             $(content).show();   
+
+
         }
         else{
             $(content_btn).removeClass("mytab-active");
+            $(content_btn_line).removeClass("mytab-line-active");
             $(content).hide();
         }
     }
@@ -1154,15 +1184,18 @@ $(document).ready(function(){
         if(now_show != name){
             for(var i=0;i<btn_list.length;i++){
                 content_btn = "." + btn_list[i] + "-btn";
+                content_btn_line = content_btn + "-line";
                 content = "." + btn_list[i];
                 
                 if(name == (btn_list[i]+"-btn")){
                     $(content_btn).addClass("mytab-active");
+                    $(content_btn_line).addClass("mytab-line-active");
                     $(content).show(); 
                     now_show = btn_list[i];
                 }
                 else{
                     $(content_btn).removeClass("mytab-active");
+                    $(content_btn_line).removeClass("mytab-line-active");
                     $(content).hide();
                 }
             }
