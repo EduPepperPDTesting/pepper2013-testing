@@ -2603,24 +2603,6 @@
 			$("#organizational_dashboard_menu_text_font_me").hide();
 			$("#organizational_dashboard_menu_text_size_me").hide();
 		}
-		
-		/*if(is_icon == "1" && is_icon_width_text == "0"){
-			$("#organizational_dashboard_menu_text_color").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_font").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_size").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_color_icons").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_font_icons").attr("disabled", true);
-			$("#organizational_dashboard_menu_text_size_icons").attr("disabled", true);
-			$(".org_td1_demo").addClass("organizational_dashboard_demo1");
-		}else{
-			$("#organizational_dashboard_menu_text_color").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_font").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_size").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_color_icons").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_font_icons").attr("disabled", false);
-			$("#organizational_dashboard_menu_text_size_icons").attr("disabled", false);
-			$(".org_td1_demo").removeClass("organizational_dashboard_demo1");
-		}*/
 	}
 	
 	//--------------------------selectPDTable
@@ -2645,11 +2627,10 @@
 	
 	//--------------------------isPDDashboardChange
 	function isPDDashboardChange(pd_val){
-		$("#press").html(pd_val);
 		if(pd_val == "1"){
-			$("#organization_pd_dashboard_set").show();
+			$(".organization_pd_dashboard_set").show();
 		}else{
-			$("#organization_pd_dashboard_set").hide();
+			$(".organization_pd_dashboard_set").hide();
 		}		
 	}
 	

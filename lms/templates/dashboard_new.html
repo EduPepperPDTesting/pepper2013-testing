@@ -790,8 +790,8 @@ a{
 }
 </style>
 <style>
-	.organization_cms_grade{float:left; width:100%; height:40px; line-height:40px; text-indent:30px; font-weight:bold;color:#ffffff;background-color:#495354;font-size:20px;margin:10px 0 10px 0;}
-	.organization_cms_icon{float:left; margin:5px 9px;}
+	.organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
+	.organization_cms_icon{float:left; margin:5px 8px; border:1px solid #808080;}
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -841,10 +841,6 @@ a{
             
             cms_grade = ""
             for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
-                #if cms_items != "":
-                #    cms_items = cms_items + "=<="
-                #cms_items = cms_items + tmp1.Url + "=>=" + tmp1.Grade + "=>=" + tmp1.Icon            
-
                 if cms_grade != tmp1.Grade:
                     cms_grade = tmp1.Grade
                     cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
