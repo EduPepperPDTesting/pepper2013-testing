@@ -295,12 +295,12 @@
         </div>
         <div class="content" id="calendar_content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
         	<span id="math_width" style="position:absolute; top:-1000px;"></span>
-            <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_previous_y" value="|<" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_previous" value="<<" />
             <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_next" value=">>" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_next" value=">>" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_next_y" value=">|" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_today" value="Today" />
 
             <!--<div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">-->
                 <!--<input type="button" class="btn btn-primary btn-input-grp" value="Month" name="0">-->
@@ -1332,11 +1332,7 @@
 		});
 	});	
 
-    $('.list-group-item').click(function(){
-        removeScrollBtns()
-    });
-
-    $('#calendar_select_data, #calendar_select_categories').change(function(){
+    $('.list-group-item, .forBtnRemoval').click(function(){
         removeScrollBtns()
     });
 
@@ -1348,6 +1344,19 @@
             $('#btn_up').remove();
         }
     };
+
+    $('#calendar_select_data').change(function(){
+        var cont_top = $("#calendar_content").offset().top;
+
+        if($(".completeSlot").filter(function(){
+                   var top_slot = $(this).offset().top;
+                   return parseInt(top_slot) < cont_top;
+                }).length){
+            $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+                console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+            });
+        }
+    });
 
     function uniqueTrainingSlot() {
         var existingSlots = 0;
@@ -1510,9 +1519,16 @@
                 }
             });
 
-            $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
-                console.log("posY: "+$(".completeSlot:eq(0)").position().top)
-            });
+            var cont_top = $("#calendar_content").offset().top;
+
+            if($(".completeSlot").filter(function(){
+                       var top_slot = $(this).offset().top;
+                       return parseInt(top_slot) < cont_top;
+                    }).length){
+                $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+                    console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+                });
+            }
         }
     };
 
