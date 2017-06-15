@@ -1425,8 +1425,8 @@
 
                 if ($(this).is(':animated')) {
                     console.log('animate scroll');
-                }else if(e.originalEvent && isanimated) {
-                    console.log('manual scroll');
+                }else if(e.originalEvent){// && isanimated) {
+                    console.log('manual scroll isanimated-'+isanimated);
                     $("#calendar_content").stop(true, false);
                     isanimated = false;
                 }
