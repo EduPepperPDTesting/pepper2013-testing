@@ -1565,12 +1565,13 @@ def reporting_get_aggregate(request):
         column_header_row.append(d['_id'][column_header])
     column_header_row.append('count')
 
-    filter[column_header] = column_header_row[int(column_header_data)]
+    if column_header_data == (len(column_header_row)-1):
+        filter[column_header] = column_header_row[int(column_header_data)]
 
-    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
-    row_header = row_header_data.column
+    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
 
-    filter[row_header] = row_header_data
+    if row_header_data != 'Total':
+        filter[row_header] = row_header_data
 
     data = rs.get_datas(collection,filter)
     for d in data:
