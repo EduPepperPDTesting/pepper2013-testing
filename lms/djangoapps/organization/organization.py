@@ -141,8 +141,8 @@ def organization_add(request):
                     os.mkdir(path)
 
                 path_cms = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization.id) + '/'
-                if not os.path.exists(path):
-                    os.mkdir(path)
+                if not os.path.exists(path_cms):
+                    os.mkdir(path_cms)
 
                 # --------------OrganizationMenuitem
                 for bean1 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=0):
@@ -198,7 +198,7 @@ def organization_add(request):
                     if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
                         tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
                         if os.path.exists(tmp_logo_src):
-                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
+                            shutil.copyfile(tmp_logo_src, path_cms + bean1.itemValue)
 
                 # --------------OrganizationDashboard
                 for bean1 in OrganizationDashboard.objects.filter(organization=organization_old):
