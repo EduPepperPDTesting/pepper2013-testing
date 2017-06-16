@@ -849,6 +849,8 @@ a{
 <%inherit file="main.html" />
 <%
     OrganizationOK = False
+    show_left = "";
+    show_right = "";
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -891,6 +893,12 @@ a{
             if data['profile_logo']:
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
             
+            if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
+                show_left = "display:none;";
+                
+            if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
+                show_right = "display:none;";    
+                
             cms_grade = ""
             for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
                 if cms_grade != tmp1.Grade:
@@ -918,7 +926,7 @@ a{
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
         <div class="con-my-courses-outer">
-        <div class="con-my-courses" style="position:fixed;">
+        <div class="con-my-courses" style="position:fixed;${show_left}">
             <a href="/courses">
                 <div class="my-title-green">My Courses</div>
             </a>
@@ -1118,7 +1126,7 @@ a{
         </div>
         
         <!--Community Dashboard-->
-        <div class="con-my-communities-outer">
+        <div class="con-my-communities-outer" style="${show_right}">
             <div class="con-my-communities">
                 <!--width:220px-->
                 <div class="community-trending-topics">
