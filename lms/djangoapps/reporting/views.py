@@ -1555,6 +1555,7 @@ def reporting_get_aggregate(request):
     collection_column_header = collection_column_headers(collection)
     report = Reports.objects.get(id=report_id)
     filter = {}
+    rows = []
     rs = reporting_store()
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
@@ -1565,7 +1566,7 @@ def reporting_get_aggregate(request):
         column_header_row.append(d['_id'][column_header])
     column_header_row.append('count')
 
-    if column_header_data == (len(column_header_row)-1):
+    if column_header_data != (len(column_header_row)-1):
         filter[column_header] = column_header_row[int(column_header_data)]
 
     row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
