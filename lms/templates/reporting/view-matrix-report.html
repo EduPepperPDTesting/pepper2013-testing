@@ -397,6 +397,11 @@ var report_view = {
         }
     }
 
+    function get_ajax_get_aggregate(x,y){
+        $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_head":y,"column_head":x}, function(datas){
+                console.log(data.rows)
+        })
+    }
 $(document).ready(function () {
 
     loadwin = new LoadingWin();
