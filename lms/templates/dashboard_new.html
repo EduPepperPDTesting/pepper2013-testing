@@ -905,7 +905,16 @@ a{
                     cms_grade = tmp1.Grade
                     cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
                 
-                cms_items = cms_items + "<span class='organization_cms_icon'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                cms_add = False
+                if tmp1.CmsItem.find("_level_:") > 0:
+                    for tmp1_1 in tmp1.CmsItem.split("_level_:"):
+                        for tmp1_2 in tmp1_1.split(","):
+                            if tmp1_2 == request.user.profile.grade_level_id:
+                                cms_add = True
+                                break
+                
+                if cms_add:
+                    cms_items = cms_items + "<span class='organization_cms_icon'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
                         
             data["cms_items"] = cms_items
             
@@ -1195,7 +1204,11 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
-
+	$(".organization_cms_grade").each(function(){
+		if(!$(this).next().hasClass("organization_cms_icon")){
+			$(this).remove();
+		}
+	});
     var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
