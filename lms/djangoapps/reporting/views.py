@@ -1549,8 +1549,8 @@ def reporting_get_row_graphable(request):
 def reporting_get_aggregate(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    row_header = request.GET.get('row_header', '')
-    column_header = request.GET.get('column_header', '')
+    row_header_data = request.GET.get('row_header', '')
+    column_header_data = request.GET.get('column_header', '')
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
     report = Reports.objects.get(id=report_id)
@@ -1565,12 +1565,12 @@ def reporting_get_aggregate(request):
         column_header_row.append(d['_id'][column_header])
     column_header_row.append('count')
 
-    filter[column_header] = column_header_row[column_header]
+    filter[column_header] = column_header_row[int(column_header_data)]
 
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
     row_header = row_header_data.column
 
-    filter[row_header] = row_header
+    filter[row_header] = row_header_data
 
     data = rs.get_datas(collection,filter)
     for d in data:
