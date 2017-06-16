@@ -1451,7 +1451,7 @@ def create_column_Headers(report,collection):
     row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
-    rs.get_aggregate(collection,row_query,report.disti nct)
+    rs.get_aggregate(collection,row_query,report.distinct)
 
 def study_time_format_2(t, is_sign=False):
     sign = ''
@@ -1545,7 +1545,6 @@ def reporting_get_row_graphable(request):
             rows.append(d)  
 
     return render_json_response({'rows': rows})
-
 
 def reporting_get_aggregate(){
     report_id = request.GET['report_id']
