@@ -167,6 +167,22 @@ def organization_add(request):
                         org_menu_item2.organization = organization
                         org_menu_item2.save()
 
+                # --------------OrganizationCmsitem
+                for bean1 in OrganizationCmsitem.objects.filter(organization=organization_old,):
+                    org_cms_item = OrganizationCmsitem()
+                    org_cms_item.CmsItem = bean1.CmsItem
+                    org_cms_item.Url = bean1.Url
+                    org_cms_item.Icon = bean1.Icon
+                    org_cms_item.Grade = bean1.Grade                 
+                    org_cms_item.rowNum = bean1.rowNum
+                    org_cms_item.organization = organization
+                    org_cms_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)   
+
                 # --------------OrganizationMenu
                 for bean1 in OrganizationMenu.objects.filter(organization=organization_old):
                     org_menu = OrganizationMenu()
