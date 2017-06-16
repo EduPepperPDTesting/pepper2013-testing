@@ -1451,7 +1451,7 @@ def create_column_Headers(report,collection):
     row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
-    rs.get_aggregate(collection,row_query,report.distinct)
+    rs.get_aggregate(collection,row_query,report.disti nct)
 
 def study_time_format_2(t, is_sign=False):
     sign = ''
@@ -1545,3 +1545,37 @@ def reporting_get_row_graphable(request):
             rows.append(d)  
 
     return render_json_response({'rows': rows})
+
+
+def reporting_get_aggregate(){
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    row_header = request.GET.get('row_header', '')
+    column_header = request.GET.get('column_header', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    filter = {}
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+    column_header_row.append('count')
+
+    filter[column_header] = column_header_row[column_header]
+
+    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
+    row_header = row_header_data.column
+
+    filter[row_header] = row_header
+
+    data = rs.get_datas(collection,filter)
+    for d in data:
+        rows.append(d)
+
+    return render_json_response({'rows': rows})
+}
