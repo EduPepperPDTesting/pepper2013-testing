@@ -6,7 +6,7 @@
     from certificates.models import CertificateStatuses
     from xmodule.modulestore.django import modulestore
     import json
-    from student.models import State,District,School,User,UserProfile    
+    from student.models import State,District,School,User,UserProfile,GradeLevel
 %>
 <%inherit file="../main.html"/>
 
@@ -113,6 +113,11 @@
 	.organizational_dashboard_cms_sort .cms_btn_dn{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat -64px -48px;}
 	
 	.organizational_dashboard_cms_btn input{margin-top:7px;}
+
+	.organizational_dashboard_cms_row1{float:left; width:100%; clear:both; padding:5px 0;}
+	.btn_grade_level {-moz-font-feature-settings: normal; -moz-font-language-override: normal; background-color: #FFDBB8; background-image: -moz-linear-gradient(center top , #EAEAEA, #FFFFFF 99%); border-radius: 17px 17px 17px 17px; box-shadow: 0 1px #BFBFBF, 0 1px 2px rgba(44, 44, 44, 0.31) inset; color: #666666 !important; float: left; font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif; font-size: 10px !important; font-size-adjust: none; font-stretch: normal; font-style: normal; font-variant: normal; font-weight: bold !important; height: 30px; line-height: 30px !important; text-align: center; text-decoration: none; width: 31px; margin-right:5px;}
+	.btn_grade_level:hover {background: none repeat scroll 0 0 #FF9933; color: #FFFFFF !important; text-shadow: 0 1px #884A0C;}
+	.btn_grade_level_active {-moz-font-feature-settings: normal; -moz-font-language-override: normal;background: none repeat scroll 0 0 #FF9933;border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;color: #FFFFFF !important;float: left;font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;font-size: 10px;font-size-adjust: none;font-stretch: normal;font-style: normal;font-variant: normal;font-weight: bold !important;height: 30px;line-height: 30px !important;text-align: center;text-decoration: none;text-shadow: 0 1px #884A0C;	width: 31px;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -432,6 +437,22 @@
                     </table>
                 </td>
             </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td colspan="3" class="org_td1">
+                	<div>
+                        <label>
+                            <input type="checkbox" name="organizational_dashboard_show_left" checked="checked" />
+                            <span style="margin-left:30px;">Show Left Dashboard Banner</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="checkbox" name="organizational_dashboard_show_right" checked="checked" />
+                            <span style="margin-left:30px;">Show Right Dashboard Banner</span>
+                        </label>
+                    </div>
+                </td>
+            </tr>
             <tr>
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
@@ -670,6 +691,14 @@
                                 <span class="cms_btn_dn"></span>
                             </span>
                             <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>                      
+                            <div class="organizational_dashboard_cms_row1">
+                            	<span class="organizational_dashboard_cms_item">Select User Grade</span>
+                                <span> 
+                                    %for item in GradeLevel.objects.all():
+                                    <span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
+                                    %endfor
+                                </span>
+                            </div>
                         </div>                        
                     </div>
                 </td>
@@ -772,7 +801,7 @@
             this.$loader = null;
         }
     };
-	
+		
 	//-----------------------------------------------------------------------pagerOptions
 	var pagerOptions = {
 		container: '',
@@ -1122,6 +1151,16 @@
 										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
 									}else{
 										$("input[name='organizational_dashboard_activities_show']").removeAttr("checked");
+									}
+									if(r["Show Left DB"] == "1"){
+										$("input[name='organizational_dashboard_show_left']").attr("checked", "checked");										
+									}else{
+										$("input[name='organizational_dashboard_show_left']").removeAttr("checked");
+									}
+									if(r["Show Right DB"] == "1"){
+										$("input[name='organizational_dashboard_show_right']").attr("checked", "checked");										
+									}else{
+										$("input[name='organizational_dashboard_show_right']").removeAttr("checked");
 									}
 									if(r["My Report Show"] == "1"){
 										$("input[name='organizational_dashboard_report_show']").attr("checked", "checked");										
@@ -1897,7 +1936,16 @@
 				}
 			}
 		});
-	
+		
+		//--------------------------btn_grade_level
+		$(".btn_grade_level").click(function(){
+			if($(this).hasClass("btn_grade_level_active")){
+				$(this).removeClass("btn_grade_level_active");
+			}else{
+				$(this).addClass("btn_grade_level_active");
+			}
+		});
+		
 		//--------------------------Sets up the tablesorter tables for the 4 tables on the page.
 		pagerOptions.container = $("#organization-pager");
 		$('#organization-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);		
@@ -2266,7 +2314,7 @@
 			var cms_sn1 = 1;
 			var isRepeat = false;
 			var repeatList = new Array();
-			
+
 			$(".organizational_dashboard_cms_body1").each(function(){
 				var cms_item = filterStr($(this).find(".cms_items_cms_item").val());
 				if(cms_item != ""){					
@@ -2275,7 +2323,12 @@
 					var cms_icon = $(this).find(".cms_items_icon").val();
 					var cms_icon_name = $(this).find(".organizational_dashboard_cms_icon_view").attr("icon_name");					
 					if(!cms_icon_name || cms_icon_name == "undefined")	cms_icon_name = "";
-					
+					var lid = "";
+					$(this).find(".btn_grade_level_active").each(function(){
+						if(lid != "")	lid += ",";						
+						lid += $(this).attr("lid");
+					});
+					if(lid != "")	cms_item += "_level_:" + lid;
 					if(cms_icon != "" && !organizationCheckUploadFile(cms_icon)){
 						cms_flag_icon_error = true;
 						return false;
@@ -2320,6 +2373,9 @@
 			var menu_color = $("#organizational_menu_color").val();
 			var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
 			var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+			
+			var new_show_left = ($("input[name='organizational_dashboard_show_left']").attr("checked")) ? "1" : "0";
+			var new_show_right = ($("input[name='organizational_dashboard_show_right']").attr("checked")) ? "1" : "0";			
 			
 			var menu_text_color = $("#organizational_dashboard_menu_text_color").val();
 			var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
@@ -2366,6 +2422,8 @@
 				my_report_show: my_report_show,	
 				my_featured_show: my_featured_show,						
 				is_my_feed_default: is_my_feed_default,
+				new_show_left: new_show_left,
+				new_show_right: new_show_right,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,

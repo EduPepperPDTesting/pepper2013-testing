@@ -440,6 +440,8 @@ def organizational_save_base(request):
         dashboard_option = request.POST.get("dashboard_option", "")
         is_icon = request.POST.get("is_icon", "")
         is_icon_width_text = request.POST.get("is_icon_width_text", "")
+        new_show_left = request.POST.get("new_show_left", "")
+        new_show_right = request.POST.get("new_show_right", "")
         menu_text_color = request.POST.get("menu_text_color", "")
         menu_text_font = request.POST.get("menu_text_font", "")
         menu_text_size = request.POST.get("menu_text_size", "")
@@ -569,6 +571,12 @@ def organizational_save_base(request):
 
             # --------------OrganizationMenu Is Icon with Text         
             org_OrganizationMenuSave(org_metadata, "Is Icon With Text", is_icon_width_text) 
+
+            # --------------OrganizationMenu Is Icon with Text         
+            org_OrganizationMenuSave(org_metadata, "Show Left DB", new_show_left) 
+
+            # --------------OrganizationMenu Is Icon with Text         
+            org_OrganizationMenuSave(org_metadata, "Show Right DB", new_show_right) 
 
             # --------------OrganizationMenu Text Color
             org_OrganizationMenuSave(org_metadata, "Text Color", menu_text_color) 
