@@ -1546,7 +1546,7 @@ def reporting_get_row_graphable(request):
 
     return render_json_response({'rows': rows})
 
-def reporting_get_aggregate(){
+def reporting_get_aggregate():
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
     row_header = request.GET.get('row_header', '')
@@ -1577,4 +1577,3 @@ def reporting_get_aggregate(){
         rows.append(d)
 
     return render_json_response({'rows': rows})
-}
