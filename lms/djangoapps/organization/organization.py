@@ -185,7 +185,7 @@ def organization_add(request):
                     if bean1.Icon != "":
                         tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization_old.id) + '/' + bean1.Icon
                         if os.path.exists(tmp_logo_src):
-                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)   
+                            shutil.copyfile(tmp_logo_src, path_cms + bean1.Icon)   
 
                 # --------------OrganizationMenu
                 for bean1 in OrganizationMenu.objects.filter(organization=organization_old):
@@ -198,7 +198,7 @@ def organization_add(request):
                     if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
                         tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
                         if os.path.exists(tmp_logo_src):
-                            shutil.copyfile(tmp_logo_src, path_cms + bean1.itemValue)
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
 
                 # --------------OrganizationDashboard
                 for bean1 in OrganizationDashboard.objects.filter(organization=organization_old):
