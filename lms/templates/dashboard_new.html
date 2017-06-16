@@ -1517,7 +1517,14 @@ $(document).ready(function(){
             }
 
             element_html = '<div class="course-in-progress-row">';
-            element_html += '<div class="course-in-progress-t"><a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a></div>';
+            element_html += '<div class="course-in-progress-t">';
+            if(cp.close_course){
+                element_html += '<b>'+cp.name+'</b>|'+cp.number;
+            }
+            else{
+                element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
+            }
+            element_html += '</div>';
             element_html += '<div class="course-in-progress-p">';
             element_html += '<b>Progress</b>';
             element_html += '<div class="progress-table">';
@@ -1574,15 +1581,28 @@ $(document).ready(function(){
     }
 
     function create_completed_courses(data_obj){
+        var cc = '';
+        var element_html = '';
+        var element = '';
+        
         for(var i=0;i<data_obj.data.length;i++){
             cc =  data_obj.data[i];
             element_html = '<table class="completed-courses-row">';
             element_html += '<tr>';
             element_html += '<td width="55" class="completed-courses-row-ico">';
-            element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            if(cc.issue_certificate){
+                element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            }
             element_html += '</td>';
             element_html += '<td>';
-            element_html += '<div class="completed-courses-row-title"><a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a></div>';
+            element_html += '<div class="completed-courses-row-title">';
+            if(cc.close_course){
+                element_html += '<b>'+cc.name+'</b>|'+cc.number;
+            }
+            else{
+                element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
+            }
+            element_html += '</div>';
             element_html += '<div class="completed-courses-row-time">Time Spent: <b>'+cc.time+'</b></div>';
             element_html += '</td>';
             element_html += '</tr>';

@@ -506,6 +506,8 @@ def get_my_course_in_progress(request):
                     #set user course url
                     couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
+                    couser_dict['close_course'] = course.close_course
+
                     course_unfin_list.append(couser_dict)
             else:
                 couser_dict = {}
@@ -532,6 +534,8 @@ def get_my_course_in_progress(request):
 
                 #set user course url
                 couser_dict['url'] = "/courses/" + course.id + "/courseware"
+
+                couser_dict['close_course'] = course.close_course
 
                 course_unfin_list.append(couser_dict)
                 if k > 1:
@@ -563,6 +567,9 @@ def get_my_course_in_progress(request):
                     #set user course certificate url
                     couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
 
+                    couser_dict['close_course'] = course.close_course
+                    couser_dict['issue_certificate'] = course.issue_certificate
+
                     course_unfin_list.append(couser_dict)
             else:
                 couser_dict = {}
@@ -587,6 +594,9 @@ def get_my_course_in_progress(request):
 
                 #set user course certificate url
                 couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
+
+                couser_dict['close_course'] = course.close_course
+                couser_dict['issue_certificate'] = course.issue_certificate
 
                 course_unfin_list.append(couser_dict)
                 if k > 0:
