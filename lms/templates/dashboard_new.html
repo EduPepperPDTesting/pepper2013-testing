@@ -778,6 +778,8 @@ a{
     border:0px solid;
 }
 .completed-courses-row-title{
+    color: #000;
+    font-size: 13px;
     border: 0px solid;
 }
 .completed-courses-row-title a{
@@ -909,9 +911,10 @@ a{
                 if tmp1.CmsItem.find("_level_:") > 0:
                     for tmp1_1 in tmp1.CmsItem.split("_level_:"):
                         for tmp1_2 in tmp1_1.split(","):
-                            if tmp1_2 == request.user.profile.grade_level_id:
-                                cms_add = True
-                                break
+                            for tmp1_3 in request.user.profile.grade_level_id.split(","):
+                                if tmp1_2 == tmp1_3:
+                                    cms_add = True
+                                    break
                 
                 if cms_add:
                     cms_items = cms_items + "<span class='organization_cms_icon'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
@@ -923,7 +926,6 @@ a{
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
-
 <!--@date:20161222-->
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
