@@ -140,6 +140,10 @@ def organization_add(request):
                 if not os.path.exists(path):
                     os.mkdir(path)
 
+                path_cms = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization.id) + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
                 # --------------OrganizationMenuitem
                 for bean1 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=0):
                     org_menu_item = OrganizationMenuitem()
