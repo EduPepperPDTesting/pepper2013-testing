@@ -1285,10 +1285,10 @@
 											$(this).find(".cms_item_btn").val("+");
 										}
 									});
+									$(".btn_grade_level_active").removeClass("btn_grade_level_active");
 									
 									if(r.cms_items != ""){
 										var tmp_clonex = $(".organizational_dashboard_cms_body1:first").clone(true);
-										//var tmp_sub_clonex = $(".organizational_dashboard_menu_body2:first").clone(true);
 										
 										org_current_cms_items = r.cms_items;
 										var flag_first = true;
@@ -1303,7 +1303,13 @@
 												tmp_el = tmp_clonex.clone(true);
 												$(".organizational_dashboard_cms_div").append(tmp_el);
 											}
-											tmp_el.find(".cms_items_cms_item").val(tmp2[1]);
+											var cms_item = tmp2[1], cms_level = "";
+											if(cms_item.indexOf("_level_:") > 0){
+												var tmp2_1 = cms_item.split("_level_:");
+												cms_item = tmp2_1[0];
+												cms_level = tmp2_1[1];
+											}
+											tmp_el.find(".cms_items_cms_item").val(cms_item);
 											tmp_el.find(".cms_items_url").val(tmp2[2]);
 											tmp_el.find(".cms_items_grade").val(tmp2[3]);											
 											if(tmp2[4] != ""){
@@ -1312,6 +1318,13 @@
 												tmp_el.find(".organizational_dashboard_cms_icon_view").append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
 											}else{
 												tmp_el.find(".organizational_dashboard_cms_icon_view").html();
+											}
+											if(cms_level != ""){
+												var cms_level_tmp1 = cms_level.split(",");
+												for(var jj in cms_level_tmp1){
+													tmp_el.find(".btn_grade_level[lid='" + cms_level_tmp1[jj] + "']").addClass("btn_grade_level_active");
+												}
+												//<span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
 											}
 										}
 									}else{
@@ -1728,7 +1741,7 @@
 			clonex.find(".cms_items_grade").val("");
 			clonex.find(".organizational_dashboard_cms_icon_view").empty();
 			clonex.find(".organizational_dashboard_cms_icon_view").attr("icon_name", "");
-			
+			clonex.find(".btn_grade_level_active").removeClass("btn_grade_level_active");
 			$(".organizational_dashboard_cms_div").append(clonex);
 			clonex.find("fieldset").hide();
 			$(el).val("-");		
