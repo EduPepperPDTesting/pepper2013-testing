@@ -578,8 +578,10 @@ def getCalendarMonth(request):
                     except:
                         status = ""
 
+                    # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
-                    if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
+                    #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
+                    if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                         training_list.append(item.id)
 
         try:
@@ -654,8 +656,10 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 # if(item.training_date in date_list):
                 #     raise Exception(item.training_date)
 
+                # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
-                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
+                #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
+                if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
 
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
@@ -842,12 +846,14 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         # The registration date has passed for this training
                         pass
 
-                    elif (arrive == "1" and allow_student_attendance == "0"):
-                        # Instructor records attendance.
-                        pass
+                    # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
+                    # elif (arrive == "1" and allow_student_attendance == "0"):
+                    #     # Instructor records attendance.
+                    #     pass
+                    #
+                    # elif (arrive == "1" and allow_student_attendance == "1"):
 
-                    elif (arrive == "1" and allow_student_attendance == "1"):
-                        if (status == "Attended" or status == "Validated"):
+                    elif (arrive == "1" and (status == "Attended" or status == "Validated")):
                             # checked true
                             if (catype == "0" or catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
