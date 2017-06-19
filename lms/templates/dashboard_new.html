@@ -106,6 +106,8 @@ a{
     width:250px;
     height:525px;
     background-color: #fff;
+    position:fixed;
+    padding-bottom: 5px;
 }
 .my-title-green{
     width:204px;
@@ -950,59 +952,57 @@ a{
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
         <div class="con-my-courses-outer">
-        <div class="con-my-courses" style="position:fixed;${show_left}">
-            <div class="my-profile-logo">
-                %if data['profile_logo']:
-                    %if data['Organization Profile Logo Url']:
-                    	<a href="${data['Organization Profile Logo Url']}"><img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/></a>
-                    %else:
-                        <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
-                    %endif
-                %endif
-            </div>
-            <a href="/courses">
-                <div class="my-title-green">My Courses</div>
-            </a>
-            <div class="my-courses-cards">
-                %for course in courses_incomplated_top2:
-                    <%
-                        course_target = reverse('courseware', args=[course.id])
-                    %>
-                    <div class="course-incomplated">
-                         %if curr_user == request.user:
-                            %if not course.close_course:      
-                                <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+            <div class="con-my-communities" style="${show_left}">
+                <!--width:220px-->
+                <div class="community-trending-topics">
+                    <a href="/communities">
+                        <div class="my-title-blue">My Trending Topics</div>
+                    </a>
+                    <div class="trending-topic" style="border:0px solid;">
+                        %for k,c in enumerate(community_trending_topics):
+                            %if k + 1 == len(community_trending_topics):
+                                <div class="my-community-noline">
                             %else:
-                                <a href="${reverse('cabout', args=[course.id])}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                <div class="my-community">
                             %endif
-                            </a>
-                        %endif
+                                <div class="tt-title">${c['cname']}</div>
+                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
+                                <div class="tt-time">
+                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
+                                         %if c['btntext'] == "Reply":
+                                            <div class="tt-btn-reply">
+                                        %else:
+                                            <div class="tt-btn-addme">
+                                        %endif
+                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
+                                            </div>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                        %endfor
                     </div>
-                %endfor
-            </div>
-            <div class="ds-view-all-courses">
-                <a href="/my_courses">View All</a>
-            </div>
-
-            %if len(allowedcourses) > 0:
-                <!--allowedcourse-->
-                <a href="/more_courses_available">
-                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
-                </a>
-                <div class="my-courses-cards">
-                    %for course in allowedcourses:
-                        <div class="course-incomplated">
-                            <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
-                                <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                </div>
+                <div class="my-learning-communities">
+                    <a href="/communities">
+                        <div class="my-title-blue">My Communities</div>
+                    </a>
+                    <div class="my-communities-cards">
+                        <%
+                            community_count = len(communities)
+                        %>
+                        %for community in communities:
+                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
+                                <div class="ma-community-simple">
+                                    ${community['name']}
+                                </div>
                             </a>
-                        </div>
-                    %endfor
+                        %endfor
+                    </div>
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
                 </div>
-                <div class="ds-view-allowed-courses">
-                    <a href="/more_courses_available">View All</a>
-                </div>
-            %endif
-        </div>
+            </div>
         </div>
 
         <div class="con-maincontent-all clearfix">
@@ -1160,56 +1160,58 @@ a{
         
         <!--Community Dashboard-->
         <div class="con-my-communities-outer" style="${show_right}">
-            <div class="con-my-communities">
-                <!--width:220px-->
-                <div class="community-trending-topics">
-                    <a href="/communities">
-                        <div class="my-title-blue">My Trending Topics</div>
-                    </a>
-                    <div class="trending-topic" style="border:0px solid;">
-                        %for k,c in enumerate(community_trending_topics):
-                            %if k + 1 == len(community_trending_topics):
-                                <div class="my-community-noline">
-                            %else:
-                                <div class="my-community">
+            <div class="con-my-courses">
+                <div class="my-profile-logo">
+                    %if data['profile_logo']:
+                        %if data['Organization Profile Logo Url']:
+                            <a href="${data['Organization Profile Logo Url']}"><img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/></a>
+                        %else:
+                            <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
+                        %endif
+                    %endif
+                </div>
+                <a href="/courses">
+                    <div class="my-title-green">My Courses</div>
+                </a>
+                <div class="my-courses-cards">
+                    %for course in courses_incomplated_top2:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-incomplated">
+                             %if curr_user == request.user:
+                                %if not course.close_course:      
+                                    <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %else:
+                                    <a href="${reverse('cabout', args=[course.id])}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
+                                </a>
                             %endif
-                                <div class="tt-title">${c['cname']}</div>
-                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
-                                <div class="tt-time">
-                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
-                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
-                                         %if c['btntext'] == "Reply":
-                                            <div class="tt-btn-reply">
-                                        %else:
-                                            <div class="tt-btn-addme">
-                                        %endif
-                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
-                                            </div>
-                                    </div>
-                                </div>
-                               
+                        </div>
+                    %endfor
+                </div>
+                <div class="ds-view-all-courses">
+                    <a href="/my_courses">View All</a>
+                </div>
+
+                %if len(allowedcourses) > 0:
+                    <!--allowedcourse-->
+                    <a href="/more_courses_available">
+                        <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
+                    </a>
+                    <div class="my-courses-cards">
+                        %for course in allowedcourses:
+                            <div class="course-incomplated">
+                                <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                </a>
                             </div>
                         %endfor
                     </div>
-                </div>
-                <div class="my-learning-communities">
-                    <a href="/communities">
-                        <div class="my-title-blue">My Communities</div>
-                    </a>
-                    <div class="my-communities-cards">
-                        <%
-                            community_count = len(communities)
-                        %>
-                        %for community in communities:
-                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
-                                <div class="ma-community-simple">
-                                    ${community['name']}
-                                </div>
-                            </a>
-                        %endfor
+                    <div class="ds-view-allowed-courses">
+                        <a href="/more_courses_available">View All</a>
                     </div>
-                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
-                </div>
+                %endif
             </div>
         </div>
         <div style="clear:both;"></div>
