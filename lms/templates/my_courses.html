@@ -179,6 +179,11 @@
 				}			
 			});
 		});
+    $(".unenroll").click(function(event) {
+      $("#unenroll_course_id").val( $(event.target).data("course-id") );
+      $("#unenroll_course_number").text( $(event.target).data("course-number") );
+    });
+    
 	});
 </script>
 </%block>
