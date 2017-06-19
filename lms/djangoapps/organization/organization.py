@@ -1092,10 +1092,9 @@ def organization_get_info(request):
                             break;
 
                         for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj):
-                            if (flag_main == "dashboard"):
-                                if tmp2.itemType == "Organization Profile Logo Url":
-                                    data['Organization_Profile_Logo_Url'] = tmp2.itemValue
-                            break;
+                            if tmp2.itemType == "Organization Profile Logo Url":
+                                data['Organization_Profile_Logo_Url'] = tmp2.itemValue
+                                break;
 
                     data['Success'] = True
 

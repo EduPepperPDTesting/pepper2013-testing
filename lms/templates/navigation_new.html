@@ -1672,13 +1672,6 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					/*for(var obj in r){
-						if(obj.indexOf("_obj") > -1){
-							if(r[obj] == "-1"){
-								$("#" + obj).hide();
-							}
-						}
-					}*/
 					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}
@@ -1688,7 +1681,11 @@
 						if(r.LogoProfile != "" && typeof(r.LogoProfile) != "undefined"){
 							tmp_div.css("backgroundImage", "none");
 							tmp_div.css("border", "2px solid #bbbbbb");
-							tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							if(r.Organization_Profile_Logo_Url != "" && typeof(r.Organization_Profile_Logo_Url) != "undefined"){
+								tmp_div.append("<a href='" + r['Organization Profile Logo Url'] + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							}else{
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							}							
 							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r.Motto + "</span>");
 						}
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
