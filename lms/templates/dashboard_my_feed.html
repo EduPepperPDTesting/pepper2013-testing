@@ -794,9 +794,11 @@ from permissions.utils import check_access_level, check_user_perms
   // [event scroll] all posts
   $(window).bind("scroll", function(){
     var scrollTop = $(this).scrollTop();
-    　　    var scrollHeight = $(document).height();
-    　　    var windowHeight = $(this).height();
-    if(scrollTop + windowHeight == scrollHeight) {
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    var scrollTop_ceil = Math.ceil(scrollTop);
+
+    if(scrollTop_ceil + windowHeight >= scrollHeight) {
       getTopPosts(true)
     }
   });
