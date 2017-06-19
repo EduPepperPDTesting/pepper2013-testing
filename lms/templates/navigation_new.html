@@ -1682,7 +1682,7 @@
 							tmp_div.css("backgroundImage", "none");
 							tmp_div.css("border", "2px solid #bbbbbb");
 							if(r.Organization_Profile_Logo_Url != "" && typeof(r.Organization_Profile_Logo_Url) != "undefined"){
-								tmp_div.append("<a href='" + r['Organization Profile Logo Url'] + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+								tmp_div.append("<a href='" + r.Organization_Profile_Logo_Url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
 							}else{
 								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
 							}							
