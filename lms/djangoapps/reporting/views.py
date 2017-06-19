@@ -1586,8 +1586,10 @@ def reporting_get_aggregate(request):
     for d in data:
         rows.append(d)
 
-    aggregate_name = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].name
+    aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
+    aggregate_header = aggregate_object.column
+    aggregate_name = aggregate_object.name
     row_header_name = Row_Headers_object.name
     column_header_name = Column_Headers_object.name
 
-    return render_json_response({'rows': rows,'aggregate_name':aggregate_name，'row_header_name':row_header_name,'column_header_name':column_header_name})
+    return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})

@@ -102,9 +102,9 @@
 </div>
 </div>
 </div>
-<!-- aggreate table -->
-<div id='aggreate_table' style='display: none'>
-    <table id='aggreate'>
+<!-- aggregate table -->
+<div id='aggregate_table' style='display: none'>
+    <table id='aggregate'>
         
     </table>
 </div>
@@ -414,13 +414,13 @@ var report_view = {
             }else{
                 for (var a in row_datas){
                     tbody += '<tr>'
-                    for (var b in row_datas[a]){
-                        tbody += "<td>"+row_datas[a][b]+"</td>"
-                    }
+                    tbody += '<td>'+ row_datas[a][aggregate_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][row_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][column_header] + '</td>'
                     tbody += '</tr>'
                 }
                 table = thead + tbody;
-                $("#aggreate").html(table)
+                $("#aggregate").html(table)
             }
         })
     }
