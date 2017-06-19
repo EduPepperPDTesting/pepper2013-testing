@@ -58,8 +58,8 @@
                 </thead>
                 <tbody id="table_data"></tbody>
             </table>
-            </div>
         </div>
+    </div>
         <span class="footer">
             <div class="pager">
                 <span class="report_download" style="font-size:16px;margin-right:20px;">
@@ -101,6 +101,12 @@
 </div>
 </div>
 </div>
+</div>
+<!-- aggreate table -->
+<div id='aggreate_table' style='display: none'>
+    <table id='aggreate'>
+        
+    </table>
 </div>
 <!-- chart -->
 <div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 370px;background-color: gray;">
@@ -399,7 +405,23 @@ var report_view = {
 
     function get_ajax_get_aggregate(x,y){
         $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
-                console.log(datas.rows)
+            var table = '';
+            var thead = "<tr><th>"+datas.aggregate_name+"</th><th>"+datas.row_header_name+"</th><th>"+datas.column_header_name+"</th></tr>";
+            var tbody = ''
+            row_datas = datas.rows
+            if (row_datas.length == 0){
+                alert('No datas')
+            }else{
+                for (var a in row_datas){
+                    tbody += '<tr>'
+                    for (var b in row_datas[a]){
+                        tbody += "<td>"+row_datas[a][b]+"</td>"
+                    }
+                    tbody += '</tr>'
+                }
+                table = thead + tbody;
+                $("#aggreate").html(table)
+            }
         })
     }
 $(document).ready(function () {
