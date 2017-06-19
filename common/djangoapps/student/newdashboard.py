@@ -242,7 +242,7 @@ def newdashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    #@begin:Add for Dashboard My Courses
+    #@begin:get My Courses
     #@date:2017-02-19
     #Just choose the last 2 courses_incomplated of the user.
     courses_incomplated_list = list()
@@ -287,8 +287,8 @@ def newdashboard(request, user_id=None):
                                'private': item.private})
     #@end
 
-    #@begin:get Courses Available to Me
-    #@date:2017-05-16
+    #@begin:get Recommended For You
+    #@date:2017-05-1
     allowedcourses = []
     for course_id in allowedcourses_id:
         try:
