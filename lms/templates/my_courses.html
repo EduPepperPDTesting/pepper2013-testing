@@ -515,6 +515,27 @@
 <!--@end-->
 </section>
 </section>
+<section id="unenroll-modal" class="modal unenroll-modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Are you sure you want to unregister from {course_number}?').format(course_number='<span id="unenroll_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <div id="unenroll_error" class="modal-form-error"></div>
+    <form id="unenroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+      <input name="course_id" id="unenroll_course_id" type="hidden" />
+      <input name="enrollment_action" type="hidden" value="unenroll" />
+      <div class="submit">
+        <input id="submit" name="submit" type="submit" value="Unregister" />
+      </div>
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
     $(document).ready(function(){
