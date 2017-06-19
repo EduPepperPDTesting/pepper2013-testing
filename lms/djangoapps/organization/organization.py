@@ -480,6 +480,7 @@ def organizational_save_base(request):
         my_featured_show = request.POST.get("my_featured_show", "")
         is_my_feed_default = request.POST.get("is_my_feed_default", "")        
         org_logo_url = request.POST.get("org_logo_url", "")
+        org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
         logo_url = request.POST.get("logo_url", "")
 
         if(oid):
@@ -648,6 +649,9 @@ def organizational_save_base(request):
 
             # --------------OrganizationMenu Organization Logo Url
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
+
+            # --------------OrganizationMenu Organization Profile Logo Url
+            org_OrganizationMenuSave(org_metadata, "Organization Profile Logo Url", org_profile_logo_url)
 
             # --------------OrganizationMenu Logo Url
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
@@ -1085,6 +1089,12 @@ def organization_get_info(request):
                             if (flag_main == "dashboard"):
                                 data['LogoProfile'] = tmp2.LogoProfile
                                 data['Motto'] = tmp2.Motto
+                            break;
+
+                        for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj):
+                            if (flag_main == "dashboard"):
+                                if tmp2.itemType == "Organization Profile Logo Url":
+                                    data['Organization_Profile_Logo_Url'] = tmp2.itemValue
                             break;
 
                     data['Success'] = True
