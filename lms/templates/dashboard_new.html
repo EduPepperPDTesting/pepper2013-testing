@@ -934,8 +934,8 @@ a{
                         
             data["cms_items"] = cms_items
             
-        if not data['profile_logo']:
-            data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
+        #if not data['profile_logo']:
+        #    data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
