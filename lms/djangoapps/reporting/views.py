@@ -248,6 +248,11 @@ def report_edit(request, report_id):
                              'selected_columns': selected_columns,
                              'report_filters': filters,
                              'first_column': first_column})
+
+                if report.report_type == 1:
+                    matrixcolumns = ReportMatrixColumns.objects.filter(report=report)
+                    data.update({'matrixcolumns':matrixcolumns})
+
                 action = 'edit'
             else:
                 raise Exception('Not allowed.')

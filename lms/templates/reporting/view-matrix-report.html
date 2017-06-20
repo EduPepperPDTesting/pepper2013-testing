@@ -26,12 +26,9 @@
 <link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
 
 <style>
-#detail{    position:absolute;width:400px;height:200px;border:1px solid #ccc;background:#efefef; display:none;}
+#detail{position:absolute;border:1px solid #ccc;background:#efefef; display:none;}
 #detail .tit{ background:#ddd; display:block; height:33px; cursor:move;}
 #detail .tit i{ float:right; line-height:33px; padding:0 8px;cursor:default;}
-#detail2{position:absolute;width:300px;height:100px;border:1px solid #555;background:#555;display:none;}
-#detail2 .tit{ background:#333; display:block; height:33px;cursor:move;}
-#detail2 .tit i{ float:right; line-height:33px; padding:0 8px; color:#777; cursor:default;}
     .lean-overlay .loading {
         width: 128px;
         height: 128px;
@@ -112,14 +109,8 @@
 </div>
 </div>
 <!-- aggregate table -->
-<!-- <div id='aggregate_table' style='display: none;position: absolute;top: 250px;left: 370px;background-color: gray;'>
-    <table id='aggregate' border='1' cellspacing="5" cellpadding="5">
-        
-    </table>
-</div> -->
 <div id="detail">
 <div class="tit"><i class="close">关闭</i></div>
-<pre>
     <div id="aggregate_table">
         <div class="table">
             <div class="body table_scroll">
@@ -131,12 +122,9 @@
             </div>
         </div>
     </div>
-</pre>
 </div>
-
-
-
 <!-- chart -->
+
 <div id = 'graphable' style="display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
@@ -149,6 +137,7 @@
         </div>
     <div id="chart" style="width:1000px"></div>
 </div>
+
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="background-color:#fff;border:0;border-radius:5px;padding:0">
