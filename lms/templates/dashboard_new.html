@@ -776,10 +776,6 @@ a{
 .apply-for-ceu:hover{
     background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
 }
-.apply-for-ceu a{
-    font-size: 12px;
-    color: #000;
-}
 .completed-courses-row{
     width: 400px;
     margin-left:20px; 
@@ -853,8 +849,8 @@ a{
 }
 </style>
 <style>
-	.organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
-	.organization_cms_icon{float:left; margin:5px 8px; border:1px solid #808080;}
+    .organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
+    .organization_cms_icon{float:left; margin:5px 8px; border:1px solid #808080;}
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -1135,7 +1131,7 @@ a{
                     %if courses_complated_all_count > 0:
                     <div class="completed-courses">
                         <div class="completed-courses-title">Completed Courses
-                            <div class="apply-for-ceu"><a href="/course_credits">Apply for CEU<a></div>
+                            <div class="apply-for-ceu">Apply for CEU</div>
                         </div>
                         <div class="completed-courses-rows">
 
@@ -1235,11 +1231,11 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
-	$(".organization_cms_grade").each(function(){
-		if($(".organization_cms_icon[grade='" + $(this).text() + "']").length == 0){
-			$(this).remove();
-		}
-	});
+    $(".organization_cms_grade").each(function(){
+        if($(".organization_cms_icon[grade='" + $(this).text() + "']").length == 0){
+            $(this).remove();
+        }
+    });
     var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
@@ -1520,12 +1516,11 @@ $(document).ready(function(){
         });
     }
     function create_course_in_progress(data_obj){
-        var main_width = 338;
-        var cell_width = main_width/4;
         var cp = '';
         var p_color = '';
         var width_1 = '';
         var width_1px = '';
+        var width_2px = '';
         var p_text = '';
         var p_text_style = '';
         var element_html = '';
@@ -1533,7 +1528,7 @@ $(document).ready(function(){
 
         for(var i=0;i<data_obj.data.length;i++){
             cp = data_obj.data[i];
-            //cp.p = 0.24;
+            //cp.p = 0.28;
             if(cp.p <= 0.25){
                 p_color = "#ef3028";
             }
@@ -1544,7 +1539,8 @@ $(document).ready(function(){
                  p_color = "#89c153";
             }
 
-            width_1 = Math.round(main_width * cp.p);
+            width_1 = Math.round(338 * cp.p);
+            width_2px = String(338 - width_1) + "px";
             width_1px = String(width_1) + "px";
 
             //percent text
@@ -1560,7 +1556,6 @@ $(document).ready(function(){
                 p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
             }
 
-            //construct the element
             element_html = '<div class="course-in-progress-row">';
             element_html += '<div class="course-in-progress-t">';
             if(cp.close_course){
