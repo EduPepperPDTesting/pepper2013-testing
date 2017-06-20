@@ -132,7 +132,7 @@
                 <span style="margin-left:200px;">Aggregate Type: </span> <br><br>
                 <select name="Column_Headers" id="Column_Headers" style="width:200px;">
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %for view_column in view_columns:
                                 <option value="${view_column.id}"
                                     %if view_column.id == matrixcolumns.column_headers:
@@ -145,7 +145,7 @@
                 </select>
                 <select style="margin-left:130px;width:200px;" name="Row_Headers" id="Row_Headers">
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %for view_column in view_columns:
                                 <option value="${view_column.id}"
                                     %if view_column.id == matrixcolumns.row_headers:
@@ -158,7 +158,7 @@
                 </select>
                 <select style="margin-left:100px;width:200px;" name="Aggregate_Data" id="Aggregate_Data">
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %for view_column in view_columns:
                                 <option value="${view_column.id}"
                                     %if view_column.id == matrixcolumns.aggregate_data:
@@ -172,7 +172,7 @@
                 <select style="margin-left:120px;" name="Aggregate_Type">
                     <option value="Sum" 
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %if matrixcolumns.aggregate_type == 'Sum':
                                 selected 
                             %endif
@@ -180,7 +180,7 @@
                     >Sum</option>
                     <option value="Count"
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %if matrixcolumns.aggregate_type == 'Count':
                                 selected 
                             %endif
@@ -189,7 +189,7 @@
                     >Count</option>
                     <option value="Average"
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %if matrixcolumns.aggregate_type == 'Average':
                                 selected
                             %endif 
@@ -198,7 +198,7 @@
                     >Average</option>
                     <option value="Max"
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %if matrixcolumns.aggregate_type == 'Max':
                                 selected 
                             %endif
@@ -207,7 +207,7 @@
                     >Max</option>
                     <option value="Min"
                     %if action == 'edit':
-                        %if report.report_type = 1:
+                        %if report.report_type == 1:
                             %if matrixcolumns.aggregate_type == 'Min':
                                 selected 
                             %endif
