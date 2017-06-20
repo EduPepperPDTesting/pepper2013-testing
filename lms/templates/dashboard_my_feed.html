@@ -461,6 +461,8 @@ from permissions.utils import check_access_level, check_user_perms
     $('#announcement_content_table').append(template.fillData(p));   
   }
   function translateImages(content){
+    return content;
+    
     return content.replace(/(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/g, function(link){
       image_code = link;
       if(link.indexOf("youtube") > -1){
