@@ -1230,8 +1230,7 @@ a{
 
 <script>
 $(document).ready(function(){
-    /*----------------------------------------------------------------*/
-    /*common*/
+    /*------common------*/
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
@@ -1254,9 +1253,6 @@ $(document).ready(function(){
     % else:
         var now_show = 'featured-content';
     % endif
-
-    //initial tab btn position
-    //$(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
 
     //initial tab btn and content show or hide
     for(var i=0;i<btn_list.length;i++){
@@ -1281,6 +1277,7 @@ $(document).ready(function(){
     //tab btn event--------------------------------------------------
     $(".featured-content-btn").click(function(){
         btn_switch($(this).attr("class"));
+        console.log(now_show)
     });
     $(".my-feed-btn").click(function(){
         btn_switch($(this).attr("class"));
@@ -1289,6 +1286,26 @@ $(document).ready(function(){
         btn_switch($(this).attr("class"));
     });
     $(".my-report-card-btn").click(function(){
+        if(now_show != 'my-report-card'){
+            $(".get-more-incompleted").hide();
+            if(courses_incomplated_more==1){
+                $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
+  
+                $(".btn-more-incompleted").click(function(){
+                    if(btn_more_incompleted_click == 0){
+                        get_course_in_progress('incompleted','yes'); 
+                        btn_more_incompleted_click = 1;
+                    }
+                    else{
+                        $(".get-more-incompleted").show();
+                        if(courses_incomplated_more==1){
+                            $(".course-in-progress-more-outer").html('');
+                        }
+                    }
+                });
+            }
+        }
+
         btn_switch($(this).attr("class"));
     });
     
@@ -1317,8 +1334,8 @@ $(document).ready(function(){
     }
 
 
-    /*----------------------------------------------------------------*/
-    /*my activity*/
+
+    /*------my activity------*/
     var data_all = 0;
     var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
     var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
@@ -1500,9 +1517,13 @@ $(document).ready(function(){
     });
     
     
-    /*----------------------------------------------------------------*/
-    /*my report card*/
+    /*------my report card------*/
     //my report card - course in progress-----------------------------------------------
+    var courses_incomplated_more = 0;
+    %if courses_incomplated_all_count > 3:
+        courses_incomplated_more = 1;
+    %endif
+
     get_course_in_progress('incompleted','no'); 
     
     function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
@@ -1513,13 +1534,13 @@ $(document).ready(function(){
         $.post("${reverse('get_my_course_in_progress')}", 
             {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
             function(data_obj){
-                create_course_in_progress(data_obj);
+                create_course_in_progress(data_obj,get_more);
                 if(get_more == 'yes'){
                     $(".course-in-progress-more-outer").html('');
                 }  
         });
     }
-    function create_course_in_progress(data_obj){
+    function create_course_in_progress(data_obj,get_more){
         var cp = '';
         var p_color = '';
         var width_1 = '';
@@ -1560,7 +1581,12 @@ $(document).ready(function(){
                 p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
             }
 
-            element_html = '<div class="course-in-progress-row">';
+            if(get_more=='no'){
+                element_html = '<div class="course-in-progress-row">';
+            }
+            else{
+                element_html = '<div class="course-in-progress-row get-more-incompleted">';
+            }
             element_html += '<div class="course-in-progress-t">';
             if(cp.close_course){
                 element_html += '<b>'+cp.name+'</b>|'+cp.number;
@@ -1592,7 +1618,6 @@ $(document).ready(function(){
 
             element = $(element_html);
             $('.course-in-progress-rows').append(element);
-
         }
     }
 
@@ -1600,7 +1625,13 @@ $(document).ready(function(){
     $(".btn-more-incompleted").click(function(){
         if(btn_more_incompleted_click == 0){
             get_course_in_progress('incompleted','yes'); 
-            btn_more_incompleted_click = 1
+            btn_more_incompleted_click = 1;
+        }
+        else{
+            $(".get-more-incompleted").show();
+            if(courses_incomplated_more==1){
+                $(".course-in-progress-more-outer").html('');
+            }
         }
     });
 
@@ -1659,8 +1690,9 @@ $(document).ready(function(){
 
     var btn_more_completed_click = 0;
     $(".btn-more-completed").click(function(){
+        get_completed_courses('completed','yes'); 
+        
         if(btn_more_completed_click == 0){
-            get_completed_courses('completed','yes'); 
             btn_more_completed_click = 1
         }
     });
