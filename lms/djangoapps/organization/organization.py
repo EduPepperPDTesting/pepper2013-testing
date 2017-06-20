@@ -539,7 +539,7 @@ def organizational_save_base(request):
             # --------------OrganizationDashboard
             if(motto != ""):
                 org_dashboard_motto = OrganizationDashboard();
-                for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Motto"):
+                for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto"):
                     org_dashboard_motto = tmp1
                     break;
 
@@ -550,14 +550,14 @@ def organizational_save_base(request):
 
             if(motto_curr != ""):
                 org_dashboard_motto_curr = OrganizationDashboard();
-                for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Motto Curriculumn"):
+                for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto Curriculumn"):
                     org_dashboard_motto_curr = tmp1
                     break;
 
-                org_dashboard_motto.organization = org_metadata
-                org_dashboard_motto.itemType = "Motto Curriculumn"
-                org_dashboard_motto.itemValue = motto_curr
-                org_dashboard_motto.save()
+                org_dashboard_motto_curr.organization = org_metadata
+                org_dashboard_motto_curr.itemType = "Motto Curriculumn"
+                org_dashboard_motto_curr.itemValue = motto_curr
+                org_dashboard_motto_curr.save()
  
             # --------------OrganizationMenuitem
             OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
@@ -629,7 +629,7 @@ def organizational_save_base(request):
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
-            org_OrganizationDashboardSave(org_metadata, "Profile Logo Url Curriculumn ", org_profile_logo_url)
+            org_OrganizationDashboardSave(org_metadata, "Profile Logo Url Curriculumn", org_profile_logo_curr_url)
             org_OrganizationDashboardSave(org_metadata, "My Feed Show", my_feed_show)
             org_OrganizationDashboardSave(org_metadata, "My Activities Show", my_activities_show)
             org_OrganizationDashboardSave(org_metadata, "My Report Show", my_report_show)
