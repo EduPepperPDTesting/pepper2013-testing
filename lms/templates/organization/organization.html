@@ -1142,13 +1142,11 @@
 										$("input[name='organizational_dashboard_show_left_curr']").prop("checked", false);
 									}
 									if(r["Show Right DB Curriculumn"] == "1"){
-										//$("input[name='organizational_dashboard_show_right_curr']").prop("checked", true);	
-										//$("#press").html(Math.random() + ":1");
+										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", true);											
 									}else{
-										//$("input[name='organizational_dashboard_show_right_curr']").prop("checked", false);
-										//$("#press").html(Math.random() + ":0");
+										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", false);
 									}
-									$("#press").html(Math.random() + "= " +r["Show Left DB"]+":"+r["Show Right DB"]);
+
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
