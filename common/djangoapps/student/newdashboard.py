@@ -242,7 +242,7 @@ def newdashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    #@begin:Add for Dashboard My Courses
+    #@begin:get My Courses
     #@date:2017-02-19
     #Just choose the last 2 courses_incomplated of the user.
     courses_incomplated_list = list()
@@ -287,8 +287,8 @@ def newdashboard(request, user_id=None):
                                'private': item.private})
     #@end
 
-    #@begin:get Courses Available to Me
-    #@date:2017-05-16
+    #@begin:get Recommended For You
+    #@date:2017-05-1
     allowedcourses = []
     for course_id in allowedcourses_id:
         try:
@@ -506,6 +506,8 @@ def get_my_course_in_progress(request):
                     #set user course url
                     couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
+                    couser_dict['close_course'] = course.close_course
+
                     course_unfin_list.append(couser_dict)
             else:
                 couser_dict = {}
@@ -533,13 +535,42 @@ def get_my_course_in_progress(request):
                 #set user course url
                 couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
+                couser_dict['close_course'] = course.close_course
+
                 course_unfin_list.append(couser_dict)
                 if k > 1:
                     break
     else:
         for k,course in enumerate(courses_complated):
             if get_more == 'yes':
-                pass
+                if k > 1:
+                    couser_dict = {}
+                    #set user course total time
+                    if user.is_superuser:
+                        couser_dict['time'] = 0
+                    else:
+                        results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+                        total_time_user = 0
+                        for v in results:
+                            total_time_user = total_time_user + v['total_time']
+                        couser_dict['time'] = study_time_format(total_time_user)
+
+                    #set user course title
+                    couser_dict['name'] = get_course_about_section(course, 'title')
+
+                    #set user course number
+                    couser_dict['number'] = course.display_number_with_default
+
+                    #set user course url
+                    couser_dict['url'] = "/courses/" + course.id + "/courseware"
+
+                    #set user course certificate url
+                    couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
+
+                    couser_dict['close_course'] = course.close_course
+                    couser_dict['issue_certificate'] = course.issue_certificate
+
+                    course_unfin_list.append(couser_dict)
             else:
                 couser_dict = {}
                 #set user course total time
@@ -563,6 +594,9 @@ def get_my_course_in_progress(request):
 
                 #set user course certificate url
                 couser_dict['url_c'] = "/" + course.id + "/" + str(course.complete_date)[0:10] + "/download_certificate"
+
+                couser_dict['close_course'] = course.close_course
+                couser_dict['issue_certificate'] = course.issue_certificate
 
                 course_unfin_list.append(couser_dict)
                 if k > 0:

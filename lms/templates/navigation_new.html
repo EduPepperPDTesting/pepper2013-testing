@@ -434,9 +434,8 @@
             base_logo = "";
             newMeStyleFlag = 0;            
             newMeStyleFont = "";
-            newMeStyleColor = "";
-            newMeStyleSize = "";
-            meBorderColor = "";     
+            newMeStyleColor = "#000";
+            newMeStyleSize = "";   
             
             #---------------OrganizationMenu 
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
@@ -489,7 +488,7 @@
                     newMeStyleFont = data['Text Font'];
                     newMeStyleColor = data['Text Color'];
                     newMeStyleSize = data['Text Size'];
-                    meBorderColor = data['Text Color Icons'];
+                    
                     if data['Is Icon'] == "1":
                     	img_src = base_src + tmp1.Icon;
                         
@@ -625,7 +624,7 @@
                         % if newMeStyleFlag == 0:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
@@ -635,7 +634,7 @@
                         % else:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
                             	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${meBorderColor}; border-radius:50px;"></td>
+                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
@@ -853,7 +852,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-             if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0) {
+             if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0 || document.URL.indexOf('user_profile') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${request.user.id}"
                }, function(data) {
@@ -1588,7 +1587,7 @@
             <table>
                 <tr>
                     <td style="vertical-align:middle">Insert URL:</td>
-                    <td><input type="text" id="link_url_val"style="width:100%"></td>
+                    <td><input type="text" id="link_url_val" style="width:100%"></td>
                 </tr>
                 <tr>
                     <td width="100" style="vertical-align:middle">Title:</td>
@@ -1673,13 +1672,6 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					/*for(var obj in r){
-						if(obj.indexOf("_obj") > -1){
-							if(r[obj] == "-1"){
-								$("#" + obj).hide();
-							}
-						}
-					}*/
 					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}
@@ -1689,7 +1681,11 @@
 						if(r.LogoProfile != "" && typeof(r.LogoProfile) != "undefined"){
 							tmp_div.css("backgroundImage", "none");
 							tmp_div.css("border", "2px solid #bbbbbb");
-							tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							if(r.Organization_Profile_Logo_Url != "" && typeof(r.Organization_Profile_Logo_Url) != "undefined"){
+								tmp_div.append("<a href='" + r.Organization_Profile_Logo_Url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							}else{
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							}							
 							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r.Motto + "</span>");
 						}
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");

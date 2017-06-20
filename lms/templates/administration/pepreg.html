@@ -295,12 +295,12 @@
         </div>
         <div class="content" id="calendar_content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
         	<span id="math_width" style="position:absolute; top:-1000px;"></span>
-            <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_previous_y" value="|<" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_previous" value="<<" />
             <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_next" value=">>" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
-            <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_next" value=">>" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_next_y" value=">|" />
+            <input class1="btn btn-default" class="forBtnRemoval" type="button" id="calendar_btn_today" value="Today" />
 
             <!--<div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">-->
                 <!--<input type="button" class="btn btn-primary btn-input-grp" value="Month" name="0">-->
@@ -669,7 +669,9 @@
 	var _cal_view = "screen";
 	
 	//-----------------------------------------------calendarOpen
-	function calendarOpen(goback = "false", goforth = "false"){
+	function calendarOpen(goback, goforth){
+	   goback = goback || "false";
+	   goforth = goforth || "false";
 	   if($("#calendar_select_range").val().length==0) $("#calendar_select_range").val("1");
 	   $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
@@ -778,15 +780,18 @@
 			$(".calendar_check_would").click(function(event){
 				event.stopImmediatePropagation();
 			    event.preventDefault();
+			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
-
+                    console.log("calendar_check_would pre -" + $("this").prop("checked"));
                     $("this").prop("checked", !$("this").prop("checked"));
-					pepreg.reloadTable();
-					/*$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+                    console.log("calendar_check_would post -" + $("this").prop("checked"));
+                    calendarOpen();
+					/*pepreg.reloadTable();
+					$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					calendarOpen();
 					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					console.log(regData.trID);*/
@@ -864,8 +869,8 @@
 	        if(picker_month == 13){
 	             picker_month = 1;
 	             picker_year = _sys_calendar_year + 1;}  }*/
-	function setPickerValue(calcDate = true){
-
+	function setPickerValue(calcDate){
+        name = name || true;
         var picker_month = _sys_calendar_month;
         var picker_year = _sys_calendar_year;
 
@@ -942,13 +947,19 @@
 				setPickerValue();
 				calendarOpen();
 			}
-		});;
+		});
 
 		$("#calendar_select_categories").change(function(){
 		    if($("#view_select").val() == "1"){
 		        $(".printview").remove()
 		    }
 			calendarOpen();
+			if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
+			    removeScrollBtns();
+                $("#calendar_content").delay(500).animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+                    console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+                });
+			}
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
@@ -1304,7 +1315,7 @@
                 calendarOpen();
             }
 		})
-		
+
 		//-----------------------------------------------
 		$("#math_credits").click(function(){
 			if($(this).attr("checked") == "checked"){
@@ -1329,6 +1340,19 @@
 			}
 		});
 	});	
+
+    $('.list-group-item, .forBtnRemoval').click(function(){
+        removeScrollBtns();
+    });
+
+    function removeScrollBtns(){
+        if($('#btn_down').length > 0){
+            $('#btn_down').remove();
+        }
+        if($('#btn_up').length > 0){
+            $('#btn_up').remove();
+        }
+    };
 
     function uniqueTrainingSlot() {
         var existingSlots = 0;
@@ -1411,12 +1435,23 @@
                 tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
                 $("#calendar-month").css("width", tableWidth + "px");
             }
-            $("#calendar_content").scroll(function(){
+
+            var isanimated = false;
+
+            $("#calendar_content").scroll(function(e){
             //$(".inner-wrapper").on("scroll", "#calendar-panel", function(event){
                 var cont_height = $("#calendar_content").height();
                 var cont_top = $("#calendar_content").offset().top;
                 var cont_bottom = cont_top + parseInt(cont_height);
                 console.log("cont_top-"+cont_top+" cont_bottom-"+cont_bottom);
+
+                if ($(this).is(':animated')) {
+                    console.log('animate scroll');
+                }else if(e.originalEvent){// && isanimated) {
+                    console.log('manual scroll isanimated-'+isanimated);
+                    $("#calendar_content").stop(true, false);
+                    isanimated = false;
+                }
 
                 if($(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
@@ -1446,8 +1481,13 @@
                     $("#btn_down").click(function(){
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');
+                           isanimated = true;
                            return parseInt(top_slot) >= cont_bottom;
-                        }).first().position().top}, 1000);
+                        }).first().position().top}, 1000, function(){
+                            $("#calendar_content").stop(true, false);
+                            console.log('isanimated-'+isanimated);
+                            isanimated = false;
+                        });
 
                         if($(".completeSlot").filter(function(cont_bottom){
                            var top_slot = $(this).css('top');

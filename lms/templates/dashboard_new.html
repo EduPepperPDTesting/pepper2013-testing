@@ -12,7 +12,7 @@
     import datetime
     
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes  
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -104,8 +104,10 @@ a{
 }
 .con-my-courses{
     width:250px;
-    height:610px;
+    height:525px;
     background-color: #fff;
+    position:fixed;
+    padding-bottom: 5px;
 }
 .my-title-green{
     width:204px;
@@ -127,6 +129,7 @@ a{
 .course-incomplated{
     width:194px;
     padding:0px 10px 5px 10px;
+    font-size: 12px !important;
     margin-left: 13px;
     margin-top: 10px;
     background-color: #fff;
@@ -172,15 +175,15 @@ a{
 }
 .con-my-communities{
     width:250px;
-    height:610px;
+    height:525px;
     background-color: #fff;
     position:fixed;
     padding-bottom: 5px;
 }
 .my-profile-logo{
-    width:210px;
+    width:230px;
     /*height:155px;*/
-    margin-left: 20px;
+    margin-left: 10px;
     margin-top: 10px;
     text-align: center;
     border: 0px solid;
@@ -322,59 +325,78 @@ a{
     border: 0px solid;
 }
 .con-tab-btns{
-    width:680px;
-    height:42px;
+    /*width:680px;*/
+    padding: 0px 15px 0px 15px;
     float:left;
+    border-bottom: 2px solid #cfd0d4; 
+    background-color:#f3f4f8;
     /*
+    height:42px;
     background-color:#e4e4e4;
     border:0px solid #000;
     */
+    border-top:1px solid #f3f4f8;
+    border-left:3px solid #f3f4f8;
+    border-right:3px solid #f3f4f8;
+    border-radius:6px 6px 0px 0px; 
+}
+.tab-btn-common-outer{
+   float:left;
+   background-color:#f3f4f8; 
+   border: 0px solid;
 }
 .tab-btn-common{
     /*
     height:28px;
     padding-top:11px;
-    */
-    padding:11px 35px 12px 35px;
-
     float:left;
+    */
+    padding:11px 15px 12px 15px;
+    
     text-align:center;
-    color:#fff;
+    color:#999;
     cursor: pointer;
-    font-size:14px;
-    background-color: #6e6e70;
-
+    font-size:15px;
+    /*
     border-left:3px solid #666668;
     border-top:3px solid #666668;
     border-right:3px solid #666668;
     border-radius:10px 10px 0px 0px; 
-
     margin-left: -14px;
+
+    border:1px solid #000;
+    */
 }
-.featured-content-btn{
-    /*width:180px;*/
+.tab-btn-line-common{
+    height:4px;
+    /*
+    background-color:#72c434;
+    background-color:#fff;
+    */
+    margin-left:15px;
 }
-.my-feed-btn{
-    /*width:130px;*/
+
+.my-feed-btn-line{
+    width:58px;
 }
-.my-activity-btn{
-    /*width:150px;*/
+
+.my-activity-btn-line{
+    width:78px;
 }
-.my-report-card-btn{
-    /*width:180px;*/
+.my-report-card-btn-line{
+    width:108px;
+}
+.featured-content-btn-line{
+    width:123px;
 }
 .mytab-active{
-    background-color:#f58221;
-    border-left:3px solid #f58221;
-    border-top:3px solid #f58221;
-    border-right:3px solid #f58221;
-    border-radius:10px 10px 0px 0px; 
     cursor: auto !important;
-
-    -moz-box-shadow:2px 0px 2px #a4a4a4;
-    -webkit-box-shadow:2px 0px 2px #a4a4a4;
-    box-shadow: 2px 0px 2px #a4a4a4;
+    color: #000;
 }
+.mytab-line-active{
+    background-color:#72c434;
+}
+
 .featured-content{
     width:680px;
     overflow: hidden;
@@ -394,11 +416,14 @@ a{
     display: none;
 }
 .my-feed{
-    padding:80px 20px 20px 20px;
     display: none;
     min-height:727px;
     padding-bottom: 3px;
     background-color:#fff;
+
+    padding:30px 20px 20px 20px;
+    float:left;
+    width:640px;
 }
 .my-activity{
     width:680px;
@@ -436,11 +461,10 @@ a{
 /*----middle Main Content:My Activity----*/
 .con-ma-filter{
     width:659px;
-    height:30px;
     text-align: right;
-    padding-top:8px;
+    padding-top:30px;
     padding-right:15px;
-    padding-bottom:3px;
+    padding-bottom:30px;
 
     border:0px solid;
 }
@@ -448,12 +472,15 @@ a{
     margin-right: 10px;
 } 
 .ma-btn-filter{
-    padding:10px;background-color: #556370;
+    padding:10px;
+    background-color: #3c3c3c;
     padding-bottom: 2px !important;
     padding-left: 10px;
     padding-right: 10px;
-    padding-top: 2px !important;color:#fff;
+    padding-top: 2px !important;
+    color:#fff;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .con-ma-rows{
@@ -648,6 +675,11 @@ a{
     margin-top: 8px;
     font-size: 13px;
 }
+.course-in-progress-p b{
+  float:left;
+  font-size:13px;
+  color:#757474;  
+}
 .course-in-progress-tt{
     margin-top: 35px;
     font-size: 13px;
@@ -657,14 +689,51 @@ a{
     float:left;
     margin-top:-3px;
     margin-left:5px;
+    width: 338px;
+}
+.progress-table table{
+    margin-top:-22px;
+    float:left;
 }
 .progress-table td{
+    /*
     border-right:2px solid #f3f3f4;
     font-size:12px;
     color:#fff;
     padding-right:5px;
     text-align: right;
+    */
 }
+.progress-left{
+    height:22px;
+    float:left;
+    margin-top: -22px;
+}
+.progress-right{
+    height:22px;
+    background-color:#d2d3d5;
+    float:left;
+    width: 338px;
+}
+.progress-table .td-right-border{
+    border-right:2px solid #f3f3f4;
+}
+.progress-p-text{
+    float:left;
+    color:#000;
+    margin-top:-22px;
+
+    height:19px;
+    padding-top:3px;
+    /*
+    padding-left:2px;
+    */
+}
+
+
+
+
+
 .course-in-progress-more{
     text-align:right;
     color: #2CBAEC;
@@ -707,6 +776,10 @@ a{
 .apply-for-ceu:hover{
     background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
 }
+.apply-for-ceu a{
+    font-size: 12px;
+    color: #000;
+}
 .completed-courses-row{
     width: 400px;
     margin-left:20px; 
@@ -714,6 +787,8 @@ a{
     border:0px solid;
 }
 .completed-courses-row-title{
+    color: #000;
+    font-size: 13px;
     border: 0px solid;
 }
 .completed-courses-row-title a{
@@ -777,10 +852,16 @@ a{
     color: #2CBAEC;
 }
 </style>
+<style>
+    .organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
+    .organization_cms_icon{float:left; margin:5px 8px; border:1px solid #808080;}
+</style>
 <!--@end-->
 <%inherit file="main.html" />
 <%
     OrganizationOK = False
+    show_left = "";
+    show_right = "";
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -812,6 +893,7 @@ a{
                 
         data = {}
         data['profile_logo'] = ""
+        cms_items = ""
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
@@ -821,13 +903,52 @@ a{
                 break;
             if data['profile_logo']:
                 data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
-        if not data['profile_logo']:
-            data['profile_logo'] = "/static/images/newdashboard/profile_logo_default_ss.png"
+            
+            if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
+                show_left = "display:none;";
+                
+            if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
+                show_right = "display:none;";    
+                
+            cms_grade = ""
+            for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
+                if cms_grade != tmp1.Grade:
+                    cms_grade = tmp1.Grade
+                    cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
+                
+                cms_add = False
+                if tmp1.CmsItem.find("_level_:") > 0:
+                    tmp1_level_ids = ""
+                    for tmp1_2 in tmp1.CmsItem.split("_level_:")[1].split(","):                            
+                        if tmp1_2 == "14":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7"
+                        elif tmp1_2 == "15":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9"
+                        elif tmp1_2 == "16":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13"                            
+                        else:
+                            tmp1_level_ids = tmp1_level_ids + "," + tmp1_2
+                        
+                    for tmp1_2 in tmp1_level_ids.split(","):
+                        if tmp1_2 != "":
+                            for tmp1_3 in request.user.profile.grade_level_id.split(","):
+                                if tmp1_2 == tmp1_3:
+                                    cms_add = True
+                                    break
+                                    
+                        
+                
+                if cms_add:
+                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                        
+            data["cms_items"] = cms_items
+            
+        #if not data['profile_logo']:
+        #    data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
-
-<!--@date:20161222-->
+ <!--@date:20161222-->
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <!--@end-->
@@ -838,76 +959,110 @@ a{
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
         <div class="con-my-courses-outer">
-        <div class="con-my-courses" style="position:fixed;">
-            <a href="/courses">
-                <div class="my-title-green">My Courses</div>
-            </a>
-            <div class="my-courses-cards">
-                %for course in courses_incomplated_top2:
-                    <%
-                        course_target = reverse('courseware', args=[course.id])
-                    %>
-                    <div class="course-incomplated">
-                         %if curr_user == request.user:
-                            %if not course.close_course:      
-                                <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+            <div class="con-my-communities" style="${show_left}">
+                <!--width:220px-->
+                <div class="community-trending-topics">
+                    <a href="/communities">
+                        <div class="my-title-blue">My Trending Topics</div>
+                    </a>
+                    <div class="trending-topic" style="border:0px solid;">
+                        %for k,c in enumerate(community_trending_topics):
+                            %if k + 1 == len(community_trending_topics):
+                                <div class="my-community-noline">
                             %else:
-                                <a href="${reverse('cabout', args=[course.id])}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                <div class="my-community">
                             %endif
-                            </a>
-                        %endif
+                                <div class="tt-title">${c['cname']}</div>
+                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
+                                <div class="tt-time">
+                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
+                                         %if c['btntext'] == "Reply":
+                                            <div class="tt-btn-reply">
+                                        %else:
+                                            <div class="tt-btn-addme">
+                                        %endif
+                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
+                                            </div>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                        %endfor
                     </div>
-                %endfor
-            </div>
-            <div class="ds-view-all-courses">
-                <a href="/my_courses">View All</a>
-            </div>
-
-            %if len(allowedcourses) > 0:
-                <!--allowedcourse-->
-                <a href="/more_courses_available">
-                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">My New Courses</div>
-                </a>
-                <div class="my-courses-cards">
-                    %for course in allowedcourses:
-                        <div class="course-incomplated">
-                            <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
-                                <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                </div>
+                <div class="my-learning-communities">
+                    <a href="/communities">
+                        <div class="my-title-blue">My Communities</div>
+                    </a>
+                    <div class="my-communities-cards">
+                        <%
+                            community_count = len(communities)
+                        %>
+                        %for community in communities:
+                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
+                                <div class="ma-community-simple">
+                                    ${community['name']}
+                                </div>
                             </a>
-                        </div>
-                    %endfor
+                        %endfor
+                    </div>
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
                 </div>
-                <div class="ds-view-allowed-courses">
-                    <a href="/more_courses_available">View All</a>
-                </div>
-            %endif
-        </div>
+            </div>
         </div>
 
         <div class="con-maincontent-all clearfix">
             <div class="con-tab-btns">
-            % if OrganizationOK and data["My Featured Show"] == "1":
-                <div class="featured-content-btn tab-btn-common">Featured Content</div>          
-            % endif
             % if OrganizationOK and data["My Feed Show"] == "1":
-                <div class="my-feed-btn tab-btn-common">My Feed</div>                
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>        
             % endif
             % if OrganizationOK and data["My Activities Show"] == "1":
-                <div class="my-activity-btn tab-btn-common">My Activity</div>             
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>         
             % endif
             % if OrganizationOK and data["My Report Show"] == "1":
-                <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+            % endif
+            % if OrganizationOK and data["My Featured Show"] == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>          
             % endif
             % if not(OrganizationOK):
-                <div class="featured-content-btn tab-btn-common">Featured Content</div>
-                <div class="my-feed-btn tab-btn-common">My Feed</div>
-                <div class="my-activity-btn tab-btn-common" style="">My Activity</div>
-                <div class="my-report-card-btn tab-btn-common" style="">My Report Card</div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>
             % endif
             </div>
 
             <div id="featured_content" class="featured-content">
-                Featured Content
+                <!--Featured Content-->
+                % if OrganizationOK:
+                    ${data["cms_items"]} 
+                % endif
             </div>
 
             <div id="my_feed" class="my-feed ">
@@ -969,6 +1124,7 @@ a{
                     <div class="course-in-progress">
                         <div class="course-in-progress-title">Courses In Progress</div>
                         <div class="course-in-progress-rows">
+                            
                         </div>
                         %if courses_incomplated_all_count > 3:
                         <div class="course-in-progress-more-outer">
@@ -979,9 +1135,10 @@ a{
                     %if courses_complated_all_count > 0:
                     <div class="completed-courses">
                         <div class="completed-courses-title">Completed Courses
-                            <div class="apply-for-ceu">Apply for CEU</div>
+                            <div class="apply-for-ceu"><a href="/course_credits">Apply for CEU</a></div>
                         </div>
                         <div class="completed-courses-rows">
+
                         </div>
                         %if courses_complated_all_count > 2:
                         <div class="completed-courses-more-outer">
@@ -1002,73 +1159,69 @@ a{
                     <div class="total-time">${pd_time}</div>
                     <div class="total-time-title">Last Logged In:</div>
                     <div class="total-time">${user_last_logged_in}</div>
-                    <%
-                        completed_ourses_count = len(courses_complated)
-                        enrolled_ourses_count = len(courses_complated) + courses_incomplated_all_count
-                    %>
-                    <div class="enrolled-courses">Enrolled Courses: <span>${enrolled_ourses_count}</span></div>
-                    <div class="enrolled-courses">Completed Courses: <span>${completed_ourses_count}</span></div>
+                    <div class="enrolled-courses">Enrolled Courses: <span>${courses_incomplated_all_count}</span></div>
+                    <div class="enrolled-courses">Completed Courses: <span>${courses_complated_all_count}</span></div>
                 </div>
             </div>
         </div>
         
         <!--Community Dashboard-->
-        <div class="con-my-communities-outer">
-            <div class="con-my-communities">
-                <!--width:220px-->
-                <div class="community-trending-topics">
-                    <div class="my-profile-logo">
+        <div class="con-my-communities-outer" style="${show_right}">
+            <div class="con-my-courses">
+                <div class="my-profile-logo">
                     %if data['profile_logo']:
-                        <img src="${data['profile_logo']}" style="max-width:105px;max-height:78px;"/>
+                        %if data['Organization Profile Logo Url']:
+                            <a href="${data['Organization Profile Logo Url']}"><img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/></a>
+                        %else:
+                            <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
+                        %endif
                     %endif
-                    </div>
-                    <a href="/communities">
-                        <div class="my-title-blue">My Trending Topics</div>
-                    </a>
-                    <div class="trending-topic" style="border:0px solid;">
-                        %for k,c in enumerate(community_trending_topics):
-                            %if k + 1 == len(community_trending_topics):
-                                <div class="my-community-noline">
-                            %else:
-                                <div class="my-community">
+                </div>
+                <a href="/courses">
+                    <div class="my-title-green">My Courses</div>
+                </a>
+                <div class="my-courses-cards">
+                    %for course in courses_incomplated_top2:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-incomplated">
+                             %if curr_user == request.user:
+                                %if not course.close_course:      
+                                    <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
                             %endif
-                                <div class="tt-title">${c['cname']}</div>
-                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
-                                <div class="tt-time">
-                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
-                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
-                                         %if c['btntext'] == "Reply":
-                                            <div class="tt-btn-reply">
-                                        %else:
-                                            <div class="tt-btn-addme">
-                                        %endif
-                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
-                                            </div>
-                                    </div>
-                                </div>
-                               
+                        </div>
+                    %endfor
+                </div>
+                <div class="ds-view-all-courses">
+                    <a href="/my_courses">View All</a>
+                </div>
+
+                %if len(allowedcourses) > 0:
+                    <!--allowedcourse-->
+                    <a href="/more_courses_available">
+                        <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
+                    </a>
+                    <div class="my-courses-cards">
+                        %for course in allowedcourses:
+                            <div class="course-incomplated">
+                                %if not course.close_course:  
+                                    <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    </a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
                             </div>
                         %endfor
                     </div>
-                </div>
-                <div class="my-learning-communities">
-                    <a href="/communities">
-                        <div class="my-title-blue">My Communities</div>
-                    </a>
-                    <div class="my-communities-cards">
-                        <%
-                            community_count = len(communities)
-                        %>
-                        %for community in communities:
-                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
-                                <div class="ma-community-simple">
-                                    ${community['name']}
-                                </div>
-                            </a>
-                        %endfor
+                    <div class="ds-view-allowed-courses">
+                        <a href="/more_courses_available">View All</a>
                     </div>
-                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
-                </div>
+                %endif
             </div>
         </div>
         <div style="clear:both;"></div>
@@ -1082,8 +1235,12 @@ $(document).ready(function(){
     $(window).on('unload', function() {
         $(window).scrollTop(0);
     });
-
-    var btn_list = ['featured-content','my-feed','my-activity','my-report-card'];
+    $(".organization_cms_grade").each(function(){
+        if($(".organization_cms_icon[grade='" + $(this).text() + "']").length == 0){
+            $(this).remove();
+        }
+    });
+    var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
     % if OrganizationOK:
         % if data["Is My Feed Default"] == "1":
             var now_show = 'my-feed';
@@ -1099,18 +1256,24 @@ $(document).ready(function(){
     % endif
 
     //initial tab btn position
-    $(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
+    //$(".con-tab-btns").children("div").first().css({"margin-left":"0px"});
 
     //initial tab btn and content show or hide
     for(var i=0;i<btn_list.length;i++){
         content_btn = "." + btn_list[i] + "-btn";
+        content_btn_line = content_btn + "-line";
         content = "." + btn_list[i];
         if(btn_list[i] == now_show){
+
             $(content_btn).addClass("mytab-active");
+            $(content_btn_line).addClass("mytab-line-active");
             $(content).show();   
+
+
         }
         else{
             $(content_btn).removeClass("mytab-active");
+            $(content_btn_line).removeClass("mytab-line-active");
             $(content).hide();
         }
     }
@@ -1135,15 +1298,18 @@ $(document).ready(function(){
         if(now_show != name){
             for(var i=0;i<btn_list.length;i++){
                 content_btn = "." + btn_list[i] + "-btn";
+                content_btn_line = content_btn + "-line";
                 content = "." + btn_list[i];
                 
                 if(name == (btn_list[i]+"-btn")){
                     $(content_btn).addClass("mytab-active");
+                    $(content_btn_line).addClass("mytab-line-active");
                     $(content).show(); 
                     now_show = btn_list[i];
                 }
                 else{
                     $(content_btn).removeClass("mytab-active");
+                    $(content_btn_line).removeClass("mytab-line-active");
                     $(content).hide();
                 }
             }
@@ -1271,7 +1437,7 @@ $(document).ready(function(){
         var local_time =  new Date();
         var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
         var local_utc_diff_h = local_utc_diff_m / 60;
-        displayDate = ""
+        var displayDate = ""
 
         if(isToday(time)) {
             displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
@@ -1354,9 +1520,19 @@ $(document).ready(function(){
         });
     }
     function create_course_in_progress(data_obj){
+        var cp = '';
+        var p_color = '';
+        var width_1 = '';
+        var width_1px = '';
+        var width_2px = '';
+        var p_text = '';
+        var p_text_style = '';
+        var element_html = '';
+        var element = '';
+
         for(var i=0;i<data_obj.data.length;i++){
             cp = data_obj.data[i];
-            p_color = "";
+            //cp.p = 0.28;
             if(cp.p <= 0.25){
                 p_color = "#ef3028";
             }
@@ -1367,25 +1543,46 @@ $(document).ready(function(){
                  p_color = "#89c153";
             }
 
-            width_1 = Math.round(334 * cp.p);
-            width_2 = String(334 - width_1) + "px";
-            width_1 = String(width_1) + "px";
+            width_1 = Math.round(338 * cp.p);
+            width_2px = String(338 - width_1) + "px";
+            width_1px = String(width_1) + "px";
+
+            //percent text
+            p_text = String(Math.round(cp.p*100)) + "%";
+            if(cp.p == 0){
+                p_text_style = "width:83px;padding-left:2px;"
+            }
+            else if(cp.p >= 0.02 && cp.p <= 0.15 ){
+                p_text_style = 'width:'+String(width_1+24)+'px;text-align:right;'
+        
+            }
+            else if(cp.p > 0.15){
+                p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
+            }
 
             element_html = '<div class="course-in-progress-row">';
-            element_html += '<div class="course-in-progress-t"><a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a></div>';
+            element_html += '<div class="course-in-progress-t">';
+            if(cp.close_course){
+                element_html += '<b>'+cp.name+'</b>|'+cp.number;
+            }
+            else{
+                element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
+            }
+            element_html += '</div>';
             element_html += '<div class="course-in-progress-p">';
-            element_html += '<b style="float:left;font-size:13px;color:#757474;">Progress</b>';
-            element_html += '<div class="progress-table" style="width:334px;">';
-            element_html += '<div style="width:'+width_1+';height:22px;background-color:'+p_color+';float:left;"></div>';
-            element_html += '<div style="width:'+width_2+';height:22px;background-color:#d2d3d5;float:left;"></div>';
-            element_html += '<table width=334 style="margin-top:-22px;float:left;">';
+            element_html += '<b>Progress</b>';
+            element_html += '<div class="progress-table">';
+            element_html += '<div class="progress-right"></div>';
+            element_html += '<div class="progress-left" style="width:'+width_1px+';background-color:'+p_color+';"></div>';
+            element_html += '<table width=338>';
             element_html += '<tr height=22>';
-            element_html += '<td width=25%></td>';
-            element_html += '<td width=25%></td>';
-            element_html += '<td width=25%></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
             element_html += '<td width=25%></td>';
             element_html += '</tr>';
             element_html += '</table>';
+            element_html += '<div class="progress-p-text" style="'+p_text_style+'">'+p_text+'</div>';
             element_html += '</div>';
             element_html += '</div>';
             element_html += '<div class="course-in-progress-tt">';
@@ -1428,15 +1625,28 @@ $(document).ready(function(){
     }
 
     function create_completed_courses(data_obj){
+        var cc = '';
+        var element_html = '';
+        var element = '';
+        
         for(var i=0;i<data_obj.data.length;i++){
             cc =  data_obj.data[i];
             element_html = '<table class="completed-courses-row">';
             element_html += '<tr>';
             element_html += '<td width="55" class="completed-courses-row-ico">';
-            element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            if(cc.issue_certificate){
+                element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            }
             element_html += '</td>';
             element_html += '<td>';
-            element_html += '<div class="completed-courses-row-title"><a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a></div>';
+            element_html += '<div class="completed-courses-row-title">';
+            if(cc.close_course){
+                element_html += '<b>'+cc.name+'</b>|'+cc.number;
+            }
+            else{
+                element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
+            }
+            element_html += '</div>';
             element_html += '<div class="completed-courses-row-time">Time Spent: <b>'+cc.time+'</b></div>';
             element_html += '</td>';
             element_html += '</tr>';
@@ -1446,6 +1656,14 @@ $(document).ready(function(){
             $('.completed-courses-rows').append(element);
         }
     }
+
+    var btn_more_completed_click = 0;
+    $(".btn-more-completed").click(function(){
+        if(btn_more_completed_click == 0){
+            get_completed_courses('completed','yes'); 
+            btn_more_completed_click = 1
+        }
+    });
 
 });
 </script>

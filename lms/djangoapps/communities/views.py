@@ -389,6 +389,11 @@ def get_trending(community_id):
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
     for post in posts:
+        #@begin:Add special text if post has no text
+        #@date:2017-06-16
+        if not post.post.strip():
+            post.post = '[image/video]'
+        #@end
         trending.append(post)
     trending = list(trending)
     trending = sorted(trending, key=lambda x: x.date_create, reverse=True)

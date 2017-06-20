@@ -154,6 +154,7 @@ urlpatterns = (
     url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
     url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
     url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
+    url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),

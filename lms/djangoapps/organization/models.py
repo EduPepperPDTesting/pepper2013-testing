@@ -56,6 +56,16 @@ class OrganizationMenuitem(models.Model):
     ParentID = models.IntegerField(blank=False, default=0)
     organization = models.ForeignKey(OrganizationMetadata)
 
+class OrganizationCmsitem(models.Model):
+    class Meta:
+        db_table = 'organization_cmsitem'
+    CmsItem = models.CharField(blank=False, max_length=255, db_index=False)
+    Url = models.CharField(blank=False, max_length=255, db_index=False)
+    Icon = models.CharField(blank=False, max_length=255, db_index=False)    
+    Grade = models.CharField(blank=False, max_length=255, db_index=False)
+    rowNum = models.IntegerField(blank=False, default=0)
+    organization = models.ForeignKey(OrganizationMetadata)
+
 class OrganizationMenu(models.Model):
     class Meta:
         db_table = 'organization_menu'

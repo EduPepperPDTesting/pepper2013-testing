@@ -8,6 +8,8 @@
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/tc.all.js"></script>
+<script type="text/javascript" src="/static/js/tc.min.js"></script>
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
@@ -15,6 +17,7 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
 <script type="text/javascript" src="/static/js/morris.js-0.5.1/morris.min.js"></script>
 <script type="text/javascript" src="/static/js/morris.js-0.5.1/raphael-min.js"></script>
+
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
@@ -23,6 +26,12 @@
 <link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
 
 <style>
+#detail{    position:absolute;width:400px;height:200px;border:1px solid #ccc;background:#efefef; display:none;}
+#detail .tit{ background:#ddd; display:block; height:33px; cursor:move;}
+#detail .tit i{ float:right; line-height:33px; padding:0 8px;cursor:default;}
+#detail2{position:absolute;width:300px;height:100px;border:1px solid #555;background:#555;display:none;}
+#detail2 .tit{ background:#333; display:block; height:33px;cursor:move;}
+#detail2 .tit i{ float:right; line-height:33px; padding:0 8px; color:#777; cursor:default;}
     .lean-overlay .loading {
         width: 128px;
         height: 128px;
@@ -58,8 +67,8 @@
                 </thead>
                 <tbody id="table_data"></tbody>
             </table>
-            </div>
         </div>
+    </div>
         <span class="footer">
             <div class="pager">
                 <span class="report_download" style="font-size:16px;margin-right:20px;">
@@ -102,8 +111,33 @@
 </div>
 </div>
 </div>
+<!-- aggregate table -->
+<!-- <div id='aggregate_table' style='display: none;position: absolute;top: 250px;left: 370px;background-color: gray;'>
+    <table id='aggregate' border='1' cellspacing="5" cellpadding="5">
+        
+    </table>
+</div> -->
+<div id="detail">
+<div class="tit"><i class="close">关闭</i></div>
+<pre>
+    <div id="aggregate_table">
+        <div class="table">
+            <div class="body table_scroll">
+                <table id='aggregate' class="tblReport tablesorter" style='margin:0'>
+                    <thead id="aggregate_thead">
+                    </thead>
+                    <tbody id="aggregate_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</pre>
+</div>
+
+
+
 <!-- chart -->
-<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 370px;background-color: gray;">
+<div id = 'graphable' style="display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
                 <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
@@ -397,6 +431,28 @@ var report_view = {
         }
     }
 
+    function get_ajax_get_aggregate(x,y){
+        $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
+            var table = '';
+            var thead = "<tr><th>"+datas.aggregate_name+"</th><th>"+datas.row_header_name+"</th><th>"+datas.column_header_name+"</th></tr>";
+            var tbody = ''
+            row_datas = datas.rows
+            if (row_datas.length == 0){
+                tbody = ''
+            }else{
+                for (var a in row_datas){
+                    tbody += '<tr>'
+                    tbody += '<td>'+ row_datas[a][datas.aggregate_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.row_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.column_header] + '</td>'
+                    tbody += '</tr>'
+                }
+            }
+            table = thead + tbody;
+            $("#aggregate").html(table)
+            $("#aggregate_table").show()
+        })
+    }
 $(document).ready(function () {
 
     loadwin = new LoadingWin();

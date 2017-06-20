@@ -135,9 +135,9 @@ class MongoReportingStore(object):
             self.collection.insert(val)
         return True
 
-    def get_datas(self,collection):
+    def get_datas(self,collection,db_filter={}):
         self.set_collection(collection)
-        return self.collection.find().sort('_id')
+        return self.collection.find(db_filter).sort('_id')
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)

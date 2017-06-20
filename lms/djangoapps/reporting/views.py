@@ -1545,3 +1545,51 @@ def reporting_get_row_graphable(request):
             rows.append(d)  
 
     return render_json_response({'rows': rows})
+
+def reporting_get_aggregate(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    row_header_data = request.GET.get('row_header', '')
+    column_header_data = request.GET.get('column_header', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    filter = {}
+    rows = []
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    Column_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
+    column_header = Column_Headers_object.column
+    column_header_row = [column_header]
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+    column_header_row.append('count')
+
+    if int(column_header_data) != int(len(column_header_row)-1):
+        if str(column_header_row[int(column_header_data)]) == 'none':
+            filter[str(column_header)] = {"$in": [None]}
+        else:
+            filter[str(column_header)] = str(column_header_row[int(column_header_data)])
+
+    Row_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]         
+    row_header = Row_Headers_object.column
+
+    if row_header_data != 'Total':
+        if row_header_data == 'none':
+            filter[str(row_header)] = {"$in": [None]}
+        else:
+            filter[str(row_header)] = str(row_header_data)
+
+    data = rs.get_datas(collection,filter)
+    for d in data:
+        rows.append(d)
+
+    aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
+    aggregate_header = aggregate_object.column
+    aggregate_name = aggregate_object.name
+    row_header_name = Row_Headers_object.name
+    column_header_name = Column_Headers_object.name
+
+    return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})
