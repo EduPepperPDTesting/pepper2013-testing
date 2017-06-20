@@ -410,18 +410,19 @@ var report_view = {
             var tbody = ''
             row_datas = datas.rows
             if (row_datas.length == 0){
-                alert('No datas')
+                tbody = ''
             }else{
                 for (var a in row_datas){
                     tbody += '<tr>'
-                    tbody += '<td>'+ row_datas[a][aggregate_header] + '</td>'
-                    tbody += '<td>'+ row_datas[a][row_header] + '</td>'
-                    tbody += '<td>'+ row_datas[a][column_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.aggregate_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.row_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.column_header] + '</td>'
                     tbody += '</tr>'
                 }
-                table = thead + tbody;
-                $("#aggregate").html(table)
             }
+            table = thead + tbody;
+            $("#aggregate").html(table)
+            $("#aggregate_table").show()
         })
     }
 $(document).ready(function () {
