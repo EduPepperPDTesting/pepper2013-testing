@@ -818,12 +818,12 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                     if (arrive == "0" and allow == "0"):
                         if (catype == "0" or catype == "4"):
-                            occurrences.append("<span class='alert short_name al_4' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
+                            occurrences.append("<label class='alert short_name al_4' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append("<span class='alert short_name al_7' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
+                                occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
                         else:
                             if (status == "Registered"):
                                 # checked true
