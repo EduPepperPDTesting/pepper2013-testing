@@ -13,6 +13,9 @@ import datetime
 from permissions.utils import check_access_level, check_user_perms
 %>
 <script type="text/javascript" src="/static/js/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/ckeditor/adapters/jquery.js" charset="utf-8"></script>
+
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <style type="text/css" media="screen">
  .dashboard .dashboard-post{
@@ -20,7 +23,7 @@ from permissions.utils import check_access_level, check_user_perms
    overflow-y:visible;
  }
  .post_content{
-   padding:5px 10px 10px 10px;
+   padding:10px 10px 10px 10px;
    border-bottom-left-radius: 18px;
    border-bottom-right-radius: 18px;
    border-top-left-radius: 18px;
@@ -38,7 +41,7 @@ from permissions.utils import check_access_level, check_user_perms
    color:#fff;
  }
  .new-post-textarea{
-   width:300px;
+   width:530px;
    height:70px;
    background:#fff;
    color:#000;
@@ -103,6 +106,19 @@ from permissions.utils import check_access_level, check_user_perms
  .hoverable-profile{
    position:relative;
  }
+ .modal{z-index:1000;position:fixed}
+ #file-name-label{
+   display:inline-block;
+   max-width:100px;
+   overflow:hidden;
+   text-overflow:ellipsis;
+   white-space:nowrap;
+   vertical-align:middle;
+ }
+ #dlg_submit_post_button{
+   display:inline-block;
+   margin:10px 10px 10px 0;
+ }
 </style>
 <script type="text/javascript">
   String.prototype.escape = function(chars, slashed) {
@@ -146,88 +162,109 @@ from permissions.utils import check_access_level, check_user_perms
     return $('<div/>').text(this).html();
   }
 </script>
-<div id="dashboard_content_posts" class="dashboard-post" style="background:#fff;">
-  <div style="margin-bottom:8px;" id="myfeed-filter">
-    <!-- <select name="group" style="margin-right:30px;" autocomplete="off">
-         <option value="">Group</option>
-         <option value="announcement">Announcements</option>
-         <option value="post">Dashboard</option>
-         </select> -->
-    <select name="year" autocomplete="off">
-      <option value=''>Year</OPTION>
-      %if feeding_year_start:
-      %for y in range(feeding_year_start, feeding_year_end+1):
-      <option value='${y}'>${y}</option>
-      %endfor
-      %endif
-    </select>
-    <select name="month" autocomplete="off">
-      <OPTION VALUE=''>Month</option>
-      <option value='1'> January      </option>
-      <option value='2'> February     </option>
-      <option value='3'> March        </option>
-      <option value='4'> April        </option>
-      <option value='5'> May          </option>
-      <option value='6'> June         </option>
-      <option value='7'> July         </option>
-      <option value='8'> August       </option>
-      <option value='9'> September    </option>
-      <option value='10'>October      </option>
-      <option value='11'>November     </option>
-      <option value='12'>December     </option>
-    </select>
-    <span name="filter-button" value="Filter" class="btn-filter">Filter</span>
-  </div>  
+
+<style type="text/css" media="screen">
+ #fixed-dialog-posts .cke{
+   display:inline-block;
+   vertical-align:top;
+ }
+ #dashboard_content_posts .cke{
+   width:100%;
+   border-radius:10px;
+   color:#000;
+ }
+ #dashboard_content_posts .cke *{
+   color:#000;
+ }
+ #dashboard_content_posts .cke_reset{
+   border-radius:10px;
+ }
+ #dashboard_content_posts .cke_top {
+   border-top-left-radius:10px;
+   border-top-right-radius:10px;
+ }
+ #dashboard_content_posts .cke_bottom{
+   border-bottom-left-radius:10px;
+   border-bottom-right-radius:10px;
+ }
+ #dashboard_content_posts .cke_inner{
+   border-radius:10px;
+ }
+</style>
+
+<div id="dashboard_content_posts" class="dashboard-post" style="background:#fff;">  
   <div id="post_content" class="post_content clearfix">
-    <table id="" border="0" style="margin-bottom:10px;float:left;">
+    <table id="" border="0" style="margin-bottom:10px;">
       <tr class=".post-submit-row" id="post_submit_row">
         <td width="60" style="vertical-align:top;">
           <img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
           <td style="font-size:15px;">
-            <p><i>What's on your mind?</i></p>
-            <textarea id="new_post_textarea" class="new-post-textarea" placeholder="" autocomplete="off"></textarea>
-        </td>
+            <textarea style="width:100%" id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?" autocomplete="off"></textarea>
+          </td>
       </tr>
     </table>
-    <table style="width:200px;float:right;" border="0">
-      <tr>
-        <td width="" align="left">
-          <a href = "#" style="color:#06e !important;" id = "add_post_image">
-            <img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25"/>
-          </a>
-        </td>
-        <td style="padding-left:0px;font-size:14px;">Photo/Video/Document</td>
-      </tr>
-      <tr id="add_images_div" style="display:none;">
-        <td style="" colspan="2">
-          <input id="image_link_input" type="file" placeholder="" autocomplete="off"
-                 style="padding:2px;font-style:normal;width:190px;"/>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding-right:7px;" class="clearfix" colspan="2">
-          %if check_access_level(request.user, "dashboard_announcement", "create"):
-          <label class="myfeed-label">
-          %else:
-          <label class="myfeed-label" style="visibility:hidden;">
+    <div style="text-align:right;padding-right:20px">
+      <input id="image_link_input" type="file" placeholder="" autocomplete="off"
+             style="padding:2px;font-style:normal;width:190px;display:none;"/>
+      %if check_access_level(request.user, "dashboard_announcement", "create"):
+      <label class="myfeed-label">
+        %else:
+        <label class="myfeed-label" style="visibility:hidden;">
           %endif
-            <input type="checkbox" id="announce-checkbox" name="" value="" autocomplete="off" style="margin-right:18px;"/>Announcement
-          </label>
-          <span id="announce-expir-date-div" style="display:inline-block;visibility:hidden;margin-bottom:5px;">
-            <input class="datePickText lock_past" id="announce-expir-date" placeholder="Expiration" readonly="1" autocomplete="off" style="margin-left:35px;" />
-            <img src="/static/images/calendar-icon-2.png" class="announce-date-icon" alt="" width="24" style="vertical-align:middle"/>
-          </span>
-          <a id="submit_new_post_button" class="post_btn" value="Post" style="">Post</a>
-        </td>        
-      </tr>
-    </table>
+          <input type="checkbox" id="announce-checkbox" name="" value="" autocomplete="off" style="margin-right:10px;vertical-align:middle;"/>Announcement
+        </label>
+        <span id="announce-expir-date-div" style="display:inline-block;visibility:hidden;margin-left:10px;">
+          <input class="datePickText lock_past" id="announce-expir-date" placeholder="Expiration" readonly="1" autocomplete="off"/>
+          <img src="/static/images/calendar-icon-2.png" class="announce-date-icon" alt="" width="24" style="vertical-align:middle"/>
+        </span>
+        <a href = "#" style="color:#06e !important;margin-left:30px;" id = "add_post_image">
+          <img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25"/>
+        </a>
+        <span id="file-name-label" style=""></span>
+        <a id="submit_new_post_button" class="post_btn" value="Post" style="">Post</a>
+    </div>
   </div>
   <table id="announcement_content_table" width="100%" border="0">
     <tr class="post-content-row"></tr>
   </table>
-  <table id="post_content_table" width="100%" border="0">
+  <table id="post_content_table" width="100%" border="0" cellspacing="0" cellpadding="0" style="border:1px solid #C6CD58;margin-top:30px;">
     <tr class='post-content-row'>
-      <td><div class="feed-title">My Network Feed</div></td>
+      <td>
+        <div class="feed-title" style="padding-top:3px;padding-bottom:3px;margin-top:0;">
+          My Network Feed
+          <span style="" id="myfeed-filter">
+            <!-- <select name="group" style="margin-right:30px;" autocomplete="off">
+                 <option value="">Group</option>
+                 <option value="announcement">Announcements</option>
+                 <option value="post">Dashboard</option>
+                 </select> -->
+            <select name="year" autocomplete="off" style="font-size:12px;vertical-align:middle;margin-left:20px;">
+              <option value=''>Year</OPTION>
+              %if feeding_year_start:
+              %for y in range(feeding_year_start, feeding_year_end+1):
+              <option value='${y}'>${y}</option>
+              %endfor
+              %endif
+            </select>
+            <select name="month" autocomplete="off" style="font-size:12px;vertical-align:middle;">
+              <OPTION VALUE=''>Month</option>
+              <option value='1'> January      </option>
+              <option value='2'> February     </option>
+              <option value='3'> March        </option>
+              <option value='4'> April        </option>
+              <option value='5'> May          </option>
+              <option value='6'> June         </option>
+              <option value='7'> July         </option>
+              <option value='8'> August       </option>
+              <option value='9'> September    </option>
+              <option value='10'>October      </option>
+              <option value='11'>November     </option>
+              <option value='12'>December     </option>
+            </select>
+            <span name="filter-button" value="Filter" class="btn-filter" style="vertical-align:middle;">Filter</span>
+          </span>
+        </div>
+      </td>
     </tr>
     <tr class="post-content-row"></tr>
   </table>  
@@ -253,16 +290,19 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
 </div>
 <div style="width:700px;margin-left:-350px;" id="fixed-dialog-posts" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;position:relative;">
     <div class="titlebar">
       <h3 class="dialog-title"></h3>
       <div class="close-modal" id="dialog_close">✕</div>
     </div>
-    <div style="padding:10px 10px;" class="add-comment">
+    <div class="add-comment" style="padding:10px;">
         <img src='/user_photo/${request.user.id}' class='post-profile-image'/>
-        <input type="" class="comment-input" value="" placeholder="Add a comment" style="width:85%;"/>
+        <textarea id="comment-input" class="comment-input" placeholder="Add a comment" style="width:75%;"></textarea>
+        <div style="text-align:right;">
+          <a id="dlg_submit_post_button" class="post_btn" value="Post" style="">Post</a>    
+        </div>
     </div>
-    <div class="content" style="text-align:left;padding-top:0px;height:350px;overflow-y:scroll;"></div>
+    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:scroll;"></div>
   </div>
 </div>
 <div style="width:700px;margin-left:-350px;" id="fixed-dialog-announcements" class="modal">
@@ -274,11 +314,12 @@ from permissions.utils import check_access_level, check_user_perms
     <div class="content" style="text-align:left;height:350px;overflow-y:scroll;"></div>
   </div>
 </div>
+
 <style type="text/css" media="screen">
  .hide{display:none;}
  .view-all-announcements{cursor:pointer;}
  .post-title-link{cursor:pointer;}
- .feed-title{font-weight:bold;color:#ffffff;background-color:#495354;font-size:20px;padding:10px 30px;margin-top:30px;}
+ .feed-title{font-weight:normal;color:#ffffff;background-color:#495354;font-size:20px;padding:10px 30px;margin-top:30px;}
  #fixed-dialog-announcements, #fixed-dialog-posts{position:fixed;}
  .post-submit-profile-image{border-radius:50%}
 </style>
@@ -307,7 +348,7 @@ from permissions.utils import check_access_level, check_user_perms
   <td style="position:relative">
     <div class="feed-title">My {organization_type} Announcements</div>
     <input type="hidden" name="_id" value="{_id.$oid}" />
-    <div style="padding:20px;background-color:#f5f5f5;">
+  <div style="padding:20px;background-color:#f5f5f5;border:1px solid #C6CD58;">
       <div class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
         <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' style='vertical-align:top;'/></a>
       </div>
@@ -373,7 +414,7 @@ from permissions.utils import check_access_level, check_user_perms
 </script>
 <script type="template" id="post-template">
   <div class='post-row'>
-  <table width="100%">
+  <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
   <td class='ds-post-title-photo' style="vertical-align:top;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
@@ -404,7 +445,7 @@ from permissions.utils import check_access_level, check_user_perms
   <div>{content}</div>
   <div style="text-align:right;">
   <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
-  <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?post:comment}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
+  <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?comment:post}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
   </div>
   </td>
   </tr>
@@ -510,64 +551,91 @@ from permissions.utils import check_access_level, check_user_perms
           });
         });
         bindHover();
+
         $(".dlg-delete-post").off("click").on("click", function(){
           var $row = $(this).closest("div.post-row");
           var _id = $row.find("input[name=_id]").val();
-          $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
-            $("#fixed-dialog-posts").find("div.post-row").remove();
-            $("#fixed-dialog-posts").find("div.add-comment").hide()
-            $("#fixed-dialog-posts").addClass("changed");
-            $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
-          });          
+          var dlgWarn = new Dialog("#dlg-warning");
+          dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+            this.hide();
+            if(r){       
+              $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+                $("#fixed-dialog-posts").find("div.post-row").remove();
+                $("#fixed-dialog-posts").find("div.add-comment").hide()
+                $("#fixed-dialog-posts").addClass("changed");
+                $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+              });
+            }});
+          dlgWarn.lift(1000);
         });
+
         $(".dlg-delete-comment").off("click").on("click", function(){
           var $row = $(this).closest("div.post-row");
           var _id = $row.find("input[name=_id]").val();
-          $.post("${reverse('dashboard_delete_comment')}", {_id:_id}, function(data){
-            $row.remove();
-            $("#fixed-dialog-posts").addClass("changed");
-            $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
-          });                
+          var dlgWarn = new Dialog("#dlg-warning");
+          dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+            this.hide();
+            if(r){          
+              $.post("${reverse('dashboard_delete_comment')}", {_id:_id}, function(data){
+                $row.remove()
+                $("#fixed-dialog-posts").addClass("changed");
+                $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+              });
+            }});
+          dlgWarn.lift(1000);
         });
       });
-      $("#fixed-dialog-posts .comment-input").off("keyup").on("keyup", function(e){
-        var self = this;
-        $("#select_name").remove();
-        if (e.keyCode === 13) { // submit
-          var $row = $(this).closest("tr.post-content-row");
-          var content=$(this).val();
-          $(self).val("");
-          $.post("${reverse('dashboard_submit_new_comment')}",
-                 {post_id: _id, content: content.htmlEncode()},
-                 function(data){
-                   fetchOnePost(_id);
-                   $("#fixed-dialog-posts").addClass("changed");
-                 });
-        }else{ // check for @
-          var n = $(this)[0].selectionStart;
-          var at = $(this).val().indexOf("@");
-          if(at > -1){
-            var str = $(this).val().substr(at);
-            var x = str.length;
-            for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
-              s = s.substr(1);
-              x = s.indexOf("@");
-              if(x>-1)
-                working = s.substr(0, x).split(' ').slice(0,2).join(' ');
-              else
-                working = s.substr(0).split(' ').slice(0,2).join(' ');
-            }
-            loc = $(this).val().indexOf(working);
-            if(n > loc && n <= working.length+loc) {
-              $.post("${reverse('dashboard_lookup_name')}", {name: working}, function(data){
-                if(data.content.length > 0) {
-                  displayOptions(data.content);
-                }
-              });
-            }
-          }
-        }
+
+      $("#dlg_submit_post_button").off("click").on("click", function(){
+        var $text = $(this).parent().parent().find(".comment-input");
+        var content=$text.val();
+        $text.val("");
+        $.post("${reverse('dashboard_submit_new_comment')}",
+               {post_id: _id, content: content},
+               function(data){
+                 fetchOnePost(_id);
+                 $("#fixed-dialog-posts").addClass("changed");
+               });
       });
+  
+      /* $("#fixed-dialog-posts .comment-input").off("keyup").on("keyup", function(e){
+       *   var self = this;
+       *   $("#select_name").remove();
+       *   if (e.keyCode === 13) { // submit
+       *     var $row = $(this).closest("tr.post-content-row");
+       *     var content=$(this).val();
+       *     $(self).val("");
+       *     $.post("${reverse('dashboard_submit_new_comment')}",
+       *            {post_id: _id, content: content.htmlEncode()},
+       *            function(data){
+       *              fetchOnePost(_id);
+       *              $("#fixed-dialog-posts").addClass("changed");
+       *            });
+       *   }else{ // check for @
+       *     var n = $(this)[0].selectionStart;
+       *     var at = $(this).val().indexOf("@");
+       *     if(at > -1){
+       *       var str = $(this).val().substr(at);
+       *       var x = str.length;
+       *       for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+       *         s = s.substr(1);
+       *         x = s.indexOf("@");
+       *         if(x>-1)
+       *           working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+       *         else
+       *           working = s.substr(0).split(' ').slice(0,2).join(' ');
+       *       }
+       *       loc = $(this).val().indexOf(working);
+       *       if(n > loc && n <= working.length+loc) {
+       *         $.post("${reverse('dashboard_lookup_name')}", {name: working}, function(data){
+       *           if(data.content.length > 0) {
+       *             displayOptions(data.content);
+       *           }
+       *         });
+       *       }
+       *     }
+       *   }
+       * });*/
     }
     $(".post-comments-label").off("click").on("click", function(){
       var dlg = new Dialog($('#fixed-dialog-posts')).show("Comments", "");
@@ -634,11 +702,17 @@ from permissions.utils import check_access_level, check_user_perms
     }
     // [event click] delete post or comment
     $(".post-delete").off("click").on("click", function(){
-        var $row = $(this).closest("tr.post-content-row");
-        var _id = $row.find("input[name=_id]").val();
-      $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
-        getTopPosts();
-        });
+      var $row = $(this).closest("tr.post-content-row");
+      var _id = $row.find("input[name=_id]").val();
+      var dlgWarn = new Dialog("#dlg-warning");
+      dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+        this.hide();
+        if(r){   
+          $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+            getTopPosts();
+          });
+        }});
+      dlgWarn.lift(1000);
     });
     // [event click] show all like dialog
     $(".like-members-anchor").off("click").on("click", function(e){
@@ -690,20 +764,34 @@ from permissions.utils import check_access_level, check_user_perms
       });
       bindHover();
       $(".dismiss").off("change").on("change", function(){
+        var self = this;
         var checked = $(this).is(":checked");
         var $row = $(this).closest("tr.post-content-row");
         var _id = $row.find("input[name=_id]").val();
-        $.post("${reverse('dashboard_dismiss_announcement')}", {_id: _id}, function(r){
-          getTopAnnouncements();
-        });
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+          this.hide();
+          $(self).prop('checked', false);
+          if(r){          
+            $.post("${reverse('dashboard_dismiss_announcement')}", {_id: _id}, function(r){
+              getTopAnnouncements();
+            });
+          }});
+        dlgWarn.lift(1000);
       });
       // [event click] delete announcement
       $(".announcement-delete").off("click").on("click", function(){
         var $row = $(this).closest("tr.post-content-row");
         var _id = $row.find("input[name=_id]").val();
-        $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
-          getTopAnnouncements();
-        });
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+          this.hide();
+          if(r){          
+            $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
+              getTopAnnouncements();
+            });
+          }});
+        dlgWarn.lift(1000);
       });
       $(".view-all-announcements").off("click").on("click", function(){
         var org = $(this).data("org-type");
@@ -724,11 +812,19 @@ from permissions.utils import check_access_level, check_user_perms
             });
             bindHover();
             $(".dlg-announcement-delete").off("click").on("click", function(){
-              var _id = $(this).closest("div.announcement-row").find("input[name=_id]").val();
-              $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
-                $("#fixed-dialog-announcements").addClass("changed");
-                loadDialogAnnouncements(org);
-              });        
+              var self = this;
+              var dlgWarn = new Dialog("#dlg-warning");
+              dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+                this.hide();
+                if(r){
+                  var _id = $(self).closest("div.announcement-row").find("input[name=_id]").val();
+                  $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
+                    $("#fixed-dialog-announcements").addClass("changed");
+                    loadDialogAnnouncements(org);
+                  });                
+                }
+              });
+              dlgWarn.lift(1000);
             });
           });
         }
@@ -847,7 +943,7 @@ from permissions.utils import check_access_level, check_user_perms
       $("#announce-expir-date-div").css("visibility", v=="hidden"?"visible":"hidden");
     });
     $("#submit_new_post_button").click(function(){
-      var post = $("#new_post_textarea").val().htmlEncode();
+      var post = $("#new_post_textarea").val();
       // check feilds for announcement
       var is_announce = $("#announce-checkbox").is(":checked");
       var announce_expir_date = $("#announce-expir-date").val();
@@ -875,6 +971,7 @@ from permissions.utils import check_access_level, check_user_perms
       fd.append('type', is_announce? "announcement":"post")
       fd.append('expiration_date', announce_expir_date)
       $("#image_link_input").val("");
+      $("#file-name-label").html("");
       $.ajax({
         url: "${reverse('dashboard_submit_new_post')}",
         data: fd,
@@ -910,4 +1007,84 @@ from permissions.utils import check_access_level, check_user_perms
     getTopAnnouncements();
     getTopPosts();
   });
+
+
+  /* $("#new_post_textarea").focusin(function() {
+   *   console.log("focused")}
+   * ).focusout(function() {
+   *   console.log("blured")}
+   * );
+   */
+  
+  $("#new_post_textarea").ckeditor(  function() {
+    var self = this;
+    var $cke = $(self.element.$).next(".cke");
+    function toggle(show){
+      if(show){
+        $cke.find(".cke_top").show();
+        $cke.find(".cke_bottom").show();
+      }else{
+        $cke.find(".cke_top").hide();
+        $cke.find(".cke_bottom").hide();
+        // $cke.find(".cke_reset").css("border-radius", "10px")
+      }
+    }
+    toggle(false);
+    this.on('focus', function() {
+      toggle(true);
+    });
+    this.on('blur', function(e) {
+      toggle(false)      
+    });
+    $cke.click(function(){
+      self.focus()
+    })
+  }, { height: '100px', width:'535px'});
+
+  //  toolbarCanCollapse: true, toolbarStartupExpanded: false
+
+  /* 
+   *   function() {
+   *     this.on('focus', function() {
+   *       $(this.element.$).focus();
+   *     });
+   *     this.on('blur', function() {
+   *       $(this.element.$).blur();
+   *     });
+   *   }).focus(function() {console.log("focused");}
+   *   ).blur(function() {console.log("blured");}); */
+
+  $("#comment-input").ckeditor(  function() {
+    var self = this;
+    var $cke = $(self.element.$).next(".cke");
+
+    
+
+    
+    function toggle(show){
+      if(show){
+        $cke.find(".cke_top").show();
+        $cke.find(".cke_bottom").show();
+      }else{
+        $cke.find(".cke_top").hide();
+        $cke.find(".cke_bottom").hide();
+        // $cke.find(".cke_reset").css("border-radius", "10px")
+      }
+    }
+    toggle(false);
+    this.on('focus', function() {
+      toggle(true);
+    });
+    this.on('blur', function(e) {
+      toggle(false)      
+    });
+    $cke.click(function(){
+      self.focus()
+    })
+  }, {
+    height: '100px', width:'590px'});
+
+  $("#image_link_input").on("change", function(){
+    $("#file-name-label").html(this.value.replace(/^.*[\/\\]/, ""))
+  })
 </script>
