@@ -8,6 +8,8 @@
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/tc.all.js"></script>
+<script type="text/javascript" src="/static/js/tc.min.js"></script>
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
@@ -15,6 +17,7 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
 <script type="text/javascript" src="/static/js/morris.js-0.5.1/morris.min.js"></script>
 <script type="text/javascript" src="/static/js/morris.js-0.5.1/raphael-min.js"></script>
+
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
@@ -103,13 +106,33 @@
 </div>
 </div>
 <!-- aggregate table -->
-<div id='aggregate_table' style='display: none'>
-    <table id='aggregate'>
+<!-- <div id='aggregate_table' style='display: none;position: absolute;top: 250px;left: 370px;background-color: gray;'>
+    <table id='aggregate' border='1' cellspacing="5" cellpadding="5">
         
     </table>
+</div> -->
+<div id="detail">
+<div class="tit"><i class="close">关闭</i></div>
+<pre>
+    <div id="aggregate_table"  style="display: none;position: absolute;top: 250px;left: 370px;">
+        <div class="table">
+            <div class="" style="padding:5px;"></div>
+            <div class="body table_scroll">
+                <table id='aggregate' class="tblReport tablesorter">
+                    <thead id="aggregate_thead">
+                    </thead>
+                    <tbody id="aggregate_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</pre>
 </div>
+
+
+
 <!-- chart -->
-<div id = 'graphable' style="display: none;border: 1px solid red;position: absolute;top: 250px;left: 370px;background-color: gray;">
+<div id = 'graphable' style="display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;background-color: gray;">
     <div id="graph" style="border:1px solid red;height:50px;">
             <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
                 <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
