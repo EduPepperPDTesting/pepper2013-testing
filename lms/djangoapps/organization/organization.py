@@ -1000,7 +1000,6 @@ def organization_get_info(request):
                         data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
                         break;
 
-
                 data['Success'] = True
 
             elif(source == "navigation"):
