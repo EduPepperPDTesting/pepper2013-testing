@@ -856,14 +856,14 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     elif (arrive == "1" and (status == "Attended" or status == "Validated")):
                             # checked true
                         if (catype == "0" or catype == "1"):
-                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' checked disabled='disabled'/> ";
-                                occurrences.append("<label class='alert short_name al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' checked disabled /> "
+                                occurrences.append("<label class='alert short_name al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>")
 
                         else:
                             # checked false
                             if (catype == "0" or catype == "3"):
-                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' disabled='disabled'/> ";
-                                occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' disabled /> "
+                                occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>")
 
             if date.__str__() == current_day.__str__():
                 current = True
