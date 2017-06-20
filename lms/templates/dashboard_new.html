@@ -689,7 +689,7 @@ a{
     float:left;
     margin-top:-3px;
     margin-left:5px;
-    width: 334px;
+    width: 338px;
 }
 .progress-table table{
     margin-top:-22px;
@@ -707,11 +707,13 @@ a{
 .progress-left{
     height:22px;
     float:left;
+    margin-top: -22px;
 }
 .progress-right{
     height:22px;
     background-color:#d2d3d5;
     float:left;
+    width: 338px;
 }
 .progress-table .td-right-border{
     border-right:2px solid #f3f3f4;
@@ -773,6 +775,10 @@ a{
 }
 .apply-for-ceu:hover{
     background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
+}
+.apply-for-ceu a{
+    font-size: 12px;
+    color: #000;
 }
 .completed-courses-row{
     width: 400px;
@@ -1129,7 +1135,7 @@ a{
                     %if courses_complated_all_count > 0:
                     <div class="completed-courses">
                         <div class="completed-courses-title">Completed Courses
-                            <div class="apply-for-ceu">Apply for CEU</div>
+                            <div class="apply-for-ceu"><a href="/course_credits">Apply for CEU<a></div>
                         </div>
                         <div class="completed-courses-rows">
 
@@ -1514,11 +1520,12 @@ $(document).ready(function(){
         });
     }
     function create_course_in_progress(data_obj){
+        var main_width = 338;
+        var cell_width = main_width/4;
         var cp = '';
         var p_color = '';
         var width_1 = '';
         var width_1px = '';
-        var width_2px = '';
         var p_text = '';
         var p_text_style = '';
         var element_html = '';
@@ -1526,7 +1533,7 @@ $(document).ready(function(){
 
         for(var i=0;i<data_obj.data.length;i++){
             cp = data_obj.data[i];
-            //cp.p = 0.28;
+            //cp.p = 0.24;
             if(cp.p <= 0.25){
                 p_color = "#ef3028";
             }
@@ -1537,8 +1544,7 @@ $(document).ready(function(){
                  p_color = "#89c153";
             }
 
-            width_1 = Math.round(334 * cp.p);
-            width_2px = String(334 - width_1) + "px";
+            width_1 = Math.round(main_width * cp.p);
             width_1px = String(width_1) + "px";
 
             //percent text
@@ -1554,6 +1560,7 @@ $(document).ready(function(){
                 p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
             }
 
+            //construct the element
             element_html = '<div class="course-in-progress-row">';
             element_html += '<div class="course-in-progress-t">';
             if(cp.close_course){
@@ -1566,9 +1573,9 @@ $(document).ready(function(){
             element_html += '<div class="course-in-progress-p">';
             element_html += '<b>Progress</b>';
             element_html += '<div class="progress-table">';
+            element_html += '<div class="progress-right"></div>';
             element_html += '<div class="progress-left" style="width:'+width_1px+';background-color:'+p_color+';"></div>';
-            element_html += '<div class="progress-right" style="width:'+width_2px+';"></div>';
-            element_html += '<table width=334>';
+            element_html += '<table width=338>';
             element_html += '<tr height=22>';
             element_html += '<td width=25% class="td-right-border"></td>';
             element_html += '<td width=25% class="td-right-border"></td>';
