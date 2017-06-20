@@ -170,46 +170,46 @@
                     %endif
                 </select>
                 <select style="margin-left:120px;" name="Aggregate_Type">
-                    <option value="Sum" 
+                    <option value="0" 
                     %if action == 'edit':
                         %if report.report_type == 1:
-                            %if matrixcolumns.aggregate_type == 'Sum':
+                            %if matrixcolumns.aggregate_type == 0:
                                 selected 
                             %endif
                         %endif
                     %endif
                     >Sum</option>
-                    <option value="Count"
+                    <option value="1"
                     %if action == 'edit':
                         %if report.report_type == 1:
-                            %if matrixcolumns.aggregate_type == 'Count':
+                            %if matrixcolumns.aggregate_type == 1:
                                 selected 
                             %endif
                         %endif
                     %endif
                     >Count</option>
-                    <option value="Average"
+                    <option value="2"
                     %if action == 'edit':
                         %if report.report_type == 1:
-                            %if matrixcolumns.aggregate_type == 'Average':
+                            %if matrixcolumns.aggregate_type == 2:
                                 selected
                             %endif 
                         %endif
                     %endif
                     >Average</option>
-                    <option value="Max"
+                    <option value="3"
                     %if action == 'edit':
                         %if report.report_type == 1:
-                            %if matrixcolumns.aggregate_type == 'Max':
+                            %if matrixcolumns.aggregate_type == 3:
                                 selected 
                             %endif
                         %endif
                     %endif
                     >Max</option>
-                    <option value="Min"
+                    <option value="4"
                     %if action == 'edit':
                         %if report.report_type == 1:
-                            %if matrixcolumns.aggregate_type == 'Min':
+                            %if matrixcolumns.aggregate_type == 4:
                                 selected 
                             %endif
                         %endif

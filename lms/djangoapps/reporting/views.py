@@ -250,7 +250,7 @@ def report_edit(request, report_id):
                              'first_column': first_column})
 
                 if report.report_type == 1:
-                    matrixcolumns = ReportMatrixColumns.objects.filter(report=report)
+                    matrixcolumns = ReportMatrixColumns.objects.get(report=report)
                     data.update({'matrixcolumns':matrixcolumns})
 
                 action = 'edit'
@@ -412,16 +412,7 @@ def report_save(request, report_id):
                 report_column.column_headers = int(Column_Headers)
                 report_column.row_headers = int(Row_Headers)
                 report_column.aggregate_data = int(Aggregate_Data)
-                if Aggregate_Type == 'Sum':
-                    report_column.aggregate_type = 0
-                elif Aggregate_Type == 'Count':
-                    report_column.aggregate_type = 1
-                elif Aggregate_Type == 'Average':
-                    report_column.aggregate_type = 2
-                elif Aggregate_Type == 'Max':
-                    report_column.aggregate_type = 3
-                elif Aggregate_Type == 'Min':
-                    report_column.aggregate_type = 4   
+                report_column.aggregate_type = int(Aggregate_Type)
                 report_column.save()
 
                 ReportViewColumns.objects.filter(report=report).delete()
