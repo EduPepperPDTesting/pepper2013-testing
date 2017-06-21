@@ -136,34 +136,57 @@ from django.conf import settings
   </div>
 </div>
 <script type="text/javascript">
+  function dest_course_exists(id_org, id_course, id_name, dest, cb){
+    $.post("${reverse('dest_course_exists', args=[])}",
+           {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest, csrfmiddlewaretoken:'${csrf_token}'},
+           function(d) {
+      if(d.success){
+        cb(d.exists);
+      }else{
+        alert("error occured.");
+      }
+    });
+  }
+  
   $("#btnExportTo").click(function(){
-    if(!confirm("Are you sure you want to Create/Update a course in " + $("#lstDest option:selected").text() + "?"))
-      return;
     var id_org = "${context_course.location.org}";
     var id_course = "${context_course.location.course}";
     var id_name = "${context_course.location.name}";
     var dest=$("#lstDest").val();
-    $(".error-block-sync").html("syncing...");
-
-    function timedUpdateStatus(taskId){
-      setTimeout(function(){
-        $.post("${reverse('ajax_get_async_task', args=[])}", {id: taskId}, function(r){
-          $(".error-block-sync").html(r.last_message);
-          if(r.status != "finished" && r.status != "error")
-            timedUpdateStatus(taskId);
-        });
-      }, 200);
-    }
+    var dest_name = $("#lstDest option:selected").text()
     
-    $.post("${reverse('sync_course', args=[])}",
-           {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest},
-           function(r){
-             if(r.success){
-               timedUpdateStatus(r.taskId);
-             }else{
-               $(".error-block-sync").html("error occured");
-             }
-           });
+    // check if the dest course's already exists
+    dest_course_exists(id_org, id_course, id_name, dest, function(exits) {
+      var go_on = false;
+      if(exits){
+        go_on = confirm("Are you sure you want to override the course in " + dest_name + "?")
+      } else {
+        go_on = confirm("This action will replicate this course in " + dest_name + ", do you wish to proceed?")
+      }
+      if(!go_on) return;
+      
+      $(".error-block-sync").html("syncing...");
+
+      function timedUpdateStatus(taskId){
+        setTimeout(function(){
+          $.post("${reverse('ajax_get_async_task', args=[])}", {id: taskId, csrfmiddlewaretoken:'${csrf_token}'}, function(r){
+            $(".error-block-sync").html(r.last_message);
+            if(r.status != "finished" && r.status != "error")
+              timedUpdateStatus(taskId);
+          });
+        }, 200);
+      }
+      
+      $.post("${reverse('sync_course', args=[])}",
+             {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest, csrfmiddlewaretoken:'${csrf_token}'},
+             function(r){
+               if(r.success){
+                 timedUpdateStatus(r.taskId);
+               }else{
+                 $(".error-block-sync").html("error occured");
+               }
+             });
+    });
   });
 </script>
 </%block>

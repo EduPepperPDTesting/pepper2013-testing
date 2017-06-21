@@ -1,0 +1,490 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+    from permissions.utils import check_user_perms, check_access_level
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/tc.all.js"></script>
+<script type="text/javascript" src="/static/js/tc.min.js"></script>
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/morris.min.js"></script>
+<script type="text/javascript" src="/static/js/morris.js-0.5.1/raphael-min.js"></script>
+
+<!-- Tablesorter: optional -->
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen"/>
+<link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
+<link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
+
+<style>
+#detail{position:absolute;border:1px solid #ccc;background:#efefef; display:none;}
+#detail .tit{ background:#ddd; display:block; height:33px; cursor:move;}
+#detail .tit i{ float:right; line-height:33px; padding:0 8px;cursor:default;}
+    .lean-overlay .loading {
+        width: 128px;
+        height: 128px;
+        display: block;
+        border-radius: 100px;
+        position: absolute;
+        left: 50%;
+        top: 300px;
+        margin-left: -64px;
+    }
+    .graphable {
+        background-image:url(/static/images/icon_reporting.png);
+        width:16px;
+        text-align: left;
+        height: 10px;
+    }
+</style>
+<input type='hidden' value='text' id='row_header_type'>
+<span id="organization_obj" o_name="report"></span>
+<div id="reporting">
+    <div id="back">
+        <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
+        <a href="${reverse('reporting_reports')}">
+            Back to Reports
+        </a>
+    </div>
+    <h1>${report.name}</h1>
+    <div class="table">
+        <div class="" style="padding:5px;"></div>
+        <div class="body table_scroll">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_matrix_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
+                <thead id="talbe_column">
+                </thead>
+                <tbody id="table_data"></tbody>
+            </table>
+        </div>
+    </div>
+        <span class="footer">
+            <div class="pager">
+                <span class="report_download" style="font-size:16px;margin-right:20px;">
+                    Export as:
+                    <img src='/static/images/xls-icon.png' id="btnDownloadReportExcel"/>
+                </span>
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                <select class="pagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+                <select class="gotoPage" title="Select page number"></select>
+                <div style="float:right;">
+                    %if len(school_year_item) > 0:
+                        <span>School Year:</span>
+                        <select class="school_year_select" title="Select school year" style="width:200px;font-size:14px;">
+                            <option value="all">Select School Year</option>
+                            %for item in school_year_item:
+                                <option value=${item}>${item}</option>
+                            %endfor
+                        </select>
+                    %endif
+                    %if check_user_perms(request.user, 'reporting', 'administer') or (check_user_perms(request.user, 'reporting', 'create_reports') and report.access_level == check_access_level(request.user, 'reporting', 'create_reports')):
+                        <input type="button" id="btnEditReport" value="EDIT REPORT" name="" style="font-size:14px;">
+                    %endif
+               </div>
+            </div>
+        </span>
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- aggregate table -->
+<div id="detail">
+<div class="tit"><i class="close">关闭</i></div>
+    <div id="aggregate_table">
+        <div class="table">
+            <div class="body table_scroll">
+                <table id='aggregate' class="tblReport tablesorter" style='margin:0'>
+                    <thead id="aggregate_thead">
+                    </thead>
+                    <tbody id="aggregate_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- chart -->
+
+<div id = 'graphable' style="display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;background-color: gray;">
+    <div id="graph" style="border:1px solid red;height:50px;">
+            <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Area</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Bar</li>
+                <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Donut</li>
+                <li style="width: 100px;height: 48px;float: right;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">X</li>
+            </ul>
+        </div>
+    <div id="chart" style="width:1000px"></div>
+</div>
+
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="background-color:#fff;border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$.extend($.tablesorter.themes.jui, {
+        // change default jQuery uitheme icons - find the full list of icons at
+        // http://jqueryui.com/themeroller/ (hover over them for their name)
+        table        : 'ui-widget ui-widget-content ui-corner-all', // table classes
+        caption      : 'ui-widget-content',
+        // header class names
+        header       : 'ui-widget-header ui-corner-all ui-state-default', // header classes
+        sortNone     : '',
+        sortAsc      : '',
+        sortDesc     : '',
+        active       : 'ui-state-active', // applied when column is sorted
+        hover        : 'ui-state-hover',  // hover class
+        // icon class names
+        icons        : 'ui-icon', // icon class added to the <i> in the header
+        iconSortNone : 'ui-icon-carat-2-n-s', // class name added to icon when column is not sorted
+        iconSortAsc  : 'ui-icon-carat-1-n', // class name added to icon when column has ascending sort
+        iconSortDesc : 'ui-icon-carat-1-s', // class name added to icon when column has descending sort
+        filterRow    : '',
+        footerRow    : '',
+        footerCells  : '',
+        even         : 'ui-widget-content', // even row zebra striping
+        odd          : 'ui-state-default'   // odd row zebra striping
+    });
+    var pagerOptions = {
+        container: $(".pager"),
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        cssGoto: '.gotoPage',
+        ajaxUrl: '',
+        ajaxProcessing: function(data){
+            return [data.total, data.rows]
+        },
+        processAjaxOnInit: true,
+        page: 0,
+        size: 10,
+        savePages: false
+    };
+    var tablesorterOptions = {
+        debug: false,
+        theme: 'jui',
+        headerTemplate : '{content} {icon}', // needed to add icon for jui theme
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output", "columnSelector", "uitheme"],
+        widgetOptions: {
+            filter_external: '',
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false,
+            filter_reset: '.reset',
+            filter_serversideFiltering: true,
+            output_saveFileName: 'data.csv',
+        }
+    };
+
+function safeJSON(j){
+        j.csrfmiddlewaretoken="${csrf_token}";
+        return j;
+    }
+
+    function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+
+var report_view = {
+        timeID:null,
+        dialog:null,
+        init:function(){
+            var self = this;
+            clearInterval(self.timeID);
+            self.timeID = setInterval(self.show_progress, 4000, self);
+            $("#btnEditReport").click(function(){
+                window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
+            });
+            $("#btnDownloadReportExcel").click(function(){
+                self.downloadReportExcel();
+            });
+            self.selectSchoolYear();
+        },
+        show_progress: function(obj){
+            var self = this;
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
+                if (data != null) {                 
+                    if(data.success)
+                    {
+                        obj.reloadTable()
+                        clearInterval(obj.timeID);
+                        $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
+                            loadwin.hide();
+                            set_custome_filters($(".tblReport"), data.data);
+                            $(".tablesorter-header-inner").each(function(){
+                                var tmp1 = $(this).text().trim();
+                                if(tmp1 == "District"){
+                                    $(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }else if(tmp1 == "School"){
+                                    $(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        },
+        reloadTable: function(){
+            var t = $(".tblReport")[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.ajaxUrl = $(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        },
+        postToNewTab: function(url, params) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", url);
+            form.setAttribute("target", "_blank");
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        },
+        downloadReportExcel: function(){
+            this.postToNewTab("${reverse('report_download_matrix_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+        },
+        selectSchoolYear: function(){
+            $(".school_year_select").change(function(){
+                window.location.href = "${reverse('reporting_report',args=[report.id])}?school_year=" + $(this).val();
+            });
+            var request_school_year = "${request.GET.get('school_year','')}";
+            $(".school_year_select").val(request_school_year);
+            if("${school_year_item}".indexOf('current') >= 0 && request_school_year == ''){
+                $(".school_year_select").val("current");
+            }
+        }
+    }
+
+    function set_custome_filters($table, data){
+        var selectSource = {};
+        for(var i = 0; i < data.length; i++)
+        {   
+            for(var j = 0; j < data[i].items.length; j++){
+                try{
+                    data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                }
+                catch(e){
+                    data[i].items[j] = "'" + data[i].items[j] + "'";
+                }
+            }
+           eval("selectSource[" + data[i].index + "] = function(table, column) {return [" + data[i].items + "]}")
+        }
+        $table[0].config.widgetOptions.filter_selectSource = selectSource;
+        $table.trigger("update");
+    }
+
+    function graphable(x){
+        $("#graphable").show();
+        $("#chart").html('')
+        var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
+        $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
+            rows = datas.rows
+            tws = []
+            for (var key in rows){
+                for (var key2 in rows[key]){
+                    row = {}
+                    row['label'] = key2 
+                    row['value'] = rows[key][key2]
+                    tws.push(row)
+                }       
+            }
+            window.tws = tws
+            graph('Line',tws)
+        })
+    }
+
+    function row_graphable(x){
+        $("#graphable").show();
+        $("#chart").html('')
+        filter = x.nextSibling.nodeValue;
+        $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
+            rows = datas.rows
+            tws = []
+            for (var key in rows){
+                for (var key2 in rows[key]){
+                    row = {}
+                    row['label'] = key2 
+                    row['value'] = rows[key][key2]
+                    tws.push(row)
+                }       
+            }
+            window.tws = tws
+            graph('Line',tws)
+        })
+    }
+
+    function dateFormatter(x) {
+        var hour_unit = ' Hour, ';
+        var minute_unit = ' Minute';
+        var hour = Math.floor(x / 60 / 60);
+        var minute = Math.floor(x / 60 % 60);
+        if (hour != 1) {
+            hour_unit = ' Hours, ';
+        }
+        if (minute != 1) {
+            minute_unit = ' Minutes';
+        }
+        var hour_full = '';
+        if (hour > 0) {
+            hour_full = hour + hour_unit;
+        }
+        return hour_full + minute + minute_unit;
+    }
+
+    function graph(shape,tws){
+        if (shape == 'Line'){
+            new Morris.Line({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Count'],
+            gridTextColor:'#000',
+            parseTime: false })
+        }else if(shape == 'Area'){
+            new Morris.Area({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'],
+            labels: ['Count'],
+            gridTextColor:'#000',
+            parseTime: false })
+        }else if(shape == 'Bar'){
+            new Morris.Bar({
+            element: 'chart',
+            data:tws,
+            xkey: 'label',
+            ykeys: ['value'], 
+            gridTextColor:'#000',
+            labels: ['Count'],
+            parseTime: false })
+        }else if(shape == 'Donut'){
+            new Morris.Donut({
+                element: 'chart',
+                data: tws,
+                gridTextColor:'#000',
+            });
+        }
+    }
+
+    function get_ajax_get_aggregate(x,y){
+        $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
+            var table = '';
+            var thead = "<tr><th>"+datas.aggregate_name+"</th><th>"+datas.row_header_name+"</th><th>"+datas.column_header_name+"</th></tr>";
+            var tbody = ''
+            row_datas = datas.rows
+            if (row_datas.length == 0){
+                tbody = ''
+            }else{
+                for (var a in row_datas){
+                    tbody += '<tr>'
+                    tbody += '<td>'+ row_datas[a][datas.aggregate_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.row_header] + '</td>'
+                    tbody += '<td>'+ row_datas[a][datas.column_header] + '</td>'
+                    tbody += '</tr>'
+                }
+            }
+            table = thead + tbody;
+            $("#aggregate").html(table)
+            $("#aggregate_table").show()
+        })
+    }
+$(document).ready(function () {
+
+    loadwin = new LoadingWin();
+    $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
+        column_header = datas.column_header;
+        column_datas = datas.column_data;
+        row_data = datas.data;
+        row_header = datas.row_header
+        row_header_type = datas.row_header_type
+        $('#row_header_type').val(row_header_type)
+        var html = "<tr><th>"+column_header+"<br>"+row_header+"</th>";
+        column_header_type = datas.column_header_type
+        // if (column_header_type == 'time' || column_header_type == 'int'){
+            for (data in column_datas){
+                html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>"+column_datas[data]+"</th>";
+            }
+            html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>Total</th></tr>";
+        // }else{
+        //     for (data in column_datas){
+        //         html += "<th>"+column_datas[data]+"</th>";
+        //     }
+        //     html += "<th>Total</th></tr>";
+        // }
+        
+        $("#talbe_column").html(html)
+        $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        report_view.init();
+
+
+        $("#graph ul li").click(function(){
+            var shape = $(this).html();
+            $("#chart").html("");
+            if (shape == 'X'){
+                $("#graphable").hide()
+                return
+            }else{
+                tws = window.tws
+                graph(shape,tws);
+            }
+        });
+    });
+})
+
+
+
+</script>

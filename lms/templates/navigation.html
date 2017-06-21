@@ -39,8 +39,28 @@
 </%block>
 
 <style type="text/css" media="screen">
+    html {font-size: 16px !important;}
+    html, body {line-height: 16px !important;}
+
     *{font-family:"open sans" !important;}
     p{font-family:"open sans" !important;}
+
+    .expanded{
+        position: absolute;
+        left: -140px !important;
+    }
+
+    ul.admin-dropdown-menu.expanded {
+        display: block;
+        position: absolute !important;
+        left: -140px !important;
+    }
+
+    a:link, a:visited {font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif;}
+
+    a.cta{font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif; !important;}
+
+    .admin-dropdown-menu a:link, a:visited {font-size: 16px !important;}
 
     a.blue{
         color:#556370 !important;
@@ -66,7 +86,7 @@
 
     a.main-link{
         font-family:'open sans';
-        font-size:16px;
+        font-size: 16px;
         text-transform:none;
         font-weight:normal !important;
     }
@@ -209,6 +229,8 @@
     }
     ul.admin-dropdown-menu.expanded {
         display: block;
+        position: absolute !important;
+        left: -140px !important;
     }
     ul.admin-dropdown-menu {
         background: #FCFCFC none repeat scroll 0% 0%;
@@ -283,16 +305,13 @@
             %else:
                 <% curr_user=user %>
             %endif
-
-            %if curr_user==request.user:
-                %if curr_user.is_authenticated():
-                    <a href="/dashboard">
-                %else:
-                    <a href="/">
-                %endif
+            
+            %if curr_user.is_authenticated():
+                <a href="/dashboard">
             %else:
-                <a href="" style="cursor:default;" onclick="return false;">
+                <a href="/">
             %endif
+           
             <!--@end-->
 
             <%block name="navigation_logo">
@@ -315,51 +334,26 @@
                 color:#555;
                 padding-top:20px;
             }
-
         </style>
-
-        %if curr_user!=request.user:
-            <style type="text/css" media="screen">
-                a.main-link{
-                    color:#ccc !important;
-                }
-                a.main-link:hover{
-                    color:#ccc !important;
-                }
-            </style>
-        %endif
-
-        %if curr_user==request.user and curr_user.is_authenticated():
-            <ol class="left nav-global authenticated">
-        %else:
-            <ol class="left nav-global" style="margin-top:5px;">
-        %endif
-
-        % if curr_user==request.user and not curr_user.is_authenticated():
-            <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
-            <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
-            <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
+        
+        <ol class="left nav-global authenticated">
+        
+        % if not curr_user.is_authenticated():
+            <li><a href="/contact" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Membership</b></a></li>
+            <li><a href="/our_team" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Our Team</b></a></li>
+            <li><a href="/press" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>In the News</b></a></li>
         % endif
 
         %if request.user.is_authenticated():
-            %if curr_user==request.user:
-                <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-                <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
-                <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
-                <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
-                <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
-            %else:
-                <li id="org_tm_course_workshop_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
-                <li id="org_tm_communities_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
-                <li id="org_tm_my_chunks_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li id="org_tm_resources_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
-                <li id="org_tm_people_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-                <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
-            %endif
+            <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
+            <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
+            <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
+            <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
+            <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
+            <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->            
         %endif
 
-        % if curr_user.is_authenticated():
+        % if request.user.is_authenticated():
         <%block name="navigation_global_links_authenticated">
             <li class="nav-global-01" style="display:none;">
                 <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
@@ -371,45 +365,45 @@
         <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
         <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
-        %if curr_user==request.user:
-        <ol class="user admin" style="margin-top: 2px !important;"> <!-- akogan - added style-->
+        
+        <ol class="user admin" style="margin-top: 3px !important;"> <!-- akogan - added style-->
             %if show_extended:
           <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
-                        %if check_user_perms(curr_user, 'certificate'):
+                        %if check_user_perms(request.user, 'certificate'):
                             <li id="org_tsm_configuration_obj"><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
-                        %if curr_user.is_superuser:
+                        %if request.user.is_superuser:
                             <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
                         %endif
                         <li id="org_tsm_pepper_pd_planner_obj"><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
-                        %if check_user_perms(curr_user, 'pepconn'):
+                        %if check_user_perms(request.user, 'pepconn'):
                             <li id="org_tsm_pepconn_obj"><a href="${reverse('pepconn')}">PepConn</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'permissions'):
+                        %if check_user_perms(request.user, 'permissions'):
                             <li id="org_tsm_roles_permissions_obj"><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'time_report'):
+                        %if check_user_perms(request.user, 'time_report'):
                             <li id="org_tsm_time_report_obj"><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
                         <li id="org_tsm_reporting_obj"><a href="${reverse('reporting_reports')}">Reporting</a></li>
-                        %if check_user_perms(curr_user, 'sso'):
+                        %if check_user_perms(request.user, 'sso'):
                             <li id="org_tsm_sso_metadata_obj"><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'tnl'):
+                        %if check_user_perms(request.user, 'tnl'):
                             <li id="org_tsm_tnl_configuration_obj"><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'studio'):
+                        %if check_user_perms(request.user, 'studio'):
                             <li id="org_tsm_studio_obj"><a href="#" target="_blank" id="studio_url">Studio</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'alert_message'):
+                        %if check_user_perms(request.user, 'alert_message'):
                             <li id="org_tsm_alert_obj"><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
                         <li id="org_tsm_notifications_obj"><a href="${reverse('communities_notification_index')}">Notifications</a></li>
-                        %if curr_user.is_superuser:
+                        %if request.user.is_superuser:
                             <li id="org_tsm_usage_report_obj"><a href="${reverse('usage_report')}">Usage Report</a></li> 
                         %endif
                         <li id="org_tsm_portfolio_settings_obj"><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
@@ -449,7 +443,7 @@
                         </script>
                     </ul>
                 </li>
-            %endif
+            
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right: 0px !important; /* margin-right:5px; */" id="org_tm_notifications_obj"><!-- akogan - added style-->
@@ -477,7 +471,7 @@
                     <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
                         <span class="avatar"></span>
                         <span class="sr">${_("Dashboard for:")} </span>
-                        <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        <span style="display:block;max-width:60px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${request.user.username}</span>
                     </a>
                 </li>
                 <li class="primary">
@@ -552,7 +546,7 @@
     <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif
 
-%if not curr_user.is_authenticated():
+%if not request.user.is_authenticated():
     <%include file="forgot_password_modal.html" />
 %endif
 
@@ -561,31 +555,29 @@
     <!--@begin:show_notifications-->
     <!--@date:2014-06-19-->
 %if request.user.is_authenticated():
-    %if curr_user==request.user:
-        <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
-            <div class="inner-wrapper" style="width:578px;">
-                <header>
-                    <h2>${_("notifications")}</h2>
-                    <hr/>
-                </header>
+    <section id="show_notifications" class="modal modal-wide" data-id="${request.user.id}" data-name="${request.user.username}" data-fullname="${request.user.first_name} ${request.user.last_name}">
+        <div class="inner-wrapper" style="width:578px;">
+            <header>
+                <h2>${_("notifications")}</h2>
+                <hr/>
+            </header>
 
-                <div class="info_list"></div>
-                <br/>
-                <br/>
-                <br/>
-                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                    <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
-                        <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
-                    </a>
-                </div>
-                <div class="close-modal" id="notifications_close">
-                    <div class="inner">
-                        <p>&#10005;</p>
-                    </div>
+            <div class="info_list"></div>
+            <br/>
+            <br/>
+            <br/>
+            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
+                    <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
+                </a>
+            </div>
+            <div class="close-modal" id="notifications_close">
+                <div class="inner">
+                    <p>&#10005;</p>
                 </div>
             </div>
-        </section>
-    %endif
+        </div>
+    </section>
 %endif
     <script>
         //---------------------Notifications variable-----------------------------------------//
@@ -613,7 +605,7 @@
         //---------------------Pepper stats refresh-------------------------------------------//
 
         function pepper_stats_refresh() {
-            if (document.URL.indexOf('dashboard') >= 0) {
+            if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0 || document.URL.indexOf('user_profile') >= 0) {
                 $.post("${reverse('get_pepper_stats')}", {
                  'user_id': "${curr_user.id}"
                }, function(data) {
@@ -1294,63 +1286,61 @@
     <!--@begin:show_personalmessage-->
     <!--@date:2014-06-30-->
 %if request.user.is_authenticated():
-    %if curr_user==request.user:
-        <section id="show_personalmessage" class="modal modal-wide">
-            <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
-                <header>
-                    <h2 class="message_board_full_name">${_("namename")}</h2>
-                    <hr/>
-                </header>
-                <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-                <form id="" method="post" style="padding:0px;line-height:18px;">
+    <section id="show_personalmessage" class="modal modal-wide">
+        <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
+            <header>
+                <h2 class="message_board_full_name">${_("namename")}</h2>
+                <hr/>
+            </header>
+            <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
+            <form id="" method="post" style="padding:0px;line-height:18px;">
 
-                    <div style="width:520px;margin:10px;">
-                        <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
+                <div style="width:520px;margin:10px;">
+                    <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
 
-                        <div style="color:black;font-size:12px;color:#aaa;">
-                            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
-                        </div>
-                        <div style="width:530px;height:30px;">
-                            <table width="530" border="0" cellpadding="0" cellspacing="0">
-                                <tr height="30" style="color:#000;">
-                                    <td widht="265" style="vertical-align:middle;">
-                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-                  </span>
-                  
-                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-                  </span>
-
-                                    </td>
-                                    <td align="right" style="vertical-align:middle;">
-                                        <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
-                                    </td>
-                                </tr>
-                                <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
-                            </table>
-                        </div>
+                    <div style="color:black;font-size:12px;color:#aaa;">
+                        Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
                     </div>
-                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
-                </form>
-                <br/>
-                <!--
-                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-                </a>
+                    <div style="width:530px;height:30px;">
+                        <table width="530" border="0" cellpadding="0" cellspacing="0">
+                            <tr height="30" style="color:#000;">
+                                <td widht="265" style="vertical-align:middle;">
+              <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
+                <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
+              </span>
+              
+              <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
+                <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+              </span>
+
+                                </td>
+                                <td align="right" style="vertical-align:middle;">
+                                    <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
+                                </td>
+                            </tr>
+                            <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
+                        </table>
+                    </div>
                 </div>
-                -->
-                <div class="close-modal" id="message_board_close">
-                    <div class="inner">
-                        <p>&#10005;</p>
-                    </div>
+                <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+            </form>
+            <br/>
+            <!--
+            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+            <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
+            <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
+            </a>
+            </div>
+            -->
+            <div class="close-modal" id="message_board_close">
+                <div class="inner">
+                    <p>&#10005;</p>
                 </div>
             </div>
-        </section>
-    %endif
+        </div>
+    </section>
 %endif
     <div class="linkwin">
         <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
@@ -1373,7 +1363,7 @@
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser or check_user_perms(request.user, 'time_report'):
+%if request.user.is_superuser or check_user_perms(request.user, 'time_report'):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
@@ -1443,25 +1433,33 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					for(var obj in r){
-						if(obj.indexOf("_obj") > -1){
-							if(r[obj] == "-1"){
-								$("#" + obj).hide();
-							}
-						}
-					}
-					if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
+					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
-					}
-					
+					}*/					
 					if(r.flag_main == "dashboard"){
-						var tmp_div = $(".my-courses:first").find("div");
-						if(r.LogoProfile != "" && typeof(r.LogoProfile) != "undefined"){
+						/*var tmp_div = $(".my-courses:first").find("div");
+						var profile_logo = "", profile_logo_url = "", profile_motto = "";
+						if(r['Dashboard option etc'] == "1"){
+							profile_logo = r['Profile Logo'];
+							profile_logo_url = r['Profile Logo Url'];
+							profile_motto = r['Motto'];
+							
+						}else if(r['Dashboard option etc'] == "2"){
+							profile_logo = r['Profile Logo Curriculumn'];
+							profile_logo_url = r['Profile Logo Url Curriculumn'];							
+							profile_motto = r['Motto Curriculumn'];
+						}
+						if(profile_logo != "" && typeof(profile_logo) != "undefined"){
 							tmp_div.css("backgroundImage", "none");
 							tmp_div.css("border", "2px solid #bbbbbb");
-							tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
-							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r.Motto + "</span>");
-						}
+							
+							if(profile_logo_url != "" && typeof(profile_logo_url) != "undefined"){
+								tmp_div.append("<a href='" + profile_logo_url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							}else{
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							}							
+							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + profile_motto + "</span>");
+						}*/
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
 						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
 						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");

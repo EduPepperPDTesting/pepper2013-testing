@@ -39,6 +39,14 @@ var data_types = ['text', 'int', 'date', 'time', 'url', 'clk'];
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
+        var type = $("input[type='radio']:checked").val();
+        if(type == 'Standard'){
+            $("#Standard").show();
+            $("#Matrix").hide();
+        }else{
+            $("#Standard").hide();
+            $("#Matrix").show();
+        }
         $(this).nextAll('select').remove();
         var view_num = getLineNumber($(this).attr('name')) + 1;
         var view_id = $(this).val();
@@ -69,6 +77,14 @@ function viewSelect(related_url, columns_url) {
         $.get(columns_url, get_data, function (data) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
+                var select = "<option value='none'>select...</option>";
+                for (var value in data){
+                    select += "<option value="+data[value].id+">"+data[value].name+"</option>";
+                }
+                $("#Column_Headers").html(select)
+                $("#Row_Headers").html(select)
+                $("#Aggregate_Data").html(select)
+
                 var second_column = Math.floor(data.length / 2);
                 var remainder = data.length % 2;
                 var first_column = second_column + remainder;

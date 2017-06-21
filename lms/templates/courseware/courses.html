@@ -325,6 +325,13 @@
                         %for course in courses[4]:
                             %for c in course:
                                 %if not c.close_course or c.close_course and c.keep_in_directory:
+                                    <div class="grade_title">PreK-3 Courses</div>
+                                %endif
+                            %endfor
+                        %endfor
+                        %for course in courses[4]:
+                            %for c in course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor

@@ -146,9 +146,15 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
+    url(r'^reporting/report/get_matrix_rows$', 'reporting.views.report_get_matrix_rows', name='reporting_report_get_matrix_rows'),
     url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
+    url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
+    url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
+    url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
+    url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
@@ -160,20 +166,28 @@ urlpatterns = (
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
     url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
-    
+    url(r'^dashboard/announcements/get$', 'student.newdashboard.get_announcements', name='dashboard_get_announcements'),
+    url(r'^dashboard/announcements/getorg$', 'student.newdashboard.get_org_announcements', name='dashboard_get_org_announcements'),
     url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
-    
+    url(r'^dashboard/comment/get$', 'student.newdashboard.get_comment', name='dashboard_get_comment'),
     url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
+    url(r'^dashboard/delete/announcement', 'student.newdashboard.delete_announcement', name='dashboard_delete_announcement'),
     url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
     url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
     url(r'^dashboard/post/comment', 'student.newdashboard.submit_new_comment', name='dashboard_submit_new_comment'),
     url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
     url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
     url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
+
+    url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
+    url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
+
+    
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
     url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    url(r'^dashboard/my_course_in_progress/get$', 'student.newdashboard.get_my_course_in_progress', name='get_my_course_in_progress'),
     #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),

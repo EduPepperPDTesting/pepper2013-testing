@@ -389,6 +389,11 @@ def get_trending(community_id):
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
     for post in posts:
+        #@begin:Add special text if post has no text
+        #@date:2017-06-16
+        if not post.post.strip():
+            post.post = '[image/video]'
+        #@end
         trending.append(post)
     trending = list(trending)
     trending = sorted(trending, key=lambda x: x.date_create, reverse=True)
@@ -703,10 +708,12 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-        community.delete()
 
+        discussions = CommunityDiscussions.objects.filter(community=community)
         ma_db = myactivitystore()                
-        ma_db.set_item_community(cid, cname)
+        ma_db.set_item_community(cid, cname, discussions)
+        
+        community.delete()
 
         return redirect(reverse('communities'))
     except Exception as e:

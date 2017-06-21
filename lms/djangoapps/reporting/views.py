@@ -1,5 +1,5 @@
 from mitxmako.shortcuts import render_to_response
-from .models import Reports, Categories, Views, ViewRelationships, ViewColumns, ReportViews, ReportViewColumns, ReportFilters
+from .models import Reports, Categories, Views, ViewRelationships, ViewColumns, ReportViews, ReportViewColumns, ReportFilters, ReportMatrixColumns
 from .models import reporting_store
 from permissions.decorators import user_has_perms
 from permissions.utils import check_access_level, check_user_perms
@@ -12,8 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-import logging
-from .aggregation_config import AggregationConfig
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -24,6 +23,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
+import logging
 log = logging.getLogger("tracking")
 
 def postpone(function):
@@ -248,6 +248,11 @@ def report_edit(request, report_id):
                              'selected_columns': selected_columns,
                              'report_filters': filters,
                              'first_column': first_column})
+
+                if report.report_type == 1:
+                    matrixcolumns = ReportMatrixColumns.objects.get(report=report)
+                    data.update({'matrixcolumns':matrixcolumns})
+
                 action = 'edit'
             else:
                 raise Exception('Not allowed.')
@@ -274,91 +279,196 @@ def report_save(request, report_id):
     :return: JSON reporting success or failure of the operation.
     """
     try:
-        name = request.POST.get('report_name', '')
-        description = request.POST.get('report_description', '')
-        distinct = not request.POST.get('distinct-enable', False) == 'yes'
-        views = get_request_array(request.POST, 'view')
-        columns = get_request_array(request.POST, 'column')
-        column_order = get_request_array(request.POST, 'selected-column')
-        filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
-        filter_columns = get_request_array(request.POST, 'filter-column')
-        filter_operators = get_request_array(request.POST, 'filter-operator')
-        filter_values = get_request_array(request.POST, 'filter-value')
-        action = request.POST.get('action', '')
+        report_type = request.POST.get('type', '')
+        if report_type == 'Standard':
+            name = request.POST.get('report_name', '')
+            description = request.POST.get('report_description', '')
+            distinct = not request.POST.get('distinct-enable', False) == 'yes'
+            views = get_request_array(request.POST, 'view')
+            columns = get_request_array(request.POST, 'column')
+            column_order = get_request_array(request.POST, 'selected-column')
+            filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+            filter_columns = get_request_array(request.POST, 'filter-column')
+            filter_operators = get_request_array(request.POST, 'filter-operator')
+            filter_values = get_request_array(request.POST, 'filter-value')
+            action = request.POST.get('action', '')
 
-        report = False
-        if action == 'new':
-            report = Reports()
-            report.author = request.user
-        elif action == 'edit':
-            report = Reports.objects.get(id=int(report_id))
-
-        if report:
-            access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
-
-            report.name = name
-            report.description = description
-            report.distinct = distinct
-            report.access_level = access_level
-            if access_level == 'State':
-                report.access_id = request.user.profile.district.state.id
-            elif access_level == 'District':
-                report.access_id = request.user.profile.district.id
-            elif access_level == 'School':
-                report.access_id = request.user.profile.school.id
-            report.save()
-            
+            report = False
             if action == 'new':
-                ma_db = myactivitystore()                
-                my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
-                "URLValues": {"report_id": report.id},    
-                "TokenValues": {"report_id": report.id}, 
-                "LogoValues": {"report_id": report.id}}
-                ma_db.insert_item(my_activity)
+                report = Reports()
+                report.author = request.user
+            elif action == 'edit':
+                report = Reports.objects.get(id=int(report_id))
 
-            ReportViews.objects.filter(report=report).delete()
-            for i, view in views.iteritems():
-                report_view = ReportViews()
-                report_view.report = report
-                report_view.order = int(i)
-                report_view.view = Views.objects.get(id=int(view))
-                report_view.save()
+            if report:
+                access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
 
-            ReportViewColumns.objects.filter(report=report).delete()
-            for i, column in columns.iteritems():
-                report_column = ReportViewColumns()
-                report_column.report = report
-                report_column.column = ViewColumns.objects.get(id=int(column))
-                report_column.order = column_order[column]
-                report_column.save()
+                report.name = name
+                report.description = description
+                report.distinct = distinct
+                report.access_level = access_level
+                report.report_type = 0
+                if access_level == 'State':
+                    report.access_id = request.user.profile.district.state.id
+                elif access_level == 'District':
+                    report.access_id = request.user.profile.district.id
+                elif access_level == 'School':
+                    report.access_id = request.user.profile.school.id
+                report.save()           
 
-            ReportFilters.objects.filter(report=report).delete()
-            for i, column in filter_columns.iteritems():
-                report_filter = ReportFilters()
-                report_filter.report = report
-                report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
-                report_filter.column = ViewColumns.objects.get(id=int(column))
-                report_filter.value = filter_values[i].strip()
-                report_filter.operator = filter_operators[i]
-                report_filter.order = int(i)
-                report_filter.save()
-           
-            rs = reporting_store()
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
-            if report_has_school_year(selected_columns):                
-                for item in get_school_year_item():
-                    collection = get_cache_collection(request, report_id, item)
+                ReportViews.objects.filter(report=report).delete()
+                for i, view in views.iteritems():
+                    report_view = ReportViews()
+                    report_view.report = report
+                    report_view.order = int(i)
+                    report_view.view = Views.objects.get(id=int(view))
+                    report_view.save()
+
+                ReportViewColumns.objects.filter(report=report).delete()
+                for i, column in columns.iteritems():
+                    report_column = ReportViewColumns()
+                    report_column.report = report
+                    report_column.column = ViewColumns.objects.get(id=int(column))
+                    report_column.order = column_order[column]
+                    report_column.save()
+
+                ReportFilters.objects.filter(report=report).delete()
+                for i, column in filter_columns.iteritems():
+                    report_filter = ReportFilters()
+                    report_filter.report = report
+                    report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                    report_filter.column = ViewColumns.objects.get(id=int(column))
+                    report_filter.value = filter_values[i].strip()
+                    report_filter.operator = filter_operators[i]
+                    report_filter.order = int(i)
+                    report_filter.save()
+               
+                rs = reporting_store()
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+                if report_has_school_year(selected_columns):                
+                    for item in get_school_year_item():
+                        collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                        rs.del_collection(collection)
+
+                    collection = get_cache_collection(request, report_id, "all")
                     rs.del_collection(collection)
 
-                collection = get_cache_collection(request, report_id, "all")
+                
+                collection = get_cache_collection(request, report_id, "")
                 rs.del_collection(collection)
 
-            
-            collection = get_cache_collection(request, report_id, "")
-            rs.del_collection(collection)
+            else:
+                raise Exception('Report could not be located or created.')
 
-        else:
-            raise Exception('Report could not be located or created.')
+        if report_type == 'Matrix':
+            name = request.POST.get('report_name', '')
+            description = request.POST.get('report_description', '')
+            distinct = not request.POST.get('distinct-enable', False) == 'yes'
+            views = get_request_array(request.POST, 'view')
+            Column_Headers = request.POST.get('Column_Headers', '')
+            Row_Headers = request.POST.get('Row_Headers', '')
+            Aggregate_Data = request.POST.get('Aggregate_Data', '')
+            Aggregate_Type =request.POST.get('Aggregate_Type', '')
+            filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+            filter_columns = get_request_array(request.POST, 'filter-column')
+            filter_operators = get_request_array(request.POST, 'filter-operator')
+            filter_values = get_request_array(request.POST, 'filter-value')
+            action = request.POST.get('action', '')
+
+            report = False
+            if action == 'new':
+                report = Reports()
+                report.author = request.user
+            elif action == 'edit':
+                report = Reports.objects.get(id=int(report_id))
+
+            if report:
+                access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
+
+                report.name = name
+                report.description = description
+                report.distinct = distinct
+                report.report_type = 1
+                report.access_level = access_level
+                if access_level == 'State':
+                    report.access_id = request.user.profile.district.state.id
+                elif access_level == 'District':
+                    report.access_id = request.user.profile.district.id
+                elif access_level == 'School':
+                    report.access_id = request.user.profile.school.id
+                report.save()           
+
+                ReportViews.objects.filter(report=report).delete()
+                for i, view in views.iteritems():
+                    report_view = ReportViews()
+                    report_view.report = report
+                    report_view.order = int(i)
+                    report_view.view = Views.objects.get(id=int(view))
+                    report_view.save()
+
+                ReportMatrixColumns.objects.filter(report=report).delete()
+                report_column = ReportMatrixColumns()
+                report_column.report = report
+                report_column.column_headers = int(Column_Headers)
+                report_column.row_headers = int(Row_Headers)
+                report_column.aggregate_data = int(Aggregate_Data)
+                report_column.aggregate_type = int(Aggregate_Type)
+                report_column.save()
+
+                ReportViewColumns.objects.filter(report=report).delete()
+                Column_Headers_object = ReportViewColumns()
+                Column_Headers_object.report = report
+                Column_Headers_object.column = ViewColumns.objects.get(id=int(Column_Headers))
+                Column_Headers_object.order = 0
+                Column_Headers_object.save()
+                Row_Headers_object = ReportViewColumns()
+                Row_Headers_object.report = report
+                Row_Headers_object.column = ViewColumns.objects.get(id=int(Row_Headers))
+                Row_Headers_object.order = 1
+                Row_Headers_object.save()
+                Aggregate_Data_object = ReportViewColumns()
+                Aggregate_Data_object.report = report
+                Aggregate_Data_object.column = ViewColumns.objects.get(id=int(Aggregate_Data))
+                Aggregate_Data_object.order = 2
+                Aggregate_Data_object.save()
+
+                ReportFilters.objects.filter(report=report).delete()
+                for i, column in filter_columns.iteritems():
+                    report_filter = ReportFilters()
+                    report_filter.report = report
+                    report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                    report_filter.column = ViewColumns.objects.get(id=int(column))
+                    report_filter.value = filter_values[i].strip()
+                    report_filter.operator = filter_operators[i]
+                    report_filter.order = int(i)
+                    report_filter.save()
+               
+                rs = reporting_store()
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+                if report_has_school_year(selected_columns):                
+                    for item in get_school_year_item():
+                        collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                        rs.del_collection(collection)
+                        rs.del_collection(collection+'_column_header')
+                        rs.del_collection(collection+'_row_header')
+                        rs.del_collection(collection+'aggregate')
+
+                    collection = get_cache_collection(request, report_id, "all")
+                    rs.del_collection(collection)
+                    rs.del_collection(collection+'_column_header')
+                    rs.del_collection(collection+'_row_header')
+                    rs.del_collection(collection+'aggregate')
+
+                
+                collection = get_cache_collection(request, report_id, "")
+                rs.del_collection(collection)
+                rs.del_collection(collection+'_column_header')
+                rs.del_collection(collection+'_row_header')
+                rs.del_collection(collection+'aggregate')
+
+            else:
+                raise Exception('Report could not be located or created.')
+
     except Exception as e:
         transaction.rollback()
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -385,9 +495,9 @@ def report_delete(request):
             rname = report.name
             
             Reports.objects.get(id=report_id).delete()
-            
+
             ma_db = myactivitystore()                
-            ma_db.set_item_reporting(rid, rname)
+            ma_db.set_item_reporting(rid, rname)          
 
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
@@ -414,7 +524,6 @@ def report_view(request, report_id):
         allowed = False
         report = Reports.objects.get(id=report_id)
         selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-
         if report.access_level == 'System':
             allowed = True
         elif report.access_level == 'State' and request.user.profile.district.state.id == report.access_id:
@@ -438,18 +547,20 @@ def report_view(request, report_id):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
-
                 columns = []
-                filters = []
                 for col in selected_columns:
                     columns.append(col)
+
+                filters = []    
                 for f in report_filters:
                     filters.append(f)
 
                 create_report_collection(request, report, selected_view, columns, filters, report_id)
 
+            view_id = ReportViews.objects.filter(report=report)[0].view_id;
+            pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;
             school_year_item = []
-            if report_has_school_year(selected_columns):
+            if (report_has_school_year(selected_columns)) or (view_id == pd_planner_id):
                 school_year_item = get_school_year_item()
         else:
             raise Exception('Not allowed.')
@@ -460,11 +571,17 @@ def report_view(request, report_id):
                 'window_title': 'Report Not Found'}
         return render_to_response('error.html', data, status=404)
 
-    data = {'report': report,
-            'school_year': school_year,
-            'display_columns': selected_columns,
-            'school_year_item': school_year_item}
-    return render_to_response('reporting/view-report.html', data)
+    if report.report_type == 0:
+        data = {'report': report,
+                'school_year': school_year,
+                'display_columns': selected_columns,
+                'school_year_item': school_year_item}
+        return render_to_response('reporting/view-report.html', data)
+    else:
+        data = {'report': report,
+                'school_year': school_year,
+                'school_year_item': school_year_item}
+        return render_to_response('reporting/view-matrix-report.html', data)
 
 
 @login_required
@@ -489,7 +606,7 @@ def report_get_rows(request):
     collection = get_cache_collection(request, report_id, school_year)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
-
+    
     for d in data:
         row = []
         for col in selected_columns:
@@ -500,7 +617,6 @@ def report_get_rows(request):
         row.append('')
         rows.append(row)
     return render_json_response({'total': total, 'rows': rows})
-
 
 def build_sorts_and_filters(columns, sorts, filters):
     """
@@ -562,9 +678,6 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
-    log.debug("111111111111111111111111111111111111")
-    log.debug(aggregate_query)
-    log.debug("111111111111111111111111111111111111")
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
@@ -777,6 +890,64 @@ def report_download_excel(request, report_id):
     response.write(output.getvalue())
     return response
 
+def report_download_matrix_excel(request, report_id):
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    for i, k in enumerate(column_header_row):
+        if k == "":
+            k = "null"
+        if k == "count":
+            k = "total"
+        worksheet.write(0, i, k)
+
+    row = 1
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
+
+    for d in data:
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                worksheet.write(row, key, d['row_header'])
+            else:
+                if val == None:
+                    val = 'none'
+                else:
+                    val = val.replace('.',',')
+                worksheet.write(row, key, d[val])
+        row += 1
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+
+    for key,value in enumerate(row_last):
+        worksheet.write(row, key, value)
+
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
 
 @login_required
 def report_get_progress(request, report_id):
@@ -1125,3 +1296,305 @@ def views_list(request):
 #     view_column_list = reporting.get_columns(view)
 #
 #     return render_json_response(view_column_list)
+
+def get_column_headers(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=int(report_id))
+    rs = reporting_store()
+    create_column_Headers(report,collection)
+    column_data = rs.get_datas(collection_column_header)
+    column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
+    column_header = column_header_data.column
+    column_header_type = column_header_data.data_type
+    row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    row_header = row_header_data.column
+    row_header_type = row_header_data.data_type
+    column_header_row = []
+    for d in column_data:
+        column_header_row.append(d['_id'][column_header])
+
+    data = []
+    total = ''
+    stats = int(rs.get_collection_stats(collection+"aggregate")['ok'])
+    if(not(stats)):
+        row_data = rs.get_datas(collection_row_header)
+        if aggregate_type_id == 1:
+            for d in row_data:
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = d['_id'][row_header]
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
+                    count = rs.get_count(collection,filters)
+                    row[column] = str(count)
+                row['count'] = str(d['count'])
+                data.append(row)
+            rs.insert_datas(data,collection+"aggregate")
+
+    if column_header_type == 'time':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = study_time_format_2(k)
+    if column_header_type == 'url':
+        if is_excel:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = settings.LMS_BASE + k
+        else:
+            for i,k in enumerate(column_header_row):
+                column_header_row[i] = '<a href="{0}" target="_blank">Link</a>'.format(k)
+    if column_header_type == 'date':
+        for i,k in enumerate(column_header_row):
+            column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
+
+    return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'row_header_type':row_header_type,'column_header':column_header,'row_header':row_header})
+
+def report_get_matrix_rows(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    order = ['$natural', 1, 0]
+    for col, sort in sorts.iteritems():
+        if int(col) == 0:
+            index = 'row_header'
+        else:
+            index = str(column_header_row[int(col)]).replace('.',',')
+        if sort == '1':
+            order = [index, -1, 0]
+        else:
+            order = [index, 1, 0]
+
+    search = {}
+    for col, f in filters.iteritems():
+        if int(col) == 0:
+            column_header_row[int(col)] = 'row_header'
+        f = f.replace('.',',')
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        index = str(column_header_row[int(col)]).replace('.',',')
+        search[index] = reg
+
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    rows = []
+    data = rs.get_page(collection+"aggregate", start, size, search, order)
+    total = rs.get_count(collection+"aggregate", search)
+    
+    for d in data:
+        row = []
+        for key,val in enumerate(column_header_row):
+            if key == 0:
+                row.append(d['row_header'])
+            else:
+                if val == None:
+                    val = 'none'
+                else:
+                    val=str(val).replace('.',',')
+                row.append(d[val])
+        rows.append(row)
+
+    row_last.append(sum(row_last))
+    row_last.insert(0,'Total')
+    rows.append(row_last)
+
+    return render_json_response({'total': total, 'rows': rows})
+
+def collection_column_headers(collection):
+    return str(collection) + '_column_header'
+
+def collection_row_headers(collection):
+    return str(collection) + '_row_header' 
+
+def create_column_Headers(report,collection):
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
+    query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    query = eval(query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,query,report.distinct)
+    row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
+    row_headers = ViewColumns.objects.filter(id=row_headers_id)[0].column
+    row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    row_query = eval(row_query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,row_query,report.distinct)
+
+def study_time_format_2(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour, '
+    minute_unit = ' Minute'
+    second_unit = 'Second'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    second = int(t % 60)
+    if second != 1:
+        second_unit = 'Seconds'
+    if hour != 1:
+        hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    if minute > 0:
+        minute_unit = str(minute) + minute_unit
+    else:
+        minute_unit = ''
+    return ('{0}{1} {2} {3} {4}').format(sign, hour_full, minute_unit, second, second_unit)
+
+def reporting_get_graphable(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    filter = request.GET.get('filter', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    row_last = []
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+
+    column_header_row.append('count')
+
+    rows = []
+    rs.set_collection(collection+"aggregate")
+    data = rs.collection.find()
+    for d in data:
+        row = {}
+        row[d['row_header']] = d[column_header_row[int(filter)]]
+        rows.append(row)
+
+    return render_json_response({'rows': rows})
+
+def reporting_get_row_graphable(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    filter = request.GET.get('filter', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    rs = reporting_store()
+    rows = []
+    search = {}
+    if filter == 'Total':
+        report = Reports.objects.get(id=report_id)
+        collection_column_header = collection_column_headers(collection)
+        column_data = rs.get_datas(collection_column_header)
+        column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+        column_header_row = [column_header]
+        row = {}
+        for d in column_data:
+            if d['_id'][column_header] == None:
+                d['_id'][column_header] = 'none'
+            d[str(d['_id'][column_header])] = d['count']
+            del d['_id']
+            del d['count']
+            rows.append(d)
+
+    else:
+        search["row_header"] = filter
+        rs.set_collection(collection+"aggregate")
+        data = rs.collection.find(search)
+        for d in data:
+            del d['_id']
+            del d['row_header']
+            del d['count']
+            rows.append(d)  
+
+    return render_json_response({'rows': rows})
+
+def reporting_get_aggregate(request):
+    report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
+    row_header_data = request.GET.get('row_header', '')
+    column_header_data = request.GET.get('column_header', '')
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(collection)
+    report = Reports.objects.get(id=report_id)
+    filter = {}
+    rows = []
+    rs = reporting_store()
+    column_data = rs.get_datas(collection_column_header)
+    Column_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
+    column_header = Column_Headers_object.column
+    column_header_row = [column_header]
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+    column_header_row.append('count')
+
+    if int(column_header_data) != int(len(column_header_row)-1):
+        if str(column_header_row[int(column_header_data)]) == 'none':
+            filter[str(column_header)] = {"$in": [None]}
+        else:
+            filter[str(column_header)] = str(column_header_row[int(column_header_data)])
+
+    Row_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]         
+    row_header = Row_Headers_object.column
+
+    if row_header_data != 'Total':
+        if row_header_data == 'none':
+            filter[str(row_header)] = {"$in": [None]}
+        else:
+            filter[str(row_header)] = str(row_header_data)
+
+    data = rs.get_datas(collection,filter)
+    for d in data:
+        rows.append(d)
+
+    aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
+    aggregate_header = aggregate_object.column
+    aggregate_name = aggregate_object.name
+    row_header_name = Row_Headers_object.name
+    column_header_name = Column_Headers_object.name
+
+    return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})

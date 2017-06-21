@@ -87,6 +87,13 @@ from datetime import timedelta
 from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
 #@end
 
+from student.models import State,District,School,User,UserProfile
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from django.http import HttpResponseRedirect
+
+from collections import OrderedDict
+
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -444,10 +451,53 @@ def more_courses_available(request):
 @login_required
 @ensure_csrf_cookie
 def dashboard(request, user_id=None):
+    flag_OrganizationOK = True
     if user_id:
         user = User.objects.get(id=user_id)
+
+        if request.user.id != user_id:
+            flag_OrganizationOK = False
     else:
         user = User.objects.get(id=request.user.id)
+
+    OrganizationOK = False
+    if flag_OrganizationOK:
+        try:
+            state_id = user.profile.district.state.id
+            district_id = user.profile.district.id
+            school_id = user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+            
+    data = {}
+    if OrganizationOK:
+        data["org_id"] = organization_obj.id;
+        for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+            data[tmp1.itemType] = tmp1.itemValue
+
+    if OrganizationOK and data["Dashboard option etc"] != "0":
+        return HttpResponseRedirect('/newdashboard/')
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
@@ -2030,7 +2080,8 @@ def upload_user_photo(user_id, file_img):
                       options.get('password'))
 
     # img_name = up.photo
-    _id={"user_id":user_id,"type":"photo"}
+    _id = OrderedDict([("ref_id", user_id), ("type", "photo")])
+    
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 

@@ -22,10 +22,22 @@
             <h2>Report</h2>
             %if action == 'edit':
                 <input type="text" name="report_name" value="${report.name}"/>
-                <input type="text" name="report_description" class="description" value="${report.description}">
+                <input type="text" name="report_description" class="description" value="${report.description}" style="width:540px;">
+                <input type="radio" name="type" value="Standard" class="report_type" 
+                    %if report.report_type == 0:
+                        checked
+                    %endif 
+                ><span>Standard</span>
+                <input type="radio" name="type" value="Matrix" class="report_type" 
+                    %if report.report_type == 1:
+                        checked
+                    %endif
+                ><span>Matrix</span>
             %else:
                 <input type="text" name="report_name" placeholder="Name"/>
-                <input type="text" name="report_description" class="description" placeholder="Description">
+                <input type="text" name="report_description" class="description" placeholder="Description" style="width:540px;" >
+                <input type="radio" name="type" value="Standard" class="report_type" checked><span>Standard</span>
+                <input type="radio" name="type" value="Matrix" class="report_type"><span>Matrix</span>
             %endif
             <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             <input type="hidden" name="action" value="${action}">
@@ -64,7 +76,14 @@
                 %endfor
             %endif
         </div>
-        <div class="edit-block column-selector">
+
+        <div class="edit-block column-selector" id="Standard" 
+            %if action == 'edit':
+                %if report.report_type == 1:
+                    style="display:none;"
+                %endif
+            %endif
+        >
             <h2>Select Columns</h2>
             <div id="order-title">Select columns to show in the report: <label><input type="checkbox" id="column-select-all"> Select All</label><div>Column order:</div></div>
             %if action == 'edit':
@@ -94,6 +113,109 @@
                 <ul id="selected-columns"></ul>
             %endif
             <div class="clearfix"></div>
+        </div>
+        
+
+        <div class="edit-block column-selector" id="Matrix" 
+            %if action == 'edit':
+                %if report.report_type == 1:
+                    style="display:block;"
+                %endif
+            %else:
+                style="display: none;"
+            %endif
+        >
+            <h2>Select Columns</h2>
+                <span>Column Headers:</span>
+                <span style="margin-left:200px;">Row Headers:</span>
+                <span style="margin-left:200px;">Aggregate Data:</span>
+                <span style="margin-left:200px;">Aggregate Type: </span> <br><br>
+                <select name="Column_Headers" id="Column_Headers" style="width:200px;">
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.column_headers:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
+                </select>
+                <select style="margin-left:130px;width:200px;" name="Row_Headers" id="Row_Headers">
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.row_headers:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
+                </select>
+                <select style="margin-left:100px;width:200px;" name="Aggregate_Data" id="Aggregate_Data">
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.aggregate_data:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
+                </select>
+                <select style="margin-left:120px;" name="Aggregate_Type">
+                    <option value="0" 
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 0:
+                                selected 
+                            %endif
+                        %endif
+                    %endif
+                    >Sum</option>
+                    <option value="1"
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 1:
+                                selected 
+                            %endif
+                        %endif
+                    %endif
+                    >Count</option>
+                    <option value="2"
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 2:
+                                selected
+                            %endif 
+                        %endif
+                    %endif
+                    >Average</option>
+                    <option value="3"
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 3:
+                                selected 
+                            %endif
+                        %endif
+                    %endif
+                    >Max</option>
+                    <option value="4"
+                    %if action == 'edit':
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 4:
+                                selected 
+                            %endif
+                        %endif
+                    %endif
+                    >Min</option>
+                </select>
         </div>
         <div class="edit-block where-selector">
             <h2>Select Filters</h2>
@@ -194,14 +316,32 @@
                 $(".report-name").addClass('error-box');
             }
             if ($("select[name='view[0]']").val() == 'none') {
-                valid = false;
-                errors.push('At least one view must be selected.');
-                $(".view-selector").addClass('error-box');
+                    valid = false;
+                    errors.push('At least one view must be selected.');
+                    $(".view-selector").addClass('error-box');
+                }
+            var type = $("input[type='radio']:checked").val();
+            if (type == 'Standard'){
+                if (!$('.column-check:checked').length) {
+                    valid = false;
+                    errors.push('You must select at least one column.');
+                    $('.column-selector').addClass('error-box');
+                }
             }
-            if (!$('.column-check:checked').length) {
-                valid = false;
-                errors.push('You must select at least one column.');
-                $('.column-selector').addClass('error-box');
+            if (type == 'Matrix'){
+                var Column_Headers = $("select[name='Column_Headers']").val();
+                var Row_Headers = $("select[name='Row_Headers']").val();
+                var Aggregate_Data = $("select[name='Aggregate_Data']").val();
+                if (Column_Headers == 'none' || Row_Headers == 'none' || Aggregate_Data == 'none') {
+                    valid = false;
+                    errors.push('Column Headers and Row_Headers must be selected.');
+                    $(".column-selector").addClass('error-box');
+                }
+                if(Column_Headers == Row_Headers || Row_Headers == Aggregate_Data || Aggregate_Data == Column_Headers){
+                    valid = false;
+                    errors.push('Column_Headers,Row_Headers,Aggregate_Data,These 3 fields must be different.');
+                    $('.column-selector').addClass('error-box');
+                }
             }
             if (!valid) {
                 var error = errors.join('\n');
@@ -209,6 +349,7 @@
             }
             return valid;
         });
+
         $('#report-cancel').click(function (e) {
             e.preventDefault();
             window.location = '${reverse('reporting_reports')}';
@@ -220,4 +361,17 @@
         descriptionPopups();
         selectAll('#column-select-all', '.column-check');
     });
+    
+    $("input[type='radio']").change(function(){
+        var type = $("input[type='radio']:checked").val();
+        if(type == 'Standard'){
+            $("#Standard").show();
+            $("#Matrix").hide();
+            viewSelect();
+        }else{
+            $("#Standard").hide();
+            $("#Matrix").show();
+            viewSelect();
+        }
+    })
 </script>

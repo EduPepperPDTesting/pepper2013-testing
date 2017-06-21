@@ -57,6 +57,10 @@ class DashboardFeedingStore(MongoBaseStore):
         # super(MongoBaseStore, self).__init__(**kwargs)
         MongoBaseStore.__init__(self, host, db, collection="dashboard_feeding", port=port, **kwargs)
 
+    def dismiss(self, feeding_id, user_id):
+        self.update({"_id": ObjectId(feeding_id)},
+                    {"$push": {"dismiss": long(user_id)}}, False, True)
+
     def get_likes(self, feeding_id):
         doc = self.find_one({"_id": ObjectId(feeding_id)})
         return doc["likes"] if doc else []
@@ -78,24 +82,27 @@ class DashboardFeedingStore(MongoBaseStore):
         self.update({"_id": ObjectId(feeding_id)},
                     {"$pull": {"likes": {"user_id": long(user_id)}}}, False, True)
 
-    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, before=None):
+    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, after=None, cond_ext={}):
         results = []
 
-        # {$project: {doc: "$$ROOT", birth_month: {$month: "$birthdate"}}}
-
         # ** fields needed
-        fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1, "keep_top": {"$and": [
+        fields = {"__doc__": "$$ROOT", "keep_top": {"$and": [
             {"$eq": ["$type", "announcement"]},
-            {"$gte": ["$expiration_date", before]}]},
-            "images": 1, "type": 1, "sub_of": 1, "receivers": 1, "likes": 1}
+            {"$gte": ["$expiration_date", after]}]}}
         fields["month"] = {"$month": '$date'}
         fields["year"] = {"$year": '$date'}
 
         # ** cond
-        cond = {"$and": [{"$or": [{"receivers": {"$elemMatch": {"$eq": user_id}}},  # user is receiver
-                                  {"receivers": {"$elemMatch": {"$eq": 0}}}]},      # for every one
+        cond = {"$and": [{"$or": [{"__doc__.receivers": {"$in": [user_id]}},  # user is receiver
+                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},  # for every one
+                         {"__doc__.dismiss": {"$nin": [user_id]}},  # not dismissed
+                         {"$or": [
+                             {"__doc__.type": {"$ne": "announcement"}},  # none announcement
+                             {"__doc__.expiration_date": {"$gte": after}}]}  # > after
                          ],
-                "sub_of": None}  # is top leve;
+                "__doc__.sub_of": None}  # is top leve;
+
+        cond.update(cond_ext)
 
         # *** filter cond
         if month:
@@ -105,17 +112,19 @@ class DashboardFeedingStore(MongoBaseStore):
             cond["year"] = int(year)
 
         if type:
-            cond["type"] = type
+            cond["__doc__.type"] = type
 
         # ** sort order
-        so = OrderedDict([("keep_top", -1), ("date", -1)])
+        so = OrderedDict([("keep_top", -1), ("__doc__.date", -1)])
 
+        # ** create command
         command = [{"$project": fields}, {"$match": cond}, {"$sort": so}]
 
-        # ** paged
-        if page > 0:
+        # *** paged
+        if page is not None:
             command.append({"$skip": page * page_size})
-        command.append({"$limit": page_size})
+        if page_size is not None:
+            command.append({"$limit": page_size})
 
         cursor = self.aggregate(command)
 
@@ -125,6 +134,8 @@ class DashboardFeedingStore(MongoBaseStore):
 
         for p in cursor["result"]:
             # p = dict((k, p[k]) for k in ("_id", "content", "user_id"))
+            p.update(p["__doc__"])
+            del p["__doc__"]
             results.append(p)
         return results
 
@@ -139,10 +150,20 @@ class DashboardFeedingStore(MongoBaseStore):
             results.append(p)
         return results
 
-    def create(self, user_id, type, content, date, receivers=[],
-               sub_of=None, top_level=None, expiration_date=None, images=None):
-        data = {"type": type, "user_id": user_id, "content": content, "receivers": receivers, "date": date}
+    def create(self, user_id, type, content, date, receivers=[], attachment_file=None,
+               sub_of=None, top_level=None, expiration_date=None, **kwargs):
+        data = {
+            "type": type,
+            "user_id": user_id,
+            "content": content,
+            "receivers": receivers,
+            "date": date}
 
+        data.update(kwargs)
+        
+        if attachment_file:
+            data["attachment_file"] = attachment_file
+            
         if sub_of:
             data["sub_of"] = ObjectId(sub_of)
 
@@ -152,10 +173,36 @@ class DashboardFeedingStore(MongoBaseStore):
         if expiration_date:
             data["expiration_date"] = expiration_date
 
-        if images:
-            data["images"] = images
-
         return self.insert(data)
+
+    def get_announcements(self, user_id, organization_type, **kwargs):
+        kwargs["type"] = "announcement"
+        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type}
+        return self.top_level_for_user(user_id, **kwargs)
+
+    def get_posts(self, user_id, **kwargs):
+        kwargs["type"] = "post"
+        return self.top_level_for_user(user_id, **kwargs)
+
+    def get_post_year_range(self, user_id):
+        cond = {"$and": [{"$or": [{"__doc__.receivers": {"$in": [user_id]}},  # user is receiver
+                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},  # for every one
+                         {"__doc__.dismiss": {"$nin": [user_id]}}  # not dismissed
+                         ],
+                "__doc__.sub_of": None,   # is top leve;
+                "__doc__.type": "post"}
+
+        so = OrderedDict([("__doc__.date", 1)])
+        command = [{"$project": {"__doc__": "$$ROOT", "year": {"$year": "$date"}}}, {"$match": cond}, {"$sort": so}]
+
+        cursor = self.aggregate(command)
+
+        count = len(cursor["result"])
+
+        if count:
+            return cursor["result"][0]["year"], cursor["result"][count - 1]["year"]
+        else:
+            return None, None
 
 
 def dashboard_feeding_store():

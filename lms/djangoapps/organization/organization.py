@@ -24,6 +24,7 @@ from django.conf import settings
 from PIL import Image
 import os
 import os.path
+import shutil
 
 #-------------------------------------------------------------------main
 def main(request):
@@ -64,6 +65,9 @@ def main(request):
 
         elif (post_flag == "org_dashboard_upload"):
             return org_dashboard_upload(request);
+
+        elif (post_flag == "org_dashboard_upload_cms"):
+            return org_dashboard_upload_cms(request);
 
         elif (post_flag == "organization_check_Entity"):
             return org_check_Entity(request);
@@ -115,6 +119,7 @@ def organization_check(request):
 @login_required
 def organization_add(request):
     name = request.POST.get('organizational_name', False)
+    copyfromId = request.POST.get('organizational_copy_from', False)
     oid = request.POST.get('oid', False)
     data = {'Success': False}
 
@@ -127,6 +132,86 @@ def organization_add(request):
         try:
             organization.OrganizationName = name
             organization.save()
+
+            if copyfromId:
+                organization_old = OrganizationMetadata.objects.get(id=copyfromId) 
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization.id) + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                path_cms = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization.id) + '/'
+                if not os.path.exists(path_cms):
+                    os.mkdir(path_cms)
+
+                # --------------OrganizationMenuitem
+                for bean1 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=0):
+                    org_menu_item = OrganizationMenuitem()
+                    org_menu_item.MenuItem = bean1.MenuItem
+                    org_menu_item.Url = bean1.Url
+                    org_menu_item.Icon = bean1.Icon
+                    org_menu_item.isAdmin = bean1.isAdmin                 
+                    org_menu_item.rowNum = bean1.rowNum
+                    org_menu_item.ParentID = 0
+                    org_menu_item.organization = organization
+                    org_menu_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)   
+
+                    for bean2 in OrganizationMenuitem.objects.filter(organization=organization_old,ParentID=bean1.id):
+                        org_menu_item2 = OrganizationMenuitem()
+                        org_menu_item2.MenuItem = bean2.MenuItem
+                        org_menu_item2.Url = bean2.Url
+                        org_menu_item2.isAdmin = bean2.isAdmin                 
+                        org_menu_item2.rowNum = bean2.rowNum
+                        org_menu_item2.ParentID = org_menu_item.id
+                        org_menu_item2.organization = organization
+                        org_menu_item2.save()
+
+                # --------------OrganizationCmsitem
+                for bean1 in OrganizationCmsitem.objects.filter(organization=organization_old,):
+                    org_cms_item = OrganizationCmsitem()
+                    org_cms_item.CmsItem = bean1.CmsItem
+                    org_cms_item.Url = bean1.Url
+                    org_cms_item.Icon = bean1.Icon
+                    org_cms_item.Grade = bean1.Grade                 
+                    org_cms_item.rowNum = bean1.rowNum
+                    org_cms_item.organization = organization
+                    org_cms_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + str(organization_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path_cms + bean1.Icon)   
+
+                # --------------OrganizationMenu
+                for bean1 in OrganizationMenu.objects.filter(organization=organization_old):
+                    org_menu = OrganizationMenu()
+                    org_menu.itemType = bean1.itemType
+                    org_menu.itemValue = bean1.itemValue
+                    org_menu.organization = organization
+                    org_menu.save()
+                    
+                    if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
+
+                # --------------OrganizationDashboard
+                for bean1 in OrganizationDashboard.objects.filter(organization=organization_old):
+                    org_dashboard = OrganizationDashboard()
+                    org_dashboard.itemType = bean1.itemType
+                    org_dashboard.itemValue = bean1.itemValue
+                    org_dashboard.organization = organization
+                    org_dashboard.save()
+
+                    if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
 
             data = {'Success': True}
         except Exception as e:
@@ -143,7 +228,9 @@ def organization_delete(request):
 
             OrganizationDataitems.objects.filter(organization=org).delete()
             OrganizationDistricts.objects.filter(organization=org).delete()
-            OrganizationAttributes.objects.filter(organization=org).delete()
+            OrganizationMenuitem.objects.filter(organization=org).delete()
+            OrganizationMenu.objects.filter(organization=org).delete()
+            OrganizationDashboard.objects.filter(organization=org).delete()
 
             org.delete()
 
@@ -219,20 +306,46 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break;
                             break;
-                            
-                    elif (column == "LogoProfile"):
-                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
-                            for tmp2 in OrganizationAttributes.objects.filter(organization=tmp1):
-                                if (column == "LogoProfile"):
-                                    filename = tmp2.LogoProfile
-                                    tmp2.LogoProfile = ""
+                    elif (column == "OrganizationLogo"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):                           
+                            for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
 
-                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + filename
                                 if os.path.isfile(filename):
                                     os.remove(filename)
+                                
+                                data = {'Success': True}
+                                break;
+                            break;
 
+                    elif (column == "LogoProfile"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
                                 tmp2.save()
-                            data = {'Success': True}
+                                
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+                                
+                                data = {'Success': True}
+                                break;
+                            break;
+
+                    elif (column == "LogoProfileCurr"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo Curriculumn"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+                                
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+                                
+                                data = {'Success': True}
+                                break;
                             break;
 
     except Exception as e:
@@ -296,15 +409,6 @@ def organization_get(request):
                             data['New'] = False
 
                     data['sid_did'] = sid_did
-
-                    # --------------OrganizationAttributes
-                    org_attr_list = OrganizationAttributes.objects.filter(organization=organizations)
-                    for tmp1 in org_attr_list:
-                        data['home_logo'] = tmp1.LogoHome
-                        data['profile_logo'] = tmp1.LogoProfile
-                        data['motto'] = tmp1.Motto
-                        data['New'] = False
-                        break;
                     
                     # --------------OrganizationDashboard
                     for tmp1 in OrganizationDashboard.objects.filter(organization=organizations):
@@ -331,6 +435,16 @@ def organization_get(request):
                     
                     data["menu_items"] = menu_items
 
+                    # --------------OrganizationCms
+                    cms_items = ""
+                    for tmp1 in OrganizationCmsitem.objects.filter(organization=organizations):
+                        if cms_items != "":
+                            cms_items = cms_items + "=<="
+
+                        cms_items = cms_items + str(tmp1.rowNum) + "=>=" + tmp1.CmsItem + "=>=" + tmp1.Url + "=>=" + tmp1.Grade + "=>=" + tmp1.Icon
+                    
+                    data["cms_items"] = cms_items
+
                     break;
             else:
                 data['find'] = False
@@ -349,15 +463,42 @@ def organizational_save_base(request):
         specific_items = request.POST.get("specific_items", "")
         sid_did = request.POST.get("sid_did", "")
         motto = request.POST.get("motto", "")
+        motto_curr = request.POST.get("motto_curr", "")
         menu_items = request.POST.get("menu_items", "")
+        cms_items = request.POST.get("cms_items", "")
         dashboard_option = request.POST.get("dashboard_option", "")
         is_icon = request.POST.get("is_icon", "")
         is_icon_width_text = request.POST.get("is_icon_width_text", "")
+        new_show_left = request.POST.get("new_show_left", "")
+        new_show_right = request.POST.get("new_show_right", "")
+        new_show_left_curr = request.POST.get("new_show_left_curr", "")
+        new_show_right_curr = request.POST.get("new_show_right_curr", "")
         menu_text_color = request.POST.get("menu_text_color", "")
         menu_text_font = request.POST.get("menu_text_font", "")
         menu_text_size = request.POST.get("menu_text_size", "")
+        menu_text_color_icons = request.POST.get("menu_text_color_icons", "")
+        menu_text_font_icons = request.POST.get("menu_text_font_icons", "")
+        menu_text_size_icons = request.POST.get("menu_text_size_icons", "")
         space_between_items = request.POST.get("space_between_items", "")
+        menu_text_color_me = request.POST.get("menu_text_color_me", "")
+        menu_text_font_me = request.POST.get("menu_text_font_me", "")
+        menu_text_size_me = request.POST.get("menu_text_size_me", "")
         menu_color = request.POST.get("menu_color", "")
+        is_new_menu = request.POST.get("is_new_menu", "")
+        my_feed_show = request.POST.get("my_feed_show", "")
+        my_activities_show = request.POST.get("my_activities_show", "")
+        my_report_show = request.POST.get("my_report_show", "")
+        my_featured_show = request.POST.get("my_featured_show", "")
+        is_my_feed_default = request.POST.get("is_my_feed_default", "")
+        my_feed_show_curr = request.POST.get("my_feed_show_curr", "")
+        my_activities_show_curr = request.POST.get("my_activities_show_curr", "")
+        my_report_show_curr = request.POST.get("my_report_show_curr", "")
+        my_featured_show_curr = request.POST.get("my_featured_show_curr", "")
+        is_my_feed_default_curr = request.POST.get("is_my_feed_default_curr", "")        
+        org_logo_url = request.POST.get("org_logo_url", "")
+        org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
+        org_profile_logo_curr_url = request.POST.get("org_profile_logo_curr_url", "")
+        logo_url = request.POST.get("logo_url", "")
 
         if(oid):
             # --------------OrganizationMetadata
@@ -369,7 +510,6 @@ def organizational_save_base(request):
 
             org_metadata.DistrictType = for_district
             org_metadata.SchoolType = for_school
-
             org_metadata.save();
 
             #--------------OrganizationDataitems
@@ -383,7 +523,6 @@ def organizational_save_base(request):
 
             org_data.DataItem = specific_items
             org_data.organization = org_metadata
-
             org_data.save();
 
             # --------------OrganizationDistricts
@@ -397,17 +536,28 @@ def organizational_save_base(request):
                     org_dis.organization = org_metadata
                     org_dis.save();
 
-            # --------------OrganizationAttributes            
-            org_menu = OrganizationMenu();
-            org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
-            for tmp1 in org_attr_list:
-                org_attr = tmp1
-                break;
+            # --------------OrganizationDashboard
+            if(motto != ""):
+                org_dashboard_motto = OrganizationDashboard();
+                for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto"):
+                    org_dashboard_motto = tmp1
+                    break;
 
-            org_attr.Motto = motto
-            org_attr.organization = org_metadata
+                org_dashboard_motto.organization = org_metadata
+                org_dashboard_motto.itemType = "Motto"
+                org_dashboard_motto.itemValue = motto
+                org_dashboard_motto.save()
 
-            org_attr.save();
+            if(motto_curr != ""):
+                org_dashboard_motto_curr = OrganizationDashboard();
+                for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto Curriculumn"):
+                    org_dashboard_motto_curr = tmp1
+                    break;
+
+                org_dashboard_motto_curr.organization = org_metadata
+                org_dashboard_motto_curr.itemType = "Motto Curriculumn"
+                org_dashboard_motto_curr.itemValue = motto_curr
+                org_dashboard_motto_curr.save()
  
             # --------------OrganizationMenuitem
             OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
@@ -441,41 +591,59 @@ def organizational_save_base(request):
                                 org_menu_item1.isAdmin = False
                             org_menu_item1.rowNum = tmp4[0]
                             org_menu_item1.ParentID = org_menu_item.id
-                            org_menu_item1.save()                       
+                            org_menu_item1.save() 
 
+            # --------------OrganizationCmsitem
+            OrganizationCmsitem.objects.filter(organization=org_metadata).delete()
+            if (cms_items):                
+                for tmp1 in cms_items.split("=<="):
+                    tmp2 = tmp1.split("=>=")
 
-            # --------------OrganizationMenu Menu color
-            org_OrganizationMenuSave(org_metadata, "Menu Color", menu_color)             
-
-            # --------------OrganizationMenu Is Icon
-            org_OrganizationMenuSave(org_metadata, "Is Icon", is_icon)       
-
-            # --------------OrganizationMenu Is Icon with Text         
-            org_OrganizationMenuSave(org_metadata, "Is Icon With Text", is_icon_width_text) 
-
-            # --------------OrganizationMenu Text Color
+                    org_menu_item = OrganizationCmsitem()
+                    org_menu_item.organization = org_metadata
+                    org_menu_item.CmsItem = tmp2[1]
+                    org_menu_item.Url = tmp2[2]
+                    org_menu_item.Grade = tmp2[3]
+                    if tmp2[4] != "":
+                        org_menu_item.Icon = tmp2[4]
+                    
+                    org_menu_item.rowNum = tmp2[0]
+                    org_menu_item.save()
+           
+            org_OrganizationMenuSave(org_metadata, "Menu Color", menu_color)  
+            org_OrganizationMenuSave(org_metadata, "Is Icon", is_icon)
+            org_OrganizationMenuSave(org_metadata, "Is Icon With Text", is_icon_width_text)
             org_OrganizationMenuSave(org_metadata, "Text Color", menu_text_color) 
-
-            # --------------OrganizationMenu Text Font
             org_OrganizationMenuSave(org_metadata, "Text Font", menu_text_font) 
-
-            # --------------OrganizationMenu Text Size
-            org_OrganizationMenuSave(org_metadata, "Text Size", menu_text_size)       
-
-            # --------------OrganizationMenu Space Betwwen Items
+            org_OrganizationMenuSave(org_metadata, "Text Size", menu_text_size)  
+            org_OrganizationMenuSave(org_metadata, "Text Color Icons", menu_text_color_icons) 
+            org_OrganizationMenuSave(org_metadata, "Text Font Icons", menu_text_font_icons) 
+            org_OrganizationMenuSave(org_metadata, "Text Size Icons", menu_text_size_icons)  
+            org_OrganizationMenuSave(org_metadata, "Text Color Me", menu_text_color_me) 
+            org_OrganizationMenuSave(org_metadata, "Text Font Me", menu_text_font_me) 
+            org_OrganizationMenuSave(org_metadata, "Text Size Me", menu_text_size_me)   
             org_OrganizationMenuSave(org_metadata, "Space Betwwen Items", space_between_items)
+            org_OrganizationMenuSave(org_metadata, "Is New Menu", is_new_menu)
+            org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
+            org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
 
-            # --------------organizationDashboard
-            if(dashboard_option):
-                org_dashboard = OrganizationDashboard()
-                for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Dashboard option etc"):
-                    org_dashboard = tmp1
-                    break;
-
-                org_dashboard.organization = org_metadata               
-                org_dashboard.itemType = "Dashboard option etc"
-                org_dashboard.itemValue = dashboard_option
-                org_dashboard.save()
+            org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
+            org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
+            org_OrganizationDashboardSave(org_metadata, "Profile Logo Url Curriculumn", org_profile_logo_curr_url)
+            org_OrganizationDashboardSave(org_metadata, "My Feed Show", my_feed_show)
+            org_OrganizationDashboardSave(org_metadata, "My Activities Show", my_activities_show)
+            org_OrganizationDashboardSave(org_metadata, "My Report Show", my_report_show)
+            org_OrganizationDashboardSave(org_metadata, "My Featured Show", my_featured_show)
+            org_OrganizationDashboardSave(org_metadata, "Is My Feed Default", is_my_feed_default)
+            org_OrganizationDashboardSave(org_metadata, "My Feed Show Curriculumn ", my_feed_show_curr)
+            org_OrganizationDashboardSave(org_metadata, "My Activities Show Curriculumn", my_activities_show_curr)
+            org_OrganizationDashboardSave(org_metadata, "My Report Show Curriculumn", my_report_show_curr)
+            org_OrganizationDashboardSave(org_metadata, "My Featured Show Curriculumn", my_featured_show_curr)
+            org_OrganizationDashboardSave(org_metadata, "Is My Feed Default Curriculumn", is_my_feed_default_curr)
+            org_OrganizationDashboardSave(org_metadata, "Show Left DB", new_show_left) 
+            org_OrganizationDashboardSave(org_metadata, "Show Right DB", new_show_right) 
+            org_OrganizationDashboardSave(org_metadata, "Show Left DB Curriculumn", new_show_left_curr) 
+            org_OrganizationDashboardSave(org_metadata, "Show Right DB Curriculumn", new_show_right_curr) 
 
         data = {'Success': True}
     except Exception as e:
@@ -483,19 +651,29 @@ def organizational_save_base(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
-
 #-------------------------------------------------------------------org_OrganizationMenuSave
-def org_OrganizationMenuSave(organization, itemType, itemValue):
-    if(itemValue):
-        org_menu_tmp = OrganizationMenu()
-        for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType=itemType):
-            org_menu_tmp = tmp1
-            break;
+def org_OrganizationMenuSave(organization, itemType, itemValue):  
+    org_menu_tmp = OrganizationMenu()
+    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType=itemType):
+        org_menu_tmp = tmp1
+        break;
 
-        org_menu_tmp.organization = organization               
-        org_menu_tmp.itemType = itemType
-        org_menu_tmp.itemValue = itemValue
-        org_menu_tmp.save()
+    org_menu_tmp.organization = organization               
+    org_menu_tmp.itemType = itemType
+    org_menu_tmp.itemValue = itemValue
+    org_menu_tmp.save()
+
+#-------------------------------------------------------------------org_OrganizationDashboardSave
+def org_OrganizationDashboardSave(organization, itemType, itemValue):  
+    org_menu_tmp = OrganizationDashboard()
+    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType=itemType):
+        org_menu_tmp = tmp1
+        break;
+
+    org_menu_tmp.organization = organization               
+    org_menu_tmp.itemType = itemType
+    org_menu_tmp.itemValue = itemValue
+    org_menu_tmp.save()
 
 #-------------------------------------------------------------------organizational_save_base
 @login_required
@@ -511,18 +689,16 @@ def org_upload(request):
 
             if file_type == "home_logo":
                 imgx = request.FILES.get("organizational_base_home_logo", None)
+            
+            elif file_type == "organization_logo":
+                imgx = request.FILES.get("organizational_base_organization_logo", None)
 
             elif file_type == "profile_logo":
                 imgx = request.FILES.get("organizational_base_profile_logo", None)
 
-            elif file_type == "top_main_logo":
-                imgx = request.FILES.get("organizational_base_top_main_logo", None)
-
-            elif file_type == "bottom_main_logo":
-                imgx = request.FILES.get("organizational_base_bottom_main_logo", None)
-
-            elif file_type == "main_page_bottom_image":
-                imgx = request.FILES.get("organizational_base_main_page_bottom_image", None)
+            elif file_type == "profile_logo_curr":
+                imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
+           
 
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
             if not os.path.exists(path):
@@ -534,39 +710,49 @@ def org_upload(request):
                 for chunk in imgx.chunks():
                     destination.write(chunk)
                 destination.close()
-
-                org_attr = OrganizationAttributes()
-                for tmp1 in OrganizationAttributes.objects.filter(organization=organization):
-                    org_attr = tmp1
-                    break;
-
+                
                 org_menu = OrganizationMenu()
-                for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="logo"):
-                    org_menu = tmp1
-                    break;
-
-                org_attr.organization = organization
-                org_menu.organization = organization
+                org_dashboard = OrganizationDashboard()
+                
                 if file_type == "home_logo":
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="logo"):
+                        org_menu = tmp1
+                        break;
+
+                    org_menu.organization = organization
                     org_menu.itemType = "logo"
                     org_menu.itemValue = file_type + ext
                     org_menu.save()
 
+                elif file_type == "organization_logo":
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType="organization_logo"):
+                        org_menu = tmp1
+                        break;
+
+                    org_menu.organization = organization
+                    org_menu.itemType = "organization_logo"
+                    org_menu.itemValue = file_type + ext
+                    org_menu.save()
+
                 elif file_type == "profile_logo":
-                    org_attr.LogoProfile = file_type + ext
-                    org_attr.save()
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Profile Logo"):
+                        org_dashboard = tmp1
+                        break;
 
-                elif file_type == "top_main_logo":
-                    org_attr.TopMainLogo = file_type + ext
-                    org_attr.save()
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Profile Logo"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
 
-                elif file_type == "bottom_main_logo":
-                    org_attr.BottomMainLogo = file_type + ext
-                    org_attr.save()
+                elif file_type == "profile_logo_curr":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Profile Logo Curriculumn"):
+                        org_dashboard = tmp1
+                        break;
 
-                elif file_type == "main_page_bottom_image":
-                    org_attr.MainPageBottomImage = file_type + ext
-                    org_attr.save()                
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Profile Logo Curriculumn"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()  
 
                 data = {'Success': True, 'name': file_type + ext}
 
@@ -574,7 +760,6 @@ def org_upload(request):
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
-
 
 #-------------------------------------------------------------------organization_main_page_configuration_get
 @login_required
@@ -713,6 +898,46 @@ def org_dashboard_upload(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
+#-------------------------------------------------------------------org_dashboard_upload_cms
+@login_required
+def org_dashboard_upload_cms(request):
+    try:
+        data = {'Success': False}
+
+        rowNum = request.POST.get("rowNum", "")
+        oid = request.POST.get("oid", "")
+        fileElementId = request.POST.get("fileElementId", "")
+
+        if(rowNum and oid):
+            rowNum = str(rowNum)
+            organization = OrganizationMetadata.objects.get(id=oid)            
+            imgx = request.FILES.get("cms_items_icon_" + rowNum, None)
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/' + oid + '/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            if imgx:
+                destination = open(path + imgx.name, 'wb+')
+                for chunk in imgx.chunks():
+                    destination.write(chunk)
+                destination.close()
+                
+                for org_menu_item in OrganizationCmsitem.objects.filter(organization=organization,rowNum=int(rowNum)):
+                    org_menu_item.Icon = imgx.name
+                    org_menu_item.save()
+                    break;              
+
+                data = {'Success': True, 'name': imgx.name}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
 #-------------------------------------------------------------------organization_get_info
 def organization_get_info(request):
     source = request.POST.get('source', False)
@@ -740,10 +965,17 @@ def organization_get_info(request):
             if (source == "register"):
                 district = request.POST.get('district', False)
                 state = request.POST.get('state', False)
+                school = request.POST.get('school', False)
 
                 data['OrganizationOK'] = False
 
-                if (district):
+                if (school):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school, EntityType="School"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
+
+                if (not(data['OrganizationOK']) and district):
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
@@ -768,24 +1000,36 @@ def organization_get_info(request):
                         data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
                         break;
 
-
                 data['Success'] = True
 
             elif(source == "navigation"):
                 if request.user.is_authenticated():
-                    state = request.user.profile.district.state.id
-                    district = request.user.profile.district.id
-
+                    try:
+                        state = request.user.profile.district.state.id
+                        district = request.user.profile.district.id
+                        school = request.user.profile.school.id
+                    except:
+                        state = -1
+                        district = -1
+                        school = -1
+                    
                     data['OrganizationOK'] = False
 
-                    if (district):
+                    if (school != -1):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school,
+                                                                         EntityType="School"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
+
+                    if (not (data['OrganizationOK']) and district != -1):
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
                                                                          EntityType="District"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
                             break;
 
-                    if (not (data['OrganizationOK']) and state):
+                    if (not (data['OrganizationOK']) and state != -1):
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
@@ -820,13 +1064,9 @@ def organization_get_info(request):
                             data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
                             break;
 
-
-                        for tmp2 in OrganizationAttributes.objects.filter(organization=organization_obj):
-                            data['LogoHome'] = tmp2.LogoHome
-                            if (flag_main == "dashboard"):
-                                data['LogoProfile'] = tmp2.LogoProfile
-                                data['Motto'] = tmp2.Motto
-                            break;
+                        if (flag_main == "dashboard"):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                                data[tmp2.itemType] = tmp2.itemValue
 
                     data['Success'] = True
 

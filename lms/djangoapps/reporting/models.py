@@ -27,6 +27,7 @@ class Reports(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     order = models.IntegerField(default=0)
+    report_type = models.IntegerField(default=0)
 
 
 class Views(models.Model):
@@ -81,6 +82,15 @@ class ReportFilters(models.Model):
     operator = models.CharField(blank=False, max_length=2)
     order = models.IntegerField(blank=False, null=False, default=0)
 
+class ReportMatrixColumns(models.Model):
+    class Meta:
+        db_table = 'reporting_matrix_columns'
+    report = models.ForeignKey(Reports, on_delete=models.CASCADE)
+    column_headers = models.IntegerField(blank=False, null=False)
+    row_headers = models.IntegerField(blank=False, null=False)
+    aggregate_data = models.IntegerField(blank=False, null=False)
+    aggregate_type = models.IntegerField(default=0)
+
 
 class MongoReportingStore(object):
 
@@ -119,6 +129,15 @@ class MongoReportingStore(object):
     #         map(lambda d: d.keys(), self.collection.find()),
     #         set()
     #     )
+    def insert_datas(self,datas,collection):
+        self.set_collection(collection)
+        for index,val in enumerate(datas):
+            self.collection.insert(val)
+        return True
+
+    def get_datas(self,collection,db_filter={}):
+        self.set_collection(collection)
+        return self.collection.find(db_filter).sort('_id')
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)

@@ -261,3 +261,60 @@ class UserLoginInfo(models.Model):
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
     logout_press = models.BooleanField(blank=False, default=0)
     temp_time = models.CharField(max_length=30)
+
+
+class PepRegTraining_Backup(models.Model):
+    class Meta:
+        db_table = 'pepreg_training_hist'
+    type = models.CharField(blank=False, max_length=50, db_index=False)
+    district = models.ForeignKey(District)
+    description = models.TextField(blank=False, null=True)
+    subject = models.CharField(blank=False, max_length=50, db_index=False)
+    name = models.CharField(blank=False, max_length=255, db_index=False)
+    pepper_course = models.CharField(blank=False, max_length=255, db_index=False)
+    training_date = models.DateField(auto_now_add=False, db_index=False)
+    training_time_start = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
+    training_time_end = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
+    geo_location = models.CharField(blank=False, max_length=255, db_index=False)
+    geo_props = models.TextField(blank=False, null=True)    
+    classroom = models.CharField(blank=False, max_length=255, db_index=False)
+    credits = models.FloatField(blank=False, default=0)
+    attendancel_id = models.CharField(blank=False, max_length=255, db_index=False)
+    allow_registration = models.BooleanField(blank=False, default=0)
+    max_registration = models.IntegerField(blank=False, default=0)
+    allow_attendance = models.BooleanField(blank=False, default=0)
+    allow_student_attendance = models.BooleanField(blank=False, default=0)
+    allow_validation = models.BooleanField(blank=False, default=0)
+    user_create = models.ForeignKey(User, related_name='+')
+    date_create = models.DateField(auto_now_add=False, db_index=False)
+    user_modify = models.ForeignKey(User, related_name='+')
+    date_modify = models.DateField(auto_now_add=False, db_index=False)
+    last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
+    school_id = models.IntegerField(blank=False, default=0)
+    school_year = models.CharField(blank=False, max_length=255, db_index=False)
+    
+
+class PepRegInstructor_Backup(models.Model):
+    class Meta:
+        db_table = 'pepreg_instructor_hist'
+    training = models.ForeignKey(PepRegTraining)
+    instructor = models.ForeignKey(User, related_name='+')
+    user_create = models.ForeignKey(User, related_name='+')
+    date_create = models.DateField(auto_now_add=True, db_index=False)
+    all_edit = models.BooleanField(blank=False, default=0)
+    all_delete = models.BooleanField(blank=False, default=0)
+    school_year = models.CharField(blank=False, max_length=255, db_index=False)
+
+
+class PepRegStudent_Backup(models.Model):
+    class Meta:
+        db_table = 'pepreg_student_hist'
+    training = models.ForeignKey(PepRegTraining)
+    student = models.ForeignKey(User, related_name='+')
+    student_status = models.CharField(blank=False, max_length=50, db_index=False)
+    student_credit = models.FloatField(blank=False, default=0)
+    user_create = models.ForeignKey(User, related_name='+')
+    date_create = models.DateField(auto_now_add=True, db_index=False)
+    user_modify = models.ForeignKey(User, related_name='+')
+    date_modify = models.DateField(auto_now_add=True, db_index=False)
+    school_year = models.CharField(blank=False, max_length=255, db_index=False)

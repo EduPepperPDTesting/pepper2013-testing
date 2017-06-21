@@ -249,11 +249,12 @@ class MongoMyActivityStore(object):
 
     def set_item_pd(self,training_id,training_name, training_date):        
         self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name, 'training_date':training_date}}}, multi=True)
+        self.collection.update({'EventType':'PDTraining_createTraining','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
 
     def set_item_reporting(self,report_id,report_name):        
         self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
 
-    def set_item_community(self,community_id,community_name):        
+    def set_item_community(self,community_id,community_name, discussions):        
         self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
         self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
         self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
@@ -261,6 +262,20 @@ class MongoMyActivityStore(object):
         self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
         self.collection.update({'EventType':'community_facilitator','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
 
+        #community discussion
+        self.collection.update({'EventType':'community_creatediscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
+        self.collection.update({'EventType':'community_replydiscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
+  
+        for d in discussions:
+            self.collection.update(
+                {'EventType':'community_creatediscussion','URLValues.discussion_id':d.id},
+                {'$set':{'LogoValues.logoName':community_name,'LogoValues.discussion_name':d.subject}}, 
+                multi=True)
+            self.collection.update(
+                {'EventType':'community_replydiscussion','URLValues.discussion_id':d.id},
+                {'$set':{'LogoValues.logoName':community_name,'LogoValues.discussion_name':d.subject}}, 
+                multi=True)
+    
     def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
         self.collection.update({'EventType':'community_creatediscussion','URLValues':{'discussion_id':discussion_id}},
             {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
@@ -273,6 +288,27 @@ class MongoMyActivityStore(object):
             {'GroupType':'MyChunks','TokenValues':{'UsrCre':usrcre,"url":url}},
             {'$set':{'LogoValues':{'SourceID':'', 'chunkTitle':chunkTitle}}}, 
         multi=True)
+
+    def set_item_course_discussion(self,course_id,thread_id,discussiontitle):
+        self.collection.update(
+            {'EventType':'courses_creatediscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+        self.collection.update(
+            {'EventType':'courses_replydiscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+
+    def get_my_activity_year_range(self):
+        my_activity_start = self.collection.find().sort('ActivityDateTime',1).limit(1)
+        my_activity_end = self.collection.find().sort('ActivityDateTime',-1).limit(1)
+        year_start = 0
+        year_end = 0
+        if my_activity_start:
+            year_start = str(my_activity_start[0]['ActivityDateTime'])[0:4]
+        if my_activity_end:
+            year_end = str(my_activity_end[0]['ActivityDateTime'])[0:4]
+        return int(year_start), int(year_end)
 
 class MongoMyActivityStaticStore(object):
 
