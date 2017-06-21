@@ -1019,7 +1019,7 @@ from permissions.utils import check_access_level, check_user_perms
    *   console.log("blured")}
    * );
    */
-  
+
   $("#new_post_textarea").ckeditor(  function() {
     var self = this;
     var $cke = $(self.element.$).next(".cke");
@@ -1043,7 +1043,7 @@ from permissions.utils import check_access_level, check_user_perms
     $cke.click(function(){
       self.focus()
     })
-  }, { height: '100px', width:'535px'});
+  }, { height: '100px', width:'535px', extraPlugins: 'youtube'});
 
   //  toolbarCanCollapse: true, toolbarStartupExpanded: false
 
@@ -1062,9 +1062,6 @@ from permissions.utils import check_access_level, check_user_perms
     var self = this;
     var $cke = $(self.element.$).next(".cke");
 
-    
-
-    
     function toggle(show){
       if(show){
         $cke.find(".cke_top").show();
@@ -1086,9 +1083,10 @@ from permissions.utils import check_access_level, check_user_perms
       self.focus()
     })
   }, {
-    height: '100px', width:'590px'});
+    height: '100px', width:'590px', extraPlugins: 'youtube'});
 
   $("#image_link_input").on("change", function(){
     $("#file-name-label").html(this.value.replace(/^.*[\/\\]/, ""))
   })
+
 </script>
