@@ -1,4 +1,4 @@
-from .models import CommunityUsers
+from .models import CommunityUsers, CommunityCommunities
 
 
 def is_facilitator(user, community):
@@ -15,3 +15,10 @@ def is_member(user, community):
     except:
         return False
     return True
+
+def is_private(community):
+    try:
+        isPrivate = CommunityCommunities.objects.get(community=community).private
+    except:
+        return False
+    return isPrivate
