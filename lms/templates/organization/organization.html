@@ -314,17 +314,22 @@
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="3">Menu and Dashboard Configuration<div class="icon"></div></div>
     <div class="expand_div">
-       	<table width="600" border="0" class="org_table1">
+       	<table border="0" class="org_table1">
+        	<tr>
+                <td width="280"></td>
+                <td width="280"></td>
+                <td></td>
+            </tr>
         	<tr>
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_option" value="0" checked="checked" />Old Dashboard</label>
                     <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_option" value="1" />PD Dashboard</label>
-                    <label><input type="radio" name="organizational_dashboard_option" value="2" />Curriculumn Dashboard</label>
+                    <label><input type="radio" name="organizational_dashboard_option" value="2" />Curriculum Dashboard</label>
                 </td>
             </tr>
         	<tr class="organization_pd_dashboard_set">
                 <td colspan="3" class="org_td1">
-                	<table width="350" border="1" class="org_table1" bordercolor="#555" style="margin-left:50px;">
+                	<table width="350" border="1" class="org_table1" bordercolor="#555" style="margin-left:50px;" id="organizational_dashboard_feed_table">
                     	<tr>
                         	<th>Title</th>
                             <th width="80">Show</th>
@@ -351,35 +356,70 @@
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="3" onclick="selectPDTable()" /></td>
                         </tr>
                     </table>
+                    <table width="350" border="1" class="org_table1" bordercolor="#555" style="margin-left:50px;" id="organizational_dashboard_feed_curr_table">
+                    	<tr>
+                        	<th>Title</th>
+                            <th width="80">Show</th>
+                            <th width="80">Default</th>
+                        </tr>
+                        <tr>
+                        	<td align="center">My Feed</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="1" checked="checked" onclick="selectPDTableCurr()" /></td>
+                        </tr>
+                        <tr>
+                        	<td align="center">My Activities</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="0" onclick="selectPDTableCurr()" /></td>
+                        </tr>
+                        <tr>
+                        	<td align="center">My Report Card</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_report_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="2" onclick="selectPDTableCurr()" /></td>
+                        </tr>
+                        <tr>
+                        	<td align="center">Featured Content</td>
+                            <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
+                            <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="3" onclick="selectPDTableCurr()" /></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="profile_logo_tr">
+                <td class="org_td1">Profile Logo (270 &times; 200 px): </td>
+                <td id="organizational_base_profile_logo_p"></td>
+                <td></td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="profile_logo_curr_tr">
+                <td class="org_td1">Profile Logo (270 &times; 200 px): </td>
+                <td id="organizational_base_profile_logo_curr_p"></td>
+                <td></td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">Profile Logo URL: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_profile_logo_url" />
+                    <input type="text" id="organizational_base_organization_profile_logo_curr_url" />
                 </td>
             </tr>
             <tr class="organization_pd_dashboard_set">
-                <td width="280" class="org_td1">Profile Logo (270 &times; 200 px): </td>
-                <td width="280" id="organizational_base_profile_logo_p"></td>
-                <td></td>
-            </tr>            
-            <tr class="organization_pd_dashboard_set">
-                <td class="org_td1">Profile Logo URL: </td>
-                <td><input type="text" id="organizational_base_organization_profile_logo_url" /> </td>
-                <td></td>
-            </tr>
-            <tr class="organization_pd_dashboard_set">
                 <td class="org_td1">Motto: </td>
-                <td colspan="2"><textarea id="organizational_base_motto" name="organizational_base_motto" cols="50"></textarea></td>
+                <td colspan="2">
+                	<textarea id="organizational_base_motto" name="organizational_base_motto" cols="50"></textarea>
+                    <textarea id="organizational_base_motto_curr" name="organizational_base_motto_curr" cols="50"></textarea>
+                </td>
             </tr>
             <tr class="organization_pd_dashboard_set">
                 <td colspan="3" class="org_td1">
                 	<div>
-                        <label>
-                            <input type="checkbox" name="organizational_dashboard_show_left" checked="checked" />
-                            <span style="margin-left:10px;">Show Left Dashboard Banner</span>
-                        </label>
+                        <input type="checkbox" name="organizational_dashboard_show_left" checked="checked" />
+                        <input type="checkbox" name="organizational_dashboard_show_left_curr" checked="checked" />
+                        <span style="margin-left:10px;">Show Left Dashboard Banner</span>
                     </div>
                     <div>
-                        <label>
-                            <input type="checkbox" name="organizational_dashboard_show_right" checked="checked" />
-                            <span style="margin-left:10px;">Show Right Dashboard Banner</span>
-                        </label>
+                        <input type="checkbox" name="organizational_dashboard_show_right" checked="checked" />
+                        <input type="checkbox" name="organizational_dashboard_show_right_curr" checked="checked" />
+                        <span style="margin-left:10px;">Show Right Dashboard Banner</span>
                     </div>
                 </td>
             </tr>
@@ -390,8 +430,8 @@
                 </td>
             </tr>
             <tr class="new_menu_tr">
-                <td width="280" class="org_td1">Top Menu Color: </td>
-                <td width="280"><input id="organizational_menu_color" type="color" /> </td>
+                <td class="org_td1">Top Menu Color: </td>
+                <td><input id="organizational_menu_color" type="color" /> </td>
                 <td></td>
             </tr>
             <tr class="new_menu_tr">
@@ -985,9 +1025,11 @@
 									
 									organizationAddFileImg("organizational_base_organization_logo", r.organization_logo);
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
-									organizationAddFileImg("organizational_base_profile_logo", r.profile_logo);
+									organizationAddFileImg("organizational_base_profile_logo", r['Profile Logo']);
+									organizationAddFileImg("organizational_base_profile_logo_curr", r['Profile Logo Curriculumn']);
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
+									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
 									
 									$(".organization-item-select").attr("checked", false);									
@@ -1014,7 +1056,8 @@
 									//----------
 									$("#organizational_base_for_district").val(r.DistrictType);
 									$("#organizational_base_for_school").val(r.SchoolType);										
-									$("#organizational_base_motto").val(r.motto);
+									$("#organizational_base_motto").val(r['Motto']);
+									$("#organizational_base_motto_curr").val(r['Motto Curriculumn']);
 									
 									//----------
 									$("input[name='organizational_dashboard_option'][value='" + r["Dashboard option etc"] + "']").attr("checked", "checked");
@@ -1024,9 +1067,9 @@
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");
 
 									if(r["Is Icon With Text"] == "1"){
-										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", true);										
+										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										
 									}else{
-										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", false);
+										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", false);
 									}
 
 									if(r["Text Color"])		$("#organizational_dashboard_menu_text_color").val(r["Text Color"]);
@@ -1043,40 +1086,75 @@
 									
 									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);									
 									$("input[name='organizational_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
+									
 									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
+									$("input[name='organizational_dashboard_feed_default_curr'][value='" + r["Is My Feed Default Curriculumn"] + "']").attr("checked", "checked");
+									
 									if(r["My Feed Show"] == "1"){
-										$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");										
+										$("input[name='organizational_dashboard_feed_show']").prop("checked", true);
 									}else{
-										$("input[name='organizational_dashboard_feed_show']").removeAttr("checked");
+										$("input[name='organizational_dashboard_feed_show']").prop("checked", false);
 									}
 									if(r["My Activities Show"] == "1"){
-										$("input[name='organizational_dashboard_activities_show']").attr("checked", "checked");										
+										$("input[name='organizational_dashboard_activities_show']").prop("checked", true);										
 									}else{
-										$("input[name='organizational_dashboard_activities_show']").removeAttr("checked");
-									}
-									if(r["Show Left DB"] == "1"){
-										$("input[name='organizational_dashboard_show_left']").attr("checked", "checked");										
-									}else{
-										$("input[name='organizational_dashboard_show_left']").removeAttr("checked");
-									}
-									if(r["Show Right DB"] == "1"){
-										$("input[name='organizational_dashboard_show_right']").attr("checked", "checked");										
-									}else{
-										$("input[name='organizational_dashboard_show_right']").removeAttr("checked");
+										$("input[name='organizational_dashboard_activities_show']").prop("checked", false);
 									}
 									if(r["My Report Show"] == "1"){
-										$("input[name='organizational_dashboard_report_show']").attr("checked", "checked");										
+										$("input[name='organizational_dashboard_report_show']").prop("checked", true);										
 									}else{
-										$("input[name='organizational_dashboard_report_show']").removeAttr("checked");
+										$("input[name='organizational_dashboard_report_show']").prop("checked", false);
 									}
 									if(r["My Featured Show"] == "1"){
-										$("input[name='organizational_dashboard_featured_show']").attr("checked", "checked");										
+										$("input[name='organizational_dashboard_featured_show']").prop("checked", true);										
 									}else{
-										$("input[name='organizational_dashboard_featured_show']").removeAttr("checked");
+										$("input[name='organizational_dashboard_featured_show']").prop("checked", false);
+									}
+									if(r["Show Left DB"] == "1"){
+										$("input[name='organizational_dashboard_show_left']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_show_left']").prop("checked", false);
+									}
+									if(r["Show Right DB"] == "1"){
+										$("input[name='organizational_dashboard_show_right']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_show_right']").prop("checked", false);
 									}
 									
+									if(r["My Feed Show Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_feed_show_curr']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_feed_show_curr']").prop("checked", false);
+									}
+									if(r["My Activities Show Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_activities_show_curr']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_activities_show_curr']").prop("checked", false);
+									}
+									if(r["My Report Show Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_report_show_curr']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_report_show_curr']").prop("checked", false);
+									}
+									if(r["My Featured Show Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_featured_show_curr']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_featured_show_curr']").prop("checked", false);
+									}
+									if(r["Show Left DB Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_show_left_curr']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_show_left_curr']").prop("checked", false);
+									}
+									if(r["Show Right DB Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", true);											
+									}else{
+										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", false);
+									}
+
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
-									$("#organizational_base_organization_profile_logo_url").val(r["Organization Profile Logo Url"]);
+									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
+									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
 			
 									//----------menu item
@@ -1300,6 +1378,17 @@
 								$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");
 								$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");			
 							}
+							
+							var my_feed_show_curr = ($("input[name='organizational_dashboard_feed_show_curr']").attr("checked")) ? "1" : "0";
+							var my_activities_show_curr = ($("input[name='organizational_dashboard_activities_show_curr']").attr("checked")) ? "1" : "0";
+							var my_report_show_curr = ($("input[name='organizational_dashboard_report_show_curr']").attr("checked")) ? "1" : "0";
+							var my_featured_show_curr = ($("input[name='organizational_dashboard_featured_show_curr']").attr("checked")) ? "1" : "0";
+							
+							if(my_feed_show_curr == "0" && my_activities_show_curr == "0" && my_report_show_curr == "0" && my_featured_show_curr == "0"){
+								$("input[name='organizational_dashboard_feed_show_curr']").attr("checked", "checked");
+								$("input[name='organizational_dashboard_feed_default_curr'][value='1']").attr("checked", "checked");			
+							}
+							
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
 							
@@ -1569,6 +1658,8 @@
 				column = "LogoHome";
 			}else if(eid == "organizational_base_profile_logo"){
 				column = "LogoProfile";
+			}else if(eid == "organizational_base_profile_logo_curr"){
+				column = "LogoProfileCurr";
 			}else if(eid == "organizational_base_organization_logo"){
 				column = "OrganizationLogo";
 			}
@@ -1763,6 +1854,7 @@
 		
 		organizationAddFileImgInit("organizational_base_home_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo");
+		organizationAddFileImgInit("organizational_base_profile_logo_curr");
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
@@ -2133,6 +2225,11 @@
 				loadwin.hide();
 				return;
 			}
+			if($("#organizational_base_profile_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo_curr").val())){				
+				alert("Curriculum Dashboard Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
 			
 			var sid_did = "";
 			$(".organization-state-edit").each(function(){
@@ -2144,7 +2241,8 @@
 			
 			var for_district = $("#organizational_base_for_district").val();
 			var for_school = $("#organizational_base_for_school").val();
-			var motto = $("#organizational_base_motto").val();			
+			var motto = $("#organizational_base_motto").val();
+			var motto_curr = $("#organizational_base_motto_curr").val();
 			
 			//---------------------------------------------------specific_items
 			var specific_items = "{";
@@ -2262,6 +2360,8 @@
 			
 			var new_show_left = ($("input[name='organizational_dashboard_show_left']").attr("checked")) ? "1" : "0";
 			var new_show_right = ($("input[name='organizational_dashboard_show_right']").attr("checked")) ? "1" : "0";			
+			var new_show_left_curr = ($("input[name='organizational_dashboard_show_left_curr']").attr("checked")) ? "1" : "0";
+			var new_show_right_curr = ($("input[name='organizational_dashboard_show_right_curr']").attr("checked")) ? "1" : "0";			
 			
 			var menu_text_color = $("#organizational_dashboard_menu_text_color").val();
 			var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
@@ -2272,25 +2372,21 @@
 			var menu_text_color_me = $("#organizational_dashboard_menu_text_color_me").val();
 			var menu_text_font_me = $("#organizational_dashboard_menu_text_font_me").val();
 			var menu_text_size_me = $("#organizational_dashboard_menu_text_size_me").val();
-			
-			var space_between_items = $("#organizational_dashboard_space_between").val();				
-			
+			var space_between_items = $("#organizational_dashboard_space_between").val();
 			var is_new_menu = $("input[name='organizational_dashboard_on_menu']:checked").val();
 			var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 			var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
 			var my_report_show = ($("input[name='organizational_dashboard_report_show']").attr("checked")) ? "1" : "0";
 			var my_featured_show = ($("input[name='organizational_dashboard_featured_show']").attr("checked")) ? "1" : "0";
 			var is_my_feed_default = $("input[name='organizational_dashboard_feed_default']:checked").val();
-			if(dashboard_option == "2"){
-				my_feed_show = "1";
-				my_activities_show = "0";
-				my_report_show = "0";
-				my_featured_show = "0";
-				is_my_feed_default = "1";	
-			}
+			var my_feed_show_curr = ($("input[name='organizational_dashboard_feed_show_curr']").attr("checked")) ? "1" : "0";
+			var my_activities_show_curr = ($("input[name='organizational_dashboard_activities_show_curr']").attr("checked")) ? "1" : "0";
+			var my_report_show_curr = ($("input[name='organizational_dashboard_report_show_curr']").attr("checked")) ? "1" : "0";
+			var my_featured_show_curr = ($("input[name='organizational_dashboard_featured_show_curr']").attr("checked")) ? "1" : "0";
+			var is_my_feed_default_curr = $("input[name='organizational_dashboard_feed_default_curr']:checked").val();
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
 			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
-			
+			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
 			var logo_url = $("#organizational_base_logo_url").val();
 						
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
@@ -2299,6 +2395,7 @@
 				for_school: for_school,
 				specific_items: specific_items,
 				motto: motto,
+				motto_curr: motto_curr,
 				menu_items: menu_items,
 				cms_items: cms_items,
 				dashboard_option: dashboard_option,
@@ -2312,6 +2409,13 @@
 				is_my_feed_default: is_my_feed_default,
 				new_show_left: new_show_left,
 				new_show_right: new_show_right,
+				my_feed_show_curr: my_feed_show_curr,
+				my_activities_show_curr: my_activities_show_curr,
+				my_report_show_curr: my_report_show_curr,	
+				my_featured_show_curr: my_featured_show_curr,						
+				is_my_feed_default_curr: is_my_feed_default_curr,
+				new_show_left_curr: new_show_left_curr,
+				new_show_right_curr: new_show_right_curr,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,
@@ -2324,6 +2428,7 @@
 				space_between_items: space_between_items,
 				org_logo_url: org_logo_url,				
 				org_profile_logo_url: org_profile_logo_url,
+				org_profile_logo_curr_url: org_profile_logo_curr_url,
 				logo_url: logo_url,
 				menu_color: menu_color
 			}, function (r) {
@@ -2336,7 +2441,10 @@
 					}
 					if($("#organizational_base_profile_logo").val() != ""){
 						organizationUploadFile("organizational_base_profile_logo", "profile_logo");
-					}				
+					}
+					if($("#organizational_base_profile_logo_curr").val() != ""){
+						organizationUploadFile("organizational_base_profile_logo_curr", "profile_logo_curr");
+					}
 					$(".organizational_dashboard_menu_body1").each(function(){
 						var menu_item = filterStr($(this).find(".menu_items_menu_item").val());
 						var menu_icon = $(this).find(".menu_items_icon").val();
@@ -2350,8 +2458,7 @@
 						if(cms_item != "" && cms_icon != ""){
 							organizationDashboardUploadFileCms($(this).find(".cms_items_icon").attr("id"));
 						}
-					});					
-					
+					});
 					$("#org_btn_cancel_state").click();
 				}else{
 					alert(r.Error);
@@ -2558,6 +2665,7 @@
 			
 		}else{
 			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", true);
+			$("input[name='organizational_dashboard_is_icon_text']").attr("checked", false);
 			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
 			
 			$("#organizational_dashboard_menu_text_color").show();
@@ -2594,10 +2702,57 @@
 		}
 	}
 	
+	//--------------------------selectPDTableCurr
+	function selectPDTableCurr(){
+		var my_feed_show = ($("input[name='organizational_dashboard_feed_show_curr']").attr("checked")) ? "1" : "0";
+		var my_activities_show = ($("input[name='organizational_dashboard_activities_show_curr']").attr("checked")) ? "1" : "0";
+		var my_report_show = ($("input[name='organizational_dashboard_report_show_curr']").attr("checked")) ? "1" : "0";
+		var my_featured_show = ($("input[name='organizational_dashboard_featured_show_curr']").attr("checked")) ? "1" : "0";
+		
+		if(my_feed_show == "0" && my_activities_show == "0" && my_report_show == "0" && my_featured_show == "0"){
+			alert("At least one item needs to be selected.");
+			$("input[name='organizational_dashboard_feed_show_curr']").attr("checked", "checked");
+			$("input[name='organizational_dashboard_feed_default_curr'][value='1']").attr("checked", "checked");			
+		}else{
+			var tmp_radio = $("input[name='organizational_dashboard_feed_default_curr']:checked");
+			var tmp_check_val = ($(tmp_radio).parent().parent().find(".organizational_dashboard_show_curr").attr("checked")) ? "1" : "0";			
+			if(tmp_check_val == "0"){
+				$(".organizational_dashboard_show_curr:checked:first").parent().parent().find("input[name='organizational_dashboard_feed_default_curr']").attr("checked", "checked");
+			}
+		}
+	}
+	
 	//--------------------------isPDDashboardChange
 	function isPDDashboardChange(pd_val){
-		if(pd_val == "1"){
+		if(pd_val != "0"){
 			$(".organization_pd_dashboard_set").show();
+			if(pd_val == "1"){
+				$("#organizational_dashboard_feed_table").show();
+				$("#organizational_dashboard_feed_curr_table").hide();				
+				$("#profile_logo_tr").show();
+				$("#profile_logo_curr_tr").hide();				
+				$("textarea[name='organizational_base_motto']").show();
+				$("textarea[name='organizational_base_motto_curr']").hide();				
+				$("#organizational_base_organization_profile_logo_url").show();
+				$("#organizational_base_organization_profile_logo_curr_url").hide();				
+				$("input[name='organizational_dashboard_show_left']").show();
+				$("input[name='organizational_dashboard_show_left_curr']").hide();
+				$("input[name='organizational_dashboard_show_right']").show();
+				$("input[name='organizational_dashboard_show_right_curr']").hide();
+			}else if(pd_val == "2"){
+				$("#organizational_dashboard_feed_table").hide();
+				$("#organizational_dashboard_feed_curr_table").show();				
+				$("#profile_logo_tr").hide();
+				$("#profile_logo_curr_tr").show();
+				$("textarea[name='organizational_base_motto']").hide();
+				$("textarea[name='organizational_base_motto_curr']").show();				
+				$("#organizational_base_organization_profile_logo_url").hide();
+				$("#organizational_base_organization_profile_logo_curr_url").show();				
+				$("input[name='organizational_dashboard_show_left']").hide();
+				$("input[name='organizational_dashboard_show_left_curr']").show();
+				$("input[name='organizational_dashboard_show_right']").hide();
+				$("input[name='organizational_dashboard_show_right_curr']").show();
+			}
 		}else{
 			$(".organization_pd_dashboard_set").hide();
 		}		

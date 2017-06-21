@@ -1364,7 +1364,7 @@
                 dh = (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
-                console.log("# els: "+cLimit+" hClass: "+hClass);
+                console.log(hClass + " els #: " + cLimit);
                 for ( var c = 0; c <= cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
                     console.log(iClass + " spans #: " + $(iClass).length);

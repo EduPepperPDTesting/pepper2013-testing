@@ -79,7 +79,7 @@
 
         <div class="edit-block column-selector" id="Standard" 
             %if action == 'edit':
-                %if report.report_type = 1:
+                %if report.report_type == 1:
                     style="display:none;"
                 %endif
             %endif
@@ -118,7 +118,7 @@
 
         <div class="edit-block column-selector" id="Matrix" 
             %if action == 'edit':
-                %if report.report_type = 1:
+                %if report.report_type == 1:
                     style="display:block;"
                 %endif
             %else:
@@ -132,70 +132,86 @@
                 <span style="margin-left:200px;">Aggregate Type: </span> <br><br>
                 <select name="Column_Headers" id="Column_Headers" style="width:200px;">
                     %if action == 'edit':
-                        %for view_column in view_columns:
-                            <option value="${view_column.id}"
-                                %if view_column.id == matrixcolumns.column_headers:
-                                    selected 
-                                %endif
-                            >${view_column.view.name}.${view_column.name}</option>
-                        %endfor
-                    $endif
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.column_headers:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
                 </select>
                 <select style="margin-left:130px;width:200px;" name="Row_Headers" id="Row_Headers">
                     %if action == 'edit':
-                        %for view_column in view_columns:
-                            <option value="${view_column.id}"
-                                %if view_column.id == matrixcolumns.row_headers:
-                                    selected 
-                                %endif
-                            >${view_column.view.name}.${view_column.name}</option>
-                        %endfor
-                    $endif
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.row_headers:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
                 </select>
                 <select style="margin-left:100px;width:200px;" name="Aggregate_Data" id="Aggregate_Data">
                     %if action == 'edit':
-                        %for view_column in view_columns:
-                            <option value="${view_column.id}"
-                                %if view_column.id == matrixcolumns.aggregate_data:
-                                    selected 
-                                %endif
-                            >${view_column.view.name}.${view_column.name}</option>
-                        %endfor
-                    $endif
+                        %if report.report_type == 1:
+                            %for view_column in view_columns:
+                                <option value="${view_column.id}"
+                                    %if view_column.id == matrixcolumns.aggregate_data:
+                                        selected 
+                                    %endif
+                                >${view_column.view.name}.${view_column.name}</option>
+                            %endfor
+                        %endif
+                    %endif
                 </select>
                 <select style="margin-left:120px;" name="Aggregate_Type">
-                    <option value="Sum" 
+                    <option value="0" 
                     %if action == 'edit':
-                        %if matrixcolumns.aggregate_type == 'Sum':
-                                    selected 
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 0:
+                                selected 
+                            %endif
                         %endif
                     %endif
                     >Sum</option>
-                    <option value="Count"
+                    <option value="1"
                     %if action == 'edit':
-                        %if matrixcolumns.aggregate_type == 'Count':
-                                    selected 
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 1:
+                                selected 
+                            %endif
                         %endif
                     %endif
                     >Count</option>
-                    <option value="Average"
+                    <option value="2"
                     %if action == 'edit':
-                        %if matrixcolumns.aggregate_type == 'Average':
-                                    selected 
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 2:
+                                selected
+                            %endif 
                         %endif
                     %endif
                     >Average</option>
-                    <option value="Max"
+                    <option value="3"
                     %if action == 'edit':
-                        %if matrixcolumns.aggregate_type == 'Max':
-                                    selected 
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 3:
+                                selected 
+                            %endif
                         %endif
                     %endif
                     >Max</option>
-                    <option value="Min"
+                    <option value="4"
                     %if action == 'edit':
-                        %if matrixcolumns.aggregate_type == 'Min':
-                                    selected 
+                        %if report.report_type == 1:
+                            %if matrixcolumns.aggregate_type == 4:
+                                selected 
+                            %endif
                         %endif
                     %endif
                     >Min</option>
