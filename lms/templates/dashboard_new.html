@@ -1323,41 +1323,45 @@ $(document).ready(function(){
     $(".my-report-card-btn").click(function(){
         if(now_show != 'my-report-card'){
             //incompleted more
-            $(".get-more-incompleted").hide();
-            if(courses_incomplated_more==1){
-                $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
-  
-                $(".btn-more-incompleted").click(function(){
-                    if(btn_more_incompleted_click == 0){
-                        get_course_in_progress('incompleted','yes'); 
-                        btn_more_incompleted_click = 1;
-                    }
-                    else{
-                        $(".get-more-incompleted").show();
-                        if(courses_incomplated_more==1){
-                            $(".course-in-progress-more-outer").html('');
+            if(courses_incomplated_loading == 0){
+                $(".get-more-incompleted").hide();
+                if(courses_incomplated_more==1){
+                    $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
+      
+                    $(".btn-more-incompleted").click(function(){
+                        if(btn_more_incompleted_click == 0){
+                            get_course_in_progress('incompleted','yes'); 
+                            btn_more_incompleted_click = 1;
                         }
-                    }
-                });
+                        else{
+                            $(".get-more-incompleted").show();
+                            if(courses_incomplated_more==1){
+                                $(".course-in-progress-more-outer").html('');
+                            }
+                        }
+                    });
+                }
             }
-
+            
             //completed more
-            $(".get-more-completed").hide();
-            if(courses_complated_more==1){
-                $(".completed-courses-more-outer").html('<div class="completed-courses-more"><b class="btn-more-completed">More</b></div>');
-  
-                $(".btn-more-completed").click(function(){
-                    if(btn_more_completed_click == 0){
-                        get_completed_courses('completed','yes'); 
-                        btn_more_completed_click = 1
-                    }
-                    else{
-                        $(".get-more-completed").show();
-                        if(courses_complated_more==1){
-                            $(".completed-courses-more-outer").html('');
+            if(courses_complated_loading == 0){
+                $(".get-more-completed").hide();
+                if(courses_complated_more==1){
+                    $(".completed-courses-more-outer").html('<div class="completed-courses-more"><b class="btn-more-completed">More</b></div>');
+      
+                    $(".btn-more-completed").click(function(){
+                        if(btn_more_completed_click == 0){
+                            get_completed_courses('completed','yes'); 
+                            btn_more_completed_click = 1
                         }
-                    }
-                });
+                        else{
+                            $(".get-more-completed").show();
+                            if(courses_complated_more==1){
+                                $(".completed-courses-more-outer").html('');
+                            }
+                        }
+                    });
+                }
             }
         }
 
@@ -1582,9 +1586,13 @@ $(document).ready(function(){
         courses_complated_more = 1;
     %endif
 
+    var courses_incomplated_loading = 0;
+    var courses_complated_loading = 0;
+
     get_course_in_progress('incompleted','no'); 
     
     function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
+        courses_incomplated_loading = 1;
         if(get_more == 'yes'){
             $(".course-in-progress-more-outer").html('<center><img id="progress_rows_loading_image" src="/static/images/posts-loading.gif"></img></center>');
         }
@@ -1595,7 +1603,8 @@ $(document).ready(function(){
                 create_course_in_progress(data_obj,get_more);
                 if(get_more == 'yes'){
                     $(".course-in-progress-more-outer").html('');
-                }  
+                }
+                courses_incomplated_loading = 0;  
         });
     }
     function create_course_in_progress(data_obj,get_more){
@@ -1698,6 +1707,7 @@ $(document).ready(function(){
     %endif
     
     function get_completed_courses(course_type,get_more){ //value of get_more:yes, no
+        courses_complated_loading = 1;
         if(get_more == 'yes'){
             $(".completed-courses-more-outer").html('<center><img id="completed_courses_loading_image" src="/static/images/posts-loading.gif"></img></center>');
         }
@@ -1708,7 +1718,8 @@ $(document).ready(function(){
                 create_completed_courses(data_obj,get_more);
                 if(get_more == 'yes'){
                     $(".completed-courses-more-outer").html('');
-                }  
+                } 
+                courses_complated_loading = 0; 
         });
     }
 
