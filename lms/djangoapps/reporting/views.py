@@ -449,13 +449,22 @@ def report_save(request, report_id):
                     for item in get_school_year_item():
                         collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
                         rs.del_collection(collection)
+                        rs.del_collection(collection+'_column_header')
+                        rs.del_collection(collection+'_row_header')
+                        rs.del_collection(collection+'aggregate')
 
                     collection = get_cache_collection(request, report_id, "all")
                     rs.del_collection(collection)
+                    rs.del_collection(collection+'_column_header')
+                    rs.del_collection(collection+'_row_header')
+                    rs.del_collection(collection+'aggregate')
 
                 
                 collection = get_cache_collection(request, report_id, "")
                 rs.del_collection(collection)
+                rs.del_collection(collection+'_column_header')
+                rs.del_collection(collection+'_row_header')
+                rs.del_collection(collection+'aggregate')
 
             else:
                 raise Exception('Report could not be located or created.')
