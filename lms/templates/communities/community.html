@@ -138,7 +138,7 @@ import datetime
                         <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
                     %endif
                 %else:
-                    %if (not is_private or (is_private and is_facilitator(request.user, community)):
+                    %if not is_private(community) or is_facilitator(request.user, community):
                         <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                     %endif
                 %endif
