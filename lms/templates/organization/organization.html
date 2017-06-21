@@ -1373,6 +1373,17 @@
 								$("input[name='organizational_dashboard_feed_show']").attr("checked", "checked");
 								$("input[name='organizational_dashboard_feed_default'][value='1']").attr("checked", "checked");			
 							}
+							
+							var my_feed_show_curr = ($("input[name='organizational_dashboard_feed_show_curr']").attr("checked")) ? "1" : "0";
+							var my_activities_show_curr = ($("input[name='organizational_dashboard_activities_show_curr']").attr("checked")) ? "1" : "0";
+							var my_report_show_curr = ($("input[name='organizational_dashboard_report_show_curr']").attr("checked")) ? "1" : "0";
+							var my_featured_show_curr = ($("input[name='organizational_dashboard_featured_show_curr']").attr("checked")) ? "1" : "0";
+							
+							if(my_feed_show_curr == "0" && my_activities_show_curr == "0" && my_report_show_curr == "0" && my_featured_show_curr == "0"){
+								$("input[name='organizational_dashboard_feed_show_curr']").attr("checked", "checked");
+								$("input[name='organizational_dashboard_feed_default_curr'][value='1']").attr("checked", "checked");			
+							}
+							
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
 							
