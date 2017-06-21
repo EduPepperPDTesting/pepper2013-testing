@@ -860,8 +860,14 @@ a{
 <%inherit file="main.html" />
 <%
     OrganizationOK = False
-    show_left = "";
-    show_right = "";
+    show_left = ""
+    show_right = ""
+    add_Feed_Show = "1"
+    add_Activities_Show = ""
+    add_Report_Show = ""
+    add_Featured_Show = ""
+    add_Default = "1"
+    
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -891,24 +897,63 @@ a{
                 organization_obj = tmp1.organization
                 break;
                 
-        data = {}
-        data['profile_logo'] = ""
+        data = {}        
         cms_items = ""
         if OrganizationOK:
             data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
                 data[tmp1.itemType] = tmp1.itemValue
-            for tmp1 in OrganizationAttributes.objects.filter(organization=data["org_id"]):
-                data['profile_logo'] = tmp1.LogoProfile
-                break;
-            if data['profile_logo']:
-                data['profile_logo'] = "/static/uploads/organization/" + str(organization_obj.id) + "/" + data['profile_logo']
             
-            if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
-                show_left = "display:none;";
+            for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+            
+            add_profile = ""
+            tmp_profile_logo = ""
+            tmp_profile_logo_url = ""
+            if data['Dashboard option etc'] == "1":
+                if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                    tmp_profile_logo = data['Profile Logo']
+                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url']
                 
-            if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
-                show_right = "display:none;";    
+                if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
+                    show_left = "display:none;";
+                    
+                if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
+                    show_right = "display:none;";   
+               
+                if data.has_key('My Activities Show'):    
+                    add_Feed_Show = data['My Feed Show']
+                    add_Activities_Show = data['My Activities Show']
+                    add_Report_Show = data['My Report Show']
+                    add_Featured_Show = data['My Featured Show']
+                    add_Default = data['Is My Feed Default']
+            else:
+                if data.has_key('Profile Logo Curriculumn') and data['Profile Logo Curriculumn'] != "":
+                    tmp_profile_logo = data['Profile Logo Curriculumn']
+                    if data.has_key('Profile Logo Url Curriculumn') and data['Profile Logo Url Curriculumn'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url Curriculumn']  
+                
+                if data.has_key('Show Left DB Curriculumn') and data['Show Left DB Curriculumn'] == "0":
+                    show_left = "display:none;";
+                    
+                if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
+                    show_right = "display:none;";
+                
+                if data.has_key('My Activities Show Curriculumn'): 
+                    add_Feed_Show = data['My Feed Show Curriculumn ']
+                    add_Activities_Show = data['My Activities Show Curriculumn']
+                    add_Report_Show = data['My Report Show Curriculumn']
+                    add_Featured_Show = data['My Featured Show Curriculumn']
+                    add_Default = data['Is My Feed Default Curriculumn']
+      
+            if tmp_profile_logo != "":
+                if tmp_profile_logo_url != "":
+                    add_profile = "<a href='" + tmp_profile_logo_url + "'><img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/></a>";
+                else:
+                    add_profile = "<img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/>"; 
+                         
+            data['add_profile'] = add_profile
                 
             cms_grade = ""
             for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
@@ -935,8 +980,6 @@ a{
                                 if tmp1_2 == tmp1_3:
                                     cms_add = True
                                     break
-                                    
-                        
                 
                 if cms_add:
                     cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
@@ -1011,28 +1054,27 @@ a{
                 </div>
             </div>
         </div>
-
         <div class="con-maincontent-all clearfix">
             <div class="con-tab-btns">
-            % if OrganizationOK and data["My Feed Show"] == "1":
+            % if OrganizationOK and add_Feed_Show == "1":
                 <div class="tab-btn-common-outer">
                     <div class="my-feed-btn tab-btn-common">My Feed</div>
                     <div class="my-feed-btn-line tab-btn-line-common"></div>
                 </div>        
             % endif
-            % if OrganizationOK and data["My Activities Show"] == "1":
+            % if OrganizationOK and add_Activities_Show == "1":
                 <div class="tab-btn-common-outer">
                     <div class="my-activity-btn tab-btn-common">My Activity</div>
                     <div class="my-activity-btn-line tab-btn-line-common"></div>
                 </div>         
             % endif
-            % if OrganizationOK and data["My Report Show"] == "1":
+            % if OrganizationOK and add_Report_Show == "1":
                 <div class="tab-btn-common-outer">
                     <div class="my-report-card-btn tab-btn-common">My Report Card</div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
             % endif
-            % if OrganizationOK and data["My Featured Show"] == "1":
+            % if OrganizationOK and add_Featured_Show == "1":
                 <div class="tab-btn-common-outer">
                     <div class="featured-content-btn tab-btn-common">Featured Content</div>
                     <div class="featured-content-btn-line tab-btn-line-common"></div>
@@ -1169,13 +1211,9 @@ a{
         <div class="con-my-communities-outer" style="${show_right}">
             <div class="con-my-courses">
                 <div class="my-profile-logo">
-                    %if data['profile_logo']:
-                        %if data['Organization Profile Logo Url']:
-                            <a href="${data['Organization Profile Logo Url']}"><img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/></a>
-                        %else:
-                            <img src="${data['profile_logo']}" style="max-width:230px;max-height:170px;"/>
-                        %endif
-                    %endif
+                    % if OrganizationOK:
+                        ${data["add_profile"]} 
+                    % endif
                 </div>
                 <a href="/courses">
                     <div class="my-title-green">My Courses</div>
@@ -1239,13 +1277,14 @@ $(document).ready(function(){
             $(this).remove();
         }
     });
+	
     var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
     % if OrganizationOK:
-        % if data["Is My Feed Default"] == "1":
+        % if add_Default == "1":
             var now_show = 'my-feed';
-        % elif data["Is My Feed Default"] == "0":
+        % elif add_Default == "0":
             var now_show = 'my-activity';
-        % elif data["Is My Feed Default"] == "2":
+        % elif add_Default == "2":
             var now_show = 'my-report-card';
         % else:
             var now_show = 'featured-content';
@@ -1260,12 +1299,9 @@ $(document).ready(function(){
         content_btn_line = content_btn + "-line";
         content = "." + btn_list[i];
         if(btn_list[i] == now_show){
-
             $(content_btn).addClass("mytab-active");
             $(content_btn_line).addClass("mytab-line-active");
-            $(content).show();   
-
-
+            $(content).show();
         }
         else{
             $(content_btn).removeClass("mytab-active");
@@ -1332,8 +1368,6 @@ $(document).ready(function(){
             }
         }
     }
-
-
 
     /*------my activity------*/
     var data_all = 0;

@@ -1437,17 +1437,29 @@
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}*/					
 					if(r.flag_main == "dashboard"){
-						var tmp_div = $(".my-courses:first").find("div");
-						if(r['Profile Logo'] != "" && typeof(r['Profile Logo']) != "undefined"){
+						/*var tmp_div = $(".my-courses:first").find("div");
+						var profile_logo = "", profile_logo_url = "", profile_motto = "";
+						if(r['Dashboard option etc'] == "1"){
+							profile_logo = r['Profile Logo'];
+							profile_logo_url = r['Profile Logo Url'];
+							profile_motto = r['Motto'];
+							
+						}else if(r['Dashboard option etc'] == "2"){
+							profile_logo = r['Profile Logo Curriculumn'];
+							profile_logo_url = r['Profile Logo Url Curriculumn'];							
+							profile_motto = r['Motto Curriculumn'];
+						}
+						if(profile_logo != "" && typeof(profile_logo) != "undefined"){
 							tmp_div.css("backgroundImage", "none");
 							tmp_div.css("border", "2px solid #bbbbbb");
-							if(r['Profile Logo Url'] != "" && typeof(r['Profile Logo Url']) != "undefined"){
-								tmp_div.append("<a href='" + r['Profile Logo Url'] + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r['Profile Logo'] + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							
+							if(profile_logo_url != "" && typeof(profile_logo_url) != "undefined"){
+								tmp_div.append("<a href='" + profile_logo_url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
 							}else{
-								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r['Profile Logo'] + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
 							}							
-							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r['Motto'] + "</span>");
-						}
+							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + profile_motto + "</span>");
+						}*/
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
 						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
 						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
