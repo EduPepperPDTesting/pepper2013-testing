@@ -1168,11 +1168,11 @@ a{
                         <div class="course-in-progress-rows">
                             
                         </div>
-                        %if courses_incomplated_all_count > 3:
                         <div class="course-in-progress-more-outer">
-                            <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
+                            %if courses_incomplated_all_count > 3:
+                                <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
+                            %endif
                         </div>
-                        %endif
                     </div>
                     %if courses_complated_all_count > 0:
                     <div class="completed-courses">
@@ -1183,9 +1183,9 @@ a{
 
                         </div>
                         <div class="completed-courses-more-outer">
-                        %if courses_complated_all_count > 2:
-                            <div class="completed-courses-more"><b class="btn-more-completed">More</b></div>
-                        %endif
+                            %if courses_complated_all_count > 2:
+                                <div class="completed-courses-more"><b class="btn-more-completed">More</b></div>
+                            %endif
                         </div>
                     </div>
                     %endif
@@ -1313,7 +1313,6 @@ $(document).ready(function(){
     //tab btn event--------------------------------------------------
     $(".featured-content-btn").click(function(){
         btn_switch($(this).attr("class"));
-        console.log(now_show)
     });
     $(".my-feed-btn").click(function(){
         btn_switch($(this).attr("class"));
@@ -1323,6 +1322,7 @@ $(document).ready(function(){
     });
     $(".my-report-card-btn").click(function(){
         if(now_show != 'my-report-card'){
+            //incompleted more
             $(".get-more-incompleted").hide();
             if(courses_incomplated_more==1){
                 $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
@@ -1336,6 +1336,25 @@ $(document).ready(function(){
                         $(".get-more-incompleted").show();
                         if(courses_incomplated_more==1){
                             $(".course-in-progress-more-outer").html('');
+                        }
+                    }
+                });
+            }
+
+            //completed more
+            $(".get-more-completed").hide();
+            if(courses_complated_more==1){
+                $(".completed-courses-more-outer").html('<div class="completed-courses-more"><b class="btn-more-completed">More</b></div>');
+  
+                $(".btn-more-completed").click(function(){
+                    if(btn_more_completed_click == 0){
+                        get_completed_courses('completed','yes'); 
+                        btn_more_completed_click = 1
+                    }
+                    else{
+                        $(".get-more-completed").show();
+                        if(courses_complated_more==1){
+                            $(".completed-courses-more-outer").html('');
                         }
                     }
                 });
@@ -1558,6 +1577,11 @@ $(document).ready(function(){
         courses_incomplated_more = 1;
     %endif
 
+    var courses_complated_more = 0;
+    %if courses_complated_all_count > 2:
+        courses_complated_more = 1;
+    %endif
+
     get_course_in_progress('incompleted','no'); 
     
     function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
@@ -1579,7 +1603,6 @@ $(document).ready(function(){
         var p_color = '';
         var width_1 = '';
         var width_1px = '';
-        var width_2px = '';
         var p_text = '';
         var p_text_style = '';
         var element_html = '';
@@ -1599,7 +1622,6 @@ $(document).ready(function(){
             }
 
             width_1 = Math.round(338 * cp.p);
-            width_2px = String(338 - width_1) + "px";
             width_1px = String(width_1) + "px";
 
             //percent text
@@ -1615,6 +1637,7 @@ $(document).ready(function(){
                 p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
             }
 
+            //element
             if(get_more=='no'){
                 element_html = '<div class="course-in-progress-row">';
             }
@@ -1682,21 +1705,27 @@ $(document).ready(function(){
         $.post("${reverse('get_my_course_in_progress')}", 
             {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
             function(data_obj){
-                create_completed_courses(data_obj);
+                create_completed_courses(data_obj,get_more);
                 if(get_more == 'yes'){
                     $(".completed-courses-more-outer").html('');
                 }  
         });
     }
 
-    function create_completed_courses(data_obj){
+    function create_completed_courses(data_obj,get_more){
         var cc = '';
         var element_html = '';
         var element = '';
         
         for(var i=0;i<data_obj.data.length;i++){
             cc =  data_obj.data[i];
-            element_html = '<table class="completed-courses-row">';
+
+            if(get_more=='no'){
+                element_html = '<table class="completed-courses-row">';
+            }
+            else{
+                element_html = '<table class="completed-courses-row get-more-completed">';
+            }
             element_html += '<tr>';
             element_html += '<td width="55" class="completed-courses-row-ico">';
             if(cc.issue_certificate){
@@ -1724,13 +1753,17 @@ $(document).ready(function(){
 
     var btn_more_completed_click = 0;
     $(".btn-more-completed").click(function(){
-        get_completed_courses('completed','yes'); 
-        
         if(btn_more_completed_click == 0){
+            get_completed_courses('completed','yes'); 
             btn_more_completed_click = 1
         }
+        else{
+            $(".get-more-completed").show();
+            if(courses_complated_more==1){
+                $(".completed-courses-more-outer").html('');
+            }
+        }
     });
-
 });
 </script>
 
