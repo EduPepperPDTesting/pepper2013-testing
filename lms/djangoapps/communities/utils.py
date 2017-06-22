@@ -21,5 +21,5 @@ def is_private(community):
         isPrivate = CommunityCommunities.objects.get(community=community).private
         raise Exception(isPrivate)
     except:
-        return False
+        return True
     return isPrivate
