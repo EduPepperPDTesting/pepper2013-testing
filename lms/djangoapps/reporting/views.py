@@ -1566,7 +1566,7 @@ def reporting_get_aggregate(request):
 
     Column_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
     column_header = Column_Headers_object.column
-    column_header_type = column_data.data_type
+    column_header_type = Column_Headers_object.data_type
     column_header_name = Column_Headers_object.name
 
     aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
