@@ -1,4 +1,4 @@
-from .models import CommunityUsers, CommunityCommunities
+from .models import CommunityUsers
 
 
 def is_facilitator(user, community):
