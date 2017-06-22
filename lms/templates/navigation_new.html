@@ -334,7 +334,7 @@
 .nav-option-text{
     position:absolute;
     top:50px;
-    left:5px;
+    left:0px;
     z-index:100;
     padding:5px;
     background-color:#eff0f6;
@@ -521,6 +521,7 @@
                                 nav_option_text_top = "top:60px !important;"
                             else:                                
                                 menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' alt='photo' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr><tr><td height='20'></td></tr></table></a>"                                
+                                nav_option_text_top = "top:60px !important;"
                                 
                             menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"        
                             if liClass != "":
@@ -554,7 +555,8 @@
                                 else:
                                     menu_items_tmp1 = menu_items_tmp1 + "<td height='20'></td></tr></table>"
                                 
-                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                                menu_items_tmp1 = menu_items_tmp1 + "</a>"                                
+                                nav_option_text_top = "top:60px !important;"
                                 
                             menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"        
                             if liClass != "":
