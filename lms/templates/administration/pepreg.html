@@ -1453,7 +1453,7 @@
                     isanimated = false;
                 }
 
-                if($(".completeSlot").filter(function(){
+                if(not isanimated and $(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
@@ -1465,13 +1465,13 @@
                     $("#btn_down").remove();
                 }
 
-                if($(".completeSlot").filter(function(){
+                if(not isanimated and $(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
                        return parseInt(top_slot) < cont_top;
                     }).length){
                     if($("#btn_up").length == 0){
                         console.log("cont_top-"+cont_top);
-                        $("#calendar_content").append("<button id='btn_up' style='color:white;font-size:1.5em;font-weight:bold;position:absolute; top: 20px; left: 50px;'>&#8679;</button>");
+                        $("#calendar_content").append("<button id='btn_up' style='color:white;font-size:1.5em;font-weight:bold;position:absolute; bottom: 20px; right: 50px;'>&#8679;</button>");
                     }
                 }else if($("#btn_up").length){
                     $("#btn_up").remove();
@@ -1479,8 +1479,8 @@
 
                 if($("#btn_down").length){
                     $("#btn_down").click(function(){
+                        var top_slot = $(this).css('top');
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
-                           var top_slot = $(this).css('top');
                            isanimated = true;
                            return parseInt(top_slot) >= cont_bottom;
                         }).first().position().top}, 1000, function(){
@@ -1490,7 +1490,6 @@
                         });
 
                         if($(".completeSlot").filter(function(cont_bottom){
-                           var top_slot = $(this).css('top');
                            return parseInt(top_slot) >= cont_bottom;
                         }).length == 0){
                             $("#btn_down").remove();
@@ -1500,14 +1499,18 @@
 
                 if($("#btn_up").length){
                     $("#btn_up").click(function(){
+                        var top_slot = $(this).css('top');
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_top){
-                           var top_slot = $(this).css('top');
-                           return parseInt(top_slot) < cont_top;
-                        }).first().position().top}, 1000);
+                            isanimated = true;
+                            return parseInt(top_slot) < cont_top;
+                        }).first().position().top}, 1000, function(){
+                            $("#calendar_content").stop(true, false);
+                            console.log('isanimated-'+isanimated);
+                            isanimated = false;
+                        });
 
                         if($(".completeSlot").filter(function(cont_top){
-                           var top_slot = $(this).css('top');
-                           return parseInt(top_slot) < cont_top;
+                            return parseInt(top_slot) < cont_top;
                         }).length == 0){
                             $("#btn_up").remove();
                         }
