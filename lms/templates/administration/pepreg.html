@@ -1503,9 +1503,10 @@
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_top){
                             var slot_top = $(this).css('top');
                             var slot_bottom = parseInt(slot_top) + $(this).height();
+                            console.log(slot_bottom +' '+ cont_top)
                             isanimated = true;
                             return parseInt(slot_bottom) < cont_top;
-                        }).first().position().top}, 1000, function(){
+                        }).last().position().top}, 1000, function(){
                             $("#calendar_content").stop(true, false);
                             console.log('isanimated-'+isanimated);
                             isanimated = false;
@@ -1522,7 +1523,11 @@
                 }
             });
 
-            $("#calendar_content").animate({scrollTop: $(".completeSlot:eq(0)").position().top}, 1000, function() {
+            $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
+                           var slot_top = $(this).css('top');
+                           isanimated = true;
+                           return parseInt(slot_top) >= cont_bottom;
+                        }).first().position().top}, 1000, function() {
                 console.log("posY: "+$(".completeSlot:eq(0)").position().top)
             });
         }
