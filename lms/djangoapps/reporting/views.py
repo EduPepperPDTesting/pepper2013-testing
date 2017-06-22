@@ -1607,6 +1607,7 @@ def reporting_get_aggregate(request):
                 d[column_header] = study_time_format_2(d[column_header])
 
         if column_header_type == 'url':
+            if is_excel:
                 d[column_header] = settings.LMS_BASE + d[column_header]
             else:
                 d[column_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[column_header])
@@ -1618,6 +1619,7 @@ def reporting_get_aggregate(request):
                 d[row_header] = study_time_format_2(d[row_header])
 
         if row_header_type == 'url':
+            if is_excel:
                 d[row_header] = settings.LMS_BASE + d[row_header]
             else:
                 d[row_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[row_header])
@@ -1629,6 +1631,7 @@ def reporting_get_aggregate(request):
                 d[aggregate_header] = study_time_format_2(d[aggregate_header])
 
         if aggregate_header_type == 'url':
+            if is_excel:
                 d[aggregate_header] = settings.LMS_BASE + d[aggregate_header]
             else:
                 d[aggregate_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[aggregate_header])
