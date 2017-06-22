@@ -1563,8 +1563,22 @@ def reporting_get_aggregate(request):
     rows = []
     rs = reporting_store()
     column_data = rs.get_datas(collection_column_header)
+
     Column_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
     column_header = Column_Headers_object.column
+    column_header_type = column_data.data_type
+    column_header_name = Column_Headers_object.name
+
+    aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
+    aggregate_header = aggregate_object.column
+    aggregate_header_type = aggregate_object.data_type
+    aggregate_name = aggregate_object.name
+
+    Row_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]         
+    row_header = Row_Headers_object.column
+    row_header_name = Row_Headers_object.name
+    row_header_type = Row_Headers_object.data_type
+
     column_header_row = [column_header]
     for d in column_data:
         if d['_id'][column_header] == None:
@@ -1578,8 +1592,7 @@ def reporting_get_aggregate(request):
         else:
             filter[str(column_header)] = str(column_header_row[int(column_header_data)])
 
-    Row_Headers_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]         
-    row_header = Row_Headers_object.column
+    
 
     if row_header_data != 'Total':
         if row_header_data == 'none':
@@ -1590,12 +1603,39 @@ def reporting_get_aggregate(request):
     data = rs.get_datas(collection,filter)
     for d in data:
         del d['_id']
-        rows.append(d)
+        if column_header_type == 'time':
+                d[column_header] = study_time_format_2(d[column_header])
 
-    aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
-    aggregate_header = aggregate_object.column
-    aggregate_name = aggregate_object.name
-    row_header_name = Row_Headers_object.name
-    column_header_name = Column_Headers_object.name
+        if column_header_type == 'url':
+                d[column_header] = settings.LMS_BASE + d[column_header]
+            else:
+                d[column_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[column_header])
+
+        if column_header_type == 'date':
+            d[column_header] = time.strftime('%m-%d-%Y', time.strptime(d[column_header], '%Y-%m-%d'))
+
+        if row_header_type == 'time':
+                d[row_header] = study_time_format_2(d[row_header])
+
+        if row_header_type == 'url':
+                d[row_header] = settings.LMS_BASE + d[row_header]
+            else:
+                d[row_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[row_header])
+
+        if row_header_type == 'date':
+            d[row_header] = time.strftime('%m-%d-%Y', time.strptime(d[row_header], '%Y-%m-%d'))
+
+        if aggregate_header_type == 'time':
+                d[aggregate_header] = study_time_format_2(d[aggregate_header])
+
+        if aggregate_header_type == 'url':
+                d[aggregate_header] = settings.LMS_BASE + d[aggregate_header]
+            else:
+                d[aggregate_header] = '<a href="{0}" target="_blank">Link</a>'.format(d[aggregate_header])
+
+        if aggregate_header_type == 'date':
+            d[aggregate_header] = time.strftime('%m-%d-%Y', time.strptime(d[aggregate_header], '%Y-%m-%d'))
+
+        rows.append(d)
 
     return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})

@@ -114,7 +114,7 @@
     <div id="aggregate_table">
         <div class="table">
             <div class="body table_scroll">
-                <table id='aggregate' class="tblReport tablesorter" style='margin:0'>
+                <table id='aggregate' class="tblReport1 tblReport tablesorter" style='margin:0'>
                     <thead id="aggregate_thead">
                     </thead>
                     <tbody id="aggregate_tbody"></tbody>
@@ -440,6 +440,7 @@ var report_view = {
             $("#aggregate_thead").html(thead)
             $("#aggregate_tbody").html(tbody)
             $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+            report_view.init();
             $("#aggregate_table").show()
         })
     }
