@@ -1483,7 +1483,11 @@
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
-                        }).first().position().top}, 1000, function(){
+                        }).first().position().top + function(cont_bottom){
+                           var slot_top = $(this).css('top');
+                           isanimated = true;
+                           return parseInt(slot_top) >= cont_bottom;
+                        }).first().outerHeight()}, 1000, function(){
                             $("#calendar_content").stop(true, false);
                             console.log('isanimated-'+isanimated);
                             isanimated = false;
@@ -1501,9 +1505,7 @@
                 if($("#btn_up").length){
                     $("#btn_up").click(function(){                        
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_top){
-                            var slot_top = $(this).css('top');
-                            var slot_bottom = parseInt(slot_top) + $(this).height();
-                            console.log(slot_bottom +' '+ cont_top)
+                            var slot_bottom = $(this).css('bottom');
                             isanimated = true;
                             return parseInt(slot_bottom) < cont_top;
                         }).last().position().top}, 1000, function(){
@@ -1513,8 +1515,7 @@
                         });
 
                         if($(".completeSlot").filter(function(cont_top){
-                            var slot_top = $(this).css('top');
-                            var slot_bottom = parseInt(slot_top) + $(this).height();
+                            var slot_bottom = $(this).css('bottom');
                             return parseInt(slot_bottom) < cont_top;
                         }).length == 0){
                             $("#btn_up").remove();
@@ -1527,7 +1528,11 @@
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
-                        }).first().position().top}, 1000, function() {
+                        }).first().position().top + function(cont_bottom){
+                           var slot_top = $(this).css('top');
+                           isanimated = true;
+                           return parseInt(slot_top) >= cont_bottom;
+                        }).first().outerHeight()}, 1000, function() {
                 console.log("posY: "+$(".completeSlot:eq(0)").position().top)
             });
         }
