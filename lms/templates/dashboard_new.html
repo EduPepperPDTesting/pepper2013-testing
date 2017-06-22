@@ -1584,7 +1584,7 @@ $(document).ready(function(){
     });
     
     $(document).on('click', ".ma_mf_btn", function() {  
-        % if OrganizationOK and add_Feed_Show == "1":
+        % if OrganizationOK and add_Feed_Show == "1" or not(OrganizationOK):
             btn_switch("my-feed-btn");
             $(window).scrollTop(0);
         %endif 
