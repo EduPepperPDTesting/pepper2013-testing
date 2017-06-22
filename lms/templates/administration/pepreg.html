@@ -1503,12 +1503,14 @@
                 }
 
                 if($("#btn_up").length){
-                    $("#btn_up").click(function(){                        
-                        $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_top){
+                    $("#btn_up").click(function(){
+                            /*$(".completeSlot").filter(function(cont_top){
                             var slot_bottom = $(this).css('bottom');
                             isanimated = true;
                             return parseInt(slot_bottom) < cont_top;
-                        }).last().position().top}, 1000, function(){
+                        }).last().position().top */
+                        $("#calendar_content").animate({scrollTop: 0
+                        }, 1000, function(){
                             $("#calendar_content").stop(true, false);
                             console.log('isanimated-'+isanimated);
                             isanimated = false;
