@@ -18,7 +18,7 @@ def is_member(user, community):
 
 def is_private(community):
     try:
-        isPrivate = True if CommunityCommunities.objects.get(community=community).private == '1' else False
+        CommunityUsers.objects.get(community=community, private=1)
     except:
         return False
-    return isPrivate
+    return True
