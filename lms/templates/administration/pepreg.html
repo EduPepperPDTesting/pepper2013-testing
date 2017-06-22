@@ -1453,7 +1453,7 @@
                     isanimated = false;
                 }
 
-                if(not isanimated and $(".completeSlot").filter(function(){
+                if(!isanimated and $(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
                        return parseInt(top_slot) >= cont_bottom;
                     }).length){
@@ -1465,7 +1465,7 @@
                     $("#btn_down").remove();
                 }
 
-                if(not isanimated and $(".completeSlot").filter(function(){
+                if(!isanimated and $(".completeSlot").filter(function(){
                        var top_slot = $(this).offset().top;
                        return parseInt(top_slot) < cont_top;
                     }).length){
