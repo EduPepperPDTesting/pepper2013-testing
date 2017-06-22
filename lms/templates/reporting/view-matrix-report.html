@@ -422,23 +422,24 @@ var report_view = {
 
     function get_ajax_get_aggregate(x,y){
         $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
-            var thead = "<tr><th>"+datas.aggregate_name+"</th><th>"+datas.row_header_name+"</th><th>"+datas.column_header_name+"</th></tr>";
+            var thead = "<tr><th class='ui-state-default'>"+datas.aggregate_name+"</th><th class='ui-state-default'>"+datas.row_header_name+"</th><th class='ui-state-default'>"+datas.column_header_name+"</th></tr>";
             var tbody = ''
             row_datas = datas.rows
             if (row_datas.length == 0){
                 tbody = ''
             }else{
                 for (var a in row_datas){
-                    tbody += '<tr>'
+                    tbody += "<tr>"
                     tbody += '<td>'+ row_datas[a][datas.aggregate_header] + '</td>'
                     tbody += '<td>'+ row_datas[a][datas.row_header] + '</td>'
                     tbody += '<td>'+ row_datas[a][datas.column_header] + '</td>'
                     tbody += '</tr>'
                 }
             }
-            
+
             $("#aggregate_thead").html(thead)
             $("#aggregate_tbody").html(tbody)
+            $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
             $("#aggregate_table").show()
         })
     }

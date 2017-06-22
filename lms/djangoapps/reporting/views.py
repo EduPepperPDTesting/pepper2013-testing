@@ -1589,6 +1589,7 @@ def reporting_get_aggregate(request):
 
     data = rs.get_datas(collection,filter)
     for d in data:
+        del d['_id']
         rows.append(d)
 
     aggregate_object = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
