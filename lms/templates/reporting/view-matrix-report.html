@@ -422,7 +422,6 @@ var report_view = {
 
     function get_ajax_get_aggregate(x,y){
         $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
-            var table = '';
             var thead = "<tr><th>"+datas.aggregate_name+"</th><th>"+datas.row_header_name+"</th><th>"+datas.column_header_name+"</th></tr>";
             var tbody = ''
             row_datas = datas.rows
@@ -437,8 +436,9 @@ var report_view = {
                     tbody += '</tr>'
                 }
             }
-            table = thead + tbody;
-            $("#aggregate").html(table)
+            
+            $("#aggregate_thead").html(thead)
+            $("#aggregate_tbody").html(tbody)
             $("#aggregate_table").show()
         })
     }
