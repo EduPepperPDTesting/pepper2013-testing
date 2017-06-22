@@ -459,6 +459,11 @@ a{
     display: none;
 }
 /*----middle Main Content:My Activity----*/
+.ma_mf_btn{
+    font-size: 16px !important;
+    color: #000;
+    cursor: pointer;
+}
 .con-ma-filter{
     width:659px;
     text-align: right;
@@ -966,11 +971,11 @@ a{
                     tmp1_level_ids = ""
                     for tmp1_2 in tmp1.CmsItem.split("_level_:")[1].split(","):                            
                         if tmp1_2 == "14":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7"
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,14"
                         elif tmp1_2 == "15":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9"
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,14,15"
                         elif tmp1_2 == "16":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13"                            
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"
                         else:
                             tmp1_level_ids = tmp1_level_ids + "," + tmp1_2
                         
@@ -1501,7 +1506,12 @@ $(document).ready(function(){
             default:
                 data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
                 data.html_ico += '<tr>';
-                data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+                if(data.g_type == 'MyFeed'){
+                    data.html_ico += '<td align="center"><img class="ma_mf_btn" src="'+data.logoUrl+'"></img></td>';
+                }
+                else{
+                    data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+                }
                 data.html_ico += '</tr>';
                 data.html_ico += '</table>';
         }
@@ -1573,6 +1583,12 @@ $(document).ready(function(){
         }
     });
     
+    $(document).on('click', ".ma_mf_btn", function() {  
+        % if OrganizationOK and add_Feed_Show == "1":
+            btn_switch("my-feed-btn");
+            $(window).scrollTop(0);
+        %endif 
+    });
     
     /*------my report card------*/
     //my report card - course in progress-----------------------------------------------
