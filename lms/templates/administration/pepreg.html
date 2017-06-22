@@ -1483,7 +1483,7 @@
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
-                        } + function(cont_bottom){
+                        }).first().position().top + $(".completeSlot").filter(function(cont_bottom){
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
@@ -1528,7 +1528,7 @@
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
-                        } + function(cont_bottom){
+                        }).first().position().top + $(".completeSlot").filter(function(cont_bottom){
                            var slot_top = $(this).css('top');
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
