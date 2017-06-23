@@ -87,11 +87,42 @@ MESSAGESTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+MYACTIVITYSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMyActivityStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'my_activity',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+MYACTIVITYSTATICSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMyActivityStaticStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'my_activity_static',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
 CHUNKSSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoChunksStore',
     'OPTIONS': {
         'db': MONGO_DB_REMIND,
         'collection': 'chunks',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+DISCUSSION_RATING_STORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_DISCUSS,
         'host': MONGO_HOST,
         'port': MONGO_PORT,
         'user': MONGO_USER,
@@ -155,6 +186,17 @@ REPORTINGSTORE = {
         'password': MONGO3_PASSWORD,
     }
 }
+
+FEEDINGSTORE = {
+    'OPTIONS': {
+        'db': MONGO3_DB_FEEDING,
+        'host': MONGO3_HOST,
+        'port': MONGO3_PORT,
+        'user': MONGO3_USER,
+        'password': MONGO3_PASSWORD
+    }
+}
+
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',
