@@ -18,6 +18,50 @@ from permissions.utils import check_access_level, check_user_perms
 
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <style type="text/css" media="screen">
+ #remove-file-button{
+   display:none;
+   cursor:hand;
+ }
+ #fixed-dialog-posts .cke{
+   display:inline-block;
+   vertical-align:top;
+ }
+ #dashboard_content_posts .cke{
+   width:100%;
+   border-radius:10px;
+   color:#000;
+ }
+ #dashboard_content_posts .cke *{
+   color:#000;
+ }
+ #dashboard_content_posts .cke_reset{
+   border-radius:10px;
+ }
+ #dashboard_content_posts .cke_top {
+   border-top-left-radius:10px;
+   border-top-right-radius:10px;
+ }
+ #dashboard_content_posts .cke_bottom{
+   border-bottom-left-radius:10px;
+   border-bottom-right-radius:10px;
+ }
+ #dashboard_content_posts .cke_inner{
+   border-radius:10px;
+ }
+ .attach-image{max-width:100%};
+ .hide{display:none;}
+ .view-all-announcements{cursor:pointer;}
+ .post-title-link{cursor:pointer;}
+ .feed-title{font-weight:normal;
+   color:#ffffff;
+   background-color:#495354;
+   font-size:15px;
+   padding:10px 30px;
+   margin-top:30px;
+ }
+ #fixed-dialog-announcements, #fixed-dialog-posts{position:fixed;}
+ .post-submit-profile-image{border-radius:50%}
+  
  .dashboard .dashboard-post{
    display: block;
    overflow-y:visible;
@@ -100,8 +144,9 @@ from permissions.utils import check_access_level, check_user_perms
  td.no-search-results{
    text-align:center;
    font-weight:bold;
-   font-size:20px;
-   padding-bottom:30px;
+   font-size:14px;
+   padding-top:20px;
+   padding-bottom:20px;
  }
  .hoverable-profile{
    position:relative;
@@ -163,35 +208,6 @@ from permissions.utils import check_access_level, check_user_perms
   }
 </script>
 
-<style type="text/css" media="screen">
- #fixed-dialog-posts .cke{
-   display:inline-block;
-   vertical-align:top;
- }
- #dashboard_content_posts .cke{
-   width:100%;
-   border-radius:10px;
-   color:#000;
- }
- #dashboard_content_posts .cke *{
-   color:#000;
- }
- #dashboard_content_posts .cke_reset{
-   border-radius:10px;
- }
- #dashboard_content_posts .cke_top {
-   border-top-left-radius:10px;
-   border-top-right-radius:10px;
- }
- #dashboard_content_posts .cke_bottom{
-   border-bottom-left-radius:10px;
-   border-bottom-right-radius:10px;
- }
- #dashboard_content_posts .cke_inner{
-   border-radius:10px;
- }
-</style>
-
 <div id="dashboard_content_posts" class="dashboard-post" style="background:#fff;">  
   <div id="post_content" class="post_content clearfix">
     <table id="" border="0" style="margin-bottom:10px;">
@@ -220,7 +236,7 @@ from permissions.utils import check_access_level, check_user_perms
         <a href = "#" style="color:#06e !important;margin-left:30px;" id = "add_post_image">
           <img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25"/>
         </a>
-        <span id="file-name-label" style=""></span>
+        <span id="file-name-label" style=""></span><img id="remove-file-button" src="/static/images/removal.png" class="" alt="" />
         <a id="submit_new_post_button" class="post_btn" value="Post" style="">Post</a>
     </div>
   </div>
@@ -315,14 +331,6 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
 </div>
 
-<style type="text/css" media="screen">
- .hide{display:none;}
- .view-all-announcements{cursor:pointer;}
- .post-title-link{cursor:pointer;}
- .feed-title{font-weight:normal;color:#ffffff;background-color:#495354;font-size:20px;padding:10px 30px;margin-top:30px;}
- #fixed-dialog-announcements, #fixed-dialog-posts{position:fixed;}
- .post-submit-profile-image{border-radius:50%}
-</style>
 <script type="template" id="announcement-template">
   <div style="margin-bottom:20px;" class="announcement-row">
   <input type="hidden" name="_id" value="{_id.$oid}" />
@@ -336,10 +344,11 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
   <div>
-  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
-  {attachment}  
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}  
   </div>  
   <div>{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
   </div>
   </div>
 </script>
@@ -366,10 +375,12 @@ from permissions.utils import check_access_level, check_user_perms
         <br />
   <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
   <div>
-  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
-  {attachment}  
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}  
   </div>  
   <div style="font-weight:bold;margin-top:1em;">{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+
       </div>
     </div>
   </td>
@@ -394,10 +405,11 @@ from permissions.utils import check_access_level, check_user_perms
   {last_comment?replied to a post in your network:created a new post in your network}.
   </div>
   <div>
-  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
-  {attachment}
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}
   </div>
   <div style="width:100%;margin-top:1em;">{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
   <div style="text-align:right;">
   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
   {is_my_like?Unlike:Like}
@@ -443,6 +455,7 @@ from permissions.utils import check_access_level, check_user_perms
   <tr>
   <td colspan="2">
   <div>{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
   <div style="text-align:right;">
   <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
   <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?comment:post}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
@@ -455,24 +468,33 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript">
   function renderTopAnnouncement(p){
     p.content = translateImages(p.content)
-    if(p.attachment_file)
-      p.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + p._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"
+    translateAttachment(p)
     var template = $("#top-announcement-template").html();
     $('#announcement_content_table').append(template.fillData(p));   
   }
+  function translateAttachment(p){
+    if(p.attachment_file){
+      var ext = p.attachment_file.split(".").pop().toLowerCase();
+      if(ext == "png" || ext == "jpg" || ext == "gif"){ 
+        p.attachment_image = "${reverse('dashboard_get_attachment_image')}?feeding_id=" + p._id.$oid;
+      }else{
+        p.attachment_download = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + p._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"
+      }
+    }
+  }
   function translateImages(content){
-    return content;
-    
     return content.replace(/(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/g, function(link){
       image_code = link;
-      if(link.indexOf("youtube") > -1){
-        image_code = "<br><br><iframe src='"+link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>";
+      if(/vimeo/.test(link)){
+        image_code = "<br><br><iframe src='" + link + "' width='384' height='216' allowfullscreen></iframe>";
+      } else if(/youtube/.test(link)){
+        image_code = "<br><br><iframe src='" + link.replace('watch?v=', 'embed/') + "' width='384' height='216' allowfullscreen></iframe>";
       }else if(link.indexOf("youtu.be") > -1){
-        image_code = "<br><br><iframe src='"+link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>";
-      }else{
+        image_code = "<br><br><iframe src='" + link.replace('youtu.be', 'youtube.com/embed/') + "' width='384' height='216' allowfullscreen></iframe>";
+      }else if(/\.(png|jpg|gif)$/.test(link)){
         image_code = "<span class='img-span-code'><img src='" + link + "' style='max-width:400px;max-height:400px;'></img></span>";
-      //}else{
-        //image_code += "<p><a style='word-wrap: break-word;' href='" + link + "'>" + link + "</a></p>";
+      }else{
+        image_code = "<p><a style='word-wrap: break-word;' href='" + link + "' target='_blank'>" + link + "</a></p>";
       }
       return image_code;
     });
@@ -529,8 +551,7 @@ from permissions.utils import check_access_level, check_user_perms
         // show post and comments
         var template_post = $("#post-template").html();
         post.content = translateImages(post.content)
-        if(post.attachment_file)
-          post.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + post._id.$oid + "' target='_blank'>"+post.attachment_file+"</a>"
+        translateAttachment(post)
         var c = template_post.fillData(post);
         $content_area.append(c);
         $("#fixed-dialog-posts .dialog-title").html("Comments (" + (post.sub.length + 1) + ")");
@@ -807,8 +828,7 @@ from permissions.utils import check_access_level, check_user_perms
             var template_post = $("#announcement-template").html();
             $.each(d, function(i, p){
               p.content = translateImages(p.content)
-              if(p.attachment_file)
-                p.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + p._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"              
+              translateAttachment(p);              
               var c = template_post.fillData(p);
               $content_area.append(c);
             });
@@ -875,8 +895,7 @@ from permissions.utils import check_access_level, check_user_perms
         p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
         p.feeding_count = post.sub.length + 1;
         p.post_id=post._id
-        if(p.attachment_file)
-          p.attachment = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + post._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"
+        translateAttachment(p)
         renderTopPost(p);
       });
       if(posts.length > 0) {
@@ -976,6 +995,7 @@ from permissions.utils import check_access_level, check_user_perms
       fd.append('expiration_date', announce_expir_date)
       $("#image_link_input").val("");
       $("#file-name-label").html("");
+      $("#remove-file-button").hide();
       $.ajax({
         url: "${reverse('dashboard_submit_new_post')}",
         data: fd,
@@ -1043,7 +1063,8 @@ from permissions.utils import check_access_level, check_user_perms
     $cke.click(function(){
       self.focus()
     })
-  }, { height: '100px', width:'535px', extraPlugins: 'youtube'});
+  }, { height: '80px', width:'535px',
+       extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
 
   //  toolbarCanCollapse: true, toolbarStartupExpanded: false
 
@@ -1082,11 +1103,17 @@ from permissions.utils import check_access_level, check_user_perms
     $cke.click(function(){
       self.focus()
     })
-  }, {
-    height: '100px', width:'590px', extraPlugins: 'youtube'});
-
+  }, {height: '100px', width:'590px',
+      extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
+  
   $("#image_link_input").on("change", function(){
     $("#file-name-label").html(this.value.replace(/^.*[\/\\]/, ""))
-  })
+    $("#remove-file-button").show();
+  });
 
+  $("#remove-file-button").click(function(){
+    $("#file-name-label").html("");
+    $("#image_link_input").val();
+    $(this).hide();
+  });
 </script>
