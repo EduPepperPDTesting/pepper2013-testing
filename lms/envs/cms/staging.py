@@ -120,15 +120,6 @@ CHUNKSSTORE = {
         'password': MONGO_PASSWORD,
     }
 }
-DISCUSSION_RATING_STORE = {
-    'OPTIONS': {
-        'db': MONGO_DB_DISCUSS,
-        'host': MONGO_HOST,
-        'port': MONGO_PORT,
-        'user': MONGO_USER,
-        'password': MONGO_PASSWORD,
-    }
-}
 RECORDTIMESTORE = {
     'OPTIONS': {
         'db': MONGO_DB_ASSIST,
