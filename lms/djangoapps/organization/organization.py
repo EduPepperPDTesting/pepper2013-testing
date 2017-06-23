@@ -136,6 +136,14 @@ def organization_add(request):
             if copyfromId:
                 organization_old = OrganizationMetadata.objects.get(id=copyfromId) 
 
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                    
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
                 path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization.id) + '/'
                 if not os.path.exists(path):
                     os.mkdir(path)
@@ -699,6 +707,9 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
            
+           path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+            if not os.path.exists(path):
+                os.mkdir(path)
 
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
             if not os.path.exists(path):
@@ -830,6 +841,10 @@ def org_main_upload(request):
             elif file_type == "main_page_bottom_image":
                 imgx = request.FILES.get("organizational_base_main_page_bottom_image", None)
 
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/main_page/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -875,6 +890,11 @@ def org_dashboard_upload(request):
             rowNum = str(rowNum)
             organization = OrganizationMetadata.objects.get(id=oid)            
             imgx = request.FILES.get("menu_items_icon_" + rowNum, None)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
            
             if not os.path.exists(path):
@@ -912,6 +932,11 @@ def org_dashboard_upload_cms(request):
             rowNum = str(rowNum)
             organization = OrganizationMetadata.objects.get(id=oid)            
             imgx = request.FILES.get("cms_items_icon_" + rowNum, None)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/cms/'
             if not os.path.exists(path):
                 os.mkdir(path)
