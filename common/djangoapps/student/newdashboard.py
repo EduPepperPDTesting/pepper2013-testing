@@ -640,7 +640,6 @@ def get_my_activities(request):
         get_logoInfo(data,ma_dict)
 
         ma_list.append(ma_dict)
-    log.debug("fin ooooooooooooooooooooooooooooo")
     return HttpResponse(json.dumps({'data': ma_list,'data_count':my_activities_count,'Success': 'True'}), content_type='application/json')
 
 def get_displayInfo(data):

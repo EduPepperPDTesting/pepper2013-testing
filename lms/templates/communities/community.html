@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from courseware.courses import course_image_url, get_course_about_section
 from student.views import course_from_id
 from administration.configuration import has_hangout_perms
-from communities.utils import is_facilitator, is_member
+from communities.utils import is_facilitator, is_member, is_private
 from file_uploader.utils import get_file_url
 from django.utils import timezone
 import datetime
@@ -137,7 +137,7 @@ import datetime
                     %if not is_facilitator(request.user, community):
                         <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
                     %endif
-                %else:
+                %elif not is_private(community):
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
             </div>

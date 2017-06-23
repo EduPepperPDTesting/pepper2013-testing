@@ -15,3 +15,10 @@ def is_member(user, community):
     except:
         return False
     return True
+
+def is_private(community):
+    try:
+        CommunityUsers.objects.get(community=community, community__private=True)
+    except:
+        return False
+    return True

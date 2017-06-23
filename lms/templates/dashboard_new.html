@@ -117,7 +117,6 @@ a{
     font-size:14px;
     color:#fff;
     text-decoration:none !important;
-    cursor:pointer;
     margin-left: 13px;
     margin-top: 10px;
 }
@@ -196,7 +195,6 @@ a{
     font-size:14px;
     color:#fff;
     text-decoration:none !important;
-    cursor:pointer;
     margin-left: 13px;
     margin-top: 10px;
 }
@@ -459,6 +457,11 @@ a{
     display: none;
 }
 /*----middle Main Content:My Activity----*/
+.ma_mf_btn{
+    font-size: 16px !important;
+    color: #000;
+    cursor: pointer;
+}
 .con-ma-filter{
     width:659px;
     text-align: right;
@@ -851,6 +854,15 @@ a{
     font-weight: bold;
     color: #2CBAEC;
 }
+
+.my-stats-view-all{
+    text-align: right;
+    margin-top: 15px;
+}
+.my-stats-view-all a{
+    font-size: 14px;
+    color: #0070d5;
+}
 </style>
 <style>
     .organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
@@ -966,11 +978,11 @@ a{
                     tmp1_level_ids = ""
                     for tmp1_2 in tmp1.CmsItem.split("_level_:")[1].split(","):                            
                         if tmp1_2 == "14":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7"
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,14"
                         elif tmp1_2 == "15":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9"
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,14,15"
                         elif tmp1_2 == "16":
-                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13"                            
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"
                         else:
                             tmp1_level_ids = tmp1_level_ids + "," + tmp1_2
                         
@@ -1005,9 +1017,7 @@ a{
             <div class="con-my-communities" style="${show_left}">
                 <!--width:220px-->
                 <div class="community-trending-topics">
-                    <a href="/communities">
-                        <div class="my-title-blue">My Trending Topics</div>
-                    </a>
+                    <div class="my-title-blue">My Trending Topics</div>
                     <div class="trending-topic" style="border:0px solid;">
                         %for k,c in enumerate(community_trending_topics):
                             %if k + 1 == len(community_trending_topics):
@@ -1035,9 +1045,7 @@ a{
                     </div>
                 </div>
                 <div class="my-learning-communities">
-                    <a href="/communities">
-                        <div class="my-title-blue">My Communities</div>
-                    </a>
+                    <div class="my-title-blue">My Communities</div>
                     <div class="my-communities-cards">
                         <%
                             community_count = len(communities)
@@ -1203,6 +1211,7 @@ a{
                     <div class="total-time">${user_last_logged_in}</div>
                     <div class="enrolled-courses">Enrolled Courses: <span>${courses_incomplated_all_count}</span></div>
                     <div class="enrolled-courses">Completed Courses: <span>${courses_complated_all_count}</span></div>
+                    <div class="my-stats-view-all"><a href="/reporting">View All</a></div>
                 </div>
             </div>
         </div>
@@ -1215,9 +1224,7 @@ a{
                         ${data["add_profile"]} 
                     % endif
                 </div>
-                <a href="/courses">
-                    <div class="my-title-green">My Courses</div>
-                </a>
+                <div class="my-title-green">My Courses</div>
                 <div class="my-courses-cards">
                     %for course in courses_incomplated_top2:
                         <%
@@ -1240,9 +1247,7 @@ a{
 
                 %if len(allowedcourses) > 0:
                     <!--allowedcourse-->
-                    <a href="/more_courses_available">
-                        <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
-                    </a>
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
                     <div class="my-courses-cards">
                         %for course in allowedcourses:
                             <div class="course-incomplated">
@@ -1327,19 +1332,6 @@ $(document).ready(function(){
                 $(".get-more-incompleted").hide();
                 if(courses_incomplated_more==1){
                     $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
-      
-                    $(".btn-more-incompleted").click(function(){
-                        if(btn_more_incompleted_click == 0){
-                            get_course_in_progress('incompleted','yes'); 
-                            btn_more_incompleted_click = 1;
-                        }
-                        else{
-                            $(".get-more-incompleted").show();
-                            if(courses_incomplated_more==1){
-                                $(".course-in-progress-more-outer").html('');
-                            }
-                        }
-                    });
                 }
             }
             
@@ -1348,19 +1340,6 @@ $(document).ready(function(){
                 $(".get-more-completed").hide();
                 if(courses_complated_more==1){
                     $(".completed-courses-more-outer").html('<div class="completed-courses-more"><b class="btn-more-completed">More</b></div>');
-      
-                    $(".btn-more-completed").click(function(){
-                        if(btn_more_completed_click == 0){
-                            get_completed_courses('completed','yes'); 
-                            btn_more_completed_click = 1
-                        }
-                        else{
-                            $(".get-more-completed").show();
-                            if(courses_complated_more==1){
-                                $(".completed-courses-more-outer").html('');
-                            }
-                        }
-                    });
                 }
             }
         }
@@ -1501,7 +1480,12 @@ $(document).ready(function(){
             default:
                 data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
                 data.html_ico += '<tr>';
-                data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+                if(data.g_type == 'MyFeed'){
+                    data.html_ico += '<td align="center"><img class="ma_mf_btn" src="'+data.logoUrl+'"></img></td>';
+                }
+                else{
+                    data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+                }
                 data.html_ico += '</tr>';
                 data.html_ico += '</table>';
         }
@@ -1549,23 +1533,23 @@ $(document).ready(function(){
         var scrollHeight = $(document).height();
         var scrollTop_ceil = Math.ceil(scrollTop);
 
-        //console.log("scrollTop:",scrollTop);
-        //console.log("windowHeight:",windowHeight);
-        //console.log("scrollHeight:",scrollHeight);
-        //console.log("scrollTop_ceil:",scrollTop_ceil);
+        console.log("scrollTop:",scrollTop);
+        console.log("---------");
+        console.log("scrollTop_ceil:",scrollTop_ceil);
+        console.log("windowHeight:",windowHeight);
+        console.log(">=");
+        console.log("scrollHeight:",scrollHeight);
+        console.log("============================");
 
         if(scrollTop_ceil + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
-                //console.log("111");
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
             }else{
-                //console.log("now_show:",now_show);
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show == 'my-activity' ){
-                    //console.log("333");
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
@@ -1573,6 +1557,12 @@ $(document).ready(function(){
         }
     });
     
+    $(document).on('click', ".ma_mf_btn", function() {  
+        % if OrganizationOK and add_Feed_Show == "1" or not(OrganizationOK):
+            btn_switch("my-feed-btn");
+            $(window).scrollTop(0);
+        %endif 
+    });
     
     /*------my report card------*/
     //my report card - course in progress-----------------------------------------------
@@ -1688,7 +1678,7 @@ $(document).ready(function(){
     }
 
     var btn_more_incompleted_click = 0;
-    $(".btn-more-incompleted").click(function(){
+    $(document).on('click', ".btn-more-incompleted", function() {  
         if(btn_more_incompleted_click == 0){
             get_course_in_progress('incompleted','yes'); 
             btn_more_incompleted_click = 1;
@@ -1763,7 +1753,7 @@ $(document).ready(function(){
     }
 
     var btn_more_completed_click = 0;
-    $(".btn-more-completed").click(function(){
+    $(document).on('click', ".btn-more-completed", function() {  
         if(btn_more_completed_click == 0){
             get_completed_courses('completed','yes'); 
             btn_more_completed_click = 1
