@@ -1544,15 +1544,12 @@ $(document).ready(function(){
         if(scrollTop_ceil + windowHeight >= scrollHeight)
         {
             if(skip_rows_scroll >= data_all){
-                //console.log("111");
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
             }else{
-                //console.log("now_show:",now_show);
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show == 'my-activity' ){
-                    //console.log("333");
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
