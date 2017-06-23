@@ -839,14 +839,20 @@ function cleanInput(input){
     return input.replace("'", "\'");
 }
 
+function clearDropdown(dropdown){
+    $(dropdown).html("");
+}
+
 $(document).ready(function () {
     $("#User_state_select").change(function () {
        var id = $("#User_state_select :selected").attr("class");
+        clearDropdown("#User_district_select");
         filterUserDropOptions('district', id, '#User_district_select');
     });
 
     $("#User_district_select").change(function () {
        var id = $("#User_district_select :selected").attr("class");
+        clearDropdown("#User_school_select");
         filterUserDropOptions('school', id, '#User_school_select');
     });
     var custom_email_loaded = [false, false, false];
@@ -1280,10 +1286,12 @@ $(document).ready(function () {
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
+        clearDropdown('#School_district_select');
         filterUserDropOptions('district', id, '#School_district_select');
     });
     $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
+        clearDropdown('#Cohort_district_select');
         filterUserDropOptions('district', id, '#Cohort_district_select');
     });
 
