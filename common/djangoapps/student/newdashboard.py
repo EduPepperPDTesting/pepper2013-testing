@@ -1110,6 +1110,29 @@ def download_attachment(request):
     return response
 
 
+def get_attachment_image(request):
+    feeding_id = request.GET.get("feeding_id")
+
+    store = dashboard_feeding_store()
+    feeding = store.get_feeding(feeding_id)
+    
+    options = settings.USERSTORE.get("OPTIONS")
+    us = MongoUserStore(**options)
+    content = us.find_one(ObjectId(feeding_id), 'feeding_attachment')
+    
+    image = feeding["attachment_file"]
+    image = image.rstrip('/')
+    image = image.rstrip('\\')
+    ext = image[-3:]
+    
+    if ext == "png" or ext == "jpg" or ext == "gif":
+        response = HttpResponse(content_type='image/' + ext.upper())
+        
+    if content:
+        response.write(content.get("data"))
+    return response
+
+
 def get_posts(request):
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
