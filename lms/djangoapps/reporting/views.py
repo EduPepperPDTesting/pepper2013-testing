@@ -219,6 +219,7 @@ def report_edit(request, report_id):
     """
     views = Views.objects.all().order_by('name')
     data = {'views': views}
+    data.update({'matrixcolumns':'undefined'})
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)

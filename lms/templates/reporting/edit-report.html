@@ -267,7 +267,6 @@
             if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
                 var type = ['','','','',''];
                 type[parseInt(aggregate_type)] = 'selected';
-                console.log(type)
                 select_type = "<option value='0'"+type[0]+">Sum</option><option value='1' "+type[1]+">Count</option><option value='2' "+type[2]+">Average</option><option value='3' "+type[3]+">Max</option><option value='4' "+type[4]+">Min</option>"
                 }else{
                     select_type = "<option value='1' selected>Count</option>"
