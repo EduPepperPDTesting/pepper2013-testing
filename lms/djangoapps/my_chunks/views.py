@@ -2,19 +2,26 @@ from django.http import Http404
 from mitxmako.shortcuts import render_to_response
 from django.db import connection
 
+import logging
 from student.models import CourseEnrollment
 from django.contrib.auth.models import User
 import django_comment_client.utils as utils
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from django.contrib.auth.decorators import login_required
-from xmodule.remindstore import chunksstore
+from xmodule.remindstore import chunksstore,myactivitystore
 import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,timedelta
+from time import mktime
+import random
+from bson.objectid import ObjectId
 from pytz import UTC
 import json
 from people.people_in_es import gen_people_search_query, search_people
+
+log = logging.getLogger("tracking")
+
 @login_required
 def mychunks(request,user_id=None):
     if user_id:
@@ -74,16 +81,55 @@ def get_mychunks_range(request):
     info  = rs.return_items(str(request.user.id),int(request.POST.get('skip')),int(request.POST.get('limit')))
     return utils.JsonResponse({'results': info,'count': count})
 
+def getObjectId():
+    seed = "1234567890abcdef"
+    sa = []
+    for i in range(16):
+        sa.append(random.choice(seed))
+    salt = ''.join(sa)
+    
+    t2 = mktime(datetime.utcnow().timetuple())
+    t3 = str(hex(int(t2)))[2:] + salt    
+    return ObjectId(bytes(t3))
+
 def save_mychunk(request):
     rs = chunksstore()
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
+    infos = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
+
+    if len(infos) == 0:
+        oid = getObjectId()
+        info['_id']=oid
+        EventType = "myChunks_createChunk"
+    else:
+        EventType = "myChunks_editChunk"
+        oid = ObjectId(str(infos[0]['_id']))
+
     rs.save_item(info)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "MyChunks", "EventType": EventType, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"url": info['url']},
+    "TokenValues": {"UsrCre": request.user.id, "url": info['url']}, #"TokenValues": {"SourceID": oid}, 
+    "LogoValues": {"SourceID": oid}}
+    ma_db.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
 
 def del_mychunk(request):
     rs = chunksstore()
     info = json.loads(request.POST.get('info'))
+    
+    chunk_url = ''
+    chunk_title = ''
+    items = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
+    if items:
+        chunk_title = items[0]['chunkTitle']
+        chunk_url = items[0]['url']   
+    ma_db = myactivitystore()
+    ma_db.set_item_my_chunks(int(request.user.id),chunk_url,chunk_title)
+
     rs.delete_item(str(request.user.id),info['vertical_id'])
     return utils.JsonResponse({'results':'true'})
 
@@ -92,6 +138,20 @@ def set_rate(request):
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
     rs.set_rate(info)
+    mychunk_url = info['url']
+
+    results=rs.collection.find({'user_id':str(request.user.id),'vertical_id':info['vertical_id']})
+    for data in results:
+        oid=ObjectId(str(data['_id']))
+        
+        ma_db = myactivitystore()        
+        my_activity = {"GroupType": "MyChunks", "EventType": "myChunks_rateChunk", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"url": mychunk_url},
+        "TokenValues": {"UsrCre": request.user.id, "url": mychunk_url},#"TokenValues": {"SourceID": oid}, 
+        "LogoValues": {"SourceID": oid}}
+        ma_db.insert_item(my_activity)
+        break;
+
     return utils.JsonResponse({'results':'true'})
 
 def get_integrate_rate(request):
