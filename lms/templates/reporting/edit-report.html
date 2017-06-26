@@ -258,7 +258,12 @@
     $(document).ready(function () {
         x = "${action}";
         if (x == 'edit'){
-            var aggregate_type = "${matrixcolumns.aggregate_type}";
+            var aggregate_type = "${matrixcolumns}";
+            if (aggregate_type == 'undefined'){
+                aggregate_type = 0;
+            }else{
+                aggregate_type = aggregate_type.aggregate_type
+            }
             if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
                 var type = ['','','','',''];
                 type[parseInt(aggregate_type)] = 'selected';
@@ -269,7 +274,7 @@
                 }
             $("#Aggregate_Type").html(select_type);
         }
-        
+
         $("#Aggregate_Data").change(function(){
             var select_type = '';
             if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){

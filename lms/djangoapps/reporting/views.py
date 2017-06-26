@@ -219,9 +219,6 @@ def report_edit(request, report_id):
     """
     views = Views.objects.all().order_by('name')
     data = {'views': views}
-    matrixcolumns = {}
-    matrixcolumns['aggregate_type'] = 0
-    data.update({'matrixcolumns':matrixcolumns})
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
@@ -252,11 +249,10 @@ def report_edit(request, report_id):
                              'report_filters': filters,
                              'first_column': first_column})
 
-                matrixcolumns = {}
                 if report.report_type == 1:
                     matrixcolumns = ReportMatrixColumns.objects.get(report=report)
                     data.update({'matrixcolumns':matrixcolumns})
-                
+
                 action = 'edit'
             else:
                 raise Exception('Not allowed.')
