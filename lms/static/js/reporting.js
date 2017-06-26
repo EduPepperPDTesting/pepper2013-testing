@@ -87,13 +87,12 @@ function viewSelect(related_url, columns_url) {
 
                 $("#Aggregate_Data").change(function(){
                     var select_type = '';
-                    console.log($("Aggregate_Data option:selected").attr('type'));
-                    if($("Aggregate_Data option:selected").attr('type') == 'int' ){
+                    if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
                         select_type = "<option value='0'>Sum</option><option value='1'>Count</option><option value='2'>Average</option><option value='3'>Max</option><option value='4'>Min</option>"
                     }else{
                         select_type = "<option value='1'>Count</option>"
                     }
-                    $("#Aggregate_Type").html(select_type)
+                    $("#Aggregate_Type").html(select_type);
                 })
 
                 var second_column = Math.floor(data.length / 2);
