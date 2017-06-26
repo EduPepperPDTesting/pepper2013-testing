@@ -458,6 +458,9 @@ $(document).ready(function () {
         column_header_type = datas.column_header_type
         // if (column_header_type == 'time' || column_header_type == 'int'){
             for (data in column_datas){
+                if(column_datas[data] == null){
+                    column_datas[data] = 'None'
+                }
                 html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>"+column_datas[data]+"</th>";
             }
             html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>Total</th></tr>";
