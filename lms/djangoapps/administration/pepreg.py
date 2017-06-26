@@ -461,28 +461,32 @@ def getCalendarMonth(request):
     _old_month = request.GET.get('old_month')
 
     if (_year):
-        _year = int(_year);
+        _year = int(_year)
+    else:
+        raise Exception("no year")
 
     if (_month):
-        _month = int(_month);
+        _month = int(_month)
+    else:
+        raise Exception("no month")
 
     if (_year_n):
-        _year_n = int(_year_n);
+        _year_n = int(_year_n)
 
     if (_month_n):
-        _month_n = int(_month_n);
+        _month_n = int(_month_n)
 
     if (_day):
-        _day = int(_day);
+        _day = int(_day)
 
     if (_day_n):
-        _day_n = int(_day_n);
+        _day_n = int(_day_n)
 
     if not _getrange:
         _getrange = "0"
 
     if not(_catype):
-        _catype = "0";
+        _catype = "0"
 
     if _go_back:
         _go_back = 1 if _go_back =="true" else 0
