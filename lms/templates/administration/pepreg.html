@@ -1217,6 +1217,7 @@
                 }
 			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                console.log("start date-"+picker_date);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
@@ -1284,6 +1285,7 @@
 		function setSysDate(picker_date, addMonth){
 		    var UTC_date = new Date();
             var localTimeOffset = UTC_date.getTimezoneOffset();
+
 
             console.log(picker_date+" "+localTimeOffset);
             picker_date.setMinutes(picker_date.getMinutes() + localTimeOffset);
