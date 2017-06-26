@@ -1563,8 +1563,8 @@ def reporting_get_row_graphable(request):
 def reporting_get_aggregate(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    row_header_data = request.GET.get('row_header', '')
-    column_header_data = request.GET.get('column_header', '')
+    row_header_data = request.GET.get('row_header', '').strip()
+    column_header_data = request.GET.get('column_header', '').strip()
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
     report = Reports.objects.get(id=report_id)
