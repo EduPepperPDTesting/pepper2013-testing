@@ -257,18 +257,28 @@
 <script type="text/javascript">
     $(document).ready(function () {
         x = "${action}";
-        console.log(x)
         if (x == 'edit'){
             var aggregate_type = "${matrixcolumns.aggregate_type}";
             if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
                 var type = ['','','','',''];
                 type[parseInt(aggregate_type)] = 'selected';
+                console.log(type)
                 select_type = "<option value='0'"+type[0]+">Sum</option><option value='1' "+type[1]+">Count</option><option value='2' "+type[2]+">Average</option><option value='3' "+type[3]+">Max</option><option value='4' "+type[4]+">Min</option>"
                 }else{
                     select_type = "<option value='1' selected>Count</option>"
                 }
             $("#Aggregate_Type").html(select_type);
         }
+        
+        $("#Aggregate_Data").change(function(){
+            var select_type = '';
+            if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
+                select_type = "<option value='0'>Sum</option><option value='1'>Count</option><option value='2'>Average</option><option value='3'>Max</option><option value='4'>Min</option>"
+            }else{
+                select_type = "<option value='1'>Count</option>"
+            }
+            $("#Aggregate_Type").html(select_type);
+        })
         
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
