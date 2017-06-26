@@ -79,11 +79,15 @@ function viewSelect(related_url, columns_url) {
             if (data.length) {
                 var select = "<option value='none'>select...</option>";
                 for (var value in data){
-                    select += "<option value="+data[value].id+">"+data[value].name+"</option>";
+                    select += "<option value="+data[value].id+" type="+ data[value].type +">"+data[value].name+"</option>";
                 }
                 $("#Column_Headers").html(select)
                 $("#Row_Headers").html(select)
                 $("#Aggregate_Data").html(select)
+
+                $("#Aggregate_Data").change(function(){
+                    console.log($(this));
+                })
 
                 var second_column = Math.floor(data.length / 2);
                 var remainder = data.length % 2;
