@@ -248,14 +248,14 @@ def report_edit(request, report_id):
                              'selected_columns': selected_columns,
                              'report_filters': filters,
                              'first_column': first_column})
-                
+
                 matrixcolumns = {}
                 if report.report_type == 1:
                     matrixcolumns = ReportMatrixColumns.objects.get(report=report)
                     data.update({'matrixcolumns':matrixcolumns})
                 else:
-                    matrixcolumns['data_type'] = 0
-                    data.update({'matrixcolumns':matrixcolumns['data_type']})
+                    matrixcolumns['aggregate_type'] = 0
+                    data.update({'matrixcolumns':matrixcolumns})
 
                 action = 'edit'
             else:
