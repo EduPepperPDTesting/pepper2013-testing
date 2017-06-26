@@ -401,15 +401,11 @@
         
         try:
             state_id = request.user.profile.district.state.id
-        except:
-            state_id = -1
-        try:
             district_id = request.user.profile.district.id
-        except:
-            district_id = -1
-        try:
             school_id = request.user.profile.school.id
         except:
+            state_id = -1
+            district_id = -1
             school_id = -1
             
         organization_obj = OrganizationMetadata()
