@@ -1528,7 +1528,7 @@ def reporting_get_graphable(request):
 def reporting_get_row_graphable(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    filter = request.GET.get('filter', '')
+    filter = request.GET.get('filter', '').strip()
     collection = get_cache_collection(request, report_id, school_year)
     rs = reporting_store()
     rows = []
