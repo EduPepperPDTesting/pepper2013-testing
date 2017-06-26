@@ -322,9 +322,9 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
-    store = dashboard_feeding_store()
-    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    #feeding_year_start, feeding_year_end = False, False
+    #store = dashboard_feeding_store()
+    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    feeding_year_start, feeding_year_end = False, False
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
@@ -475,8 +475,8 @@ def get_my_course_in_progress(request):
 
     course_unfin_list = list()
     student = User.objects.prefetch_related("groups").get(id=user.id)
-    rs = reporting_store()
-    rs.set_collection('UserCourseView')
+    #rs = reporting_store()
+    #rs.set_collection('UserCourseView')
     if course_type == "incompleted":
         for k,course in enumerate(courses_incomplated):
             if get_more == 'yes':
