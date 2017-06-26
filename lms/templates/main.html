@@ -26,7 +26,7 @@
             school_id = request.user.profile.school.id
         except:
             school_id = -1
-                
+            
         organization_obj = OrganizationMetadata()
         if (school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
