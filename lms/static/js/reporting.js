@@ -85,7 +85,7 @@ function viewSelect(related_url, columns_url) {
                 $("#Row_Headers").html(select)
                 $("#Aggregate_Data").html(select)
 
-                $("#Aggregate_Data").change(functino(){
+                $("#Aggregate_Data").change(function(){
                     console.log($(this));
                 })
 
