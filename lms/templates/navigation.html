@@ -183,7 +183,16 @@
         text-align:center;
         font-weight:bold;
     }
-
+    .lean-overlay-nav {
+        background: radial-gradient(circle at 50% 30% , rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)) repeat scroll 0% 0% transparent;
+        display: block;
+        height: 100%;
+        left: 0px;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        z-index: 100;
+    }
     #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
@@ -233,7 +242,7 @@
         transition: padding 0.15s linear 0s;
         white-space: nowrap;
         width: 100%;
-    }
+    }git push -u dev-new stagingtest:stagingtest
     ul.admin-dropdown-menu li:first-child {
         border: medium none;
         box-shadow: none;
@@ -1381,3 +1390,133 @@
         $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
     </script>
 %endif
+
+<script type="text/javascript">
+	function LoadingWinNav(){
+		this.$loader = null;
+		this.show();
+	}
+	LoadingWinNav.prototype.show = function () {
+		if (!this.$loader) {
+			this.$loader = $('<div class="lean-overlay-nav"></div>');
+			//this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+			this.$loader.appendTo(document.body);
+		}
+		this.$loader.css('display','block');
+	};
+	LoadingWinNav.prototype.hide = function () {
+		if (this.$loader) {
+			this.$loader.remove();
+			this.$loader = null;
+		}
+	};
+	var loadwinnav = new LoadingWinNav();
+	
+	//------------------organization_get_info
+	var organization_data;
+	$(function(){
+		var flag_main;
+		if($(".mainlogo").length > 0) 					flag_main = "index";
+		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
+		
+		if($("#organization_obj").attr("o_name") == "report"){
+			loadwinnav.hide();
+		}
+					
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
+			if (r.SiteURL_OK){
+				if(r.flag_main == "index"){
+					if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
+					if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
+					if(r.BottomMainLogo)	$(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");							
+					if(r.MainPageBottomImage){
+						$(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
+						var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
+						var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
+						$(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
+					}else{
+						if(r.MainPageButtonText)	$(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
+						if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
+					}
+				}
+				
+				if(r.Success && r.OrganizationOK){
+					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
+						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
+					}*/					
+					if(r.flag_main == "dashboard"){
+						/*var tmp_div = $(".my-courses:first").find("div");
+						var profile_logo = "", profile_logo_url = "", profile_motto = "";
+						if(r['Dashboard option etc'] == "1"){
+							profile_logo = r['Profile Logo'];
+							profile_logo_url = r['Profile Logo Url'];
+							profile_motto = r['Motto'];
+							
+						}else if(r['Dashboard option etc'] == "2"){
+							profile_logo = r['Profile Logo Curriculumn'];
+							profile_logo_url = r['Profile Logo Url Curriculumn'];							
+							profile_motto = r['Motto Curriculumn'];
+						}
+						if(profile_logo != "" && typeof(profile_logo) != "undefined"){
+							tmp_div.css("backgroundImage", "none");
+							tmp_div.css("border", "2px solid #bbbbbb");
+							
+							if(profile_logo_url != "" && typeof(profile_logo_url) != "undefined"){
+								tmp_div.append("<a href='" + profile_logo_url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							}else{
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							}							
+							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + profile_motto + "</span>");
+						}*/
+						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+						
+					}else if(r.flag_main == "communities"){
+						$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
+						
+					}else if(r.flag_main == "pepconn"){
+						$("#District_search").attr("placeholder", "Search " + r.DistrictType);
+						$("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
+						$("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
+						
+						$("#School_district_select").find("option:first").html("Select " + r.DistrictType);
+						$("#School_search").attr("placeholder", "Search " + r.SchoolType);
+						$("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
+						$("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
+						$("#school_table_init").find(".school_district_id").html(r.DistrictType);
+						$("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
+						
+						$("#User_district_select").find("option:first").html("Select " + r.DistrictType);
+						$("#User_school_select").find("option:first").html("Select " + r.SchoolType);
+						$("#user_table_init").find(".user_school").html(r.SchoolType);
+						$("#user_table_init").find(".user_district").html(r.DistrictType);
+						
+						$("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
+						$("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
+						$("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
+						
+					}else if(r.flag_main == "pepreg"){
+						var tmp_first = $("#district_select").find("option:first");
+						if(tmp_first.val() == ""){
+							tmp_first.html("Select " + r.DistrictType);
+						}
+						$("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
+						$("#organization_pepreg_d1").text(r.DistrictType + ":");
+						$("#organization_pepreg_s1").text(r.SchoolType + ":");
+						
+					}else if(r.flag_main == "people"){
+						$("select[name='district_id']").find("option:first").html(r.DistrictType);
+						$("select[name='school_id']").find("option:first").html(r.SchoolType);
+						
+					}else if(r.flag_main == "report"){
+						organization_data = r;
+					}					
+				}
+			}
+			if($("#organization_obj").attr("o_name") != "report"){
+				loadwinnav.hide();
+			}
+		});		
+	});							
+</script>
