@@ -1284,7 +1284,10 @@
 		function setSysDate(picker_date, addMonth){
 		    var UTC_date = new Date();
             var localTimeOffset = UTC_date.getTimezoneOffset();
+
+            console.log(picker_date+" "+localTimeOffset);
             picker_date.setMinutes(picker_date.getMinutes() + localTimeOffset);
+            console.log(picker_date);
 
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
