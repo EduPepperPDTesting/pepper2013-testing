@@ -1722,7 +1722,7 @@
                 ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
         // ************* add dlg close button to each step
         $("#dlg-add-training").find(".close-modal").remove();
-        $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
+        $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(0)")).click(function () {//style='right:-50px;'
             dlg.hide();
         });
         // ************* before switch to another page
@@ -1747,7 +1747,13 @@
 					mathCreditsChecked();
 				}
 			}
-			
+			//akogan
+			if ( dest > -1 ){
+			    $(".step-page .close-modal").remove();
+                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                    dlg.hide();
+                });
+            }
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
         };
         // ************* when finish form
