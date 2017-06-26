@@ -1192,11 +1192,11 @@
                     _sys_calendar_year -= 1;
                    }
 			}else if(rangeVal == "1" || rangeVal == "3"){
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
-			    var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+			    var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 //var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
 			    setSysDate(picker_date, 1);
@@ -1216,12 +1216,12 @@
                     _sys_calendar_year += 1;
                 }
 			}else if(rangeVal == "1" || rangeVal == "3"){
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 console.log("start date-"+picker_date);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date, 0);
 			}else if(rangeVal == "2"){
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 //var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
@@ -1249,12 +1249,12 @@
                         _sys_calendar_year -= 1;
                     }
                     monthDays = new Date(_sys_calendar_year, monthDelta, 0).getDate();
-                    picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                    picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                     picker_date.setUTCDate(picker_date.getDate() - monthDays);
 			    }
                 setSysDate(picker_date, 0);
             }else{
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date, 0);
             }
@@ -1270,11 +1270,11 @@
             }else if(rangeVal == "1" || rangeVal == "3"){
                 monthDays = new Date(_sys_calendar_year, _sys_calendar_month, 0).getDate();
                 console.log("monthDays: "+monthDays);
-                picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + monthDays);
 			    setSysDate(picker_date, 0);
             }else{
-                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
                 setSysDate(picker_date, 0);
             }
