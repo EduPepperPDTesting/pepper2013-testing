@@ -77,7 +77,7 @@ function viewSelect(related_url, columns_url) {
         $.get(columns_url, get_data, function (data) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
-                var select = "<option value='none'>select...</option>";
+                var select = "<option value='none' type='none'>select...</option>";
                 for (var value in data){
                     select += "<option value="+data[value].id+" type="+ data[value].type +">"+data[value].name+"</option>";
                 }
@@ -86,7 +86,14 @@ function viewSelect(related_url, columns_url) {
                 $("#Aggregate_Data").html(select)
 
                 $("#Aggregate_Data").change(function(){
-                    console.log($(this));
+                    var select_type = '';
+                    console.log($("Aggregate_Data option:selected").attr('type'));
+                    if($("Aggregate_Data option:selected").attr('type') == 'int' ){
+                        select_type = "<option value='0'>Sum</option><option value='1'>Count</option><option value='2'>Average</option><option value='3'>Max</option><option value='4'>Min</option>"
+                    }else{
+                        select_type = "<option value='1'>Count</option>"
+                    }
+                    $("#Aggregate_Type").html(select_type)
                 })
 
                 var second_column = Math.floor(data.length / 2);
