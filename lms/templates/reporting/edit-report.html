@@ -134,7 +134,7 @@
                     %if action == 'edit':
                         %if report.report_type == 1:
                             %for view_column in view_columns:
-                                <option value="${view_column.id}" type="${view_column.type}"
+                                <option value="${view_column.id}" 
                                     %if view_column.id == matrixcolumns.column_headers:
                                         selected 
                                     %endif
@@ -160,7 +160,7 @@
                     %if action == 'edit':
                         %if report.report_type == 1:
                             %for view_column in view_columns:
-                                <option value="${view_column.id}"
+                                <option value="${view_column.id}" type="${view_column.data_type}"
                                     %if view_column.id == matrixcolumns.aggregate_data:
                                         selected 
                                     %endif
@@ -261,7 +261,7 @@
         if (x == 'edit'){
             var aggregate_type = "${matrixcolumns.aggregate_type}";
             if($("#Aggregate_Data option:selected").attr('type') == 'int' || $("#Aggregate_Data option:selected").attr('type') == 'time' ){
-                var type = [];
+                var type = ['','','','',''];
                 type[parseInt(aggregate_type)] = 'selected';
                 select_type = "<option value='0'"+type[0]+">Sum</option><option value='1' "+type[1]+">Count</option><option value='2' "+type[2]+">Average</option><option value='3' "+type[3]+">Max</option><option value='4' "+type[4]+">Min</option>"
                 }else{
