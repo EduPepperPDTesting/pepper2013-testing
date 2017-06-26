@@ -871,7 +871,7 @@
 	             picker_year = _sys_calendar_year + 1;}  }*/
 	function setPickerValue(calcDate){
         name = name || true;
-        var picker_month = _sys_calendar_month;
+        var picker_month = _sys_calendar_month + 1; console.log("picker month-"+picker_month);
         var picker_year = _sys_calendar_year;
 
         if(calcDate && picker_month == 13){
