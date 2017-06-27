@@ -82,11 +82,6 @@ from reporting.models import reporting_store
 from administration.models import UserLoginInfo
 from datetime import timedelta
 
-#@begin:Add for Dashboard Posts
-#@date:2016-12-29
-from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
-#@end
-
 from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
 from django.http import HttpResponseRedirect
