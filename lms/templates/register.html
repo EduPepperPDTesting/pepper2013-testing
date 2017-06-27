@@ -63,6 +63,8 @@ from baseinfo.models import Enum
   color:#fff;
   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
+  
+  .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 </style>
 <!--@end-->
 <%block name="title"><title>${_("Register for {platform_name}").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
@@ -111,7 +113,7 @@ from baseinfo.models import Enum
                }
                location.href = next;
            }  else {
-               location.href="${reverse('dashboard')}";
+               location.href = "${reverse('dashboard')}";
            }
        } else {
          toggleSubmitButton(true);
@@ -252,13 +254,13 @@ from baseinfo.models import Enum
           
           <li class="field required text" id="field-name">
             <label for="school_id">${_('State')}</label>
-            ${profile.district.state.name}
+            <span id="organization_info_state">${profile.district.state.name}</span>
           </li>
 
          <li class="field required text" id="field-name">
             <label for="school_id">${_('District')}</label>
             <input type="hidden" name="district_id" value="${profile.district.id}" />
-            ${profile.district.name}
+            <span id="organization_info_district">${profile.district.name}</span>
           </li>
           
           <li class="field required text" id="field-name">
@@ -270,89 +272,98 @@ from baseinfo.models import Enum
               %endfor
             </select>
           </li>
-          <li class="field required text" id="field-name">
-            <label for="major_subject_area_id">${_('Major Subject Area')}</label>
-            <select autocomplete="off" name="major_subject_area_id">
-              <option value="">--</option>
-              %for item in SubjectArea.objects.all().order_by("so"):
-              <option value="${item.id}">${item.name}</option>
-              %endfor
-            </select>
-          </li>
+          <span id="organization_info_org_rg_major_subject">
+              <li class="field required text" id="field-name">
+                <label for="major_subject_area_id">${_('Major Subject Area')}</label>
+                <select autocomplete="off" name="major_subject_area_id">
+                  <option value="">--</option>
+                  %for item in SubjectArea.objects.all().order_by("so"):
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+              </li>
+          </span>
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
-          <li class="field required text" id="field-name">
-            <label for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
-            <div class="level_containter" style="margin-bottom:10px;">
-            <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
-              %for item in GradeLevel.objects.all():
-              <span class="level">
-                <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
-                  ${item.name}
-                </a>
-              </span>
-              %endfor
+          <span id="organization_info_org_rg_grade_level">
+              <li class="field required text" id="field-name">
+                <label for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
+                <div class="level_containter" style="margin-bottom:10px;">
+                <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
+                  %for item in GradeLevel.objects.all():
+                  <span class="level">
+                    <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
+                      ${item.name}
+                    </a>
+                  </span>
+                  %endfor
+                  </div>
+              </li> 
+          </span>
+          <span id="organization_info_org_rg_number_of">           
+             <li class="field required text" id="field-name">
+                <label for="years_in_education_id">${_('Number of Years in Education')}</label>
+                <select autocomplete="off" name="years_in_education_id" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in YearsInEducation.objects.all():
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor                
+                </select>
+    <!--@end-->
+              </li>
+			</span>
+          <span id="organization_info_org_rg_my_learners">       
+              <div style="padding:10px 0 15px 0;"> 
+                <b style="font-size:15px;color:#333;">My Learners' Profile *</b>
               </div>
-          </li>            
-         <li class="field required text" id="field-name">
-            <label for="years_in_education_id">${_('Number of Years in Education')}</label>
-            <select autocomplete="off" name="years_in_education_id" style="width:100px;">
-              <option value="">--</option>
-              %for item in YearsInEducation.objects.all():
-              <option value="${item.id}">${item.name}</option>
-              %endfor                
-            </select>
-<!--@end-->
-          </li>
-
-          <div style="padding:10px 0 15px 0;"> 
-            <b style="font-size:15px;color:#333;">My Learners' Profile *</b>
-          </div>
-          <li class="field required text" id="field-name">
-            In my class,
-            <select autocomplete="off" name="percent_lunch" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor                
-            </select>
-            of my students are eligible for Free/Reduced lunch. <b>*</b>
-          </li>
-          <li class="field required text" id="field-name">
-            In my class, 
-            <select autocomplete="off" name="percent_iep" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor 
-            </select>
-            of my students have an IEP.  <b>*</b>
-          </li>
-          <li class="field required text" id="field-name">
-            <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor 
-            </select>
-            of my students are English Learners. <b>*</b>  
-          </li>
-          <div style="padding:10px 0 15px 0;"> 
-            <b style="font-size:15px;color:#333;">About me</b>
-          </div>
-          <li class="field required text" id="field-name">
-              Please upload a photo to use with your profile. <input type="file" name="photo" value=""/>
-          </li>
-          <li class="field required text" id="field-name">
-            Add a bio to your user profile (255 characters max, <span></span> remain) 
-            <textarea maxlength="255" name="bio" id="txBio" rows="" cols="" tabindex=""></textarea>
-            <script type="text/javascript">
-              var txBio=document.getElementById('txBio');
-              txBio.oninput=function(){
-                $(this).prev("span").html(255-this.value.length)
-              }
-              txBio.oninput()
-            </script>
-          </li>
+              <li class="field required text" id="field-name">
+                In my class,
+                <select autocomplete="off" name="percent_lunch" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor                
+                </select>
+                of my students are eligible for Free/Reduced lunch. <b>*</b>
+              </li>
+              <li class="field required text" id="field-name">
+                In my class, 
+                <select autocomplete="off" name="percent_iep" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor 
+                </select>
+                of my students have an IEP.  <b>*</b>
+              </li>
+              <li class="field required text" id="field-name">
+                <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor 
+                </select>
+                of my students are English Learners. <b>*</b>  
+              </li>
+          </span>
+          <span id="organization_info_org_rg_about_me">     
+              <div style="padding:10px 0 15px 0;"> 
+                <b style="font-size:15px;color:#333;">About me</b>
+              </div>
+              <li class="field required text" id="field-name">
+                  Please upload a photo to use with your profile. <input type="file" name="photo" value=""/>
+              </li>
+              <li class="field required text" id="field-name">
+                Add a bio to your user profile (255 characters max, <span></span> remain) 
+                <textarea maxlength="255" name="bio" id="txBio" rows="" cols="" tabindex=""></textarea>
+                <script type="text/javascript">
+                  var txBio=document.getElementById('txBio');
+                  txBio.oninput=function(){
+                    $(this).prev("span").html(255-this.value.length)
+                  }
+                  txBio.oninput()
+                </script>
+              </li>
+          </span>
         </ol>
         % else:
         <div class="message">
@@ -514,4 +525,47 @@ from baseinfo.models import Enum
   </aside>
 </section>
 <div/>
+<script>
+function LoadingWin(){
+	this.$loader = null;
+	this.show();
+}
+LoadingWin.prototype.show = function () {
+	if (!this.$loader) {
+		this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+		this.$loader.appendTo(document.body);
+	}
+	this.$loader.css('display','block');
+};
+LoadingWin.prototype.hide = function () {
+	if (this.$loader) {
+		this.$loader.remove();
+		this.$loader = null;
+	}
+};
+
+$(document).ready(function(){	
+	//------------------organization_get_info
+	var loadwin = new LoadingWin();		
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {		
+		if (r.SiteURL_OK){
+			if(r.Success){
+				if(r.OrganizationOK){
+					//$("#organization_info_state").html(r.SchoolType);
+					//$("#organization_info_district").html(r.DistrictType);					
+					$("#organization_info_district").parent().find("label").html(r.DistrictType);
+					$("#school_id").parent().find("label").html(r.SchoolType);
+		  
+					if(r.org_rg_major_subject == "-1")		$("#organization_info_org_rg_major_subject").hide();
+					if(r.org_rg_grade_level == "-1")		$("#organization_info_org_rg_grade_level").hide();
+					if(r.org_rg_my_learners == "-1")		$("#organization_info_org_rg_my_learners").hide();
+					if(r.org_rg_number_of == "-1")			$("#organization_info_org_rg_number_of").hide();
+					if(r.org_rg_about_me == "-1")			$("#organization_info_org_rg_about_me").hide();
+				}
+			}
+		}
+		loadwin.hide();
+	});
+});
+</script>
 
