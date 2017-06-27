@@ -130,13 +130,17 @@ def newdashboard(request, user_id=None):
     OrganizationOK = False
     try:
         state_id = user.profile.district.state.id
-        district_id = user.profile.district.id
-        school_id = user.profile.school.id
     except:
         state_id = -1
+    try:
+        district_id = user.profile.district.id
+    except:
         district_id = -1
+    try:
+        school_id = user.profile.school.id
+    except:
         school_id = -1
-        
+
     organization_obj = OrganizationMetadata()
     if (school_id != -1):
         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):

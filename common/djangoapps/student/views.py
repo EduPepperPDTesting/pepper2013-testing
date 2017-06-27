@@ -461,16 +461,20 @@ def dashboard(request, user_id=None):
         user = User.objects.get(id=request.user.id)
 
     OrganizationOK = False
-    if flag_OrganizationOK:
+    if flag_OrganizationOK:        
         try:
             state_id = user.profile.district.state.id
-            district_id = user.profile.district.id
-            school_id = user.profile.school.id
         except:
             state_id = -1
+        try:
+            district_id = user.profile.district.id
+        except:
             district_id = -1
+        try:
+            school_id = user.profile.school.id
+        except:
             school_id = -1
-            
+
         organization_obj = OrganizationMetadata()
         if (school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
@@ -1115,22 +1119,33 @@ def create_account(request, post_override=None):
         js['field'] = 'password'
         return HttpResponse(json.dumps(js))
 
-    required_post_vars_dropdown = ['major_subject_area_id', 'grade_level_id', 'district_id',
-                                   'school_id', 'years_in_education_id',
-                                   'percent_lunch', 'percent_iep', 'percent_eng_learner'
-                                   ]
+    # required_post_vars_dropdown = ['major_subject_area_id', 'grade_level_id', 'district_id',
+    #                                'school_id', 'years_in_education_id',
+    #                                'percent_lunch', 'percent_iep', 'percent_eng_learner'
+    #                                ]
+    required_post_vars_dropdown = ['district_id', 'school_id']
+
+    # for a in required_post_vars_dropdown:
+    #     if len(post_vars[a]) < 1:
+    #         error_str = {
+    #             'major_subject_area_id': 'Major Subject Area is required',
+    #             'grade_level_id': 'Grade Level-Check is required',
+    #             'district_id': 'District is required',
+    #             'school_id': 'School is required',
+    #             'years_in_education_id': 'Number of Years in Education is required',
+    #             'percent_lunch': 'Free/Reduced Lunch is required',
+    #             'percent_iep': 'IEPs is required',
+    #             'percent_eng_learner': 'English Learners is required'
+    #         }
+    #         js['value'] = error_str[a]
+    #         js['field'] = a
+    #         return HttpResponse(json.dumps(js))
 
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
-            error_str = {
-                'major_subject_area_id': 'Major Subject Area is required',
-                'grade_level_id': 'Grade Level-Check is required',
+            error_str = {                
                 'district_id': 'District is required',
-                'school_id': 'School is required',
-                'years_in_education_id': 'Number of Years in Education is required',
-                'percent_lunch': 'Free/Reduced Lunch is required',
-                'percent_iep': 'IEPs is required',
-                'percent_eng_learner': 'English Learners is required'
+                'school_id': 'School is required'
             }
             js['value'] = error_str[a]
             js['field'] = a

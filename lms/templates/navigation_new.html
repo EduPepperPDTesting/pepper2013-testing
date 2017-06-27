@@ -1683,24 +1683,7 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
-					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
-						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
-					}*/					
-					if(r.flag_main == "dashboard"){
-						/*var tmp_div = $(".my-courses:first").find("div");
-						if(r['Profile Logo'] != "" && typeof(r['Profile Logo']) != "undefined"){
-							tmp_div.css("backgroundImage", "none");
-							tmp_div.css("border", "2px solid #bbbbbb");
-							if(r['Profile Logo Url'] != "" && typeof(r['Profile Logo Url']) != "undefined"){
-								tmp_div.append("<a href='" + r['Profile Logo Url'] + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + r['Profile Logo'] + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
-							}else{
-								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r['Profile Logo'] + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
-							}							
-							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r['Motto'] + "</span>");
-						}*/
-						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
-						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
-						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+					if(r.flag_main == "dashboard"){						
 						
 					}else if(r.flag_main == "communities"){
 						$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
