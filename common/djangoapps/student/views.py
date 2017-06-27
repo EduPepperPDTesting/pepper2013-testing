@@ -44,6 +44,7 @@ from certificates.models import CertificateStatuses, certificate_status_for_stud
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.modulestore.django import modulestore
+from xmodule.remindstore import myactivitystore
 from collections import namedtuple
 from courseware.courses import get_courses, sort_by_announcement
 from courseware.access import has_access
@@ -80,6 +81,11 @@ from reporting.models import reporting_store
 
 from administration.models import UserLoginInfo
 from datetime import timedelta
+
+from student.models import State,District,School,User,UserProfile
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from django.http import HttpResponseRedirect
+
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -438,10 +444,53 @@ def more_courses_available(request):
 @login_required
 @ensure_csrf_cookie
 def dashboard(request, user_id=None):
+    flag_OrganizationOK = True
     if user_id:
         user = User.objects.get(id=user_id)
+
+        if request.user.id != user_id:
+            flag_OrganizationOK = False
     else:
         user = User.objects.get(id=request.user.id)
+
+    OrganizationOK = False
+    if flag_OrganizationOK:
+        try:
+            state_id = user.profile.district.state.id
+            district_id = user.profile.district.id
+            school_id = user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+            
+    data = {}
+    if OrganizationOK:
+        data["org_id"] = organization_obj.id;
+        for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+            data[tmp1.itemType] = tmp1.itemValue
+
+    if OrganizationOK and data["Dashboard option etc"] != "0":
+        return HttpResponseRedirect('/newdashboard/')
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
@@ -713,6 +762,13 @@ def change_enrollment(request):
                                "run:{0}".format(run)])
 
         CourseEnrollment.enroll(user, course.id)
+
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"course_id": course.id},    
+        "TokenValues": {"course_id": course.id}, 
+        "LogoValues": {"course_id": course.id}}
+        ma_db.insert_item(my_activity)
 
         return HttpResponse()
 
@@ -2035,7 +2091,12 @@ def activate_imported_account(post_vars, photo):
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                "URLValues": {"course_id": cea.course_id},    
+                "TokenValues": {"course_id": cea.course_id}, 
+                "LogoValues": {"course_id": cea.course_id}}
+                ma_db.insert_item(my_activity)
         # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}

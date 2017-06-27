@@ -44,6 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
+from xmodule.remindstore import myactivitystore
 
 import logging
 
@@ -337,6 +338,14 @@ def save_training(request):
         training.date_modify = datetime.now(UTC)
         training.save()
 
+        if not id:
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_createTraining", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"training_id": training.id},
+            "TokenValues": {"training_id": training.id},
+            "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
+
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
             for emails in request.POST.get("instructor_emails", "").split(","):
@@ -369,6 +378,10 @@ def delete_training(request):
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         training.delete()
+
+        ma_db = myactivitystore()
+        ma_db.set_item_pd(tid, tname, str(tdate))
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -643,6 +656,13 @@ def register(request):
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
             student.save()
+
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"training_id": training.id},
+            "TokenValues": {"training_id": training.id},
+            "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
 
             if training.type == "pepper_course":
                 cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,

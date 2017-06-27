@@ -1,0 +1,1773 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from django.utils import timezone
+    from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+    import datetime
+    
+    from student.models import State,District,School,User,UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+#image_uploading{display:none;}
+ ._del_line{
+    text-decoration: none !important;
+ }
+ .course-register{
+    display:block;
+    width:195px;
+    margin-top:10px;
+    text-align:center;
+    float:left;
+    font-size:13px !important;
+ }
+/*--from .css-----------------------------------------------------------------*/
+
+.ds-post-title{
+    padding:5px 5px 5px 10px;
+    border:0px solid #f00;
+}
+/*85px fixed*/
+.ds-post-title-photo{
+    width: 85px;
+    position: relative;
+    border:0px solid;
+}
+/*520px modified*/
+.ds-post-title-text{
+    padding:5px 5px 5px 5px;
+    width: 520px;
+
+    border:0px solid;
+}
+/*20px fixed*/
+.ds-post-title-delete{
+    text-align: center;
+    width: 20px;
+    border:0px solid;
+}
+
+.ds-post-title-name{
+    color:#5c9cd5;
+    font-size:14px;
+    font-weight:bold;
+}
+.ds-post-title-from{
+    color: #8d8d8d;
+    font-size:14px;
+}
+.ds-post-title-position{
+    color:#ff6600;
+    font-size:14px;
+    font-weight:bold;
+}
+.ds-post-title-time{
+    color: #8d8d8d;
+    font-size:13px;
+    font-style: italic;
+}
+.ds-post-content{
+    /*width:100%;*/
+    color: #404040;
+    font-weight: bold;
+    padding:5px 5px 5px 5px;
+    font-size: 15px;
+    line-height: 22px;
+    border:0px solid; 
+}
+.ds-post-footer{
+    border-bottom: 0px solid #3891e0;
+}
+
+.ds-post-end_line{
+    width: 100%;
+    border-bottom: 2px solid #3891e0;
+    margin-bottom: 15px;
+}
+
+a{
+    text-decoration:none !important;
+}
+/*--left My Courses--------------------------------------------*/
+.con-my-courses-outer{
+    float:left;
+    width:250px;
+    height:50px;
+}
+.con-my-courses{
+    width:250px;
+    height:525px;
+    background-color: #fff;
+    position:fixed;
+    padding-bottom: 5px;
+}
+.my-title-green{
+    width:204px;
+    padding:10px;
+    background-color:#89C153;
+    text-align: center;
+    font-size:14px;
+    color:#fff;
+    text-decoration:none !important;
+    margin-left: 13px;
+    margin-top: 10px;
+}
+.my-courses-cards{
+    float: left;
+    width: 250px;
+    border:0px solid;
+}
+.course-incomplated{
+    width:194px;
+    padding:0px 10px 5px 10px;
+    font-size: 12px !important;
+    margin-left: 13px;
+    margin-top: 10px;
+    background-color: #fff;
+}
+.course-incomplated a{
+    font-size: 12px !important;
+    color: #000;
+}
+.ds-view-all-courses{
+    width:230px;
+    text-align:right;
+    float: left;
+    /*margin-top:-10px;*/
+    padding-right:20px;
+    border: 0px solid;
+
+}
+.ds-view-all-courses a{
+    font-size: 14px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-view-allowed-courses{
+    width:230px;
+    text-align:right;
+    float: left;
+    padding-right:20px;
+}
+.ds-view-allowed-courses a{
+    font-size: 14px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+/*--right My Communities---------------------------------------------*/
+.con-my-communities-outer{
+    float:left;
+    width:250px;
+    height:820px;
+    margin-left: 27px;
+    border:0px solid #f00;
+}
+.con-my-communities{
+    width:250px;
+    height:525px;
+    background-color: #fff;
+    position:fixed;
+    padding-bottom: 5px;
+}
+.my-profile-logo{
+    width:230px;
+    /*height:155px;*/
+    margin-left: 10px;
+    margin-top: 10px;
+    text-align: center;
+    border: 0px solid;
+}
+.my-title-blue{
+    width:204px;
+    padding:10px;
+    background-color:#2CBAEC;
+    text-align: center;
+    font-size:14px;
+    color:#fff;
+    text-decoration:none !important;
+    margin-left: 13px;
+    margin-top: 10px;
+}
+.community-trending-topics{
+    margin-bottom: 25px;
+}
+.my-community{
+    width:210px;
+    margin-left:18px;
+    padding:8px 0px 10px 0px;
+    border-bottom:1px solid #ccc;
+}
+.my-community-noline{
+    width:210px;
+    margin-left:18px;
+    padding:8px 0px 10px 0px;
+}
+.trending-topic{
+    margin-top: 10px;
+}
+.trending-topic .tt-title{
+    padding:1px 0px 1px 0px;
+    font-size:12px;
+    font-weight:bold;
+    /*color:#92c900;*/
+
+    width: 100%;
+    height: 16px;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+
+    border:0px solid;
+}
+.trending-topic .tt-post{
+    padding:1px 0px 1px 0px;
+    width: 100%;
+    height: 16px;
+    color:#29b7ec;
+
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.trending-topic .tt-post a{
+    font-weight:bold;
+    color:#29b7ec;
+    font-size:12px;
+    text-decoration:none !important;
+}
+.trending-topic .tt-time{
+    padding:1px 0px 1px 0px;
+    font-size:12px;
+    height: 18px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+.trending-topic .tt-btn-reply{
+    width:70px;
+    background-color:#F58221;
+    border-radius: 5px;
+    text-align: center;
+    padding: 3px 0px 4px 0px;
+}
+.trending-topic .tt-btn-addme{
+    width:70px;
+    background-color:#89C153;
+    border-radius: 5px;
+    text-align: center;
+    padding: 3px 0px 4px 0px;
+}
+.my-communities-cards{
+    width: 224px;
+    margin-left: 13px;
+    background-color: #4a4c4d;
+    padding: 18px 0px 1px 0px;
+}
+.ma-community-simple{
+    width:194px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    text-align: center;
+    padding: 8px 3px 8px 3px;
+    font-size: 12px;
+    color: #000;
+    margin-left: 12px;
+    margin-bottom:18px; 
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(0,0,0,.05) 51%, rgba(0,0,0,.1));
+    border:1px solid #ccc;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.ma-community-simple:hover{
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
+}
+.ds-view-all-communities{
+    width:224px;
+    text-align:right;
+    margin-top: 10px;
+    margin-left: 13px;
+}
+.ds-view-all-communities a{
+    font-size: 14px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+/*--middle Main Content All-----------------------------------*/
+.con-maincontent-all{
+    width:680px;
+    margin-left:27px;
+    float:left;
+    position: relative;
+    margin-bottom:0px;
+    /*
+    background-color:#e4e4e4;
+    border-top:3px solid #fff;
+    border-left:3px solid #fff;
+    border-right:3px solid #fff;
+    */
+    border: 0px solid;
+}
+.con-tab-btns{
+    /*width:680px;*/
+    padding: 0px 15px 0px 15px;
+    float:left;
+    border-bottom: 2px solid #cfd0d4; 
+    background-color:#f3f4f8;
+    /*
+    height:42px;
+    background-color:#e4e4e4;
+    border:0px solid #000;
+    */
+    border-top:1px solid #f3f4f8;
+    border-left:3px solid #f3f4f8;
+    border-right:3px solid #f3f4f8;
+    border-radius:6px 6px 0px 0px; 
+}
+.tab-btn-common-outer{
+   float:left;
+   background-color:#f3f4f8; 
+   border: 0px solid;
+}
+.tab-btn-common{
+    /*
+    height:28px;
+    padding-top:11px;
+    float:left;
+    */
+    padding:11px 15px 12px 15px;
+    
+    text-align:center;
+    color:#999;
+    cursor: pointer;
+    font-size:15px;
+    /*
+    border-left:3px solid #666668;
+    border-top:3px solid #666668;
+    border-right:3px solid #666668;
+    border-radius:10px 10px 0px 0px; 
+    margin-left: -14px;
+
+    border:1px solid #000;
+    */
+}
+.tab-btn-line-common{
+    height:4px;
+    /*
+    background-color:#72c434;
+    background-color:#fff;
+    */
+    margin-left:15px;
+}
+
+.my-feed-btn-line{
+    width:58px;
+}
+
+.my-activity-btn-line{
+    width:78px;
+}
+.my-report-card-btn-line{
+    width:108px;
+}
+.featured-content-btn-line{
+    width:123px;
+}
+.mytab-active{
+    cursor: auto !important;
+    color: #000;
+}
+.mytab-line-active{
+    background-color:#72c434;
+}
+
+.featured-content{
+    width:680px;
+    overflow: hidden;
+    float:left;
+    /*
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+    */
+    background-color: #fff;
+
+    min-height:727px;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+
+    display: none;
+}
+.my-feed{
+    display: none;
+    min-height:727px;
+    padding-bottom: 3px;
+    background-color:#fff;
+
+    padding:30px 20px 20px 20px;
+    float:left;
+    width:640px;
+}
+.my-activity{
+    width:680px;
+    overflow: hidden;
+    float:left;
+    /*
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+    */
+    background-color: #fff;
+
+    min-height:727px;
+    padding-bottom: 3px;
+}
+.my-report-card{
+    width:680px;
+    overflow: hidden;
+    float:left;
+    /*
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+    */
+    background-color: #fff;
+
+    min-height:727px;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+
+    display: none;
+}
+/*----middle Main Content:My Activity----*/
+.ma_mf_btn{
+    font-size: 16px !important;
+    color: #000;
+    cursor: pointer;
+}
+.con-ma-filter{
+    width:659px;
+    text-align: right;
+    padding-top:30px;
+    padding-right:15px;
+    padding-bottom:30px;
+
+    border:0px solid;
+}
+.con-ma-filter select{
+    margin-right: 10px;
+} 
+.ma-btn-filter{
+    padding:10px;
+    background-color: #3c3c3c;
+    padding-bottom: 2px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px !important;
+    color:#fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.con-ma-rows{
+    /*width: 692px;
+    height:674px;
+    float: left;*/
+}
+.my-activity-row{
+    float: left;
+    width:674px;
+    min-height:72px;
+    border:0px solid #f00;
+    margin-bottom: 3px;
+}
+.ma-row-ico{
+    width:112px;
+    height:69px;
+    margin-left:10px;
+    float:left;
+    text-align:right;
+}
+.ma-row-cotent{
+    width:540px;
+    min-height:69px;
+    margin-left:5px;
+    float:left;
+    border-radius:5px;
+    font-size: 14px;
+    border:1px solid #ccc;
+}
+.ma-row-cotent-time{
+    margin-top: 9px;
+    padding: 5px;
+    font-style: italic;
+    border:0px solid;
+}
+.ma-row-cotent-info{
+    padding: 5px;
+    border:0px solid;
+    margin-bottom: 9px;
+}
+.ma-row-cotent-info a{
+    color: #000;
+    cursor: pointer;
+    text-decoration: none !important;
+    /*
+    font-weight: bold;
+    font-style: italic;
+    */
+}
+/*--my activity community ico--*/
+.ma-community-ico{
+    width: 110px;
+    height: 69px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+.ma-community-image-link-style {
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    display: block;
+    float: left;
+    width:110px;
+    height:69px;
+    background-size: auto 41px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+.ma-community-image-bottom-style {
+    border-radius: 0 0 3px 3px;
+    -moz-border-radius: 0 0 3px 3px;
+    -webkit-border-radius: 0 0 3px 3px;
+    display: block;
+}
+.ma-community-card-link {
+    display: block;
+    width: 100px;
+    height: 18px;
+    vertical-align: middle;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+    color: #FFFFFF;
+    font-size: 12px;
+    padding: 5px;
+
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+/*--my activity course ico--*/
+.ma-course-course-card{
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    float: left;
+    width: 110px;
+    height:69px;
+    position: relative;
+    cursor: auto!important;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.ma-course-card-top{
+    position: relative;
+}
+.ma-course-image-style{
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    display: block;
+    width:110px;
+    height:69px;
+    cursor: pointer;
+}
+.ma-course-course-title {
+    display: table;
+    position: absolute;
+    bottom: 0;
+}
+.ma-course-card-link{
+    width: 100px;
+    height: 18px;
+    padding: 5px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none!important;
+    border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    color:#fff;
+    font-size: 12px;
+    cursor: pointer;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.my-report-card-left{
+    float:left;
+    width: 440px;
+    /*height:600px;*/
+    margin-top: 30px;
+    margin-left: 30px;
+
+    border:0px solid;
+}
+.my-report-card-right{
+    float:left;
+    width: 155px;
+    height:600px;
+    margin-top: 30px;
+    margin-left: 30px;
+    
+    border:0px solid;
+}
+.my-stats-title{
+    font-size: 15px;
+    font-weight: bold;
+    padding:10px 0px 10px 0px;
+}
+.course-in-progress{
+    background-color: #f3f3f4;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
+.course-in-progress-title{
+    color: #fff;
+    background-color: #535556;
+    padding:10px 0px 10px 30px;
+    font-size: 15px;
+}
+.course-in-progress-row{
+    width: 400px;
+    margin-left:20px; 
+    margin-top: 25px;
+    border:0px solid;
+}
+.course-in-progress-t{
+    font-size: 13px;
+}
+.course-in-progress-t a{
+   font-size: 13px;
+   color: #000;
+}
+.course-in-progress-p{
+    margin-top: 8px;
+    font-size: 13px;
+}
+.course-in-progress-p b{
+  float:left;
+  font-size:13px;
+  color:#757474;  
+}
+.course-in-progress-tt{
+    margin-top: 35px;
+    font-size: 13px;
+    color: #757474;
+}
+.progress-table{
+    float:left;
+    margin-top:-3px;
+    margin-left:5px;
+    width: 338px;
+}
+.progress-table table{
+    margin-top:-22px;
+    float:left;
+}
+.progress-table td{
+    /*
+    border-right:2px solid #f3f3f4;
+    font-size:12px;
+    color:#fff;
+    padding-right:5px;
+    text-align: right;
+    */
+}
+.progress-left{
+    height:22px;
+    float:left;
+    margin-top: -22px;
+}
+.progress-right{
+    height:22px;
+    background-color:#d2d3d5;
+    float:left;
+    width: 338px;
+}
+.progress-table .td-right-border{
+    border-right:2px solid #f3f3f4;
+}
+.progress-p-text{
+    float:left;
+    color:#000;
+    margin-top:-22px;
+
+    height:19px;
+    padding-top:3px;
+    /*
+    padding-left:2px;
+    */
+}
+
+
+
+
+
+.course-in-progress-more{
+    text-align:right;
+    color: #2CBAEC;
+    font-size: 15px;
+    padding: 10px 27px 0px 0px;
+    border:0px solid;
+}
+.course-in-progress-more b{
+    cursor: pointer;
+}
+
+.completed-courses{
+    background-color: #f3f3f4;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
+.completed-courses-title{
+    color: #fff;
+    background-color: #535556;
+    padding:10px 0px 10px 30px;
+    font-size: 15px;
+}
+.apply-for-ceu{
+    float:right;
+    background: #f5f5f5;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    text-align: center;
+    padding: 3px 35px 3px 35px;
+    font-size: 12px;
+    color: #000;
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(0,0,0,.05) 51%, rgba(0,0,0,.1));
+    border:1px solid #ccc;
+    cursor: pointer;
+    margin-top: -4px;
+    margin-right:15px;
+    
+}
+.apply-for-ceu:hover{
+    background-image: linear-gradient(rgba(255,255,255,.1), rgba(255,255,255,.05) 49%, rgba(255,255,255,.05) 51%, rgba(255,255,255,.1));
+}
+.apply-for-ceu a{
+    font-size: 12px;
+    color: #000;
+}
+.completed-courses-row{
+    width: 400px;
+    margin-left:20px; 
+    margin-top: 25px;
+    border:0px solid;
+}
+.completed-courses-row-title{
+    color: #000;
+    font-size: 13px;
+    border: 0px solid;
+}
+.completed-courses-row-title a{
+    color: #000;
+    font-size: 13px;
+}
+.completed-courses-row-time{
+    margin-top: 7px;
+    font-size: 13px;
+    color: #757474;
+    border: 0px solid;
+}
+.completed-courses-row-time b{
+    color: #2CBAEC;
+}
+.completed-courses-row-ico{
+    vertical-align: middle;
+}
+.completed-courses-more{
+    text-align:right;
+    color: #2CBAEC;
+    font-size: 15px;
+    padding: 10px 27px 0px 0px;
+    border:0px solid;
+}
+.completed-courses-more b{
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+.total-time-title-top{
+    font-size: 13px;
+    font-weight: bold;
+}
+.total-time-title{
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.total-time{
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 2px;
+    color: #2CBAEC;
+}
+.enrolled-courses{
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.enrolled-courses span{
+    font-size: 13px;
+    font-weight: bold;
+    color: #2CBAEC;
+}
+
+.my-stats-view-all{
+    text-align: right;
+    margin-top: 15px;
+}
+.my-stats-view-all a{
+    font-size: 14px;
+    color: #0070d5;
+}
+</style>
+<style>
+    .organization_cms_grade{float:left; width:100%; height:30px; line-height:30px; text-indent:30px; color:#ffffff;background-color:#AAAAAA;font-size:16px;margin:10px 0 10px 0;}
+    .organization_cms_icon{float:left; margin:5px 8px; border:1px solid #808080;}
+</style>
+<!--@end-->
+<%inherit file="main.html" />
+<%
+    OrganizationOK = False
+    show_left = ""
+    show_right = ""
+    add_Feed_Show = "1"
+    add_Activities_Show = ""
+    add_Report_Show = ""
+    add_Featured_Show = ""
+    add_Default = "1"
+    
+    if request.user.is_authenticated():            
+        try:
+            state_id = request.user.profile.district.state.id
+            district_id = request.user.profile.district.id
+            school_id = request.user.profile.school.id
+        except:
+            state_id = -1
+            district_id = -1
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+                
+        data = {}        
+        cms_items = ""
+        if OrganizationOK:
+            data["org_id"] = organization_obj.id;
+            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+            
+            for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+            
+            add_profile = ""
+            tmp_profile_logo = ""
+            tmp_profile_logo_url = ""
+            if data['Dashboard option etc'] == "1":
+                if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                    tmp_profile_logo = data['Profile Logo']
+                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url']
+                
+                if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
+                    show_left = "display:none;";
+                    
+                if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
+                    show_right = "display:none;";   
+               
+                if data.has_key('My Activities Show'):    
+                    add_Feed_Show = data['My Feed Show']
+                    add_Activities_Show = data['My Activities Show']
+                    add_Report_Show = data['My Report Show']
+                    add_Featured_Show = data['My Featured Show']
+                    add_Default = data['Is My Feed Default']
+            else:
+                if data.has_key('Profile Logo Curriculumn') and data['Profile Logo Curriculumn'] != "":
+                    tmp_profile_logo = data['Profile Logo Curriculumn']
+                    if data.has_key('Profile Logo Url Curriculumn') and data['Profile Logo Url Curriculumn'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url Curriculumn']  
+                
+                if data.has_key('Show Left DB Curriculumn') and data['Show Left DB Curriculumn'] == "0":
+                    show_left = "display:none;";
+                    
+                if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
+                    show_right = "display:none;";
+                
+                if data.has_key('My Activities Show Curriculumn'): 
+                    add_Feed_Show = data['My Feed Show Curriculumn ']
+                    add_Activities_Show = data['My Activities Show Curriculumn']
+                    add_Report_Show = data['My Report Show Curriculumn']
+                    add_Featured_Show = data['My Featured Show Curriculumn']
+                    add_Default = data['Is My Feed Default Curriculumn']
+      
+            if tmp_profile_logo != "":
+                if tmp_profile_logo_url != "":
+                    add_profile = "<a href='" + tmp_profile_logo_url + "'><img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/></a>";
+                else:
+                    add_profile = "<img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/>"; 
+                         
+            data['add_profile'] = add_profile
+                
+            cms_grade = ""
+            for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
+                if cms_grade != tmp1.Grade:
+                    cms_grade = tmp1.Grade
+                    cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
+                
+                cms_add = False
+                if tmp1.CmsItem.find("_level_:") > 0:
+                    tmp1_level_ids = ""
+                    for tmp1_2 in tmp1.CmsItem.split("_level_:")[1].split(","):                            
+                        if tmp1_2 == "14":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,14"
+                        elif tmp1_2 == "15":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,14,15"
+                        elif tmp1_2 == "16":
+                            tmp1_level_ids = tmp1_level_ids + ",1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"
+                        else:
+                            tmp1_level_ids = tmp1_level_ids + "," + tmp1_2
+                        
+                    for tmp1_2 in tmp1_level_ids.split(","):
+                        if tmp1_2 != "":
+                            for tmp1_3 in request.user.profile.grade_level_id.split(","):
+                                if tmp1_2 == tmp1_3:
+                                    cms_add = True
+                                    break
+                
+                if cms_add:
+                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                        
+            data["cms_items"] = cms_items
+            
+        #if not data['profile_logo']:
+        #    data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
+%>
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
+ <!--@date:20161222-->
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
+<!--@end-->
+<script src="/static/js/datetime/moment.js"></script>
+
+<section class="content-wrapper1" style="margin-top:0px;background-color:#e7e7e8;">
+    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:69px;">
+        <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
+        <!--Courses Dashboard-->
+        <div class="con-my-courses-outer">
+            <div class="con-my-communities" style="${show_left}">
+                <!--width:220px-->
+                <div class="community-trending-topics">
+                    <div class="my-title-blue">My Trending Topics</div>
+                    <div class="trending-topic" style="border:0px solid;">
+                        %for k,c in enumerate(community_trending_topics):
+                            %if k + 1 == len(community_trending_topics):
+                                <div class="my-community-noline">
+                            %else:
+                                <div class="my-community">
+                            %endif
+                                <div class="tt-title">${c['cname']}</div>
+                                <div class="tt-post"><a href=${c['btnurl']}>${c['content']}</a></div>
+                                <div class="tt-time">
+                                    <div style="float:left;border:0px solid;width:145px;padding-top:5px;">Last Post: ${'{dt:%b} {dt.day}, {dt.year}'.format(dt=c['date_reply'])}</div>
+                                    <div style="float:left;border:0px solid;width:65px;text-align:right:">
+                                         %if c['btntext'] == "Reply":
+                                            <div class="tt-btn-reply">
+                                        %else:
+                                            <div class="tt-btn-addme">
+                                        %endif
+                                                <a href=${c['btnurl']} style="color:#fff;font-size:12px;">${c['btntext']}</a>
+                                            </div>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                        %endfor
+                    </div>
+                </div>
+                <div class="my-learning-communities">
+                    <div class="my-title-blue">My Communities</div>
+                    <div class="my-communities-cards">
+                        <%
+                            community_count = len(communities)
+                        %>
+                        %for community in communities:
+                            <a href="${reverse('community_view', args=[community['id']])}" style="text-decoration: none;">
+                                <div class="ma-community-simple">
+                                    ${community['name']}
+                                </div>
+                            </a>
+                        %endfor
+                    </div>
+                    <div class="ds-view-all-communities"><a href="/communities">View All</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="con-maincontent-all clearfix">
+            <div class="con-tab-btns">
+            % if OrganizationOK and add_Feed_Show == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>        
+            % endif
+            % if OrganizationOK and add_Activities_Show == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>         
+            % endif
+            % if OrganizationOK and add_Report_Show == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+            % endif
+            % if OrganizationOK and add_Featured_Show == "1":
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>          
+            % endif
+            % if not(OrganizationOK):
+                <div class="tab-btn-common-outer">
+                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn-line tab-btn-line-common"></div>
+                </div>
+                <div class="tab-btn-common-outer">
+                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn-line tab-btn-line-common"></div>
+                </div>
+            % endif
+            </div>
+
+            <div id="featured_content" class="featured-content">
+                <!--Featured Content-->
+                % if OrganizationOK:
+                    ${data["cms_items"]} 
+                % endif
+            </div>
+
+            <div id="my_feed" class="my-feed ">
+                <!--Post Dashboard-->
+                <!--w:660,min-h:800-->
+                
+            </div>
+
+            <!--w:674 = 680-3*2-->
+            <div id="my_activity" class="my-activity">
+                <div class="con-ma-filter">
+                    <select id = "ma_select_group" style="margin-right:30px;">
+                        <option value = ''>Group</option>
+                        <option value = 'Community'>Community</option>
+                        <option value = 'Courses'>Courses</option>
+                        <option value = 'Messages'>Messages</option>
+                        <option value = 'MyChunks'>My Chunks</option>
+                        <option value = 'MyFeed'>My Feed</option>
+                        <option value = 'PDPlanner'>PD Planner</option>
+                        <option value = 'Reports'>Reports</option>
+                    </select>
+                    <select id = "ma_select_year">
+                        <option value = ''>Year</option>
+                        %if my_activity_year_start:
+                            %for y in range(my_activity_year_start, my_activity_year_end + 1):
+                                <option value='${y}'>${y}</option>
+                            %endfor
+                        %endif
+                    </select>
+                    <select id = "ma_select_month">
+                        <option value = ''>Month</option>
+                        <option value = '1'>January</option>
+                        <option value = '2'>February</option>
+                        <option value = '3'>March</option>
+                        <option value = '4'>April</option>
+                        <option value = '5'>May</option>
+                        <option value = '6'>June</option>
+                        <option value = '7'>July</option>
+                        <option value = '8'>August</option>
+                        <option value = '9'>September</option>
+                        <option value = '10'>October</option>
+                        <option value = '11'>November</option>
+                        <option value = '12'>December</option>
+                    </select>
+                    <span class="ma-btn-filter">Filter</span>
+                </div>
+                
+                <div class="con-ma-rows">
+                </div>
+                <div class="info_div" style="width:670px;height:81px;font-size:15px;float:left;display:auto;">
+                    <center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>
+                </div>
+            </div>
+
+            <div id="my_report_card" class="my-report-card">
+                <!--Post Dashboard-->
+                <!--w:660,min-h:800-->
+                <div class="my-report-card-left">
+                    <div class="course-in-progress">
+                        <div class="course-in-progress-title">Courses In Progress</div>
+                        <div class="course-in-progress-rows">
+                            
+                        </div>
+                        <div class="course-in-progress-more-outer">
+                            %if courses_incomplated_all_count > 3:
+                                <div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>
+                            %endif
+                        </div>
+                    </div>
+                    %if courses_complated_all_count > 0:
+                    <div class="completed-courses">
+                        <div class="completed-courses-title">Completed Courses
+                            <div class="apply-for-ceu"><a href="/course_credits">Apply for CEU</a></div>
+                        </div>
+                        <div class="completed-courses-rows">
+
+                        </div>
+                        <div class="completed-courses-more-outer">
+                            %if courses_complated_all_count > 2:
+                                <div class="completed-courses-more"><b class="btn-more-completed">More</b></div>
+                            %endif
+                        </div>
+                    </div>
+                    %endif
+                </div>
+
+                <div class="my-report-card-right">
+                    <div class="my-stats-title">My Stats</div>
+                    <div class="total-time-title-top">Total Time(YTD):</div>
+                    <div class="total-time">${total_time_in_pepper}</div>
+                    <div class="total-time-title">Course Time(YTD):</div>
+                    <div class="total-time">${all_course_time}</div>
+                    <div class="total-time-title">PD Time(YTD):</div>
+                    <div class="total-time">${pd_time}</div>
+                    <div class="total-time-title">Last Logged In:</div>
+                    <div class="total-time">${user_last_logged_in}</div>
+                    <div class="enrolled-courses">Enrolled Courses: <span>${courses_incomplated_all_count}</span></div>
+                    <div class="enrolled-courses">Completed Courses: <span>${courses_complated_all_count}</span></div>
+                    <div class="my-stats-view-all"><a href="/reporting">View All</a></div>
+                </div>
+            </div>
+        </div>
+        
+        <!--Community Dashboard-->
+        <div class="con-my-communities-outer" style="${show_right}">
+            <div class="con-my-courses">
+                <div class="my-profile-logo">
+                    % if OrganizationOK:
+                        ${data["add_profile"]} 
+                    % endif
+                </div>
+                <div class="my-title-green">My Courses</div>
+                <div class="my-courses-cards">
+                    %for course in courses_incomplated_top2:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-incomplated">
+                             %if curr_user == request.user:
+                                %if not course.close_course:      
+                                    <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
+                            %endif
+                        </div>
+                    %endfor
+                </div>
+                <div class="ds-view-all-courses">
+                    <a href="/my_courses">View All</a>
+                </div>
+
+                %if len(allowedcourses) > 0:
+                    <!--allowedcourse-->
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You</div>
+                    <div class="my-courses-cards">
+                        %for course in allowedcourses:
+                            <div class="course-incomplated">
+                                %if not course.close_course:  
+                                    <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    </a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
+                            </div>
+                        %endfor
+                    </div>
+                    <div class="ds-view-allowed-courses">
+                        <a href="/more_courses_available">View All</a>
+                    </div>
+                %endif
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+    </section>
+</section>
+
+<script>
+$(document).ready(function(){
+    /*------common------*/
+    $(window).on('unload', function() {
+        $(window).scrollTop(0);
+    });
+    $(".organization_cms_grade").each(function(){
+        if($(".organization_cms_icon[grade='" + $(this).text() + "']").length == 0){
+            $(this).remove();
+        }
+    });
+	
+    var btn_list = ['my-feed','my-activity','my-report-card','featured-content'];
+    % if OrganizationOK:
+        % if add_Default == "1":
+            var now_show = 'my-feed';
+        % elif add_Default == "0":
+            var now_show = 'my-activity';
+        % elif add_Default == "2":
+            var now_show = 'my-report-card';
+        % else:
+            var now_show = 'featured-content';
+        % endif
+    % else:
+        var now_show = 'featured-content';
+    % endif
+
+    //initial tab btn and content show or hide
+    for(var i=0;i<btn_list.length;i++){
+        content_btn = "." + btn_list[i] + "-btn";
+        content_btn_line = content_btn + "-line";
+        content = "." + btn_list[i];
+        if(btn_list[i] == now_show){
+            $(content_btn).addClass("mytab-active");
+            $(content_btn_line).addClass("mytab-line-active");
+            $(content).show();
+        }
+        else{
+            $(content_btn).removeClass("mytab-active");
+            $(content_btn_line).removeClass("mytab-line-active");
+            $(content).hide();
+        }
+    }
+
+    //tab btn event--------------------------------------------------
+    $(".featured-content-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-feed-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-activity-btn").click(function(){
+        btn_switch($(this).attr("class"));
+    });
+    $(".my-report-card-btn").click(function(){
+        if(now_show != 'my-report-card'){
+            //incompleted more
+            if(courses_incomplated_loading == 0){
+                $(".get-more-incompleted").hide();
+                if(courses_incomplated_more==1){
+                    $(".course-in-progress-more-outer").html('<div class="course-in-progress-more"><b class="btn-more-incompleted">More</b></div>');
+                }
+            }
+            
+            //completed more
+            if(courses_complated_loading == 0){
+                $(".get-more-completed").hide();
+                if(courses_complated_more==1){
+                    $(".completed-courses-more-outer").html('<div class="completed-courses-more"><b class="btn-more-completed">More</b></div>');
+                }
+            }
+        }
+
+        btn_switch($(this).attr("class"));
+    });
+    
+    function btn_switch(classname){
+        name = classname.replace("mytab-active","");
+        name = name.replace("tab-btn-common","").trim();
+        if(now_show != name){
+            for(var i=0;i<btn_list.length;i++){
+                content_btn = "." + btn_list[i] + "-btn";
+                content_btn_line = content_btn + "-line";
+                content = "." + btn_list[i];
+                
+                if(name == (btn_list[i]+"-btn")){
+                    $(content_btn).addClass("mytab-active");
+                    $(content_btn_line).addClass("mytab-line-active");
+                    $(content).show(); 
+                    now_show = btn_list[i];
+                }
+                else{
+                    $(content_btn).removeClass("mytab-active");
+                    $(content_btn_line).removeClass("mytab-line-active");
+                    $(content).hide();
+                }
+            }
+        }
+    }
+
+    /*------my activity------*/
+    var data_all = 0;
+    var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
+    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;">No Search Results Found</div>';
+    var data_loading = 0;
+
+    //variable for init
+    var get_rows_init = 0;
+    var skip_rows_init = 0;
+    var get_rows_scroll = 0;
+    var skip_rows_scroll = 0
+    var data_count = 0;
+    my_activitis_init();
+
+    //ma start
+    get_my_activites(get_rows_init,skip_rows_init); 
+
+    function my_activitis_init(){
+        get_rows_init = 10;
+        skip_rows_init = 0;
+        get_rows_scroll = 3;
+        skip_rows_scroll = get_rows_init
+        data_count = 0;
+        $(".info_div").html(html_loading);
+        $(".info_div").hide();
+        $(window).scrollTop(0);
+    }
+
+    function get_my_activites(get_rows,skip_rows){
+        data_loading = 1;
+        $(".info_div").show();
+        filter_year = $("#ma_select_year").val();
+        filter_month = $("#ma_select_month").val();
+        filter_group = $("#ma_select_group").val();
+
+        $.post("${reverse('get_my_activities')}", 
+            {'user_id':'${request.user.id}',
+             'filter_year':filter_year,
+             'filter_month':filter_month,
+             'filter_group':filter_group,
+             'get_rows':get_rows,
+             'skip_rows':skip_rows},
+            function(data_obj){
+                data_all = data_obj.data_count;
+                my_activitis_create(data_obj);
+                data_loading = 0;
+                if(data_all != 0){
+                    $(".info_div").hide();
+                }
+                else{
+                    $(".info_div").html(html_end);
+                }
+        });
+    }
+
+    function my_activitis_create(data_obj){
+        for(var i=0;i<data_obj.data.length;i++){
+            data_count ++;
+            my_activity_create(data_obj.data[i]);
+        }
+        //$(".info_div").html(html_end);
+    }
+    function my_activity_create(data){
+        var displayDate = time_to_local(data.time);
+        my_activity_create_ico(data);
+        
+        element_html = '<div class="my-activity-row">';
+        element_html += '<div class="ma-row-ico">';
+        element_html += data.html_ico;
+        element_html += '</div>';
+        element_html += '<div class="ma-row-cotent">';
+        element_html += '<div class="ma-row-cotent-time">'+displayDate+'</div>';
+        element_html += '<div class="ma-row-cotent-info">';
+        element_html += data.DisplayInfo;
+        element_html += '</div>';
+        element_html += '</div>';
+
+        element = $(element_html);
+        $('.con-ma-rows').append(element);
+    }
+    function my_activity_create_ico(data){
+        //switch_ActivityType
+        switch(data.g_type)
+        {
+            case 'Community':
+                data.html_ico = '<a href="'+data.URL+'">'
+                data.html_ico += '<div class="ma-community-ico">';
+                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logoUrl+')">';
+                data.html_ico += '<div style="height:41px;"></div>';
+                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.logoName+'</span>';
+                data.html_ico += '</div>';
+                data.html_ico += '</div>';
+                data.html_ico += '</a>';
+                break;
+            case 'Courses':
+                data.html_ico = '<a href="'+data.URL+'">';
+                data.html_ico += '<div class="ma-course-course-card">';
+                data.html_ico += '<div>';
+                data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.logoUrl+'" alt="Cover Image">';
+                data.html_ico += '</div>';
+                data.html_ico += '<div class="ma-course-course-title">';
+                data.html_ico += '<div class="ma-course-card-link">'+data.logoName+'</div>';
+                data.html_ico += '</div>';
+                data.html_ico += '</div>';
+                data.html_ico += '</a>';
+                break;
+            default:
+                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
+                data.html_ico += '<tr>';
+                if(data.g_type == 'MyFeed'){
+                    data.html_ico += '<td align="center"><img class="ma_mf_btn" src="'+data.logoUrl+'"></img></td>';
+                }
+                else{
+                    data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+                }
+                data.html_ico += '</tr>';
+                data.html_ico += '</table>';
+        }
+    }
+
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        var displayDate = ""
+
+        if(isToday(time)) {
+            displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
+    //my activity event-----------------------------------------------------
+    $(".ma-btn-filter").click(function(){
+        if(!data_loading){
+            my_activitis_init();
+
+            $(".con-ma-rows").find("div").remove();
+            get_my_activites(get_rows_init,skip_rows_init);
+        }
+    });
+
+    $(window).bind("scroll", function(){
+        var scrollTop = $(this).scrollTop();
+　　    var windowHeight = $(this).height();
+        var scrollHeight = $(document).height();
+        var scrollTop_ceil = Math.ceil(scrollTop);
+
+        console.log("scrollTop:",scrollTop);
+        console.log("---------");
+        console.log("scrollTop_ceil:",scrollTop_ceil);
+        console.log("windowHeight:",windowHeight);
+        console.log(">=");
+        console.log("scrollHeight:",scrollHeight);
+        console.log("============================");
+
+        if(scrollTop_ceil + windowHeight >= scrollHeight)
+        {
+            if(skip_rows_scroll >= data_all){
+                //$(".info_div").hide();
+                ////$(".info_div").html(html_end);
+            }else{
+                //$(".info_div").show();
+                ////$(".info_div").html(html_loading);
+                if(now_show == 'my-activity' ){
+                    get_my_activites(get_rows_scroll,skip_rows_scroll)
+                    skip_rows_scroll += get_rows_scroll; 
+                } 
+            }
+        }
+    });
+    
+    $(document).on('click', ".ma_mf_btn", function() {  
+        % if OrganizationOK and add_Feed_Show == "1" or not(OrganizationOK):
+            btn_switch("my-feed-btn");
+            $(window).scrollTop(0);
+        %endif 
+    });
+    
+    /*------my report card------*/
+    //my report card - course in progress-----------------------------------------------
+    var courses_incomplated_more = 0;
+    %if courses_incomplated_all_count > 3:
+        courses_incomplated_more = 1;
+    %endif
+
+    var courses_complated_more = 0;
+    %if courses_complated_all_count > 2:
+        courses_complated_more = 1;
+    %endif
+
+    var courses_incomplated_loading = 0;
+    var courses_complated_loading = 0;
+
+    get_course_in_progress('incompleted','no'); 
+    
+    function get_course_in_progress(course_type,get_more){ //value of get_more:yes, no
+        courses_incomplated_loading = 1;
+        if(get_more == 'yes'){
+            $(".course-in-progress-more-outer").html('<center><img id="progress_rows_loading_image" src="/static/images/posts-loading.gif"></img></center>');
+        }
+
+        $.post("${reverse('get_my_course_in_progress')}", 
+            {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
+            function(data_obj){
+                create_course_in_progress(data_obj,get_more);
+                if(get_more == 'yes'){
+                    $(".course-in-progress-more-outer").html('');
+                }
+                courses_incomplated_loading = 0;  
+        });
+    }
+    function create_course_in_progress(data_obj,get_more){
+        var cp = '';
+        var p_color = '';
+        var width_1 = '';
+        var width_1px = '';
+        var p_text = '';
+        var p_text_style = '';
+        var element_html = '';
+        var element = '';
+
+        for(var i=0;i<data_obj.data.length;i++){
+            cp = data_obj.data[i];
+            //cp.p = 0.28;
+            if(cp.p <= 0.25){
+                p_color = "#ef3028";
+            }
+            else if(cp.p > 0.25 && cp.p < 0.75){
+                p_color = "#fbba2e";
+            }
+            else{
+                 p_color = "#89c153";
+            }
+
+            width_1 = Math.round(338 * cp.p);
+            width_1px = String(width_1) + "px";
+
+            //percent text
+            p_text = String(Math.round(cp.p*100)) + "%";
+            if(cp.p == 0){
+                p_text_style = "width:83px;padding-left:2px;"
+            }
+            else if(cp.p >= 0.02 && cp.p <= 0.15 ){
+                p_text_style = 'width:'+String(width_1+24)+'px;text-align:right;'
+        
+            }
+            else if(cp.p > 0.15){
+                p_text_style = 'width:'+String(width_1-2)+'px;text-align:right;'
+            }
+
+            //element
+            if(get_more=='no'){
+                element_html = '<div class="course-in-progress-row">';
+            }
+            else{
+                element_html = '<div class="course-in-progress-row get-more-incompleted">';
+            }
+            element_html += '<div class="course-in-progress-t">';
+            if(cp.close_course){
+                element_html += '<b>'+cp.name+'</b>|'+cp.number;
+            }
+            else{
+                element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
+            }
+            element_html += '</div>';
+            element_html += '<div class="course-in-progress-p">';
+            element_html += '<b>Progress</b>';
+            element_html += '<div class="progress-table">';
+            element_html += '<div class="progress-right"></div>';
+            element_html += '<div class="progress-left" style="width:'+width_1px+';background-color:'+p_color+';"></div>';
+            element_html += '<table width=338>';
+            element_html += '<tr height=22>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25% class="td-right-border"></td>';
+            element_html += '<td width=25%></td>';
+            element_html += '</tr>';
+            element_html += '</table>';
+            element_html += '<div class="progress-p-text" style="'+p_text_style+'">'+p_text+'</div>';
+            element_html += '</div>';
+            element_html += '</div>';
+            element_html += '<div class="course-in-progress-tt">';
+            element_html += '<b style="color:#757474;">Time Spent: </b>'+cp.time;
+            element_html += '</div>';
+            element_html += '</div>';
+
+            element = $(element_html);
+            $('.course-in-progress-rows').append(element);
+        }
+    }
+
+    var btn_more_incompleted_click = 0;
+    $(document).on('click', ".btn-more-incompleted", function() {  
+        if(btn_more_incompleted_click == 0){
+            get_course_in_progress('incompleted','yes'); 
+            btn_more_incompleted_click = 1;
+        }
+        else{
+            $(".get-more-incompleted").show();
+            if(courses_incomplated_more==1){
+                $(".course-in-progress-more-outer").html('');
+            }
+        }
+    });
+
+    //my report card - completed courses-----------------------------------------------
+    %if courses_complated_all_count > 0:
+        get_completed_courses('completed','no'); 
+    %endif
+    
+    function get_completed_courses(course_type,get_more){ //value of get_more:yes, no
+        courses_complated_loading = 1;
+        if(get_more == 'yes'){
+            $(".completed-courses-more-outer").html('<center><img id="completed_courses_loading_image" src="/static/images/posts-loading.gif"></img></center>');
+        }
+
+        $.post("${reverse('get_my_course_in_progress')}", 
+            {'user_id':'${request.user.id}','course_type':course_type,'get_more':get_more},
+            function(data_obj){
+                create_completed_courses(data_obj,get_more);
+                if(get_more == 'yes'){
+                    $(".completed-courses-more-outer").html('');
+                } 
+                courses_complated_loading = 0; 
+        });
+    }
+
+    function create_completed_courses(data_obj,get_more){
+        var cc = '';
+        var element_html = '';
+        var element = '';
+        
+        for(var i=0;i<data_obj.data.length;i++){
+            cc =  data_obj.data[i];
+
+            if(get_more=='no'){
+                element_html = '<table class="completed-courses-row">';
+            }
+            else{
+                element_html = '<table class="completed-courses-row get-more-completed">';
+            }
+            element_html += '<tr>';
+            element_html += '<td width="55" class="completed-courses-row-ico">';
+            if(cc.issue_certificate){
+                element_html += '<a href="'+cc.url_c+'" target="_blank"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            }
+            else{
+                element_html += '<img src="/static/images/newdashboard/issue_certificate_false.png" width="50"/>';
+            }
+            element_html += '</td>';
+            element_html += '<td>';
+            element_html += '<div class="completed-courses-row-title">';
+            if(cc.close_course){
+                element_html += '<b>'+cc.name+'</b>|'+cc.number;
+            }
+            else{
+                element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
+            }
+            element_html += '</div>';
+            element_html += '<div class="completed-courses-row-time">Time Spent: <b>'+cc.time+'</b></div>';
+            element_html += '</td>';
+            element_html += '</tr>';
+            element_html += '</table>';
+
+            element = $(element_html);
+            $('.completed-courses-rows').append(element);
+        }
+    }
+
+    var btn_more_completed_click = 0;
+    $(document).on('click', ".btn-more-completed", function() {  
+        if(btn_more_completed_click == 0){
+            get_completed_courses('completed','yes'); 
+            btn_more_completed_click = 1
+        }
+        else{
+            $(".get-more-completed").show();
+            if(courses_complated_more==1){
+                $(".completed-courses-more-outer").html('');
+            }
+        }
+    });
+});
+</script>
+

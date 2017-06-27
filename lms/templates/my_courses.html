@@ -1,0 +1,595 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from django.utils import timezone
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+  import datetime
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #image_uploading{display:none;}
+</style>
+<!--@end-->
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("My Courses - {username}".format(username=curr_user.username))}</title></%block>
+<!--@begin:Add new page style-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+ #submit:hover,#submit_email_change:hover,#photo_submit:hover {
+   background:#6e8194;
+   transition-delay: 0s, 0s, 0s;
+   transition-duration: 0.25s, 0.25s, 0.25s;
+   transition-property:color, background,​ box-shadow;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+   transition-duration:0.25s,​ 0.25s,​ 0.25s;
+   color:#fff;
+ }
+ #submit,#submit_email_change,#photo_submit {
+   border-width:0;
+   background:#556370;
+   text-decoration: none;
+   padding-bottom: 7px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 7px;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ #dlg-user-photo{
+     width:140px;
+     height:140px;
+ }
+
+ .skype-icon{
+     background-image: url("/static/images/skype-add.png") !important;
+ }
+ #create-skype, #create-skype-online {
+        float: left;
+        margin: 0 20px 0 0;
+    }
+    .skype-container {
+        float: left;
+    }
+    .skype-button .side-button {
+        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+        height: 20px;
+    }
+     .hangout_container {
+        text-align: center;
+        padding-top: 20px;
+    }
+    .hangout_container img {
+        width: 120px;
+        vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
+    }
+    .side-button {
+        color: white !important;
+        display: block;
+        padding: 7px;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+    }
+    .green-button {
+        border-color: #595;
+        background: #8cbe41;
+    }
+    .hangout-button{
+        margin-top: 5px;
+    }
+    .red-button {
+        border-color: #df0000;
+        background: #ED2828;
+    }
+ .online-circle{
+    width: 20px;
+    margin-left: 10px;
+    margin-top: 2px;
+    height: 20px;
+    border-radius: 10px;
+    position: absolute;
+ }
+ .online-circle:hover{
+     cursor:pointer;
+ }
+ #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
+   background:#126F9A;
+   text-decoration: none;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+</style>
+<!--@end-->
+<%block name="js_extra">
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script type="text/javascript">
+  $(".portfolio-btn").click(function(){
+		if(!$(this).hasClass("disabled_btn")){
+			var curr_user={};
+			var interviewer={};
+			//var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+			var course_number=$(this).parent().find("a").attr("course_number");
+			interviewer.id="${request.user.id}";
+			interviewer.name="${request.user.username}";
+			interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
+			curr_user.id="${curr_user.id}";
+			var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
+												 'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
+												 'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+			var url = $(this).attr("link");
+			$.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
+		}
+   });
+    function imessage_click(obj)
+  {
+    var userInfo=[];
+    userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+    userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+    message_board(userInfo);
+  }
+</script>
+
+<style>
+	.disabled_btn{ cursor:default !important; color:#999999 !important; }
+</style>
+<script>
+	$(document).ready(function(){
+		$(".portfolio-btn").each(function(){
+			var user_id = "${curr_user.id}";
+			var linkx = $(this).attr("link");
+			var course_id = linkx.split("/portfolio")[0];
+			course_id = course_id.replace("/courses/", "");
+			
+			$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourseLevel", linkx:linkx, course_id:course_id, user_id:user_id}, function (r) {
+				if (r.success) {
+					if(r.level == "1"){
+						$(".portfolio-btn[link='" + r.linkx + "']").removeClass("disabled_btn");
+					}
+				}			
+			});
+		});
+    $(".unenroll").click(function(event) {
+      $("#unenroll_course_id").val( $(event.target).data("course-id") );
+      $("#unenroll_course_number").text( $(event.target).data("course-number") );
+    });
+    $('#unenroll_form').on('ajax:complete', function(event, xhr) {
+      if(xhr.status == 200) {
+        location.href = "${reverse('dashboard')}";
+      } else if (xhr.status == 403) {
+        location.href = "${reverse('signin_user')}?course_id=" +
+          $("#unenroll_course_id").val() + "&enrollment_action=unenroll";
+      } else {
+        $('#unenroll_error').html(
+          xhr.responseText ? xhr.responseText : "An error occurred. Please try again later."
+        ).stop().css("display", "block");
+      }
+    });
+	});
+</script>
+</%block>
+<section class="container dashboard" id="container_dashboard" style="padding-top:20px;">
+  %if message and curr_user==request.user:
+    <section class="dashboard-banner">
+      ${message}
+    </section>
+  %endif
+<!--@begin:The styles used only in Dashboard-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  a.btnx:hover {
+  background: linear-gradient(#1e8bbe, #0e72a1); 
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:
+  cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  text-decoration:none;
+  }
+  a.btnx {
+  background-clip: padding-box;
+  border:1ps solid rgb(13, 114, 162);
+  background-color:rgb(29, 157, 217);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1d9dd9), color-stop(100%, #0e7cb0));
+  background-image: -webkit-linear-gradient(#1d9dd9, #0e7cb0);
+  background-image: linear-gradient(#1d9dd9, #0e7cb0);
+  border: 1px solid #0d72a2;
+  box-shadow: inset 0 1px 0 0 #61b8e1;
+  text-decoration: none;
+  padding:6px 32px 7px 32px;
+  line-height:26px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+<!--@end-->
+
+<!--@begin:Add alert in Dashboard page-->
+<!--@date:2016-04-12-->
+<!--
+%if alert_enabled == "enabled" and alert_text != "":
+<section class="my-courses">
+<div id="con_alert" style="width:879px;margin:auto;position:relative;margin-bottom:30px;border:2px solid #900;">
+  <div style="width:829px;background-color:#FFC651;font-weight:bold;color:#900;padding:25px;line-height:20px;">
+      ${alert_text}
+  </div>
+</div>
+</section>
+%endif
+-->
+<!--@end-->
+
+<section class="my-courses" style="margin:0 auto;float:none;">
+  <!--External Courses-->
+  <header>
+    <h2>${_("External Courses")}</h2>
+  </header>
+  <article class="my-course" style="border-bottom:3px solid #0098C9">
+    <a href="/sso/idp/auth/?sp=edu2000" class="cover" target="_blank">
+      <img src="/static/images/realgebra_icon.png" style="width:200px;height:135px;" alt="PEP101x User’s Guide to Pepper Cover Image">
+    </a>
+    <section class="info">
+      <hgroup>
+        <p class="date-block"></p>
+        <h2 class="university">Edu2000</h2>
+        <h3><a href="/sso/idp/auth/?sp=edu2000" target="_blank">Realgebra</a></h3>
+      </hgroup>
+      <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen">
+      <a href="/sso/idp/auth/?sp=edu2000" target="_blank" class="enter-course dashboard-btn2">View Course</a>
+      <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
+    </section>
+  </article>
+
+  <!--Current Courses-->
+  <header>
+    <h2>${_("MY LEARNING PLAN")}</h2>
+  </header>
+
+    % if len(courses_incomplated) > 0:
+<!--@begin:Change the disply of the courses list in Dashboard-->
+<!--@date:2013-11-02-->    
+      % for i,course in enumerate(courses_incomplated):
+    <%
+       border_overide='';
+       if i==len(courses_incomplated)-1:
+         border_overide="border-bottom:3px solid #0098C9;"
+       %>
+        <article class="my-course" style="${border_overide};" >
+          <%
+            course_target = reverse('courseware', args=[course.id])
+          %>
+          % if course.id in show_courseware_links_for:
+          %if curr_user == request.user and not course.close_course:
+            <a href="${course_target}" class="cover">
+          %else:
+            <a href="" class="cover" style="cursor:default;" onclick="return false;">
+          %endif
+              <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
+            </a>
+<!--@end-->          
+            % else:
+            <div class="cover">
+              <img src="${course_image_url(course)}" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) | h}" />
+            </div>
+          % endif
+          <section class="info">
+            <hgroup>
+<!--@begin:Change the display of current courses in Dashboard-->
+<!--@date:2013-11-02-->                 
+              <p class="date-block">
+                ${_("Enrollment date - {end_date:%B %d,%Y}").format(end_date=course.student_enrollment_date)}
+                %if curr_user==request.user:
+                  <a href="#unenroll-modal" class="unenroll" style="font-size:13px;margin:2px 0px 0px 10px" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
+                %endif
+              </p>
+              % if False:
+              <p class="date-block">
+              % if course.has_ended():
+              ${_("Course Completed - {end_date}").format(end_date=course.end_date_text)}
+              % elif course.has_started():
+              ${_("Course Started - {start_date}").format(start_date=course.start_date_text)}
+              % else:   # hasn't started yet
+              ${_("Course Starts - {start_date}").format(start_date=course.start_date_text)}
+              % endif
+              </p>
+              % endif
+<!--@end-->      
+              <h2 class="university">${get_course_about_section(course, 'university')}</h2>
+              <h3>
+                % if course.id in show_courseware_links_for:
+                %if curr_user == request.user and not course.close_course:
+                  <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                %else:
+                  <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                %endif
+                % else:
+                  <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
+                % endif
+              </h3>
+            </hgroup>
+            <%
+                testcenter_exam_info = course.current_test_center_exam
+                registration = exam_registrations.get(course.id)
+                testcenter_register_target = reverse('begin_exam_registration', args=[course.id])
+            %>
+            % if testcenter_exam_info is not None:
+                % if registration is None and testcenter_exam_info.is_registering():
+                <div class="message message-status is-shown exam-register">
+                  <a href="${testcenter_register_target}" class="button exam-button" id="exam_register_button">${_("Register for Pearson exam")}</a>
+                  <p class="message-copy">${_("Registration for the Pearson exam is now open and will close on {end_date}").format(end_date="<strong>{}</strong>".format(testcenter_exam_info.registration_end_date_text))}</p>
+                </div>
+                % endif
+                <!-- display a registration for a current exam, even if the registration period is over -->
+                % if registration is not None:
+                    % if registration.is_accepted:
+                <div class="message message-status is-shown exam-schedule">
+                   <a href="${registration.registration_signup_url}" class="button exam-button">${_("Schedule Pearson exam")}</a>
+                   <p class="exam-registration-number">${_("{link_start}Registration{link_end} number: {number}").format(
+                      link_start='<a href="{url}" id="exam_register_link">'.format(url=testcenter_register_target),
+                      link_end='</a>',
+                      number=registration.client_candidate_id,
+                    )}</p>
+                   <p class="message-copy">${_("Write this down! You'll need it to schedule your exam.")}</p>
+                </div>
+                    % endif
+                    % if  registration.is_rejected:
+                <div class="message message-status is-shown exam-schedule">
+                  <p class="message-copy">
+                    <strong>${_("Your registration for the Pearson exam has been rejected. Please {link_start}see your registration status details{link_end}.").format(
+                      link_start='<a href="{url}" id="exam_register_link">'.format(url=testcenter_register_target),
+                      link_end='</a>')}</strong>
+                    ${_("Otherwise {link_start}contact edX at {email}{link_end} for further help.").format(
+                      link_start='<a class="contact-link" href="mailto:{email}?subject=Pearson VUE Exam - {about} {number}">'.format(email="exam-help@edx.org", about=get_course_about_section(course, 'university'), number=course.display_number_with_default),
+                      link_end='</a>',
+                      email="exam-help@edx.org",
+                     )}
+                </div>
+                    % endif
+                   	% if not registration.is_accepted and not registration.is_rejected:
+	            <div class="message message-status is-shown">
+                  <p class="message-copy"><strong>${_("Your {link_start}registration for the Pearson exam{link_end} is pending.").format(link_start='<a href="{url}" id="exam_register_link">'.format(url=testcenter_register_target), link_end='</a>')}</strong>
+                  ${_("Within a few days, you should see a confirmation number here, which can be used to schedule your exam.")}
+                  </p>
+                </div>
+                    % endif
+                % endif
+            % endif
+            <%
+            cert_status = cert_statuses.get(course.id)
+            %>
+            % if course.has_ended() and cert_status:
+                <%
+                if cert_status['status'] == 'generating':
+                    status_css_class = 'course-status-certrendering'
+                elif cert_status['status'] == 'ready':
+                    status_css_class = 'course-status-certavailable'
+                elif cert_status['status'] == 'notpassing':
+                    status_css_class = 'course-status-certnotavailable'
+                else:
+                    status_css_class = 'course-status-processing'
+                %>
+                <div class="message message-status ${status_css_class} is-shown">
+                % if cert_status['status'] == 'processing':
+                      <p class="message-copy">${_("Final course details are being wrapped up at this time. Your final standing will be available shortly.")}</p>
+                % elif cert_status['status'] in ('generating', 'ready', 'notpassing', 'restricted'):
+                      <p class="message-copy">${_("Your final grade:")}
+                      <span class="grade-value">${"{0:.0f}%".format(float(cert_status['grade'])*100)}</span>.
+                      % if cert_status['status'] == 'notpassing':
+                         ${_("Grade required for a certificate:")} <span class="grade-value">
+                           ${"{0:.0f}%".format(float(course.lowest_passing_grade)*100)}</span>.
+                      % elif cert_status['status'] == 'restricted':
+                          <p class="message-copy">
+                          ${_("Your certificate is being held pending confirmation that the issuance of your certificate is in compliance with strict U.S. embargoes on Iran, Cuba, Syria and Sudan. If you think our system has mistakenly identified you as being connected with one of those countries, please let us know by contacting {email}.").format(email='<a class="contact-link" href="mailto:{email}">{email}</a>.'.format(email=settings.CONTACT_EMAIL))}
+                          </p>
+                      % endif
+                      </p>
+                % endif
+                % if cert_status['show_disabled_download_button'] or cert_status['show_download_url'] or cert_status['show_survey_button']:
+                  <ul class="actions">
+                    % if cert_status['show_disabled_download_button']:
+                      <li class="action"><span class="disabled">
+                          ${_("Your Certificate is Generating")}</span></li>
+                    % elif cert_status['show_download_url']:
+                      <li class="action">
+                      <a class="btn" href="${cert_status['download_url']}"
+                         title="${_('This link will open/download a PDF document')}">
+                         Download Your PDF Certificate</a></li>
+                    % endif
+                    % if cert_status['show_survey_button']:
+                      <li class="action"><a class="cta" href="${cert_status['survey_url']}">
+                             ${_('Complete our course feedback survey')}</a></li>
+                    % endif
+                  </ul>
+                % endif
+                </div>
+            % endif
+            <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
+            % if course.id in show_courseware_links_for:
+      		      %if curr_user == request.user:              
+			              <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+			          %else:
+                    <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn disabled_btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                %endif
+                %if curr_user == request.user and not course.close_course:      
+                    <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %endif
+            % endif
+            %if curr_user==request.user:
+	              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
+               <!-- hide email settings -->
+              <!--
+              <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
+
+              % if course.hide_timer == False:
+                % if course.show_external_timer == False:
+                  <div class="course-time" time_type="course" course_id="${course.id}">Course Time: <span></span></div>
+                % else:
+                  <div class="course-time" time_type="external" course_id="${course.id}">External Time: <span></span></div>
+                % endif
+              % endif
+              -->
+          <!--20160621 change to current year course time and total_time-->
+          <!--begin-->
+                    % if course.hide_timer == False:
+                        <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                            <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
+                            % if course.show_external_timer == False:
+                                <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
+                            % else:
+                                <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
+                            % endif
+                        </div>
+                    % endif
+          <!--end-->
+	              % endif
+            %endif
+          </section>
+        </article>
+      % endfor
+    % else:
+      <section class="empty-dashboard-message">
+        %if curr_user==request.user:
+        <p>${_("Looks like you haven't registered for any courses yet.")}</p>
+        <a href="${marketing_link('COURSES')}">
+            ${_("Find courses now!")}
+        </a>
+        %endif
+      </section>
+    % endif
+    % if staff_access and len(errored_courses) > 0:
+      <div id="course-errors">
+        <h2>${_("Course-loading errors")}</h2>
+      % for course_dir, errors in errored_courses.items():
+         <h3>${course_dir | h}</h3>
+             <ul>
+           % for (msg, err) in errors:
+               <li>${msg}
+                 <ul><li><pre>${err}</pre></li></ul>
+               </li>
+           % endfor
+             </ul>
+      % endfor
+    % endif
+
+  <!--Completed Courses-->
+  <!--@begin:Shown completed course list-->
+  <!--@date:2013-11-02-->
+  <header>
+    <h2>${_("Completed Courses")}</h2>
+  </header>
+  <%include file="completed_courses.html" />
+<!--@end-->
+</section>
+</section>
+<section id="unenroll-modal" class="modal unenroll-modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Are you sure you want to unregister from {course_number}?').format(course_number='<span id="unenroll_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <div id="unenroll_error" class="modal-form-error"></div>
+    <form id="unenroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+      <input name="course_id" id="unenroll_course_id" type="hidden" />
+      <input name="enrollment_action" type="hidden" value="unenroll" />
+      <div class="submit">
+        <input id="submit" name="submit" type="submit" value="Unregister" />
+      </div>
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+    $(document).ready(function(){
+       $(".online-circle").click(function(event){
+            event.preventDefault();
+            scroll(0,0);
+            $("#skype-online-name").text("");
+            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }
+            main_dlg=new Dialog($('#online_dialog'));
+            main_dlg.show("Error", "");
+            return false;
+        });
+        $('#skype-start-online').click(function(e) {
+            e.preventDefault();
+              var participants = $("span[id='skype-online-name']").text().split(/, ?/);;
+              var topic = $("input[name='skype-topic-online']").val();
+              var skype_params = {
+                name: "call",
+                element: "SkypeButton_Call_" + participants[0] + "_1",
+                participants: participants,
+                imageSize: 24,
+                imageColor: "skype",
+                video: "true",
+                topic: topic
+              };
+              $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+              startSkypeOnline(skype_params);
+          });
+        $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+    });
+</script>
+
