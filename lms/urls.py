@@ -182,7 +182,6 @@ urlpatterns = (
     url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
     url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
     url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
-
     
     #@end
     #@begin:Add for Dashboard My Activity
