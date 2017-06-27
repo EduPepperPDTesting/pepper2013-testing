@@ -85,7 +85,7 @@ from datetime import timedelta
 from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
 from django.http import HttpResponseRedirect
-
+from collections import OrderedDict
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")

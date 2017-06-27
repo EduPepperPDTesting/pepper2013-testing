@@ -353,7 +353,7 @@
                         </div>
                         <div class="form-row" style="font-size:12px;">
                             <input type="radio" name="type" value="pd_training" autocomplete="off"/>
-                            <span style="font-weight:bold;">District/School Training or PD Event</span>
+                            <span style="font-weight:bold;" id="organization_pepreg_ds1">District/School Training or PD Event</span>
                             <div style="padding-left:2em;">
                                 Choosing this option will allow you to create a custom training<br> or PD event specific
                                 for your District/School staff.<br/>
@@ -368,7 +368,7 @@
                         <h5>Create Your Training or PD Event: Step 2 of 6</h5>
                         <h4>General Training Information</h4>
                         <div class="form-row">
-                            <span class="label">District:</span>
+                            <span class="label" id="organization_pepreg_d1" style="">District:</span>
                             <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
@@ -381,7 +381,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label">School:</span>                            
+                            <span class="label" id="organization_pepreg_s1" style="">School:</span>                            
                             %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                             <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
                             %elif check_access_level(request.user, 'pepreg', 'add_new_training') == "District":

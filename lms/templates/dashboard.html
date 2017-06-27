@@ -437,7 +437,7 @@
 <!--@end-->
   //-----------------------------------------------
   $(".portfolio-btn").click(function(){
-    	if(!$(this).hasClass("disabled_btn")){
+		if(!$(this).hasClass("disabled_btn")){
 			var curr_user={};
 			var interviewer={};
 			//var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
@@ -593,7 +593,7 @@
         % endif
         %endif
         
-<!-------------------------------- My Pepper Stats------------------------------------->
+<!-------------------------------- My Pepper Stats-------------------------------------->
     <li>
       <span class="title">
          <div style="font-family: 'Open Sans';font-size:12px;">
@@ -606,12 +606,6 @@
            <div style="line-height:30px;"><b>Collaboration Time:</b>
            <span id="collaboration_time" style="display:inline;"></span>
            </div>
-           <!-- hide totle adjustment time -->
-           <!--
-           <div style="line-height:30px;"><b>Adjusted Total Time:</b>
-            <span id="totle_adjustment_time" style="display:inline;"></span>
-           </div>
-           -->
            <div style="line-height:30px;"><b>Total Time:</b>
             <span id="total_time_in_pepper" style="display:inline;"></span>
            </div>
@@ -630,12 +624,12 @@
 			  ${curr_user.profile.district.state.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;"><b>District:</b>
+			<div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
 			  % if curr_user.profile.district_id:
 			  <br>${curr_user.profile.district.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;"><b>School:</b>
+			<div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
 			  % if curr_user.profile.school_id:
 			  <br>${curr_user.profile.school.name}
 			  % endif
@@ -825,12 +819,50 @@ Add info that you would like to share about yourself here:
 </section>
 % endif
 % endif
-
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/dashboard-new.css" />
 <section class="my-courses" style="" >
-    <header>
-      <h2>${_("MY LEARNING PLAN")}</h2>
-    </header>
+  <!--External Courses-->
+  <header>
+    <h2>${_("External Courses")}</h2>
+  </header>
+  <article class="my-course" style="border-bottom:3px solid #0098C9">
+    <a href="/sso/idp/auth/?sp=edu2000" class="cover" target="_blank">
+      <img src="/static/images/realgebra_icon.png" style="width:200px;height:135px;" alt="PEP101x User’s Guide to Pepper Cover Image">
+    </a>
+    <section class="info">
+      <hgroup>
+        <p class="date-block"></p>
+        <h2 class="university">Edu2000</h2>
+        <h3><a href="/sso/idp/auth/?sp=edu2000" target="_blank">Realgebra</a></h3>
+      </hgroup>
+      <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen">
+      <a href="/sso/idp/auth/?sp=edu2000" target="_blank" class="enter-course dashboard-btn2">View Course</a>
+      <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
+    </section>
+  </article>
 
+  <!--Current Courses-->
+  <header>
+    <h2>${_("MY LEARNING PLAN")}</h2>
+  </header>
+    % if (request.user.id == 10) or (request.user.id == 11) or (request.user.id == 12):
+      <article class="my-course">
+          <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="cover" style="cursor:default;" onclick="return false;">
+              <img src="/static/images/Paths to College and Career.png" style="width:200px;height:104px;" alt="Paths to College and Career" />
+          </a>
+          <section class="info">
+            <hgroup>
+                <h2 class="university">PCG Education</h2>
+              <h3>
+                  <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" style="cursor:default;" onclick="return false;">Path to College and Career Readiness</a>
+              </h3>
+            </hgroup>
+            <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />   
+                    <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="enter-course dashboard-btn2">${_('View Resource')}</a>
+          </section>
+      </article> 
+    % endif
     % if len(courses_incomplated) > 0:
 <!--@begin:Change the disply of the courses list in Dashboard-->
 <!--@date:2013-11-02-->    
@@ -991,7 +1023,7 @@ Add info that you would like to share about yourself here:
             % endif
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-      		      %if curr_user == request.user:            
+      		      %if curr_user == request.user:              
 			              <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			          %else:
                     <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn disabled_btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
@@ -1001,7 +1033,7 @@ Add info that you would like to share about yourself here:
                 %endif
             % endif
             %if curr_user==request.user:
-	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+	              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
                <!-- hide email settings -->
               <!--
@@ -1017,19 +1049,19 @@ Add info that you would like to share about yourself here:
               -->
           <!--20160621 change to current year course time and total_time-->
           <!--begin-->
-          % if course.hide_timer == False:
-              <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
-                  <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
-                  % if course.show_external_timer == False:
-                      <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
-                  % else:
-                      <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
-                  % endif
-              </div>
-          % endif
+                    % if course.hide_timer == False:
+                        <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                            <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
+                            % if course.show_external_timer == False:
+                                <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
+                            % else:
+                                <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
+                            % endif
+                        </div>
+                    % endif
           <!--end-->
-	    % endif
-           %endif
+	              % endif
+            %endif
           </section>
         </article>
       % endfor
@@ -1057,12 +1089,14 @@ Add info that you would like to share about yourself here:
              </ul>
       % endfor
     % endif
-<!--@begin:Shown completed course list-->
-<!--@date:2013-11-02-->
-          <header>
-            <h2>${_("Completed Courses")}</h2>
-          </header>
-          <%include file="completed_courses.html" />
+
+  <!--Completed Courses-->
+  <!--@begin:Shown completed course list-->
+  <!--@date:2013-11-02-->
+  <header>
+    <h2>${_("Completed Courses")}</h2>
+  </header>
+  <%include file="completed_courses.html" />
 <!--@end-->
 </section>
 </section>
@@ -1118,7 +1152,7 @@ Add info that you would like to share about yourself here:
     <form id="change_school_form" method="post">
       <fieldset>
         <div class="input-group">
-            <label>School:</label>
+            <label id="organization_obj_dashboard_school2">School:</label>
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
               	% if curr_user.profile.district_id:
@@ -1466,7 +1500,7 @@ Add info that you would like to share about yourself here:
 </section>
 <!--@begin:User photo upload table-->
 <!--@date:2013-11-02-->
-<!----
+<!--
 <section id="apply_picture_change" class="modal">
   <div class="inner-wrapper">
     <div class="close-modal">
@@ -1678,6 +1712,21 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </div>
+<!--@begin:Add for Dashboard Posts-->
+<!--@2016-12-29-->
+<div style="" id="fixed-dialog-likes" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div id = 'user_info_div' class="user-info-div">
+    <span id='user_info' class="user_info_span"></span>
+</div>
+<!--@end-->
 <script>
     $(document).ready(function(){
        $(".online-circle").click(function(event){
@@ -1716,7 +1765,5 @@ Add info that you would like to share about yourself here:
             $(".lean-overlay").remove();
         });
     });
-
-
 </script>
 
