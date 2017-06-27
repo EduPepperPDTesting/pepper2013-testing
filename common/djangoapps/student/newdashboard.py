@@ -22,7 +22,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-#from feeding import dashboard_feeding_store
+from feeding import dashboard_feeding_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
