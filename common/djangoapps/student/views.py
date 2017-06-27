@@ -2279,7 +2279,8 @@ def upload_user_photo(user_id, file_img):
                       options.get('password'))
 
     # img_name = up.photo
-    _id={"user_id":user_id,"type":"photo"}
+    _id = OrderedDict([("ref_id", user_id), ("type", "photo")])
+    
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 
@@ -2291,6 +2292,7 @@ def upload_user_photo(user_id, file_img):
         file.seek(0)
 
         us.save(_id,file.getvalue())
+
 
 def upload_photo(request):
     upload_user_photo(request.user.id,request.FILES.get('photo'))
