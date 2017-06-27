@@ -22,7 +22,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-from feeding import dashboard_feeding_store
+#from feeding import dashboard_feeding_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
@@ -322,9 +322,9 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
-    store = dashboard_feeding_store()
-    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    #feeding_year_start, feeding_year_end = False, False
+    #store = dashboard_feeding_store()
+    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    feeding_year_start, feeding_year_end = False, False
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
