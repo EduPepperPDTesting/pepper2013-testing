@@ -216,7 +216,7 @@ def organization_add(request):
                     org_dashboard.organization = organization
                     org_dashboard.save()
 
-                    if (bean1.itemType == "logo" or bean1.itemType == "organization_logo") and bean1.itemValue != "":
+                    if (bean1.itemType == "logo" or bean1.itemType == "Profile Logo" or bean1.itemType == "Profile Logo Curriculumn") and bean1.itemValue != "":
                         tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(organization_old.id) + '/' + bean1.itemValue
                         if os.path.exists(tmp_logo_src):
                             shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
@@ -707,7 +707,6 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
            
-
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -1032,11 +1031,15 @@ def organization_get_info(request):
                 if request.user.is_authenticated():
                     try:
                         state = request.user.profile.district.state.id
-                        district = request.user.profile.district.id
-                        school = request.user.profile.school.id
                     except:
                         state = -1
+                    try:
+                        district = request.user.profile.district.id
+                    except:
                         district = -1
+                    try:
+                        school = request.user.profile.school.id
+                    except:
                         school = -1
                     
                     data['OrganizationOK'] = False
