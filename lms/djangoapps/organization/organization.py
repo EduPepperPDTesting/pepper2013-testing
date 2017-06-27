@@ -707,6 +707,7 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
            
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
