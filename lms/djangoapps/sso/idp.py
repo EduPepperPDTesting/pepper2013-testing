@@ -89,7 +89,7 @@ def get_saml_setting(sp_name):
                         "entity_categories": ["swamid", "edugain"]
                     },
                 },
-                "subject_data": "./idp.subject",
+                "subject_data": ("mongodb", "saml"),  # "./idp.subject",
                 "name_id_format": [NAMEID_FORMAT_TRANSIENT,
                                    NAMEID_FORMAT_PERSISTENT]
             },
