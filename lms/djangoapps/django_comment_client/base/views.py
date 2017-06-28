@@ -36,7 +36,6 @@ import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
 from datetime import datetime
 from pytz import UTC
-from models import *
 from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger(__name__)
