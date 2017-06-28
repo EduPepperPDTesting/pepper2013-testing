@@ -1414,7 +1414,8 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
-
+                dist_name = training.district__name
+                console.log("district name " + str(dist_name))
                 # try:
                 #     district = District.objects.get(id=training.district)
                 #     district = District.objects.get(id=training.district.id)
