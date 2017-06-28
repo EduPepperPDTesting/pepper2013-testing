@@ -219,6 +219,7 @@ def report_edit(request, report_id):
     """
     views = Views.objects.all().order_by('name')
     data = {'views': views}
+    data.update({'matrixcolumns':'undefined'})
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
@@ -475,6 +476,15 @@ def report_save(request, report_id):
         return render_json_response({'success': False, 'error': '{0} (Line# {1})'.format(e, exc_traceback.tb_lineno)})
     else:
         transaction.commit()
+
+        if action == 'new':
+            ma_db = myactivitystore()                
+            my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"report_id": report.id},    
+            "TokenValues": {"report_id": report.id}, 
+            "LogoValues": {"report_id": report.id}}
+            ma_db.insert_item(my_activity) 
+                
         return render_json_response({'success': True, 'report_id': report.id})
 
 
@@ -1519,7 +1529,7 @@ def reporting_get_graphable(request):
 def reporting_get_row_graphable(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    filter = request.GET.get('filter', '')
+    filter = request.GET.get('filter', '').strip()
     collection = get_cache_collection(request, report_id, school_year)
     rs = reporting_store()
     rows = []
@@ -1554,8 +1564,8 @@ def reporting_get_row_graphable(request):
 def reporting_get_aggregate(request):
     report_id = request.GET['report_id']
     school_year = request.GET.get('school_year', '')
-    row_header_data = request.GET.get('row_header', '')
-    column_header_data = request.GET.get('column_header', '')
+    row_header_data = request.GET.get('row_header', '').strip()
+    column_header_data = request.GET.get('column_header', '').strip()
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
     report = Reports.objects.get(id=report_id)

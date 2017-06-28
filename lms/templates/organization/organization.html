@@ -429,6 +429,14 @@
                     <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="1" />New Menu</label>
                 </td>
             </tr>
+            <tr class="old_menu_tr">
+                <td colspan="3" class="org_td1">
+                    <label>
+	                    <input type="checkbox" name="organizational_dashboard_remove_all_menu" />
+    	                <span style="margin-left:10px;">Remove all the menu items.</span>
+                    </label>
+                </td>
+            </tr>
             <tr class="new_menu_tr">
                 <td class="org_td1">Top Menu Color: </td>
                 <td><input id="organizational_menu_color" type="color" /> </td>
@@ -597,12 +605,12 @@
                 <td></td>
                 <td></td>
             </tr>
-            <tr class="new_menu_tr">
+            <tr>
                 <td class="org_td1">CMS Items: </td>
                 <td></td>
                 <td></td>
             </tr>
-            <tr class="new_menu_tr">
+            <tr>
                 <td colspan="3" class="org_td1">
                 	<div class="organizational_dashboard_cms_div">
                     	<div class="organizational_dashboard_cms_head1">
@@ -1115,7 +1123,11 @@
 									}else{
 										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", false);
 									}
-
+									if(r["Remove All Menu"] == "1"){
+										$("input[name='organizational_dashboard_remove_all_menu']").prop("checked", true);											
+									}else{
+										$("input[name='organizational_dashboard_remove_all_menu']").prop("checked", false);
+									}
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
@@ -2347,6 +2359,7 @@
 			var my_activities_show_curr = ($("input[name='organizational_dashboard_activities_show_curr']").attr("checked")) ? "1" : "0";
 			var my_report_show_curr = ($("input[name='organizational_dashboard_report_show_curr']").attr("checked")) ? "1" : "0";
 			var my_featured_show_curr = ($("input[name='organizational_dashboard_featured_show_curr']").attr("checked")) ? "1" : "0";
+			var remove_all_menu = ($("input[name='organizational_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
 			var is_my_feed_default_curr = $("input[name='organizational_dashboard_feed_default_curr']:checked").val();
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
 			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
@@ -2374,6 +2387,7 @@
 				new_show_left: new_show_left,
 				new_show_right: new_show_right,
 				my_feed_show_curr: my_feed_show_curr,
+				remove_all_menu: remove_all_menu,
 				my_activities_show_curr: my_activities_show_curr,
 				my_report_show_curr: my_report_show_curr,	
 				my_featured_show_curr: my_featured_show_curr,						
@@ -2726,8 +2740,10 @@
 	function isNewMenuChange(pd_val){
 		if(pd_val == "1"){
 			$(".new_menu_tr").show();
+			$(".old_menu_tr").hide();
 		}else{
 			$(".new_menu_tr").hide();
+			$(".old_menu_tr").show();
 		}
 	}
 	

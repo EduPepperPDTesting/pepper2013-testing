@@ -217,7 +217,7 @@ a{
 }
 .trending-topic .tt-title{
     padding:1px 0px 1px 0px;
-    font-size:14px;
+    font-size:12px;
     font-weight:bold;
     /*color:#92c900;*/
 
@@ -883,11 +883,15 @@ a{
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
-            district_id = request.user.profile.district.id
-            school_id = request.user.profile.school.id
         except:
             state_id = -1
+        try:
+            district_id = request.user.profile.district.id
+        except:
             district_id = -1
+        try:
+            school_id = request.user.profile.school.id
+        except:
             school_id = -1
             
         organization_obj = OrganizationMetadata()
@@ -1730,7 +1734,10 @@ $(document).ready(function(){
             element_html += '<tr>';
             element_html += '<td width="55" class="completed-courses-row-ico">';
             if(cc.issue_certificate){
-                element_html += '<a href="'+cc.url_c+'"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+                element_html += '<a href="'+cc.url_c+'" target="_blank"><img src="/static/images/newdashboard/new_dashboard_certificate_s.png" width="50"/></a>';
+            }
+            else{
+                element_html += '<img src="/static/images/newdashboard/issue_certificate_false.png" width="50"/>';
             }
             element_html += '</td>';
             element_html += '<td>';
