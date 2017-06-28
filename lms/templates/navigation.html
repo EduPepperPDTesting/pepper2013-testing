@@ -1433,6 +1433,16 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
+					if(r['Remove All Menu'] && r['Remove All Menu'] == "1"){
+						$(".imessage_style").hide();
+						$(".admin-menu-holder").hide();
+						$("#org_tm_course_workshop_obj").hide();
+						$("#org_tm_communities_obj").hide();
+						$("#org_tm_my_chunks_obj").hide();
+						$("#org_tm_resources_obj").hide();
+						$("#org_tm_people_obj").hide();
+					}
+					
 					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
 						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
 					}*/					

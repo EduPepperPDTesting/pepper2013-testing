@@ -491,6 +491,7 @@ def organizational_save_base(request):
         menu_text_color_me = request.POST.get("menu_text_color_me", "")
         menu_text_font_me = request.POST.get("menu_text_font_me", "")
         menu_text_size_me = request.POST.get("menu_text_size_me", "")
+        remove_all_menu = request.POST.get("remove_all_menu", "")
         menu_color = request.POST.get("menu_color", "")
         is_new_menu = request.POST.get("is_new_menu", "")
         my_feed_show = request.POST.get("my_feed_show", "")
@@ -634,6 +635,7 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Is New Menu", is_new_menu)
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
+            org_OrganizationMenuSave(org_metadata, "Remove All Menu", remove_all_menu)
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
@@ -707,6 +709,7 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
            
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -1092,6 +1095,9 @@ def organization_get_info(request):
                             data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
                             data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
                             break;
+
+                        for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj, itemType="Remove All Menu"):
+                            data[tmp2.itemType] = tmp2.itemValue
 
                         if (flag_main == "dashboard"):
                             for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj):
