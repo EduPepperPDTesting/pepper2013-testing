@@ -1414,14 +1414,17 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
-                dist_name = training.district__name
-                console.log("district name " + str(dist_name))
+                try:
+                    dist_name = training.district__name
+                    raise Exception("district name " + str(dist_name))
+                except:
+                    raise Exception("couldn't load dist")
+
                 # try:
                 #     district = District.objects.get(id=training.district)
                 #     district = District.objects.get(id=training.district.id)
                 #     dist_name = district.name
                 #     dist_name = training.district.name
-                #     console.log("name "+str(dist_name))
                 #     try:
                 #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
                 #         c.drawImage(dist_logo, 30, 750, 200, 73)
@@ -1430,9 +1433,9 @@ def download_calendar_pdf(request):
                 #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
                 #             c.drawImage(dist_logo, 30, 750, 200, 73)
                 #         except:
-                #             console.log('no logo')
+                #             raise Exception('no logo')
                 # except:
-                #     console.log("couldn't load logo")
+                #     raise Exception("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description
