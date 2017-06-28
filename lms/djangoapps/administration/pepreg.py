@@ -1414,11 +1414,11 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
-                try:
-                    dist_name = training.district__name
-                    raise Exception("district name " + str(dist_name))
-                except:
-                    raise Exception("couldn't load dist")
+                # try:
+                #     dist_name = training.district__name
+                #     raise Exception("district name " + str(dist_name))
+                # except:
+                #     raise Exception("couldn't load dist")
 
                 # try:
                 #     district = District.objects.get(id=training.district)
