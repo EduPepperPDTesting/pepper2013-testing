@@ -91,6 +91,77 @@ from baseinfo.models import Enum
       toggleSubmitButton(true);
       $('#register-form').on('submit', function() {
         toggleSubmitButton(false);
+			
+		//----------------Major Subject Area
+		if(!$("select[name='major_subject_area_id']").is(":hidden")){
+			if($("select[name='major_subject_area_id']").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("Major Subject Area is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("select[name='major_subject_area_id']").addClass('field-error');			 	
+				return false;	
+			}
+		}
+		//----------------Grade Level-Check all that apply
+		if(!$(".btn_grade_level").is(":hidden")){
+			if($("#grade_level_id").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("Grade Level-Check is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("#grade_level_id").addClass('field-error');			 	
+				return false;	
+			}
+		}
+		//----------------Number of Years in Education
+		if(!$("select[name='years_in_education_id']").is(":hidden")){
+			if($("select[name='years_in_education_id']").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("Number of Years in Education is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("select[name='years_in_education_id']").addClass('field-error');			 	
+				return false;	
+			}
+		}
+		//----------------My Learners' Profile
+		if(!$("select[name='percent_lunch']").is(":hidden")){
+			if($("select[name='percent_lunch']").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("Free/Reduced Lunch is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("select[name='percent_lunch']").addClass('field-error');			 	
+				return false;	
+			}
+		}else{
+			$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+		}
+		if(!$("select[name='percent_iep']").is(":hidden")){
+			if($("select[name='percent_iep']").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("IEPs is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("select[name='percent_iep']").addClass('field-error');			 	
+				return false;	
+			}
+		}else{
+			$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+		}
+		if(!$("select[name='percent_eng_learner']").is(":hidden")){
+			if($("select[name='percent_eng_learner']").val() == ""){
+				toggleSubmitButton(true);
+			 	$('.status.message.submission-error').addClass('is-shown').focus();
+			 	$('.status.message.submission-error .message-copy').html("English Learners is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("select[name='percent_eng_learner']").addClass('field-error');			 	
+				return false;	
+			}
+		}else{
+			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+		}
       });
       $('#register-form').on('ajax:error', function() {
         toggleSubmitButton(true);
@@ -547,15 +618,16 @@ LoadingWin.prototype.hide = function () {
 $(document).ready(function(){	
 	//------------------organization_get_info
 	var loadwin = new LoadingWin();		
-	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {		
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){
 					//$("#organization_info_state").html(r.SchoolType);
-					//$("#organization_info_district").html(r.DistrictType);					
+					//$("#organization_info_district").html(r.DistrictType);
+					
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
-		  
+		  			
 					if(r.org_rg_major_subject == "-1")		$("#organization_info_org_rg_major_subject").hide();
 					if(r.org_rg_grade_level == "-1")		$("#organization_info_org_rg_grade_level").hide();
 					if(r.org_rg_my_learners == "-1")		$("#organization_info_org_rg_my_learners").hide();
