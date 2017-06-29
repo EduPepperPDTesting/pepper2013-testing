@@ -1368,7 +1368,6 @@ def download_calendar_pdf(request):
 
     c.setFont("Helvetica", 20)
 
-    #training = PepRegTraining.objects.get(id=training_id)
     try:
         dist_name = 'none' if request.user.profile.district.name is None else request.user.profile.district.name
     except:
@@ -1439,6 +1438,7 @@ def download_calendar_pdf(request):
                 #             raise Exception('no logo')
                 # except:
                 #     raise Exception("couldn't load logo")
+                training = PepRegTraining.objects.get(id=training_id)
 
                 training_name = training.name
                 training_desc = training.description
