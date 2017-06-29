@@ -884,7 +884,7 @@ def do_import_school(task, csv_lines, request):
             state = line[SCHOOL_CSV_COLS.index('state')]
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
             district_object = District.objects.get(code=district_id)
-    
+
             validate_school_cvs_line(line, district_object)
 
             school = School()
@@ -931,6 +931,10 @@ def single_school_submit(request):
     if not request.user.is_authenticated:
         raise Http404
     try:
+        if len(School.objects.filter(name=request.POST['name'], district__id=request.POST['district_id'])) > 0:
+            raise Exception("A school named '{name}' already exists in the district".format(name=name))
+        if len(School.objects.filter(code=request.POST['id'])) > 0:
+            raise Exception("A school with code '{request.POST[\'id\']}' already exists.")
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
