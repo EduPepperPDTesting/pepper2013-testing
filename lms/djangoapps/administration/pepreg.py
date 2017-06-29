@@ -1415,7 +1415,7 @@ def download_calendar_pdf(request):
 
                 training = PepRegTraining.objects.get(id=training_id)
                 try:
-                    dist_name = 'none' if training.district__name is None else training.district__name
+                    dist_name = 'none' if training.district.name is None else training.district.name
                     # raise Exception("district name " + str(dist_name))
                 except:
                     raise Exception("couldn't load dist")
