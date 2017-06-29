@@ -140,7 +140,7 @@ def newdashboard(request, user_id=None):
         school_id = user.profile.school.id
     except:
         school_id = -1
-        
+
     organization_obj = OrganizationMetadata()
     if (school_id != -1):
         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
@@ -326,9 +326,9 @@ def newdashboard(request, user_id=None):
         communit_tt_list_add(community_all,0,communit_tt_list)
     #@end
 
-    #store = dashboard_feeding_store()
-    #feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
-    feeding_year_start, feeding_year_end = False, False
+    store = dashboard_feeding_store()
+    feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
+    #feeding_year_start, feeding_year_end = False, False
 
     #@begin:get my_activity filter year range
     #@date:2017-05-27
@@ -452,6 +452,8 @@ def get_my_course_in_progress(request):
         except:
             pass
 
+    orig_external_times = {}
+    rts = record_time_store()
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             c = course_from_id(enrollment.course_id)
@@ -460,6 +462,10 @@ def get_my_course_in_progress(request):
             if enrollment.course_id in allowed:
                 exists = exists - 1
             courses.append(c)
+            if user.is_superuser:
+                orig_external_times[c.id] = 0
+            else:
+                orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
 
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
@@ -499,7 +505,10 @@ def get_my_course_in_progress(request):
                         total_time_user = 0
                         for v in results:
                             total_time_user = total_time_user + v['total_time']
-                        couser_dict['time'] = study_time_format(total_time_user)
+                        current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                        if not current_time:
+                            current_time = 0
+                        couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                     #set user course title
                     couser_dict['name'] = get_course_about_section(course, 'title')
@@ -528,7 +537,10 @@ def get_my_course_in_progress(request):
                     total_time_user = 0
                     for v in results:
                         total_time_user = total_time_user + v['total_time']
-                    couser_dict['time'] = study_time_format(total_time_user)
+                    current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                    if not current_time:
+                        current_time = 0
+                    couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                 #set user course title
                 couser_dict['name'] = get_course_about_section(course, 'title')
