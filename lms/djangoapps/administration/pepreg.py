@@ -1367,6 +1367,16 @@ def download_calendar_pdf(request):
     c.drawImage(logo, 330, 750, 200, 73);
 
     c.setFont("Helvetica", 20)
+
+    #training = PepRegTraining.objects.get(id=training_id)
+    try:
+        dist_name = 'none' if request.user.profile.district.name is None else request.user.profile.district.name
+    except:
+        raise Exception("couldn't load dist")
+
+    if (dist_name):
+        c.drawString(10, 710, str(dist_name))
+
     c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
     styleSheet = getSampleStyleSheet()
@@ -1412,15 +1422,6 @@ def download_calendar_pdf(request):
         if (training_id):
             try:
                 tr_height = 30
-
-                training = PepRegTraining.objects.get(id=training_id)
-                try:
-                    dist_name = 'none' if training.district.name is None else training.district.name
-                except:
-                    raise Exception("couldn't load dist")
-
-                if (dist_name):
-                    c.drawString(30, 750, str(dist_name))
 
                 # try:
                 #     district = District.objects.get(id=training.district)
