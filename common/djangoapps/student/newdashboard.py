@@ -452,6 +452,8 @@ def get_my_course_in_progress(request):
         except:
             pass
 
+    orig_external_times = {}
+    rts = record_time_store()
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             c = course_from_id(enrollment.course_id)
@@ -460,6 +462,10 @@ def get_my_course_in_progress(request):
             if enrollment.course_id in allowed:
                 exists = exists - 1
             courses.append(c)
+            if user.is_superuser:
+                orig_external_times[c.id] = 0
+            else:
+                orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
 
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
@@ -499,7 +505,10 @@ def get_my_course_in_progress(request):
                         total_time_user = 0
                         for v in results:
                             total_time_user = total_time_user + v['total_time']
-                        couser_dict['time'] = study_time_format(total_time_user)
+                        current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                        if not current_time:
+                            current_time = 0
+                        couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                     #set user course title
                     couser_dict['name'] = get_course_about_section(course, 'title')
@@ -528,7 +537,10 @@ def get_my_course_in_progress(request):
                     total_time_user = 0
                     for v in results:
                         total_time_user = total_time_user + v['total_time']
-                    couser_dict['time'] = study_time_format(total_time_user)
+                    current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                    if not current_time:
+                        current_time = 0
+                    couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                 #set user course title
                 couser_dict['name'] = get_course_about_section(course, 'title')
