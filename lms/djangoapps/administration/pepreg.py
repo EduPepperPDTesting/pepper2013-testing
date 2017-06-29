@@ -1417,10 +1417,10 @@ def download_calendar_pdf(request):
                 try:
                     dist_name = 'none' if training.district.name is None else training.district.name
                 except:
-                    raise Exception("couldn't load dist")
-
-                if (drawString):
-                    c.drawString(30, 750, str(dist_name))
+                #     raise Exception("couldn't load dist")
+                #
+                # if (drawString):
+                #     c.drawString(30, 750, str(dist_name))
 
                 # try:
                 #     district = District.objects.get(id=training.district)
