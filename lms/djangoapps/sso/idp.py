@@ -89,7 +89,7 @@ def get_saml_setting(sp_name):
                         "entity_categories": ["swamid", "edugain"]
                     },
                 },
-                "subject_data": "./idp.subject",
+                "subject_data": ("mongodb", "saml"),  # "./idp.subject",
                 "name_id_format": [NAMEID_FORMAT_TRANSIENT,
                                    NAMEID_FORMAT_PERSISTENT]
             },
@@ -222,7 +222,6 @@ def saml_redirect(request, sp_name, ms, rs):
             parsed_data[mapped_name] = [value]
         else:
             parsed_data[mapped_name] = ['']
-
 
     # ** Get the X509Certificate string from sp.xml
     sign = IDP.metadata.certs(entity_id, "any", "signing")
