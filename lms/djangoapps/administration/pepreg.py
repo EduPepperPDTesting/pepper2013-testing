@@ -1369,12 +1369,20 @@ def download_calendar_pdf(request):
     c.setFont("Helvetica", 20)
 
     try:
-        dist_name = 'none' if request.user.profile.district.name is None else request.user.profile.district.name
+        dist_name = None if request.user.profile.district.name is None else request.user.profile.district.name
     except:
         raise Exception("couldn't load dist")
 
-    if (dist_name):
-        c.drawString(10, 710, str(dist_name))
+    if (dist_name and dist_name != ''):
+        try:
+            dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+            c.drawImage(dist_logo, 30, 750, 200, 73)
+        except:
+            try:
+                dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                c.drawImage(dist_logo, 30, 750, 200, 73)
+            except:
+                c.drawString(10, 730, str(dist_name))
 
     c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
@@ -1422,22 +1430,6 @@ def download_calendar_pdf(request):
             try:
                 tr_height = 30
 
-                # try:
-                #     district = District.objects.get(id=training.district)
-                #     district = District.objects.get(id=training.district.id)
-                #     dist_name = district.name
-                #     dist_name = training.district.name
-                #     try:
-                #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #         c.drawImage(dist_logo, 30, 750, 200, 73)
-                #     except:
-                #         try:
-                #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #             c.drawImage(dist_logo, 30, 750, 200, 73)
-                #         except:
-                #             raise Exception('no logo')
-                # except:
-                #     raise Exception("couldn't load logo")
                 training = PepRegTraining.objects.get(id=training_id)
 
                 training_name = training.name
