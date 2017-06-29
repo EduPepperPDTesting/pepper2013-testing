@@ -1382,7 +1382,7 @@ def download_calendar_pdf(request):
                 dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
                 c.drawImage(dist_logo, 30, 750, 200, 73)
             except:
-                c.drawString(10, 730, str(dist_name))
+                c.drawString(30, 750, str(dist_name))
 
     c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
