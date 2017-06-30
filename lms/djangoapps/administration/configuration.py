@@ -399,7 +399,7 @@ def backup_training_student(year):
     for train in trainings:
         training_backup = PepRegStudent_Backup()
         training_backup.school_year = year
-        training_backup.training =train.training.id
+        training_backup.training =train.training
         training_backup.student=train.student
         training_backup.student_status=train.student_status
         training_backup.student_credit=train.student_credit
@@ -414,7 +414,7 @@ def backup_training_instructor(year):
     for train in trainings:
         training_backup = PepRegInstructor_Backup()
         training_backup.school_year = year
-        training_backup.training =train.training.id
+        training_backup.training =train.training
         training_backup.instructor=train.instructor
         training_backup.user_create=train.user_create
         training_backup.date_create=train.date_create
