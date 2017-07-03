@@ -375,8 +375,12 @@ def delete_training(request):
     try:
         id = request.POST.get("id", None)
         training = PepRegTraining.objects.get(id=id)
+        tid = training.id
+        tname = training.name
+        tdate = training.training_date
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
+        TrainingUsers.objects.filter(training=training).delete()
         training.delete()
 
         ma_db = myactivitystore()
