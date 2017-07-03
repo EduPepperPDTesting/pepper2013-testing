@@ -646,7 +646,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
             if(item.training_date == printDate.date()):
                 if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                     continue
-                
+
                 arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                 allow = "1" if item.allow_registration else "0"
                 r_l = "1" if reach_limit(item) else "0"
