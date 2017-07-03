@@ -50,6 +50,6 @@ def get_query_school_year(request, report, columns):
                 return str([1, 1])
     else:
         if selected_view.view.collection in school_year_collection:
-            return '{"$match":{"school_year":"current"}},'
+            return ''
         else:
             return str(["$$item.school_year", "current"])
