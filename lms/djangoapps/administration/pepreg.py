@@ -679,7 +679,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     if(i < array_length - 1):
                         i += 1
                         print_row.append([])
-    raise Exception(str(print_row))
+    #raise Exception(str(print_row))
     if(print_row):
         n = 0
         table_tr_content = ""
