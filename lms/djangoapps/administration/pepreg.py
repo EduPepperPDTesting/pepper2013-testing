@@ -1387,13 +1387,13 @@ def download_calendar_pdf(request):
                 # --- to split if long string
 
                 string_distname_length = stringWidth(dist_name, "Helvetica", 20)
-                if (dist_name and string_distname_length > 250):
-                    num_string = (string_distname_length / 250) + 1  # number of lines to draw
+                if (dist_name and string_distname_length > 280):
+                    num_string = (string_distname_length / 280) + 1  # number of lines to draw
 
                     dist_name_length = round((int(len(str(dist_name)) / num_string)), 0)
                     while 1:  # get first line size
                         string_distname_length = stringWidth(dist_name[0: int(dist_name_length)], "Helvetica", 20)
-                        if (string_distname_length >= 250):
+                        if (string_distname_length >= 280):
                             break
                         else:
                             dist_name_length += 1  # add to end index to increase line size
@@ -1405,12 +1405,12 @@ def download_calendar_pdf(request):
                         if (len(str(dist_name)) > int(dist_name_length)):
                             end_index = str(dist_name[int(start_index): int(dist_name_length)]).rfind(" ")
                             end_index = end_index + start_index if end_index > 0 else dist_name_length - 1
-                            c.drawString(30, 830 - ((30 * num) + 30),
+                            c.drawString(30, 860 - ((30 * num) + 30),
                                          str(dist_name[int(start_index): int(end_index)]).encode('utf-8'))
                             start_index = end_index + 1
                             dist_name_length = start_index + dist_name_length
                         elif (end_draw == 0):
-                            c.drawString(30, 830 - ((30 * num) + 30), str(dist_name[int(start_index):]).encode('utf-8'))
+                            c.drawString(30, 860 - ((30 * num) + 30), str(dist_name[int(start_index):]).encode('utf-8'))
                             end_draw = 1
                         num += 1
                 elif (len(dist_name) > 0):
