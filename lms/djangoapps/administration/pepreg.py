@@ -1387,13 +1387,13 @@ def download_calendar_pdf(request):
                 # --- to split if long string
 
                 string_distname_length = stringWidth(dist_name, "Helvetica", 20)
-                if (dist_name and string_distname_length > 280):
-                    num_string = (string_distname_length / 280) + 1  # number of lines to draw
+                if (dist_name and string_distname_length > 260):
+                    num_string = (string_distname_length / 260) + 1  # number of lines to draw
 
                     dist_name_length = round((int(len(str(dist_name)) / num_string)), 0)
                     while 1:  # get first line size
                         string_distname_length = stringWidth(dist_name[0: int(dist_name_length)], "Helvetica", 20)
-                        if (string_distname_length >= 280):
+                        if (string_distname_length >= 260):
                             break
                         else:
                             dist_name_length += 1  # add to end index to increase line size
@@ -1414,7 +1414,7 @@ def download_calendar_pdf(request):
                             end_draw = 1
                         num += 1
                 elif (len(dist_name) > 0):
-                    c.drawString(30, 800, str(dist_name))
+                    c.drawString(30, 830, str(dist_name))
 
 
 
