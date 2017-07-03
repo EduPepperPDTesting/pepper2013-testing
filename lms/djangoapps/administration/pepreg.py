@@ -681,6 +681,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         print_row.append([])
     #raise Exception(str(print_row))
     if(print_row):
+        raise Exception(str(print_row))
         n = 0
         table_tr_content = ""
         while(n < i):
