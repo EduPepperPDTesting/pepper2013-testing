@@ -358,7 +358,7 @@ def remove_time():
 
 
 def remove_pepreg_training():
-    PepRegInstructor.objects.all().delete()
+    PepRegTraining.objects.all().delete()
 
 def backup_training(year):
     trainings = PepRegTraining.objects.all()
