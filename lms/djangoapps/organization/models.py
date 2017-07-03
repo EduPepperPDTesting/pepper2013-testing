@@ -70,12 +70,12 @@ class OrganizationMenu(models.Model):
     class Meta:
         db_table = 'organization_menu'
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
-    itemValue = models.TextField(blank=False, null=True) 
+    itemValue = models.TextField(blank=True, null=True) 
     organization = models.ForeignKey(OrganizationMetadata)
 
 class OrganizationDashboard(models.Model):
     class Meta:
         db_table = 'organization_dashboard'
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
-    itemValue = models.TextField(blank=False, null=True) 
+    itemValue = models.TextField(blank=True, null=True) 
     organization = models.ForeignKey(OrganizationMetadata)
