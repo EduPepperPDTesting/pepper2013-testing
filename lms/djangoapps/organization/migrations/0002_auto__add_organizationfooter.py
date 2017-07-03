@@ -8,26 +8,19 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'OrganizationFooter'
+        db.create_table('organization_footer', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('DataItem', self.gf('django.db.models.fields.TextField')()),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
+        ))
+        db.send_create_signal('organization', ['OrganizationFooter'])
 
-        # Changing field 'OrganizationDataitems.DataItem'
-        db.alter_column('organization_dataitems', 'DataItem', self.gf('django.db.models.fields.TextField')())
-
-        # Changing field 'OrganizationDashboard.itemValue'
-        db.alter_column('organization_dashboard', 'itemValue', self.gf('django.db.models.fields.TextField')())
-
-        # Changing field 'OrganizationMenu.itemValue'
-        db.alter_column('organization_menu', 'itemValue', self.gf('django.db.models.fields.TextField')())
 
     def backwards(self, orm):
+        # Deleting model 'OrganizationFooter'
+        db.delete_table('organization_footer')
 
-        # Changing field 'OrganizationDataitems.DataItem'
-        db.alter_column('organization_dataitems', 'DataItem', self.gf('django.db.models.fields.CharField')(max_length=255))
-
-        # Changing field 'OrganizationDashboard.itemValue'
-        db.alter_column('organization_dashboard', 'itemValue', self.gf('django.db.models.fields.CharField')(max_length=255))
-
-        # Changing field 'OrganizationMenu.itemValue'
-        db.alter_column('organization_menu', 'itemValue', self.gf('django.db.models.fields.CharField')(max_length=255))
 
     models = {
         'organization.mainpageconfiguration': {
@@ -63,7 +56,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'OrganizationDashboard', 'db_table': "'organization_dashboard'"},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'itemType': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'itemValue': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
+            'itemValue': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
         },
         'organization.organizationdataitems': {
@@ -79,11 +72,17 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
         },
+        'organization.organizationfooter': {
+            'DataItem': ('django.db.models.fields.TextField', [], {}),
+            'Meta': {'object_name': 'OrganizationFooter', 'db_table': "'organization_footer'"},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
+        },
         'organization.organizationmenu': {
             'Meta': {'object_name': 'OrganizationMenu', 'db_table': "'organization_menu'"},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'itemType': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'itemValue': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
+            'itemValue': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
         },
         'organization.organizationmenuitem': {
