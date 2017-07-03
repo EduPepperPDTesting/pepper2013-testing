@@ -196,7 +196,6 @@ def site_setting_store():
     options.update(settings.SITESETTINGSSTORE['OPTIONS'])
     return MongoSiteSettingsStore(**options)
 
-
 class PepRegTraining(models.Model):
     class Meta:
         db_table = 'pepreg_training'
@@ -210,7 +209,7 @@ class PepRegTraining(models.Model):
     training_time_start = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
     training_time_end = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
     geo_location = models.CharField(blank=False, max_length=255, db_index=False)
-    geo_props = models.TextField(blank=False, null=True)
+    geo_props = models.TextField(blank=False, null=True)    
     classroom = models.CharField(blank=False, max_length=255, db_index=False)
     credits = models.FloatField(blank=False, default=0)
     attendancel_id = models.CharField(blank=False, max_length=255, db_index=False)
@@ -226,7 +225,6 @@ class PepRegTraining(models.Model):
     last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
     school_id = models.IntegerField(blank=False, default=0)
 
-
 class PepRegInstructor(models.Model):
     class Meta:
         db_table = 'pepreg_instructor'
@@ -236,7 +234,7 @@ class PepRegInstructor(models.Model):
     date_create = models.DateField(auto_now_add=True, db_index=False)
     all_edit = models.BooleanField(blank=False, default=0)
     all_delete = models.BooleanField(blank=False, default=0)
-
+    
 
 class PepRegStudent(models.Model):
     class Meta:
@@ -249,7 +247,7 @@ class PepRegStudent(models.Model):
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
-
+    
 class UserLoginInfo(models.Model):
     class Meta:
         db_table = 'user_login_info'
@@ -263,7 +261,8 @@ class UserLoginInfo(models.Model):
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
     logout_press = models.BooleanField(blank=False, default=0)
     temp_time = models.CharField(max_length=30)
-    
+
+
 class PepRegTraining_Backup(models.Model):
     class Meta:
         db_table = 'pepreg_training_hist'
@@ -298,7 +297,7 @@ class PepRegTraining_Backup(models.Model):
 class PepRegInstructor_Backup(models.Model):
     class Meta:
         db_table = 'pepreg_instructor_hist'
-    training = models.ForeignKey(PepRegTraining)
+    training_id = models.IntegerField(blank=False,default=0)
     instructor = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
@@ -310,7 +309,7 @@ class PepRegInstructor_Backup(models.Model):
 class PepRegStudent_Backup(models.Model):
     class Meta:
         db_table = 'pepreg_student_hist'
-    training = models.ForeignKey(PepRegTraining)
+    training_id = models.IntegerField(blank=False,default=0)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
     student_credit = models.FloatField(blank=False, default=0)
