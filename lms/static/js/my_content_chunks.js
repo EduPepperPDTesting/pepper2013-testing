@@ -35,12 +35,13 @@ $(function () {
       var This=this;
       var content=$(".mychunks_content");
       var verticalID=$("#show_mychunks").attr("data-id");
+      var url_id = $("#show_mychunks").attr("url-id");
       if(mychunks_notes_status=="update")
       {
         if(content.text().length<=mychunks_maxCharNum)
         {
           $(this).hide();
-          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID})};
+          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID,'url':url_id})};
           $.post("/my_chunks/save_info",datainfo,function(data){
             mychunks_updateMaxCharNum();
             mychunks_notes_text=content.html();
@@ -307,7 +308,13 @@ function mychunks_content_createItem(data)
     $(window).scrollTop(0);
     mychunks_setNotesStatus("edit")
     var vertical_id=$(this).parent().attr("data-id");
+    var url_id = $(this).parent().prev().children().attr("href");
+    var course_title = $(this).parent().prev().children().attr("course_title");
+    var display_name = $(this).parent().prev().children().text();
     $("#show_mychunks").attr("data-id",vertical_id)
+    $("#show_mychunks").attr("url-id",url_id)
+    $("#course_title").attr("url-id",course_title)
+    $("#display_name").attr("url-id",display_name)
     var datainfo={'info':JSON.stringify({'vertical_id':vertical_id})};
     $.post("/my_chunks/get_info",datainfo,function(data){
       mychunks_focus=1;
@@ -495,7 +502,7 @@ function rate_init(element)
   $.fn.raty.defaults.path = '/static/js/vendor/raty/lib/img';
   element.find('.rateItem').raty({hints:['Poor','Fair','Average','Good','Great'],click: function(score, evt) {
       var This=this;
-      var datainfo={'info':JSON.stringify({'rate_name':$(this).attr('data-name'),'rate_value':score,'vertical_id':$(this).parent().parent().parent().parent().parent().attr('data-id')})};
+      var datainfo={'info':JSON.stringify({'url':$(this).parent().parent().parent().parent().parent().parent().parent().find(".chunk_title").attr("href"), 'rate_name':$(this).attr('data-name'),'rate_value':score,'vertical_id':$(this).parent().parent().parent().parent().parent().attr('data-id')})};
       $(this).parent().parent().parent().parent().find('.rateItem').raty('readOnly',true);
       $.post("/my_chunks/set_rate",datainfo,function(){
         $(This).parent().parent().parent().parent().find('.rateItem').raty('readOnly',false);
