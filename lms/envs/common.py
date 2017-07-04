@@ -543,7 +543,12 @@ MIDDLEWARE_CLASSES = (
 
     # catches any uncaught RateLimitExceptions and returns a 403 instead of a 500
     'ratelimitbackend.middleware.RateLimitMiddleware',
+    'django_force_logout.middleware.ForceLogoutMiddleware',
 )
+
+
+
+FORCE_LOGOUT_CALLBACK = lambda x: x.some_profile_model.force_logout
 
 ############################### Pipeline #######################################
 
