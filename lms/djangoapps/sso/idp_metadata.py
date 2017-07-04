@@ -7,7 +7,7 @@ import logging
 import os
 from os import path
 from courseware.courses import get_courses, get_course_about_section
-from .models import CourseAssignment, CourseAssignmentCourse
+# from .models import CourseAssignment, CourseAssignmentCourse
 from pepper_utilities.utils import render_json_response
 from permissions.decorators import user_has_perms
 from django_future.csrf import ensure_csrf_cookie
@@ -72,17 +72,17 @@ def save(request):
 
 def _get_course_assignment_data():
     data = []
-    assignments = CourseAssignment.objects.all()
-    courses = CourseAssignmentCourse.objects.all()
-    for assignment in assignments:
-        course_list = []
-        for course in courses.filter(assignment=assignment.id):
-            course_list.append(course.course)
-        data.append({'id': assignment.id,
-                     'type': assignment.sso_name,
-                     # 'param': assignment.param_name,
-                     # 'param_value': assignment.param_value,
-                     'courses': course_list})
+    # assignments = CourseAssignment.objects.all()
+    # courses = CourseAssignmentCourse.objects.all()
+    # for assignment in assignments:
+    #     course_list = []
+    #     for course in courses.filter(assignment=assignment.id):
+    #         course_list.append(course.course)
+    #     data.append({'id': assignment.id,
+    #                  'type': assignment.sso_name,
+    #                  # 'param': assignment.param_name,
+    #                  # 'param_value': assignment.param_value,
+    #                  'courses': course_list})
     return data
 
 
@@ -112,17 +112,18 @@ def course_assignment_list(request):
 @transaction.commit_manually
 def course_assignment_save(request):
     # ca_id = request.POST.get('ca_id', False)
-    courses = request.POST.getlist('courses', False)
-    sso_name = request.POST.get('sso_name', False)
+    # courses = request.POST.getlist('courses', False)
+    # sso_name = request.POST.get('sso_name', False)
     try:
-        ca = CourseAssignment()
-        ca.sso_name = sso_name
-        ca.save()
-        for course in courses:
-            cac = CourseAssignmentCourse()
-            cac.assignment = ca
-            cac.course = course
-            cac.save()
+        pass
+        # ca = CourseAssignment()
+        # ca.sso_name = sso_name
+        # ca.save()
+        # for course in courses:
+        #     cac = CourseAssignmentCourse()
+        #     cac.assignment = ca
+        #     cac.course = course
+        #     cac.save()
     except Exception as e:
         data = {'success': False, 'error': '{0}'.format(e)}
         transaction.rollback()

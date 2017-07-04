@@ -34,7 +34,7 @@ from student.models import District, School, State
 from django_future.csrf import ensure_csrf_cookie
 from django.core.validators import validate_email, validate_slug, ValidationError
 import random
-from .models import CourseAssignmentCourse
+# from .models import CourseAssignmentCourse
 
 
 # *Guess the xmlsec_path
@@ -536,12 +536,12 @@ class GenericSSO:
             self.update_user()
 
             courses = []
-            try:
-                cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user_profile.sso_idp)
-                for course in cas:
-                    courses.append(course.course)
-            except:
-                pass
+            # try:
+            #     cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user_profile.sso_idp)
+            #     for course in cas:
+            #         courses.append(course.course)
+            # except:
+            #     pass
             for course in courses:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=course, email=email)
                 cea.is_active = True
