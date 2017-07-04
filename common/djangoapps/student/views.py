@@ -80,6 +80,7 @@ from reporting.models import reporting_store
 
 from administration.models import UserLoginInfo
 from datetime import timedelta
+from sso import idp
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -998,6 +999,7 @@ def login_user(request, error=""):
                 request.session.set_expiry(0)
 
             user.profile.force_logout = None
+            user.profile.save()
         except Exception as e:
             AUDIT_LOG.critical("Login failed - Could not create session. Is memcached running?")
             log.critical("Login failed - Could not create session. Is memcached running?")
@@ -1072,19 +1074,13 @@ def logout_user(request):
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
 
-
-    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
-        if not idp.logout(request):
-            return HttpResponse("")
-        
-
     slo_email = request.GET.get('email')
     if slo_email:
         user = User.objects.get(email=slo_email)
         user.profile.force_logout = datetime.datetime.utcnow()
         user.profile.save()
         return HttpResponse("")
-
+    
     if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
         if not idp.logout(request):
             return HttpResponse("")

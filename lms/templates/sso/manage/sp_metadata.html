@@ -60,11 +60,15 @@ from django.core.urlresolvers import reverse
       </div>
 
       <div class="row">
+        <span class="">Single Logout URL</span>
+        <input type="" name="sso_slo_url" value="" style="width:500px;"/>
+      </div>
+      
+      <div class="row">
         <span class="">test</span>
        <input type="button" value="Auth" class="small"
                onclick="window.open('/sso/idp/auth/?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
       </div>
-      
       
       <div class="row">
         <span class="">Federation Metadata</span>
