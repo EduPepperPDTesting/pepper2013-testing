@@ -546,9 +546,7 @@ MIDDLEWARE_CLASSES = (
     'django_force_logout.middleware.ForceLogoutMiddleware',
 )
 
-
-
-FORCE_LOGOUT_CALLBACK = lambda x: x.some_profile_model.force_logout
+FORCE_LOGOUT_CALLBACK = lambda x: x.profile.force_logout
 
 ############################### Pipeline #######################################
 
