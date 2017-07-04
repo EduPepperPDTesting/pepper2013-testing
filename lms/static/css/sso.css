@@ -49,6 +49,10 @@
     width: 190px;
 }
 
+#form1 div.row input[type=button] {
+    width: auto;
+}
+
 #form1 div.row textarea {
     width: 610px;
     height: 200px;

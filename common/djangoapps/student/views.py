@@ -92,6 +92,7 @@ from organization.models import OrganizationMetadata, OrganizationDistricts, Org
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
+from sso import idp
 
 
 log = logging.getLogger("mitx.student")
@@ -921,7 +922,8 @@ def login_user(request, error=""):
                                     'value': not_activated_msg}),
                         content_type="application/json")
 
-@ensure_csrf_cookie
+
+# @ensure_csrf_cookie
 def logout_user(request):
     """
     HTTP request to log out the user. Redirects to marketing page.
@@ -931,8 +933,16 @@ def logout_user(request):
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
 
+    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
+        if not idp.logout(request):
+            return HttpResponse("")
+        
     #@begin:record user logout time
     #@date:2016-08-22
+    slo_email = request.GET.get('email')
+    if slo_email:
+        request.user = User.objects.get(email=slo_email)
+    
     user_id = request.user.id
     utctime = datetime.datetime.utcnow()
     utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')

@@ -11,8 +11,6 @@ from path import path
 from permissions.decorators import user_has_perms
 
 BASEDIR = settings.PROJECT_HOME + "/sso/sp"
-PEPPER_ENTITY_ID = "www.pepperpd.com"
-
 
 @user_has_perms('sso', 'administer')
 def edit(request):
@@ -77,16 +75,7 @@ def save(request):
 
 @user_has_perms('sso', 'administer')
 def all_json(request):
-    xmlfile = open(BASEDIR + "/metadata.xml", "r")
-    parsed_data = xmltodict.parse(xmlfile.read(),
-                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
-    entity_list = []
-
-    if 'entity' in parsed_data['entities'][0]:
-        for entity in parsed_data['entities'][0]['entity']:
-            entity_list.append(parse_one_sp(entity))
-
-    return HttpResponse(json.dumps(entity_list), content_type="application/json")
+    return HttpResponse(json.dumps(get_all_sp()), content_type="application/json")
 
 
 def sp_by_name(name):
@@ -98,6 +87,18 @@ def sp_by_name(name):
         for entity in parsed_data['entities'][0]['entity']:
             if entity['@name'] == name:
                 return parse_one_sp(entity)
+
+
+def get_all_sp():
+    xmlfile = open(BASEDIR + "/metadata.xml", "r")
+    parsed_data = xmltodict.parse(xmlfile.read(),
+                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    entity_list = []
+
+    if 'entity' in parsed_data['entities'][0]:
+        for entity in parsed_data['entities'][0]['entity']:
+            entity_list.append(parse_one_sp(entity))
+    return entity_list
 
 
 def parse_one_sp(entity):
@@ -201,7 +202,7 @@ def create_saml_config_files(name):
     open(f, "wt").write(content)
 
     template = open(temp_dir + "/metadata_templates/idp.xml", "r").read()
-    content = template.format(cert=cert, entityID=PEPPER_ENTITY_ID, auth=auth)
+    content = template.format(cert=cert, entityID=settings.SAML_ENTITY_ID, auth=auth)
     f = BASEDIR + '/' + name + "/idp.xml"
     open(f, "wt").write(content)
 
