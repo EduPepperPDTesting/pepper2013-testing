@@ -1072,6 +1072,13 @@ def logout_user(request):
     
     #@begin:record user logout time
     #@date:2016-08-22
+
+    slo_email = request.GET.get('email')
+    if slo_email:
+        user = User.objects.get(email=slo_email)
+        user.some_profile_model.force_logout = datetime.datetime.utcnow()
+        user.some_profile_model.save()
+
     user_id = request.user.id
     utctime = datetime.datetime.utcnow()
     utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
