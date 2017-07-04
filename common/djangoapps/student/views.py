@@ -996,6 +996,8 @@ def login_user(request, error=""):
                 log.debug("Setting user session to never expire")
             else:
                 request.session.set_expiry(0)
+
+            user.profile.force_logout = None
         except Exception as e:
             AUDIT_LOG.critical("Login failed - Could not create session. Is memcached running?")
             log.critical("Login failed - Could not create session. Is memcached running?")
@@ -1069,17 +1071,26 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
-    
-    #@begin:record user logout time
-    #@date:2016-08-22
+
+
+    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
+        if not idp.logout(request):
+            return HttpResponse("")
+        
 
     slo_email = request.GET.get('email')
     if slo_email:
         user = User.objects.get(email=slo_email)
         user.profile.force_logout = datetime.datetime.utcnow()
         user.profile.save()
-        return
+        return HttpResponse("")
 
+    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
+        if not idp.logout(request):
+            return HttpResponse("")
+        
+    #@begin:record user logout time
+    #@date:2016-08-22
     user_id = request.user.id
     utctime = datetime.datetime.utcnow()
     utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')

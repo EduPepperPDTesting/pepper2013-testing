@@ -546,7 +546,16 @@ MIDDLEWARE_CLASSES = (
     'django_force_logout.middleware.ForceLogoutMiddleware',
 )
 
-FORCE_LOGOUT_CALLBACK = lambda x: x.profile.force_logout
+
+def get_force_logout_time(user):
+    t = user.profile.force_logout
+    user.profile.force_logout = None
+    user.profile.save()
+    if t:
+        return t.replace(tzinfo=None)
+
+
+FORCE_LOGOUT_CALLBACK = get_force_logout_time
 
 ############################### Pipeline #######################################
 
