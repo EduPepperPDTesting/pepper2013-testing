@@ -549,8 +549,11 @@ MIDDLEWARE_CLASSES = (
 
 def get_force_logout_time(user):
     t = user.profile.force_logout
+
+    # todo: may not needed
     user.profile.force_logout = None
     user.profile.save()
+
     if t:
         return t.replace(tzinfo=None)
 

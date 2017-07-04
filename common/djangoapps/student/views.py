@@ -860,6 +860,7 @@ def login_user(request, error=""):
                 request.session.set_expiry(0)
 
             user.profile.force_logout = None
+            user.profile.save()
         except Exception as e:
             AUDIT_LOG.critical("Login failed - Could not create session. Is memcached running?")
             log.critical("Login failed - Could not create session. Is memcached running?")
