@@ -850,6 +850,7 @@ def import_school_progress(request):
 
 def validate_school_cvs_line(line, district):
     name = line[SCHOOL_CSV_COLS.index('name')]
+    id = line[SCHOOL_CSV_COLS.index('id')]
     n = 0
     for item in line:
         if len(item.strip()):
@@ -858,6 +859,8 @@ def validate_school_cvs_line(line, district):
         raise Exception("Wrong column count")
     if len(School.objects.filter(name=name, district=district)) > 0:
         raise Exception("A school named '{name}' already exists in the district".format(name=name))
+    if len(School.objects.filter(code=id)) > 0:
+        raise Exception("A school with code '{code}' already exists.")
 
 
 @postpone
@@ -928,6 +931,10 @@ def single_school_submit(request):
     if not request.user.is_authenticated:
         raise Http404
     try:
+        if len(School.objects.filter(name=request.POST['name'], district__id=request.POST['district_id'])) > 0:
+            raise Exception("A school named '{name}' already exists in the district".format(name=name))
+        if len(School.objects.filter(code=request.POST['id'])) > 0:
+            raise Exception("A school with code '{request.POST[\'id\']}' already exists.")
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']

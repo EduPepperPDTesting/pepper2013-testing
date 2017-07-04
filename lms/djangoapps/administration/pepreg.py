@@ -665,7 +665,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
-                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ( (status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
+                #raise Exception("arrive-"+arrive+" allow-"+allow+" r_l-"+r_l+" status-"+status+" full-"+str(arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))))
+                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
                     print_row[i].append(item.name)
@@ -678,12 +679,12 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     if(i < array_length - 1):
                         i += 1
                         print_row.append([])
-
+    #raise Exception(str(print_row))
     if(print_row):
+        #raise Exception(str(print_row))
         n = 0
         table_tr_content = ""
-        while(n < i):
-
+        while(n < i + 1):
             row_height = "30"
             ti_text_span = str(print_row[n][1])
             tg_text_span = str(print_row[n][5])
@@ -1367,6 +1368,56 @@ def download_calendar_pdf(request):
     c.drawImage(logo, 330, 750, 200, 73);
 
     c.setFont("Helvetica", 20)
+
+    try:
+        dist_name = None if request.user.profile.district.name is None else request.user.profile.district.name
+    except:
+        raise Exception("couldn't load dist")
+
+    if (dist_name and dist_name != ''):
+        try:
+            dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+            c.drawImage(dist_logo, 30, 750, 200, 73)
+        except:
+            try:
+                dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                c.drawImage(dist_logo, 30, 750, 200, 73)
+            except:
+                # c.drawString(30, 750, str(dist_name))
+                # --- to split if long string
+
+                string_distname_length = stringWidth(dist_name, "Helvetica", 20)
+                if (dist_name and string_distname_length > 260):
+                    num_string = (string_distname_length / 260) + 1  # number of lines to draw
+
+                    dist_name_length = round((int(len(str(dist_name)) / num_string)), 0)
+                    while 1:  # get first line size
+                        string_distname_length = stringWidth(dist_name[0: int(dist_name_length)], "Helvetica", 20)
+                        if (string_distname_length >= 260):
+                            break
+                        else:
+                            dist_name_length += 1  # add to end index to increase line size
+
+                    num = 1
+                    start_index = 0
+                    end_draw = 0
+                    while (num < num_string):
+                        if (len(str(dist_name)) > int(dist_name_length)):
+                            end_index = str(dist_name[int(start_index): int(dist_name_length)]).rfind(" ")
+                            end_index = end_index + start_index if end_index > 0 else dist_name_length - 1
+                            c.drawString(30, 860 - ((30 * num) + 30),
+                                         str(dist_name[int(start_index): int(end_index)]).encode('utf-8'))
+                            start_index = end_index + 1
+                            dist_name_length = start_index + dist_name_length
+                        elif (end_draw == 0):
+                            c.drawString(30, 860 - ((30 * num) + 30), str(dist_name[int(start_index):]).encode('utf-8'))
+                            end_draw = 1
+                        num += 1
+                elif (len(dist_name) > 0):
+                    c.drawString(30, 830, str(dist_name))
+
+
+
     c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
     styleSheet = getSampleStyleSheet()
@@ -1414,24 +1465,6 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
-
-                # try:
-                #     district = District.objects.get(id=training.district)
-                #     district = District.objects.get(id=training.district.id)
-                #     dist_name = district.name
-                #     dist_name = training.district.name
-                #     console.log("name "+str(dist_name))
-                #     try:
-                #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #         c.drawImage(dist_logo, 30, 750, 200, 73)
-                #     except:
-                #         try:
-                #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #             c.drawImage(dist_logo, 30, 750, 200, 73)
-                #         except:
-                #             console.log('no logo')
-                # except:
-                #     console.log("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description
