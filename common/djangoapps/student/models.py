@@ -276,6 +276,8 @@ class UserProfile(models.Model):
 
     last_activity = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
 
+    force_logout = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
+
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
     # ('p_se', 'Doctorate in science or engineering'),
