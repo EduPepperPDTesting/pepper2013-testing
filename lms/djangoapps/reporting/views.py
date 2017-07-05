@@ -21,7 +21,7 @@ import gevent
 from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
-from school_year import report_has_school_year, get_school_year_item, get_query_school_year
+from school_year import report_has_school_year, get_school_year_item, get_query_school_year, get_all_query_school_year
 from xmodule.remindstore import myactivitystore
 import logging
 log = logging.getLogger("tracking")
@@ -688,6 +688,7 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
+    # aggregate_allquery = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('\n', '').replace('\r', ''))
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
@@ -1346,7 +1347,7 @@ def get_column_headers(request):
                 elif row_header_type == 'date':
                     row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
                 else:
-                    row['row_header'] = d['_id'][row_header]
+                    row['row_header'] = str(d['_id'][row_header])
                 for index,column in enumerate(column_header_row):
                     if column == None:
                         column = 'none'
