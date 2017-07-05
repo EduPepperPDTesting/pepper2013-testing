@@ -971,7 +971,7 @@ def logout_user(request):
         logout(request)
         slo = idp.get_first_sp_logout_url()
         if slo:
-            return redirect(slo)
+            return HttpResponseRedirect(slo)
     else:
         logout(request)
     
