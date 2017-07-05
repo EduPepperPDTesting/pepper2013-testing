@@ -1074,16 +1074,16 @@ def logout_user(request):
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
 
-    slo_email = request.GET.get('email')
-    if slo_email:
-        user = User.objects.get(email=slo_email)
-        user.profile.force_logout = datetime.datetime.utcnow()
-        user.profile.save()
-        return HttpResponse("")
+    # slo_email = request.GET.get('email')
+    # if slo_email:
+    #     user = User.objects.get(email=slo_email)
+    #     user.profile.force_logout = datetime.datetime.utcnow()
+    #     user.profile.save()
+    #     return HttpResponse("")
     
-    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
-        if not idp.logout(request):
-            return HttpResponse("")
+    # if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
+    #     if not idp.logout(request):
+    #         return HttpResponse("")
         
     #@begin:record user logout time
     #@date:2016-08-22
@@ -1102,10 +1102,18 @@ def logout_user(request):
         time_diff_seconds = time_diff.seconds
         user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
         user_log_info[0].logout_press = 1
-        user_log_info[0].save()       
+        user_log_info[0].save()
     #@end
 
-    logout(request)
+    
+    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
+        logout(request)
+        slo = idp.get_first_sp_logout_url()
+        if slo:
+            return redirect(slo)
+    else:
+        logout(request)
+
     if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
         target = reverse('cas-logout')
     else:
