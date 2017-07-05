@@ -1013,7 +1013,7 @@ AggregationConfig["AggregateGradesView"]["allfieldquery"]='''{
             }
         }
     }, {
-        '$out': 'AggregateGradesView_all_field_{school_year}'
+        '$out': 'AggregateGradesView_all_field_{year}'
         }
 '''
 #aggregatetimer for all field-------------------------------------------------------------------------------------------
@@ -1033,7 +1033,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                     'input': '$user_view',
                     'as': 'item',
                     'in': {
-                        '$cond': [{'$eq': ['$$item.school_year', '{school_year}']}, '$$item.course_time', 0]
+                        '$cond': {school_year}
                     }
                 }
             }
@@ -1044,8 +1044,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                     'input': '$user_view',
                     'as': 'item',
                     'in': {
-                        '$cond': [{'$eq': ['$$item.school_year', '{school_year}']
-                    }, '$$item.pd_time', 0]
+                        '$cond': {school_year}
                     }
                 }
             }
@@ -1056,8 +1055,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                     'input': '$user_view',
                     'as': 'item',
                     'in': {
-                        '$cond': [{'$eq': ['$$item.school_year', '{school_year}']
-                    },
+                        '$cond': [{'$eq': {school_year}},
                     '$$item.portfolio_time', 0]
                 }
             }
@@ -1069,7 +1067,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                 'input': '$user_view',
                 'as': 'item',
                 'in': {
-                    '$cond': [{'$eq': ['$$item.school_year', '{school_year}']},'$$item.external_time', 0]
+                    '$cond': [{'$eq': {school_year}},'$$item.external_time', 0]
                     }
                 }
             }
@@ -1080,7 +1078,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                 'input': '$user_view',
                 'as': 'item',
                 'in': {
-                    '$cond': [{'$eq': ['$$item.school_year', '{school_year}']}, '$$item.discussion_time', 0]
+                    '$cond': [{'$eq': {school_year}}, '$$item.discussion_time', 0]
                     }
                 }
             }
@@ -1151,7 +1149,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
             }
         },
      {
-        '$out': 'AggregateTimerView_all_field_{school_year}'
+        '$out': 'AggregateTimerView_all_field_{year}'
     }
 '''
 #course for all field-------------------------------------------------------------------------------------------
@@ -1214,7 +1212,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'as': 'item',
                                 'in': {
                                     '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                     {'$eq': ['$$item.school_year', '{school_year}']}]}, '$$item.external_time', 0]}
+                                     {'$eq': {school_year}}]}, '$$item.external_time', 0]}
                                     }
                                 }
                             },
@@ -1226,7 +1224,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'as': 'item',
                                 'in': {
                                     '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                    {'$eq': ['$$item.school_year', '{school_year}']}]},'$$item.discussion_time', 0]
+                                    {'$eq': {school_year}}]},'$$item.discussion_time', 0]
                                 }
                             }
                         }
@@ -1239,7 +1237,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'as': 'item',
                                 'in': {
                                     '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                    {'$eq': ['$$item.school_year', '{school_year}']}]},
+                                    {'$eq': {school_year}}]},
                                     '$$item.course_time', 0]
                                 }
                             }
@@ -1252,7 +1250,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'input': '$user_course_view',
                                 'as': 'item',
                                 'in': {'$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                {'$eq': ['$$item.school_year', '{school_year}']}]},
+                                {'$eq': {school_year}}]},
                                 '$$item.portfolio_time', 0]
                                 }
                             }
@@ -1400,7 +1398,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'start_date': {'$arrayElemAt': ['$start_date', 0]}
                             }
                         }, {
-                            '$out': 'CourseView_all_field_{school_year}'
+                            '$out': 'CourseView_all_field_{year}'
                             }
 '''
 #course assignments for all field-------------------------------------------------------------------------------------------
@@ -1470,13 +1468,11 @@ AggregationConfig["CourseAssignmentsView"]["allfiledquery"] = '''{
         'display_name': {'$arrayElemAt': ['$display_name', 0]}
     }
 }, {
-    '$out': 'CourseAssignmentsView_all_field_{school_year}'
+    '$out': 'CourseAssignmentsView_all_field_{year}'
     }
 '''
 #pd planner for all field-------------------------------------------------------------------------------------------
-AggregationConfig["PDPlannerView"]["allfiledquery"] = '''{
-    '$match': {'school_year': '{school_year}'}
-}, {
+AggregationConfig["PDPlannerView"]["allfiledquery"] = '''{school_year}{
     '$lookup': {
         'foreignField': 'key',
         'as': 'pegreg_student',
@@ -1654,13 +1650,11 @@ AggregationConfig["PDPlannerView"]["allfiledquery"] = '''{
         'training_id': {'$arrayElemAt': ['$training_id', 0]}
     }
 }, {
-    '$out': 'PDPlannerView_all_filed_{school_year}'
+    '$out': 'PDPlannerView_all_filed_{year}'
     }
 '''
 #user for all field-------------------------------------------------------------------------------------------
-AggregationConfig["UserView"]["allfiledquery"] = '''{
-    '$match': {'school_year': '{school_year}'}
-}, {
+AggregationConfig["UserView"]["allfiledquery"] = '''{school_year}{
     '$group': {
         'total_time': {'$sum': '$total_time'},
         'first_name': {'$last': '$first_name'},
@@ -1790,13 +1784,11 @@ AggregationConfig["UserView"]["allfiledquery"] = '''{
         }
     }
 }, {
-    '$out': 'CourseAssignmentsView_all_field_{school_year}'
+    '$out': 'CourseAssignmentsView_all_field_{year}'
     }
 '''
 #usercourse for all field-------------------------------------------------------------------------------------------
-AggregationConfig["UserCourseView"]["allfiledquery"] = '''{
-    '$match': {'school_year': '{school_year}'}
-}, {
+AggregationConfig["UserCourseView"]["allfiledquery"] = '''{school_year}{
     '$group': {
         'last_name': {'$last': '$last_name'},
         'external_time': {'$sum': '$external_time'},
@@ -1968,6 +1960,6 @@ AggregationConfig["UserCourseView"]["allfiledquery"] = '''{
         'organization': {'$arrayElemAt': ['$organization', 0]}
     }
 }, {
-    '$out': 'UserCourseView_all_field_{school_year}'
+    '$out': 'UserCourseView_all_field_{year}'
     }
 '''
