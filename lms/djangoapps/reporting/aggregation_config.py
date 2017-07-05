@@ -21,7 +21,7 @@ AggregationConfig = {
     },
     "AggregateGradesView": {
         "collection": "student_courseenrollment"
-    },
+    },""
     "AggregateTimerView": {
         "collection": "user_info"
     },
@@ -849,3 +849,171 @@ get_create_row_headers = '''
     }
 '''
 
+#aggregategrades for all field-------------------------------------------------------------------------------------------
+AggregationConfig["AggregateGradesView"]["all_field"]["query"]='''
+    {
+        '$match': {
+            'is_active': 1
+        }
+    },
+    {
+        '$lookup': {
+            'foreignField': 'user_id',
+            'as': 'user_info',
+            'from': 'user_info',
+            'localField': 'user_id'
+        }
+    }, {
+        '$project': {
+        'school_id': '$user_info.school_id',
+        'state': {'$arrayElemAt': ['$user_info.state', 0]},
+        'user_id': 1,
+        'school': {'$arrayElemAt': ['$user_info.school', 0]},
+        'district': {'$arrayElemAt': ['$user_info.district', 0]},
+        'course_id': 1,
+        'state_id': '$user_info.state_id',
+        'user_name': {'$arrayElemAt': ['$user_info.username', 0]},
+        'email': {'$arrayElemAt': ['$user_info.email', 0]},
+        'district_id': '$user_info.district_id'
+        }
+    }, {
+        '$lookup': {
+            'foreignField': 'q_course_id',
+            'as': 'question_info',
+            'from': 'modulestore', 
+            'localField': 'course_id'
+        }
+    }, {
+        '$unwind': '$question_info'
+    }, {
+        '$project': {
+            'school': 1,
+            'user_id': 1,
+            'district': 1,
+            'course_run': '$question_info._id.org',
+            'end': '$question_info.end_date',
+            'module_id': '$question_info.module_id',
+            'sequential_name': '$question_info.sequential_name',
+            'start': '$question_info.start_date',
+            'state': 1,
+            'vertical_num': '$question_info.vertical_num',
+            'course_number': '$question_info.course_number',
+            'organization': '$question_info.organization',
+            'course_id': '$question_info.q_course_id',
+            'course_name': '$question_info.course_name',
+            '_id': 0,
+            'user_name': 1,
+            'email': 1,
+            'display_name': '$question_info.metadata.display_name'
+        }
+    }, {
+        '$lookup': {
+            'foreignField': 'module_id',
+            'as': 'problem_point',
+            'from': 'problem_point',
+            'localField': 'module_id'
+        }
+    }, {
+        '$project': {
+            'point': {
+                '$sum': {
+                    '$map': {
+                        'input': '$problem_point',
+                        'as': 'item',
+                        'in': {
+                            '$cond': [{'$eq': ['$$item.user_id', '$user_id']}, '$$item.point', 0]}
+                            }
+                        }
+                    },
+            'vertical_num': 1,
+            'end': 1,
+            'display_name': 1,
+            'school': 1,
+            'course_name': 1,
+            'district': 1,
+            'course_run': 1,
+            'sequential_name': 1,
+            'start': 1,
+            'state': 1,
+            'course_number': 1,
+            'organization': 1,
+            'user_name': 1,
+            'email': 1
+        }
+    }, {
+        '$project': {
+            'point': 1,
+            'vertical_num': 1,
+            'course_name': 1,
+            'display_name': 1,
+            'school': 1,
+            'end': 1,
+            'district': 1,
+            'course_run': 1,
+            'sequential_name': 1,
+            'start': 1,
+            'state': 1,
+            'course_number': 1,
+            'organization': 1,
+            'user_name': 1,
+            'email': 1
+        }
+    }, {
+        '$group': {
+            'school': {'$push': '$school'},
+            'course_name': {'$push': '$course_name'},
+            'district': {'$push': '$district'},
+            'course_run': {'$push': '$course_run'},
+            'point': {'$push': '$point'},
+            'state': {'$push': '$state'},
+            'end': {'$push': '$end'},
+            'start': {'$push': '$start'},
+            'sequential_name': {'$push': '$sequential_name'},
+            'vertical_num': {'$push': '$vertical_num'},
+            'course_number': {'$push': '$course_number'},
+            'organization': {'$push': '$organization'},
+            '_id': {
+                'point': '$point',
+                'vertical_num': '$vertical_num',
+                'end': '$end',
+                'display_name': '$display_name',
+                'school': '$school',
+                'course_name': '$course_name',
+                'district': '$district',
+                'course_run': '$course_run',
+                'sequential_name': '$sequential_name',
+                'start': '$start',
+                'state': '$state',
+                'course_number': '$course_number',
+                'organization': '$organization',
+                'user_name': '$user_name',
+                'email': '$email'
+                },
+            'user_name': {'$push': '$user_name'},
+            'email': {'$push': '$email'},
+            'display_name': {'$push': '$display_name'
+            }
+        }
+    }, {
+        '$project': {
+            'point': {'$arrayElemAt': ['$point', 0]},
+            'vertical_num': {'$arrayElemAt': ['$vertical_num', 0]},
+            'course_name': {'$arrayElemAt': ['$course_name', 0]},
+            'display_name': {'$arrayElemAt': ['$display_name', 0]},
+            'school': {'$arrayElemAt': ['$school', 0]},
+            'end': {'$arrayElemAt': ['$end', 0]},
+            'district': {'$arrayElemAt': ['$district', 0]},
+            'course_run': {'$arrayElemAt': ['$course_run', 0]},
+            'sequential_name': {'$arrayElemAt': ['$sequential_name', 0]},
+            'start': {'$arrayElemAt': ['$start', 0]},
+            'state': {'$arrayElemAt': ['$state', 0]},
+            'course_number': {'$arrayElemAt': ['$course_number', 0]},
+            'organization': {'$arrayElemAt': ['$organization', 0]},
+            'user_name': {'$arrayElemAt': ['$user_name', 0]},
+            'email': {'$arrayElemAt': ['$email', 0]
+            }
+        }
+    }, {
+        '$out': 'AggregateGradesView_all_field'
+        }
+'''
