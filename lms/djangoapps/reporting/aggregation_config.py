@@ -1398,7 +1398,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
 '''
 #course assignments for all field-------------------------------------------------------------------------------------------
 AggregationConfig["CourseAssignmentsView"]["allfieldquery"] = '''{
-    '$match': {'q_course_id': {'$exists': true}
+    '$match': {'q_course_id': {'$exists': True}
     }
 }, {
     '$project': {
@@ -1477,7 +1477,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
 }, {
     '$unwind': {
         'path': '$pegreg_student', 
-        'preserveNullAndEmptyArrays': true
+        'preserveNullAndEmptyArrays': True
     }
 }, {
     '$lookup': {
