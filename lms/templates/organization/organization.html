@@ -16,10 +16,14 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
+<script type="text/javascript" src="/static/js/certificate-editor.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/configuration.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
 <link rel="stylesheet" href="/static/css/permissions.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/configuration.css" type="text/css" media="screen"/>
 
 <style>
 	div.expand_title_expanded .icon {background: url("/static/images/arrows.png")no-repeat 0 -23px !important;}
@@ -118,6 +122,8 @@
 	.btn_grade_level {-moz-font-feature-settings: normal; -moz-font-language-override: normal; background-color: #FFDBB8; background-image: -moz-linear-gradient(center top , #EAEAEA, #FFFFFF 99%); border-radius: 17px 17px 17px 17px; box-shadow: 0 1px #BFBFBF, 0 1px 2px rgba(44, 44, 44, 0.31) inset; color: #666666 !important; float: left; font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif; font-size: 10px !important; font-size-adjust: none; font-stretch: normal; font-style: normal; font-variant: normal; font-weight: bold !important; height: 30px; line-height: 30px !important; text-align: center; text-decoration: none; width: 31px; margin-right:5px;}
 	.btn_grade_level:hover {background: none repeat scroll 0 0 #FF9933; color: #FFFFFF !important; text-shadow: 0 1px #884A0C;}
 	.btn_grade_level_active {-moz-font-feature-settings: normal; -moz-font-language-override: normal;background: none repeat scroll 0 0 #FF9933;border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;color: #FFFFFF !important;float: left;font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;font-size: 10px;font-size-adjust: none;font-stretch: normal;font-style: normal;font-variant: normal;font-weight: bold !important;height: 30px;line-height: 30px !important;text-align: center;text-decoration: none;text-shadow: 0 1px #884A0C;	width: 31px;}
+	
+	#dialog .content input{display:inline !important;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -645,6 +651,36 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td colspan="3" class="org_td1" style="padding-top:10px;">
+                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(0)" value="0" />Default Footer</label>
+                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(1)" value="1" />Modified Footer</label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="org_td1">
+                	<div class="certificate_editor_div"> 
+                        <div class="certificate_editor_frame">
+                            <div class="certificate_tabs_div">
+                                <ol class="certificate_tabs">
+                                    <li>
+                                        <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+                                    </li>
+                                    <li>
+                                        <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="editor_view">
+                                <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
+                            </div>
+                            <div class="preview_view" style="display: none;">
+                                <iframe class = "preview-frame" id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         </table>
       	<div style="width:100%; text-align:right; height:30px;">
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
@@ -679,6 +715,52 @@
 	var org_current_menu_items = "";
 	var maximum_items = 9;
 	var maximum_sub_items = 20;
+	
+	//-----------------------------------------------------------------------CertificateEditor
+	if (typeof CKEDITOR != 'undefined') {
+        CKEDITOR.replaceAll(function (textarea, config) {
+            if (textarea.className == 'certificate_editor') {
+                // Add token plugin
+                config.extraPlugins = 'token,print';
+                config.removePlugins = 'maximize';
+                config.width = '100%';
+                config.height = 500;
+                // Configure available tokens
+                config.availableTokens = [
+                    ["", ""],
+                    ["firstname", "firstname"],
+                    ["lastname", "lastname"],
+                    ["coursename", "coursename"],
+                    ["coursenumber", "coursenumber"],
+                    ["date", "date"],
+                    ["hours", "hours"]
+                ];
+                config.tokenStart = '{';
+                config.tokenEnd = '}';
+                config.allowedContent = true;
+                return true;
+            }
+            return false;
+        });
+        CKEDITOR.on( 'dialogDefinition', function( ev ) {
+            var dialogName = ev.data.name;
+            var dialogDefinition = ev.data.definition;
+            if ( dialogName == 'link' ) {
+                var targetTab = dialogDefinition.getContents( 'target' );
+                var targetField = targetTab.get( 'linkTargetType' );
+                targetField[ 'default' ] = '_blank';
+            }
+        });
+    }
+	
+	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);	
+    function addNewCertificate(flag) {
+		if(flag == 1){
+			$(".certificate_editor_div").show();			
+		}else{
+			$(".certificate_editor_div").hide();
+		}
+    }
 	
 	//-----------------------------------------------------------------------organization_district__school_list
 	var organization_district_list = new Array();
@@ -1036,8 +1118,19 @@
 									if(r["Menu Color"]){
 										$("#organizational_menu_color").val(r["Menu Color"]);
 									}
-									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");
-
+									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");									
+									
+									//----------
+									if(r["Footer Selected"] == "1"){
+										$("input[name='organizational_dashboard_footer'][value='1']").attr("checked", "checked");
+										addNewCertificate(1);
+									}else{
+										$("input[name='organizational_dashboard_footer'][value='0']").attr("checked", "checked");
+										addNewCertificate(0);
+									}
+									ceditor.CKEDITOR.setData(r["Footer Content"]);
+									
+									//----------
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										
 									}else{
@@ -1835,6 +1928,29 @@
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
 		
+		//--------------------------editor_view_btn preview_view_btn
+		$('.editor_view_btn').click(function(){
+			ceditor.switchView("Editor");
+			$(this).addClass("active");
+			$('.preview_view_btn').removeClass('active');
+			$('.preview_view').hide();
+			$('.editor_view').show();
+		});
+		$('.preview_view_btn').click(function(){
+			ceditor.switchView('Preview');
+			$(this).addClass('active');
+			$('.editor_view_btn').removeClass('active');
+			$('.preview_view').show();
+			$('.editor_view').hide();
+			var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
+			$("#certificate_preview").contents().find("#content").html(data);
+			var frame = document.getElementById('certificate_preview');
+			if(frame) {
+				frame.height = "";
+				frame.height = frame.contentWindow.document.body.scrollHeight + "px";
+			}
+		});
+		
 		//--------------------------organization-table2_all
 		$("#organization-table2_all").change(function(){
 			var checked = false;
@@ -2365,7 +2481,9 @@
 			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
 			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
 			var logo_url = $("#organizational_base_logo_url").val();
-						
+			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
+			var footer_content = ceditor.CKEDITOR.getData(); 
+			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
 				for_district: for_district,
@@ -2408,6 +2526,8 @@
 				org_profile_logo_url: org_profile_logo_url,
 				org_profile_logo_curr_url: org_profile_logo_curr_url,
 				logo_url: logo_url,
+				footer_flag: footer_flag,
+				footer_content: footer_content,
 				menu_color: menu_color
 			}, function (r) {
 				if (r.Success){
