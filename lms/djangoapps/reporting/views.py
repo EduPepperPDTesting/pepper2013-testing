@@ -1660,20 +1660,26 @@ def reporting_get_aggregate(request):
 
     return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})
 
-def get_all_query_collection(request,selected_view,school_year=''):
+def get_all_query_collection(selected_view,school_year=''):
     return  str(selected_view)+'_all_field_'+str(school_year)
+
+def get_new_collection(collection,request,report):
+    return str(request.user.id) + '_' + str(report.id) + '_' +collection
 
 def get_matrix_header(request):
     report_id = request.GET['report_id']
+    report = Reports.objects.get(id=int(report_id))
     school_year = request.GET.get('school_year', '')
     selected_view = ReportViews.objects.filter(report=report)[0]
-    collection = get_all_query_collection(selected_view.view.collection,school_year)
-    collection_column_header = collection_column_headers(collection)
-    collection_row_header = collection_row_headers(collection)
+    collection = get_all_query_collection(selected_view.view.collection,school_year) 
+    new_collection = get_new_collection(collection,request,report)
 
-    report = Reports.objects.get(id=int(report_id))
+    collection = get_cache_collection(request, report_id, school_year)
+    collection_column_header = collection_column_headers(new_collection)
+    collection_row_header = collection_row_headers(new_collection)
+
     rs = reporting_store()
-    create_column_Headers(report,collection)
+    create_column_Headers(report,new_collection)
 
     column_data = rs.get_datas(collection_column_header)
     column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
