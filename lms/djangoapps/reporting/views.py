@@ -1666,6 +1666,21 @@ def get_all_query_collection(selected_view,school_year=''):
 def get_new_collection(collection,request,report):
     return str(request.user.id) + '_' + str(report.id) + '_' +collection
 
+def create_column_Headers_collection(request,report,collection):
+    new_collection = get_new_collection(collection,request,report)
+    column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
+    column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
+    query = get_create_column_headers.replace('collection',new_collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    query = eval(query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,query,report.distinct)
+    row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
+    row_headers = ViewColumns.objects.filter(id=row_headers_id)[0].column
+    row_query = get_create_row_headers.replace('collection',new_collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    row_query = eval(row_query)
+    rs = reporting_store()
+    rs.get_aggregate(collection,row_query,report.distinct)
+
 def get_matrix_header(request):
     report_id = request.GET['report_id']
     report = Reports.objects.get(id=int(report_id))
@@ -1673,13 +1688,11 @@ def get_matrix_header(request):
     selected_view = ReportViews.objects.filter(report=report)[0]
     collection = get_all_query_collection(selected_view.view.collection,school_year) 
     new_collection = get_new_collection(collection,request,report)
-
-    collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(new_collection)
     collection_row_header = collection_row_headers(new_collection)
 
     rs = reporting_store()
-    create_column_Headers(report,new_collection)
+    create_column_Headers(request,report,collection)
 
     column_data = rs.get_datas(collection_column_header)
     column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
