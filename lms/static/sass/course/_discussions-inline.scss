@@ -61,6 +61,7 @@
 
       &.expanded {
         padding: 20px 0;
+        z-index: 1; /*course discussion popup order*/
 
         .dogear,
         .vote-btn {
