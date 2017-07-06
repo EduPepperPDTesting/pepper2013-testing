@@ -1645,7 +1645,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'training_id': {'$arrayElemAt': ['$training_id', 0]}
     }
 }, {
-    '$out': 'PDPlannerView_all_filed_{year}'
+    '$out': 'PDPlannerView_all_field_{year}'
     }
 '''
 #user for all field-------------------------------------------------------------------------------------------

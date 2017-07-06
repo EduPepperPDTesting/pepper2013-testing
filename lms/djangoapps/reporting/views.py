@@ -1664,7 +1664,7 @@ def get_all_query_collection(selected_view,school_year=''):
     return  str(selected_view)+'_all_field_'+str(school_year)
 
 def get_new_collection(collection,request,report):
-    return str(request.user.id) + '_' + str(report.id) + '_' +collection
+    return 'tmp_' + str(request.user.id) + '_' + str(report.id) + '_' +collection
 
 def create_column_Headers_collection(request,report,collection):
     new_collection = get_new_collection(collection,request,report)
@@ -1692,7 +1692,7 @@ def get_matrix_header(request):
     collection_row_header = collection_row_headers(new_collection)
 
     rs = reporting_store()
-    create_column_Headers(request,report,collection)
+    create_column_Headers_collection(request,report,collection)
 
     column_data = rs.get_datas(collection_column_header)
     column_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0]
