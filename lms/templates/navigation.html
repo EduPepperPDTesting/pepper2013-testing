@@ -1433,6 +1433,10 @@
 				}
 				
 				if(r.Success && r.OrganizationOK){
+					if(r['Footer Selected'] && r['Footer Selected'] == "1"){
+						$("#page-footer").empty();
+						$("#page-footer").append(r['footer_content']);
+					}
 					if(r['Remove All Menu'] && r['Remove All Menu'] == "1"){
 						$(".imessage_style").hide();
 						$(".admin-menu-holder").hide();

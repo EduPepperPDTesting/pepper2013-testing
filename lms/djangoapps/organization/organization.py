@@ -390,6 +390,12 @@ def organization_get(request):
                         data['New'] = False
                         break;
 
+                    # --------------OrganizationFooter
+                    org_footer_list = OrganizationFooter.objects.filter(organization=organizations)
+                    for tmp1 in org_footer_list:
+                        data['Footer Content'] = tmp1.DataItem
+                        break;
+
                     # --------------OrganizationDistricts
                     sid_did = "";
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
@@ -508,6 +514,8 @@ def organizational_save_base(request):
         org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
         org_profile_logo_curr_url = request.POST.get("org_profile_logo_curr_url", "")
         logo_url = request.POST.get("logo_url", "")
+        footer_flag = request.POST.get("footer_flag", "")
+        footer_content = request.POST.get("footer_content", "")
 
         if(oid):
             # --------------OrganizationMetadata
@@ -533,6 +541,17 @@ def organizational_save_base(request):
             org_data.DataItem = specific_items
             org_data.organization = org_metadata
             org_data.save();
+
+            #--------------OrganizationFooter
+            org_footer = OrganizationFooter();
+            org_data_list = OrganizationFooter.objects.filter(organization=org_metadata)
+            for tmp1 in org_data_list:
+                org_footer = tmp1
+                break;
+
+            org_footer.DataItem = footer_content
+            org_footer.organization = org_metadata
+            org_footer.save();
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -636,6 +655,7 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
             org_OrganizationMenuSave(org_metadata, "Remove All Menu", remove_all_menu)
+            org_OrganizationMenuSave(org_metadata, "Footer Selected", footer_flag)
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
@@ -1098,6 +1118,12 @@ def organization_get_info(request):
 
                         for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj, itemType="Remove All Menu"):
                             data[tmp2.itemType] = tmp2.itemValue
+
+                        for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj, itemType="Footer Selected"):
+                            data[tmp2.itemType] = tmp2.itemValue
+                            if tmp2.itemValue == "1":
+                                for tmp3 in OrganizationFooter.objects.filter(organization=organization_obj):
+                                    data['footer_content'] = tmp3.DataItem
 
                         if (flag_main == "dashboard"):
                             for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj):

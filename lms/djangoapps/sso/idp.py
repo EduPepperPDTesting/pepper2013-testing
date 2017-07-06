@@ -164,7 +164,14 @@ def logout(request):
         # hinfo = IDP.apply_binding(binding, "%s" % resp, "", relay_state)
 
     return HttpResponse("")
-    
+
+
+def get_first_sp_logout_url():
+    for sp in metadata.get_all_sp():
+        slo_url = sp.get('typed').get('sso_slo_url')
+        if slo_url:
+            return slo_url
+
 
 def auth(request):
     '''
