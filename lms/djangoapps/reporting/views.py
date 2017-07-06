@@ -686,9 +686,15 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     """
     gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
+    if report.report_type == 0:
+        aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
+    else:
+        year = request.GET.get('school_year', '')
+        if year:
+            year = str(school_year).replace("-","_")
+        school_year = get_all_query_school_year(request,report)
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{year}',year).replace('{school_year}', school_year).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
-    # aggregate_allquery = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('\n', '').replace('\r', ''))
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
