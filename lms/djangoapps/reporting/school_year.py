@@ -50,6 +50,21 @@ def get_query_school_year(request, report, columns):
                 return str([1, 1])
     else:
         if selected_view.view.collection in school_year_collection:
-            return '{"$match":{"school_year":"current"}},'
+            return ''
         else:
-            return str(["$$item.school_year", "current"])
+            return str([1,1])
+
+def get_all_query_school_year(request,report):
+    selected_view = ReportViews.objects.filter(report=report)[0]
+    school_year_item = request.GET.get('school_year', '')
+    school_year_item = get_default_school_year_item(school_year_item)
+    if selected_view.view.collection in school_year_collection:
+        if school_year_item != 'all':
+            return '{"$match":{"school_year":"' + school_year_item + '"}},'
+        else:
+            return ''
+    else:
+        if school_year_item != 'all':
+            return str(["$$item.school_year", school_year_item])
+        else:
+            return str([1, 1])
