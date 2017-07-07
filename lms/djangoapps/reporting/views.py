@@ -549,13 +549,16 @@ def report_view(request, report_id):
             if school_year:
                 school_year = str(school_year).replace("-","_")
 
+            selected_view = ReportViews.objects.filter(report=report)[0]
             rs = reporting_store()
-            collection = get_cache_collection(request, report_id, school_year)
+            if report.report_type == 0:
+                collection = get_cache_collection(request, report_id, school_year)
+            else:
+                collection = get_all_query_collection(selected_view,school_year='')
 
             stats = int(rs.get_collection_stats(collection)['ok'])
             if(not(stats)):
                 rs.del_collection(collection)
-                selected_view = ReportViews.objects.filter(report=report)[0]
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
                 columns = []
                 for col in selected_columns:
@@ -1661,7 +1664,7 @@ def reporting_get_aggregate(request):
     return render_json_response({'rows': rows,'aggregate_header':aggregate_header,'row_header':row_header,'column_header':column_header,'aggregate_name':aggregate_name ,'row_header_name':row_header_name ,'column_header_name':column_header_name})
 
 def get_all_query_collection(selected_view,school_year=''):
-    return  str(selected_view)+'_all_field_'+str(school_year)
+    return  str(selected_view)+'_all_field_'+ str(school_year)
 
 def get_new_collection(collection,request,report):
     return 'tmp_' + str(request.user.id) + '_' + str(report.id) + '_' +collection
