@@ -7,6 +7,7 @@ import json
 import logging
 import re
 
+from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -1091,12 +1092,20 @@ def attach_post_info(p, time_diff_m, user):
         attach_post_info(s, time_diff_m, user)
 
 
+def is_people_of(master_id, user_id):
+    if(master_id == user_id):
+        return True
+    return UserProfile.objects.filter(user_id=user_id).extra(
+        where=['FIND_IN_SET(%s, people_of)' % master_id]).exists()
+
+
 def get_post(request):
     _id = request.POST.get("_id")
     store = dashboard_feeding_store()
     post = store.get_feeding(_id)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
     attach_post_info(post, time_diff_m, request.user)
+    post["is_member"] = is_people_of(post["user_id"], request.user.id)
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
@@ -1170,6 +1179,7 @@ def get_posts(request):
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
 
+@login_required
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:
@@ -1233,6 +1243,7 @@ def get_announcements(request):
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
 
+@ajax_login_required()
 def submit_new_like(request):
     user_id = request.user.id
     feeding_id = request.POST.get('feeding_id')
@@ -1256,6 +1267,7 @@ def submit_new_like(request):
     return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')
 
 
+@login_required
 def delete_announcement(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1263,6 +1275,7 @@ def delete_announcement(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
+@login_required
 def delete_post(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1270,6 +1283,7 @@ def delete_post(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
+@login_required
 def delete_comment(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1296,6 +1310,7 @@ def get_receivers(user, post_type):
     return receiver_ids
 
 
+@login_required
 def submit_new_comment(request):
     store = dashboard_feeding_store()
     post_id = request.POST.get('post_id', '')
@@ -1354,6 +1369,7 @@ def upload_attachment(feeding_id, attachment):
     us.save(_id, attachment.read())
 
 
+@login_required
 def submit_new_post(request):
     store = dashboard_feeding_store()
     content = request.POST.get("post", "")
