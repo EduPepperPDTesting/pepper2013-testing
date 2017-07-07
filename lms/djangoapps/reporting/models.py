@@ -135,9 +135,9 @@ class MongoReportingStore(object):
             self.collection.insert(val)
         return True
 
-    def get_datas(self,collection,db_filter={}):
+    def get_datas(self,collection,db_filter={},db_sort=['_id',1]):
         self.set_collection(collection)
-        return self.collection.find(db_filter).sort('_id')
+        return self.collection.find(db_filter).sort(db_sort[0],db_sort[1])
 
     def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)
@@ -145,6 +145,10 @@ class MongoReportingStore(object):
             return self.get_page_int_sort(collection, db_filter, db_sort, start, num)
         else:
             return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
+
+    def get_matrix_page(self, collection, start, num, db_sort, db_filter={}):
+        self.set_collection(collection)
+        return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
 
     def get_count(self, collection, db_filter={}):
         self.set_collection(collection)

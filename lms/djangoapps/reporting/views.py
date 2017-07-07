@@ -555,6 +555,8 @@ def report_view(request, report_id):
                 collection = get_cache_collection(request, report_id, school_year)
             else:
                 collection = get_all_query_collection(selected_view.view.collection,school_year) 
+                collection = get_new_collection(collection,request,report)
+                collection = collection_column_headers(collection)
 
             rs = reporting_store()
             stats = int(rs.get_collection_stats(collection)['ok'])
@@ -1734,3 +1736,85 @@ def get_matrix_header(request):
             column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
 
     return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'row_header_type':row_header_data.data_type,'column_header':column_header_data.name,'row_header':row_header_data.name})
+
+def report_get_matrix_data(request):
+    report_id = request.GET['report_id']
+    report = Reports.objects.get(id=report_id)
+    school_year = request.GET.get('school_year', '')
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+
+    selected_view = ReportViews.objects.filter(report=report)[0]
+    collection = get_all_query_collection(selected_view.view.collection,school_year) 
+    new_collection = get_new_collection(collection,request,report)
+    collection_column_header = collection_column_headers(collection)
+    collection_row_header = collection_row_headers(collection)
+
+    rs = reporting_store()
+
+    column_data = rs.get_datas(collection_column_header)
+    column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
+    column_header_row = [column_header]
+    for d in column_data:
+        if d['_id'][column_header] == None:
+            d['_id'][column_header] = 'none'
+        column_header_row.append(d['_id'][column_header])
+        row_last.append(d['count'])
+    column_header_row.append('count')
+
+    row_data = rs.get_datas(collection_row_header)
+    row_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0].column
+    row_header_row = []
+    for d in row_data:
+        if d['_id'][row_header] == None:
+            d['_id'][row_header] = 'none'
+        row_header_row.append(d['_id'][row_header])
+    row_header_row.append('count')
+
+
+    # order = ['$natural', 1, 0]
+    # for col, sort in sorts.iteritems():
+    #     if int(col) == 0:
+    #         index = '_id'+ str(column_header)
+    #     else:
+    #         index = str(column_header_row[int(col)])
+    #     if sort == '1':
+    #         order = [index, -1, 0]
+    #     else:
+    #         order = [index, 1, 0]
+
+    # search = {}
+    # for col, f in filters.iteritems():
+    #     if int(col) == 0:
+    #         column_header_row[int(col)] = '_id'+ str(column_header)
+
+    #     reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+    #     index = str(column_header_row[int(col)])
+    #     search[index] = reg
+
+    # page = int(request.GET['page'])
+    # size = int(request.GET['size'])
+    # start = page * size
+    # rows = []
+    # data = rs.get_matrix_page(collection+"aggregate", start, size, search, order)
+    # total = rs.get_count(collection+"aggregate", search)
+    
+    # for d in data:
+    #     for key1,val1 in enumerate(row_header_row):
+    #         row = []
+    #         for key,val in enumerate(column_header_row):
+    #             if key == 0:
+    #                 row.append(d['row_header'])
+    #             else:
+    #                 if val == None:
+    #                     val = 'none'
+    #                 else:
+    #                     val=str(val).replace('.',',')
+    #                 row.append(d[val])
+    #         rows.append(row)
+
+    # row_last.append(sum(row_last))
+    # row_last.insert(0,'Total')
+    # rows.append(row_last)
+
+    return render_json_response({'total': 100, 'rows': []})
