@@ -152,7 +152,7 @@ urlpatterns = (
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
-    url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
+    url(r'^reporting/report/get_column_headers$', 'reporting.views.get_matrix_header', name='reporting_get_column_headers'),
     url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
     url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
     url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
@@ -183,6 +183,7 @@ urlpatterns = (
     url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
     url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
     url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
+
     
     #@end
     #@begin:Add for Dashboard My Activity

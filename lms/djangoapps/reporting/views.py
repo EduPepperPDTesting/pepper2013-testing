@@ -549,16 +549,13 @@ def report_view(request, report_id):
             if school_year:
                 school_year = str(school_year).replace("-","_")
 
-            selected_view = ReportViews.objects.filter(report=report)[0]
             rs = reporting_store()
-            if report.report_type == 0:
-                collection = get_cache_collection(request, report_id, school_year)
-            else:
-                collection = get_all_query_collection(selected_view,school_year='')
+            collection = get_cache_collection(request, report_id, school_year)
 
             stats = int(rs.get_collection_stats(collection)['ok'])
             if(not(stats)):
                 rs.del_collection(collection)
+                selected_view = ReportViews.objects.filter(report=report)[0]
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
                 columns = []
                 for col in selected_columns:
