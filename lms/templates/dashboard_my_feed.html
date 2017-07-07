@@ -594,7 +594,7 @@ from permissions.utils import check_access_level, check_user_perms
         bindLikeEvent();
 
         if(!post["is_member"]){
-          $("#fixed-dialog-posts").find("div.post-row").remove();
+          // $("#fixed-dialog-posts").find("div.post-row").remove();
           $("#fixed-dialog-posts").find("div.add-comment").hide()
         }else{
           $("#fixed-dialog-posts").find("div.add-comment").show();
