@@ -79,3 +79,9 @@ class OrganizationDashboard(models.Model):
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
     itemValue = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
+
+class OrganizationFooter(models.Model):
+    class Meta:
+        db_table = 'organization_footer'
+    DataItem = models.TextField(blank=False, db_index=False)
+    organization = models.ForeignKey(OrganizationMetadata)
