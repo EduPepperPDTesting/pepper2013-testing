@@ -1704,7 +1704,7 @@ def get_matrix_header(request):
     column_header = column_header_data.column
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
-    aggregate_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type)[0]
+    aggregate_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
@@ -1716,9 +1716,9 @@ def get_matrix_header(request):
     if(not(stats)):
         aggregate_query = eval(get_aggregate_query.replace('{collection}',new_collection+"aggregate").replace('{row_header_field}',row_header_data.column).replace('{column_header_field}',column_header).replace('{aggregate_field}',aggregate_header_data.column))
         rs = reporting_store()
-        rs.get_aggregate(new_collection+"aggregate",aggregate_query,report.distinct)
+        rs.get_aggregate(collection,aggregate_query,report.distinct)
 
-    
+
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
             column_header_row[i] = study_time_format_2(k)
