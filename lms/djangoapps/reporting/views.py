@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_aggregate_query
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -549,13 +549,18 @@ def report_view(request, report_id):
             if school_year:
                 school_year = str(school_year).replace("-","_")
 
-            rs = reporting_store()
-            collection = get_cache_collection(request, report_id, school_year)
+            selected_view = ReportViews.objects.filter(report=report)[0]
+            
+            if report.report_type == 0:
+                collection = get_cache_collection(request, report_id, school_year)
+            else:
+                collection = get_all_query_collection(selected_view.view.collection,school_year) 
 
+            rs = reporting_store()
             stats = int(rs.get_collection_stats(collection)['ok'])
             if(not(stats)):
                 rs.del_collection(collection)
-                selected_view = ReportViews.objects.filter(report=report)[0]
+                
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
                 columns = []
                 for col in selected_columns:
@@ -691,7 +696,7 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     else:
         year = request.GET.get('school_year', '')
         if year:
-            year = str(school_year).replace("-","_")
+            year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
         aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{year}',year).replace('{school_year}', school_year).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
@@ -1699,50 +1704,21 @@ def get_matrix_header(request):
     column_header = column_header_data.column
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
-    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
-    row_header = row_header_data.column
-    row_header_type = row_header_data.data_type
+    aggregate_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type)[0]
     column_header_row = []
     for d in column_data:
         column_header_row.append(d['_id'][column_header])
 
     data = []
     total = ''
-    stats = int(rs.get_collection_stats(collection+"aggregate")['ok'])
-    if(not(stats)):
-        row_data = rs.get_datas(collection_row_header)
-        if aggregate_type_id == 1:
-            for d in row_data:
-                row = {}
-                if row_header_type == 'time':
-                    row['row_header'] = study_time_format_2(d['_id'][row_header])
-                elif row_header_type == 'url':
-                    if is_excel:
-                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
-                    else:
-                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
-                elif row_header_type == 'date':
-                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
-                else:
-                    row['row_header'] = str(d['_id'][row_header])
-                for index,column in enumerate(column_header_row):
-                    if column == None:
-                        column = 'none'
-                        filter1 = {"$in": [None]}
-                    else:
-                        filter1 = column
-                        column = str(column).replace('.',',')
-                    if d['_id'][row_header] == None:
-                        filter2 = {"$in": [None]}
-                    else:
-                        filter2 = d['_id'][row_header]
-                    filters = {column_header:filter1,row_header:filter2}
-                    count = rs.get_count(collection,filters)
-                    row[column] = str(count)
-                row['count'] = str(d['count'])
-                data.append(row)
-            rs.insert_datas(data,collection+"aggregate")
 
+    stats = int(rs.get_collection_stats(new_collection+"aggregate")['ok'])
+    if(not(stats)):
+        aggregate_query = eval(get_aggregate_query.replace('{collection}',new_collection+"aggregate").replace('{row_header_field}',row_header_data.column).replace('{column_header_field}',column_header).replace('{aggregate_field}',aggregate_header_data.column))
+        rs = reporting_store()
+        rs.get_aggregate(new_collection+"aggregate",aggregate_query,report.distinct)
+
+    
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
             column_header_row[i] = study_time_format_2(k)
@@ -1757,4 +1733,4 @@ def get_matrix_header(request):
         for i,k in enumerate(column_header_row):
             column_header_row[i] = time.strftime('%m-%d-%Y', time.strptime(k, '%Y-%m-%d'))
 
-    return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'row_header_type':row_header_type,'column_header':column_header,'row_header':row_header})
+    return render_json_response({'column_data': column_header_row,'column_header_type':column_header_type,'row_header_type':row_header_data.data_type,'column_header':column_header_data.name,'row_header':row_header_data.name})

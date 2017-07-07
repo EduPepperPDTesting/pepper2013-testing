@@ -1958,3 +1958,21 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
     '$out': 'UserCourseView_all_field_{year}'
     }
 '''
+
+# ---------------------------------------------------------------------------------------------------------------------
+get_aggregate_query = '''{
+    "$group":{
+        "_id":{
+            "{row_header_field}":"${row_header_field}",
+            "{column_header_field}":"${column_header_field}"
+        },
+        "total":{"$sum":"{aggregate_field}"},
+        "count":{"$sum":1},
+        "max":{"$max":"{aggregate_field}"},
+        "min":{"$min":"{aggregate_field}"},
+        "avg":{"$avg":"{aggregate_field}"}
+    }
+},{
+    "$out":"{collection}"
+}
+'''
