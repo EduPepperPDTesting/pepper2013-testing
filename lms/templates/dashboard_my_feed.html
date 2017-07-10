@@ -18,13 +18,26 @@ from permissions.utils import check_access_level, check_user_perms
 
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <style type="text/css" media="screen">
- .feeding-content *{
-   word-break: break-all;
-   color: inherit;
+ .feeding-content{
+   width:100%;
  }
+ .feeding-content *{
+   font-family: inherit !important;
+   font-style: inherit !important
+ }
+ .feeding-content em{
+   font-style: italic !important;
+ }
+ .feeding-content *{
+   white-space: pre-wrap;
+   word-wrap: break-word;
+   word-break: break-all;
+   line-height:100%;
+ } 
  .divide-line{
    border-bottom:1px solid #C6CD58;
-   margin-top:20px;
+   margin-top:5px;
+   margin-bottom:5px;
  }
  .my-feed{
    padding-top:5px;
@@ -327,7 +340,7 @@ from permissions.utils import check_access_level, check_user_perms
           <a id="dlg_submit_post_button" class="post_btn" value="Post" style="">Post</a>    
         </div>
     </div>
-    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:scroll;"></div>
+    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:scroll;width:100%"></div>
   </div>
 </div>
 <div style="width:700px;margin-left:-350px;" id="fixed-dialog-announcements" class="modal">
@@ -340,7 +353,8 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
 </div>
 <script type="template" id="announcement-template">
-  <div style="margin-bottom:20px;" class="announcement-row">
+  <div class="announcement-row">
+  <div style="margin-bottom:20px;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
   <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
   <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
@@ -355,21 +369,22 @@ from permissions.utils import check_access_level, check_user_perms
   {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
   {attachment_download}  
   </div>  
+  </div>
   <div class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
-  <div class="divide-line"></div>
   </div>
+  <div class="divide-line"></div>  
   </div>
 </script>
 <script type="template" id="top-announcement-template">
   <tr class="post-content-row announcement">
   <td style="position:relative">
     <div class="feed-title">My {organization_type} Announcements</div>
-    <input type="hidden" name="_id" value="{_id.$oid}" />
+  <input type="hidden" name="_id" value="{_id.$oid}" />
   <div style="padding:20px;background-color:#f5f5f5;border:1px solid #C6CD58;">
       <div class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
         <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' style='vertical-align:top;'/></a>
-      </div>
+  </div>
   <div style="display:inline-block;vertical-align:top;width:510px;">
   <div style="float:right;">
   <label style="font-style:normal;font-weight:normal;color:#39B6E9"><input type="checkbox" class="dismiss" value="" /> Dismiss</label>
@@ -386,7 +401,7 @@ from permissions.utils import check_access_level, check_user_perms
   <div>
   {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
   {attachment_download}  
-  </div>  
+  </div>
   <div style="font-weight:bold;margin-top:1em;" class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
       </div>
@@ -435,45 +450,37 @@ from permissions.utils import check_access_level, check_user_perms
   </tr>
 </script>
 <script type="template" id="post-template">
-  <div class='post-row'>
-  <table width="100%" cellpadding="0" cellspacing="0">
-  <tr>
-  <td class='ds-post-title-photo' style="vertical-align:top;">
-  <input type="hidden" name="_id" value="{_id.$oid}" />
-  <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
-    {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
-    <a href="/dashboard/{user_id}" target="_blank">
-      <img src='/user_photo/{user_id}' class='post-profile-image'/>
-    </a>
-  <div>
-  </td>
-  <td class='ds-post-title-text'>
-  <div class="clearfix">
-  <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> 
-  {first_name} {last_name}
-  </a>
-  <div class='ds-post-title-time'>
-  {post_date} at {post_h}:{post_m} {post_ampm}
-  </div>
-  <div>
-  {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
-  {attachment}  
-  </div>  
-  </div>
-  </td>
-  </tr>
-  <tr>
-  <td colspan="2">
-  <div class="feeding-content">{content}</div>
-  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
-  <div style="text-align:right;">
-  <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
-  <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?comment:post}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
-  </div>
-  <div class="divide-line"></div>
-  </td>
-  </tr>
-  </table>
+  <div class='post-row' style="width:100%">
+
+    <div class="clearfix">
+      <input type="hidden" name="_id" value="{_id.$oid}" />
+      <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1' style="float:left;">
+        {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+        <a href="/dashboard/{user_id}" target="_blank">
+          <img src='/user_photo/{user_id}' class='post-profile-image'/>
+        </a>
+      </div>
+      <div class="clearfix" style="float:left;width:450px;margin-left:10px;">
+        <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> 
+          {first_name} {last_name}
+        </a>
+        <div class='ds-post-title-time'>
+          {post_date} at {post_h}:{post_m} {post_ampm}
+        </div>
+        <div>
+          {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+          {attachment}  
+        </div>  
+      </div>
+    </div>
+    
+    <div class="feeding-content clearfix">{content}</div>
+    <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+    <div style="text-align:right;">
+      <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
+      <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?comment:post}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
+    </div>
+    <div class="divide-line"></div>
   </div>
 </script>
 <script type="text/javascript">
@@ -482,6 +489,13 @@ from permissions.utils import check_access_level, check_user_perms
     translateAttachment(p)
     var template = $("#top-announcement-template").html();
     $('#announcement_content_table').append(template.fillData(p));   
+  }
+  function hackStyle(s){
+    return s.replace(/style=["']([^'"]+)["']/g, function(a, b){
+      return "style=\"" + b.replace(/[^:;]+:[^:;]+/g, function(a){
+        return a + " !important";
+      }) + "\"";
+    });
   }
   function translateAttachment(p){
     if(p.attachment_file){
@@ -594,7 +608,7 @@ from permissions.utils import check_access_level, check_user_perms
         bindLikeEvent();
 
         if(!post["is_member"]){
-          $("#fixed-dialog-posts").find("div.post-row").remove();
+          // $("#fixed-dialog-posts").find("div.post-row").remove();
           $("#fixed-dialog-posts").find("div.add-comment").hide()
         }else{
           $("#fixed-dialog-posts").find("div.add-comment").show();
@@ -995,7 +1009,7 @@ from permissions.utils import check_access_level, check_user_perms
       $("#announce-expir-date-div").css("visibility", v=="hidden"?"visible":"hidden");
     });
     $("#submit_new_post_button").click(function(){
-      var post = $("#new_post_textarea").val();
+      var post = hackStyle($("#new_post_textarea").val());
       // check feilds for announcement
       var is_announce = $("#announce-checkbox").is(":checked");
       var announce_expir_date = $("#announce-expir-date").val();
