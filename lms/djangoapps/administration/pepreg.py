@@ -669,6 +669,9 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
+                    if i > 0:
+                        print_row.append([])
+
                     print_row[i].append(item.name)
                     print_row[i].append(item.description)
                     print_row[i].append(item.training_date)
@@ -676,15 +679,15 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     print_row[i].append(item.classroom)
                     print_row[i].append(item.geo_location)
 
-                    if(i < array_length - 1):
+                    if array_length > i + 1:
                         i += 1
-                        print_row.append([])
+
     #raise Exception(str(print_row))
     if(print_row):
         #raise Exception(str(print_row))
         n = 0
         table_tr_content = ""
-        while(n < i + 1):
+        while(n <= i):
             row_height = "30"
             try:
                 ti_text_span = str(print_row[n][1])
