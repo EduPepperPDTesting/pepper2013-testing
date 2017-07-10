@@ -688,7 +688,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         n = 0
         i = len(print_row)
         table_tr_content = ""
-        while(n <= i):
+        while(n < i):
             row_height = "30"
             try:
                 ti_text_span = str(print_row[n][1])
