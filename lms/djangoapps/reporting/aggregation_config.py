@@ -1958,3 +1958,11 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
     '$out': '{collection}'
     }
 '''
+#----------------------------------------------------------------------------------------------------------------------
+change_int = '''
+    db.{collection}.find().forEach(
+        function(obj){
+            obj.{aggregate_data} = new NumberInt(obj.{aggregate_data});
+            db.{collection}.save(obj)
+            })
+'''

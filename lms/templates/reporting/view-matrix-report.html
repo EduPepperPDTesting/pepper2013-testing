@@ -458,7 +458,7 @@ $(document).ready(function () {
         column_header_type = datas.column_header_type
         // if (column_header_type == 'time' || column_header_type == 'int'){
             for (data in column_datas){
-                if(column_datas[data] == null){
+                if(column_datas[data] == ""){
                     column_datas[data] = 'None'
                 }
                 html += "<th><image onclick='graphable(this)' src='/static/images/icon_reporting.png' style='z-index:100;'></image>&nbsp;&nbsp;"+column_datas[data]+"</th>";

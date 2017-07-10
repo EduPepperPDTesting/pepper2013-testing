@@ -154,6 +154,10 @@ class MongoReportingStore(object):
         self.set_collection(collection)
         return self.collection.find(db_filter).count()
 
+    def get_specified_data(self, collection, db_filter={},specified={}):
+        self.set_collection(collection)
+        return self.collection.find(db_filter,specified)
+
     def del_collection(self, collection):
         self.set_collection(collection)
         self.collection.drop()
