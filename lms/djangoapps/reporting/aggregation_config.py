@@ -1013,7 +1013,7 @@ AggregationConfig["AggregateGradesView"]["allfieldquery"]='''{
             }
         }
     }, {
-        '$out': 'AggregateGradesView_all_field_{year}'
+        '$out': '{collection}'
         }
 '''
 #aggregatetimer for all field-------------------------------------------------------------------------------------------
@@ -1144,7 +1144,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
             }
         },
     {
-        '$out': 'AggregateTimerView_all_field_{year}'
+        '$out': '{collection}'
     }
 '''
 #course for all field-------------------------------------------------------------------------------------------
@@ -1393,7 +1393,7 @@ AggregationConfig["CourseView"]["allfieldquery"] = '''{
                                 'start_date': {'$arrayElemAt': ['$start_date', 0]}
                             }
                         }, {
-                            '$out': 'CourseView_all_field_{year}'
+                            '$out': '{collection}'
                             }
 '''
 #course assignments for all field-------------------------------------------------------------------------------------------
@@ -1463,7 +1463,7 @@ AggregationConfig["CourseAssignmentsView"]["allfieldquery"] = '''{
         'display_name': {'$arrayElemAt': ['$display_name', 0]}
     }
 }, {
-    '$out': 'CourseAssignmentsView_all_field_{year}'
+    '$out': '{collection}'
     }
 '''
 #pd planner for all field-------------------------------------------------------------------------------------------
@@ -1645,7 +1645,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'training_id': {'$arrayElemAt': ['$training_id', 0]}
     }
 }, {
-    '$out': 'PDPlannerView_all_field_{year}'
+    '$out': '{collection}'
     }
 '''
 #user for all field-------------------------------------------------------------------------------------------
@@ -1779,7 +1779,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         }
     }
 }, {
-    '$out': 'UserView_all_field_{year}'
+    '$out': '{collection}'
     }
 '''
 #usercourse for all field-------------------------------------------------------------------------------------------
@@ -1955,24 +1955,6 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'organization': {'$arrayElemAt': ['$organization', 0]}
     }
 }, {
-    '$out': 'UserCourseView_all_field_{year}'
+    '$out': '{collection}'
     }
-'''
-
-# ---------------------------------------------------------------------------------------------------------------------
-get_aggregate_query = '''{
-    "$group":{
-        "_id":{
-            "{row_header_field}":"${row_header_field}",
-            "{column_header_field}":"${column_header_field}"
-        },
-        "total":{"$sum":"{aggregate_field}"},
-        "count":{"$sum":1},
-        "max":{"$max":"{aggregate_field}"},
-        "min":{"$min":"{aggregate_field}"},
-        "avg":{"$avg":"{aggregate_field}"}
-    }
-},{
-    "$out":"{collection}"
-}
 '''
