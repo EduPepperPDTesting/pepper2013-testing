@@ -134,13 +134,13 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            dataitems = '{'
+            dataitems = '{['
             dataitems = dataitems + '"item":{"name":"Major Subject Area","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"1"},'
             dataitems = dataitems + '"item":{"name":"Grade Level-Check all that apply","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"2"},'
             dataitems = dataitems + '"item":{"name":"Number of Years in Education","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"3"},'
             dataitems = dataitems + '"item":{"name":"My Learners\' Profile","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"4"},'
             dataitems = dataitems + '"item":{"name":"About me","description":"","field_type":"","required":"0","course_qualification":"0","delete":"0","default":"5"}'
-            dataitems = dataitems + '}'
+            dataitems = dataitems + ']}'
 
             org_data = OrganizationDataitems();
             org_data.DataItem = dataitems
