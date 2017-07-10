@@ -686,8 +686,11 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
         table_tr_content = ""
         while(n < i + 1):
             row_height = "30"
-            ti_text_span = str(print_row[n][1])
-            tg_text_span = str(print_row[n][5])
+            try:
+                ti_text_span = str(print_row[n][1])
+                tg_text_span = str(print_row[n][5])
+            except:
+                raise Exception("n="+n+" i="+i)
             if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
                 if(len(ti_text_span) >= len(tg_text_span)):
                     row_height = str((1 + len(ti_text_span) / 36) * 15)
