@@ -551,13 +551,7 @@ def report_view(request, report_id):
 
             selected_view = ReportViews.objects.filter(report=report)[0]
             
-            if report.report_type == 0:
-                collection = get_cache_collection(request, report_id, school_year)
-            else:
-                collection = get_all_query_collection(selected_view.view.collection,school_year) 
-                collection = get_new_collection(collection,request,report)
-                collection = collection_column_headers(collection)
-
+            collection = get_cache_collection(request, report_id, school_year)
             rs = reporting_store()
             stats = int(rs.get_collection_stats(collection)['ok'])
             if(not(stats)):
