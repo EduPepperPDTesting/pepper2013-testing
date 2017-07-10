@@ -681,15 +681,12 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
 
                     if array_length > i + 1:
                         i += 1
-            else:
-                array_length -= 1
-                if i == array_length:
-                    i -= 1
 
     #raise Exception(str(print_row))
     if(print_row):
         #raise Exception(str(print_row))
         n = 0
+        i = len(print_row)
         table_tr_content = ""
         while(n <= i):
             row_height = "30"
