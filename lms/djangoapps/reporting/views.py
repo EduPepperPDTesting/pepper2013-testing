@@ -695,7 +695,7 @@ def create_report_collection(request, report, selected_view, columns, filters, r
             year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
         collection = get_cache_collection(request, report_id, year)
-        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection)replace('\n', '').replace('\r', ''))
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
@@ -1374,8 +1374,9 @@ def get_column_headers(request):
                 data.append(row)
             rs.insert_datas(data,collection+"aggregate")
         elif aggregate_type_id == 0:
-            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
-            change_int_query = change_int.replace('{collection}',collection).replace('{aggregate_data}',aggregate_data)
+            tmps = []
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            # change_int_query = change_int.replace('{collection}',collection).replace('{aggregate_data}',aggregate_data).replace(',,', ',').replace('\n', '').replace('\r', '')
             for d in row_data:
                 row = {}
                 if row_header_type == 'time':
@@ -1401,13 +1402,14 @@ def get_column_headers(request):
                     else:
                         filter2 = d['_id'][row_header]
                     filters = {column_header:filter1,row_header:filter2}
-                    specified = {aggregate_data:1,'_id':0}
                     sum = 0
-                    data = rs.get_specified_data(filters,specified)
+                    data = rs.get_datas(collection,filters)
                     for d in data:
                         sum += int(d[aggregate_data])
                     row[column] = str(sum)
-                rs.insert_datas(data,collection+"aggregate")
+                row['count'] = '100'
+                tmps.append(row)
+                rs.insert_datas(tmps,collection+"aggregate")
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
