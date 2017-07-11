@@ -2556,16 +2556,15 @@
         //** init expand title
         $(".expand_title").next("div.expand_div").slideDown(); //akogan
         //$(".expand_title").off("click").bind("click", function () {
-        $(".main").on("click", ".expand_div", function () {
-            //var $div = $(this).next("div.expand_div");
-            console.log("expand");
-            var $div = $(this);
-            if ($div.is(':visible')) {console.log("expanded");
+        $(".main").on("click", ".expand_title", function () {
+            //var $div = $(this).next("div.expand_title");
+            var $div = $(this).next("div.expand_title");
+            if ($div.is(':visible')) {
                 $div.slideUp();
-                $(this).siblings(".expand_title").removeClass("expand_title_expanded");
-            } else {console.log("collapsed");
+                $(this).removeClass("expand_title_expanded");
+            } else {
                 $div.slideDown();
-                $(this).siblings(".expand_title").addClass("expand_title_expanded");
+                $(this).addClass("expand_title_expanded");
             }
         });
         // $(".expand_title").click();
