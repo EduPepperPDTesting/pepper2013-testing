@@ -23,17 +23,17 @@ from permissions.utils import check_access_level, check_user_perms
  }
  .feeding-content *{
    font-family: inherit !important;
-   font-style: inherit  !important;
+   font-style: inherit !important
  }
  .feeding-content em{
-   font-style:italic !important;
- } 
+   font-style: italic !important;
+ }
  .feeding-content *{
    white-space: pre-wrap;
    word-wrap: break-word;
    word-break: break-all;
    line-height:100%;
- } 
+ }
  .divide-line{
    border-bottom:1px solid #C6CD58;
    margin-top:5px;
@@ -353,7 +353,8 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
 </div>
 <script type="template" id="announcement-template">
-  <div style="margin-bottom:20px;" class="announcement-row">
+  <div class="announcement-row">
+  <div style="margin-bottom:20px;">
   <input type="hidden" name="_id" value="{_id.$oid}" />
   <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
   <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
@@ -368,11 +369,24 @@ from permissions.utils import check_access_level, check_user_perms
   {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
   {attachment_download}  
   </div>  
+<<<<<<< HEAD
   
   </div>
+||||||| merged common ancestors
+=======
+  </div>
+>>>>>>> myfeed
   <div class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+<<<<<<< HEAD
   <div class="divide-line"></div>  
+||||||| merged common ancestors
+  <div class="divide-line"></div>
+  </div>
+=======
+  </div>
+  <div class="divide-line"></div>  
+>>>>>>> myfeed
   </div>
 </script>
 <script type="template" id="top-announcement-template">
@@ -488,6 +502,13 @@ from permissions.utils import check_access_level, check_user_perms
     translateAttachment(p)
     var template = $("#top-announcement-template").html();
     $('#announcement_content_table').append(template.fillData(p));   
+  }
+  function hackStyle(s){
+    return s.replace(/style=["']([^'"]+)["']/g, function(a, b){
+      return "style=\"" + b.replace(/[^:;]+:[^:;]+/g, function(a){
+        return a + " !important";
+      }) + "\"";
+    });
   }
   function translateAttachment(p){
     if(p.attachment_file){
