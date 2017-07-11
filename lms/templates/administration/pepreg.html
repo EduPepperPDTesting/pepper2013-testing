@@ -2556,10 +2556,7 @@
         //** init expand title
         $(".expand_title").next("div.expand_div").slideDown(); //akogan
         //$(".expand_title").off("click").bind("click", function () {
-        //$(".main").on("click", ".expand_title", function () {console.log("expand");
         $(".expand_title").on("click", function () {
-            //var $div = $(this).next("div.expand_title");
-            var $div = $(this).siblings(".expand_div");
             if ($(".expand_div").is(':visible')) {
                 $(".expand_div").slideUp();
                 $(this).removeClass("expand_title_expanded");
