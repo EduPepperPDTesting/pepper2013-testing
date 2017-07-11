@@ -1964,7 +1964,7 @@ get_create_int_column_headers = '''
         "$group":{
             "_id":{"column_headers":"$column_headers"},
             "count":{"$sum":1},
-            "total":{"$sum":"{aggregate_data}"}
+            "total":{"$sum":"${aggregate_data}"}
         }
     },
     {
@@ -1977,7 +1977,7 @@ get_create_int_row_headers = '''
         "$group":{
             "_id":{"row_headers":"$row_headers"},
             "count":{"$sum":1},
-            "total":{"$sum":"{aggregate_data}"}
+            "total":{"$sum":"${aggregate_data}"}
         }
     },
     {

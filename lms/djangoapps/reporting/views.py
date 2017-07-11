@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,change_int
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_create_int_column_headers,get_create_int_row_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -1376,7 +1376,6 @@ def get_column_headers(request):
         elif aggregate_type_id == 0:
             tmps = []
             aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
-            # change_int_query = change_int.replace('{collection}',collection).replace('{aggregate_data}',aggregate_data).replace(',,', ',').replace('\n', '').replace('\r', '')
             for d in row_data:
                 row = {}
                 if row_header_type == 'time':
@@ -1404,12 +1403,12 @@ def get_column_headers(request):
                     filters = {column_header:filter1,row_header:filter2}
                     sum = 0
                     data = rs.get_datas(collection,filters)
-                    for d in data:
-                        if d[aggregate_data] == None:
-                            d[aggregate_data] = 0
-                        sum += int(d[aggregate_data])
+                    for dd in data:
+                        if dd[aggregate_data] == None:
+                            dd[aggregate_data] = 0
+                        sum += int(dd[aggregate_data])
                     row[column] = str(sum)
-                row['count'] = 
+                row['count'] = d['total']
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
 
@@ -1441,12 +1440,16 @@ def report_get_matrix_rows(request):
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     column_header_row = [column_header]
+    aggregate_type = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
     row_last = []
     for d in column_data:
         if d['_id'][column_header] == None:
             d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        row_last.append(d['count'])
+        if aggregate_type == 1:
+            row_last.append(d['count'])
+        elif aggregate_type == 0:
+            row_last.append(d['total'])
 
     column_header_row.append('count')
 
@@ -1506,7 +1509,7 @@ def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
     column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
     aggregate_type = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
-    aggregate_data = ViewColumns.objects.filter(ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data).column
+    aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
     if aggregate_type == 1:
         query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
     else:
