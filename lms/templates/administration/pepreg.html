@@ -2559,11 +2559,11 @@
         //$(".main").on("click", ".expand_title", function () {console.log("expand");
         $(".expand_title").on("click", function () {console.log("expand");
             //var $div = $(this).next("div.expand_title");
-            var $div = $(this).next("div.expand_title");
-            if ($div.is(':visible')) {
+            var $div = $(this).siblings(".expand_title");
+            if ($div.is(':visible')) {console.log("expanded");
                 $div.slideUp();
                 $(this).removeClass("expand_title_expanded");
-            } else {
+            } else {console.log("collapsed");
                 $div.slideDown();
                 $(this).addClass("expand_title_expanded");
             }
