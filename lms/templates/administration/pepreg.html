@@ -2560,11 +2560,11 @@
         $(".expand_title").on("click", function () {console.log("expand");
             //var $div = $(this).next("div.expand_title");
             var $div = $(this).siblings(".expand_title");
-            if ($(this).siblings(".expand_title").is(':visible')) {console.log("expanded");
-                $div.slideUp();
+            if ($(".expand_title").is(':visible')) {console.log("expanded");
+                $(".expand_title").slideUp();
                 $(this).removeClass("expand_title_expanded");
             } else {console.log("collapsed");
-                $div.slideDown();
+                $(".expand_title").slideDown();
                 $(this).addClass("expand_title_expanded");
             }
         });
