@@ -2554,15 +2554,17 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
-        $(".expand_title").next("div.expand_div").slideDown(); //akogan
-        $(".expand_title").off("click").bind("click", function () {
-            var $div = $(this).next("div.expand_div");
+        $(".expand_title").addClass("expand_title_expanded").next("div.expand_div").slideDown(); //akogan
+        #$(".expand_title").off("click").bind("click", function () {
+        $(".main").on("click", ".expand_div", function () {
+            #var $div = $(this).next("div.expand_div");
+            var $div = $(this);
             if ($div.is(':visible')) {
                 $div.slideUp();
-                $(this).removeClass("expand_title_expanded");
+                $(this).siblings(".expand_title").removeClass("expand_title_expanded");
             } else {
                 $div.slideDown();
-                $(this).addClass("expand_title_expanded");
+                $(this).siblings(".expand_title").addClass("expand_title_expanded");
             }
         });
         // $(".expand_title").click();
