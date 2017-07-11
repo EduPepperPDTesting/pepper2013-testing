@@ -1405,9 +1405,11 @@ def get_column_headers(request):
                     sum = 0
                     data = rs.get_datas(collection,filters)
                     for d in data:
+                        if d[aggregate_data] == None:
+                            d[aggregate_data] = 0
                         sum += int(d[aggregate_data])
                     row[column] = str(sum)
-                row['count'] = '100'
+                row['count'] = 
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
 
@@ -1503,13 +1505,21 @@ def collection_row_headers(collection):
 def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
     column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
-    query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    aggregate_type = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    aggregate_data = ViewColumns.objects.filter(ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data).column
+    if aggregate_type == 1:
+        query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    else:
+        query = get_create_int_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('{aggregate_data}',aggregate_data).replace('\n', '').replace('\r', '')
     query = eval(query)
     rs = reporting_store()
     rs.get_aggregate(collection,query,report.distinct)
     row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
     row_headers = ViewColumns.objects.filter(id=row_headers_id)[0].column
-    row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    if aggregate_type == 1:
+        row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    else:
+        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('{aggregate_data}',aggregate_data).replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
