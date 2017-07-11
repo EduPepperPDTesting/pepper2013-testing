@@ -2560,7 +2560,7 @@
         $(".expand_title").on("click", function () {console.log("expand");
             //var $div = $(this).next("div.expand_title");
             var $div = $(this).siblings(".expand_title");
-            if ($div.is(':visible')) {console.log("expanded");
+            if ($(this).siblings(".expand_title").is(':visible')) {console.log("expanded");
                 $div.slideUp();
                 $(this).removeClass("expand_title_expanded");
             } else {console.log("collapsed");
