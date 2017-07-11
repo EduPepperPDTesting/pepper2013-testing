@@ -1524,10 +1524,10 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
 }, {
     '$project': {
         'training_time_end': 1,
-        'user_create_id': {'$substr': ['$user_create_id', 0, -1]},
+        'user_create_id': 1,
         'date_create': 1,
         'training_time_start': 1,
-        'max_registration': {'$substr': ['$max_registration', 0, -1]},
+        'max_registration': 1,
         'allow_registration': 1,
         'subject': 1,
         'allow_validation': 1,
@@ -1545,12 +1545,12 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'credits': 1,
         'student': 1,
         'allow_attendance': 1,
-        'student_credit': {'$substr': ['$student_credit', 0, -1]},
+        'student_credit': 1,
         'classroom': 1,
         'school': 1,
         'user_school': 1,
         'name': 1,
-        'training_id': {'$substr': ['$training_id', 0, -1]}
+        'training_id': 1
     }
 }, {
     '$group': {
@@ -1958,11 +1958,29 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
     '$out': '{collection}'
     }
 '''
-#----------------------------------------------------------------------------------------------------------------------
-change_int = '''
-    db.{collection}.find().forEach(
-        function(obj){
-            obj.{aggregate_data} = new NumberInt(obj.{aggregate_data});
-            db.{collection}.save(obj)
-            })
+# ----------------------------------------------------------------------------------------------------------------------------
+get_create_int_column_headers = '''
+    {
+        "$group":{
+            "_id":{"column_headers":"$column_headers"},
+            "count":{"$sum":1},
+            "total":{"$sum":"{aggregate_data}"}
+        }
+    },
+    {
+        "$out":"collection_column_header"
+    }
+'''
+
+get_create_int_row_headers = '''
+    {
+        "$group":{
+            "_id":{"row_headers":"$row_headers"},
+            "count":{"$sum":1},
+            "total":{"$sum":"{aggregate_data}"}
+        }
+    },
+    {
+        "$out":"collection_row_header"
+    }
 '''
