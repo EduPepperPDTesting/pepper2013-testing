@@ -2554,10 +2554,10 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
-        $(".expand_title").addClass("expand_title_expanded").next("div.expand_div").slideDown(); //akogan
-        #$(".expand_title").off("click").bind("click", function () {
+        $(".expand_title").next("div.expand_div").slideDown(); //akogan
+        //$(".expand_title").off("click").bind("click", function () {
         $(".main").on("click", ".expand_div", function () {
-            #var $div = $(this).next("div.expand_div");
+            //var $div = $(this).next("div.expand_div");
             var $div = $(this);
             if ($div.is(':visible')) {
                 $div.slideUp();
