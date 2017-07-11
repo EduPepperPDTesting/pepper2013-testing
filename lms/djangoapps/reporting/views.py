@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,change_int
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -694,8 +694,8 @@ def create_report_collection(request, report, selected_view, columns, filters, r
         if year:
             year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
-        collection = get_cache_collection(request, report_id, school_year)
-        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{collection}',collection).replace('{school_year}', school_year).replace('\n', '').replace('\r', ''))
+        collection = get_cache_collection(request, report_id, year)
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
@@ -1370,9 +1370,46 @@ def get_column_headers(request):
                     filters = {column_header:filter1,row_header:filter2}
                     count = rs.get_count(collection,filters)
                     row[column] = str(count)
-                row['count'] = str(d['count'])
+                row['count'] = str(d['count']) 
                 data.append(row)
             rs.insert_datas(data,collection+"aggregate")
+        elif aggregate_type_id == 0:
+            tmps = []
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            # change_int_query = change_int.replace('{collection}',collection).replace('{aggregate_data}',aggregate_data).replace(',,', ',').replace('\n', '').replace('\r', '')
+            for d in row_data:
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = str(d['_id'][row_header])
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
+                    sum = 0
+                    data = rs.get_datas(collection,filters)
+                    for d in data:
+                        sum += int(d[aggregate_data])
+                    row[column] = str(sum)
+                row['count'] = '100'
+                tmps.append(row)
+                rs.insert_datas(tmps,collection+"aggregate")
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):

@@ -32,9 +32,10 @@
 	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #999; padding: 10px;}
 	.check-column {width: 60px !important;}
 	.organization-table {width: 100%; border: 1px solid #555;}
-	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px;}
+	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px; font-size:14px;}
 	.organization-table tr {border-bottom: 1px solid #555;}
 	.organization-table td {border-right: 1px solid #555; padding: 4px; text-align: left;}
+	.organization-table .td_center {text-align: center !important;}
 	.org_table1 td{padding:2px;}
 	.org_table1 .org_td1{padding-top:10px;}
 	.org_table1 input[type='text']{width:300px;}
@@ -208,7 +209,7 @@
     <div class="expand_title expand_title_collapse" always_on="1">Organization Structure<div class="icon"></div></div>
     <div class="expand_div">
         <div style="padding: 1em 7px 7px 7px;">
-        	<table width="550" border="0" class="org_table1">
+        	<table width="1100" border="0" class="org_table1">
             	<tr>
                 	<td width="220" class="org_td1">Organization Name: </td>
                     <td><input type="text" id="organizational_base_name" disabled="disabled" style="background-color:#CCCCCC"></td>
@@ -225,32 +226,74 @@
                 	<td class="org_td1">Organization Specific Items: </td>
                     <td>
                     	<table id="organization-table2" class="organization-table">
-                            <thead><tr><th>Name</th><th><input type="checkbox" value="" id="organization-table2_all"></th></tr></thead>
+                            <thead>
+                            	<tr>
+                                	<th width="250">Name</th>
+                                    <th width="250" class="td_center">Description</th>
+                                    <th width="120" class="td_center">Field Type</th>
+                                    <th width="80" class="td_center">Required</th>
+                                    <th width="100" class="td_center">Course Qualification</th>
+                                    <th><input type="checkbox" value="" id="organization-table2_all"></th>
+                                </tr>
+                            </thead>
                             <tbody>                               
                                 <tr>
-                                    <td width="300"><span class="org_table_menu1 org_icon_up" id="org_registration_page">Registration Page</span></td>
-                                    <td class="check-column"><input type="checkbox" child_check="org_registration_page" class="org_parent_menu organization-item-select"></td>
+                                    <td><span class="org_table_menu1 org_icon_up" id="org_dataitems_profile">Profile</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                    	<input type="checkbox" child_check="org_dataitems_profile_1" class="org_parent_menu organization-item-select" />
+                                    </td>
+                                    <td>
+                                    	<input type="checkbox" child_check="org_dataitems_profile_2" class="org_parent_menu organization-item-select" />
+                                    </td>
+                                    <td class="check-column">
+                                    	<input type="checkbox" child_check="org_dataitems_profile_3" class="org_parent_menu organization-item-select" />
+                                    </td>
+                                </tr>
+                                <!--<tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Major Subject Area</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                    	<input type="checkbox" class="organization-item-select" id="org_rg_major_subject">
+                                        <a href="" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                    </td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Major Subject Area</span></td>
-                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_major_subject"></td>
-                                </tr>
-                                <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Grade Level-Check all that apply</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Grade Level-Check all that apply</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_grade_level"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Number of Years in Education</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Number of Years in Education</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_number_of"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">My Learners' Profile</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">My Learners' Profile</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_my_learners"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">About me</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">About me</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_about_me"></td>
-                                </tr>
+                                </tr>-->
                             </tbody>
                         </table>
                     </td>
@@ -1091,15 +1134,38 @@
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
 									
-									//----------
+									//----------dataitems
+									$(".org_table_profile_tr").remove();
 									if(r.specific_items != ""){
+										
+										//$("#new-organization").val(tmp_specific_items.length);
+										try{
 										var tmp_specific_items = eval("(" + r.specific_items + ")");
-										for(var tmpx in tmp_specific_items){
-											$("#" + tmpx).attr("checked", true);
-										}									
+										var tmp_item = "";
+										//SyntaxError: missing ] in computed property name
+										//$("#new-organization").attr("dd", r.specific_items);
+										/*for(var tmpx in tmp_specific_items){
+											tmp_item = "<tr class='org_table_profile_tr'>";
+											tmp_item += "<td><span class='org_table_menu_child1 org_dataitems_profile'>a</span></td>";
+											tmp_item += "<td></td>";
+											tmp_item += "<td></td>";
+											tmp_item += "<td></td>";
+											tmp_item += "<td></td>";
+											tmp_item += "<td>";
+											tmp_item += "<input type='checkbox' class='organization-item-select' id='org_rg_major_subject'>";
+											tmp_item += "<a href='' class='permission-edit'><img src='/static/images/portal-icons/pencil-icon.png'></a>";
+											tmp_item += "</td>";
+											tmp_item += "</tr>";
+											$("#org_dataitems_profile").parent().parent().parent().append(tmp_item);
+										}	*/
+										//$("#" + tmpx).attr("checked", true);
+										}catch(e){
+										//alert(e);
+										}
 									}
 									
-									//----------
+									
+									//----------Entlty type
 									if(r.sid_did != ""){
 										var sid_did_list = r.sid_did.split(":");
 										for(var j in sid_did_list){
@@ -2338,10 +2404,10 @@
 			
 			//---------------------------------------------------specific_items
 			var specific_items = "{";
-			$(".organization-item-select").each(function(){
+			/*$(".organization-item-select").each(function(){
 				if($(this).attr('checked'))	specific_items += ",'" + $(this).attr("id") + "': true";
 			});			
-			specific_items = specific_items.replace(",", "");
+			specific_items = specific_items.replace(",", "");*/
 			specific_items += "}";
 			if(specific_items == "{}")	specific_items = "";
 			
