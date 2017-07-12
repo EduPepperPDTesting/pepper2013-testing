@@ -1273,7 +1273,7 @@ def submit_new_like(request):
     return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')
 
 
-@login_required
+@ajax_login_required()
 def delete_announcement(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1281,7 +1281,7 @@ def delete_announcement(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
-@login_required
+@ajax_login_required()
 def delete_post(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1289,7 +1289,7 @@ def delete_post(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
-@login_required
+@ajax_login_required()
 def delete_comment(request):
     feeding_id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1316,7 +1316,7 @@ def get_receivers(user, post_type):
     return receiver_ids
 
 
-@login_required
+@ajax_login_required()
 def submit_new_comment(request):
     store = dashboard_feeding_store()
     post_id = request.POST.get('post_id', '')
@@ -1360,7 +1360,7 @@ def get_full_likes(request):
 
     store = dashboard_feeding_store()
     likes = store.get_likes(feeding_id)
-    
+
     for like in likes:
         user = User.objects.get(id=like["user_id"])
         html += " <tr><td><img src='"+reverse('user_photo', args=[user.id])+"' width='24px'></img></td><td>"+user.first_name + " " + user.last_name + "</td></tr>"
@@ -1375,7 +1375,7 @@ def upload_attachment(feeding_id, attachment):
     us.save(_id, attachment.read())
 
 
-@login_required
+@ajax_login_required()
 def submit_new_post(request):
     store = dashboard_feeding_store()
     content = request.POST.get("post", "")
