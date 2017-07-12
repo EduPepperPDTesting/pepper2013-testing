@@ -1188,7 +1188,7 @@ def get_posts(request):
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
 
-@login_required
+@ajax_login_required
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:
@@ -1196,10 +1196,11 @@ def dismiss_announcement(request):
         store.dismiss(_id, request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
-    
+
     return HttpResponse(json_util.dumps({"success": True}), content_type='application/json')
 
 
+@ajax_login_required()
 def get_org_announcements(request):
     org = request.POST.get("org")
     store = dashboard_feeding_store()
