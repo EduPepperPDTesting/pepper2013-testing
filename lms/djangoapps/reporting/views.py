@@ -1441,6 +1441,7 @@ def report_get_matrix_rows(request):
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     column_header_row = [column_header]
     aggregate_type = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    aggregate_data_type =  ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].data_type
     row_last = []
     for d in column_data:
         if d['_id'][column_header] == None:
@@ -1449,7 +1450,10 @@ def report_get_matrix_rows(request):
         if aggregate_type == 1:
             row_last.append(d['count'])
         elif aggregate_type == 0:
-            row_last.append(d['total'])
+            if aggregate_data_type == 'time':
+                row_last.append(study_time_format(int(d['total'])))
+            else:
+                row_last.append(d['total'])
 
     column_header_row.append('count')
 
@@ -1490,7 +1494,18 @@ def report_get_matrix_rows(request):
                     val = 'none'
                 else:
                     val=str(val).replace('.',',')
-                row.append(d[val])
+                if aggregate_type == 1:
+                    row.append(d[val])
+                else:
+                    if aggregate_data_type == 'time':
+                            row.append(study_time_format(int(d[val])))
+                    if aggregate_data_type == 'url':
+                        if is_excel:
+                            row.append(settings.LMS_BASE + d[val])
+                        else:
+                            row.append('<a href="{0}" target="_blank">Link</a>'.format(d[val]))
+                    if aggregate_data_type == 'date':
+                        row.append(time.strftime('%m-%d-%Y', time.strptime(d[val], '%Y-%m-%d')))
         rows.append(row)
 
     row_last.append(sum(row_last))
