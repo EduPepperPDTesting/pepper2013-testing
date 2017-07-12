@@ -46,6 +46,7 @@ from django.conf import settings
 from bson import ObjectId
 from collections import OrderedDict
 from courseware import grades
+from pepper_utilities.decorator import ajax_login_required
 
 log = logging.getLogger("tracking")
 
