@@ -1374,9 +1374,9 @@ def get_column_headers(request):
                 data.append(row)
             rs.insert_datas(data,collection+"aggregate")
         elif aggregate_type_id == 0:
-            tmps = []
             aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
             for d in row_data:
+                tmps = []
                 row = {}
                 if row_header_type == 'time':
                     row['row_header'] = study_time_format_2(d['_id'][row_header])
@@ -1411,6 +1411,52 @@ def get_column_headers(request):
                 row['count'] = d['total']
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
+        elif aggregate_type_id == 3:
+            max_total = []
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            for d in row_data:
+                tmps = []
+                sum_tmp = []
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = str(d['_id'][row_header])
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
+                    max = 0
+                    tmp_data = []
+                    data = rs.get_datas(collection,filters)
+                    for dd in data:
+                        if dd[aggregate_data] == None:
+                            dd[aggregate_data] = 0
+                        if max < dd[aggregate_data]:
+                            max = dd[aggregate_data]
+                        tmp_data.append(max)
+                    row[column] = str(max)
+                    sum_tmp.append(max)
+                row['count'] = sum(sum_tmp)
+                tmps.append(row)
+                rs.insert_datas(tmps,collection+"aggregate")
+                max_total.append(tmp_data)
+            column_sum = max_total.sum(axis=0)
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
@@ -1450,10 +1496,7 @@ def report_get_matrix_rows(request):
         if aggregate_type == 1:
             row_last.append(d['count'])
         elif aggregate_type == 0:
-            if aggregate_data_type == 'time':
-                row_last.append(study_time_format(int(d['total'])))
-            else:
-                row_last.append(d['total'])
+            row_last.append(d['total'])
 
     column_header_row.append('count')
 
@@ -1494,18 +1537,7 @@ def report_get_matrix_rows(request):
                     val = 'none'
                 else:
                     val=str(val).replace('.',',')
-                if aggregate_type == 1:
-                    row.append(d[val])
-                else:
-                    if aggregate_data_type == 'time':
-                            row.append(study_time_format(int(d[val])))
-                    if aggregate_data_type == 'url':
-                        if is_excel:
-                            row.append(settings.LMS_BASE + d[val])
-                        else:
-                            row.append('<a href="{0}" target="_blank">Link</a>'.format(d[val]))
-                    if aggregate_data_type == 'date':
-                        row.append(time.strftime('%m-%d-%Y', time.strptime(d[val], '%Y-%m-%d')))
+                row.append(d[val])
         rows.append(row)
 
     row_last.append(sum(row_last))
