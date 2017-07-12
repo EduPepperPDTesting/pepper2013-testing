@@ -1105,6 +1105,7 @@ def is_people_of(master_id, user_id):
         where=['FIND_IN_SET(%s, people_of)' % master_id]).exists()
 
 
+@ajax_login_required()
 def get_post(request):
     _id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1115,6 +1116,7 @@ def get_post(request):
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
+@ajax_login_required()
 def get_comment(request):
     _id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -1163,6 +1165,7 @@ def get_attachment_image(request):
     return response
 
 
+@ajax_login_required()
 def get_posts(request):
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
@@ -1217,6 +1220,7 @@ def get_org_announcements(request):
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
 
+@ajax_login_required()
 def get_announcements(request):
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
