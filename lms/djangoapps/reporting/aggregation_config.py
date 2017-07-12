@@ -1641,7 +1641,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'classroom': {'$arrayElemAt': ['$classroom', 0]}, 
         'school': {'$arrayElemAt': ['$school', 0]}, 
         'user_school': {'$arrayElemAt': ['$user_school', 0]}, 
-        'name': {'$arrayElemAt': ['$name', 0]}, 
+        'name': {'$substr': [{'$arrayElemAt': ['$name', 0]} , 0, -1] },
         'training_id': {'$arrayElemAt': ['$training_id', 0]}
     }
 }, {
