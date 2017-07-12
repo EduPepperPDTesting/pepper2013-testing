@@ -569,7 +569,10 @@ def get_my_course_in_progress(request):
                         total_time_user = 0
                         for v in results:
                             total_time_user = total_time_user + v['total_time']
-                        couser_dict['time'] = study_time_format(total_time_user)
+                        current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                        if not current_time:
+                            current_time = 0
+                        couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                     #set user course title
                     couser_dict['name'] = get_course_about_section(course, 'title')
@@ -597,7 +600,10 @@ def get_my_course_in_progress(request):
                     total_time_user = 0
                     for v in results:
                         total_time_user = total_time_user + v['total_time']
-                    couser_dict['time'] = study_time_format(total_time_user)
+                    current_time = rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]
+                    if not current_time:
+                        current_time = 0
+                    couser_dict['time'] = study_time_format(total_time_user + current_time)
 
                 #set user course title
                 couser_dict['name'] = get_course_about_section(course, 'title')
