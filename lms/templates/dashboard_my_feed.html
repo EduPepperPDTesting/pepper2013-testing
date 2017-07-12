@@ -65,10 +65,13 @@ from permissions.utils import check_access_level, check_user_perms
  #dashboard_content_posts .cke_top {
    border-top-left-radius:10px;
    border-top-right-radius:10px;
+   display:none;
+   
  }
  #dashboard_content_posts .cke_bottom{
    border-bottom-left-radius:10px;
    border-bottom-right-radius:10px;
+   display:none;
  }
  #dashboard_content_posts .cke_inner{
    border-radius:10px;
@@ -537,7 +540,8 @@ from permissions.utils import check_access_level, check_user_perms
     </div>\
     </div>").appendTo(document.body);
     if(xhr.status == 401){
-      new Dialog($dlg).show("Warning", "Session timeout, please login again.");
+      var dlg = new Dialog($dlg).show("Warning", "Session timeout, please login again.");
+      dlg.lift(1000);
       $dlg.find(".close-modal").click(function(){
         $dlg.remove();
         window.location.replace("/login?next=" + window.location.pathname);
@@ -624,7 +628,7 @@ from permissions.utils import check_access_level, check_user_perms
           $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: feeding_id, local_utc_diff_m: local_utc_diff_m}, function(data) {
             $("#fixed-dialog-posts").addClass("changed");
             updateCommentElement($row);
-          });
+          }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
         });
         bindHover();
         $(".dlg-delete-post").off("click").on("click", function(){
@@ -639,7 +643,7 @@ from permissions.utils import check_access_level, check_user_perms
                 $("#fixed-dialog-posts").find("div.add-comment").hide()
                 $("#fixed-dialog-posts").addClass("changed");
                 $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
-              });
+              }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
             }});
           dlgWarn.lift(1000);
         });
@@ -654,7 +658,7 @@ from permissions.utils import check_access_level, check_user_perms
                 $row.remove()
                 $("#fixed-dialog-posts").addClass("changed");
                 $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
-              });
+              }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
             }});
           dlgWarn.lift(1000);
         });
@@ -857,7 +861,7 @@ from permissions.utils import check_access_level, check_user_perms
           if(r){          
             $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
               getTopAnnouncements();
-            });
+            }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
           }});
         dlgWarn.lift(1000);
       });
@@ -888,12 +892,12 @@ from permissions.utils import check_access_level, check_user_perms
                   $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
                     $("#fixed-dialog-announcements").addClass("changed");
                     loadDialogAnnouncements(org);
-                  });                
+                  }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});                
                 }
               });
               dlgWarn.lift(1000);
             });
-          });
+          }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
         }
         var dlg = new Dialog($('#fixed-dialog-announcements'));
         dlg.show(org + " Announcements", "<center></center>");
@@ -1094,16 +1098,20 @@ from permissions.utils import check_access_level, check_user_perms
    * );
    */
   $("#new_post_textarea").ckeditor(  function() {
+    // CKEDITOR.instances['new_post_textarea'].updateElement();
+    // CKEDITOR.instances['new_post_textarea'].destroy()
+    
     var self = this;
     var $cke = $(self.element.$).next(".cke");
     function toggle(show){
       if(show){
-        $cke.find(".cke_top").show();
-        $cke.find(".cke_bottom").show();
+        //$cke.find(".cke_top").show();
+        //$cke.find(".cke_bottom").show();
+        $cke.find(".cke_top").css('display', 'block');
+        $cke.find(".cke_bottom").css('display', 'block');
       }else{
         $cke.find(".cke_top").hide();
         $cke.find(".cke_bottom").hide();
-        // $cke.find(".cke_reset").css("border-radius", "10px")
       }
     }
     toggle(false);
@@ -1118,24 +1126,17 @@ from permissions.utils import check_access_level, check_user_perms
     })
   }, { height: '80px', width:'535px',
        extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
-  //  toolbarCanCollapse: true, toolbarStartupExpanded: false
-  /* 
-   *   function() {
-   *     this.on('focus', function() {
-   *       $(this.element.$).focus();
-   *     });
-   *     this.on('blur', function() {
-   *       $(this.element.$).blur();
-   *     });
-   *   }).focus(function() {console.log("focused");}
-   *   ).blur(function() {console.log("blured");}); */
+
+ 
   $("#comment-input").ckeditor(  function() {
     var self = this;
     var $cke = $(self.element.$).next(".cke");
     function toggle(show){
       if(show){
-        $cke.find(".cke_top").show();
-        $cke.find(".cke_bottom").show();
+        /* $cke.find(".cke_top").show();
+         * $cke.find(".cke_bottom").show();*/
+        $cke.find(".cke_top").css('display', 'block');
+        $cke.find(".cke_bottom").css('display', 'block');        
       }else{
         $cke.find(".cke_top").hide();
         $cke.find(".cke_bottom").hide();
