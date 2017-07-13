@@ -1449,7 +1449,7 @@ def get_column_headers(request):
                     data = rs.get_datas(collection+'data',filters)
                     for dd in data:
                         row[column] = str(dd['max'])
-                    sum_tmp.append(dd['max'])
+                        sum_tmp.append(dd['max'])
                 tmp_data.append(sum_tmp)
                 row['count'] = sum(sum_tmp)
                 tmps.append(row)
