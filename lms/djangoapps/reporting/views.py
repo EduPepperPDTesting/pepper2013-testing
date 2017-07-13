@@ -1401,18 +1401,18 @@ def get_column_headers(request):
                     else:
                         filter2 = d['_id'][row_header]
                     filters = {column_header:filter1,row_header:filter2}
-                    sum = 0
+                    sum_total = 0
                     data = rs.get_datas(collection,filters)
                     for dd in data:
                         if dd[aggregate_data] == None:
                             dd[aggregate_data] = 0
-                        sum += int(dd[aggregate_data])
-                    row[column] = str(sum)
-                row['count'] = d['total']
+                        sum_total += int(dd[aggregate_data])
+                    row[column] = str(sum_total)
+                row['count'] = str(d['total'])
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
         elif aggregate_type_id == 3:
-            max_total = []
+            tmp_data = []
             aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
             for d in row_data:
                 tmps = []
@@ -1441,22 +1441,20 @@ def get_column_headers(request):
                     else:
                         filter2 = d['_id'][row_header]
                     filters = {column_header:filter1,row_header:filter2}
-                    max = 0
-                    tmp_data = []
+                    max_dat = 0
                     data = rs.get_datas(collection,filters)
                     for dd in data:
                         if dd[aggregate_data] == None:
                             dd[aggregate_data] = 0
-                        if max < dd[aggregate_data]:
-                            max = dd[aggregate_data]
-                        tmp_data.append(max)
-                    row[column] = str(max)
-                    sum_tmp.append(max)
+                        if max_dat < dd[aggregate_data]:
+                            max_dat = dd[aggregate_data]
+                    row[column] = str(max_dat)
+                    sum_tmp.append(max_dat)
+                tmp_data.append(sum_tmp)
                 row['count'] = sum(sum_tmp)
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
-                max_total.append(tmp_data)
-            column_sum = max_total.sum(axis=0)
+            column_sum = sum(tmp_data)
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
