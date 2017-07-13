@@ -266,15 +266,23 @@
 
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="2">Organization Locations<div class="icon"></div></div>
-    <div class="expand_div">
+    <div class="expand_div">        
         <select id="org_state_select" style="width:200px;">
         	<option value="">Select State</option>
             %for item in State.objects.all().order_by("name"):
             <option value="${item.id}">${item.name}</option>
             %endfor
         </select>
-        <select id="org_district_select" style="width:300px;"></select>
-        <select id="org_school_select" style="width:300px;"></select>
+        <select id="org_district_select" style="width:300px;">
+        	%for item in District.objects.all().order_by("name"):
+            <option value="${item.id}" state_id="${item.state.id}">${item.name}</option>
+            %endfor
+        </select>
+        <select id="org_school_select" style="width:300px;">
+        	%for item in School.objects.filter(district__isnull=False).order_by("name"):
+            <option value="${item.id}" district_id="${item.district.id}">${item.name}</option>
+            %endfor
+        </select>
         
         &nbsp;&nbsp;<input type="button" id="org_btn_add_state" value="ADD" class="small_btn" />
         <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" />
@@ -720,12 +728,10 @@
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
             if (textarea.className == 'certificate_editor') {
-                // Add token plugin
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
                 config.width = '100%';
                 config.height = 500;
-                // Configure available tokens
                 config.availableTokens = [
                     ["", ""],
                     ["firstname", "firstname"],
@@ -766,14 +772,6 @@
 	var organization_district_list = new Array();
 	var organization_school_list = new Array();
 	
-	%for item in District.objects.all().order_by("name"):
-		organization_district_list.push("${item.state.id},${item.id},${item.name}");
-		
-		%for item1 in School.objects.filter(district=item).order_by("name"):
-		organization_school_list.push("${item1.district.id},${item1.id},${item1.name}");
-		%endfor
-	%endfor
-	
 	//-----------------------------------------------------------------------organizational_dashboard_menu_text_size
 	for(var i = 9; i < 35; i++){
 		$("#organizational_dashboard_menu_text_size").append("<option value='" + i + "'>" + i + "</option>");
@@ -803,7 +801,6 @@
 	//-----------------------------------------------------------------------pagerOptions
 	var pagerOptions = {
 		container: '',
-		// output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
 		output: '{startRow} - {endRow} ({totalRows})',
 		fixedHeight: false,
 		removeRows: false,
@@ -1918,9 +1915,16 @@
 	
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
+		$("#org_district_select").find("option").each(function(){
+			organization_district_list.push($(this).attr("state_id") + "," + $(this).attr("value") + "," + $(this).text());	
+		});
+		
+		$("#org_school_select").find("option").each(function(){
+			organization_school_list.push($(this).attr("district_id") + "," + $(this).attr("value") + "," + $(this).text());	
+		});
+		
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
-		
 		organizationAddFileImgInit("organizational_base_home_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo_curr");
@@ -2122,7 +2126,7 @@
 			}
 		}
 		
-		//--------------------------org_district_select_add
+		//--------------------------org_district_select_add		
 		function org_district_select_add(state_id){
 			$("#org_district_select option").remove();
 			$("#org_district_select").append("<option value=''>Select District</option>");
