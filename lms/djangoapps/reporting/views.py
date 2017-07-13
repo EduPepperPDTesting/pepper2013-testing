@@ -1412,7 +1412,8 @@ def get_column_headers(request):
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
         elif aggregate_type_id == 3:
-            query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header)..replace('\n', '').replace('\r', '')
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
             query = eval(query)
             rs = reporting_store()
             rs.get_aggregate(collection,query,report.distinct)
@@ -1454,7 +1455,7 @@ def get_column_headers(request):
                     row[column] = str(max_dat)
                     sum_tmp.append(max_dat)
 
-                    if i = 0:
+                    if i == 0:
                         filter3 = {'_id.'+column_header:filter1}
                         total_data = rs.get_datas(collection+'data',filter3)
                         tmp = []
