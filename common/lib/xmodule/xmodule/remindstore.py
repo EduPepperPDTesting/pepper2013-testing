@@ -302,12 +302,14 @@ class MongoMyActivityStore(object):
     def get_my_activity_year_range(self):
         my_activity_start = self.collection.find().sort('ActivityDateTime',1).limit(1)
         my_activity_end = self.collection.find().sort('ActivityDateTime',-1).limit(1)
-        year_start = 0
-        year_end = 0
-        if my_activity_start:
-            year_start = str(my_activity_start[0]['ActivityDateTime'])[0:4]
-        if my_activity_end:
-            year_end = str(my_activity_end[0]['ActivityDateTime'])[0:4]
+        year_start = 2017
+        year_end = 2017
+        for d1 in my_activity_start:
+            year_start = str(d1['ActivityDateTime'])[0:4]
+            break
+        for d2 in my_activity_end:
+            year_end = str(d2['ActivityDateTime'])[0:4]
+            break
         return int(year_start), int(year_end)
 
 class MongoMyActivityStaticStore(object):
