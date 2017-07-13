@@ -134,6 +134,9 @@ class MongoReportingStore(object):
         for index,val in enumerate(datas):
             self.collection.insert(val)
         return True
+    def update_data(filter,data,collection):
+        self.set_collection(collection)
+        return self.collection.update([filter,data])
 
     def get_datas(self,collection,db_filter={},db_sort=['_id',1]):
         self.set_collection(collection)

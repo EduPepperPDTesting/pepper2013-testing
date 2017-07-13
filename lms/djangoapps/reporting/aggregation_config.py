@@ -1984,3 +1984,16 @@ get_create_int_row_headers = '''
         "$out":"collection_row_header"
     }
 '''
+# ------------------------------------------------------------------------------------------------------------------------
+get_create_collection_tmp = '''{
+    "$group":{
+        "_id":{"{column_data}":"${column_data}",'{row_data}':"${row_data}"},
+        'max':{"$max":"{aggregate_data}"},
+        'min':{"$min":"{aggregate_data}"},
+        'avg':{"$avg":"{aggregate_data}"},
+        'total':{"$sum":"{aggregate_data}"},
+        "count":{"$sum":1}
+        }
+    },
+{"$out":"{collection}"}
+'''

@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_create_int_column_headers,get_create_int_row_headers
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_create_int_column_headers,get_create_int_row_headers,get_create_collection_tmp
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -1412,8 +1412,12 @@ def get_column_headers(request):
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
         elif aggregate_type_id == 3:
-            tmp_data = []
             aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
+            query = eval(query)
+            rs = reporting_store()
+            rs.get_aggregate(collection,query,report.distinct)
+            tmp_data = []
             for d in row_data:
                 tmps = []
                 sum_tmp = []
@@ -1440,21 +1444,23 @@ def get_column_headers(request):
                         filter2 = {"$in": [None]}
                     else:
                         filter2 = d['_id'][row_header]
-                    filters = {column_header:filter1,row_header:filter2}
+                    filters = {'_id.'+column_header:filter1,'_id.'+row_header:filter2}
                     max_dat = 0
-                    data = rs.get_datas(collection,filters)
+                    data = rs.get_datas(collection+'data',filters)
                     for dd in data:
-                        if dd[aggregate_data] == None:
-                            dd[aggregate_data] = 0
-                        if max_dat < dd[aggregate_data]:
-                            max_dat = dd[aggregate_data]
-                    row[column] = str(max_dat)
-                    sum_tmp.append(max_dat)
+                        row[column] = str(dd['max'])
+                    sum_tmp.append(dd['max'])
                 tmp_data.append(sum_tmp)
                 row['count'] = sum(sum_tmp)
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
-            column_sum = sum(tmp_data)
+                filter3 = {'_id.'+row_header:filter2}
+                total_data = rs.get_datas(collection+'data',filter3)
+                tmp = []
+                for ss in total_data:
+                    tmp.append(ss['max'])
+                tmp = {"total":sum(tmp)}
+                rs.update_data(filter3,tmp,collection+"aggregate")
 
     if column_header_type == 'time':
         for i,k in enumerate(column_header_row):
@@ -1493,7 +1499,7 @@ def report_get_matrix_rows(request):
         column_header_row.append(d['_id'][column_header])
         if aggregate_type == 1:
             row_last.append(d['count'])
-        elif aggregate_type == 0:
+        else:
             row_last.append(d['total'])
 
     column_header_row.append('count')
