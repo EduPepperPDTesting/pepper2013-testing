@@ -19,7 +19,7 @@
 <!--@end-->
 
 % for course in courses_complated:
-        <article class="my-course">
+        <article class="my-course" style="position:static !important;">
           <%
             course_target = reverse('courseware', args=[course.id])
           %>

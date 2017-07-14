@@ -867,12 +867,12 @@ Add info that you would like to share about yourself here:
 <!--@begin:Change the disply of the courses list in Dashboard-->
 <!--@date:2013-11-02-->    
       % for i,course in enumerate(courses_incomplated):
-    <%
+      <%
        border_overide='';
        if i==len(courses_incomplated)-1:
          border_overide="border-bottom:3px solid #0098C9"
        %>
-        <article class="my-course" style="${border_overide}" >
+        <article class="my-course" style="${border_overide};position:static !important;" >
           <%
             course_target = reverse('courseware', args=[course.id])
           %>
