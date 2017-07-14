@@ -821,8 +821,9 @@ Add info that you would like to share about yourself here:
 % endif
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new.css" />
-<section class="my-courses" style="" >
+<section class="my-courses">
   <!--External Courses-->
+  <!--
   <header>
     <h2>${_("External Courses")}</h2>
   </header>
@@ -841,7 +842,7 @@ Add info that you would like to share about yourself here:
       <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
     </section>
   </article>
-
+  -->
   <!--Current Courses-->
   <header>
     <h2>${_("MY LEARNING PLAN")}</h2>
@@ -872,7 +873,7 @@ Add info that you would like to share about yourself here:
        if i==len(courses_incomplated)-1:
          border_overide="border-bottom:3px solid #0098C9"
        %>
-        <article class="my-course" style="${border_overide};position:static !important;" >
+        <article class="my-course" style="${border_overide};z-index:8;" >
           <%
             course_target = reverse('courseware', args=[course.id])
           %>
