@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from courseware.courses import course_image_url, get_course_about_section
 from student.views import course_from_id
 from administration.configuration import has_hangout_perms
-from communities.utils import is_facilitator, is_member
+from communities.utils import is_facilitator, is_member, is_private
 from file_uploader.utils import get_file_url
 from django.utils import timezone
 import datetime
@@ -137,7 +137,7 @@ import datetime
                     %if not is_facilitator(request.user, community):
                         <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
                     %endif
-                %else:
+                %elif not is_private(community):
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
             </div>
@@ -527,23 +527,23 @@ import datetime
                     processData: false,
                     success: function (data) {
                         if (data.Success) {
-                            var redirect_id = data.DiscussionID;
                             if ($('#new-discussion-submit .poll-add').is(':checked')) {
                                 var pollData = formSelector.serializeArray();
                                 pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                                redirect_id = data.DiscussionID;
                                 $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
                                     if (data.Success) {
                                         discussion_dialog.hide();
                                         replaceDiscussions(1);
-                                        window.location.replace("/community/discussion/"+redirect_id);
+                                        window.location.replace("../discussion/"+redirect_id);
                                     } else {
                                         $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                                     }
                                 });
                             } else {
                                 discussion_dialog.hide();
+                                window.location.replace("../discussion/"+redirect_id);
                                 replaceDiscussions(1);
-                                window.location.replace("/community/discussion/"+redirect_id);
                             }
 
                         } else {
@@ -963,11 +963,12 @@ import datetime
         waiting = false;
         $(window).scroll(function(){
             if(!waiting) {
+                var area = $("#community_content_discussions");
                 var a = $(this).scrollTop();
                 var b = $(this).innerHeight();
                 var body = document.body, html = document.documentElement;
                 var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-                if (a + b >= height - 150) {
+                if (a + b >= (area.position().top + area.height() + 20)) {
                     if ($("#community_content_header_discussions").hasClass("selected"))
                         discussion_size += 5;
                     else

@@ -484,3 +484,9 @@ Tlh6mzhUhy41yB4UJwnfLW4EJIMOtpWtKvwt6fFMZ0MwUKJwmUX1C4x5YUxChmLy
 <ns0:Conditions xmlns:ns0="urn:oasis:names:tc:SAML:2.0:assertion" NotBefore="2016-04-14T01:32:07Z" NotOnOrAfter="2016-04-14T01:47:07Z"><ns0:AudienceRestriction><ns0:Audience>staging.pepperpd.com</ns0:Audience></ns0:AudienceRestriction></ns0:Conditions>
 2016-04-13 21:31:38,871 saml2.response:ERROR Exception on conditions: Can't use it yet 1460597527 <= 1460597498
 2016-04-13 21:31:38,871 saml2.client_base:ERROR XML parse error: Can't use it yet 1460597527 <= 1460597498
+2017-07-09 23:15:43,317 saml2:INFO Logging started
+2017-07-09 23:15:43,320 saml2.mdstore:DEBUG service(edu2000, spsso_descriptor, assertion_consumer_service, urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST)
+2017-07-09 23:15:43,320 saml2.mdstore:DEBUG service => [{'index': '1', 'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST', '__class__': 'urn:oasis:names:tc:SAML:2.0:metadata&AssertionConsumerService', 'location': 'https://sso.stlucieedu.com/edx.php?idp=pepper'}]
+2017-07-09 23:15:43,320 saml2.ident:DEBUG local_policy: <saml2.assertion.Policy object at 0x7f3e2ecd0750>, name_id_policy: None
+2017-07-09 23:15:43,326 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/fcl/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:assertion:Assertion --node-id id-e8481d18a5c12743b8731213fea4e527 --output /tmp/tmppIUFhO.xml /tmp/tmpWEM46H.xml
+2017-07-09 23:15:43,412 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/fcl/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:protocol:Response --node-id id-4eac1cd4acf41f55bbb5de011a287a2e --output /tmp/tmpPDuytv.xml /tmp/tmpXQzCgW.xml

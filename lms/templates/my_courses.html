@@ -270,6 +270,7 @@
 
 <section class="my-courses" style="margin:0 auto;float:none;">
   <!--External Courses-->
+  <!--
   <header>
     <h2>${_("External Courses")}</h2>
   </header>
@@ -288,7 +289,7 @@
       <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
     </section>
   </article>
-
+  -->
   <!--Current Courses-->
   <header>
     <h2>${_("MY LEARNING PLAN")}</h2>
@@ -303,7 +304,7 @@
        if i==len(courses_incomplated)-1:
          border_overide="border-bottom:3px solid #0098C9;"
        %>
-        <article class="my-course" style="${border_overide};" >
+        <article class="my-course" style="${border_overide};z-index:8;" >
           <%
             course_target = reverse('courseware', args=[course.id])
           %>
