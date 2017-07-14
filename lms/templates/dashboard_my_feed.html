@@ -365,7 +365,7 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div style="display:inline-block;width:550px;">
   <div class="clearfix">
-  <a class='ds-post-title-name' href='/dashboard/{user_id}'> {first_name} {last_name}</a>
+  <a class='ds-post-title-name' href='/dashboard/{user_id}' target="_blank"> {first_name} {last_name}</a>
   {removable?<img src='/static/images/trash-small.png' class='delete-something dlg-announcement-delete' style="float\:right;"></img>}
   </div>
   <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
@@ -398,7 +398,7 @@ from permissions.utils import check_access_level, check_user_perms
   style="padding:3px;display:inline-block;color:#89C153;font-weight:bold;">View All ({count})</a>
   </div>
   </div>
-        <a class='ds-post-title-name' href='/dashboard/{user_id}'>
+  <a class='ds-post-title-name' href='/dashboard/{user_id}' target="_blank">
           {first_name} {last_name}</a>
         <br />
   <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
