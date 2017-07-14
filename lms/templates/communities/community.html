@@ -963,11 +963,12 @@ import datetime
         waiting = false;
         $(window).scroll(function(){
             if(!waiting) {
+                var area = $("#community_content_discussions");
                 var a = $(this).scrollTop();
                 var b = $(this).innerHeight();
                 var body = document.body, html = document.documentElement;
                 var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-                if (a + b >= height - 150) {
+                if (a + b >= (area.position().top + area.height() + 20)) {
                     if ($("#community_content_header_discussions").hasClass("selected"))
                         discussion_size += 5;
                     else
