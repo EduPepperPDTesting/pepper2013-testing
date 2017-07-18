@@ -514,7 +514,9 @@ def get_total_course_time(user_id, course_id):
     for v in results:
         total_time_user = total_time_user + v['total_time']
            
-    total_course_time = recorded_time_format(total_time_user) 
+    #total_course_time = recorded_time_format(total_time_user)
+    if total_time_user:
+        total_course_time = total_time_user
     
     return total_course_time
 #@end
@@ -559,7 +561,9 @@ def get_current_course_time(user_id, course_id):
                     .format(user.username, course_id))
     
     course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
-    current_course_time = course_time + external_time
+    time_temp = course_time + external_time
+    if time_temp:
+        current_course_time = time_temp
     
     return current_course_time
 
