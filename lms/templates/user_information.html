@@ -824,10 +824,11 @@
     </div>
     </div>
 </section>
+
 <div style="display:none">
-<form id="new_change_photo_form" method="post" enctype="multipart/form-data" action="${reverse('upload_photo_new')}">
+<form id="new_change_photo_form" method="post" action="${reverse('upload_photo_new')}">
     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-    <input type="file" name="photo" id="new_photo"/>
+    <input type="text" name="photo" id="new_photo"/>
 </form>
 <div>
 

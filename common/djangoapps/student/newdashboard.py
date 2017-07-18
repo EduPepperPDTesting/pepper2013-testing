@@ -6,6 +6,7 @@ import datetime
 import json
 import logging
 import re
+import base64
 
 from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
@@ -1510,4 +1511,9 @@ def new_upload_photo(request):
     return redirect(reverse('user_information',args=[request.user.id]))
 
 def upload_photo_new(request):
-    pass
+    photo_str = request.POST.get('photo')
+    imgData = base64.b64decode(photo_str)
+    img_file = open('/static/img/img_out.jpeg', 'wb')  
+    img_file.write(ori_image_data)  
+    img_file.close()
+    return redirect(reverse('user_information',args=[request.user.id]))
