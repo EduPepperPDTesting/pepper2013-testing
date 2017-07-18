@@ -1508,3 +1508,6 @@ def time_to_local(user_time,time_diff_m):
 def new_upload_photo(request):
     upload_user_photo(request.user.id,request.FILES.get('photo'))
     return redirect(reverse('user_information',args=[request.user.id]))
+
+def upload_photo_new(request):
+    pass
