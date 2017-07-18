@@ -1170,7 +1170,7 @@
                 $(".info_btn").hide();
                 $(".info_count_btn").show();
                 var count = data.count > 999 ? 999 : data.count;
-                $(".info_count_btn").find(".info_count").text(count);
+                $(".info_count").text(count);
             }
             $('.info_list').empty();
             for (var i = 0; i < data.results.length; i++) {
