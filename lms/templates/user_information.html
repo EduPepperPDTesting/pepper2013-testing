@@ -229,10 +229,8 @@
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Profile")}</title></%block>
 
-<link rel="stylesheet" href="/static/css/amazeui.min.css">
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
-<script src="/static/js/jquery-1.8.3.min.js"></script>
 <script src="/static/js/amazeui.min.js" charset="utf-8"></script>
 <script src="/static/js/cropper.min.js" charset="utf-8"></script>
 <script src="/static/js/custom_up_img.js" charset="utf-8"></script>
@@ -818,9 +816,9 @@
       </div>
       <div class="am-g am-fl">
         <div class="up-control-btns">
-            <span class="am-icon-rotate-left"  onclick="rotateimgleft()"></span>
-            <span class="am-icon-rotate-right" onclick="rotateimgright()"></span>
-            <span class="am-icon-check" id="up-btn-ok" url="upload.php"></span>
+            <button class="am-icon-rotate-left"  onclick="rotateimgleft()">turnleft</button>
+            <button class="am-icon-rotate-right" onclick="rotateimgright()">turnright</button>
+            <button class="am-icon-check" id="up-btn-ok" url="upload.php">confirm</button>
         </div>
       </div>
     </div>
