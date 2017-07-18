@@ -85,32 +85,8 @@ $(function() {
     	var url=$(this).attr("url");
     	var canvas=$("#image").cropper('getCroppedCanvas');
     	var data=canvas.toDataURL(); //转成base64
-        
-
-        console.log(canvas);
-        $.ajax( {  
-                url:url,  
-                dataType:'json',  
-                type: "POST",  
-                data: {"image":data.toString()},  
-                success: function(data, textStatus){
-                	$modal.modal('close');
-                	set_alert_info(data.result);
-                	$modal_alert.modal();
-                	if(data.result=="ok"){
-                		$("#up-img-touch img").attr("src",data.file);
-                	    console.log(data.file)
-                		var img_name=data.file.split('/')[2];
-                		$("#pic").text(img_name);
-                	}
-                },
-                error: function(){
-                	$modal.modal('close');
-                	set_alert_info("上传文件失败了！");
-                	$modal_alert.modal();
-                }  
-         });  
-    	
+        $("#new_photo").val(data)
+        $("$new_change_photo_form").submit()
     });
     
 });
