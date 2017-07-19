@@ -131,7 +131,7 @@ if Backbone?
         #@showView.convertMath()
       else
         @$el.find('.post-body').html(@model.get('body'))
-      @$el.parent().parent().parent().parent().find('.expand-post').css('display', 'none')
+      @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
       if $(".my-course-work-content").length>0
@@ -160,7 +160,7 @@ if Backbone?
         @$el.find('.action-edit').hide()
         @$el.find('.action-delete').hide()
         @$el.find('.action-openclose').hide()
-      @$el.parent().parent().parent().parent().find('.expand-post').css('display', 'block')
+      @$el.find('.expand-post').css('display', 'block')
 
     createEditView: () ->
       super()
