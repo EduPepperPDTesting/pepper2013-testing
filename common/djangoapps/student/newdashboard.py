@@ -1512,8 +1512,10 @@ def new_upload_photo(request):
 
 def upload_photo_new(request):
     photo_str = request.POST.get('photo')
+    photo_str = photo_str.split(',')[1]
     imgData = base64.b64decode(photo_str)
-    img_file = open('/static/img/img_out.jpeg', 'wb')  
-    img_file.write(ori_image_data)  
+    img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+    img_file.write(imgData)       
     img_file.close()
+    upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.png')
     return redirect(reverse('user_information',args=[request.user.id]))

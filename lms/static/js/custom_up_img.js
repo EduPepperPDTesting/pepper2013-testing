@@ -86,7 +86,7 @@ $(function() {
     	var canvas=$("#image").cropper('getCroppedCanvas');
     	var data=canvas.toDataURL(); //转成base64
         $("#new_photo").val(data)
-        $("$new_change_photo_form").submit()
+        $("#new_change_photo_form").submit()
     });
     
 });
