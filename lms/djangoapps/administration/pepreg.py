@@ -462,28 +462,32 @@ def getCalendarMonth(request):
     _old_month = request.GET.get('old_month')
 
     if (_year):
-        _year = int(_year);
+        _year = int(_year)
+    else:
+        raise Exception("no year")
 
     if (_month):
-        _month = int(_month);
+        _month = int(_month)
+    else:
+        raise Exception("no month")
 
     if (_year_n):
-        _year_n = int(_year_n);
+        _year_n = int(_year_n)
 
     if (_month_n):
-        _month_n = int(_month_n);
+        _month_n = int(_month_n)
 
     if (_day):
-        _day = int(_day);
+        _day = int(_day)
 
     if (_day_n):
-        _day_n = int(_day_n);
+        _day_n = int(_day_n)
 
     if not _getrange:
         _getrange = "0"
 
     if not(_catype):
-        _catype = "0";
+        _catype = "0"
 
     if _go_back:
         _go_back = 1 if _go_back =="true" else 0
@@ -502,8 +506,6 @@ def getCalendarMonth(request):
     while firstweekday > 6:
         firstweekday -= 7
 
-    month = [[]]
-    week = 0
     start = datetime(year=_year, month=_month, day=1, tzinfo=utc)  # 2016-08-01
     end = datetime(year=_year, month=_month, day=1, tzinfo=utc) + relativedelta(months=1)  # 2016-09-01
 
@@ -664,8 +666,12 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((catype == "0" or catype == "2") or (status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1") or (catype == "0" or catype == "3")))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
-                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ( (status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
+                #raise Exception("arrive-"+arrive+" allow-"+allow+" r_l-"+r_l+" status-"+status+" full-"+str(arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))))
+                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+                    if i > 0:
+                        print_row.append([])
 
                     print_row[i].append(item.name)
                     print_row[i].append(item.description)
@@ -674,18 +680,22 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     print_row[i].append(item.classroom)
                     print_row[i].append(item.geo_location)
 
-                    if(i < array_length - 1):
+                    if array_length > i + 1:
                         i += 1
-                        print_row.append([])
 
+    #raise Exception(str(print_row))
     if(print_row):
+        #raise Exception(str(print_row))
         n = 0
+        i = len(print_row)
         table_tr_content = ""
         while(n < i):
-
             row_height = "30"
-            ti_text_span = str(print_row[n][1])
-            tg_text_span = str(print_row[n][5])
+            try:
+                ti_text_span = str(print_row[n][1])
+                tg_text_span = str(print_row[n][5])
+            except:
+                raise Exception("print_row-"+str(print_row)+" n="+str(n)+" i="+str(i))
             if(len(ti_text_span) > 36 or len(tg_text_span) > 36):
                 if(len(ti_text_span) >= len(tg_text_span)):
                     row_height = str((1 + len(ti_text_span) / 36) * 15)
@@ -914,10 +924,10 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
         if isday:   #"<td style='position: relative; height: 100%; width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>"\
             table_tr_content += "<td style='position: relative; height: 100%; width: 154px !important;'>" \
-                                "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
+                                "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; /*bottom:0px;*/ left:0px; width: 100%; height: 640px;'>"
 
             for dayHour in dayHours:
-                table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; height: 27px; padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
+                table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; /*height: 27px;*/ padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
 
             table_tr_content += "</div></td>";
 
@@ -1366,6 +1376,56 @@ def download_calendar_pdf(request):
     c.drawImage(logo, 330, 750, 200, 73);
 
     c.setFont("Helvetica", 20)
+
+    try:
+        dist_name = None if request.user.profile.district.name is None else request.user.profile.district.name
+    except:
+        raise Exception("couldn't load dist")
+
+    if (dist_name and dist_name != ''):
+        try:
+            dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+            c.drawImage(dist_logo, 30, 750, 200, 73)
+        except:
+            try:
+                dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
+                c.drawImage(dist_logo, 30, 750, 200, 73)
+            except:
+                # c.drawString(30, 750, str(dist_name))
+                # --- to split if long string
+
+                string_distname_length = stringWidth(dist_name, "Helvetica", 20)
+                if (dist_name and string_distname_length > 260):
+                    num_string = (string_distname_length / 260) + 1  # number of lines to draw
+
+                    dist_name_length = round((int(len(str(dist_name)) / num_string)), 0)
+                    while 1:  # get first line size
+                        string_distname_length = stringWidth(dist_name[0: int(dist_name_length)], "Helvetica", 20)
+                        if (string_distname_length >= 260):
+                            break
+                        else:
+                            dist_name_length += 1  # add to end index to increase line size
+
+                    num = 1
+                    start_index = 0
+                    end_draw = 0
+                    while (num < num_string):
+                        if (len(str(dist_name)) > int(dist_name_length)):
+                            end_index = str(dist_name[int(start_index): int(dist_name_length)]).rfind(" ")
+                            end_index = end_index + start_index if end_index > 0 else dist_name_length - 1
+                            c.drawString(30, 860 - ((30 * num) + 30),
+                                         str(dist_name[int(start_index): int(end_index)]).encode('utf-8'))
+                            start_index = end_index + 1
+                            dist_name_length = start_index + dist_name_length
+                        elif (end_draw == 0):
+                            c.drawString(30, 860 - ((30 * num) + 30), str(dist_name[int(start_index):]).encode('utf-8'))
+                            end_draw = 1
+                        num += 1
+                elif (len(dist_name) > 0):
+                    c.drawString(30, 830, str(dist_name))
+
+
+
     c.drawString(30, 710, "PD Training Calendar") #old x: 370
 
     styleSheet = getSampleStyleSheet()
@@ -1413,24 +1473,6 @@ def download_calendar_pdf(request):
                 tr_height = 30
 
                 training = PepRegTraining.objects.get(id=training_id)
-
-                # try:
-                #     district = District.objects.get(id=training.district)
-                #     district = District.objects.get(id=training.district.id)
-                #     dist_name = district.name
-                #     dist_name = training.district.name
-                #     console.log("name "+str(dist_name))
-                #     try:
-                #         dist_logo = ImageReader("https://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #         c.drawImage(dist_logo, 30, 750, 200, 73)
-                #     except:
-                #         try:
-                #             dist_logo = ImageReader("http://" + request.get_host() + '/static/images/' + dist_name + '.jpg')
-                #             c.drawImage(dist_logo, 30, 750, 200, 73)
-                #         except:
-                #             console.log('no logo')
-                # except:
-                #     console.log("couldn't load logo")
 
                 training_name = training.name
                 training_desc = training.description
