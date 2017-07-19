@@ -659,6 +659,7 @@ div.card-bottom table tr:nth-child(2) {
     font-family: sans-serif !important;
     font-style: inherit;
     box-sizing: border-box;
+    word-wrap: break-word;
 }
 .comment-area {
     margin-bottom: 5px;
