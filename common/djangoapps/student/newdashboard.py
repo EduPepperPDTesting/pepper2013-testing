@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import base64
+from PIL import Image
 
 from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
@@ -1517,5 +1518,10 @@ def upload_photo_new(request):
     img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
     img_file.write(imgData)       
     img_file.close()
+    im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.png')
+    x,y = im.size
+    p = Image.new('RGBA', im.size, (255,255,255))
+    p.paste(im, (0, 0, x, y), im)
+    p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.png')
     upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
     return redirect(reverse('user_information',args=[request.user.id]))
