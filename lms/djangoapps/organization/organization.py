@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
@@ -43,6 +43,9 @@ def main(request):
 
         elif (get_flag == "organization_main_get"):
             return organization_main_page_configuration_get(request);
+
+        elif (get_flag == "organization_get_locations"):
+            return organization_get_locations(request);
 
     elif(post_flag):
         if (post_flag == "organization_add"):
@@ -462,6 +465,29 @@ def organization_get(request):
                     break;
             else:
                 data['find'] = False
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------organization_get_locations
+@login_required
+def organization_get_locations(request):
+    data = {}
+    rows_state = []
+    rows_district = []
+    rows_school = []
+    try:
+        for org in State.objects.all().order_by("name"):
+            rows_state.append({'id': org.id, 'name': org.name})
+
+        for org1 in District.objects.filter(state__isnull=False).order_by("name"):
+            rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
+
+        for org2 in School.objects.filter(district__isnull=False).order_by("name"):
+            rows_school.append({'id': org2.id, 'name': org2.name, 'district_id': org2.district.id})
+
+        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
