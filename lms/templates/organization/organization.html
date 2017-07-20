@@ -2054,10 +2054,8 @@
 		$('#new-organization').click(function () {
 			organizationEdit('add');
 		});
-		
 		//--------------------------
 		organizationEditAttach();
-		
 		//--------------------------del-organization
 		$('#del-organization').click(function () {
 			if($(".organization-select:checked").length > 0){
@@ -2110,7 +2108,7 @@
 		});
 		
 		//--------------------------org_school_select_add
-		function org_school_select_add(district_ids){
+		function org_school_select_add(district_id){
 			$("#org_school_select option").remove();
 			$("#org_school_select").append("<option value=''>Select School</option>");
 			if(district_id != ""){
@@ -2125,7 +2123,7 @@
 		
 		//--------------------------org_district_select_add		
 		function org_district_select_add(state_id){
-			$("#org_district_select　option").remove();
+			$("#org_district_select option").remove();
 			$("#org_district_select").append("<option value=''>Select District</option>");
 			if(state_id != ""){
 				for(var i = 0; i < organization_district_list.length; i++){
@@ -2137,15 +2135,15 @@
 			}
 			org_school_select_add("");
 		}
-		org_district_select_add("");		
+		org_district_select_add("");
 		
 		//--------------------------org_state_select
         $("#org_state_select").change(function () {
 			org_district_select_add($(this).val());
         });		
-		 $("#org_district_select").change(function () {		 	
+		 $("#org_district_select").change(function () {
 		 	org_school_select_add($(this).val());
-        });
+        });		
 		
 		//--------------------------org_btn_add_state
 		$("#org_btn_add_state").click(function(){
