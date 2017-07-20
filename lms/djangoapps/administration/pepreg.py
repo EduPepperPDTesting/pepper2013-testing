@@ -1421,7 +1421,7 @@ def download_calendar_pdf(request):
                             end_draw = 1
                         num += 1
                 elif (len(dist_name) > 0):
-                    c.drawString(30, 830, str(dist_name))
+                    c.drawString(30, 800, str(dist_name))
 
 
 
