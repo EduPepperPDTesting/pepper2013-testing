@@ -1531,6 +1531,7 @@ $(document).ready(function(){
         }
     });
 
+    waiting = false;
     $(window).bind("scroll", function(){
         var area = $(".con-ma-rows");
         var a = $(this).scrollTop();
@@ -1544,6 +1545,10 @@ $(document).ready(function(){
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show == 'my-activity' ){
+                    waiting = true;
+                    setTimeout(function(){
+                      waiting = false;
+                    }, 750);
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
