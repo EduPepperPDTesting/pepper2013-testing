@@ -1143,7 +1143,7 @@ Add info that you would like to share about yourself here:
     </div>
     </div>
     <div style="display:none">
-    <form id="new_change_photo_form" method="post" action="${reverse('upload_photo_new')}">
+    <form id="new_change_photo_form" method="post" action="${reverse('upload_photo')}">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
         <input type="text" name="photo" id="new_photo"/>
     </form>
