@@ -1531,22 +1531,13 @@ $(document).ready(function(){
         }
     });
 
+    waiting = false;
     $(window).bind("scroll", function(){
-        var scrollTop = $(this).scrollTop();
-　　    var windowHeight = $(this).height();
-        var scrollHeight = $(document).height();
-        var scrollTop_ceil = Math.ceil(scrollTop);
+        var area = $(".con-ma-rows");
+        var a = $(this).scrollTop();
+        var b = $(this).innerHeight();
 
-        console.log("scrollTop:",scrollTop);
-        console.log("---------");
-        console.log("scrollTop_ceil:",scrollTop_ceil);
-        console.log("windowHeight:",windowHeight);
-        console.log(">=");
-        console.log("scrollHeight:",scrollHeight);
-        console.log("============================");
-
-        if(scrollTop_ceil + windowHeight >= scrollHeight)
-        {
+        if (a + b >= (area.position().top + area.height() + 195)) {
             if(skip_rows_scroll >= data_all){
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
@@ -1554,6 +1545,10 @@ $(document).ready(function(){
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
                 if(now_show == 'my-activity' ){
+                    waiting = true;
+                    setTimeout(function(){
+                      waiting = false;
+                    }, 750);
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
