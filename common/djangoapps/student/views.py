@@ -2124,7 +2124,7 @@ def upload_user_photo(user_id, file_img):
         # mime_type = mimetypes.guess_type(image_url)[0]
 
         img = Image.open(file_img)
-        img.thumbnail((110,110),Image.ANTIALIAS)
+        #img.thumbnail((110,110),Image.ANTIALIAS)
 
         file=StringIO()
         img.save(file, 'JPEG')
