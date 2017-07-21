@@ -477,15 +477,26 @@ def organization_get_locations(request):
     rows_state = []
     rows_district = []
     rows_school = []
+    district_id = request.GET.get('district_id', "")
+    school_id = request.GET.get('school_id', "")
+
     try:
-        for org in State.objects.all().order_by("name"):
-            rows_state.append({'id': org.id, 'name': org.name})
+        if district_id != "":
+            for tmp1 in District.objects.filter(id=district_id):
+                for tmp2 in School.objects.filter(district=tmp1).order_by("name"):
+                    rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
+                break
+        
+        elif school_id != "":
+            for tmp2 in School.objects.filter(id=school_id).order_by("name"):
+                rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
 
-        for org1 in District.objects.filter(state__isnull=False).order_by("name"):
-            rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
+        else:
+            for org in State.objects.all().order_by("name"):
+                rows_state.append({'id': org.id, 'name': org.name})
 
-        for org2 in School.objects.filter(district__isnull=False).order_by("name"):
-            rows_school.append({'id': org2.id, 'name': org2.name, 'district_id': org2.district.id})
+            for org1 in District.objects.filter(state__isnull=False).order_by("name"):
+                rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
 
         data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
     except Exception as e:

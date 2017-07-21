@@ -1521,23 +1521,62 @@
 				$("#org_district_select").val(sid);
 				$("#org_district_select").change();
 			}else{
+				var isNoAdd = true;
 				for(var i = 0; i < organization_school_list.length; i++){
 					var tmp1 = organization_school_list[i].split(",");
-					if(tmp1[1] == sid){									
-						for(var j = 0; j < organization_district_list.length; j++){
-							var tmp2 = organization_district_list[j].split(",");
-							if(tmp2[1] == tmp1[0]){
-								$("#org_state_select").val(tmp2[0]);
-								$("#org_state_select").change();
-								break;
-							}
-						}
-						$("#org_district_select").val(tmp1[0]);
-						$("#org_district_select").change();
+					if(tmp1[1] == sid){
+						isNoAdd = false;
 						break;
 					}
 				}
-				$("#org_school_select").val(sid);
+				if(isNoAdd){
+					var loadwin = new LoadingWin();
+					$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations", school_id: sid}, function (r) {
+						if (r.Success){
+							for(var i in r.rows_school){
+								organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
+							}
+							for(var i = 0; i < organization_school_list.length; i++){
+								var tmp1 = organization_school_list[i].split(",");
+								if(tmp1[1] == sid){									
+									for(var j = 0; j < organization_district_list.length; j++){
+										var tmp2 = organization_district_list[j].split(",");
+										if(tmp2[1] == tmp1[0]){
+											$("#org_state_select").val(tmp2[0]);
+											$("#org_state_select").change();
+											break;
+										}
+									}
+									$("#org_district_select").val(tmp1[0]);
+									$("#org_district_select").change();
+									break;
+								}
+							}
+							$("#org_school_select").val(sid);
+						}else{
+							alert(r.Error);
+						}
+						loadwin.hide();
+					});
+				}else{					
+					for(var i = 0; i < organization_school_list.length; i++){
+						var tmp1 = organization_school_list[i].split(",");
+						if(tmp1[1] == sid){									
+							for(var j = 0; j < organization_district_list.length; j++){
+								var tmp2 = organization_district_list[j].split(",");
+								if(tmp2[1] == tmp1[0]){
+									$("#org_state_select").val(tmp2[0]);
+									$("#org_state_select").change();
+									break;
+								}
+							}
+							$("#org_district_select").val(tmp1[0]);
+							$("#org_district_select").change();
+							break;
+						}
+					}
+					$("#org_school_select").val(sid);
+				}
 			}
 			$("#org_btn_fix_state").attr("sid", sid);
 			$("#org_btn_fix_state").attr("stype", stype);
@@ -2020,9 +2059,9 @@
 									for(var i in r.rows_district){
 										organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
 									}
-									for(var i in r.rows_school){
+									/*for(var i in r.rows_school){
 										organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
-									}
+									}*/
 								}else{
 									alert(e.Error);
 								}
@@ -2109,13 +2148,41 @@
 		
 		//--------------------------org_school_select_add
 		function org_school_select_add(district_id){
-			$("#org_school_select option").remove();
+			$("#org_school_select").empty();
 			$("#org_school_select").append("<option value=''>Select School</option>");
 			if(district_id != ""){
+				var isNoAdd = true;
 				for(var i = 0; i < organization_school_list.length; i++){
 					var tmp1 = organization_school_list[i].split(",");
 					if(tmp1[0] == district_id){
-						$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+						isNoAdd = false;
+						break;
+					}
+				}
+				if(isNoAdd){
+					var loadwin = new LoadingWin();
+					$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations", district_id: district_id}, function (r) {
+						if (r.Success){
+							for(var i in r.rows_school){
+								organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
+							}
+							for(var i = 0; i < organization_school_list.length; i++){
+								var tmp1 = organization_school_list[i].split(",");
+								if(tmp1[0] == district_id){
+									$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+								}
+							}
+						}else{
+							alert(r.Error);
+						}
+						loadwin.hide();
+					});
+				}else{
+					for(var i = 0; i < organization_school_list.length; i++){
+						var tmp1 = organization_school_list[i].split(",");
+						if(tmp1[0] == district_id){
+							$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+						}
 					}
 				}
 			}
@@ -2123,7 +2190,7 @@
 		
 		//--------------------------org_district_select_add		
 		function org_district_select_add(state_id){
-			$("#org_district_select option").remove();
+			$("#org_district_select").empty();
 			$("#org_district_select").append("<option value=''>Select District</option>");
 			if(state_id != ""){
 				for(var i = 0; i < organization_district_list.length; i++){
