@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
@@ -43,6 +43,9 @@ def main(request):
 
         elif (get_flag == "organization_main_get"):
             return organization_main_page_configuration_get(request);
+
+        elif (get_flag == "organization_get_locations"):
+            return organization_get_locations(request);
 
     elif(post_flag):
         if (post_flag == "organization_add"):
@@ -134,18 +137,19 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            dataitems = '['
-            dataitems = dataitems + '{"name":"Major Subject Area","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"1"},'
-            dataitems = dataitems + '{"name":"Grade Level-Check all that apply","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"2"},'
-            dataitems = dataitems + '{"name":"Number of Years in Education","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"3"},'
-            dataitems = dataitems + '{"name":"My Learners\' Profile","description":"","field_type":"","required":"1","course_qualification":"0","delete":"0","default":"4"},'
-            dataitems = dataitems + '{"name":"About me","description":"","field_type":"","required":"0","course_qualification":"0","delete":"0","default":"5"}'
-            dataitems = dataitems + ']'
+            if not oid:
+                dataitems = '['
+                dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
+                dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
+                dataitems = dataitems + '{"name":"Number of Years in Education","required":"1","default":"3"},'
+                dataitems = dataitems + '{"name":"My Learners\' Profile","required":"1","default":"4"},'
+                dataitems = dataitems + '{"name":"About me","default":"5"}'
+                dataitems = dataitems + ']'
 
-            org_data = OrganizationDataitems();
-            org_data.DataItem = dataitems
-            org_data.organization = organization
-            org_data.save();
+                org_data = OrganizationDataitems();
+                org_data.DataItem = dataitems
+                org_data.organization = organization
+                org_data.save();
 
             if copyfromId:
                 organization_old = OrganizationMetadata.objects.get(id=copyfromId) 
@@ -476,6 +480,40 @@ def organization_get(request):
                     break;
             else:
                 data['find'] = False
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------organization_get_locations
+@login_required
+def organization_get_locations(request):
+    data = {}
+    rows_state = []
+    rows_district = []
+    rows_school = []
+    district_id = request.GET.get('district_id', "")
+    school_id = request.GET.get('school_id', "")
+
+    try:
+        if district_id != "":
+            for tmp1 in District.objects.filter(id=district_id):
+                for tmp2 in School.objects.filter(district=tmp1).order_by("name"):
+                    rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
+                break
+        
+        elif school_id != "":
+            for tmp2 in School.objects.filter(id=school_id).order_by("name"):
+                rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
+
+        else:
+            for org in State.objects.all().order_by("name"):
+                rows_state.append({'id': org.id, 'name': org.name})
+
+            for org1 in District.objects.filter(state__isnull=False).order_by("name"):
+                rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
+
+        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
