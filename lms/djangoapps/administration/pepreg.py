@@ -1412,7 +1412,8 @@ def download_calendar_pdf(request):
                         if (len(str(dist_name)) > int(dist_name_length)):
                             end_index = str(dist_name[int(start_index): int(dist_name_length)]).rfind(" ")
                             end_index = end_index + start_index if end_index > 0 else dist_name_length - 1
-                            c.drawString(30, 860 - ((30 * num) + 30),
+                            #860 - ((30 * num) + 30),
+                            c.drawString(30, 720 + (30 * (num_string - (num + 1)) + 30),
                                          str(dist_name[int(start_index): int(end_index)]).encode('utf-8'))
                             start_index = end_index + 1
                             dist_name_length = start_index + dist_name_length
@@ -1421,7 +1422,7 @@ def download_calendar_pdf(request):
                             end_draw = 1
                         num += 1
                 elif (len(dist_name) > 0):
-                    c.drawString(30, 800, str(dist_name))
+                    c.drawString(30, 750, str(dist_name)) #old - 800
 
 
 
