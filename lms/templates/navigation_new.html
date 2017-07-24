@@ -810,7 +810,7 @@
 				if($(this).hasClass("active")){
 					$('ul.dropdown-menu').removeClass("expanded");
 					$(this).removeClass("active");
-					$('#user-photo-arrow').show();
+					$('#user-photo-arrow').css("visibility", "visible");
 				}else{
 					$('ul.dropdown-menu').addClass("expanded");
 					$('#dropdown').addClass("active");
@@ -819,7 +819,7 @@
 						$('ul.dropdown-menu').removeClass("expanded");
 						$('#dropdown').removeClass("active");
 					});
-					$('#user-photo-arrow').hide();
+					$('#user-photo-arrow').css("visibility", "hidden");
 				}
                 event.stopPropagation();
           	});
