@@ -47,12 +47,17 @@ $(function() {
                file = files[0];
 
                if (/^image\/\w+$/.test(file.type)) {
-                    blobURL = URL.createObjectURL(file);
-                    $image.one('built.cropper', function () {
-                        // Revoke when load complete
-                       URL.revokeObjectURL(blobURL);
-                    }).cropper('reset').cropper('replace', blobURL);
-                    $inputImage.val('');
+                    if (file.size < 1 048 576) {
+                        blobURL = URL.createObjectURL(file);
+                        $image.one('built.cropper', function () {
+                            // Revoke when load complete
+                           URL.revokeObjectURL(blobURL);
+                        }).cropper('reset').cropper('replace', blobURL);
+                        $inputImage.val('');
+                    }else{
+                        window.alert('The image cannot be larger than 1MB in size.');
+                    }
+                    
                 } else {
                     window.alert('Please choose an image file.');
                 }
