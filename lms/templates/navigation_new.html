@@ -740,6 +740,9 @@
                     } else if ($(event.target).closest(".outside_menu").length) {
                         $(".admin-dropdown-menu").hide();
                     }
+                    if($('#user-photo-arrow').is(':hidden')){
+                        $('#user-photo-arrow').css("visibility", "visible");
+                    }
                 });
                 $(document).ready(function(){
                     $(".configuration").click(function(event){
