@@ -660,7 +660,7 @@
                     % endif
                     <div class="nav-option-text-left">${request.user.username} </div>
                 </a></span>
-                <ul class="dropdown-menu" style="width:300px;top:64px;left: inherit"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
+                <ul class="dropdown-menu" style="width:300px;top:64px;left: inherit" id="me-dropdown"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
                     <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
                         margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
                         <div style="float:left;">   
@@ -822,6 +822,9 @@
 					$('#user-photo-arrow').css("visibility", "hidden");
 				}
                 event.stopPropagation();
+          	});
+          	$('#me-dropdown').click(function(event){
+                $('#user-photo-arrow').css("visibility", "visible");
           	});
         }); 
         $("#dropdown").mouseover(function(){
