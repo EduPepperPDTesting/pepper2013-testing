@@ -2622,7 +2622,7 @@
         });
 
         //$(".pagesize").on("click", "option", function (){
-        $("div").on("DOMSubtreeModified", "#user-table", function (){
+        $("#user-table").on("DOMSubtreeModified", function (){
             console.log("page size changed");
             if($("#dlg-students").length){
                 console.log("dlg-students exists");
