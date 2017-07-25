@@ -2622,7 +2622,7 @@
         });
 
         //$(".pagesize").on("click", "option", function (){
-        $(".pagesize").change(function (){
+        $("#dlg-students").on("load", "#user-table", function (){
             console.log("page size changed");
             if($("#dlg-students").length){
                 console.log("dlg-students exists");
