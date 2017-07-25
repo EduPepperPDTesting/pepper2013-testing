@@ -47,7 +47,7 @@ $(function() {
                file = files[0];
 
                if (/^image\/\w+$/.test(file.type)) {
-                    if (file.size < 1 048 576) {
+                    if (file.size < 1048576) {
                         blobURL = URL.createObjectURL(file);
                         $image.one('built.cropper', function () {
                             // Revoke when load complete
