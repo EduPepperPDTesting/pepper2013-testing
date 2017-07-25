@@ -2621,6 +2621,27 @@
             }
         });
 
+        $(".user-pager").on("change", ".pagesize", function (){
+            if($("#dlg-students").length){
+                switch($(".pagesize option:selected").val()){
+                    case 10:
+                        $("#dlg-students").height(window.innerHeight);
+                        break;
+                    case 25:
+                        $("#dlg-students").height(1210px);
+                        break;
+                    case 50:
+                        $("#dlg-students").height(1930px);
+                        break;
+                    case 100:
+                        $("#dlg-students").height(3380px);
+                        break;
+                    case 200:
+                        $("#dlg-students").height(6280px);
+                }
+            }
+        })
+
     });
 
     function resetCap(){
