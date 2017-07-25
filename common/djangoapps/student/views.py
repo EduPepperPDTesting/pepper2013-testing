@@ -10,7 +10,7 @@ import re
 import urllib
 import uuid
 import time
-
+import base64
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
