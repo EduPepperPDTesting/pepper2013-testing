@@ -2622,7 +2622,7 @@
         });
 
         //$(".pagesize").on("click", "option", function (){
-        $("#user-table").on("updateRows", function (){
+        $("div").on("DOMSubtreeModified", "#user-table", function (){
             console.log("page size changed");
             if($("#dlg-students").length){
                 console.log("dlg-students exists");
@@ -2643,7 +2643,7 @@
                         $("#dlg-students").height("6280px");
                 }
             }
-        })
+        });
 
     });
 
