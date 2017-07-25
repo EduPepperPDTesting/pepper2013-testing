@@ -2621,8 +2621,7 @@
             }
         });
 
-        //$(".user-pager").on("change", ".pagesize", function (){
-        $(".pagesize").on("change", function (){
+        $(".pagesize").on("click", "option", function (){
             console.log("page size changed");
             if($("#dlg-students").length){
                 console.log("dlg-students exists");
