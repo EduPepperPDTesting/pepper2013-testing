@@ -2280,7 +2280,7 @@ def upload_user_photo(user_id, file_img):
         # mime_type = mimetypes.guess_type(image_url)[0]
 
         img = Image.open(file_img)
-        img.thumbnail((110,110),Image.ANTIALIAS)
+        #img.thumbnail((110,110),Image.ANTIALIAS)
 
         file=StringIO()
         img.save(file, 'JPEG')
@@ -2290,7 +2290,18 @@ def upload_user_photo(user_id, file_img):
 
 
 def upload_photo(request):
-    upload_user_photo(request.user.id,request.FILES.get('photo'))
+    photo_str = request.POST.get('photo')
+    photo_str = photo_str.split(',')[1]
+    imgData = base64.b64decode(photo_str)
+    img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+    img_file.write(imgData)       
+    img_file.close()
+    im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    x,y = im.size
+    p = Image.new('RGBA', im.size, (255,255,255))
+    p.paste(im, (0, 0, x, y), im)
+    p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
     return redirect(reverse('dashboard'))
 

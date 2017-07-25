@@ -33,7 +33,7 @@ import datetime
              <h2>${community.motto}</h2>
              %if facilitator:
                  <div class="facilitator-wrap">
-                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" widht='110' height='110' id="community-avatar" alt="Facilitator Avatar" />
                      <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
                      <h4>Community Facilitator</h4>
                  </div>
