@@ -2180,7 +2180,7 @@
                         e.preventDefault();
                         $("#dlg-students-info").css("display", "none");
                         $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
-                        $("#dlg-students").height(6280).width(window.innerWidth-19) //window.innerHeight
+                        $("#dlg-students").height("500vh").width(window.innerWidth-19) //window.innerHeight
                         .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
                         $("#dlg-students").find(".close-modal").hide();
                         $("#dlg-training-info").css("display", "block");
