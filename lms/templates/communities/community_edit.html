@@ -473,7 +473,7 @@ function close_modal(modal_id){
     $("'#"+modal_id+"'").hide();
 }
 
-$(".edit-name").on('click',function(e) {
+$(".edit-name").live('click',function(e) {
 
       $(".modal").hide();
 
@@ -494,9 +494,9 @@ $(".edit-name").on('click',function(e) {
         close_modal(modal_id);
       });
 
-      $(o.closeButton).click(function() {
-        close_modal(modal_id);
-      });
+      // $(o.closeButton).click(function() {
+      //   close_modal(modal_id);
+      // });
 
       var modal_height = $(modal_id).outerHeight();
       var modal_width = $(modal_id).outerWidth();
