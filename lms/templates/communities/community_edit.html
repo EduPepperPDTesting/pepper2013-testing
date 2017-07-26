@@ -472,7 +472,11 @@
 </section>
 <script type="text/javascript">
 function close_modal(modal_id){
-    $("'#"+modal_id+"'").hide();
+    $(modal_id).hide();
+    $('#lean_overlay').css({
+        'display': 'block',
+        opacity: 0
+      });
 }
 
 $(".edit-name").live('click',function(e) {
@@ -504,7 +508,7 @@ $(".edit-name").live('click',function(e) {
 
       $('#lean_overlay').css({
         'display': 'block',
-        opacity: 0
+        opacity: 1
       });
       // $('#lean_overlay').fadeTo(200, o.overlay);
 
