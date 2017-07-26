@@ -430,7 +430,7 @@
 
             $("#close_registration").bind("click", {training_id: ${training.id}}, function(e){
                 e.preventDefault();
-                $("#dlg-training-info #expand_div").css("display", "none");
+                $("#dlg-training-info").find("#expand_div").css("display", "none");
                 $("#dlg-training-info").css("display", "none");
                 showStudents(e.data.training_id);
                 $('.modal-backdrop').remove();
