@@ -2180,11 +2180,10 @@
                         e.preventDefault();
                         $("#dlg-students-info").css("display", "none");
                         $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
-                        $("#dlg-students").height("window.innerHeight").width(window.innerWidth-19) //window.innerHeight 1000vh
-                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0", "overflow-y":"scroll"});
+                        $("#dlg-students").width(window.innerWidth-19) //window.innerHeight 1000vh height("window.innerHeight").
+                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0", "overflow-y":"scroll", "height": "100%"});
                         $("#dlg-students").find(".close-modal").hide();
                         $("#dlg-training-info").css("display", "block");
-                         console.log(".pagesize "+$(".pagesize").val());
                     });
 				}else{
                     $("#register_unregister_students").attr("disabled", true);
