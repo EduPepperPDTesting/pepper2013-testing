@@ -434,6 +434,7 @@
     });
 </script>
 
+<div id='lean_overlay' style="display: none;opacity: 1;"></div>
 <section id="change_photo" class="modal" style='width: 600px !important;>
   <div class="inner-wrapper" tabindex="-1" id="doc-modal-1" style='width:600px'>
   <header>
@@ -489,14 +490,13 @@ $(".edit-name").live('click',function(e) {
         modal_id = '#modal_clone';
       }
 
-
       $("#lean_overlay").click(function() {
         close_modal(modal_id);
       });
 
-      // $(o.closeButton).click(function() {
-      //   close_modal(modal_id);
-      // });
+      $("#change_photo_close").click(function() {
+        close_modal(modal_id);
+      })
 
       var modal_height = $(modal_id).outerHeight();
       var modal_width = $(modal_id).outerWidth();
