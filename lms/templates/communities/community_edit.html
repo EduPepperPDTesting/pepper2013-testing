@@ -180,7 +180,7 @@
         %if logo != '':
             <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
         %else:
-            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo" accept=".gif,.jpg,jpeg,.png,.GIF,.JPG,.JPEG,.PNG"></label>
+            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><a href="#change_photo" rel="leanModal" class="edit-name">修改图片</a></label>
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
@@ -428,3 +428,38 @@
         });
     });
 </script>
+
+<section id="change_photo" class="modal" style='width:620px'>
+  <div class="inner-wrapper" tabindex="-1" id="doc-modal-1" style='width:600px'>
+  <header>
+      <h2>${_('Add Profile Picture').format()}</h2>
+      <hr/>
+    </header>
+  <div class="am-modal-dialog up-frame-parent up-frame-radius">
+    <div class="am-modal-bd  up-frame-body">
+      <div class="am-g am-fl">
+        <div class="am-form-group am-form-file">
+          <input type="file" id="inputImage">
+        </div>
+      </div>
+      <div class="am-g am-fl" >
+        <div class="up-pre-before up-frame-radius">
+            <img alt="" src="" id="image" >
+        </div>
+        <div class="up-pre-after up-frame-radius">
+        </div>
+      </div>
+    </div>
+    </div>
+        <div class="up-control-btns" style='float:left;margin-left: 20px;'>
+            <button class="am-icon-rotate-left"  onclick="rotateimgleft()">turnleft</button>
+            <button class="am-icon-rotate-right" onclick="rotateimgright()">turnright</button>
+            <button class="am-icon-check" id="up-btn-ok" url="upload.php">confirm</button>
+        </div>
+    <div class="close-modal" id="change_photo_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+    </div>
+</section>
