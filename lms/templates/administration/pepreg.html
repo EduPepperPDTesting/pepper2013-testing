@@ -2177,6 +2177,7 @@
 				if(!r.arrive && r.allow_registration){ // akogan;  && !r.student_limit
 				    $("#register_unregister_students").attr("disabled", false);
 				    $("#register_unregister_students").on("click", function(e){
+				        console.log("on click");
                         if($("#expand_div").css('display') == 'block'){
                             $("#expand_div").css("display","none");
                         }
