@@ -174,6 +174,11 @@
         display: inline !important;
     }
 </style>
+<link rel="stylesheet" href="/static/css/amazeui.cropper.css">
+<link rel="stylesheet" href="/static/css/custom_up_img.css">
+<script src="/static/js/amazeui.min.js" charset="utf-8"></script>
+<script src="/static/js/cropper.min.js" charset="utf-8"></script>
+<script src="/static/js/custom_up_img.js" charset="utf-8"></script>
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
     <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data" id="community-edit-form">
         <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}" placeholder="The name of the community"></label>
@@ -429,7 +434,7 @@
     });
 </script>
 
-<section id="change_photo" class="modal" style='width:620px'>
+<section id="change_photo" class="modal" style='width: 600px !important;>
   <div class="inner-wrapper" tabindex="-1" id="doc-modal-1" style='width:600px'>
   <header>
       <h2>${_('Add Profile Picture').format()}</h2>
@@ -464,6 +469,10 @@
     </div>
 </section>
 <script type="text/javascript">
+function close_modal(modal_id){
+    $("'#"+modal_id+"'").hide();
+}
+
 $(".edit-name").on('click',function(e) {
 
       $(".modal").hide();
@@ -496,17 +505,17 @@ $(".edit-name").on('click',function(e) {
         'display': 'block',
         opacity: 0
       });
-      $('#lean_overlay').fadeTo(200, o.overlay);
+      // $('#lean_overlay').fadeTo(200, o.overlay);
 
       $('iframe', modal_id).attr('src', $('iframe', modal_id).data('src'));
       $(modal_id).css({
         'display': 'block',
-        'position': o.position,
+        // 'position': o.position,
         'opacity': 0,
         'z-index': 11000,
         'left': 50 + '%',
         'margin-left': -(modal_width / 2) + "px",
-        'top': o.top + "px"
+        // 'top': o.top + "px"
       })
 
       $(modal_id).fadeTo(200, 1);
