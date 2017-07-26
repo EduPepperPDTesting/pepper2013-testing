@@ -33,7 +33,7 @@ import datetime
              <h2>${community.motto}</h2>
              %if facilitator:
                  <div class="facilitator-wrap">
-                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" width='110' height='110' id="community-avatar" alt="Facilitator Avatar" />
                      <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
                      <h4>Community Facilitator</h4>
                  </div>
@@ -65,7 +65,7 @@ import datetime
                         </select>
                         <table id="post_content_table">
                             <tr class="post-content-row" id="post_content_new_row">
-                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
+                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" width='110' height='110' class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
                                     <a href = "#" style="color:#06e !important;" id = "add_post_image">Add Image/Video Links</a><a id = "submit_new_post_button" type="button" class="post-button blue-button side-button" style="float: right;position: relative;" value="Post">Post</a>
