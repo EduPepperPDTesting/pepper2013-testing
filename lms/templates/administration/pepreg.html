@@ -2185,7 +2185,7 @@
                         $("#dlg-students").find(".close-modal").hide();
                         $("#dlg-training-info").css("display", "block");
 
-                        $(".pagesize").on("change", function (){
+                        $(".pagesize").change(function (){
                             console.log("page size changed");
                             if($("#dlg-students").length){
                                 console.log("dlg-students exists");
