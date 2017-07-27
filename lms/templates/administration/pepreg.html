@@ -2176,12 +2176,15 @@
 				console.log('r.arrive '+r.arrive+' r.allow_registration '+r.allow_registration )
 				if(!r.arrive && r.allow_registration){ // akogan;  && !r.student_limit
 				    $("#register_unregister_students").attr("disabled", false);
+				    $("#register_unregister_students").on("click", function(e){
+                        $("#dlg-students").css({"height": "100%", "min-width": "100%"}); //overflow-y":"scroll",
+                    });
                     $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
                         e.preventDefault();
                         $("#dlg-students-info").css("display", "none");
                         $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
-                        $("#dlg-students").height("1000vh").width(window.innerWidth-19) //window.innerHeight
-                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
+                        $("#dlg-students").css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
+                        //.width(window.innerWidth-19) window.innerHeight 1000vh height("window.innerHeight").
                         $("#dlg-students").find(".close-modal").hide();
                         $("#dlg-training-info").css("display", "block");
 
