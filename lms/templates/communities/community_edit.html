@@ -182,13 +182,12 @@
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
     <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data" id="community-edit-form">
 
-        <!-- <input type="hidden" name="logo" id="new_photo"/> -->
 
         <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}" placeholder="The name of the community"></label>
         %if logo != '':
             <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
         %else:
-            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><a href="#change_photo" rel="leanModal" class="edit-name">修改图片</a></label>
+            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><a href="#change_photo" rel="leanModal" class="edit-name">修改图片</a></label><input type='hidden' name='logo' id="logo">
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
@@ -395,7 +394,7 @@
             }
         });
         $('#community-logo .remove').click(function() {
-            var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><a href="#change_photo" rel="leanModal" class="edit-name">修改图片</a></label>';
+            var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><a href="#change_photo" rel="leanModal" class="edit-name">修改图片</a></label><input type="hidden" name="logo" id="logo">';
             $('#community-logo').replaceWith(content);
         });
         $('.community-resource .remove').click(function() {

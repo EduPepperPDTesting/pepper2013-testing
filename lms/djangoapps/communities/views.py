@@ -837,20 +837,33 @@ def community_edit_process(request):
         except:
             state = None
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
-        if request.POST.get('logo', 'nothing') == 'nothing':
-            # Try to grab the new file, and if it isn't there, just make it blank.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
             try:
                 logo = FileUploads()
                 logo.type = 'community_logos'
                 logo.sub_type = community_id
                 logo.upload = request.FILES.get('logo')
+
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg', 'wb')    
+                img_file.write(imgData)       
+                img_file.close()
+                im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg')
+                x,y = im.size
+                p = Image.new('RGBA', im.size, (255,255,255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg')
+
+                logo.upload = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg'
                 logo.save()
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-        else:
-            # If the path was passed in, just use that.
-            logo = None
+            
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
         priority_id = request.POST.get('priority_id',0)
