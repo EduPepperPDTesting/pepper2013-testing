@@ -7,6 +7,9 @@ from django_future.csrf import ensure_csrf_cookie
 import json
 import re
 import logging
+import base64
+from PIL import Image
+from django.conf import settings
 import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
@@ -845,20 +848,20 @@ def community_edit_process(request):
                 logo = FileUploads()
                 logo.type = 'community_logos'
                 logo.sub_type = community_id
-                logo.upload = request.FILES.get('logo')
 
                 logo_img = logo_img.split(',')[1]
                 imgData = base64.b64decode(logo_img)
-                img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg', 'wb')    
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+community_id+'.jpg'
+                img_file = open(path, 'wb')    
                 img_file.write(imgData)       
                 img_file.close()
-                im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg')
+                im = Image.open(path)
                 x,y = im.size
                 p = Image.new('RGBA', im.size, (255,255,255))
                 p.paste(im, (0, 0, x, y), im)
-                p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg')
+                p.save(path)
 
-                logo.upload = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out_community.jpg'
+                logo.upload = str(path)
                 logo.save()
             except Exception as e:
                 logo = None
