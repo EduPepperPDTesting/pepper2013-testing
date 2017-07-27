@@ -91,6 +91,8 @@ $(function() {
     	var canvas=$("#image").cropper('getCroppedCanvas');
     	var data=canvas.toDataURL(); //转成base64
         $("#logo").val(data)
+        $("#change_photo").hide();
+        $("#edit_photo").html('The picture has been selected');
     });
     
 });
