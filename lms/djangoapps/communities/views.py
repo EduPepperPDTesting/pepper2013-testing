@@ -861,7 +861,9 @@ def community_edit_process(request):
                 p.paste(im, (0, 0, x, y), im)
                 p.save(path)
 
-                logo.upload = str(path)
+                location_path = '/static/'+'uploads/img_out_community'+community_id+'.jpg'
+                
+                logo.upload = str(location_path)
                 logo.save()
             except Exception as e:
                 logo = None
