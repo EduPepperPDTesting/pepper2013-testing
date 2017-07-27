@@ -414,7 +414,7 @@
 
             if($("#dlg-students").find(".expand_title").next("div.expand_div").is(':hidden')){
                 $("#dlg-students").find(".expand_title").click();
-
+                console.log("/pepreg/"+${training.id});
                 $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+${training.id});
             }
             $("#user-table").hide();
