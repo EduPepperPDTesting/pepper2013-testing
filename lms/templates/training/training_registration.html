@@ -430,8 +430,10 @@
 
             $("#close_registration").bind("click", {training_id: ${training.id}}, function(e){
                 e.preventDefault();
-                $("#dlg-training-info").find("#expand_div").hide();
-                $("#dlg-training-info").hide()
+                $("#dlg-students").find(".expand_title").next("div.expand_div").slideUp();
+                $(".expand_title").removeClass("expand_title_expanded");
+                //$("#dlg-training-info").find("#expand_div").hide();
+                //$("#dlg-training-info").hide();
                 showStudents(e.data.training_id);
                 $('.modal-backdrop').remove();
                 $('.lean-overlay').remove();
