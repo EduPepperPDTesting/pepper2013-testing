@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
 import re
+import time
 import logging
 import base64
 from PIL import Image
@@ -848,21 +849,19 @@ def community_edit_process(request):
                 logo = FileUploads()
                 logo.type = 'community_logos'
                 logo.sub_type = community_id
-
                 logo_img = logo_img.split(',')[1]
                 imgData = base64.b64decode(logo_img)
-                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+community_id+'.jpg'
-                img_file = open(path, 'wb')    
-                img_file.write(imgData)       
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + now +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
                 img_file.close()
                 im = Image.open(path)
                 x,y = im.size
                 p = Image.new('RGBA', im.size, (255,255,255))
                 p.paste(im, (0, 0, x, y), im)
                 p.save(path)
-
-                location_path = '/static/'+'uploads/img_out_community'+community_id+'.jpg'
-                
+                location_path = '/static/uploads/img_out_community'+ community_id + now +'.jpg'
                 logo.upload = str(location_path)
                 logo.save()
             except Exception as e:

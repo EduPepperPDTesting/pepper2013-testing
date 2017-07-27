@@ -93,6 +93,7 @@ $(function() {
         $("#logo").val(data)
         $("#change_photo").hide();
         $("#edit_photo").html('The picture has been selected');
+        $('#lean_overlay').css({'display': 'none',opacity: 0});
     });
     
 });
