@@ -1555,10 +1555,11 @@ def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
     column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
     if aggregate_type_id == 1:
         query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
     else:
-        query = get_create_int_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+        query = get_create_int_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace("{aggregate_data}",aggregate_data).replace('\n', '').replace('\r', '')
     query = eval(query)
     rs = reporting_store()
     rs.get_aggregate(collection,query,report.distinct)
@@ -1567,7 +1568,7 @@ def create_column_Headers(report,collection):
     if aggregate_type_id == 1:
         row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
     else:
-        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace("{aggregate_data}",aggregate_data)replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
