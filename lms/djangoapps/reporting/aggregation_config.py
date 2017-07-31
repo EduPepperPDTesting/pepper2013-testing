@@ -2011,5 +2011,7 @@ get_create_collection_tmp = '''{
         "totalmin":{"$sum":"$min"},
         "totalavg":{"$sum":"$avg"}
     }
+},{
+    "$out":"{collection}"
 }
 '''
