@@ -1555,7 +1555,7 @@ def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
     column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
-    aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0]
+    aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
     if aggregate_type_id == 1:
         query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
     else:
