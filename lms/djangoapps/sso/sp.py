@@ -10,13 +10,14 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from saml2.client import Saml2Client
 from cache import IdentityCache, OutstandingQueriesCache
-from saml2 import BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 from saml2.config import SPConfig
 import copy
 from os import path
 import saml2
 from saml2 import saml
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib import auth
@@ -35,6 +36,7 @@ from django_future.csrf import ensure_csrf_cookie
 from django.core.validators import validate_email, validate_slug, ValidationError
 import random
 from .models import CourseAssignmentCourse
+from util import saml_django_response
 
 
 # *Guess the xmlsec_path
@@ -95,6 +97,97 @@ def genericsso(request):
     """Assertion consume service (acs) of pepper"""
     sso_process = GenericSSO(request)
     return sso_process.acs_processor()
+
+
+def get_sp_conf(idp_name):
+    # Create setting before call pysaml2 method for current IDP
+    # Refer to: https://pythonhosted.org/pysaml2/howto/config.html
+    return {
+        "allow_unknown_attributes": True,
+        # full path to the xmlsec1 binary programm
+        'xmlsec_binary': xmlsec_path,
+        # your entity id, usually your subdomain plus the url to the metadata view
+        'entityid': settings.SAML_ENTITY_ID,  # 'PCG:PepperPD:Entity:ID',
+        # directory with attribute mapping
+        'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
+        # this block states what services we provide
+        'service': {
+            # we are just a lonely SP
+            'sp': {
+                "allow_unsolicited": True,
+                'name': 'PepperPD',
+                'name_id_format': saml.NAMEID_FORMAT_PERSISTENT,
+                'endpoints': {
+                    # url and binding to the assertion consumer service view
+                    # do not change the binding or service name
+                    'assertion_consumer_service': [
+                        ('https://{0}/genericsso/'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
+                    ],
+                    # url and binding to the single logout service view
+                    # do not change the binding or service name
+                    'single_logout_service': [
+                        # ('https://{0}/saml2/ls/'.format(LMS_BASE), saml2.BINDING_HTTP_REDIRECT),
+                        # ('https://{0}/saml2/ls/post'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
+                        settings.SAML_ENTITY_ID,  # sp's entity id
+                    ]
+                },
+                # attributes that this project need to identify a user
+                'required_attributes': ['idp_user_id'],
+                # attributes that may be useful to have but not required
+                'optional_attributes': ['eduPersonAffiliation'],
+                # in this section the list of IdPs we talk to are defined
+                'idp': {
+                    # we do not need a WAYF service since there is
+                    # only an IdP defined here. This IdP should be
+                    # present in our metadata
+                    # the keys of this dictionary are entity ids
+                    # 'https://idp.example.com/simplesaml/saml2/idp/metadata.php': {
+                    #     'single_sign_on_service': {
+                    #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SSOService.php',
+                    #         },
+                    #     'single_logout_service': {
+                    #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SingleLogoutService.php',
+                    #         },
+                    #     },
+                },
+            },
+        },
+        # where the remote metadata is stored
+        'metadata': {
+            'local': [
+                path.join(BASEDIR, idp_name, 'FederationMetadata.xml')
+            ],
+        },
+        # set to 1 to output debugging information
+        'debug': 1,
+        # ===  CERTIFICATE ===
+        # cert_file must be a PEM formatted certificate chain file.
+        # example:
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part
+        # === OWN METADATA SETTINGS ===
+        # 'contact_person': [
+        #     {'given_name': 'Lorenzo',
+        #      'sur_name': 'Gil',
+        #      'company': 'Yaco Sistemas',
+        #      'email_address': 'lgs@yaco.es',
+        #      'contact_type': 'technical'},
+        #     {'given_name': 'Angel',
+        #      'sur_name': 'Fernandez',
+        #      'company': 'Yaco Sistemas',
+        #      'email_address': 'angel@yaco.es',
+        #      'contact_type': 'administrative'},
+        #     ],
+        # === YOU CAN SET MULTILANGUAGE INFORMATION HERE ===
+        # 'organization': {
+        #     'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
+        #     'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
+        #     'url': [('http://www.yaco.es', 'es'), ('http://www.yaco.com', 'en')],
+        #     },
+        'valid_for': 24,  # how long is our metadata valid
+    }
 
 
 class GenericSSO:
@@ -170,7 +263,7 @@ class GenericSSO:
 
         self.data = parsed.get('User')
 
-        sso_id = self.data.get('ID', '')
+        sso_id = self.data.get('idp_user_id', '')
         # sso_email = self.data.get('Email', '')
         sso_usercode = self.data.get('UserCode', '')
         self.data['Unique'] = str(sso_usercode) + '--' + str(sso_id)
@@ -321,103 +414,15 @@ class GenericSSO:
 
         xmlstr = self.request.POST.get("SAMLResponse")
 
-        # Create setting before call pysaml2 method for current IDP
-        # Refer to: https://pythonhosted.org/pysaml2/howto/config.html
-        setting = {
-            "allow_unknown_attributes": True,
-            # full path to the xmlsec1 binary programm
-            'xmlsec_binary': xmlsec_path,
-            # your entity id, usually your subdomain plus the url to the metadata view
-            'entityid': 'PCG:PepperPD:Entity:ID',
-            # directory with attribute mapping
-            'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
-            # this block states what services we provide
-            'service': {
-                # we are just a lonely SP
-                'sp': {
-                    "allow_unsolicited": True,
-                    'name': 'PepperPD',
-                    'name_id_format': saml.NAMEID_FORMAT_PERSISTENT,
-                    'endpoints': {
-                        # url and binding to the assertion consumer service view
-                        # do not change the binding or service name
-                        'assertion_consumer_service': [
-                            ('https://{0}/genericsso/'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
-                        ],
-                        # url and binding to the single logout service view
-                        # do not change the binding or service name
-                        'single_logout_service': [
-                            ('https://{0}/saml2/ls/'.format(LMS_BASE), saml2.BINDING_HTTP_REDIRECT),
-                            ('https://{0}/saml2/ls/post'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
-                        ]
-                    },
-                    # attributes that this project need to identify a user
-                    'required_attributes': ['uid'],
-                    # attributes that may be useful to have but not required
-                    'optional_attributes': ['eduPersonAffiliation'],
-                    # in this section the list of IdPs we talk to are defined
-                    'idp': {
-                        # we do not need a WAYF service since there is
-                        # only an IdP defined here. This IdP should be
-                        # present in our metadata
-                        # the keys of this dictionary are entity ids
-                        # 'https://idp.example.com/simplesaml/saml2/idp/metadata.php': {
-                        #     'single_sign_on_service': {
-                        #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SSOService.php',
-                        #         },
-                        #     'single_logout_service': {
-                        #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SingleLogoutService.php',
-                        #         },
-                        #     },
-                    },
-                },
-            },
-            # where the remote metadata is stored
-            'metadata': {
-                'local': [
-                    path.join(BASEDIR, self.idp_name, 'FederationMetadata.xml')
-                ],
-            },
-            # set to 1 to output debugging information
-            'debug': 1,
-            # ===  CERTIFICATE ===
-            # cert_file must be a PEM formatted certificate chain file.
-            # example:
-            # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
-            # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
-            # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
-            # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part
-            # === OWN METADATA SETTINGS ===
-            # 'contact_person': [
-            #     {'given_name': 'Lorenzo',
-            #      'sur_name': 'Gil',
-            #      'company': 'Yaco Sistemas',
-            #      'email_address': 'lgs@yaco.es',
-            #      'contact_type': 'technical'},
-            #     {'given_name': 'Angel',
-            #      'sur_name': 'Fernandez',
-            #      'company': 'Yaco Sistemas',
-            #      'email_address': 'angel@yaco.es',
-            #      'contact_type': 'administrative'},
-            #     ],
-            # === YOU CAN SET MULTILANGUAGE INFORMATION HERE ===
-            # 'organization': {
-            #     'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
-            #     'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
-            #     'url': [('http://www.yaco.es', 'es'), ('http://www.yaco.com', 'en')],
-            #     },
-            'valid_for': 24,  # how long is our metadata valid
-        }
-
         # ** load IDP config and parse the saml response
         conf = SPConfig()
-        conf.load(copy.deepcopy(setting))
+        conf.load(copy.deepcopy(get_sp_conf(self.idp_name)))
 
-        client = Saml2Client(conf, identity_cache=IdentityCache(self.request.session))
+        SP = Saml2Client(conf, identity_cache=IdentityCache(self.request.session))
         oq_cache = OutstandingQueriesCache(self.request.session)
         outstanding_queries = oq_cache.outstanding_queries()
 
-        response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
+        response = SP.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
         session_info = response.session_info()
 
         # print session_info['issuer']
@@ -433,7 +438,7 @@ class GenericSSO:
         # Fetch attributes
         if self.sso_type == 'EasyIEP':
             attribute_setting = [{'map': 'email', 'name': 'Email'},
-                                 {'map': 'ID', 'name': 'Unique'},
+                                 {'map': 'idp_user_id', 'name': 'Unique'},
                                  {'map': 'username', 'name': 'UserName'}]
         else:
             attribute_setting = self.metadata_setting.get('attributes')
@@ -443,32 +448,33 @@ class GenericSSO:
             if attr['name']:
                 self.parsed_data[mapped_name] = self.data.get(attr['name'])
 
-        uid = self.parsed_data.get('ID', False)
-
-        try:
-            if uid:
-                self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid,
+        idp_user_id = self.parsed_data.get('idp_user_id', False)
+ 
+        if idp_user_id:
+            try:
+                self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=idp_user_id,
                                                                                      sso_type=self.sso_type,
                                                                                      sso_idp=self.idp_name)
-                # self.user = User.objects.get(id=self.user_profile.user.id)
-                self.user = self.user_profile.user
+            except:
+                self.create_unknown_user()
 
-                self.update_user()
+            # self.user = User.objects.get(id=self.user_profile.user.id)
+            self.user = self.user_profile.user
+            self.update_user()
 
-                if not self.user_profile.user.is_active:
-                    registration = Registration.objects.get(user_id=self.user_profile.user.id)
-                    if self.sso_type == 'EasyIEP':
-                        return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
-                    return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
-                else:
-                    self.user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
-                    auth.login(self.request, self.user_profile.user)
-                    return https_redirect(self.request, "/dashboard")
+            if not self.user_profile.user.is_active:
+                registration = Registration.objects.get(user_id=self.user_profile.user.id)
+                if self.sso_type == 'EasyIEP':
+                    return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
+                return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
             else:
-                raise Exception('Invalid ID')
-        except:
-            return self.create_unknown_user()
+                self.user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+                auth.login(self.request, self.user_profile.user)
+                return https_redirect(self.request, "/dashboard")
+        else:
+            raise Exception('Invalid ID')
 
+    
     def update_user(self):
         # Save mapped attributes
         for k, v in self.parsed_data.items():
@@ -517,7 +523,7 @@ class GenericSSO:
                 username = self.parsed_data['username']
 
             # Email and ID must be provided
-            uid = self.parsed_data['ID']
+            idp_user_id = self.parsed_data['idp_user_id']
             email = self.parsed_data['email']
 
             self.user = User(username=username, email=email, is_active=False)
@@ -531,7 +537,7 @@ class GenericSSO:
             self.user_profile.subscription_status = "Imported"
             self.user_profile.sso_type = self.sso_type
             self.user_profile.sso_idp = self.idp_name
-            self.user_profile.sso_user_id = uid
+            self.user_profile.sso_user_id = idp_user_id
 
             self.update_user()
 
@@ -559,7 +565,7 @@ class GenericSSO:
 
     def update_sso_usr(self, user, profile, parsed):
         sso_user = json.get('User')
-        sso_id = sso_user.get('ID', '')
+        sso_id = sso_user.get('idp_user_id', '')
         sso_district_code = json.get('SchoolSystemCode')
         sso_email = sso_user.get('Email', '')
         sso_usercode = sso_user.get('UserCode', '')
@@ -760,3 +766,50 @@ def activate_account(request):
     login(request, profile.user)
 
     return HttpResponse(json.dumps(js), content_type="application/json")
+
+
+@csrf_exempt
+def slo_request_receive(request):
+    """
+    Receive a saml slo request (from IDP)
+    """
+    idp_name = request.REQUEST.get("idp")
+    relay_state = request.REQUEST.get("RelayState")
+    saml_request = request.REQUEST.get("SAMLResponse")
+    settings = {
+        'entityid': settings.SAML_ENTITY_ID,  # sp's entity id
+        'service': {
+            'sp': {
+                'endpoints': {
+                    'single_logout_service': [
+                        settings.SAML_ENTITY_ID  # sp's entity id
+                    ]
+                }
+            }
+        },
+        'metadata': {
+            'local': [
+                path.join(BASEDIR, idp_name, 'FederationMetadata.xml')  # metadata of idp
+            ]
+        }
+    }
+
+    conf = SPConfig()
+    conf.load(copy.deepcopy(settings))
+
+    SP = Saml2Client(conf, identity_cache=IdentityCache(request.session))
+    binding, destination = SP.pick_binding("single_logout_service", entity_id=idp_name)
+    req_info = SP.parse_logout_request(saml_request, binding)
+
+    # ** todo: is it possible to get id name just from saml request body?
+    # ** by: idp_name = req_info.issuer.text
+    saml_response = SP.create_logout_response(req_info.message, [binding])
+
+    http_args = SP.apply_binding(
+        binding=binding,
+        msg_str=saml_response,
+        destination=destination,
+        relay_state=relay_state,
+        response=True)
+
+    return saml_django_response(binding, http_args)

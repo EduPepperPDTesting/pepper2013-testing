@@ -21,6 +21,8 @@ def edit(request):
 def save(request):
     data = json.loads(request.POST.get('data'))
 
+    print data
+
     entities = []
     for d in data:
         sso_name = d.get('sso_name', '')
@@ -115,7 +117,7 @@ def parse_one_sp(entity):
     typed_setting = {}
     if 'setting' in entity:
         for attribute in entity['setting']:
-            typed_setting[attribute['@name']] = attribute['#text']
+            typed_setting[attribute['@name']] = attribute['#text'] if attribute['#text'] else ""
 
     # path = BASEDIR + "/" + entity['@name'] + "/FederationMetadata.xml"
 
@@ -193,8 +195,7 @@ def create_saml_config_files(name):
                               entityID=name,
                               auth=auth,
                               attr_tags=attr_tags,
-                              slo_post_url="",
-                              slo_redirect_url="",
+                              slo_post_url=ms.get('typed').get('sso_slo_url'),
                               acs_url=ms.get('typed').get('sso_acs_url'))
     
     f = BASEDIR + '/' + name + "/sp.xml"

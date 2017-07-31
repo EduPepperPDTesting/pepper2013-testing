@@ -48,16 +48,23 @@ urlpatterns = (
     
     # === sso begin ===
     # easyiep
-    url(r'^sso/$', 'sso.sp.genericsso', name="sso"),
+    # url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
+    url(r'^genericsso/$', 'sso.sp.genericsso', name="sso_sp_acs"),
+    
+    url(r'^sso/idp/slo/request/send$', 'sso.idp.slo_request_send', name="sso_idp_slo_request_send"),
+    url(r'^sso/sp/slo/request/receive$', 'sso.sp.slo_request_receive', name="sso_sp_slo_request_receive"),
+    url(r'^sso/idp/slo/response/receive$', 'sso.idp.slo_response_receive', name="sso_idp_slo_response_receive"),
+    
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'sso.sp.activate_account', name="activate_easyiep_account"),
-
-    url(r'^genericsso/$', 'sso.sp.genericsso'),
+    
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
+    
     # edit idp
     url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
     url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
     url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
+    
     # edit sp
     url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
     url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
@@ -65,7 +72,7 @@ urlpatterns = (
     url(r'^sso/sp_metadata/download/saml_federation_metadata$',
         'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
-    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+    url(r'^sso/idp/acs/send$', 'sso.idp.send_acs', name="sso_idp_acs_send"),
     url(r'^sso/idp/logout/$', 'sso.idp.logout'),
 
     url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
@@ -184,7 +191,6 @@ urlpatterns = (
     url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
     url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
 
-    
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
@@ -462,7 +468,6 @@ urlpatterns = (
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
     url(r'^newdashboard/$', 'student.newdashboard.newdashboard', name="newdashboard"),
     url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
-
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
     url(r'^new_upload_photo$', 'student.newdashboard.new_upload_photo', name="new_upload_photo"),
