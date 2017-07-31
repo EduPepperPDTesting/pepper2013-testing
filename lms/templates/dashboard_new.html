@@ -998,7 +998,7 @@ a{
                                     break
                 
                 if cms_add:
-                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
                         
             data["cms_items"] = cms_items
             

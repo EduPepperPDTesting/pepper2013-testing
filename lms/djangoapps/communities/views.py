@@ -163,8 +163,8 @@ def get_add_user_rows(request, community_id):
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
-    users = users.exclude(activate_date__isnull=True)
-
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
+    
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 

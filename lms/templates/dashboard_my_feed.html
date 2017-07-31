@@ -105,7 +105,7 @@ from permissions.utils import check_access_level, check_user_perms
    margin-bottom:0px;
    background-color:#2CBAEC;
    margin-bottom:0px;
-   margin-top:30px;
+   margin-top:10px;
    color:#fff;
  }
  #announce-expir-date{
@@ -242,7 +242,7 @@ from permissions.utils import check_access_level, check_user_perms
     <table id="" border="0" style="margin-bottom:10px;">
       <tr class=".post-submit-row" id="post_submit_row">
         <td width="60" style="vertical-align:top;">
-          <img src="${reverse('user_photo',args=[request.user.id])}" width='110' class="post-submit-profile-image"/></td>
+          <img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
           <td style="font-size:15px;">
             <textarea style="width:100%" id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?" autocomplete="off"></textarea>
           </td>
@@ -447,7 +447,8 @@ from permissions.utils import check_access_level, check_user_perms
   ({likes})
   </span>&nbsp;&nbsp;
   <span class="post-comments-label" data-post-id="{post_id.$oid}" style="color:#555;cursor:pointer;">
-  <img src='/static/images/newdashboard/Comment-512.png' width='35'/> <span style="display:inline-block;vertical-align:middle;">({feeding_count})</span>
+  <img src='/static/images/newdashboard/Comment-512.png' width='35'/>
+  <span style="display:inline-block;vertical-align:middle;font-weight: bold;padding: 3px;">({feeding_count})</span>
   </span>&nbsp;&nbsp;
   <img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden;}"></img>
   </div>
@@ -1128,7 +1129,7 @@ from permissions.utils import check_access_level, check_user_perms
       self.focus()
     })
   }, { height: '80px', width:'535px',
-       extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
+       extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,Anchor,Styles,Format,Font,FontSize,TextColor,BGColor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,SpellChecker,Scayt"});
 
  
   $("#comment-input").ckeditor(  function() {
