@@ -134,7 +134,8 @@ def get_add_user_rows(request, community_id):
                4: ['user__profile__district__state__name', '__iexact', 'str'],
                5: ['user__profile__district__name', '__iexact', 'str'],
                6: ['user__profile__cohort__code', '__icontains', 'str'],
-               7: ['user__profile__school__name', '__icontains', 'str']}
+               7: ['user__profile__school__name', '__icontains', 'str'],
+               8: ['subscription_status', '__iexact', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
@@ -167,8 +168,8 @@ def get_add_user_rows(request, community_id):
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
-    users = users.exclude(activate_date__isnull=True)
-
+    # users = users.exclude(activate_date__isnull=True)
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
