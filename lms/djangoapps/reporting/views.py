@@ -1418,9 +1418,9 @@ def get_column_headers(request):
             query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
             query = eval(query)
             rs = reporting_store()
-            totaldata = rs.get_aggregate(collection,query,report.distinct)
-
-            i = 0
+            rs.get_aggregate(collection,query,report.distinct)
+            total = rs.get_datas(collection+'data')
+            
             for d in row_data:
                 rows = []
                 sum_tmp = []
