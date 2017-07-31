@@ -314,7 +314,8 @@
                     filter_reset: '.reset',
                     filter_serversideFiltering: true,
                     output_saveFileName: 'data.csv'
-                }
+                },
+                headers:{9:{sorter:false,filter:false}}
             };
             tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users';
             pagerOptions.container = this.$content.find("#user-pager");
