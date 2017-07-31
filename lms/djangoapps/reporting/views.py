@@ -12,7 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
-from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_create_collection_tmp
+from .aggregation_config import AggregationConfig,get_create_column_headers,get_create_row_headers,get_create_collection_tmp,get_create_int_column_headers,get_create_int_row_headers
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
 from django.conf import settings
@@ -21,7 +21,7 @@ import gevent
 from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
-from school_year import report_has_school_year, get_school_year_item, get_query_school_year
+from school_year import report_has_school_year, get_school_year_item, get_query_school_year,get_all_query_school_year
 from xmodule.remindstore import myactivitystore
 import logging
 log = logging.getLogger("tracking")
@@ -219,7 +219,7 @@ def report_edit(request, report_id):
     """
     views = Views.objects.all().order_by('name')
     data = {'views': views}
-    data.update({'matrixcolumns':'undefined'})
+    data.update({'matrixcolumns':''})
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
@@ -1554,13 +1554,20 @@ def collection_row_headers(collection):
 def create_column_Headers(report,collection):
     column_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].column_headers
     column_headers = ViewColumns.objects.filter(id=column_headers_id)[0].column
-    query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    if aggregate_type_id == 1:
+        query = get_create_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
+    else:
+        query = get_create_int_column_headers.replace('collection',collection).replace("column_headers",column_headers).replace('\n', '').replace('\r', '')
     query = eval(query)
     rs = reporting_store()
     rs.get_aggregate(collection,query,report.distinct)
     row_headers_id = ReportMatrixColumns.objects.filter(report=report)[0].row_headers
     row_headers = ViewColumns.objects.filter(id=row_headers_id)[0].column
-    row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    if aggregate_type_id == 1:
+        row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
+    else:
+        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
