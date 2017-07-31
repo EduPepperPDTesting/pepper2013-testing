@@ -1984,16 +1984,32 @@ get_create_int_row_headers = '''
         "$out":"collection_row_header"
     }
 '''
-# ------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 get_create_collection_tmp = '''{
-    "$group":{
-        "_id":{"{column_data}":"${column_data}",'{row_data}':"${row_data}"},
-        'max':{"$max":"${aggregate_data}"},
-        'min':{"$min":"${aggregate_data}"},
-        'avg':{"$avg":"${aggregate_data}"},
-        'total':{"$sum":"${aggregate_data}"},
-        "count":{"$sum":1}
-        }
+"$group":{
+    "_id":{
+        "{row_data}":"${row_data}",
+        "{column_data}":"${column_data}"
     },
-{"$out":"{collection}"}
+    "max":{"$max":"${aggregate_data}"},
+    "min":{"$min":"${aggregate_data}"},
+    "avg":{"$avg":"${aggregate_data}"}
+    }
+},{
+    "$project":{
+        "_id":1,
+        "max":1,
+        "min":1,
+        "avg":1
+    }
+},{
+    "$group":{
+        "_id":{
+            "{column_data}":"$_id.{column_data}"
+        },
+        "totalmax":{"$sum":"$max"},
+        "totalmin":{"$sum":"$min"},
+        "totalavg":{"$sum":"$avg"}
+    }
+}
 '''
