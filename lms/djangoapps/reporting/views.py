@@ -1568,7 +1568,7 @@ def create_column_Headers(report,collection):
     if aggregate_type_id == 1:
         row_query = get_create_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace('\n', '').replace('\r', '')
     else:
-        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace("{aggregate_data}",aggregate_data)replace('\n', '').replace('\r', '')
+        row_query = get_create_int_row_headers.replace('collection',collection).replace("row_headers",row_headers).replace("{aggregate_data}",aggregate_data).replace('\n', '').replace('\r', '')
     row_query = eval(row_query)
     rs = reporting_store()
     rs.get_aggregate(collection,row_query,report.distinct)
