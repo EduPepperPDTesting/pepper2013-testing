@@ -204,7 +204,7 @@ def get_add_user_rows(request, community_id):
         row.append(str(user_district))
         row.append(str(user_cohort))
         row.append(str(user_school))
-
+        row.append(str(item.subscription_status))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
 
         rows.append(row)
