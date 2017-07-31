@@ -134,8 +134,7 @@ def get_add_user_rows(request, community_id):
                4: ['user__profile__district__state__name', '__iexact', 'str'],
                5: ['user__profile__district__name', '__iexact', 'str'],
                6: ['user__profile__cohort__code', '__icontains', 'str'],
-               7: ['user__profile__school__name', '__icontains', 'str'],
-               8: ['subscription_status', '__iexact', 'str']}
+               7: ['user__profile__school__name', '__icontains', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
@@ -204,7 +203,6 @@ def get_add_user_rows(request, community_id):
         row.append(str(user_district))
         row.append(str(user_cohort))
         row.append(str(user_school))
-        row.append(str(item.subscription_status))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
 
         rows.append(row)

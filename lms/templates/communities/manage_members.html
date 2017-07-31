@@ -130,7 +130,7 @@
                             <th class="user_adduser">District</th>
                             <th class="user_cohort">Cohort</th>
                             <th class="user_removeuser">School</th>
-                            <th class="user_registration">Registration Status</th>
+                            <!-- <th class="user_registration">Registration Status</th> -->
                             <!-- <th class="user_enrollment_status">Enrollment Start</th> -->
                             <th></th>
                         </tr>
@@ -220,7 +220,7 @@
                             <th class="user_adduser">District</th>
                             <th class="user_cohort">Cohort</th>
                             <th class="user_removeuser">School</th>
-                            <th class="user_registration">Registration Status</th>
+                            <!-- <th class="user_registration">Registration Status</th> -->
                             <!-- <th class="user_enrollment_status">Enrollment Start</th> -->
                             <th></th>
                         </tr>
@@ -314,8 +314,7 @@
                     filter_reset: '.reset',
                     filter_serversideFiltering: true,
                     output_saveFileName: 'data.csv'
-                },
-                headers:{9:{sorter:false,filter:false}}
+                }
             };
             tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users';
             pagerOptions.container = this.$content.find("#user-pager");
