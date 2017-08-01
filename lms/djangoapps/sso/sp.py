@@ -132,7 +132,7 @@ def get_sp_conf(idp_name):
                     ]
                 },
                 # attributes that this project need to identify a user
-                'required_attributes': ['idp_user_id'],
+                'required_attributes': ['email'],
                 # attributes that may be useful to have but not required
                 'optional_attributes': ['eduPersonAffiliation'],
                 # in this section the list of IdPs we talk to are defined
@@ -201,7 +201,6 @@ class GenericSSO:
     data = None
     parsed_data = {}
     user = None
-    user_profile = None
 
     def __init__(self, request):
         log.debug("===== genericsso: receiving a token =====")
@@ -412,7 +411,7 @@ class GenericSSO:
     def saml_acs(self):
         '''SAML ACS'''
 
-        xmlstr = self.request.POST.get("SAMLResponse")
+        xmlstr = self.request.REQUEST.get("SAMLResponse")
 
         # ** load IDP config and parse the saml response
         conf = SPConfig()
@@ -423,9 +422,10 @@ class GenericSSO:
         outstanding_queries = oq_cache.outstanding_queries()
 
         response = SP.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
+        if not response:
+            response = SP.parse_authn_request_response(xmlstr, BINDING_HTTP_REDIRECT, outstanding_queries)
+            
         session_info = response.session_info()
-
-        # print session_info['issuer']
 
         # Parse ava (received attributes) as dict
         self.data = {}
@@ -449,30 +449,32 @@ class GenericSSO:
                 self.parsed_data[mapped_name] = self.data.get(attr['name'])
 
         idp_user_id = self.parsed_data.get('idp_user_id', False)
+        email = self.parsed_data.get('email', False)
  
-        if idp_user_id:
+        if email:
             try:
-                self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=idp_user_id,
-                                                                                     sso_type=self.sso_type,
-                                                                                     sso_idp=self.idp_name)
+                self.user = User.objects.get(email=email)
+                # self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=idp_user_id,
+                #                                                                      sso_type=self.sso_type,
+                #                                                                      sso_idp=self.idp_name)
             except:
                 self.create_unknown_user()
 
-            # self.user = User.objects.get(id=self.user_profile.user.id)
-            self.user = self.user_profile.user
+            # self.user = User.objects.get(id=self.user.id)
+            
             self.update_user()
 
-            if not self.user_profile.user.is_active:
-                registration = Registration.objects.get(user_id=self.user_profile.user.id)
+            if not self.user.is_active:
+                registration = Registration.objects.get(user_id=self.user.id)
                 if self.sso_type == 'EasyIEP':
                     return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
                 return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
             else:
-                self.user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
-                auth.login(self.request, self.user_profile.user)
+                self.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+                auth.login(self.request, self.user)
                 return https_redirect(self.request, "/dashboard")
         else:
-            raise Exception('Invalid ID')
+            raise Exception('Invalid Email')
 
     
     def update_user(self):
@@ -485,32 +487,36 @@ class GenericSSO:
             elif k == 'email':
                 self.user.email = self.parsed_data['email']
             elif k == 'district':
-                self.user_profile.district = District.objects.get(name=self.parsed_data['district'])
+                self.user.profile.district = District.objects.get(name=self.parsed_data['district'])
             elif k == 'school':
-                self.user_profile.school = School.objects.get(name=self.parsed_data['school'])
+                self.user.profile.school = School.objects.get(name=self.parsed_data['school'])
             elif k == 'grade_level':
                 ids = GradeLevel.objects.filter(name__in=self.parsed_data['grade_level'].split(',')).values_list(
                     'id', flat=True)
-                self.user_profile.grade_level = ','.join(ids)
+                self.user.profile.grade_level = ','.join(ids)
             elif k == 'major_subject_area':
                 ids = SubjectArea.objects.filter(name__in=self.parsed_data['major_subject_area'].split(',')).values_list(
                     'id', flat=True)
-                self.user_profile.major_subject_area = ','.join(ids)
+                self.user.profile.major_subject_area = ','.join(ids)
             elif k == 'years_in_education':
-                self.user_profile.years_in_education = YearsInEducation.objects.get(
+                self.user.profile.years_in_education = YearsInEducation.objects.get(
                     name=self.parsed_data['years_in_education'])
             elif k == 'percent_lunch':
-                self.user_profile.percent_lunch = Enum.objects.get(name='percent_lunch',
+                self.user.profile.percent_lunch = Enum.objects.get(name='percent_lunch',
                                                                    content=self.parsed_data['percent_lunch'])
             elif k == 'percent_iep':
-                self.user_profile.percent_iep = Enum.objects.get(name='percent_iep',
+                self.user.profile.percent_iep = Enum.objects.get(name='percent_iep',
                                                                  content=self.parsed_data['percent_iep'])
             elif k == 'percent_eng_learner':
-                self.user_profile.percent_eng_learner = Enum.objects.get(
+                self.user.profile.percent_eng_learner = Enum.objects.get(
                     name='percent_eng_learner', content=self.parsed_data['percent_eng_learner'])
 
+            self.user.profile.sso_type = self.sso_type
+            self.user.profile.sso_idp = self.idp_name
+            self.user.profile.sso_user_id = self.parsed_data.get('idp_user_id')
+
             self.user.save()
-            self.user_profile.save()
+            self.user.profile.save()
 
     def create_unknown_user(self):
         """Create the sso user who does not exist in pepper"""
@@ -522,8 +528,7 @@ class GenericSSO:
             else:
                 username = self.parsed_data['username']
 
-            # Email and ID must be provided
-            idp_user_id = self.parsed_data['idp_user_id']
+            # Email must be provided
             email = self.parsed_data['email']
 
             self.user = User(username=username, email=email, is_active=False)
@@ -533,17 +538,14 @@ class GenericSSO:
             registration = Registration()
             registration.register(self.user)
 
-            self.user_profile = UserProfile(user=self.user)
-            self.user_profile.subscription_status = "Imported"
-            self.user_profile.sso_type = self.sso_type
-            self.user_profile.sso_idp = self.idp_name
-            self.user_profile.sso_user_id = idp_user_id
+            self.user.profile = UserProfile(user=self.user)
+            self.user.profile.subscription_status = "Imported"
 
             self.update_user()
 
             courses = []
             try:
-                cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user_profile.sso_idp)
+                cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user.profile.sso_idp)
                 for course in cas:
                     courses.append(course.course)
             except:
