@@ -45,7 +45,6 @@
       <ns0:ServiceName>PepperPD</ns0:ServiceName>
       <ns0:ServiceDescription></ns0:ServiceDescription>{attr_tags}
     </ns0:AttributeConsumingService>
-    <ns0:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{slo_redirect_url}" />
     <ns0:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{slo_post_url}" />
     <ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{acs_url}" index="1" />
   </ns0:SPSSODescriptor>

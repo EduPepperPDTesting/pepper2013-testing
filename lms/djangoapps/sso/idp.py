@@ -20,16 +20,24 @@ from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_HTTP_POST
 from saml2 import server  # A class that does things that IdPs or AAs do
 from cache import IdentityCache, OutstandingQueriesCache
-from saml2.saml import NAME_FORMAT_URI
-from saml2.saml import NAMEID_FORMAT_TRANSIENT
-from saml2.saml import NAMEID_FORMAT_PERSISTENT
+
+from saml2.saml import NAME_FORMAT_URI, NAMEID_FORMAT_TRANSIENT, NAMEID_FORMAT_PERSISTENT, NameID
+
 from saml2.config import IdPConfig
+from saml2.config import SPConfig
+
 import copy
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 import sp_metadata as metadata
 from os import path
 import urllib
+
+from saml2.s_utils import sid
+from saml2.samlp import SessionIndex
+from django.views.decorators.csrf import csrf_exempt
+from util import saml_django_response
+
 
 # *Guess the xmlsec_path
 try:
@@ -47,6 +55,13 @@ SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
 log = logging.getLogger("tracking")
 
 
+def get_full_reverse(name, request, **kwargs):
+    
+    p = "https" if request.is_secure() else "http"
+    
+    return "%s://%s%s" % (p, request.get_host(), reverse(name, args=kwargs))
+
+
 class Cache(object):
     def __init__(self):
         self.user2uid = {}
@@ -61,25 +76,14 @@ def get_saml_setting(sp_name):
         "description": "PepperPD",
         "valid_for": 168,
         "service": {
-            "aa": {
+            "idp": {
+                "name": "Rolands IdP",
                 "endpoints": {
                     "attribute_service": [
                         ("%s/attr" % BASE, BINDING_SOAP)
-                    ]
+                    ],
+                    "single_logout_service": []
                 },
-                "name_id_format": [NAMEID_FORMAT_TRANSIENT,
-                                   NAMEID_FORMAT_PERSISTENT]
-            },
-            "aq": {
-                "endpoints": {
-                    "authn_query_service": [
-                        ("%s/aqs" % BASE, BINDING_SOAP)
-                    ]
-                },
-            },
-            "idp": {
-                "name": "Rolands IdP",
-
                 "policy": {
                     "default": {
                         "lifetime": {"minutes": 15},
@@ -89,6 +93,7 @@ def get_saml_setting(sp_name):
                     },
                 },
                 "subject_data": "./idp.subject",
+                "session_storage": ("mongodb", "saml"),
                 "name_id_format": [NAMEID_FORMAT_TRANSIENT,
                                    NAMEID_FORMAT_PERSISTENT]
             },
@@ -143,10 +148,7 @@ def logout(request):
 
         import requests
         if slo_url:
-            print "======================================================="
-            print slo_url
             response = requests.get(slo_url + "?email=" + request.user.email)
-            print response
 
         # setting = get_saml_setting(metadata_setting["sso_name"])
         
@@ -173,7 +175,7 @@ def get_first_sp_logout_url():
             return slo_url
 
 
-def auth(request):
+def send_acs(request):
     '''
     Request a redirect to a certain sp
     '''
@@ -189,19 +191,25 @@ def auth(request):
     metadata_setting = metadata.sp_by_name(sp_name)
     if metadata_setting is None:
         raise Exception("error: Unknown SP")
-    
+
     # ** User haven't loged in, redirect to login page
     # BTW, use @login_required cause a problem
     if not request.user.is_authenticated():
         relative = re.sub(r'^http(s?)://.*?/', '/', request.build_absolute_uri())
-        return redirect(reverse("signin_user")+"?next=" + urllib.quote(relative, safe=''))  # 
+        return redirect(reverse("signin_user") + "?next=" + urllib.quote(relative, safe=''))
+
+    # ** Add to sso participants session
+    if not request.session.get("sso_participants"):
+        request.session["sso_participants"] = {}
+
+    request.session["sso_participants"][sp_name] = True
 
     # ** Now call a relative direction function
     if metadata_setting.get('sso_type') == 'SAML':
-        return saml_redirect(request, sp_name, metadata_setting, relay_state)
+        return saml_send_acs(request, sp_name, metadata_setting, relay_state)
 
 
-def saml_redirect(request, sp_name, ms, rs):
+def saml_send_acs(request, sp_name, ms, rs):
     '''
     Redirect to a saml sp acs
     '''
@@ -236,7 +244,7 @@ def saml_redirect(request, sp_name, ms, rs):
         try:
             if attr['name'] == "email":
                 value = request.user.email
-            if attr['name'] == "first_name":
+            elif attr['name'] == "first_name":
                 value = request.user.first_name
             elif attr['name'] == "last_name":
                 value = request.user.last_name
@@ -252,7 +260,7 @@ def saml_redirect(request, sp_name, ms, rs):
                 value = request.user.profile.grade_level_id
             elif attr['name'] == "bio":
                 value = request.user.profile.bio
-            elif attr['name'] == "internal_id":
+            elif attr['name'] == "id":
                 value = str(request.user.id)
             elif attr['name'] == "avatar":
                 value = request.build_absolute_uri(reverse('user_photo', args=[request.user.id]))
@@ -266,22 +274,25 @@ def saml_redirect(request, sp_name, ms, rs):
     # ** Get the X509Certificate string from sp.xml
     sign = IDP.metadata.certs(entity_id, "any", "signing")
 
+    nid = NameID(sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
+
     # ** Create authn response
     identity = parsed_data
+
+    print identity
     resp = IDP.create_authn_response(
-        issuer=setting.get('entityid'),  # "https://localhost:8088/idp.xml",
+        issuer=setting.get('entityid'),
         identity=identity,
         sign_response=sign,
         sign_assertion=sign,
         in_response_to=None,
         destination=destination,
         sp_entity_id=entity_id,
-        name_id_policy=None,             # "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+        name_id=nid,
         authn=authn,
         encrypt_cert="",
         encrypt_assertion="",
-        # userid="%s" % request.user.id,
-        )
+    )
 
     # ** Translate to http response
     http_args = IDP.apply_binding(
@@ -294,3 +305,159 @@ def saml_redirect(request, sp_name, ms, rs):
     resp = "\n".join(http_args["data"])
     resp = resp.replace("<body>", "<body style='display:none'>")
     return HttpResponse(resp)
+
+
+def slo_request_send_one(request, sp_name):
+    BASE = "http://"
+    DIR = path.join(SSO_DIR, "sp", sp_name)
+
+    # sp_conf = SPConfig()
+    # sp_setting = {
+    #     "entityid": sp_name,
+    #     "service": {
+    #         "sp": {
+    #             'name': 'PepperPD',
+    #             'single_logout_service': [
+    #                 sp_name,
+    #                 (sp_name, BINDING_HTTP_POST),  # sp's entity id
+    #             ]
+    #         }
+    #     },
+    #     "metadata": {
+    #         "local": [DIR + "/sp.xml"],  # the sp metadata
+    #     }
+    # }    
+    # sp_conf.load(sp_setting)
+    # from saml2.client import Saml2Client
+    # SP = Saml2Client(sp_conf)
+    # k = SP.metadata.keys()
+    # binding, destination = SP.pick_binding("single_logout_service", entity_id=sp_name)
+    # return HttpResponse("")
+
+    # setting = get_saml_setting(sp_name)
+
+    setting = {
+        "entityid": settings.SAML_ENTITY_ID,
+        "service": {
+            "idp": {
+                "name": "Rolands IdP",
+                "endpoints": {
+                    "attribute_service": [
+                        ("%s/attr" % BASE, BINDING_SOAP)
+                    ],
+                    "single_logout_service": []
+                },
+                "policy": {
+                    "default": {
+                        "lifetime": {"minutes": 15},
+                        "attribute_restrictions": None,  # means all I have
+                        "name_form": NAME_FORMAT_URI,
+                        "entity_categories": ["swamid", "edugain"]
+                    },
+                },
+                "subject_data": "./idp.subject",
+                "session_storage": ("mongodb", "saml"),
+                "name_id_format": [NAMEID_FORMAT_TRANSIENT,
+                                   NAMEID_FORMAT_PERSISTENT]
+            },
+        },
+        "debug": 1,
+        "key_file": DIR + "/key.pem",  # for encrypt?
+        "cert_file": DIR + "/cert.pem",  # for encrypt?
+        "metadata": {
+            "local": [DIR + "/sp.xml"],  # the sp metadata
+        }
+    }
+    
+    conf = IdPConfig()
+    conf.load(copy.deepcopy(setting))
+    IDP = server.Server(config=conf, cache=Cache())
+    IDP.ticket = {}
+
+    entity_id = IDP.metadata.keys()[0]
+    nid = NameID(name_qualifier=sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
+    reqid, slo_request = IDP.create_logout_request(sp_name,
+                                                   settings.SAML_ENTITY_ID,
+                                                   # subject_id=subject_id,
+                                                   name_id=nid,
+                                                   sign=False)
+
+    # ** Retrieve session id associated with sp-entity and user's name-id
+    # ** CAUTION, get_authn_statements() is for mongo session store only
+    assertion = IDP.session_db.get_authn_statements(nid)[0]
+    slo_request.session_index = SessionIndex(text=assertion[0].session_index)
+
+    binding, destination = IDP.pick_binding("single_logout_service", entity_id=entity_id, bindings=[BINDING_HTTP_POST, BINDING_HTTP_REDIRECT])
+
+    http_args = IDP.apply_binding(
+        binding=binding,
+        msg_str=slo_request,
+        destination=destination,
+        relay_state='',
+        response=True)
+
+    return saml_django_response(binding, http_args)
+
+
+def slo_request_send(request):
+    """
+    Return a slo request (a redirect/post to sp), this is used for slo issused by IDP
+    """
+    if request.GET.get("sp"):
+        sp = request.GET.get("sp")
+        return slo_request_send_one(request, sp)
+    else:
+        sso_participants = request.session.get("sso_participants")
+        if sso_participants:
+            for sp in sso_participants:
+                return slo_request_send_one(request, sp)
+
+
+@csrf_exempt
+def slo_response_receive(request):
+    """
+    Receive a slo response (from sp), this is used for slo issused by IDP
+
+    How to deploy an HTTPS-only site, with Django/nginx?
+    (jango is behind Nginx's reverse proxy, it doesn't know the original request was secure)
+    https://stackoverflow.com/questions/8153875/how-to-deploy-an-https-only-site-with-django-nginx
+    """
+
+    # ** todo: we can get sp name from saml body, because the body's not encrypted ?
+    # sp_name = request.GET.get("sp", "")
+    # setting = get_saml_setting("127.0.0.1-local")
+
+    slo_url = get_full_reverse("sso_idp_slo_response_receive", request)
+    setting = {"service": {"idp": {"endpoints": {"single_logout_service": [
+        (slo_url, BINDING_HTTP_POST), (slo_url, BINDING_HTTP_REDIRECT)
+    ]}}}}
+
+    conf = IdPConfig()
+    conf.load(copy.deepcopy(setting))
+    IDP = server.Server(config=conf, cache=Cache())
+
+    relay_state = request.REQUEST.get("RelayState")
+    saml_response = request.REQUEST.get("SAMLResponse")
+
+    if request.method == "POST":
+        binding = BINDING_HTTP_POST  # "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+    else:
+        binding = BINDING_HTTP_REDIRECT  # "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+
+    r = IDP.parse_logout_request_response(saml_response, binding)
+    sp_name = r.issuer()
+
+    nid = NameID(name_qualifier=sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
+    # IDP.session_db.remove_authn_statements(nid)  # name_id
+
+    if request.session.get("sso_participants"):
+        del request.session["sso_participants"][sp_name]
+
+    sso_participants = request.session.get("sso_participants")
+    if sso_participants:
+        for sp in sso_participants:
+            return slo_request_send_one(request, sp)
+    else:
+        return HttpResponse(reverse("signin_user"))
+
+    return HttpResponse("%s %s %s %s" % (request.build_absolute_uri(), r.issuer(), r.xmlstr, slo_url))

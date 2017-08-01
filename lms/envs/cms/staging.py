@@ -241,3 +241,5 @@ SESSION_SAVE_EVERY_REQUEST = True
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 INSTALLED_APPS = tuple([app for app in INSTALLED_APPS if not app.startswith('debug_toolbar')])
 MIDDLEWARE_CLASSES = tuple([mcl for mcl in MIDDLEWARE_CLASSES if not mcl.startswith('debug_toolbar')])
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

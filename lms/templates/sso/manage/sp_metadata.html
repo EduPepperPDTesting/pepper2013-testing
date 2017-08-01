@@ -1,5 +1,5 @@
 <%!
-    from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse
 %>
 
 <%inherit file="/main.html" />
@@ -48,10 +48,10 @@
             <div class="row">
                 <span class="">Testing</span>
                 <input type="button" value="Auth" class="small"
-                       onclick="window.open('/sso/idp/auth/?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
+                       onclick="window.open('${reverse('sso_idp_acs_send')}?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
                 
                 <input type="button" value="Logout" class="small"
-                       onclick="window.open('/sso/idp/logout/?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
+                       onclick="window.open('${reverse('sso_idp_slo_request_send')}?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
             </div>
 
 
