@@ -829,7 +829,7 @@ get_create_column_headers = '''
     {
         "$group":{
             "_id":{"column_headers":"$column_headers"},
-            "count":{"$sum":1}
+            "total":{"$sum":1}
         }
     },
     {
@@ -841,7 +841,7 @@ get_create_row_headers = '''
     {
         "$group":{
             "_id":{"row_headers":"$row_headers"},
-            "count":{"$sum":1}
+            "total":{"$sum":1}
         }
     },
     {

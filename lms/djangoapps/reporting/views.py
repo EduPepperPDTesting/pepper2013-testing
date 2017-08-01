@@ -1421,7 +1421,7 @@ def get_column_headers(request):
             rs.get_aggregate(collection,query,report.distinct)
             total = rs.get_datas(collection+'data')
             for x in total:
-                rs.update_data(x['_id'],{'$set':{'total':x['totalmax']}},collection+"_column_header")
+                rs.update_data(x['_id'],{'total':x['totalmax']},collection+"_column_header")
 
             for d in row_data:
                 rows = []
@@ -1497,7 +1497,7 @@ def report_get_matrix_rows(request):
         if d['_id'][column_header] == None:
             d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        row_last.append(d['count'])
+        row_last.append(d['total'])
 
     column_header_row.append('count')
 
