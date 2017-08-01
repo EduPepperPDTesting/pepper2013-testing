@@ -458,6 +458,6 @@ def slo_response_receive(request):
         for sp in sso_participants:
             return slo_request_send_one(request, sp)
     else:
-        return HttpResponse("all done")
+        return HttpResponse(reverse("signin_user"))
 
     return HttpResponse("%s %s %s %s" % (request.build_absolute_uri(), r.issuer(), r.xmlstr, slo_url))
