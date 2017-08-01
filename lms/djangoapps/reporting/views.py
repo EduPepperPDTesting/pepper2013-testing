@@ -1420,7 +1420,9 @@ def get_column_headers(request):
             rs = reporting_store()
             rs.get_aggregate(collection,query,report.distinct)
             total = rs.get_datas(collection+'data')
-            
+            for x in total:
+                rs.update_data(x['_id'],{'$set':{'total':x['totalmax']}},collection+"_column_header")
+
             for d in row_data:
                 rows = []
                 sum_tmp = []
