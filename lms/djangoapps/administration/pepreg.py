@@ -683,7 +683,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         i += 1
 
     #raise Exception(str(print_row))
-    if(print_row and print_row[0][0]):
+    if(print_row and print_row[0]):
         #raise Exception(str(print_row))
         n = 0
         i = len(print_row)
