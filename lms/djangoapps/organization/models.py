@@ -85,3 +85,4 @@ class OrganizationFooter(models.Model):
         db_table = 'organization_footer'
     DataItem = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
+    itemType = models.CharField(blank=False, max_length=10, db_index=False)
