@@ -6,7 +6,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
 import re
+import time
 import logging
+import base64
+from PIL import Image
+from django.conf import settings
 import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
@@ -163,8 +167,8 @@ def get_add_user_rows(request, community_id):
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
+    # users = users.exclude(activate_date__isnull=True)
     users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
-    
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
@@ -199,7 +203,6 @@ def get_add_user_rows(request, community_id):
         row.append(str(user_district))
         row.append(str(user_cohort))
         row.append(str(user_school))
-
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
 
         rows.append(row)
@@ -837,20 +840,33 @@ def community_edit_process(request):
         except:
             state = None
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
-        if request.POST.get('logo', 'nothing') == 'nothing':
-            # Try to grab the new file, and if it isn't there, just make it blank.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
             try:
                 logo = FileUploads()
                 logo.type = 'community_logos'
                 logo.sub_type = community_id
-                logo.upload = request.FILES.get('logo')
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
+                img_file.close()
+                im = Image.open(path)
+                x,y = im.size
+                p = Image.new('RGBA', im.size, (255,255,255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(path)
+                location_path = '/static/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                logo.upload = str(location_path)
                 logo.save()
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-        else:
-            # If the path was passed in, just use that.
-            logo = None
+            
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
         priority_id = request.POST.get('priority_id',0)
