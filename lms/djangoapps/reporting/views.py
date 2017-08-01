@@ -1421,7 +1421,7 @@ def get_column_headers(request):
             rs.get_aggregate(collection,query,report.distinct)
             total = rs.get_datas(collection+'data')
             for x in total:
-                rs.update_data(x['_id'],{'total':x['totalmax']},collection+"_column_header")
+                rs.update_data({'_id':x['_id']},{'total':x['totalmax']},collection+"_column_header")
 
             for d in row_data:
                 rows = []
@@ -1459,6 +1459,108 @@ def get_column_headers(request):
                             max_dat = dd[aggregate_data]
                     row[column] = str(max_dat)
                     sum_tmp.append(max_dat)
+
+                row['count'] = sum(sum_tmp)
+                rows.append(row)
+                rs.insert_datas(rows,collection+"aggregate")
+
+        elif aggregate_type_id == 4:
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
+            query = eval(query)
+            rs = reporting_store()
+            rs.get_aggregate(collection,query,report.distinct)
+            total = rs.get_datas(collection+'data')
+            for x in total:
+                rs.update_data({'_id':x['_id']},{'total':x['totalmin']},collection+"_column_header")
+
+            for d in row_data:
+                rows = []
+                sum_tmp = []
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = str(d['_id'][row_header])
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
+                    min_dat = []
+                    data = rs.get_datas(collection,filters)
+                    for dd in data:
+                        if dd[aggregate_data] == None:
+                            dd[aggregate_data] = 0
+                        min_dat.append(dd[aggregate_data])
+
+                    row[column] = str(min(min_dat))
+                    sum_tmp.append(min(min_dat))
+
+                row['count'] = sum(sum_tmp)
+                rows.append(row)
+                rs.insert_datas(rows,collection+"aggregate")
+
+        elif aggregate_type_id == 5:
+            aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
+            query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
+            query = eval(query)
+            rs = reporting_store()
+            rs.get_aggregate(collection,query,report.distinct)
+            total = rs.get_datas(collection+'data')
+            for x in total:
+                rs.update_data({'_id':x['_id']},{'total':x['totalavg']},collection+"_column_header")
+
+            for d in row_data:
+                rows = []
+                sum_tmp = []
+                row = {}
+                if row_header_type == 'time':
+                    row['row_header'] = study_time_format_2(d['_id'][row_header])
+                elif row_header_type == 'url':
+                    if is_excel:
+                        row['row_header'] = settings.LMS_BASE + d['_id'][row_header]
+                    else:
+                        row['row_header'] = '<a href="{0}" target="_blank">Link</a>'.format(d['_id'][row_header])
+                elif row_header_type == 'date':
+                    row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
+                else:
+                    row['row_header'] = str(d['_id'][row_header])
+                for index,column in enumerate(column_header_row):
+                    if column == None:
+                        column = 'none'
+                        filter1 = {"$in": [None]}
+                    else:
+                        filter1 = column
+                        column = str(column).replace('.',',')
+                    if d['_id'][row_header] == None:
+                        filter2 = {"$in": [None]}
+                    else:
+                        filter2 = d['_id'][row_header]
+                    filters = {column_header:filter1,row_header:filter2}
+                    sum_dat = []
+                    data = rs.get_datas(collection,filters)
+                    for dd in data:
+                        if dd[aggregate_data] == None:
+                            dd[aggregate_data] = 0
+                        sum_dat.append(dd[aggregate_data])
+
+                    row[column] = str(sum_dat/len(sum_dat))
+                    sum_tmp.append(sum_dat/len(sum_dat))
 
                 row['count'] = sum(sum_tmp)
                 rows.append(row)
