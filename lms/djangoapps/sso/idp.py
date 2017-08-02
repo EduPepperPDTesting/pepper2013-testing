@@ -346,6 +346,7 @@ def slo_request_send(request):
     """
     Return a slo request (a redirect/post to sp), this is used for slo issused by IDP
     """
+
     if not request.user.is_authenticated() or not request.session.get("sso_participants"):
         return HttpResponseRedirect(reverse("signin_user"))
 
