@@ -677,6 +677,36 @@
                         </div>
                     </div>
                 </td>
+            </tr>            
+            <tr>
+                <td colspan="3" class="org_td1" style="padding-top:10px;">
+                	<label><input type="checkbox" name="organizational_is_announcement" onclick="isAnnouncementChange()" />Initial Pepper Announcement</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="checkbox" name="organizational_is_announcement_alert" />Enable Alert</label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="org_td1">
+                	<div class="certificate_editor_div"> 
+                        <div class="certificate_editor_frame">
+                            <div class="certificate_tabs_div">
+                                <ol class="certificate_tabs">
+                                    <li>
+                                        <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+                                    </li>
+                                    <li>
+                                        <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="editor_view">
+                                <textarea id="certificate_editor_announcement" class="certificate_editor_announcement" cols="10"></textarea>
+                            </div>
+                            <div class="preview_view" style="display: none;">
+                                <iframe class = "preview-frame" id="certificate_preview_announcement" name="certificate_preview_announcement" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </td>
             </tr>
         </table>
       	<div style="width:100%; text-align:right; height:30px;">
@@ -717,10 +747,33 @@
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
             if (textarea.className == 'certificate_editor') {
+                // Add token plugin
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
                 config.width = '100%';
-                config.height = 500;
+                config.height = 300;
+                // Configure available tokens
+                config.availableTokens = [
+                    ["", ""],
+                    ["firstname", "firstname"],
+                    ["lastname", "lastname"],
+                    ["coursename", "coursename"],
+                    ["coursenumber", "coursenumber"],
+                    ["date", "date"],
+                    ["hours", "hours"]
+                ];
+                config.tokenStart = '{';
+                config.tokenEnd = '}';
+                config.allowedContent = true;
+                return true;
+				
+            }else if (textarea.className == 'certificate_editor_announcement') {
+                // Add token plugin
+                config.extraPlugins = 'token,print';
+                config.removePlugins = 'maximize';
+                config.width = '100%';
+                config.height = 200;
+                // Configure available tokens
                 config.availableTokens = [
                     ["", ""],
                     ["firstname", "firstname"],
@@ -751,9 +804,19 @@
 	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);	
     function addNewCertificate(flag) {
 		if(flag == 1){
-			$(".certificate_editor_div").show();			
+			$(".certificate_editor_div:first").show();			
 		}else{
-			$(".certificate_editor_div").hide();
+			$(".certificate_editor_div:first").hide();
+		}
+    }
+	
+	var ceditor_announcement = new CertificateEditor(CKEDITOR.instances.certificate_editor_announcement);	
+    function isAnnouncementChange() {
+		var flag = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
+		if(flag == 1){
+			$(".certificate_editor_div:last").show();			
+		}else{
+			$(".certificate_editor_div:last").hide();
 		}
     }
 	
@@ -1116,6 +1179,15 @@
 									}
 									ceditor.CKEDITOR.setData(r["Footer Content"]);
 									
+									//----------Initial Pepper Announcement
+									if(r["Initial Pepper Announcement"] == "1"){
+										$("input[name='organizational_is_announcement']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_is_announcement']").prop("checked", false);
+									}
+									$("input[name='organizational_is_announcement_alert']").prop("checked", false);
+									ceditor_announcement.CKEDITOR.setData(r["Announcement Content"]);
+									
 									//----------
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										
@@ -1423,6 +1495,7 @@
 							
 							organizational_dashboard_demo_div_reload();
 							isIconChange();
+							isAnnouncementChange();
 							
 							var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 							var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
@@ -2542,6 +2615,9 @@
 			var logo_url = $("#organizational_base_logo_url").val();
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData(); 
+			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
+			var is_Announcement_alert = ($("input[name='organizational_is_announcement_alert']").attr("checked")) ? "1" : "0";
+			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
@@ -2587,8 +2663,12 @@
 				logo_url: logo_url,
 				footer_flag: footer_flag,
 				footer_content: footer_content,
+				is_Announcement: is_Announcement,				
+				is_Announcement_alert: is_Announcement_alert,
+				announcement_content: announcement_content,
 				menu_color: menu_color
 			}, function (r) {
+				$("input[name='organizational_is_announcement_alert']").prop("checked", false);
 				if (r.Success){
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
