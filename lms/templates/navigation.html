@@ -1404,6 +1404,7 @@
 	//------------------organization_get_info
 	var organization_data;
 	$(function(){
+		$("#press").attr("abc", "1");
 		var flag_main;
 		if($(".mainlogo").length > 0) 					flag_main = "index";
 		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
@@ -1411,9 +1412,10 @@
 		if($("#organization_obj").attr("o_name") == "report"){
 			loadwinnav.hide();
 		}
-					
+		$("#press").attr("abc", "2");			
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
 			if (r.SiteURL_OK){
+				$("#press").attr("abc", "4");
 				if(r.flag_main == "index"){
 					if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
 					if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
@@ -1428,12 +1430,15 @@
 						if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
 					}
 				}
-				
+				$("#press").attr("abc", "5");
 				if(r.Success && r.OrganizationOK){
 					if(r['Footer Selected'] && r['Footer Selected'] == "1"){
 						$("#page-footer").empty();
 						$("#page-footer").append(r['footer_content']);
 					}
+					//123 r['Remove All Menu'] r['Remove All Menu']
+					//$("#press").attr("abc", );
+					console.log("---------------:" + r['Remove All Menu']);
 					if(r['Remove All Menu'] && r['Remove All Menu'] == "1"){
 						$(".imessage_style").hide();
 						$(".admin-menu-holder").hide();

@@ -1078,12 +1078,13 @@ def organization_get_info(request):
                     data['OrganizationName'] = organization_obj.OrganizationName
 
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
-                        data['org_rg_major_subject'] = tmp2.DataItem.find("org_rg_major_subject")
-                        data['org_rg_grade_level'] = tmp2.DataItem.find("org_rg_grade_level")
-                        data['org_rg_number_of'] = tmp2.DataItem.find("org_rg_number_of")
-                        data['org_rg_my_learners'] = tmp2.DataItem.find("org_rg_my_learners")
-                        data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
-                        break;
+                        data['org_rg_data_items'] = tmp2.DataItem
+                        # data['org_rg_major_subject'] = tmp2.DataItem.find("org_rg_major_subject")
+                        # data['org_rg_grade_level'] = tmp2.DataItem.find("org_rg_grade_level")
+                        # data['org_rg_number_of'] = tmp2.DataItem.find("org_rg_number_of")
+                        # data['org_rg_my_learners'] = tmp2.DataItem.find("org_rg_my_learners")
+                        # data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
+                        # break;
 
                 data['Success'] = True
 
@@ -1130,28 +1131,28 @@ def organization_get_info(request):
                         data['DistrictType'] = organization_obj.DistrictType
                         data['SchoolType'] = organization_obj.SchoolType
 
-                        for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
-                            data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
-                            data['org_tm_communities_obj'] = tmp2.DataItem.find("org_tm_communities")
-                            data['org_tm_my_chunks_obj'] = tmp2.DataItem.find("org_tm_my_chunks")
-                            data['org_tm_resources_obj'] = tmp2.DataItem.find("org_tm_resources")
-                            data['org_tm_people_obj'] = tmp2.DataItem.find("org_tm_people")
-                            data['org_tm_notifications_obj'] = tmp2.DataItem.find("org_tm_notifications")
+                        # for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                        #     data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
+                        #     data['org_tm_communities_obj'] = tmp2.DataItem.find("org_tm_communities")
+                        #     data['org_tm_my_chunks_obj'] = tmp2.DataItem.find("org_tm_my_chunks")
+                        #     data['org_tm_resources_obj'] = tmp2.DataItem.find("org_tm_resources")
+                        #     data['org_tm_people_obj'] = tmp2.DataItem.find("org_tm_people")
+                        #     data['org_tm_notifications_obj'] = tmp2.DataItem.find("org_tm_notifications")
 
-                            data['org_tsm_configuration_obj'] = tmp2.DataItem.find("org_tsm_configuration")
-                            data['org_tsm_pepper_pd_planner_obj'] = tmp2.DataItem.find("org_tsm_pepper_pd_planner")
-                            data['org_tsm_pepconn_obj'] = tmp2.DataItem.find("org_tsm_pepconn")
-                            data['org_tsm_roles_permissions_obj'] = tmp2.DataItem.find("org_tsm_roles_permissions")
-                            data['org_tsm_time_report_obj'] = tmp2.DataItem.find("org_tsm_time_report")
-                            data['org_tsm_reporting_obj'] = tmp2.DataItem.find("org_tsm_reporting")
-                            data['org_tsm_sso_metadata_obj'] = tmp2.DataItem.find("org_tsm_sso_metadata")
-                            data['org_tsm_tnl_configuration_obj'] = tmp2.DataItem.find("org_tsm_tnl_configuration")
-                            data['org_tsm_studio_obj'] = tmp2.DataItem.find("org_tsm_studio")
-                            data['org_tsm_alert_obj'] = tmp2.DataItem.find("org_tsm_alert")
-                            data['org_tsm_notifications_obj'] = tmp2.DataItem.find("org_tsm_notifications")
-                            data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
-                            data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
-                            break;
+                        #     data['org_tsm_configuration_obj'] = tmp2.DataItem.find("org_tsm_configuration")
+                        #     data['org_tsm_pepper_pd_planner_obj'] = tmp2.DataItem.find("org_tsm_pepper_pd_planner")
+                        #     data['org_tsm_pepconn_obj'] = tmp2.DataItem.find("org_tsm_pepconn")
+                        #     data['org_tsm_roles_permissions_obj'] = tmp2.DataItem.find("org_tsm_roles_permissions")
+                        #     data['org_tsm_time_report_obj'] = tmp2.DataItem.find("org_tsm_time_report")
+                        #     data['org_tsm_reporting_obj'] = tmp2.DataItem.find("org_tsm_reporting")
+                        #     data['org_tsm_sso_metadata_obj'] = tmp2.DataItem.find("org_tsm_sso_metadata")
+                        #     data['org_tsm_tnl_configuration_obj'] = tmp2.DataItem.find("org_tsm_tnl_configuration")
+                        #     data['org_tsm_studio_obj'] = tmp2.DataItem.find("org_tsm_studio")
+                        #     data['org_tsm_alert_obj'] = tmp2.DataItem.find("org_tsm_alert")
+                        #     data['org_tsm_notifications_obj'] = tmp2.DataItem.find("org_tsm_notifications")
+                        #     data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
+                        #     data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
+                        #     break;
 
                         for tmp2 in OrganizationMenu.objects.filter(organization=organization_obj, itemType="Remove All Menu"):
                             data[tmp2.itemType] = tmp2.itemValue
