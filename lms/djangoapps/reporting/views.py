@@ -1508,6 +1508,8 @@ def get_column_headers(request):
                             dd[aggregate_data] = 0
                         min_dat.append(dd[aggregate_data])
 
+                    if len(min_dat) == 0:
+                        min_dat = [0]
                     row[column] = str(min(min_dat))
                     sum_tmp.append(min(min_dat))
 
@@ -1559,6 +1561,8 @@ def get_column_headers(request):
                             dd[aggregate_data] = 0
                         sum_dat.append(dd[aggregate_data])
 
+                    if len(sum_dat) == 0:
+                        sum_dat = [0]
                     row[column] = str(sum_dat/len(sum_dat))
                     sum_tmp.append(sum_dat/len(sum_dat))
 
