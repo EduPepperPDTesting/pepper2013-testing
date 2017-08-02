@@ -92,7 +92,6 @@ from organization.models import OrganizationMetadata, OrganizationDistricts, Org
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
-from sso import idp
 
 
 log = logging.getLogger("mitx.student")
@@ -926,6 +925,22 @@ def login_user(request, error=""):
                         content_type="application/json")
 
 
+def record_logout(user_id):
+    utctime = datetime.datetime.utcnow()
+    utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
+    user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+    if user_log_info:
+        user_log_info[0].logout_time = utctime_str
+        db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
+        last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
+        user_log_info[0].last_session = last_session.seconds
+        time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
+        time_diff_seconds = time_diff.seconds
+        user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
+        user_log_info[0].logout_press = 1
+        user_log_info[0].save()
+
+    
 # @ensure_csrf_cookie
 def logout_user(request):
     """
@@ -935,45 +950,13 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
+    from sso.idp import slo_request_send
 
-    # slo_email = request.GET.get('email')
-    # if slo_email:
-    #     user = User.objects.get(email=slo_email)
-    #     user.profile.force_logout = datetime.datetime.utcnow()
-    #     user.profile.save()
-    #     return HttpResponse("")
-
-    # if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
-    #     if not idp.logout(request):
-    #         return HttpResponse("")
+    if request.session.get("sso_participants"):
+        return slo_request_send(request)
         
-    #@begin:record user logout time
-    #@date:2016-08-22
-    user_id = request.user.id
-    utctime = datetime.datetime.utcnow()
-    utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
-
-    user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
-    if user_log_info:
-        user_log_info[0].logout_time = utctime_str
-        db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
-        last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
-        user_log_info[0].last_session = last_session.seconds
-
-        time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
-        time_diff_seconds = time_diff.seconds
-        user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
-        user_log_info[0].logout_press = 1
-        user_log_info[0].save()       
-    #@end
-
-    if request.user.id and request.user.profile.sso_type == "SAML":  # single logout issued on IDP
-        logout(request)
-        slo = idp.get_first_sp_logout_url()
-        if slo:
-            return HttpResponseRedirect(slo)
-    else:
-        logout(request)
+    record_logout(request.user.id)
+    logout(request)
     
     if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
         target = reverse('cas-logout')

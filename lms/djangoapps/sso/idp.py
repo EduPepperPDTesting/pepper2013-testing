@@ -37,7 +37,8 @@ from saml2.s_utils import sid
 from saml2.samlp import SessionIndex
 from django.views.decorators.csrf import csrf_exempt
 from util import saml_django_response
-
+from django.contrib.auth import login, logout
+from student.views import logout_user
 
 # *Guess the xmlsec_path
 try:
@@ -56,9 +57,7 @@ log = logging.getLogger("tracking")
 
 
 def get_full_reverse(name, request, **kwargs):
-    
     p = "https" if request.is_secure() else "http"
-    
     return "%s://%s%s" % (p, request.get_host(), reverse(name, args=kwargs))
 
 
@@ -135,37 +134,6 @@ def get_saml_setting(sp_name):
         }
     }
     return setting
-
-
-def logout(request):
-    for sp in metadata.get_all_sp():
-# {'attributes': [{'map': u'email', 'name': u'email'}, {'map': u'username', 'name': u'username'},
-# {'map': u'district', 'name': u'district'}], 'sso_type': u'SAML', 'sso_name': u'staging.pepperpd.com',
-# 'typed': {u'sso_slo_url': u'', u'sso_acs_url': u'https://staging.pepperpd.com/genericsso/?idp=victor_local'}}
-
-        metadata_setting = sp
-        slo_url = metadata_setting.get('typed').get('sso_slo_url')
-
-        import requests
-        if slo_url:
-            response = requests.get(slo_url + "?email=" + request.user.email)
-
-        # setting = get_saml_setting(metadata_setting["sso_name"])
-        
-    
-        # conf = IdPConfig()
-        # conf.load(copy.deepcopy(setting))
-        # IDP = server.Server(config=conf, cache=Cache())
-
-        # binding = ""
-        # _, body = request.split("\n")
-        # req_info = IDP.parse_logout_request(body, binding)
-        # msg = req_info.message
-        # resp = IDP.create_logout_response(msg, [binding])
-
-        # hinfo = IDP.apply_binding(binding, "%s" % resp, "", relay_state)
-
-    return HttpResponse("")
 
 
 def get_first_sp_logout_url():
@@ -311,31 +279,6 @@ def slo_request_send_one(request, sp_name):
     BASE = "http://"
     DIR = path.join(SSO_DIR, "sp", sp_name)
 
-    # sp_conf = SPConfig()
-    # sp_setting = {
-    #     "entityid": sp_name,
-    #     "service": {
-    #         "sp": {
-    #             'name': 'PepperPD',
-    #             'single_logout_service': [
-    #                 sp_name,
-    #                 (sp_name, BINDING_HTTP_POST),  # sp's entity id
-    #             ]
-    #         }
-    #     },
-    #     "metadata": {
-    #         "local": [DIR + "/sp.xml"],  # the sp metadata
-    #     }
-    # }    
-    # sp_conf.load(sp_setting)
-    # from saml2.client import Saml2Client
-    # SP = Saml2Client(sp_conf)
-    # k = SP.metadata.keys()
-    # binding, destination = SP.pick_binding("single_logout_service", entity_id=sp_name)
-    # return HttpResponse("")
-
-    # setting = get_saml_setting(sp_name)
-
     setting = {
         "entityid": settings.SAML_ENTITY_ID,
         "service": {
@@ -368,7 +311,7 @@ def slo_request_send_one(request, sp_name):
             "local": [DIR + "/sp.xml"],  # the sp metadata
         }
     }
-    
+
     conf = IdPConfig()
     conf.load(copy.deepcopy(setting))
     IDP = server.Server(config=conf, cache=Cache())
@@ -403,6 +346,9 @@ def slo_request_send(request):
     """
     Return a slo request (a redirect/post to sp), this is used for slo issused by IDP
     """
+    if not request.user.is_authenticated() or not request.session.get("sso_participants"):
+        return HttpResponseRedirect(reverse("signin_user"))
+
     if request.GET.get("sp"):
         sp = request.GET.get("sp")
         return slo_request_send_one(request, sp)
@@ -416,11 +362,7 @@ def slo_request_send(request):
 @csrf_exempt
 def slo_response_receive(request):
     """
-    Receive a slo response (from sp), this is used for slo issused by IDP
-
-    How to deploy an HTTPS-only site, with Django/nginx?
-    (jango is behind Nginx's reverse proxy, it doesn't know the original request was secure)
-    https://stackoverflow.com/questions/8153875/how-to-deploy-an-https-only-site-with-django-nginx
+    Receive a slo response (from sp), for slo issused by IDP
     """
 
     # ** todo: we can get sp name from saml body, because the body's not encrypted ?
@@ -436,28 +378,34 @@ def slo_response_receive(request):
     conf.load(copy.deepcopy(setting))
     IDP = server.Server(config=conf, cache=Cache())
 
-    relay_state = request.REQUEST.get("RelayState")
+    # relay_state = request.REQUEST.get("RelayState")
     saml_response = request.REQUEST.get("SAMLResponse")
 
     if request.method == "POST":
-        binding = BINDING_HTTP_POST  # "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        binding = BINDING_HTTP_POST
     else:
-        binding = BINDING_HTTP_REDIRECT  # "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        binding = BINDING_HTTP_REDIRECT
 
     r = IDP.parse_logout_request_response(saml_response, binding)
     sp_name = r.issuer()
 
-    nid = NameID(name_qualifier=sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
-    # IDP.session_db.remove_authn_statements(nid)  # name_id
+    if not r.status_ok():
+        raise Exception("SP %s return an error for slo." % sp_name)
 
-    if request.session.get("sso_participants"):
-        del request.session["sso_participants"][sp_name]
+    # nid = NameID(name_qualifier=sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
+    # IDP.session_db.remove_authn_statements(nid)  # name_id
 
     sso_participants = request.session.get("sso_participants")
     if sso_participants:
+        if sso_participants.get(sp_name):
+            del request.session["sso_participants"][sp_name]
+
         for sp in sso_participants:
             return slo_request_send_one(request, sp)
-    else:
-        return HttpResponse(reverse("signin_user"))
 
-    return HttpResponse("%s %s %s %s" % (request.build_absolute_uri(), r.issuer(), r.xmlstr, slo_url))
+        if len(sso_participants) == 0:
+            del request.session["sso_participants"]
+            return logout_user(request)
+    else:
+        return logout_user(request)
+

@@ -9,6 +9,8 @@ from OpenSSL import crypto
 import re
 from path import path
 from permissions.decorators import user_has_perms
+from django.core.urlresolvers import reverse
+
 
 BASEDIR = settings.PROJECT_HOME + "/sso/sp"
 
@@ -203,7 +205,8 @@ def create_saml_config_files(name):
     open(f, "wt").write(content)
 
     template = open(temp_dir + "/metadata_templates/idp.xml", "r").read()
-    content = template.format(cert=cert, entityID=settings.SAML_ENTITY_ID, auth=auth)
+    slo_url = "https://" + settings.SAML_ENTITY_ID + reverse("sso_idp_slo_response_receive")
+    content = template.format(cert=cert, entityID=settings.SAML_ENTITY_ID, auth=auth, SingleLogoutService=slo_url, SingleSignOnService="")
     f = BASEDIR + '/' + name + "/idp.xml"
     open(f, "wt").write(content)
 

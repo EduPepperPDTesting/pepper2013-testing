@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import transaction
 from pytz import UTC
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.utils.translation import ugettext as _
 import datetime
 import json
@@ -771,14 +771,19 @@ def activate_account(request):
 
 
 @csrf_exempt
-def slo_request_receive(request):
+def slo_request_receive(request):    
     """
     Receive a saml slo request (from IDP)
     """
+    # ** todo: is it possible to get idp name just from saml request body?
+    # ** by: idp_name = req_info.issuer.text
+    # ** but we need to parse_logout_request at first
+    # ** that requires idp's FederationMetadata.xml
+    # ** so we need to know idp's name before that
     idp_name = request.REQUEST.get("idp")
     relay_state = request.REQUEST.get("RelayState")
     saml_request = request.REQUEST.get("SAMLResponse")
-    settings = {
+    saml_setting = {
         'entityid': settings.SAML_ENTITY_ID,  # sp's entity id
         'service': {
             'sp': {
@@ -793,18 +798,20 @@ def slo_request_receive(request):
             'local': [
                 path.join(BASEDIR, idp_name, 'FederationMetadata.xml')  # metadata of idp
             ]
-        }
+        },
+        # 'valid_for': 24,  # how long is our metadata valid
     }
 
     conf = SPConfig()
-    conf.load(copy.deepcopy(settings))
+    conf.load(copy.deepcopy(saml_setting))
 
     SP = Saml2Client(conf, identity_cache=IdentityCache(request.session))
     binding, destination = SP.pick_binding("single_logout_service", entity_id=idp_name)
     req_info = SP.parse_logout_request(saml_request, binding)
 
-    # ** todo: is it possible to get id name just from saml request body?
-    # ** by: idp_name = req_info.issuer.text
+    if request.user.is_authenticated() and request.user.email == req_info.message.name_id.text:
+        logout(request)
+    
     saml_response = SP.create_logout_response(req_info.message, [binding])
 
     http_args = SP.apply_binding(
@@ -813,5 +820,5 @@ def slo_request_receive(request):
         destination=destination,
         relay_state=relay_state,
         response=True)
-
+    
     return saml_django_response(binding, http_args)
