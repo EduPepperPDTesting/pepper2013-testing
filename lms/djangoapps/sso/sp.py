@@ -467,12 +467,12 @@ class GenericSSO:
             if not self.user.is_active:
                 registration = Registration.objects.get(user_id=self.user.id)
                 if self.sso_type == 'EasyIEP':
-                    return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
-                return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
+                    return reverse('register_user_easyiep', args=[registration.activation_key])
+                return reverse('register_sso_user', args=[registration.activation_key])
             else:
                 self.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
                 auth.login(self.request, self.user)
-                return https_redirect(self.request, "/dashboard")
+                return reverse("/dashboard")
         else:
             raise Exception('Invalid Email')
 
@@ -557,8 +557,8 @@ class GenericSSO:
                 cea.save()
 
             if self.sso_type == 'EasyIEP':
-                return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
-            return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
+                return reverse('register_user_easyiep', args=[registration.activation_key])
+            return reverse('register_sso_user', args=[registration.activation_key])
 
         except Exception as e:
             db.transaction.rollback()
