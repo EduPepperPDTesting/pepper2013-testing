@@ -276,8 +276,6 @@ class UserProfile(models.Model):
 
     last_activity = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
 
-    force_logout = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
-
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
     # ('p_se', 'Doctorate in science or engineering'),
@@ -312,6 +310,9 @@ class UserProfile(models.Model):
 
     def set_meta(self, js):
         self.meta = json.dumps(js)
+
+    def getFullname(self):
+        return self.user.first_name + " " + self.user.last_name
 
 TEST_CENTER_STATUS_ACCEPTED = "Accepted"
 TEST_CENTER_STATUS_ERROR = "Error"

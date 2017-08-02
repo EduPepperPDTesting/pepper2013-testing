@@ -22,6 +22,7 @@ from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
+from xmodule.remindstore import myactivitystore
 
 def postpone(function):
     """
@@ -354,7 +355,17 @@ def report_save(request, report_id):
         return render_json_response({'success': False, 'error': '{0} (Line# {1})'.format(e, exc_traceback.tb_lineno)})
     else:
         transaction.commit()
+
+        if action == 'new':
+            ma_db = myactivitystore()                
+            my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"report_id": report.id},    
+            "TokenValues": {"report_id": report.id}, 
+            "LogoValues": {"report_id": report.id}}
+            ma_db.insert_item(my_activity) 
+
         return render_json_response({'success': True, 'report_id': report.id})
+
 
 
 @ensure_csrf_cookie
@@ -373,7 +384,10 @@ def report_delete(request):
             rid = report.id
             rname = report.name
             
-            Reports.objects.get(id=report_id).delete()          
+            Reports.objects.get(id=report_id).delete()
+
+            ma_db = myactivitystore()                
+            ma_db.set_item_reporting(rid, rname)             
 
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
@@ -447,7 +461,6 @@ def report_view(request, report_id):
                         site support.''',
                 'window_title': 'Report Not Found'}
         return render_to_response('error.html', data, status=404)
-
 
     data = {'report': report,
             'school_year': school_year,

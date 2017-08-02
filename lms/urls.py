@@ -82,6 +82,7 @@ urlpatterns = (
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
+    url(r'^pepreg/download_calendar_pdf/$', 'administration.pepreg.download_calendar_pdf', name="pepreg_download_calendar_pdf"),#akogan
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
     #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),
@@ -148,6 +149,34 @@ urlpatterns = (
     url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
     url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
 
+    #@begin:Add for Dashboard Posts
+    #@date:2016-12-29
+    url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
+    url(r'^dashboard/announcements/get$', 'student.newdashboard.get_announcements', name='dashboard_get_announcements'),
+    url(r'^dashboard/announcements/getorg$', 'student.newdashboard.get_org_announcements', name='dashboard_get_org_announcements'),
+    url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
+    url(r'^dashboard/comment/get$', 'student.newdashboard.get_comment', name='dashboard_get_comment'),
+    url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
+    url(r'^dashboard/delete/announcement', 'student.newdashboard.delete_announcement', name='dashboard_delete_announcement'),
+    url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
+    url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
+    url(r'^dashboard/post/comment', 'student.newdashboard.submit_new_comment', name='dashboard_submit_new_comment'),
+    url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
+    url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
+    url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
+
+    url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
+    url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
+    url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
+
+    
+    #@end
+    #@begin:Add for Dashboard My Activity
+    #@date:2016-12-29
+    url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    url(r'^dashboard/my_course_in_progress/get$', 'student.newdashboard.get_my_course_in_progress', name='get_my_course_in_progress'),
+    #@end
+
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
@@ -194,7 +223,7 @@ urlpatterns = (
     url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
-
+    
     url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
@@ -399,7 +428,7 @@ urlpatterns = (
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -417,14 +446,20 @@ urlpatterns = (
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
+    url(r'^newdashboard/$', 'student.newdashboard.newdashboard', name="newdashboard"),
+    url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
-
+    url(r'^new_upload_photo$', 'student.newdashboard.new_upload_photo', name="new_upload_photo"),
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
+    url(r'^upload_photo_new$', 'student.newdashboard.upload_photo_new', name="upload_photo_new"),
 
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
+
+    url(r'^user_profile$', 'student.newdashboard.user_information', name="user_information"),
+    url(r'^user_profile/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),
 
     url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
     url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),

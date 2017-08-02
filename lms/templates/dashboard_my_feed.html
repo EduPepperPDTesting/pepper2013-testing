@@ -1,0 +1,1171 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from django.utils import timezone
+from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+from baseinfo.models import Enum
+import datetime
+from permissions.utils import check_access_level, check_user_perms
+%>
+<script type="text/javascript" src="/static/js/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/ckeditor/adapters/jquery.js" charset="utf-8"></script>
+
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+<style type="text/css" media="screen">
+ .feeding-content a{
+   color:#00f !important;
+ } 
+ .feeding-content{
+   width:100%;
+ }
+ .feeding-content *{
+   font-family: inherit !important;
+   font-style: inherit !important;
+   color: inherit !important;
+ }
+ .feeding-content em{
+   font-style: italic !important;
+ }
+ .feeding-content *{
+   white-space: pre-wrap;
+   word-wrap: break-word;
+   /* word-break: break-all; */
+   line-height:100%;
+ }
+ .divide-line{
+   border-bottom:1px solid #C6CD58;
+   margin-top:5px;
+   margin-bottom:5px;
+ }
+ .my-feed{
+   padding-top:5px;
+ }
+ #remove-file-button{
+   display:none;
+   cursor:hand;
+ }
+ #fixed-dialog-posts .cke{
+   display:inline-block;
+   vertical-align:top;
+ }
+ #dashboard_content_posts .cke{
+   width:100%;
+   border-radius:10px;
+   color:#000;
+ }
+ #dashboard_content_posts .cke *{
+   color:#000;
+ }
+ #dashboard_content_posts .cke_reset{
+   border-radius:10px;
+ }
+ #dashboard_content_posts .cke_top {
+   border-top-left-radius:10px;
+   border-top-right-radius:10px;
+   display:none;
+   
+ }
+ #dashboard_content_posts .cke_bottom{
+   border-bottom-left-radius:10px;
+   border-bottom-right-radius:10px;
+   display:none;
+ }
+ #dashboard_content_posts .cke_inner{
+   border-radius:10px;
+ }
+ .attach-image{max-width:100%};
+ .hide{display:none;}
+ .view-all-announcements{cursor:pointer;}
+ .post-title-link{cursor:pointer;}
+ .feed-title{font-weight:normal;
+   color:#ffffff;
+   background-color:#495354;
+   font-size:15px;
+   padding:10px 30px;
+   margin-top:30px;
+ }
+ #fixed-dialog-announcements, #fixed-dialog-posts{position:fixed;}
+ .post-submit-profile-image, .post-profile-image{border-radius:50%}
+ .dashboard .dashboard-post{
+   display: block;
+   overflow-y:visible;
+ }
+ .post_content{
+   padding:10px 10px 10px 10px;
+   border-bottom-left-radius: 18px;
+   border-bottom-right-radius: 18px;
+   border-top-left-radius: 18px;
+   border-top-right-radius: 18px;
+   margin-bottom:0px;
+   background-color:#2CBAEC;
+   margin-bottom:0px;
+   margin-top:10px;
+   color:#fff;
+ }
+ #announce-expir-date{
+   color:#000;
+ }
+ .post_content *{
+   color:#fff;
+ }
+ .new-post-textarea{
+   width:530px;
+   height:70px;
+   background:#fff;
+   color:#000;
+ } 
+ a.post_btn{
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   color:#fff !important;;
+   font-size:13px !important;
+   background-color:#3C3C3C;
+   border:2px solid #353C44;
+   /*box-shadow: inset 0 1px 0 0 #61b8e1;*/
+   text-decoration: none;
+   padding:0px 23px 0px 23px;
+   border-bottom-left-radius: 5px;
+   border-bottom-right-radius: 5px;
+   border-top-left-radius: 5px;
+   border-top-right-radius: 5px;
+   cursor: pointer;
+   display:inline-block;
+   vertical-align:middle;
+   line-height:20px;
+ }
+ a.post_btn:hover{
+   text-decoration: none;
+ }
+ #announce-expir-date{
+   width:90px;
+   height:20px;
+   vertical-align:middle;
+   padding:2px;
+   font-style:normal;
+ }
+ .user-info-div{
+   display:none;
+ }
+ .btn-filter{
+   padding:10px;
+   background-color: #3C3C3C;
+   padding-bottom: 2px !important;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 2px !important;color:#fff;
+   cursor: pointer;
+   font-size:14px;
+ }
+ label.myfeed-label{
+   font-family: "open sans" !important;
+   font-weight:400;
+   font-style:normal;
+   font-size:14px;
+   padding-left:5px;
+   margin-bottom:0;
+   color:#fff;
+   line-height:20px;
+ }
+ td.no-search-results{
+   text-align:center;
+   font-weight:bold;
+   font-size:14px;
+   padding-top:20px;
+   padding-bottom:20px;
+ }
+ .hoverable-profile{
+   position:relative;
+ }
+ .modal{z-index:1000;position:fixed}
+ #file-name-label{
+   display:inline-block;
+   max-width:100px;
+   overflow:hidden;
+   text-overflow:ellipsis;
+   white-space:nowrap;
+   vertical-align:middle;
+ }
+ #dlg_submit_post_button{
+   display:inline-block;
+   margin:10px 10px 10px 0;
+ }
+</style>
+<script type="text/javascript">
+  String.prototype.escape = function(chars, slashed) {
+    return this.replace(new RegExp((slashed ? "\\\\":"") + "([" + chars + "])", "g"), function(a, b) {
+      return "&#" + b.charCodeAt(0) +";"
+    });
+  }
+  String.prototype.fillData = function(data) {
+    function v(s){
+      var parts = s.split("."), d = data, r;
+      for(var i=0;i<parts.length;i++){
+        var p = parts[i];
+        if(p){r = d[p]; d = r}
+        if(!d) break;
+      }
+      return r;
+    }
+    var c = 1;
+    var s = this.replace(/{([\s\S]+)}/g, function(a, b) {
+      return "{" + b.escape("?:!", true) + "}";
+    });
+    while(c) {
+      c = 0;
+      s = s.replace(/\{([^\{\}]+?)\}/g, function(match, key) {
+        var m = null, r;  
+        if(m = key.match(/^([\s\S]+?)\!([\s\S]*?)(?:\:([\s\S]*))?$/)) {
+          r = !v(m[1]) ? m[2] : (typeof(m[3]) !="undefined" ? m[3] : "");
+        } else if(m = key.match(/^([\s\S]+?)\?([\s\S]*?)(?:\:([\s\S]*))?$/)) {
+          r = v(m[1]) ? m[2] : (typeof(m[3]) !="undefined" ? m[3] : "");
+        } else {
+          var t = v(key);
+          r = typeof(t) != "undefined" ? String(t).escape("?:!", false) : "";
+        }
+        c = 1;
+        return r;
+      });
+    }
+    return s;
+  }
+  String.prototype.htmlEncode = function(value) {
+    return $('<div/>').text(this).html();
+  }
+</script>
+<div id="dashboard_content_posts" class="dashboard-post" style="background:#fff;">  
+  <div id="post_content" class="post_content clearfix">
+    <table id="" border="0" style="margin-bottom:10px;">
+      <tr class=".post-submit-row" id="post_submit_row">
+        <td width="60" style="vertical-align:top;">
+          <img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
+          <td style="font-size:15px;">
+            <textarea style="width:100%" id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?" autocomplete="off"></textarea>
+          </td>
+      </tr>
+    </table>
+    <div style="text-align:right;padding-right:20px">
+      <input id="image_link_input" type="file" placeholder="" autocomplete="off"
+             style="padding:2px;font-style:normal;width:190px;display:none;"/>
+      %if check_access_level(request.user, "dashboard_announcement", "create"):
+      <label class="myfeed-label">
+        %else:
+        <label class="myfeed-label" style="visibility:hidden;">
+          %endif
+          <input type="checkbox" id="announce-checkbox" name="" value="" autocomplete="off" style="margin-right:10px;vertical-align:middle;"/>Announcement
+        </label>
+        <span id="announce-expir-date-div" style="display:inline-block;visibility:hidden;margin-left:10px;">
+          <input class="datePickText lock_past" id="announce-expir-date" placeholder="Expiration" readonly="1" autocomplete="off"/>
+          <img src="/static/images/calendar-icon-2.png" class="announce-date-icon" alt="" width="24" style="vertical-align:middle"/>
+        </span>
+        <a href = "#" style="color:#06e !important;margin-left:30px;" id = "add_post_image">
+          <img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25"/>
+        </a>
+        <span id="file-name-label" style=""></span><img id="remove-file-button" src="/static/images/removal.png" class="" alt="" />
+        <a id="submit_new_post_button" class="post_btn" value="Post" style="">Post</a>
+    </div>
+  </div>
+  <table id="announcement_content_table" width="100%" border="0">
+    <tr class="post-content-row"></tr>
+  </table>
+  <table id="post_content_table" width="100%" border="0" cellspacing="0" cellpadding="0" style="border:1px solid #C6CD58;margin-top:30px;">
+    <tr class='post-content-row'>
+      <td>
+        <div class="feed-title" style="padding-top:3px;padding-bottom:3px;margin-top:0;">
+          My Network Feed
+          <span style="" id="myfeed-filter">
+            <!-- <select name="group" style="margin-right:30px;" autocomplete="off">
+                 <option value="">Group</option>
+                 <option value="announcement">Announcements</option>
+                 <option value="post">Dashboard</option>
+                 </select> -->
+            <select name="year" autocomplete="off" style="font-size:12px;vertical-align:middle;margin-left:20px;">
+              <option value=''>Year</OPTION>
+              %if feeding_year_start:
+              %for y in range(feeding_year_start, feeding_year_end+1):
+              <option value='${y}'>${y}</option>
+              %endfor
+              %endif
+            </select>
+            <select name="month" autocomplete="off" style="font-size:12px;vertical-align:middle;">
+              <OPTION VALUE=''>Month</option>
+              <option value='1'> January      </option>
+              <option value='2'> February     </option>
+              <option value='3'> March        </option>
+              <option value='4'> April        </option>
+              <option value='5'> May          </option>
+              <option value='6'> June         </option>
+              <option value='7'> July         </option>
+              <option value='8'> August       </option>
+              <option value='9'> September    </option>
+              <option value='10'>October      </option>
+              <option value='11'>November     </option>
+              <option value='12'>December     </option>
+            </select>
+            <span name="filter-button" value="Filter" class="btn-filter" style="vertical-align:middle;">Filter</span>
+          </span>
+        </div>
+      </td>
+    </tr>
+    <tr class="post-content-row"></tr>
+  </table>  
+  <center><img id="posts_loading_image" src="/static/images/posts-loading.gif"></img></center>
+</div>
+<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"
+         style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+  </div>
+</div>
+<div style="" id="fixed-dialog-likes" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+<div style="width:700px;margin-left:-350px;" id="fixed-dialog-posts" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;position:relative;">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="add-comment" style="padding:10px;">
+        <img src='/user_photo/${request.user.id}' class='post-profile-image'/>
+        <textarea id="comment-input" class="comment-input" placeholder="Add a comment" style="width:75%;"></textarea>
+        <div style="text-align:right;">
+          <a id="dlg_submit_post_button" class="post_btn" value="Post" style="">Post</a>    
+        </div>
+    </div>
+    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:scroll;width:100%"></div>
+  </div>
+</div>
+<div style="width:700px;margin-left:-350px;" id="fixed-dialog-announcements" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="text-align:left;height:350px;overflow-y:scroll;"></div>
+  </div>
+</div>
+<script type="template" id="announcement-template">
+  <div class="announcement-row">
+  <div style="margin-bottom:20px;">
+  <input type="hidden" name="_id" value="{_id.$oid}" />
+  <div style="display:inline-block;vertical-align:top;" class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+  <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' /></a>
+  </div>
+  <div style="display:inline-block;width:550px;">
+  <div class="clearfix">
+  <a class='ds-post-title-name' href='/dashboard/{user_id}' target="_blank"> {first_name} {last_name}</a>
+  {removable?<img src='/static/images/trash-small.png' class='delete-something dlg-announcement-delete' style="float\:right;"></img>}
+  </div>
+  <div class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</div>
+  <div>
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}  
+  </div>
+  </div>
+  <div class="feeding-content">{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+  </div>
+  <div class="divide-line"></div>  
+  </div>
+</script>
+<script type="template" id="top-announcement-template">
+  <tr class="post-content-row announcement">
+  <td style="position:relative">
+    <div class="feed-title">My {organization_type} Announcements</div>
+  <input type="hidden" name="_id" value="{_id.$oid}" />
+  <div style="padding:20px;background-color:#f5f5f5;border:1px solid #C6CD58;">
+      <div class="hoverable-profile" {online?data-skype='{skype_username}'} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+        <a href="/dashboard/{user_id}" target="_blank"><img src='/user_photo/{user_id}' class='post-profile-image' style='vertical-align:top;'/></a>
+  </div>
+  <div style="display:inline-block;vertical-align:top;width:510px;">
+  <div style="float:right;">
+  <label style="font-style:normal;font-weight:normal;color:#39B6E9"><input type="checkbox" class="dismiss" value="" /> Dismiss</label>
+  {removable?<img src='/static/images/trash-small.png' class='delete-something announcement-delete'></img>}
+  <div style="">
+  <a class="view-all-announcements" data-org-type="{organization_type}"
+  style="padding:3px;display:inline-block;color:#89C153;font-weight:bold;">View All ({count})</a>
+  </div>
+  </div>
+  <a class='ds-post-title-name' href='/dashboard/{user_id}' target="_blank">
+          {first_name} {last_name}</a>
+        <br />
+  <span class='ds-post-title-time'>{post_date} at {post_h}:{post_m} {post_ampm}</span>
+  <div>
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}  
+  </div>
+  <div style="font-weight:bold;margin-top:1em;" class="feeding-content">{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+      </div>
+    </div>
+  </td>
+  </tr>
+</script>
+<script type="template" id="top-post-template">
+  <tr class='post-content-row post'>
+  <td style="background-color:#f5f5f5;width:auto;padding:20px;">
+  <input type="hidden" name="post_id" value="{post_id.$oid}" />
+  <input type="hidden" name="_id" value="{_id.$oid}" />
+  
+  <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1'>
+  {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+  <a href="/dashboard/{user_id}" target="_blank">
+  <img src='/user_photo/{user_id}' class='post-profile-image' style="vertical-align:top;"/></a>
+  </div>
+  <div style="display:inline-block;vertical-align:top;width:510px;">
+  <span class='ds-post-title-time' style="float:right;text">
+  {post_date} at {post_h}:{post_m} {post_ampm}
+  </span>
+  <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> {first_name} {last_name} </a>
+  <div class="post-title-link" style="font-style:italic;display:block;">
+  {last_comment?replied to a post in your network:created a new post in your network}.
+  </div>
+  <div>
+  {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+  {attachment_download}
+  </div>
+  <div style="width:100%;margin-top:1em;" class="feeding-content">{content}</div>
+  <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+  <div style="text-align:right;">
+  <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
+  {is_my_like?Unlike:Like}
+  ({likes})
+  </span>&nbsp;&nbsp;
+  <span class="post-comments-label" data-post-id="{post_id.$oid}" style="color:#555;cursor:pointer;">
+  <img src='/static/images/newdashboard/Comment-512.png' width='35'/>
+  <span style="display:inline-block;vertical-align:middle;font-weight: bold;padding: 3px;">({feeding_count})</span>
+  </span>&nbsp;&nbsp;
+  <img src='/static/images/trash-small.png' class='delete-something post-delete' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden;}"></img>
+  </div>
+  </div>
+  <div class="divide-line"></div>
+  </td>
+  </tr>
+</script>
+<script type="template" id="post-template">
+  <div class='post-row' style="width:100%">
+
+    <div class="clearfix">
+      <input type="hidden" name="_id" value="{_id.$oid}" />
+      <div class="hoverable-profile" {online?data-skype={skype_username}} data-name='{first_name} {last_name}' data-uname='{username}' data-email='{email}' data-id='1' style="float:left;">
+        {online?<img src='/static/images/online-3.png' class='smallcircle'></img>}
+        <a href="/dashboard/{user_id}" target="_blank">
+          <img src='/user_photo/{user_id}' class='post-profile-image'/>
+        </a>
+      </div>
+      <div class="clearfix" style="float:left;width:450px;margin-left:10px;">
+        <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> 
+          {first_name} {last_name}
+        </a>
+        <div class='ds-post-title-time'>
+          {post_date} at {post_h}:{post_m} {post_ampm}
+        </div>
+        <div>
+          {attachment?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
+          {attachment}  
+        </div>  
+      </div>
+    </div>
+    
+    <div class="feeding-content clearfix">{content}</div>
+    <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
+    <div style="text-align:right;">
+      <span class='post-likes-label' style="color:#39B6E9;cursor:pointer;font-weight:bold;line-height:20px;display:inline-block;vertical-align:middle;"> {is_my_like?Unlike:Like} ({likes})</span>&nbsp;
+      <img src='/static/images/trash-small.png' class='dlg-delete-{sub.length?comment:post}' style="vertical-align:middle;line-height:20px;visibility:{removable?visible:hidden}"></img>
+    </div>
+    <div class="divide-line"></div>
+  </div>
+</script>
+<script type="text/javascript">
+  function renderTopAnnouncement(p){
+    p.content = translateImages(p.content)
+    translateAttachment(p)
+    var template = $("#top-announcement-template").html();
+    $('#announcement_content_table').append(template.fillData(p));   
+  }
+  function hackStyle(s){
+    return s.replace(/style=["']([^'"]+)["']/g, function(a, b){
+      return "style=\"" + b.replace(/[^:;]+:[^:;]+/g, function(a){
+        return a + " !important";
+      }) + "\"";
+    });
+  }
+  function translateAttachment(p){
+    if(p.attachment_file){
+      var ext = p.attachment_file.split(".").pop().toLowerCase();
+      if(ext == "png" || ext == "jpg" || ext == "gif"){ 
+        p.attachment_image = "${reverse('dashboard_get_attachment_image')}?feeding_id=" + p._id.$oid;
+      }else{
+        p.attachment_download = "<a href='${reverse('dashboard_download_attachment')}?feeding_id=" + p._id.$oid + "' target='_blank'>"+p.attachment_file+"</a>"
+      }
+    }
+  }
+  function translateImages(content){
+    return content.replace(/(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/g, function(link){
+      image_code = link;
+      if(/vimeo/.test(link)){
+        image_code = "<br><br><iframe src='" + link + "' width='384' height='216' allowfullscreen></iframe>";
+      } else if(/youtube/.test(link)){
+        image_code = "<br><br><iframe src='" + link.replace('watch?v=', 'embed/') + "' width='384' height='216' allowfullscreen></iframe>";
+      }else if(link.indexOf("youtu.be") > -1){
+        image_code = "<br><br><iframe src='" + link.replace('youtu.be', 'youtube.com/embed/') + "' width='384' height='216' allowfullscreen></iframe>";
+      }else if(/\.(png|jpg|gif)$/.test(link)){
+        image_code = "<span class='img-span-code'><img src='" + link + "' style='max-width:400px;max-height:400px;'></img></span>";
+      }else{
+        image_code = "<p><a style='word-wrap: break-word;' href='" + link + "' target='_blank'>" + link + "</a></p>";
+      }
+      return image_code;
+    });
+  }
+  function checkAjaxSessionTimeout(xhr){
+    var $dlg = $("<div class='modal' style='width:500px;margin-left:-250px;border-radius:0;position:fixed;top:200px;z-index:999;'>\
+    <div class='inner-wrapper' style='border:0;border-radius:5px;padding:0;border-radius:0;'>\
+    <div class='titlebar'>\
+    <h3 class='dialog-title'></h3>\
+    <div class='close-modal' id='dialog_close'>✕</div>\
+    </div>\
+    <div class='content'\
+    style='padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;'></div>\
+    </div>\
+    </div>").appendTo(document.body);
+    if(xhr.status == 401){
+      var dlg = new Dialog($dlg).show("Warning", "Session timeout, please login again.");
+      dlg.lift(1000);
+      $dlg.find(".close-modal").click(function(){
+        $dlg.remove();
+        window.location.replace("/login?next=" + window.location.pathname);
+      });
+    }
+  }
+  function renderTopPost(p, $row){
+    var template = $("#top-post-template").html();
+    // rendering
+    p.content = translateImages(p.content)
+    if($row){
+      $row.replaceWith(template.fillData(p));
+    }else{
+      $('#post_content_table tr.post-content-row:last').after(template.fillData(p));
+    }
+    // [event click] like post icon
+    $(".post-likes-label").off("click").on("click", function(){
+      var $row = $(this).closest("tr.post-content-row");
+      var _id = $row.find("input[name=_id]").val();
+      var local_time =  new Date();
+      var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+      $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: _id, local_utc_diff_m: local_utc_diff_m}, function(data, status) {
+        updatePostElement($row);
+      }).error(function(xhr, status){
+        checkAjaxSessionTimeout(xhr)});
+    });
+    function bindLikeEvent(){
+      $("#fixed-dialog-posts .post-likes-label").off("click").on("click", function(e){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var $row = $(this).closest("div.post-row");
+        var feeding_id = $row.find("input[name=_id]").val();
+        $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: feeding_id, local_utc_diff_m: local_utc_diff_m}, function(data) {
+          updateCommentElement($row);
+        }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+      });
+    }
+    function updateCommentElement($el){
+      var $row = $el.closest("div.post-row");
+      var _id = $row.find("input[name=_id]").val();
+      var template_post = $("#post-template").html();
+      var local_time =  new Date();
+      var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+      $.post("${reverse('dashboard_get_comment')}", {_id: _id, local_utc_diff_m: local_utc_diff_m}, function (post){
+        var c = template_post.fillData(post);
+        $row.replaceWith(c);
+        bindLikeEvent();  
+      }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+    }
+    function fetchOnePost(_id){
+      var $content_area = $('#fixed-dialog-posts .content');
+      $content_area.html("");
+      var local_time =  new Date();
+      var local_utc_diff_m = -1 * local_time.getTimezoneOffset();      
+      $.post("${reverse('dashboard_get_post')}", {_id: _id, local_utc_diff_m: local_utc_diff_m}, function(post){
+        // post["image_code"] = translateImages(post);
+        // show post and comments
+        var template_post = $("#post-template").html();
+        post.content = translateImages(post.content)
+        translateAttachment(post)
+        var c = template_post.fillData(post);
+        $content_area.append(c);
+        $("#fixed-dialog-posts .dialog-title").html("Comments (" + (post.sub.length + 1) + ")");
+        $.each(post.sub, function(i, p){
+          var c = template_post.fillData(p);
+          $content_area.append(c);
+        });
+        // click on like
+        bindLikeEvent();
+
+        if(!post["is_member"]){
+          // $("#fixed-dialog-posts").find("div.post-row").remove();
+          $("#fixed-dialog-posts").find("div.add-comment").hide()
+        }else{
+          $("#fixed-dialog-posts").find("div.add-comment").show();
+        }
+
+        // on submit comment
+        $("#fixed-dialog-posts .post-likes-label").off("click").on("click", function(e){
+          var local_time =  new Date();
+          var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+          var $row = $(this).closest("div.post-row");
+          var feeding_id = $row.find("input[name=_id]").val();
+          $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: feeding_id, local_utc_diff_m: local_utc_diff_m}, function(data) {
+            $("#fixed-dialog-posts").addClass("changed");
+            updateCommentElement($row);
+          }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+        });
+        bindHover();
+        $(".dlg-delete-post").off("click").on("click", function(){
+          var $row = $(this).closest("div.post-row");
+          var _id = $row.find("input[name=_id]").val();
+          var dlgWarn = new Dialog("#dlg-warning");
+          dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+            this.hide();
+            if(r){       
+              $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+                $("#fixed-dialog-posts").find("div.post-row").remove();
+                $("#fixed-dialog-posts").find("div.add-comment").hide()
+                $("#fixed-dialog-posts").addClass("changed");
+                $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+              }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+            }});
+          dlgWarn.lift(1000);
+        });
+        $(".dlg-delete-comment").off("click").on("click", function(){
+          var $row = $(this).closest("div.post-row");
+          var _id = $row.find("input[name=_id]").val();
+          var dlgWarn = new Dialog("#dlg-warning");
+          dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+            this.hide();
+            if(r){          
+              $.post("${reverse('dashboard_delete_comment')}", {_id:_id}, function(data){
+                $row.remove()
+                $("#fixed-dialog-posts").addClass("changed");
+                $("#fixed-dialog-posts .dialog-title").html("Comments (" + $("#fixed-dialog-posts").find("div.post-row").length + ")");
+              }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+            }});
+          dlgWarn.lift(1000);
+        });
+      }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+      $("#dlg_submit_post_button").off("click").on("click", function(){
+        var $text = $(this).parent().parent().find(".comment-input");
+        var content=hackStyle($text.val());
+        $text.val("");
+        $.post("${reverse('dashboard_submit_new_comment')}",
+               {post_id: _id, content: content},
+               function(data){
+                 fetchOnePost(_id);
+                 $("#fixed-dialog-posts").addClass("changed");
+               }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+      });
+      /* $("#fixed-dialog-posts .comment-input").off("keyup").on("keyup", function(e){
+       *   var self = this;
+       *   $("#select_name").remove();
+       *   if (e.keyCode === 13) { // submit
+       *     var $row = $(this).closest("tr.post-content-row");
+       *     var content=$(this).val();
+       *     $(self).val("");
+       *     $.post("${reverse('dashboard_submit_new_comment')}",
+       *            {post_id: _id, content: content.htmlEncode()},
+       *            function(data){
+       *              fetchOnePost(_id);
+       *              $("#fixed-dialog-posts").addClass("changed");
+       *            });
+       *   }else{ // check for @
+       *     var n = $(this)[0].selectionStart;
+       *     var at = $(this).val().indexOf("@");
+       *     if(at > -1){
+       *       var str = $(this).val().substr(at);
+       *       var x = str.length;
+       *       for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+       *         s = s.substr(1);
+       *         x = s.indexOf("@");
+       *         if(x>-1)
+       *           working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+       *         else
+       *           working = s.substr(0).split(' ').slice(0,2).join(' ');
+       *       }
+       *       loc = $(this).val().indexOf(working);
+       *       if(n > loc && n <= working.length+loc) {
+       *         $.post("${reverse('dashboard_lookup_name')}", {name: working}, function(data){
+       *           if(data.content.length > 0) {
+       *             displayOptions(data.content);
+       *           }
+       *         });
+       *       }
+       *     }
+       *   }
+       * });*/
+    }
+    $(".post-comments-label").off("click").on("click", function(){
+      var dlg = new Dialog($('#fixed-dialog-posts')).show("Comments", "");
+      fetchOnePost($(this).data("post-id"));
+      $("#fixed-dialog-posts").removeClass("changed");
+      $('#fixed-dialog-posts').find('.close-modal').off("click").click(function(){
+        dlg.hide();
+        if($("#fixed-dialog-posts").hasClass("changed"))
+          getTopPosts();
+      });
+    });
+    // [event click] like post icon
+    $(".post-like-text").off("click").on("click", function(){
+      var $row = $(this).closest("tr.post-content-row");
+      var post_id = $row.find("input[name=post_id]").val();
+      var local_time =  new Date();
+      var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+      $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: post_id, local_utc_diff_m: local_utc_diff_m}, function(data) {
+        updatePostElement($row);
+      }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+    });
+    // [event click] post comment icon
+    $(".post-comment-text").off("click").on("click", function(){
+      var $row = $(this).closest("tr.post-content-row");
+      $row.find(".add-comment-text").focus().val("")
+    });
+    // [event click] like comment
+    $(".comment-like-text").off("click").on("click", function(e){
+      var $row = $(this).closest("tr");
+      var _id = $row.find("input[name=comment_id]").val();
+      $.post("${reverse('dashboard_submit_new_like')}", {feeding_id: _id},function(data) {
+        updatePostElement($row.closest("tr.post-content-row"))
+      }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+    }); 
+    // [event click] reply comment icon
+    $(".comment-reply-text").off("click").on("click", function(){
+      var to = "";
+      var user_id = "";
+      if($(this).attr('data-is-owner')){
+        user_id = $(this).data('uid');
+        to = "@"+$(this).data('name')+" ";
+      }
+      var $row = $(this).closest("tr.post-content-row");
+      $row.find(".add-comment-text").focus().val(to);
+    });
+    // show @ user options menu
+    function displayOptions(data){
+      var focused = $(':focus');
+      var code = "<div id='select_name'>"
+      for (i=0; i < data.length; i++){
+        code+="<div class='anchor-container-select selection_name' data-parent='"+focused.data('id')+"' data-content='"+data[i]+"'>" + data[i] + "</div>";
+      }
+      code+="</div>";
+      $("#select_name").remove();
+      focused.after(code);
+      // [event click] the menu
+      $(".selection_name").off("click").on("click", function(e){
+        var change = $(this).parent().prev();
+        var str = change.val().substr(0, change.val().lastIndexOf("@")+1);
+        change.val(str+$(this).data("content") + " ");
+        change.focus();
+        $("#select_name").remove();
+      });
+    }
+    // [event click] delete post or comment
+    $(".post-delete").off("click").on("click", function(){
+      var $row = $(this).closest("tr.post-content-row");
+      var _id = $row.find("input[name=_id]").val();
+      var dlgWarn = new Dialog("#dlg-warning");
+      dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+        this.hide();
+        if(r){   
+          $.post("${reverse('dashboard_delete_post')}", {_id:_id}, function(data){
+            getTopPosts();
+          }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+        }});
+      dlgWarn.lift(1000);
+    });
+    // [event click] show all like dialog
+    $(".like-members-anchor").off("click").on("click", function(e){
+      var $row = $(this).closest("tr");
+      var _id = $row.find("input[name=comment_id]").val();
+      $.post("${reverse('dashboard_get_full_likes')}", {'feeding_id': _id}, function (data) {
+        new Dialog($('#fixed-dialog-likes')).show("Likes", "<center>"+data.html+"</center>");
+      }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+    });
+  }
+  function bindHover(){
+    //show user_info when mouse on photo
+    $(".hoverable-profile").off("hover").hover(function(event) {
+      if($("#user_info_div").length)
+        return;
+      $(this).css("position", "relative");
+      $panel = $("<div id='user_info_div' class='user-info-div'><span id='user_info' class='user_info_span'></span></div>").appendTo(this);
+      $panel.html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+      $panel.css({top: 30, left: 30}).show();
+    }, function() {
+      $("#user_info_div").remove();
+    });
+  }
+  function getTopAnnouncements(){
+    $("#posts_loading_image").show();
+    var local_time =  new Date();
+    var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+    var $filter = $("#myfeed-filter");
+    var params = {
+      page: 0,
+      page_size: 1,
+      /* filter_group: $filter.find("*[name=group]").val(),
+       * filter_year: $filter.find("*[name=year]").val(),
+       * filter_month: $filter.find("*[name=month]").val(),*/
+      local_utc_diff_m: local_utc_diff_m};
+    $.post("${reverse('dashboard_get_announcements')}", params, function (anns){
+      $("#posts_loading_image").hide();
+      $('#announcement_content_table').html("");
+      $.each(anns.orgs, function(i, org){
+        if(org.length){
+          p = org[0]
+          p.count = org.length;
+          renderTopAnnouncement(p);
+        }
+      });
+      bindHover();
+      $(".dismiss").off("change").on("change", function(){
+        var self = this;
+        var checked = $(this).is(":checked");
+        var $row = $(this).closest("tr.post-content-row");
+        var _id = $row.find("input[name=_id]").val();
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+          this.hide();
+          $(self).prop('checked', false);
+          if(r){          
+            $.post("${reverse('dashboard_dismiss_announcement')}", {_id: _id}, function(r){
+              getTopAnnouncements();
+            });
+          }});
+        dlgWarn.lift(1000);
+      });
+      // [event click] delete announcement
+      $(".announcement-delete").off("click").on("click", function(){
+        var $row = $(this).closest("tr.post-content-row");
+        var _id = $row.find("input[name=_id]").val();
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+          this.hide();
+          if(r){          
+            $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
+              getTopAnnouncements();
+            }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+          }});
+        dlgWarn.lift(1000);
+      });
+      $(".view-all-announcements").off("click").on("click", function(){
+        var org = $(this).data("org-type");
+        function loadDialogAnnouncements(org){
+          var local_time =  new Date();
+          var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+          $.post("${reverse('dashboard_get_org_announcements')}", {org: org, local_utc_diff_m: local_utc_diff_m}, function(d){
+            $("#fixed-dialog-announcements .dialog-title").html(org + " Announcements (" + d.length + ")");
+            var $content_area = $('#fixed-dialog-announcements .content');
+            $content_area.html("");
+            var template_post = $("#announcement-template").html();
+            $.each(d, function(i, p){
+              p.content = translateImages(p.content)
+              translateAttachment(p);              
+              var c = template_post.fillData(p);
+              $content_area.append(c);
+            });
+            bindHover();
+            $(".dlg-announcement-delete").off("click").on("click", function(){
+              var self = this;
+              var dlgWarn = new Dialog("#dlg-warning");
+              dlgWarn.showYesNo("Warning", "Are You Sure?", function (r) {
+                this.hide();
+                if(r){
+                  var _id = $(self).closest("div.announcement-row").find("input[name=_id]").val();
+                  $.post("${reverse('dashboard_delete_announcement')}", {_id:_id}, function(data){
+                    $("#fixed-dialog-announcements").addClass("changed");
+                    loadDialogAnnouncements(org);
+                  }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});                
+                }
+              });
+              dlgWarn.lift(1000);
+            });
+          }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+        }
+        var dlg = new Dialog($('#fixed-dialog-announcements'));
+        dlg.show(org + " Announcements", "<center></center>");
+        loadDialogAnnouncements(org);
+        $('#fixed-dialog-announcements').find('.close-modal').off("click").click(function(){
+          dlg.hide();
+          if($("#fixed-dialog-announcements").hasClass("changed"))
+            getTopAnnouncements();
+        });
+      });
+    }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+  }
+  // get posts
+  var next_page = null;
+  var lock_event = false;
+  function getTopPosts(is_continue){
+    if(!is_continue){
+      next_page = 0;
+      $(".post-content-row.post").remove(); 
+    }
+    if(is_continue && lock_event)
+      return;
+    $("#posts_loading_image").show();
+    lock_event = true;
+    var local_time =  new Date();
+    var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+    var $filter = $("#myfeed-filter");
+    var params = {
+      page: is_continue ? next_page : 0,
+      page_size: 5,
+      /* filter_group: $filter.find("*[name=group]").val(),*/
+      filter_year: $filter.find("*[name=year]").val(),
+      filter_month: $filter.find("*[name=month]").val(),
+      local_utc_diff_m: local_utc_diff_m};
+    next_page ++;
+    $.post("${reverse('dashboard_get_posts')}", params, function (posts){
+      if(!is_continue && posts.length<1){
+        $(".post-content-row.post").remove(); 
+        $("<tr class='post-content-row post'><td class='no-search-results'>No Search Results Found</td></tr>").appendTo($("#post_content_table"));
+      }
+      $("#posts_loading_image").hide();
+      $.each(posts, function(i, post){
+        p = post.sub.length ? post.sub[post.sub.length-1]:post;
+        p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
+        p.feeding_count = post.sub.length + 1;
+        p.post_id=post._id
+        translateAttachment(p)
+        renderTopPost(p);
+      });
+      if(posts.length > 0) {
+        lock_event=false;
+      }
+      bindHover();
+    }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+  }
+  // [event scroll] filter button
+  $("#myfeed-filter *[name=filter-button]").click(function(){
+    getTopPosts();
+  });
+  // [event scroll] all posts
+  $(window).bind("scroll", function(){
+    var scrollTop = $(this).scrollTop();
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    var scrollTop_ceil = Math.ceil(scrollTop);
+    if(scrollTop_ceil + windowHeight >= scrollHeight) {
+      getTopPosts(true)
+    }
+  });
+  // update one of the posts
+  function updatePostElement($row){
+    var _id = $row.find("input[name=post_id]").val();
+    var local_time =  new Date();
+    var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+    $.post("${reverse('dashboard_get_post')}", {_id: _id, local_utc_diff_m: local_utc_diff_m}, function (post){
+      var p = post.sub.length ? post.sub[post.sub.length-1]:post;
+      p.last_comment = post.sub.length ? post.sub[post.sub.length-1]:null;
+      p.feeding_count = post.sub.length + 1;
+      p.post_id=post._id
+      renderTopPost(p, $row)
+    }).error(function(xhr, status){checkAjaxSessionTimeout(xhr)});
+  }
+  // [event click] date picker
+  $('.datePickText').each(function () {
+    var lock_past = $(this).hasClass("lock_past");
+    $(this).datepicker({
+      autoSize: true,
+      gotoCurrent: true,
+      firstDay: 0,
+      minDate: new Date(),
+      hideIfNoPrevNext: false,
+      navigationAsDateFormat: true,
+      showOtherMonths: true,
+      selectOtherMonths: false,
+      stepMonths: 1,
+      changeMonth: true,
+      numberOfMonths: [1, 1],
+      showCurrentAtPos: 0,
+      showAnim: "",
+      showWeek: true,
+      dateFormat: 'mm/dd/yy',
+      currentText: 'Today',
+      minDate: lock_past ? 0 : new Date("1999-9-9")
+    });
+  });
+
+  function hackStyle(s){
+    return s.replace(/style=["']([^"']+)["']/g, function(a, b){
+      return "style=\"" + b.replace(/[^;:]+:[^;]+/g, function(a){
+        return a + " !important"
+      }) + "\"";
+    });
+  }
+  
+  $(document).ready(function(){
+    $("#add_post_image").click(function(e){
+      e.preventDefault();
+      $("#image_link_input").click();
+      //  $("#add_images_div").toggle();
+    });
+    $("#announce-checkbox").click(function(e){
+      var v = $("#announce-expir-date-div").css("visibility");
+      $("#announce-expir-date-div").css("visibility", v=="hidden"?"visible":"hidden");
+    });
+    $("#submit_new_post_button").click(function(){
+      var post = hackStyle($("#new_post_textarea").val());
+      // check feilds for announcement
+      var is_announce = $("#announce-checkbox").is(":checked");
+      var announce_expir_date = $("#announce-expir-date").val();
+      if(!$.trim(post)){
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.show("Warning", "Sorry, post content is required." , function (r) {});
+        return;
+      }
+      if(is_announce && !announce_expir_date){
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgWarn.show("Warning", "Sorry, expiration date is required." , function (r) {});
+        return;
+      }
+      var embed = $("#embed_checkbox").is(":checked") ? 1 : 0;
+      // clear the fields
+      $("#announce-expir-date").val("");
+      $('#announce-checkbox').prop('checked', false);
+      $("#new_post_textarea").val("");
+      $("#announce-expir-date-div").css("visibility", "hidden");
+      var fd = new FormData();
+      if($("#image_link_input")[0].files.length > 0){
+        fd.append('attachment', $("#image_link_input")[0].files[0]);
+      }
+      fd.append('post', post)
+      fd.append('type', is_announce? "announcement":"post")
+      fd.append('expiration_date', announce_expir_date)
+      $("#image_link_input").val("");
+      $("#file-name-label").html("");
+      $("#remove-file-button").hide();
+      $.ajax({
+        url: "${reverse('dashboard_submit_new_post')}",
+        data: fd,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        // Before 1.5.1 you had to do this:
+        beforeSend: function (x) {
+          if (x && x.overrideMimeType) {
+            x.overrideMimeType("multipart/form-data");
+          }
+        },
+        enctype: 'multipart/form-data',
+        mimeType: 'multipart/form-data',
+        error: function(xhr, status){
+          checkAjaxSessionTimeout(xhr)
+        },
+        success: function(data){
+          if(is_announce)
+            getTopAnnouncements();
+          else
+            getTopPosts();
+        }
+      });
+      /* $.post("${reverse('dashboard_submit_new_post')}",
+       *        {post: post, 
+       *         type: is_announce? "announcement":"post", expiration_date: announce_expir_date,
+       *         include_images: include_images, embed:embed, images:images}, function (data) {
+       *           if(is_announce)
+       *             getTopAnnouncements();
+       *           else
+       *             getTopPosts();
+       *         });*/
+    });
+    // start
+    getTopAnnouncements();
+    getTopPosts();
+  });
+  /* $("#new_post_textarea").focusin(function() {
+   *   console.log("focused")}
+   * ).focusout(function() {
+   *   console.log("blured")}
+   * );
+   */
+  $("#new_post_textarea").ckeditor(  function() {
+    // CKEDITOR.instances['new_post_textarea'].updateElement();
+    // CKEDITOR.instances['new_post_textarea'].destroy()
+    
+    var self = this;
+    var $cke = $(self.element.$).next(".cke");
+    function toggle(show){
+      if(show){
+        //$cke.find(".cke_top").show();
+        //$cke.find(".cke_bottom").show();
+        $cke.find(".cke_top").css('display', 'block');
+        $cke.find(".cke_bottom").css('display', 'block');
+      }else{
+        $cke.find(".cke_top").hide();
+        $cke.find(".cke_bottom").hide();
+      }
+    }
+    toggle(false);
+    this.on('focus', function() {
+      toggle(true);
+    });
+    this.on('blur', function(e) {
+      toggle(false)      
+    });
+    $cke.click(function(){
+      self.focus()
+    })
+  }, { height: '80px', width:'535px',
+       extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,Anchor,Styles,Format,Font,FontSize,TextColor,BGColor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,SpellChecker,Scayt"});
+
+ 
+  $("#comment-input").ckeditor(  function() {
+    var self = this;
+    var $cke = $(self.element.$).next(".cke");
+    function toggle(show){
+      if(show){
+        /* $cke.find(".cke_top").show();
+         * $cke.find(".cke_bottom").show();*/
+        $cke.find(".cke_top").css('display', 'block');
+        $cke.find(".cke_bottom").css('display', 'block');        
+      }else{
+        $cke.find(".cke_top").hide();
+        $cke.find(".cke_bottom").hide();
+        // $cke.find(".cke_reset").css("border-radius", "10px")
+      }
+    }
+    toggle(false);
+    this.on('focus', function() {
+      toggle(true);
+    });
+    this.on('blur', function(e) {
+      toggle(false)      
+    });
+    $cke.click(function(){
+      self.focus()
+    })
+  }, {height: '100px', width:'590px',
+      extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
+  $("#image_link_input").on("change", function(){
+    $("#file-name-label").html(this.value.replace(/^.*[\/\\]/, ""))
+    $("#remove-file-button").show();
+  });
+  $("#remove-file-button").click(function(){
+    $("#file-name-label").html("");
+    $("#image_link_input").val();
+    $(this).hide();
+  });
+</script>

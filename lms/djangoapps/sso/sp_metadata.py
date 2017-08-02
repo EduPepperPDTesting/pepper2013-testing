@@ -4,20 +4,28 @@ from django.http import HttpResponse
 import json
 from django.conf import settings
 from collections import defaultdict
+from django.contrib.auth.decorators import login_required
+import logging
 import os
-from OpenSSL import crypto
-import re
-from path import path
-from permissions.decorators import user_has_perms
 
 BASEDIR = settings.PROJECT_HOME + "/sso/sp"
+PEPPER_ENTITY_ID = "www.pepperpd.com"
 
-@user_has_perms('sso', 'administer')
+
+from OpenSSL import crypto, SSL
+from socket import gethostname
+from pprint import pprint
+from time import gmtime, mktime
+from os.path import exists, join
+import re
+from path import path
+
+
+@login_required
 def edit(request):
     return render_to_response('sso/manage/sp_metadata.html')
 
 
-@user_has_perms('sso', 'administer')
 def save(request):
     data = json.loads(request.POST.get('data'))
 
@@ -73,9 +81,17 @@ def save(request):
     return HttpResponse("{}", content_type="application/json")
 
 
-@user_has_perms('sso', 'administer')
 def all_json(request):
-    return HttpResponse(json.dumps(get_all_sp()), content_type="application/json")
+    xmlfile = open(BASEDIR + "/metadata.xml", "r")
+    parsed_data = xmltodict.parse(xmlfile.read(),
+                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    entity_list = []
+
+    if 'entity' in parsed_data['entities'][0]:
+        for entity in parsed_data['entities'][0]['entity']:
+            entity_list.append(parse_one_sp(entity))
+
+    return HttpResponse(json.dumps(entity_list), content_type="application/json")
 
 
 def sp_by_name(name):
@@ -87,18 +103,6 @@ def sp_by_name(name):
         for entity in parsed_data['entities'][0]['entity']:
             if entity['@name'] == name:
                 return parse_one_sp(entity)
-
-
-def get_all_sp():
-    xmlfile = open(BASEDIR + "/metadata.xml", "r")
-    parsed_data = xmltodict.parse(xmlfile.read(),
-                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
-    entity_list = []
-
-    if 'entity' in parsed_data['entities'][0]:
-        for entity in parsed_data['entities'][0]['entity']:
-            entity_list.append(parse_one_sp(entity))
-    return entity_list
 
 
 def parse_one_sp(entity):
@@ -202,16 +206,16 @@ def create_saml_config_files(name):
     open(f, "wt").write(content)
 
     template = open(temp_dir + "/metadata_templates/idp.xml", "r").read()
-    content = template.format(cert=cert, entityID=settings.SAML_ENTITY_ID, auth=auth)
+    content = template.format(cert=cert, entityID=PEPPER_ENTITY_ID, auth=auth)
     f = BASEDIR + '/' + name + "/idp.xml"
     open(f, "wt").write(content)
 
-
+    
 def download_saml_federation_metadata(request):
     name = request.GET.get("name")
     ms = sp_by_name(name)
     if not ms:
-        return HttpResponse("SP with name '%s' does not exist." % name)
+        return HttpResponse("SP with name '%s' is not exist. Did you have it saved?" % name)
 
     f = BASEDIR + '/' + name + "/idp.xml"
     response = HttpResponse(content_type='application/x-download')

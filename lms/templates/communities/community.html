@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from courseware.courses import course_image_url, get_course_about_section
 from student.views import course_from_id
 from administration.configuration import has_hangout_perms
-from communities.utils import is_facilitator, is_member
+from communities.utils import is_facilitator, is_member, is_private
 from file_uploader.utils import get_file_url
 from django.utils import timezone
 import datetime
@@ -33,7 +33,7 @@ import datetime
              <h2>${community.motto}</h2>
              %if facilitator:
                  <div class="facilitator-wrap">
-                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" widht='110' height='110' id="community-avatar" alt="Facilitator Avatar" />
                      <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
                      <h4>Community Facilitator</h4>
                  </div>
@@ -130,14 +130,14 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" width='110' height='110' class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                     %if not is_facilitator(request.user, community):
                         <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
                     %endif
-                %else:
+                %elif not is_private(community):
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
             </div>
@@ -963,11 +963,12 @@ import datetime
         waiting = false;
         $(window).scroll(function(){
             if(!waiting) {
+                var area = $("#community_content_discussions");
                 var a = $(this).scrollTop();
                 var b = $(this).innerHeight();
                 var body = document.body, html = document.documentElement;
                 var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-                if (a + b >= height - 150) {
+                if (a + b >= (area.position().top + area.height() + 20)) {
                     if ($("#community_content_header_discussions").hasClass("selected"))
                         discussion_size += 5;
                     else

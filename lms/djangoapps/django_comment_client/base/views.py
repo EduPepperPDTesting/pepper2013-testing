@@ -36,6 +36,8 @@ import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
 from datetime import datetime
 from pytz import UTC
+from xmodule.remindstore import myactivitystore
+
 log = logging.getLogger(__name__)
 
 s3_interface = {
@@ -132,6 +134,13 @@ def create_thread(request, course_id, commentable_id):
             thread.update_attributes(group_id=group_id)
 
     thread.save()
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_creatediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     courseware_context = get_courseware_context(thread, course)
     if courseware_context:
         if str(courseware_context.get('courseware_url')).find('__am')>0:
@@ -146,6 +155,13 @@ def create_thread(request, course_id, commentable_id):
     if post.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(request.user)
         user.follow(thread)
+
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Courses", "EventType": "courses_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+        "TokenValues": {"SourceID": thread.id, "course_id": course_id}, "LogoValues": {"course_id": course_id}}
+        ma_db.insert_item(my_activity)
+
     courseware_context = get_courseware_context(thread, course)
     data = thread.to_dict()
     if courseware_context:
@@ -213,6 +229,15 @@ def _create_comment(request, course_id, thread_id=None, parent_id=None):
         'parent_id': parent_id,
     })
     comment.save()
+
+    thread = cc.Thread.find(comment.thread_id)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_replydiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     if post.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(request.user)
         user.follow(comment.thread)
@@ -309,6 +334,10 @@ def delete_thread(request, course_id, thread_id):
     this is ajax only
     """
     thread = cc.Thread.find(thread_id)
+
+    ma_db = myactivitystore()                
+    ma_db.set_item_course_discussion(course_id,thread_id,thread.title)
+
     thread.delete()
     return JsonResponse(utils.safe_content(thread.to_dict()))
 
@@ -553,6 +582,13 @@ def follow_thread(request, course_id, thread_id):
     user = cc.User.from_django_user(request.user)
     thread = cc.Thread.find(thread_id)
     user.follow(thread)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id, "course_id": course_id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     return JsonResponse({})
 
 
