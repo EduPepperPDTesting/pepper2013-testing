@@ -1,4 +1,4 @@
-﻿from mitxmako.shortcuts import render_to_response, render_to_string
+from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
 import json
 from models import *
@@ -25,6 +25,7 @@ from PIL import Image
 import os
 import os.path
 import shutil
+from student.feeding import dashboard_feeding_store
 
 #-------------------------------------------------------------------main
 def main(request):
@@ -414,6 +415,12 @@ def organization_get(request):
                         data['Footer Content'] = tmp1.DataItem
                         break;
 
+                    # --------------OrganizationMoreText
+                    org_announcement_list = OrganizationMoreText.objects.filter(organization=organizations, itemType="Announcement")
+                    for tmp1 in org_announcement_list:
+                        data['Announcement Content'] = tmp1.DataItem
+                        break;
+
                     # --------------OrganizationDistricts
                     sid_did = "";
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
@@ -568,6 +575,9 @@ def organizational_save_base(request):
         logo_url = request.POST.get("logo_url", "")
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
+        is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
+        is_Announcement = request.POST.get("is_Announcement", "")
+        announcement_content = request.POST.get("announcement_content", "")
 
         if(oid):
             # --------------OrganizationMetadata
@@ -604,6 +614,27 @@ def organizational_save_base(request):
             org_footer.DataItem = footer_content
             org_footer.organization = org_metadata
             org_footer.save();
+
+            #--------------OrganizationMoreText
+            org_announcement = OrganizationMoreText();
+            org_Announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
+            for tmp1 in org_Announcement_list:
+                org_announcement = tmp1
+                break;
+
+            org_announcement.DataItem = announcement_content
+            org_announcement.organization = org_metadata
+            org_announcement.itemType = "Announcement"
+            org_announcement.save();
+            
+            if is_Announcement_alert == "1":
+                receiver_ids = [0]
+                expiration_date = "01/01/2200"
+                expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
+
+                store = dashboard_feeding_store()
+                store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
+                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date)
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -707,7 +738,8 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Organization Logo Url", org_logo_url)
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
             org_OrganizationMenuSave(org_metadata, "Remove All Menu", remove_all_menu)
-            org_OrganizationMenuSave(org_metadata, "Footer Selected", footer_flag)
+            org_OrganizationMenuSave(org_metadata, "Footer Selected", footer_flag)            
+            org_OrganizationMenuSave(org_metadata, "Initial Pepper Announcement", is_Announcement)
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
