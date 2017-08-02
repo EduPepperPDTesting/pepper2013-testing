@@ -1412,10 +1412,9 @@
 		if($("#organization_obj").attr("o_name") == "report"){
 			loadwinnav.hide();
 		}
-		$("#press").attr("abc", "2");			
+
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
 			if (r.SiteURL_OK){
-				$("#press").attr("abc", "4");
 				if(r.flag_main == "index"){
 					if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
 					if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
@@ -1430,15 +1429,12 @@
 						if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
 					}
 				}
-				$("#press").attr("abc", "5");
+				
 				if(r.Success && r.OrganizationOK){
 					if(r['Footer Selected'] && r['Footer Selected'] == "1"){
 						$("#page-footer").empty();
 						$("#page-footer").append(r['footer_content']);
 					}
-					//123 r['Remove All Menu'] r['Remove All Menu']
-					//$("#press").attr("abc", );
-					console.log("---------------:" + r['Remove All Menu']);
 					if(r['Remove All Menu'] && r['Remove All Menu'] == "1"){
 						$(".imessage_style").hide();
 						$(".admin-menu-holder").hide();
@@ -1447,35 +1443,8 @@
 						$("#org_tm_my_chunks_obj").hide();
 						$("#org_tm_resources_obj").hide();
 						$("#org_tm_people_obj").hide();
-					}
-					
-					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
-						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
-					}*/					
+					}			
 					if(r.flag_main == "dashboard"){
-						/*var tmp_div = $(".my-courses:first").find("div");
-						var profile_logo = "", profile_logo_url = "", profile_motto = "";
-						if(r['Dashboard option etc'] == "1"){
-							profile_logo = r['Profile Logo'];
-							profile_logo_url = r['Profile Logo Url'];
-							profile_motto = r['Motto'];
-							
-						}else if(r['Dashboard option etc'] == "2"){
-							profile_logo = r['Profile Logo Curriculumn'];
-							profile_logo_url = r['Profile Logo Url Curriculumn'];							
-							profile_motto = r['Motto Curriculumn'];
-						}
-						if(profile_logo != "" && typeof(profile_logo) != "undefined"){
-							tmp_div.css("backgroundImage", "none");
-							tmp_div.css("border", "2px solid #bbbbbb");
-							
-							if(profile_logo_url != "" && typeof(profile_logo_url) != "undefined"){
-								tmp_div.append("<a href='" + profile_logo_url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
-							}else{
-								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
-							}							
-							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + profile_motto + "</span>");
-						}*/
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
 						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
 						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
