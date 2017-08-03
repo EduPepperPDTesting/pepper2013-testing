@@ -96,7 +96,7 @@
 a{
     text-decoration:none !important;
 }
-/*--left My Courses--------------------------------------------*/
+/*--left My Learning Plan--------------------------------------------*/
 .con-my-courses-outer{
     float:left;
     width:250px;
@@ -1082,7 +1082,7 @@ a{
             % endif
             % if OrganizationOK and add_Report_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn tab-btn-common">My Progress</div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
             % endif
@@ -1102,7 +1102,7 @@ a{
                     <div class="my-activity-btn-line tab-btn-line-common"></div>
                 </div>
                 <div class="tab-btn-common-outer">
-                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn tab-btn-common">My Progress</div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
                 <div class="tab-btn-common-outer">
@@ -1228,7 +1228,7 @@ a{
                         ${data["add_profile"]} 
                     % endif
                 </div>
-                <div class="my-title-green">My Courses</div>
+                <div class="my-title-green">My Learning Plan</div>
                 <div class="my-courses-cards">
                     %for course in courses_incomplated_top2:
                         <%
@@ -1568,8 +1568,8 @@ $(document).ready(function(){
         %endif 
     });
     
-    /*------my report card------*/
-    //my report card - course in progress-----------------------------------------------
+    /*------My Progress------*/
+    //My Progress - course in progress-----------------------------------------------
     var courses_incomplated_more = 0;
     %if courses_incomplated_all_count > 3:
         courses_incomplated_more = 1;
@@ -1695,7 +1695,7 @@ $(document).ready(function(){
         }
     });
 
-    //my report card - completed courses-----------------------------------------------
+    //My Progress - completed courses-----------------------------------------------
     %if courses_complated_all_count > 0:
         get_completed_courses('completed','no'); 
     %endif
