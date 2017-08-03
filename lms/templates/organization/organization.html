@@ -349,12 +349,12 @@
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Report Card</td>
+                        	<td align="center">My Progress</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="2" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">Featured Content</td>
+                        	<td align="center">My Resources</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="3" onclick="selectPDTable()" /></td>
                         </tr>
@@ -376,12 +376,12 @@
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="0" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Report Card</td>
+                        	<td align="center">My Progress</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="2" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">Featured Content</td>
+                        	<td align="center">My Resources</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="3" onclick="selectPDTableCurr()" /></td>
                         </tr>
@@ -677,7 +677,7 @@
                         </div>
                     </div>
                 </td>
-            </tr>            
+            </tr>
             <tr>
                 <td colspan="3" class="org_td1" style="padding-top:10px;">
                 	<label><input type="checkbox" name="organizational_is_announcement" onclick="isAnnouncementChange()" />Initial Pepper Announcement</label>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1169,7 +1169,7 @@
 									}
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");									
 									
-									//----------
+									//----------Footer
 									if(r["Footer Selected"] == "1"){
 										$("input[name='organizational_dashboard_footer'][value='1']").attr("checked", "checked");
 										addNewCertificate(1);
