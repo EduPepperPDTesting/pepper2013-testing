@@ -6,12 +6,17 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
 import re
+import time
 import logging
+import base64
+from PIL import Image
+from django.conf import settings
 import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
 from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+# from .models import CommunityPostTops
 from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
@@ -25,6 +30,7 @@ from polls.views import poll_data
 from notification import send_notification
 # from student.views import course_from_id
 from courseware.courses import get_course_by_id
+from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger("tracking")
 
@@ -161,8 +167,8 @@ def get_add_user_rows(request, community_id):
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
-    users = users.exclude(activate_date__isnull=True)
-
+    # users = users.exclude(activate_date__isnull=True)
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
@@ -197,7 +203,6 @@ def get_add_user_rows(request, community_id):
         row.append(str(user_district))
         row.append(str(user_cohort))
         row.append(str(user_school))
-
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
 
         rows.append(row)
@@ -313,6 +318,7 @@ def get_remove_user_rows(request, community_id):
 def community_join(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
+    manage = request.POST.get("manage", "")
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -327,8 +333,32 @@ def community_join(request, community_id):
                 cu.community = community
                 cu.save()
                 
+                if manage == "1":
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                    "URLValues": {"community_id": community.id},
+                    "TokenValues": {"community_id":community.id}, 
+                    "LogoValues": {"community_id": community.id}}    
+                    ma_db.insert_item(my_activity)                    
+                else:
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+                    "URLValues": {"community_id": community.id},
+                    "TokenValues": {"community_id":community.id}, 
+                    "LogoValues": {"community_id": community.id}}
+                    ma_db.insert_item(my_activity)
+
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+
+    if manage == "1":
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"community_id": community.id},
+        "TokenValues": {"community_id":community.id, "user_ids": request.POST.get("user_ids", "")}, 
+        "LogoValues": {"community_id": community.id}}
+        ma_db.insert_item(my_activity)
+
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
         
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
@@ -362,6 +392,11 @@ def get_trending(community_id):
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
     for post in posts:
+        #@begin:Add special text if post has no text
+        #@date:2017-06-16
+        if not post.post.strip():
+            post.post = '[image/video]'
+        #@end
         trending.append(post)
     trending = list(trending)
     trending = sorted(trending, key=lambda x: x.date_create, reverse=True)
@@ -477,7 +512,7 @@ def discussion(request, discussion_id):
     except CommunityDiscussions.DoesNotExist:
         data = {'error_title': 'Discussion Removed',
                 'error_message': 'The discussion has been removed.',
-                'contact_info':  'Please contact Pepper Support for any questions. <a href="${reverse(\'contact_us\')}">Support Email</a>.',
+                'contact_info':  'Please contact Pepper Support for any questions at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a>.',
                 'window_title': 'Discussion Removed'}
         return render_to_response('error.html', data)
 
@@ -538,6 +573,14 @@ def discussion_add(request):
             discussion.attachment = attachment
             discussion.save()
         success = True
+
+        rs = myactivitystore()
+        my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"discussion_id": discussion.id},
+        "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
+        "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+        rs.insert_item(my_activity)
+
         discussion_id = discussion.id
         send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
@@ -571,6 +614,14 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
+
+    rs = myactivitystore()
+    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"discussion_id": discussion.id},
+    "TokenValues": {"discussion_id":discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
+    "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
+    rs.insert_item(my_activity)
+    
     send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
     discussion.date_reply = reply.date_create
     discussion.save()
@@ -581,6 +632,10 @@ def discussion_reply(request, discussion_id):
 def discussion_delete(request, discussion_id):
     domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    did = discussion.id
+    dname = discussion.subject
+    cid = discussion.community.id
+
     redirect_url = reverse('community_view', args=[discussion.community.id])
     # try:
     view_connect = view_counter_store()
@@ -591,6 +646,9 @@ def discussion_delete(request, discussion_id):
         poll_connect.delete_poll('discussion', discussion_id)
 
     discussion.delete()
+    
+    ma_db = myactivitystore()                
+    ma_db.set_item_community_discussion(cid, did, dname)
 
     send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:
@@ -650,7 +708,16 @@ def communities(request):
 @login_required
 def community_delete(request, community_id):
     try:
-        CommunityCommunities.objects.get(id=community_id).delete()
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cname = community.name
+
+        discussions = CommunityDiscussions.objects.filter(community=community)
+        ma_db = myactivitystore()                
+        ma_db.set_item_community(cid, cname, discussions)
+        
+        community.delete()
+
         return redirect(reverse('communities'))
     except Exception as e:
         data = {'error_title': 'Problem Deleting Community',
@@ -773,20 +840,33 @@ def community_edit_process(request):
         except:
             state = None
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
-        if request.POST.get('logo', 'nothing') == 'nothing':
-            # Try to grab the new file, and if it isn't there, just make it blank.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
             try:
                 logo = FileUploads()
                 logo.type = 'community_logos'
                 logo.sub_type = community_id
-                logo.upload = request.FILES.get('logo')
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
+                img_file.close()
+                im = Image.open(path)
+                x,y = im.size
+                p = Image.new('RGBA', im.size, (255,255,255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(path)
+                location_path = '/static/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                logo.upload = str(location_path)
                 logo.save()
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-        else:
-            # If the path was passed in, just use that.
-            logo = None
+            
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
         priority_id = request.POST.get('priority_id',0)
@@ -841,6 +921,21 @@ def community_edit_process(request):
             # Set the facilitator flag to true.
             community_user.facilitator = True
             community_user.save()
+            if old_facilitator:
+                if old_facilitator[0].user_id != community_user.user_id:
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                    "URLValues": {"community_id": community_object.id},
+                    "TokenValues": {"community_id":community_object.id}, 
+                    "LogoValues": {"community_id": community_object.id}}    
+                    ma_db.insert_item(my_activity)
+            else:
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                "URLValues": {"community_id": community_object.id},
+                "TokenValues": {"community_id":community_object.id}, 
+                "LogoValues": {"community_id": community_object.id}}    
+                ma_db.insert_item(my_activity)
         else:
             raise Exception('A valid facilitator is required to create a community.')
 
@@ -1064,6 +1159,7 @@ def get_posts(request):
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
     # @author:scott
     # @date:2017-02-27
+    # tops = CommunityPostTops.objects.filter(user__id=request.user.id, comment=None)
     filter = request.POST.get('filter')
     if filter == "newest_post":
         posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_create')[0:size]
@@ -1089,6 +1185,7 @@ def get_posts(request):
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
+        # top = CommunityPostTops.objects.filter(post=post, user=request.user, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td class='post-content-left'>"
         if active and not (request.user == post.user):
@@ -1219,6 +1316,14 @@ def submit_new_comment(request):
     comment.user = User.objects.get(id=request.user.id)
     comment.comment = request.POST.get('content')
     comment.save()
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Community", "EventType": "community_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"community_id": long(community_id)},
+    "TokenValues": {"community_id":long(community_id), "post_id": post.id}, 
+    "LogoValues": {"community_id": long(community_id)}}
+    ma_db.insert_item(my_activity)
+
     send_notification(request.user, community_id, posts_reply=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
 
@@ -1268,6 +1373,14 @@ def submit_new_post(request):
     post.user = User.objects.get(id=request.user.id)
     post.post = content
     post.save()
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Community", "EventType": "community_createPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"community_id": post.community.id},
+    "TokenValues": {"community_id":post.community.id, "post_id": post.id}, 
+    "LogoValues": {"community_id": post.community.id}}
+    ma_db.insert_item(my_activity)   
+
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
         for image in images:
@@ -1371,6 +1484,8 @@ def active_recent(user):
         active = False
     return active
 
+
+#@end
 #@author:scott
 # #@data:2017-02-27
 def top_post(request):

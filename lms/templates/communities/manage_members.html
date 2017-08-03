@@ -74,7 +74,7 @@
 
             <!-- begin add -->
             <div class="add_table-section table-section">
-                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="add-area" onClick="$(this).next().slideToggle()">FILTER</div>
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
@@ -101,19 +101,19 @@
                                 %endif
                             %endfor
                         </select>
-                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
+                        <input type="button" name value="LOAD" class="load" onClick="$('#user-table').show()"/>
                         <input type = "checkbox" id = "checkall">Check All
                         <div class="select-columns" id="user-select"><br>
-                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
                         </div>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Add Selected Users" class="small" onclick="add_selected_users()"/>
+              <input type="button" value="Add Selected Users" class="small" onClick="add_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -165,7 +165,7 @@
 
             <!-- begin remove  -->
             <div class="remove_table-section table-section">
-                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="add-area" onClick="$(this).next().slideToggle()">FILTER</div>
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
@@ -194,16 +194,16 @@
                         </select>
                         <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off">&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
-                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onChange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
                         </div>
                     </div>
                 </div>
@@ -245,7 +245,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Remove Selected Users" class ="small" onclick="remove_selected_users()"/>
+              <input type="button" value="Remove Selected Users" class ="small" onClick="remove_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -405,7 +405,7 @@
         function add_selected_users(){
             var ids=tabAdd.getSelectedIds();
             if(ids.length){
-                $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(",")},function(){
+                $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(","), manage:"1"},function(){
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
                     new Dialog($('#dialog')).show("Success", "Selected users added successfully to the community.");

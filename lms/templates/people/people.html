@@ -93,6 +93,7 @@
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
+<span id="organization_obj" o_name="pepreg"></span>
   <section class="container">
     %if course:
     <div class="course-wrapper">
@@ -339,7 +340,7 @@
           <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <a href="${reverse('dashboard',args=[profile['user_id']])}" target="_blank">
-                <img src="${reverse('user_photo',args=[profile['user_id']])}" style="" alt="photo" />
+                <img src="${reverse('user_photo',args=[profile['user_id']])}" style="width:110px;height:110px;" alt="photo" />
               </a>
             </span>
             <span class="name_container2">

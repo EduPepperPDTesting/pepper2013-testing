@@ -42,6 +42,7 @@ if get_xmlsec_binary:
 else:
     xmlsec_path = '/usr/local/bin/xmlsec1'
 
+PEPPER_ENTITY_ID = "www.pepperpd.com"
 SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
 
 log = logging.getLogger("tracking")
@@ -57,7 +58,7 @@ def get_saml_setting(sp_name):
     BASE = "http://"
     DIR = path.join(SSO_DIR, "sp", sp_name)
     setting = {
-        "entityid": settings.SAML_ENTITY_ID,
+        "entityid": PEPPER_ENTITY_ID,
         "description": "PepperPD",
         "valid_for": 168,
         "service": {
@@ -88,7 +89,7 @@ def get_saml_setting(sp_name):
                         "entity_categories": ["swamid", "edugain"]
                     },
                 },
-                "subject_data": "./idp.subject",
+                "subject_data": ("mongodb", "saml"),  # "./idp.subject",
                 "name_id_format": [NAMEID_FORMAT_TRANSIENT,
                                    NAMEID_FORMAT_PERSISTENT]
             },
@@ -130,46 +131,6 @@ def get_saml_setting(sp_name):
         }
     }
     return setting
-
-
-def logout(request):
-    for sp in metadata.get_all_sp():
-# {'attributes': [{'map': u'email', 'name': u'email'}, {'map': u'username', 'name': u'username'},
-# {'map': u'district', 'name': u'district'}], 'sso_type': u'SAML', 'sso_name': u'staging.pepperpd.com',
-# 'typed': {u'sso_slo_url': u'', u'sso_acs_url': u'https://staging.pepperpd.com/genericsso/?idp=victor_local'}}
-
-        metadata_setting = sp
-        slo_url = metadata_setting.get('typed').get('sso_slo_url')
-
-        import requests
-        if slo_url:
-            print "======================================================="
-            print slo_url
-            response = requests.get(slo_url + "?email=" + request.user.email)
-            print response
-
-        # setting = get_saml_setting(metadata_setting["sso_name"])
-
-        # conf = IdPConfig()
-        # conf.load(copy.deepcopy(setting))
-        # IDP = server.Server(config=conf, cache=Cache())
-
-        # binding = ""
-        # _, body = request.split("\n")
-        # req_info = IDP.parse_logout_request(body, binding)
-        # msg = req_info.message
-        # resp = IDP.create_logout_response(msg, [binding])
-
-        # hinfo = IDP.apply_binding(binding, "%s" % resp, "", relay_state)
-
-    return HttpResponse("")
-
-
-def get_first_sp_logout_url():
-    for sp in metadata.get_all_sp():
-        slo_url = sp.get('typed').get('sso_slo_url')
-        if slo_url:
-            return slo_url
 
 
 def auth(request):

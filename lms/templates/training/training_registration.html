@@ -88,7 +88,7 @@
             <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Unregister Students</div></a>
 
             <!-- begin add -->
-            <div class="add_table-section table-section">
+            <div class="add_table-section table-section" style="height:80vh;">
                 <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
@@ -132,7 +132,7 @@
                         </div>
                     </div>
                 </div>
-                <div>
+                <div style="height:80%;overflow-y:scroll;">
                     <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('training_get_add_user_rows',args=[training.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
@@ -430,12 +430,14 @@
 
             $("#close_registration").bind("click", {training_id: ${training.id}}, function(e){
                 e.preventDefault();
-                $("#dlg-training-info").css("display", "none");
+                $("#dlg-students").find(".expand_title").next("div.expand_div").slideUp();
+                $(".expand_title").removeClass("expand_title_expanded");
+                $("#dlg-training-info").hide();
                 showStudents(e.data.training_id);
                 $('.modal-backdrop').remove();
                 $('.lean-overlay').remove();
-                $("#dlg-students").css({"width": "auto", "min-width": "800px", "height": "500px",
-                "border-radius": "0px", "margin-left": window.innerWidth/2 - 400, "top": window.innerHeight/2-250});
+                $("#dlg-students").css({"max-width": "800px", "min-width": "800px", "height": "500px",
+                "border-radius": "0px", "margin-left": window.innerWidth/2 - 400, "top": window.innerHeight/2 - 250, "overflow-y":"hidden"});
                 $("#dlg-students").find(".close-modal").show();
                 $("#dlg-students-info").css("display", "block");
             });

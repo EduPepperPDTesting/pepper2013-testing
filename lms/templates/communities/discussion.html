@@ -81,6 +81,7 @@
         border-radius: 10px;
         padding: 15px 20px;
         background-color: #fff;
+        word-wrap: break-word;
     }
     .discussion-reply {
         margin: 20px 0 0 40px;
@@ -380,12 +381,12 @@
             %if request.user.is_superuser or request.user==discussion.user:
                 <img class = "edit-icon" onclick="editDiscussion()" src="/static/images/pencil_edit.png" alt="Edit Discussion">
             %endif
-            %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
+            %if request.user.is_superuser or is_facilitator(request.user, discussion.community) or request.user==discussion.user:
                 <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
                     <img src="/static/images/trash-small.png" alt="Delete Discussion">
                 </a>
             %endif
-            <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
+            <img class="discussion-avatar" width='110' height='110' src="${reverse('user_photo', args=[discussion.user.id])}">
             <h2 id="discussion_subject">${discussion.subject}</h2>
             <span><input type = 'text' id = 'editable_subject' style="display:none" value="${discussion.subject}"><br></span>
             %if discussion.attachment:
@@ -475,7 +476,7 @@
                         <img src="/static/images/trash-small.png" alt="Delete Discussion">
                     </a>
                 %endif
-                <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
+                <img class="discussion-avatar" width='110' height='110' src="${reverse('user_photo', args=[reply.user.id])}">
                 <h2 id = "reply_subject_${reply.id}">${reply.subject}</h2>
                 <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"><br></span>
                 %if reply.attachment:
@@ -524,7 +525,7 @@
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+                <img src="${reverse('user_photo', args=[request.user.id])}" width='110' height='110' alt="PCG Logo" class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
@@ -601,7 +602,7 @@
                 </div>
                 <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                %if is_facilitator(request.user, community) or request.user.is_superuser or request.user == discussion.user:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
@@ -691,23 +692,32 @@
         }
         var subject = $("#editable_reply_subject_"+id).val();
         var post = $("#editable_reply_post_"+id).val();
-        $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
-            editReply(id);
-            $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
-            $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
-        });
+        if (subject != ""){
+            $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
+                editReply(id);
+                $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
+                $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
+            });
+        }else{
+            alert("Subject can not be left blank");
+        }
     }
     function discussionEditSave(){
         for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
         }
         var subject = $("#editable_subject").val();
-        var post = $("#editable_post").val();
-        $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
-            editDiscussion();
-            $("#discussion_subject").text($("#editable_subject").val());
-            $("#discussion_post").html($("#editable_post").val());
-        });
+        if (subject != ""){
+            var post = $("#editable_post").val();
+            $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
+                editDiscussion();
+                $("#discussion_subject").text($("#editable_subject").val());
+                $("#discussion_post").html($("#editable_post").val());
+            });
+        }
+        else{
+            alert("Subject can not be left blank.");
+        }
     }
     function joinMe(){
         var user_id = "${request.user.id}";
