@@ -1517,7 +1517,7 @@ def get_column_headers(request):
                 rows.append(row)
                 rs.insert_datas(rows,collection+"aggregate")
 
-        elif aggregate_type_id == 5:
+        elif aggregate_type_id == 2:
             aggregate_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].column
             query = get_create_collection_tmp.replace('{collection}',collection+'data').replace("{aggregate_data}",aggregate_data).replace("{column_data}",column_header).replace("{row_data}",row_header).replace('\n', '').replace('\r', '')
             query = eval(query)
@@ -1563,8 +1563,9 @@ def get_column_headers(request):
 
                     if len(sum_dat) == 0:
                         sum_dat = [0]
-                    row[column] = str(sum_dat/len(sum_dat))
-                    sum_tmp.append(sum_dat/len(sum_dat))
+                    avg = round(sum(sum_dat)/len(sum_dat),2)
+                    row[column] = str(avg)
+                    sum_tmp.append(avg)
 
                 row['count'] = sum(sum_tmp)
                 rows.append(row)
@@ -1594,6 +1595,7 @@ def report_get_matrix_rows(request):
     collection = get_cache_collection(request, report_id, school_year)
     collection_column_header = collection_column_headers(collection)
     report = Reports.objects.get(id=report_id)
+    aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
     rs = reporting_store()
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
@@ -1603,7 +1605,10 @@ def report_get_matrix_rows(request):
         if d['_id'][column_header] == None:
             d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        row_last.append(d['total'])
+        if aggregate_type_id == 2:
+            row_last.append(round(d['total'],2))
+        else:
+            row_last.append(d['total'])
 
     column_header_row.append('count')
 
