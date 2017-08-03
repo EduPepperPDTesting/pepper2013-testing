@@ -1190,7 +1190,7 @@ def get_posts(request):
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
 
-@ajax_login_required
+@ajax_login_required()
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:

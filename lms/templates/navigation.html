@@ -334,6 +334,7 @@
                 color:#555;
                 padding-top:20px;
             }
+
         </style>
         
         <ol class="left nav-global authenticated">
@@ -1320,6 +1321,14 @@
                             <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
                         </table>
                     </div>
+                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+                </form>
+                <br/>
+                <!--
+                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
+                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
+                </a>
                 </div>
                 <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
             </form>
@@ -1388,6 +1397,7 @@
 	LoadingWinNav.prototype.show = function () {
 		if (!this.$loader) {
 			this.$loader = $('<div class="lean-overlay-nav"></div>');
+			//this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
 			this.$loader.appendTo(document.body);
 		}
 		this.$loader.css('display','block');
@@ -1410,7 +1420,7 @@
 		if($("#organization_obj").attr("o_name") == "report"){
 			loadwinnav.hide();
 		}
-
+					
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
 			if (r.SiteURL_OK){
 				if(r.flag_main == "index"){
@@ -1441,8 +1451,35 @@
 						$("#org_tm_my_chunks_obj").hide();
 						$("#org_tm_resources_obj").hide();
 						$("#org_tm_people_obj").hide();
-					}			
+					}
+					
+					/*if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
+						$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
+					}*/					
 					if(r.flag_main == "dashboard"){
+						/*var tmp_div = $(".my-courses:first").find("div");
+						var profile_logo = "", profile_logo_url = "", profile_motto = "";
+						if(r['Dashboard option etc'] == "1"){
+							profile_logo = r['Profile Logo'];
+							profile_logo_url = r['Profile Logo Url'];
+							profile_motto = r['Motto'];
+							
+						}else if(r['Dashboard option etc'] == "2"){
+							profile_logo = r['Profile Logo Curriculumn'];
+							profile_logo_url = r['Profile Logo Url Curriculumn'];							
+							profile_motto = r['Motto Curriculumn'];
+						}
+						if(profile_logo != "" && typeof(profile_logo) != "undefined"){
+							tmp_div.css("backgroundImage", "none");
+							tmp_div.css("border", "2px solid #bbbbbb");
+							
+							if(profile_logo_url != "" && typeof(profile_logo_url) != "undefined"){
+								tmp_div.append("<a href='" + profile_logo_url + "'><img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'></a>");
+							}else{
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + profile_logo + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+							}							
+							tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + profile_motto + "</span>");
+						}*/
 						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
 						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
 						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
