@@ -1532,7 +1532,7 @@ $(document).ready(function(){
     });
 
     $(window).bind("scroll", function(){
-        var scrollTop = $(this).scrollTop();
+        var scrollTop = $(document).scrollTop();
 　　    var windowHeight = $(this).height();
         var scrollHeight = $(document).height();
         var scrollTop_ceil = Math.ceil(scrollTop);
