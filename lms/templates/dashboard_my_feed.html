@@ -347,7 +347,7 @@ from permissions.utils import check_access_level, check_user_perms
           <a id="dlg_submit_post_button" class="post_btn" value="Post" style="">Post</a>    
         </div>
     </div>
-    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:scroll;width:100%"></div>
+    <div class="content" style="text-align:left;padding-top:0px;height:250px;overflow-y:auto;width:auto"></div>
   </div>
 </div>
 <div style="width:700px;margin-left:-350px;" id="fixed-dialog-announcements" class="modal">
@@ -1158,7 +1158,7 @@ from permissions.utils import check_access_level, check_user_perms
       self.focus()
     })
   }, {height: '100px', width:'590px',
-      extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image"});
+      extraPlugins: '', removePlugins: 'elementspath,blockquote,maximize,source', removeButtons: "Source,About,Strike,RemoveFormat,Link,Unlink,Image,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,Anchor,Styles,Format,Font,FontSize,TextColor,BGColor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,SpellChecker,Scayt"});
   $("#image_link_input").on("change", function(){
     $("#file-name-label").html(this.value.replace(/^.*[\/\\]/, ""))
     $("#remove-file-button").show();
