@@ -249,86 +249,6 @@ def newdashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    #@begin:get My Courses
-    #@date:2017-02-19
-    #Just choose the last 2 courses_incomplated of the user.
-    courses_incomplated_list = list()
-    for k, v in enumerate(courses_incomplated):
-        courses_incomplated_list.append(v)
-        if k > 0:
-            break
-    #@end
-
-    #@begin:get My Learning Communities
-    #@date:2017-02-16
-    community_list = list()
-    # Just choose the last 2 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
-    if items:
-        for item in items:
-            community_list.append({'id': item.community.id,
-                                'name': item.community.name,
-                                'logo': item.community.logo.upload.url if item.community.logo else '',
-                                'private': item.community.private})
-        if len(items) < 2:
-            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-            if itmes_all:
-                if itmes_all[0].id != items[0].community.id:
-                    community_list.append({'id': itmes_all[0].id,
-                               'name': itmes_all[0].name,
-                               'logo': itmes_all[0].logo.upload.url if itmes_all[0].logo else '',
-                               'private': itmes_all[0].private})
-                else:
-                    if len(itmes_all) > 1:
-                        community_list.append({'id': itmes_all[1].id,
-                               'name': itmes_all[1].name,
-                               'logo': itmes_all[1].logo.upload.url if itmes_all[1].logo else '',
-                               'private': itmes_all[1].private})
-
-    else:
-         items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-         for item in items:
-            community_list.append({'id': item.id,
-                               'name': item.name,
-                               'logo': item.logo.upload.url if item.logo else '',
-                               'private': item.private})
-    #@end
-
-    #@begin:get Recommended For You
-    #@date:2017-05-1
-    allowedcourses = []
-    for course_id in allowedcourses_id:
-        try:
-            course = course_from_id(course_id)
-            allowedcourses.append(course)
-        except:
-            pass
-    allowedcourse_list = []
-    if allowedcourses:
-        allowedcourse_list.append(allowedcourses[0])
-    #@end
-
-    #@begin:get Community Trending Topics
-    #@date:2017-05-18
-    communit_tt_list = []
-    community_joined_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=1).order_by('community__name')
-    community_joined_p = list(community_joined_p.values_list('community__id', flat=True))
-    communit_tt_list_add(community_joined_p,1,communit_tt_list)
-
-    if len(communit_tt_list) < 3:
-        community_joined_not_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=0).order_by('community__name')
-        community_joined_not_p = list(community_joined_not_p.values_list('community__id', flat=True))
-        communit_tt_list_add(community_joined_not_p,1,communit_tt_list)
-
-    if len(communit_tt_list) < 3:
-        community_joined = list(CommunityUsers.objects.select_related().filter(user=request.user).values_list('community__id', flat=True))
-        community_all = list(CommunityCommunities.objects.select_related().filter().order_by('name').values_list('id', flat=True))
-        for cid in community_joined:
-            if cid in community_all:
-                community_all.remove(cid)
-        communit_tt_list_add(community_all,0,communit_tt_list)
-    #@end
-
     store = dashboard_feeding_store()
     feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
     #feeding_year_start, feeding_year_end = False, False
@@ -387,7 +307,6 @@ def newdashboard(request, user_id=None):
     context = {
         'courses_complated': courses_complated,
         'courses_complated_all_count':len(courses_complated),
-        'courses_incomplated_top2': courses_incomplated_list,
         'courses_incomplated_all_count':len(courses_incomplated),
         'show_courseware_links_for': show_courseware_links_for,
         'all_course_time': study_time_format(all_course_time),
@@ -396,9 +315,6 @@ def newdashboard(request, user_id=None):
         'pd_time': study_time_format(pd_time),
         'user_last_logged_in': user_last_logged_in,
         'curr_user': user,
-        'communities': community_list,
-        'allowedcourses': allowedcourse_list,
-        'community_trending_topics': communit_tt_list,
         'feeding_year_start': feeding_year_start,
         'feeding_year_end': feeding_year_end,
         'my_activity_year_start': my_activity_year_start,

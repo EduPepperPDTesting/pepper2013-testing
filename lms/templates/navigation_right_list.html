@@ -1,0 +1,271 @@
+<%!
+    from django.core.urlresolvers import reverse
+
+    from courseware.courses import get_course_about_section
+    from student.models import CourseEnrollment, CourseEnrollmentAllowed
+    from student.views import course_from_id
+    from courseware.model_data import FieldDataCache
+    from courseware.module_render import get_module
+    from courseware.courses import get_course_about_section
+
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu
+
+    from xmodule.modulestore.exceptions import ItemNotFoundError
+    import logging
+    log = logging.getLogger("tracking")
+%>
+<style>
+/*--right My Learning Plan--------------------------------------------*/
+.con-my-courses-outer{
+    float:left;
+    width:250px;
+    height:820px;
+    margin-left: 27px;
+    border:0px solid #f00;
+}
+.con-my-courses{
+    width:250px;
+    height:525px;
+    background-color: #fff;
+    position:fixed;
+    padding-bottom: 5px;
+}
+.my-title-green{
+    width:204px;
+    padding:10px;
+    background-color:#89C153;
+    text-align: center;
+    font-size:14px;
+    color:#fff;
+    text-decoration:none !important;
+    margin-left: 13px;
+    margin-top: 10px;
+}
+.my-courses-cards{
+    float: left;
+    width: 250px;
+    border:0px solid;
+}
+.course-incomplated{
+    width:194px;
+    padding:0px 10px 5px 10px;
+    font-size: 12px !important;
+    margin-left: 13px;
+    margin-top: 10px;
+    background-color: #fff;
+}
+.course-incomplated a{
+    font-size: 12px !important;
+    color: #000;
+}
+.ds-view-all-courses{
+    width:230px;
+    text-align:right;
+    float: left;
+    /*margin-top:-10px;*/
+    padding-right:20px;
+    border: 0px solid;
+
+}
+.ds-view-all-courses a{
+    font-size: 14px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-view-allowed-courses{
+    width:230px;
+    text-align:right;
+    float: left;
+    padding-right:20px;
+}
+.ds-view-allowed-courses a{
+    font-size: 14px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.my-profile-logo{
+    width:230px;
+    /*height:155px;*/
+    margin-left: 10px;
+    margin-top: 10px;
+    text-align: center;
+    border: 0px solid;
+}
+</style>
+<%
+    user = request.user
+    OrganizationOK = False
+    show_right = ""
+    courses_incomplated = []
+
+    courses_incomplated_top2 = []
+    allowedcourse = []
+
+    if request.user.is_authenticated():            
+        try:
+            state_id = request.user.profile.district.state.id
+        except:
+            state_id = -1
+        try:
+            district_id = request.user.profile.district.id
+        except:
+            district_id = -1
+        try:
+            school_id = request.user.profile.school.id
+        except:
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+
+        data = {}        
+        if OrganizationOK:
+            data["org_id"] = organization_obj.id;
+            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+            
+            for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+                data[tmp1.itemType] = tmp1.itemValue
+            
+            add_profile = ""
+            tmp_profile_logo = ""
+            tmp_profile_logo_url = ""
+            if data['Dashboard option etc'] == "1":
+                if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                    tmp_profile_logo = data['Profile Logo']
+                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url']
+
+                if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
+                    show_right = "display:none;";    
+            else:
+                if data.has_key('Profile Logo Curriculumn') and data['Profile Logo Curriculumn'] != "":
+                    tmp_profile_logo = data['Profile Logo Curriculumn']
+                    if data.has_key('Profile Logo Url Curriculumn') and data['Profile Logo Url Curriculumn'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url Curriculumn']  
+
+                if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
+                    show_right = "display:none;"; 
+
+            if tmp_profile_logo != "":
+                if tmp_profile_logo_url != "":
+                    add_profile = "<a href='" + tmp_profile_logo_url + "'><img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/></a>";
+                else:
+                    add_profile = "<img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/>"; 
+                         
+            data['add_profile'] = add_profile
+
+
+    allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        if enrollment.course_id in allowedcourses_id:
+            allowedcourses_id.remove(enrollment.course_id)
+        try:
+            c = course_from_id(enrollment.course_id)
+            c.student_enrollment_date = enrollment.created
+
+            field_data_cache = FieldDataCache([c], c.id, user)
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
+            if course_instance.complete_course:
+                pass
+            else:
+                courses_incomplated.append(c)
+
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+    courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
+
+    #@begin:get My Courses
+    #@date:2017-02-19
+    #Just choose the last 2 courses_incomplated of the user.
+    courses_incomplated_list = []
+    for k, v in enumerate(courses_incomplated):
+        courses_incomplated_list.append(v)
+        if k > 0:
+            break
+    courses_incomplated_top2 = courses_incomplated_list
+    #@end
+
+    #@begin:get Recommended For You
+    #@date:2017-05-1
+    allowedcourse_list = []
+    for course_id in allowedcourses_id:
+        try:
+            course = course_from_id(course_id)
+            allowedcourse_list.append(course)
+        except:
+            pass
+    if allowedcourse_list:
+        allowedcourse.append(allowedcourse_list[0])
+    #@end
+%>
+<!--Courses-My Learning Plan-->
+		<div class="con-my-courses-outer" style="${show_right}">
+            <div class="con-my-courses">
+                <div class="my-profile-logo">
+                    % if OrganizationOK:
+                        ${data["add_profile"]} 
+                    % endif
+                </div>
+                <div class="my-title-green">My Learning Plan</div>
+                <div class="my-courses-cards">
+                    %for course in courses_incomplated_top2:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-incomplated">
+                             %if curr_user == request.user:
+                                %if not course.close_course:      
+                                    <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
+                            %endif
+                        </div>
+                    %endfor
+                </div>
+                <div class="ds-view-all-courses">
+                    <a href="/my_courses">View All</a>
+                </div>
+
+                %if len(allowedcourse) > 0:
+                    <!--allowedcourse-->
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You!</div>
+                    <div class="my-courses-cards">
+                        %for course in allowedcourse:
+                            <div class="course-incomplated">
+                                %if not course.close_course:  
+                                    <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
+                                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    </a>
+                                %else:
+                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                %endif
+                            </div>
+                        %endfor
+                    </div>
+                    <div class="ds-view-allowed-courses">
+                        <a href="/more_courses_available">View All</a>
+                    </div>
+                %endif
+            </div>
+        </div>
