@@ -1371,7 +1371,7 @@ def get_column_headers(request):
                     filters = {column_header:filter1,row_header:filter2}
                     count = rs.get_count(collection,filters)
                     row[column] = str(count)
-                row['count'] = str(d['count'])
+                row['count'] = str(d['total'])
                 data.append(row)
             rs.insert_datas(data,collection+"aggregate")
         elif aggregate_type_id == 0:
