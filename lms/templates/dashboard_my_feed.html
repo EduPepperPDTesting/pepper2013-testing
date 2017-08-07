@@ -610,6 +610,7 @@ from permissions.utils import check_access_level, check_user_perms
         $content_area.append(c);
         $("#fixed-dialog-posts .dialog-title").html("Comments (" + (post.sub.length + 1) + ")");
         $.each(post.sub, function(i, p){
+          p.content = translateImages(p.content)
           var c = template_post.fillData(p);
           $content_area.append(c);
         });
