@@ -26,6 +26,7 @@ import os
 import os.path
 import shutil
 from student.feeding import dashboard_feeding_store
+import csv
 
 #-------------------------------------------------------------------main
 def main(request):
@@ -72,6 +73,9 @@ def main(request):
 
         elif (post_flag == "org_dashboard_upload_cms"):
             return org_dashboard_upload_cms(request);
+
+        elif (post_flag == "org_option_cvs_upload"):
+            return org_option_cvs_upload(request);
 
         elif (post_flag == "organization_check_Entity"):
             return org_check_Entity(request);
@@ -138,7 +142,7 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            if not oid:
+            if oid == "-1":
                 dataitems = '['
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
@@ -1064,6 +1068,22 @@ def org_dashboard_upload_cms(request):
                     break;              
 
                 data = {'Success': True, 'name': imgx.name}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------org_option_cvs_upload
+@login_required
+def org_option_cvs_upload(request):
+    try:
+        data = {'Success': False}  
+        import_file = request.FILES.get('organizational_option_cvs')
+        r = csv.reader(import_file, dialect=csv.excel)
+        rows = []
+        rows.extend(r)
+        data = {'Success': True, 'rows': rows}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
