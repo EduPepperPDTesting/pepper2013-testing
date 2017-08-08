@@ -751,7 +751,7 @@
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
                 config.width = '100%';
-                config.height = 300;
+                config.height = 150;
                 // Configure available tokens
                 config.availableTokens = [
                     ["", ""],
@@ -768,11 +768,10 @@
                 return true;
 				
             }else if (textarea.className == 'certificate_editor_announcement') {
-                // Add token plugin
-                config.extraPlugins = 'token,print';
-                config.removePlugins = 'maximize';
+                 config.removePlugins = 'elementspath,blockquote,maximize,source';
+				config.removeButtons = 'Source,About,Strike,RemoveFormat,Link,Unlink,Image,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,Anchor,Styles,Format,Font,FontSize,TextColor,BGColor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,SpellChecker,Scayt';
                 config.width = '100%';
-                config.height = 200;
+                config.height = 150;
                 // Configure available tokens
                 config.availableTokens = [
                     ["", ""],
