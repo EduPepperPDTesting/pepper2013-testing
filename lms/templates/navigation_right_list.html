@@ -233,13 +233,11 @@
                             course_target = reverse('courseware', args=[course.id])
                         %>
                         <div class="course-incomplated">
-                             %if curr_user == request.user:
                                 %if not course.close_course:      
                                     <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
                                 %else:
                                     <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
                                 %endif
-                            %endif
                         </div>
                     %endfor
                 </div>

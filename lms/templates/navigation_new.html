@@ -664,7 +664,7 @@
                     <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
                         margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
                         <div style="float:left;">   
-                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50"/>
+                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
                         </div>
                         <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
                             <span class="dropdownusername" >${ request.user.first_name | h } ${ request.user.last_name | h }</span>
