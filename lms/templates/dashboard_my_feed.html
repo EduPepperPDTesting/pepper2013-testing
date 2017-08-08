@@ -941,7 +941,7 @@ from permissions.utils import check_access_level, check_user_perms
     $.post("${reverse('dashboard_get_posts')}", params, function (posts){
       if(!is_continue && posts.length<1){
         $(".post-content-row.post").remove(); 
-        $("<tr class='post-content-row post'><td class='no-search-results'><a href='/people'>Connect</a> with other educators or share something by posting an update!</td></tr>").appendTo($("#post_content_table"));
+        $("<tr class='post-content-row post'><td class='no-search-results'><a href='/people'><b>Connect</b></a> with other educators or share something by posting an update!</td></tr>").appendTo($("#post_content_table"));
       }
       $("#posts_loading_image").hide();
       $.each(posts, function(i, post){
