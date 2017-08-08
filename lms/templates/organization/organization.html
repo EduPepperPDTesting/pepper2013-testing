@@ -31,10 +31,11 @@
 	.organization_main{margin: 0 auto 30px auto; width: 1180px; padding: 10px;}
 	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #999; padding: 10px;}
 	.check-column {width: 60px !important;}
-	.organization-table {width: 100%; border: 1px solid #555;}
-	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px;}
+	.organization-table {width: 100%; border: 1px solid #555; table-layout:fixed; word-break: break-all; white-space:nowrap;}
+	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px; font-size:14px;}
 	.organization-table tr {border-bottom: 1px solid #555;}
-	.organization-table td {border-right: 1px solid #555; padding: 4px; text-align: left;}
+	.organization-table td {border-right: 1px solid #555; padding: 4px; text-align: left; overflow:hidden}
+	.organization-table .td_center {text-align: center !important;}
 	.org_table1 td{padding:2px;}
 	.org_table1 .org_td1{padding-top:10px;}
 	.org_table1 input[type='text']{width:300px;}
@@ -42,7 +43,7 @@
 	.org_table1 .org_table_menu1:hover{ text-decoration:underline}
 	.org_table1 .org_icon_dn{background:url(/static/images/configuration/sort_dn.gif) no-repeat right center}
 	.org_table1 .org_icon_up{background:url(/static/images/configuration/sort_up.gif) no-repeat right center}	
-	.org_table1 .org_table_menu_child1{float:left; text-indent:30px; font-size:12px}	
+	.org_table1 .org_table_menu_child1{float:left; text-indent:20px; font-size:12px}	
 	.org_table1_selected,.org_edit_selected{ background-color:#56a033 !important;}	
 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 	.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
@@ -124,6 +125,25 @@
 	.btn_grade_level_active {-moz-font-feature-settings: normal; -moz-font-language-override: normal;background: none repeat scroll 0 0 #FF9933;border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;color: #FFFFFF !important;float: left;font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;font-size: 10px;font-size-adjust: none;font-stretch: normal;font-style: normal;font-variant: normal;font-weight: bold !important;height: 30px;line-height: 30px !important;text-align: center;text-decoration: none;text-shadow: 0 1px #884A0C;	width: 31px;}
 	
 	#dialog .content input{display:inline !important;}
+	#dialog .content{text-align:left;}
+	
+	#dialog_proFileChildAdd .add_row{float:left; margin:5px 0; width:100%; text-align:left;}
+	#dialog_proFileChildAdd .add_txt{float:left; width:150px; text-align:right; padding-right:5px; line-height:35px;}
+	#dialog_proFileChildAdd .add_input{float:left; width:280px;}
+	#dialog_proFileChildAdd .add_input input[type=text]{width:100%;}
+	#dialog_proFileChildAdd .add_input input[type=button]{float:right;}
+	#dialog_proFileChildAdd .content{padding:0 20px;}
+	#dialog_proFileChildAdd .content select{display:inline !important;}
+	#dialog_proFileChildAdd .content input{display:inline !important;}
+	
+	.org_child_disable{float:left; background: url("/static/images/show-hide-discussion-icon.png") no-repeat 0 0; width:21px; height:19px;}
+	.org_child_enable{background: url("/static/images/show-hide-discussion-icon.png") no-repeat -21px 0 !important;}
+	.org_child_edit{float:left; margin:0 5px;}
+	.profile_no_delete td{ background-color:#FFF2C8;}
+	.org_table_profile_tr td{ font-size:12px;}
+	
+	.profileFieldType_add{font-size:14px; padding:0 4px; background-color:#004A98; font-family:Arial, Helvetica, sans-serif !important; border-radius: 17px 17px 17px 17px; color:#FFFFFF; display:none; cursor:pointer;}
+	#permission-option-actions {padding: 10px 0; text-align: right;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -199,7 +219,7 @@
                 </select>
             </div>
             <input type="button" name="submit" id="del-organization" value="REMOVE SELECTED" class="small_btn" />
-            <input type="button" name="submit" id="new-organization" value="ADD" class="small_btn" />
+            <input type="button" name="submit" value="ADD" class="small_btn" onclick="organizationEdit('add','','')" />
         </div>
     </div>
 </div>
@@ -208,7 +228,7 @@
     <div class="expand_title expand_title_collapse" always_on="1">Organization Structure<div class="icon"></div></div>
     <div class="expand_div">
         <div style="padding: 1em 7px 7px 7px;">
-        	<table width="550" border="0" class="org_table1">
+        	<table width="1100" border="0" class="org_table1">
             	<tr>
                 	<td width="220" class="org_td1">Organization Name: </td>
                     <td><input type="text" id="organizational_base_name" disabled="disabled" style="background-color:#CCCCCC"></td>
@@ -225,37 +245,77 @@
                 	<td class="org_td1">Organization Specific Items: </td>
                     <td>
                     	<table id="organization-table2" class="organization-table">
-                            <thead><tr><th>Name</th><th><input type="checkbox" value="" id="organization-table2_all"></th></tr></thead>
-                            <tbody>                               
+                            <thead>
+                            	<tr>
+                                	<th width="225">Name</th>
+                                    <th width="240" class="td_center">Description</th>
+                                    <th width="130" class="td_center">Field Type</th>
+                                    <th width="70" class="td_center">Required</th>
+                                    <th width="100" class="td_center">Course <br />Qualification</th>
+                                    <th><!--<input type="checkbox" value="" id="organization-table2_all">--></th>
+                                </tr>
+                            </thead>
+                            <tbody>                      
                                 <tr>
-                                    <td width="300"><span class="org_table_menu1 org_icon_up" id="org_registration_page">Registration Page</span></td>
-                                    <td class="check-column"><input type="checkbox" child_check="org_registration_page" class="org_parent_menu organization-item-select"></td>
+                                    <td><span class="org_table_menu1 org_icon_up" id="org_dataitems_profile">Profile</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="td_center"><input type="checkbox" child_check="org_dataitems_profile_1" class="org_parent_menu" /></td>
+                                    <td class="td_center"><input type="checkbox" child_check="org_dataitems_profile_2" class="org_parent_menu" /></td>
+                                    <td><input type="checkbox" child_check="org_dataitems_profile_3" class="org_parent_menu" /></td>
+                                </tr>     
+                                <!--<tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Major Subject Area</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                    	<input type="checkbox" class="organization-item-select" id="org_rg_major_subject">
+                                        <a href="" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                    </td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Major Subject Area</span></td>
-                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_major_subject"></td>
-                                </tr>
-                                <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Grade Level-Check all that apply</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Grade Level-Check all that apply</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_grade_level"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">Number of Years in Education</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">Number of Years in Education</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_number_of"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">My Learners' Profile</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">My Learners' Profile</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_my_learners"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
-                                    <td><span class="org_table_menu_child1 org_registration_page">About me</span></td>
+                                    <td><span class="org_table_menu_child1 org_dataitems_profile">About me</span></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_rg_about_me"></td>
-                                </tr>
+                                </tr>-->
                             </tbody>
                         </table>
                     </td>
                 </tr>
             </table>
+            <div style="width:90%; text-align:right; height:30px;">	
+				<input type="button" value="REMOVE SELECTED" class="small_btn" id="btn_profile_remove" />
+                <input type="button" value="ADD" class="small_btn" id="btn_profile_add" />
+            </div>
             <div style="width:100%; text-align:right; height:30px;">	
 				<input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
                 <input type="button" value="Save" class="small_btn org_btn_last_save" />
@@ -266,8 +326,8 @@
 
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="2">Organization Locations<div class="icon"></div></div>
-    <div class="expand_div">        
-       <select id="org_state_select" style="width:200px;">
+    <div class="expand_div">
+        <select id="org_state_select" style="width:200px;">
         	<option value="">Select State</option>
         </select>
         <select id="org_district_select" style="width:300px;"></select>
@@ -727,6 +787,68 @@
     </div>
 </div>
 
+<div style="width:650px;" id="dialog_proFileChildAdd" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Field Options</h3>
+            <div class="close-modal">✕</div>
+        </div>
+        <div class="content">
+            <div class="add_row">
+            	<span class="add_txt">Option Name:</span>
+                <span class="add_input"><input id="organizational_option_name" placeholder="Option Name" type="text" /></span>
+            </div>
+            <div class="add_row">
+            	<span class="add_txt">Description:</span>
+                <span class="add_input"><input id="organizational_option_description" placeholder="Description" type="text" /></span>
+            </div>
+            <div class="add_row">
+            	<span class="add_txt">&nbsp;</span>
+            	<span class="add_input" id="organizational_option_btn_panel">
+                	<input type="button" id="organizational_option_btn_cancel" value="CANCEL" class="small_btn" />
+                    <input type="button" id="organizational_option_btn_fix" value="EDIT" class="small_btn" />
+                	<input type="button" id="organizational_option_btn_add" value="ADD" class="small_btn" />
+                </span>
+            </div>
+            <div class="add_row">
+            	CSV File: <span id="organizational_option_cvs_span"><input type="file" id="organizational_option_cvs" name="organizational_option_cvs" /></span>
+                <div style="font-size:12px; font-weight:bold;">*CSV file should contain the following columns (option name, description)</div>
+            </div>
+            <div class="add_row"></div>
+            <div style="width:100%;">
+                <table id="organization-option-table" class="organization-table">
+                    <thead>
+                        <tr>
+                            <th>Option Name</th>
+                            <th>Description</th>
+                            <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-option-select-all"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="permission-option-actions">
+                    <div id="organization-option-pager" class="pager" style="margin-right:50px ;">            
+                        <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                        <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                        <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                        <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                        <select class="pagesize">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    <input type="button" id="organizational_option_btn_remove" value="REMOVE SELECTED" class="small_btn" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div style="" id="dialogYesNo" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -742,6 +864,66 @@
 	var org_current_menu_items = "";
 	var maximum_items = 9;
 	var maximum_sub_items = 20;
+	
+	//--------------------------filterStr
+	function filterStr(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+		}
+		return str;
+	}
+	//--------------------------filterStr2
+	function filterStr2(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+			str = str.replace(new RegExp("'", 'gm'), "\\'");
+			str = str.replace(new RegExp('"', 'gm'), '\\"');
+		}
+		return str;
+	}
+	
+	//-----------------------------------------------------------------------CurrentDialog
+	function CurrentDialog(el){
+		var self=this;
+		this.$ei=$(el);
+		this.$ei.find('.close-modal').off("click").click(function(){
+			self.hide();
+		});
+	}
+	CurrentDialog.prototype.show=function(title,content){
+		var self=this;
+		this.showOverlay();
+		this.$ei.fadeIn(200);
+		return this;
+	};
+	CurrentDialog.prototype.lift=function(n){
+		this.$overlay.css('z-index',this.$overlay.css('z-index')+n);
+		this.$ei.css('z-index',this.$ei.css('z-index')+n);
+		return this;
+	};
+	CurrentDialog.prototype.showOverlay=function(){
+		if(!this.$overlay){
+			this.$overlay=$("<div class='lean-overlay'></div>");
+			this.$overlay.appendTo(document.body);
+		}
+		this.$overlay.css('display','block');
+		return this;
+	};
+	CurrentDialog.prototype.hideOverlay=function(){
+		if(this.$overlay){
+			this.$overlay.remove();
+			this.$overlay=null;
+		}
+		return this;
+	};
+	CurrentDialog.prototype.hide=function(){
+		this.$ei.css('display','none');
+		this.hideOverlay();
+		this.$ei.trigger("hide");
+		return this;
+	};
 	
 	//-----------------------------------------------------------------------CertificateEditor
 	if (typeof CKEDITOR != 'undefined') {
@@ -822,7 +1004,7 @@
 	
 	//-----------------------------------------------------------------------organization_district__school_list
 	var organization_district_list = new Array();
-	var organization_school_list = new Array();
+	var organization_school_list = new Array();	
 	
 	//-----------------------------------------------------------------------organizational_dashboard_menu_text_size
 	for(var i = 9; i < 35; i++){
@@ -853,6 +1035,7 @@
 	//-----------------------------------------------------------------------pagerOptions
 	var pagerOptions = {
 		container: '',
+		// output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
 		output: '{startRow} - {endRow} ({totalRows})',
 		fixedHeight: false,
 		removeRows: false,
@@ -1011,24 +1194,25 @@
 	}
 	
 	//-----------------------------------------------------------------------organizationEditAttach
-	function organizationEditAttach() {		
+	/*function organizationEditAttach() {	
 		$('.permission-edit').click(function (e) {
 			e.preventDefault();
 			var id = $(this).attr('href').substr(1);
 			organizationEdit('edit', id);
 		});
-	}		
+		$("#press").attr("abc", $('.permission-edit').length);
+	}*/		
 	
 	//-----------------------------------------------------------------------organizationEdit
-	function organizationEdit(type, id) {
+	function organizationEdit(type, id, name) {
 		var button_name = 'Add';
 		var dialog_title = 'New Organization';
-		var name = '';
-		var url = '';
+		//var name = '';
+		//var url = '';
 		if (type == 'edit') {
 			button_name = 'Save';
 			dialog_title = 'Edit Organization';
-			$.ajaxSettings.async = false; 
+			/*$.ajaxSettings.async = false; 
 			$.getJSON("${reverse('organizational_configuration')}", {flag:"organization_list", oid: id}, function (r) {
 				if (r.success) {
 					if(r.rows.length > 0){
@@ -1039,7 +1223,7 @@
 					}
 				}
 			});
-			$.ajaxSettings.async = true;
+			$.ajaxSettings.async = true;*/
 		}
 		
 		var content = '<form action="${reverse('organizational_configuration')}" method="post" id="new-organizational-submit">';
@@ -1105,8 +1289,13 @@
 						row += '</tr> ';
 						$('#organization-table tbody').append(row);
 					}
-					organizationEditAttach();
-					
+					//organizationEditAttach();
+					//----------
+					$('.permission-edit').click(function (e) {
+						e.preventDefault();
+						organizationEdit('edit', $(this).attr('href').substr(1), $(this).parent().prev().find("a").html());
+					});
+					//----------
 					$(".organization_next").click(function(e){
 						e.preventDefault();
 						var loadwin = new LoadingWin();
@@ -1135,20 +1324,16 @@
 									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
 									
-									$(".organization-item-select").attr("checked", false);									
+									//$(".organization-item-select").attr("checked", false);									
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
 									
-									//----------
-									if(r.specific_items != ""){
-										var tmp_specific_items = eval("(" + r.specific_items + ")");
-										for(var tmpx in tmp_specific_items){
-											$("#" + tmpx).attr("checked", true);
-										}									
-									}
-									
-									//----------
+									//----------dataitems
+									$(".org_table_profile_tr").remove();
+									orgProfileInit(r.specific_items);							
+																		
+									//----------Entlty type
 									if(r.sid_did != ""){
 										var sid_did_list = r.sid_did.split(":");
 										for(var j in sid_did_list){
@@ -1470,8 +1655,8 @@
 										$(".org_btn_last_save").eq(0).hide();
 										$(".org_btn_last_save").eq(1).hide();
 
-										$("#organization-table2_all").prop('checked', true);
-										$(".organization-item-select").prop('checked', true);
+										//$("#organization-table2_all").prop('checked', true);
+										//$(".organization-item-select").prop('checked', true);
 										
 										if(!r["Text Color"]){
  											$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
@@ -1528,6 +1713,52 @@
 			}
 		});
 	}	
+
+	//-----------------------------------------------------------------------organizationOptionCSVFileInit
+	function organizationOptionCSVFileInit(){
+		$("#organizational_option_cvs_span").empty();
+		$("#organizational_option_cvs_span").append('<input type="file" id="organizational_option_cvs" name="organizational_option_cvs" onchange="organizationOptionCSVUploadFile()" />');
+	}
+	
+	//-----------------------------------------------------------------------organizationOptionCSVUploadFile
+	function organizationOptionCSVUploadFile(){
+		if($("#organizational_option_cvs").val() != ""){
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				fileElementId: "organizational_option_cvs",
+				secureuri: false,
+				dataType: 'JSON',
+				data: {flag: 'org_option_cvs_upload', csrfmiddlewaretoken: '${csrf_token}'},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");
+					if(tmp2.Success){
+						var tmp_list, tmp_flag;
+						for(var i = 0; i < tmp2.rows.length; i++){
+							tmp_list = String(tmp2.rows[i]).split(",");
+							tmp_flag = true;
+							$('#organization-option-table').find(".data").each(function(){
+								var tmp_name = $(this).find("td:first").html();
+								if(tmp_name == tmp_list[0]){
+									tmp_flag = false;
+									return false;
+								}
+							});
+							if(tmp_flag){
+								addOptionItem("[{'name':'" + tmp_list[0] + "', 'description':'" + tmp_list[1] + "'}]")
+							}
+							organizationOptionCSVFileInit();
+						}
+						updateOptionItemInfo();
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+				}
+			})
+		}
+	}
 	
 	//-----------------------------------------------------------------------organizationAddFileImgInit
 	function organizationAddFileImgInit(eid){
@@ -1568,16 +1799,15 @@
 		$('#organization-state-table tbody').append(row);
 		
 		//-----------------------------------------edit
-		$(".organization-state-edit").unbind("click");
-		$(".organization-state-edit").click(function(e){
-			e.preventDefault();			
+		$(".organization-state-edit").unbind("click").click(function(e){
+			e.preventDefault();
 			$(".org_edit_selected").removeClass("org_edit_selected");
 			$(this).parent().addClass("org_edit_selected");
 			$(this).parent().prev().addClass("org_edit_selected");
 			$(this).parent().prev().prev().addClass("org_edit_selected");
 			
 			var stype = $(this).attr("stype");
-			var sid = $(this).attr("sid");
+			var sid = $(this).attr("sid");			
 			if(stype == "State"){
 				$("#org_state_select").val(sid);
 				$("#org_state_select").change();
@@ -2014,32 +2244,390 @@
 		});
 	}
 	
+	//-----------------------------------------------------------------------orgProfileInit
+	var profileFieldType = "<select class='profileFieldType'>";
+	profileFieldType += "<option value=''>Select Type</option>";
+	profileFieldType += "<option value='1'>Read-Only</option>";
+	profileFieldType += "<option value='2'>Dropdown</option>";
+	profileFieldType += "<option value='3'>Multi-Select</option>";
+	profileFieldType += "<option value='4'>Checkboxes</option>";
+	profileFieldType += "<option value='5'>Radio Buttons</option>";
+	profileFieldType += "<option value='6'>Text Field</option>";
+	profileFieldType += "<option value='7'>Text Area</option>";
+	profileFieldType += "<option value='8'>Date Field</option>";
+	profileFieldType += "</select>";
+	
+	function orgProfileInit(specific_items){
+		if(specific_items != ""){
+			var tmp_specific_items = eval("(" + specific_items + ")");
+			var tmp_item = "";
+			var tmp_sn = $(".org_table_profile_tr").length;
+			for(var tmpx in tmp_specific_items){
+				var tmp_json = tmp_specific_items[tmpx];
+				var tmp_required = (tmp_json["required"] == "1") ? "checked='checked'" : "";
+				var tmp_course = (tmp_json["course_qualification"] == "1") ? "checked='checked'" : "";
+				var tmp_tr_id = "id_" + Math.round(Math.random() * 1000000);
+				var tmp_description = (typeof(tmp_json["description"]) == "undefined") ? "" : tmp_json["description"];
+				
+				if(tmp_json["default"] && tmp_json["default"] != ""){
+					tmp_item = "<tr id='" + tmp_tr_id + "' class='org_table_profile_tr profile_no_delete' default='" + tmp_json["default"] + "'>";
+				}else{
+					tmp_item = "<tr id='" + tmp_tr_id + "' class='org_table_profile_tr' default=''>";
+				}
+				tmp_item += "<td><span class='org_table_menu_child1 org_dataitems_profile' sn='" + tmp_sn + "'>" + tmp_json["name"] + "</span></td>";
+				tmp_item += "<td class='td_center org_dataitems_profile_description'>" + tmp_description + "</td>";
+				if(tmp_json["default"] && tmp_json["default"] != ""){
+					tmp_item += "<td></td>";
+				}else{
+					tmp_item += "<td class='td_center'>" + profileFieldType + " <span class='profileFieldType_add'>+</span></td>";
+				}
+				tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_1' class='org_child_menu' " + tmp_required + " /></td>";
+				tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_2' class='org_child_menu' " + tmp_course + " /></td>";
+				tmp_item += "<td>";				
+				if(tmp_json["default"] && tmp_json["default"] != ""){
+					if(tmp_json["default_visible"] && tmp_json["default_visible"] == "1"){
+						tmp_item += "<a href='javascript:void(0)' class='org_child_disable org_child_enable'></a>";
+					}else{
+						tmp_item += "<a href='javascript:void(0)' class='org_child_disable'></a>";
+					}
+				}else{
+					tmp_item += "<input type='checkbox' child_check='org_dataitems_profile_3' class='org_child_menu' style='float:left; margin:0 5px;' />";
+				}
+				tmp_item += "<a href='javascript:void(0)' class='org_child_edit'><img src='/static/images/portal-icons/pencil-icon.png' width='16' height='16'></a>";
+				tmp_item += "</td>";
+				tmp_item += "</tr>";
+				
+				$("#org_dataitems_profile").parent().parent().parent().append(tmp_item);
+				
+				if(typeof(tmp_json["field_type"]) != "undefined"){
+					$("#" + tmp_tr_id).find(".profileFieldType").val(tmp_json["field_type"]);
+					if(tmp_json["field_type"] == "2" || tmp_json["field_type"] == "3" || tmp_json["field_type"] == "4" || tmp_json["field_type"] == "5"){
+						$("#" + tmp_tr_id).find(".profileFieldType_add").show();
+					}else{
+						$("#" + tmp_tr_id).find(".profileFieldType_add").hide();
+					}
+				}
+				
+				var tmp_field_type_2 = (typeof(tmp_json["field_type_2"]) == "undefined") ? "" : tmp_json["field_type_2"];
+				var tmp_field_type_3 = (typeof(tmp_json["field_type_3"]) == "undefined") ? "" : tmp_json["field_type_3"];
+				var tmp_field_type_4 = (typeof(tmp_json["field_type_4"]) == "undefined") ? "" : tmp_json["field_type_4"];
+				var tmp_field_type_5 = (typeof(tmp_json["field_type_5"]) == "undefined") ? "" : tmp_json["field_type_5"];
+				
+				$("#" + tmp_tr_id).attr("field_type_2", tmp_field_type_2);
+				$("#" + tmp_tr_id).attr("field_type_3", tmp_field_type_3);
+				$("#" + tmp_tr_id).attr("field_type_4", tmp_field_type_4);
+				$("#" + tmp_tr_id).attr("field_type_5", tmp_field_type_5);
+				
+				tmp_sn++;
+			}
+			
+			//-------------------profileFieldType
+			$(".profileFieldType").unbind("change").change(function(){
+				if($(this).val() == "2" || $(this).val() == "3" || $(this).val() == "4" || $(this).val() == "5"){
+					$(this).parent().find(".profileFieldType_add").show();
+				}else{
+					$(this).parent().find(".profileFieldType_add").hide();
+				}
+			});
+			
+			//-------------------profileFieldType_add
+			$(".profileFieldType_add").unbind("click").click(function(){
+				var dialog = new CurrentDialog('#dialog_proFileChildAdd');
+				dialog.show();
+				$('.error-box').removeClass('error-box');
+				
+				var tmp_tr_id = $(this).parent().parent().attr("id");
+				
+				organizationOptionCSVFileInit();
+				
+				$("#organizational_option_name").val("");
+				$("#organizational_option_description").val("");
+				$("#organizational_option_name").attr("tr_id", tmp_tr_id);
+				
+				$("#organizational_option_btn_add").css("cssText", "display:block !important;");
+				$("#organizational_option_btn_fix").css("cssText", "display:none !important;");
+				$("#organizational_option_btn_cancel").css("cssText", "display:none !important;");
+				
+				$('#organization-option-table tbody .data').remove();
+				$('.organization-option-select-all:checked').prop({checked: false});
+
+				var field_type_val = $("#" + tmp_tr_id).find(".profileFieldType").val();
+				var field_type_content = $("#" + tmp_tr_id).attr("field_type_" + field_type_val);
+				if(field_type_content != ""){
+					var jsonx = "[";
+					var list1 = field_type_content.split("|-|-|");
+					for(var ii in list1){
+						if(jsonx != "["){
+							jsonx += ",";
+						}
+						var list2 = list1[ii].split("|-|");
+						jsonx += "{'name':'" + list2[0] + "', 'description':'" + list2[1] + "'},";
+					}
+					jsonx += "]";
+				}
+				addOptionItem(jsonx);
+			});
+			
+			//-------------------org_child_menu
+			$(".org_child_menu").unbind("change").change(function(){
+				dataItemsCheckBoxChange($(this).attr("child_check"));
+			});
+			
+			//-------------------org_child_edit
+			$(".org_child_edit").unbind("click").click(function(){
+				var tmp_parent = $(this).parent().parent();
+				var name = tmp_parent.find(".org_dataitems_profile").text();
+				var description = tmp_parent.find(".org_dataitems_profile_description").text();
+				var sn = tmp_parent.find(".org_dataitems_profile").attr("sn");
+				orgAddProfileWin(name, description, sn);
+			});
+			
+			//-------------------org_child_disable
+			$(".org_child_disable").unbind("click").click(function(){
+				if($(this).hasClass("org_child_enable")){
+					$(this).removeClass("org_child_enable");
+				}else{
+					$(this).addClass("org_child_enable");
+				}
+			});
+		}
+		dataItemsCheckBoxChange("org_dataitems_profile_1");
+		dataItemsCheckBoxChange("org_dataitems_profile_2");
+	}
+	
+	//-----------------------------------------------------------------------addOptionItem
+	function addOptionItem(jsonx){
+		var tmp1 = eval("(" + jsonx + ")");
+		for(var i in tmp1){
+			var tmp_tr_id = "id_" + Math.round(Math.random() * 1000000);
+			var row = '<tr class="data" tr_id="' + tmp_tr_id + '">';
+			row += '<td>' + tmp1[i].name + '</td>';
+			row += '<td>' + tmp1[i].description + '</td>';
+			row += '<td class="check-column">';
+			row += '<input type="checkbox" value="' + tmp1[i].name + '" class="organization-option-select">&nbsp;';
+			row += '<a href="javascript:void(0);" class="organization-option-edit" tr_id="' + tmp_tr_id + '"><img src="/static/images/portal-icons/pencil-icon.png" width="16" height="16"></a>';
+			row += '</td>';
+			row += '</tr> ';
+			$('#organization-option-table tbody').append(row);
+		}
+		
+		$(".organization-option-edit").unbind("click").click(function(){
+			var tmp_name = $(this).parent().parent().find("td").eq(0).html();
+			var tmp_description = $(this).parent().parent().find("td").eq(1).html();
+			
+			$("#organizational_option_name").val(tmp_name);
+			$("#organizational_option_description").val(tmp_description);
+			$("#organizational_option_name").attr("edit_id", $(this).attr("tr_id"));
+			
+			$("#organizational_option_btn_add").css("cssText", "display:none !important;");
+			$("#organizational_option_btn_fix").css("cssText", "display:block !important;");
+			$("#organizational_option_btn_cancel").css("cssText", "display:block !important;");
+		});
+		
+		$('#organization-option-table').trigger('update');
+	}
+	
+	//-----------------------------------------------------------------------orgAddProfileWin
+	function orgAddProfileWin(name, description, sn){
+		var dialog_title = 'Profile';
+		var content = '<form>';
+		content += '<label>Name:<input type="text" id="organizational_profile_name" placeholder="Name" value="' + name + '"></label>';
+		content += '<label>Description:<input type="text" id="organizational_profile_description" placeholder="Description" value="' + description + '"></label>';
+		content += '<input type="button" id="organizational_profile_btn_save" name="submit" value="SAVE" />';
+		content += '</form>';
+		
+		var profile_dialog = new Dialog('#dialog');
+		profile_dialog.show(dialog_title, content);
+		
+		$('#organizational_profile_btn_save').unbind("click").click(function(){
+			$('.error-box').removeClass('error-box');
+			var valid = true;
+			var errors = ['The following errors occurred:\n'];
+			var name = $('#organizational_profile_name');			
+			
+			if (!/[A-Za-z0-9]+/.test(name.val())) {
+				valid = false;
+				errors.push('Name is required.');
+				name.addClass('error-box');
+			}
+			
+			var isRepeat = false;
+			$(".org_table_profile_tr").each(function(){
+				var tmp_name = $(this).find(".org_dataitems_profile").text();
+				var tmp_sn = $(this).find(".org_dataitems_profile").attr("sn");				
+				if(tmp_name == name.val() && tmp_sn != sn){
+					isRepeat = true;
+					return false;
+				}
+			});
+			if (isRepeat) {
+				valid = false;
+				errors.push("The name already exists.");
+				name.addClass('error-box');
+			}
+			
+			if (!valid) {
+				var error = errors.join('\n');
+				alert(error);
+			}else{
+				var description = $('#organizational_profile_description');
+				if(sn != ""){
+					$(".org_dataitems_profile[sn='" + sn + "']").html(name.val());
+					$(".org_dataitems_profile[sn='" + sn + "']").parent().next().html(description.val());
+				}else{
+					orgProfileInit('[{"name":"' + name.val() + '","description":"' + description.val() + '"}]');
+				}
+				profile_dialog.hide();
+			}
+		});
+	}
+	
+	//-----------------------------------------------------------------------updateOptionItemInfo
+	function updateOptionItemInfo(){
+		var tr_id = $("#organizational_option_name").attr("tr_id");
+		var field_type_val = $("#" + tr_id).find(".profileFieldType").val();
+		var field_type_content = "";
+		$('#organization-option-table').find(".data").each(function(){
+			var tmp1 = $(this).find("td").eq(0).html();
+			var tmp2 = $(this).find("td").eq(1).html();
+			if(field_type_content != ""){
+				field_type_content += "|-|-|";
+			}
+			field_type_content += tmp1 + "|-|" + tmp2;
+		});
+		$("#" + tr_id).attr("field_type_" + field_type_val, field_type_content);
+	}
+	
+	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
-    $(document).ready(function() {
+    $(document).ready(function() {	
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
+		
 		organizationAddFileImgInit("organizational_base_home_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo_curr");
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+		
+		//--------------------------organizational_option_btn_add
+		$("#organizational_option_btn_add").click(function(){
+			$('.error-box').removeClass('error-box');
+			var valid = true;
+			var errors = ['The following errors occurred:\n'];
+			var name1 = $("#organizational_option_name");
+			var description1 = $("#organizational_option_description");
+			var name2 = filterStr2(name1.val());
+			
+			if (!/[A-Za-z0-9]+/.test(name2)) {
+				valid = false;
+				errors.push('Name is required.');
+				name1.addClass('error-box');
+			}
+			$('#organization-option-table').find(".data").each(function(){
+				var tmp1 = $(this).find("td:first").html();
+				if(tmp1 == name2){
+					valid = false;
+					errors.push('The name already exists.');
+					name1.addClass('error-box');
+					return false;
+				}
+			});
+			if (!valid) {
+				var error = errors.join('\n');
+				alert(error);
+			}else{
+				addOptionItem("[{'name':'" + name2 + "', 'description':'" + filterStr2(description1.val()) + "'}]");
+				updateOptionItemInfo();
+				$("#organizational_option_name").val("");
+				$("#organizational_option_description").val("");
+			}
+		});
+		
+		//--------------------------organizational_option_btn_fix
+		$("#organizational_option_btn_fix").click(function(){
+			var old_tr_id = $("#organizational_option_name").attr("edit_id");
+			if(old_tr_id != ""){
+				$('#organization-option-table').find(".data").each(function(){
+					var table_tr_id = $(this).attr("tr_id");
+					if(table_tr_id == old_tr_id){
+						$('.error-box').removeClass('error-box');
+						var valid = true;
+						var errors = ['The following errors occurred:\n'];
+						var name1 = $("#organizational_option_name");
+						var description1 = $("#organizational_option_description");
+						var name2 = filterStr2(name1.val());
+						
+						if (!/[A-Za-z0-9]+/.test(name2)) {
+							valid = false;
+							errors.push('Name is required.');
+							name1.addClass('error-box');
+						}
+						$('#organization-option-table').find(".data").each(function(){
+							var table_tr_id1 = $(this).attr("tr_id");
+							var tmp1 = $(this).find("td:first").html();
+							if(tmp1 == name2 && table_tr_id1 != old_tr_id){
+								valid = false;
+								errors.push('The name already exists.');
+								name1.addClass('error-box');
+								return false;
+							}
+						});
+						if (!valid) {
+							var error = errors.join('\n');
+							alert(error);
+						}else{
+							$(this).find("td").eq(0).html(filterStr2($("#organizational_option_name").val()))
+							$(this).find("td").eq(1).html(filterStr2($("#organizational_option_description").val()))
+							$("#organizational_option_btn_cancel").click();
+							updateOptionItemInfo();
+							$("#organizational_option_name").val("");
+							$("#organizational_option_description").val("");
+						}						
+						return false;
+					}
+				});
+			}
+		});
+		
+		//--------------------------organizational_option_btn_cancel
+		$("#organizational_option_btn_cancel").click(function(){
+			$("#organizational_option_name").attr("edit_id", "");
+			$("#organizational_option_btn_add").css("cssText", "display:block !important;");
+			$("#organizational_option_btn_fix").css("cssText", "display:none !important;");
+			$("#organizational_option_btn_cancel").css("cssText", "display:none !important;");
+		});
+		
+		//--------------------------organizational_option_btn_remove
+		$("#organizational_option_btn_remove").click(function(){
+			if($(".organization-option-select:checked").length > 0){
+				if(confirm("Are you sure to delete the option?")){
+					$(".organization-option-select:checked").parent().parent().remove();
+					$('#organization-option-table').trigger('update');
+					updateOptionItemInfo();
+				}
+			}else{
+				alert("Select the option(s) you want to delete.");
+			}
+		});
 				
 		//--------------------------editor_view_btn preview_view_btn
-		$('.editor_view_btn').click(function(){
+		$('.editor_view_btn:first').click(function(){
 			ceditor.switchView("Editor");
 			$(this).addClass("active");
-			$('.preview_view_btn').removeClass('active');
-			$('.preview_view').hide();
-			$('.editor_view').show();
+			$('.preview_view_btn:first').removeClass('active');
+			$('.preview_view:first').hide();
+			$('.editor_view:first').show();
 		});
-		$('.preview_view_btn').click(function(){
+		$('.preview_view_btn:first').click(function(){
 			ceditor.switchView('Preview');
 			$(this).addClass('active');
-			$('.editor_view_btn').removeClass('active');
-			$('.preview_view').show();
-			$('.editor_view').hide();
-			var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
+			$('.editor_view_btn:first').removeClass('active');
+			$('.preview_view:first').show();
+			$('.editor_view:first').hide();
+			
+			var data = ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
 			$("#certificate_preview").contents().find("#content").html(data);
 			var frame = document.getElementById('certificate_preview');
 			if(frame) {
@@ -2048,13 +2636,59 @@
 			}
 		});
 		
+		//--------------------------editor_view_btn preview_view_btn
+		$('.editor_view_btn:last').click(function(){
+			ceditor_announcement.switchView("Editor");
+			$(this).addClass("active");
+			$('.preview_view_btn:last').removeClass('active');
+			$('.preview_view:last').hide();
+			$('.editor_view:last').show();
+		});
+		$('.preview_view_btn:last').click(function(){
+			ceditor_announcement.switchView('Preview');
+			$(this).addClass('active');
+			$('.editor_view_btn:last').removeClass('active');
+			$('.preview_view:last').show();
+			$('.editor_view:last').hide();
+			
+			var data = ceditor_announcement.replacePlaceholder(ceditor_announcement.CKEDITOR.getData());
+			$("#certificate_preview_announcement").contents().find("#content").html(data);
+			var frame = document.getElementById('certificate_preview_announcement');
+			if(frame) {
+				frame.height = "";
+				frame.height = frame.contentWindow.document.body.scrollHeight + "px";
+			}
+		});
+		
 		//--------------------------organization-table2_all
-		$("#organization-table2_all").change(function(){
+		/*$("#organization-table2_all").change(function(){
 			var checked = false;
 			if ($(this).is(':checked')) {
 				checked = true;
 			}
-			$(".organization-item-select").prop('checked', checked);
+			$(".organization-item-select[child_check='org_dataitems_profile_3']").prop('checked', checked);
+		});*/
+		
+		//--------------------------btn_profile_add
+		$("#btn_profile_add").click(function(){
+			orgAddProfileWin("", "", "");
+		});
+		
+		//--------------------------btn_profile_remove
+		$("#btn_profile_remove").click(function(){
+			if($(".org_child_menu[child_check='org_dataitems_profile_3']:checked").length > 0){
+				var dialog = new Dialog('#dialogYesNo');
+				dialog.showYesNo('Delete Profile Item(s)', 'Are you sure you want to delete this item(s).', function(answer) {
+					if (answer) {
+						$(".org_child_menu[child_check='org_dataitems_profile_3']:checked").each(function(){
+							$(this).parent().parent().remove();
+						});
+					}
+					dialog.hide();
+				});
+			}else{
+				alert("Select the item(s) you want to delete.");
+			}
 		});
 		
 		//--------------------------org_parent_menu
@@ -2064,7 +2698,7 @@
 			if ($(this).is(':checked')) {
 				checked = true;
 			}
-			$("." + tmp1).parent().next().find("input[type='checkbox']").prop('checked', checked);
+			$(".org_child_menu[child_check='" + tmp1 + "']").prop('checked', checked);
 		});
 		
 		//--------------------------organization_main_get
@@ -2105,7 +2739,7 @@
 				$("." + mid).parent().parent().hide();
 			}
 		});
-		
+						
 		//--------------------------expand_title
 		$(".expand_title").click(function () {		
 			var tmp1 = false;
@@ -2132,11 +2766,8 @@
 									for(var i in r.rows_district){
 										organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
 									}
-									/*for(var i in r.rows_school){
-										organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
-									}*/
 								}else{
-									alert(e.Error);
+									alert(r.Error);
 								}
 								loadwin.hide();
 							});
@@ -2162,12 +2793,9 @@
 		pagerOptions.container = $("#organization-state-pager");
 		$('#organization-state-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);		
 		
-		//--------------------------new-organization
-		$('#new-organization').click(function () {
-			organizationEdit('add');
-		});
-		//--------------------------
-		organizationEditAttach();
+		pagerOptions.container = $("#organization-option-pager");
+		$('#organization-option-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+					
 		//--------------------------del-organization
 		$('#del-organization').click(function () {
 			if($(".organization-select:checked").length > 0){
@@ -2203,6 +2831,7 @@
 		//--------------------------Initialize the select all checkboxes.
 		selectAll('.organization-select-all', '.organization-select');
 		selectAll('.organization-state-select-all', '.organization-state-select');
+		selectAll('.organization-option-select-all', '.organization-option-select');
 		
 		updateOrganizations();
 		
@@ -2261,7 +2890,7 @@
 			}
 		}
 		
-		//--------------------------org_district_select_add		
+		//--------------------------org_district_select_add
 		function org_district_select_add(state_id){
 			$("#org_district_select").empty();
 			$("#org_district_select").append("<option value=''>Select District</option>");
@@ -2276,14 +2905,15 @@
 			org_school_select_add("");
 		}
 		org_district_select_add("");
-		
+				
 		//--------------------------org_state_select
         $("#org_state_select").change(function () {
 			org_district_select_add($(this).val());
-        });		
+        });
+		
 		 $("#org_district_select").change(function () {
-		 	org_school_select_add($(this).val());
-        });		
+			org_school_select_add($(this).val());
+        });
 		
 		//--------------------------org_btn_add_state
 		$("#org_btn_add_state").click(function(){
@@ -2468,14 +3098,59 @@
 			var motto = $("#organizational_base_motto").val();
 			var motto_curr = $("#organizational_base_motto_curr").val();
 			
-			//---------------------------------------------------specific_items
-			var specific_items = "{";
-			$(".organization-item-select").each(function(){
+			//---------------------------------------------------specific_items			
+			var specific_items = "[";
+			$(".org_table_profile_tr").each(function(){
+				var tmp_default = $(this).attr("default");
+				var tmp_name = $(this).find(".org_dataitems_profile").html();
+				var tmp_description = $(this).find(".org_dataitems_profile_description").html();
+				var tmp_type = "";
+				var tmp_field_type_2 = "";
+				var tmp_field_type_3 = "";
+				var tmp_field_type_4 = "";
+				var tmp_field_type_5 = "";
+				if(tmp_default == ""){
+					tmp_type = $(this).find(".profileFieldType").val();
+					tmp_field_type_2 = $(this).attr("field_type_2");
+					tmp_field_type_3 = $(this).attr("field_type_3");
+					tmp_field_type_4 = $(this).attr("field_type_4");
+					tmp_field_type_5 = $(this).attr("field_type_5");
+					if(typeof(tmp_field_type_2) == "undefined") tmp_field_type_2 = "";
+					if(typeof(tmp_field_type_3) == "undefined") tmp_field_type_3 = "";
+					if(typeof(tmp_field_type_4) == "undefined") tmp_field_type_4 = "";
+					if(typeof(tmp_field_type_5) == "undefined") tmp_field_type_5 = "";
+				}
+				var tmp_required = ($(this).find(".org_child_menu[child_check='org_dataitems_profile_1']").attr("checked")) ? "1" : "0";
+				var tmp_qualification = ($(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").attr("checked")) ? "1" : "0";
+				var tmp_default_visible = "";
+				if(tmp_default != ""){
+					if($(this).find(".org_child_enable").length > 0){
+						tmp_default_visible = "1";
+					}else{
+						tmp_default_visible = "0";
+					}
+				}
+				if(specific_items != "[")	specific_items += ",";
+				
+				specific_items += '{"name":"' + tmp_name + '",';
+				specific_items += '"description":"' + tmp_description + '",';
+				specific_items += '"field_type":"' + tmp_type + '",';
+				specific_items += '"field_type_2":"' + tmp_field_type_2 + '",';
+				specific_items += '"field_type_3":"' + tmp_field_type_3 + '",';
+				specific_items += '"field_type_4":"' + tmp_field_type_4 + '",';
+				specific_items += '"field_type_5":"' + tmp_field_type_5 + '",';
+				specific_items += '"field_type_5":"' + tmp_field_type_5 + '",';
+				specific_items += '"required":"' + tmp_required + '",';
+				specific_items += '"course_qualification":"' + tmp_qualification + '",';
+				specific_items += '"default":"' + tmp_default + '",';				
+				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
+			});
+			/*$(".organization-item-select").each(function(){
 				if($(this).attr('checked'))	specific_items += ",'" + $(this).attr("id") + "': true";
-			});			
-			specific_items = specific_items.replace(",", "");
-			specific_items += "}";
-			if(specific_items == "{}")	specific_items = "";
+			});*/
+			//specific_items = specific_items.replace(",", "");
+			specific_items += "]";
+			//if(specific_items == "[]")	specific_items = "";
 			
 			//---------------------------------------------------menu_items
 			var menu_items = "", flag_icon_error = false;			
@@ -2614,7 +3289,7 @@
 			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
 			var logo_url = $("#organizational_base_logo_url").val();
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
-			var footer_content = ceditor.CKEDITOR.getData(); 
+			var footer_content = ceditor.CKEDITOR.getData();
 			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
 			var is_Announcement_alert = ($("input[name='organizational_is_announcement_alert']").attr("checked")) ? "1" : "0";
 			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
@@ -3006,14 +3681,22 @@
 		}
 	}
 	
-	//--------------------------filterStr
-	function filterStr(str){
-		if(str != ""){
-			str = str.replace(new RegExp("<", 'gm'), '');
-			str = str.replace(new RegExp(">", 'gm'), '');
+	//--------------------------dataItemsCheckBoxChange
+	function dataItemsCheckBoxChange(profile){
+		var checked = true;
+		if($(".org_child_menu[child_check='" + profile + "']").length > 0){
+			$(".org_child_menu[child_check='" + profile + "']").each(function(){
+				if (!$(this).is(':checked')) {
+					checked = false;
+					return false;
+				}
+			});
+		}else{
+			checked = false;
 		}
-		return str;
+		$(".org_parent_menu[child_check='" + profile + "']").prop('checked', checked);
 	}
+											
 	var csrf_token = '${csrf_token}';
 </script>
 
