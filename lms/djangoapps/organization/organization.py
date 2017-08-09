@@ -579,7 +579,6 @@ def organizational_save_base(request):
         logo_url = request.POST.get("logo_url", "")
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
-        is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
         is_Announcement = request.POST.get("is_Announcement", "")
         announcement_content = request.POST.get("announcement_content", "")
 
@@ -630,15 +629,16 @@ def organizational_save_base(request):
             org_announcement.organization = org_metadata
             org_announcement.itemType = "Announcement"
             org_announcement.save();
-            
-            if is_Announcement_alert == "1":
-                receiver_ids = [0]
-                expiration_date = "01/01/2200"
-                expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
+           
+            receiver_ids = [0]
+            expiration_date = "01/01/2200"
+            expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
 
-                store = dashboard_feeding_store()
-                store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
-                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization')
+            store = dashboard_feeding_store()
+            tmp_doc = store.find_one({"user_id": request.user.id, "source":"organization", "organization_type":"Pepper"})
+            store.remove_feeding(tmp_doc['_id'])
+            store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
+                       receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization')
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
