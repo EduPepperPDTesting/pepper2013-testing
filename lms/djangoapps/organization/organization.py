@@ -638,7 +638,7 @@ def organizational_save_base(request):
 
                 store = dashboard_feeding_store()
                 store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
-                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date)
+                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization')
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
