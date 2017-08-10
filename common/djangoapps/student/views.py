@@ -765,7 +765,6 @@ def change_enrollment(request):
 
         if not has_access(user, course, 'enroll'):
             return HttpResponseBadRequest(_("Enrollment is closed"))
-
         org, course_num, run = course_id.split("/")
         statsd.increment("common.student.enrollment",
                          tags=["org:{0}".format(org),
@@ -780,8 +779,7 @@ def change_enrollment(request):
         "TokenValues": {"course_id": course.id}, 
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
-
-        return HttpResponse()
+        return HttpResponse("course_enroll_ok")
 
     elif action == "unenroll":
         try:
