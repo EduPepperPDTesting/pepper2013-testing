@@ -797,7 +797,6 @@ def organizational_save_base(request):
 
 # -------------------------------------------------------------------org_organizationmenusave
 def org_organizationmenusave(organization, itemtype, itemvalue):
-    """org_organizationmenusave."""
     org_menu_tmp = OrganizationMenu()
     for tmp1 in OrganizationMenu.objects.filter(organization=organization, itemType=itemtype):
         org_menu_tmp = tmp1
@@ -811,7 +810,6 @@ def org_organizationmenusave(organization, itemtype, itemvalue):
 
 # -------------------------------------------------------------------org_organizationdashboardsave
 def org_organizationdashboardsave(organization, itemtype, itemvalue):
-    """org_organizationmenusave."""
     org_menu_tmp = OrganizationDashboard()
     for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType=itemtype):
         org_menu_tmp = tmp1
@@ -1073,7 +1071,7 @@ def org_dashboard_upload_cms(request):
         oid = request.POST.get("oid", "")
         fileelementid = request.POST.get("fileelementid", "")
 
-        if(rownum and oid):
+        if(rowNum and oid):
             rownum = str(rownum)
             organization = OrganizationMetadata.objects.get(id=oid)
             imgx = request.FILES.get("cms_items_icon_" + rownum, None)
