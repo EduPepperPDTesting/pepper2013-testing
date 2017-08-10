@@ -1133,7 +1133,12 @@ def get_org_announcements(request):
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
 
-    for a in posts:
+    tmp = []
+    for i,x in enumerate(posts):
+        if request.user.date_joined < x['date']:
+             tmp.append(x)
+
+    for a in tmp:
         attach_post_info(a, time_diff_m, request.user)
 
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
@@ -1156,14 +1161,23 @@ def get_announcements(request):
     # posts = store.top_level_for_user(request.user.id, type=filter_group,
     #                                  year=filter_year, month=filter_month,
     #                                  page_size=int(page_size), page=int(page), after=now_utc)
-
+    
     kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
     data = {"orgs": []}
-    data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "School", **kwargs))
+    tmp = []
+    organization = []
+    organization.append(store.get_announcements(request.user.id, "Pepper", **kwargs))
+    organization.append(store.get_announcements(request.user.id, "System", **kwargs))
+    organization.append(store.get_announcements(request.user.id, "State", **kwargs))
+    organization.append(store.get_announcements(request.user.id, "District", **kwargs))
+    organization.append(store.get_announcements(request.user.id, "School", **kwargs))
+
+    for i,x in enumerate(organization):
+        for m,n in enumerate(x):
+            if request.user.date_joined < n['date']:
+                 tmp.append(n)
+
+    data["orgs"].append(tmp)
 
     for o in data["orgs"]:
         for a in o:
