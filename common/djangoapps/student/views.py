@@ -774,7 +774,7 @@ def change_enrollment(request):
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
 
-        return HttpResponse()
+        return HttpResponse('course_enroll_ok')
 
     elif action == "unenroll":
         try:
