@@ -144,6 +144,7 @@
 	
 	.profileFieldType_add{font-size:14px; padding:0 4px; background-color:#004A98; font-family:Arial, Helvetica, sans-serif !important; border-radius: 17px 17px 17px 17px; color:#FFFFFF; display:none; cursor:pointer;}
 	#permission-option-actions {padding: 10px 0; text-align: right;}
+	#organizational_dashboard_feed_table input[type='text'], #organizational_dashboard_feed_curr_table input[type='text']{width:160px !important; padding:0 !important; height:30px !important; text-align:center; }
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -356,22 +357,22 @@
                             <th width="80">Default</th>
                         </tr>
                         <tr>
-                        	<td align="center">My Feed</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_feed_txt" /><!--My Feed--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="1" checked="checked" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Activities</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_activities_txt" /><!--My Activities--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Progress</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_progress_txt" /><!--My Progress--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="2" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Resources</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_resources_txt" /><!--My Resources--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="3" onclick="selectPDTable()" /></td>
                         </tr>
@@ -383,22 +384,22 @@
                             <th width="80">Default</th>
                         </tr>
                         <tr>
-                        	<td align="center">My Feed</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_feed_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="1" checked="checked" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Activities</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_activities_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="0" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Progress</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_progress_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="2" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Resources</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_resources_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="3" onclick="selectPDTableCurr()" /></td>
                         </tr>
@@ -1244,7 +1245,7 @@
 						row += '</tr> ';
 						$('#organization-table tbody').append(row);
 					}
-					//organizationEditAttach();
+				
 					//----------
 					$('.permission-edit').click(function (e) {
 						e.preventDefault();
@@ -1279,7 +1280,6 @@
 									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
 									
-									//$(".organization-item-select").attr("checked", false);									
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
@@ -1351,7 +1351,19 @@
 									
 									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
 									$("input[name='organizational_dashboard_feed_default_curr'][value='" + r["Is My Feed Default Curriculumn"] + "']").attr("checked", "checked");
+								
+									//--------------
+									$("#organizational_dashboard_feed_txt").val((r["Feed Title"])? r["Feed Title"] : "My Feed");
+									$("#organizational_dashboard_activities_txt").val((r["Activities Title"])? r["Activities Title"] : "My Activities");
+									$("#organizational_dashboard_progress_txt").val((r["Progress Title"])? r["Progress Title"] : "My Progress");
+									$("#organizational_dashboard_resources_txt").val((r["Resources Title"])? r["Resources Title"] : "My Resources");
 									
+									$("#organizational_dashboard_feed_txt_curr").val((r["Feed Title Curriculumn"])? r["Feed Title Curriculumn"] : "My Feed");
+									$("#organizational_dashboard_activities_txt_curr").val((r["Activities Title Curriculumn"])? r["Activities Title Curriculumn"] : "My Activities");
+									$("#organizational_dashboard_progress_txt_curr").val((r["Progress Title Curriculumn"])? r["Progress Title Curriculumn"] : "My Progress");
+									$("#organizational_dashboard_resources_txt_curr").val((r["Resources Title Curriculumn"])? r["Resources Title Curriculumn"] : "My Resources");
+									
+									//--------------
 									if(r["My Feed Show"] == "1"){
 										$("input[name='organizational_dashboard_feed_show']").prop("checked", true);
 									}else{
@@ -1383,6 +1395,7 @@
 										$("input[name='organizational_dashboard_show_right']").prop("checked", false);
 									}
 									
+									//--------------
 									if(r["My Feed Show Curriculumn"] == "1"){
 										$("input[name='organizational_dashboard_feed_show_curr']").prop("checked", true);										
 									}else{
@@ -1608,9 +1621,6 @@
 										$(".expand_title_next").show();
 										$(".org_btn_last_save").eq(0).hide();
 										$(".org_btn_last_save").eq(1).hide();
-
-										//$("#organization-table2_all").prop('checked', true);
-										//$(".organization-item-select").prop('checked', true);
 										
 										if(!r["Text Color"]){
  											$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
@@ -3240,7 +3250,24 @@
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData();
 			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
-			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
+			var announcement_content = ceditor_announcement.CKEDITOR.getData();
+			if($("#organizational_dashboard_feed_txt").val() == "")			$("#organizational_dashboard_feed_txt").val("My Feed");
+			if($("#organizational_dashboard_activities_txt").val() == "")	$("#organizational_dashboard_activities_txt").val("My Activities");
+			if($("#organizational_dashboard_progress_txt").val() == "")		$("#organizational_dashboard_progress_txt").val("My Progress");
+			if($("#organizational_dashboard_resources_txt").val() == "")	$("#organizational_dashboard_resources_txt").val("My Resources");
+			if($("#organizational_dashboard_feed_txt_curr").val() == "")			$("#organizational_dashboard_feed_txt_curr").val("My Feed");
+			if($("#organizational_dashboard_activities_txt_curr").val() == "")		$("#organizational_dashboard_activities_txt_curr").val("My Activities");
+			if($("#organizational_dashboard_progress_txt_curr").val() == "")		$("#organizational_dashboard_progress_txt_curr").val("My Progress");
+			if($("#organizational_dashboard_resources_txt_curr").val() == "")		$("#organizational_dashboard_resources_txt_curr").val("My Resources");			
+			
+			var feed_txt = $("#organizational_dashboard_feed_txt").val();
+			var activities_txt = $("#organizational_dashboard_activities_txt").val();
+			var progress_txt = $("#organizational_dashboard_progress_txt").val();
+			var resources_txt = $("#organizational_dashboard_resources_txt").val();
+			var feed_txt_curr = $("#organizational_dashboard_feed_txt_curr").val();
+			var activities_txt_curr = $("#organizational_dashboard_activities_txt_curr").val();
+			var progress_txt_curr = $("#organizational_dashboard_progress_txt_curr").val();
+			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
@@ -3252,6 +3279,14 @@
 				menu_items: menu_items,
 				cms_items: cms_items,
 				dashboard_option: dashboard_option,
+				feed_txt: filterStr2(feed_txt),
+				activities_txt: filterStr2(activities_txt),
+				progress_txt: filterStr2(progress_txt),
+				resources_txt: filterStr2(resources_txt),
+				feed_txt_curr: filterStr2(feed_txt_curr),
+				activities_txt_curr: filterStr2(activities_txt_curr),
+				progress_txt_curr: filterStr2(progress_txt_curr),
+				resources_txt_curr: filterStr2(resources_txt_curr),
 				is_icon: is_icon,
 				is_icon_width_text: is_icon_width_text,
 				is_new_menu: is_new_menu,
