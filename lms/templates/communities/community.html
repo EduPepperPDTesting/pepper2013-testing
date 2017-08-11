@@ -233,7 +233,7 @@ import datetime
         </div>
     </section>
 </div>
-<div style="" id="dialog" class="modal" style="z-index:10000">
+<div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -508,7 +508,8 @@ import datetime
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
         CKEDITOR.replace('post');
-        $("#cke_post").css("width","580px");
+        $("#dialog").css("z-index","10000");
+        
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
             for (var instanceName in CKEDITOR.instances) {
