@@ -999,6 +999,12 @@ def attach_post_info(p, time_diff_m, user):
     p["post_date_debug"] = debug
     p["is_owner"] = (author == user)
     p["removable"] = user.id == author.id or user.is_superuser
+
+    if user.id == author.id
+        p["dismissed"] = "hidden"
+    else:
+        p["dismissed"] = "visible"
+
     if p["type"] == "post":
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
