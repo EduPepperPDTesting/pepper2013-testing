@@ -12,6 +12,9 @@
     from permissions.utils import check_access_level, check_user_perms
 %>
 <%inherit file="../main.html"/>
+    <script src="http://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/jquery-blink.js"></script>
@@ -146,6 +149,9 @@
 
     #calendar-month tr td .short_name{min-width: 90% !important;}
 </style>
+<%include file="../webchat/webslider.html" />
+<%include file="../webchat/webchat.html" />
+<!--include file="../webchat/webvideochat.html" /-->
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
     <div class="main, data_import_content">

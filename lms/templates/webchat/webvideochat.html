@@ -1,10 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
+
+<div id="pep_text_container">
+    <div id="pep_video_panel" class="container">
+        <div id="pep_chatheader_container">
+            <div id="pep_chatheader_title">
+                <span id="uname">Video Chat</span>
+                <a href="default.asp">+</a>
+            </div>
+            <div id="pep_header_right">
+                <img id="pep_user_photo"
+                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF"
+                     alt="photo"/>
+                <span id="pep_uname">User Name</span>
+            </div>
+        </div>
+        <div id="pep_chat_container" class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div id="pep_text_chat"></div>
+                    <div id="pep_chatfooter_container" class="container-fluid">
+                        <div class="row">
+                            <div id="pep_chat_input" class="col-sm-8"></div>
+                            <div class="col-sm-1"></div>
+                            <div id="pep_chat_icons" class="col-sm-3">
+                                <a href="default.asp"><img
+                                        src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
+                                        alt="im-text"></a>
+                                <a href="default.asp"><img src="https://image.flaticon.com/icons/svg/149/149284.svg" alt="im-video"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="pep_video_chat" class="col-sm-6"></div>
+            </div>
+        </div>
+    </div>
+</div>
