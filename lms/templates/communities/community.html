@@ -14,6 +14,11 @@ import datetime
 <%block name="title">
     <title>${community.name}</title>
 </%block>
+<style>
+    div .cke{
+        width:580px;
+    }
+</style>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -233,7 +238,7 @@ import datetime
         </div>
     </section>
 </div>
-<div style="" id="dialog" class="modal">
+<div style="" id="dialog" class="modal" style="z-index:10000">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -508,7 +513,7 @@ import datetime
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
         CKEDITOR.replace('post');
-
+        
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
             for (var instanceName in CKEDITOR.instances) {
