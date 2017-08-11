@@ -231,9 +231,9 @@
 .small {
     margin-top: 2px;
 }
-.cke {
+/*.cke {
     width: 100% !important;
-}
+}*/
 .selected {
     background-color: white;
     padding-top: 16px !important;
