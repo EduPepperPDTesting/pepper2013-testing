@@ -702,7 +702,7 @@ def communities(request):
 
     # Set up the data to send to the communities template, with the communities sorted by name.
     data = {'communities': sorted(community_list, key=itemgetter('name'))}
-    return render_to_response('communities/communities.html', data)
+    return render_to_response('communities/communities_new.html', data)
 
 
 @login_required
