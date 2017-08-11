@@ -98,9 +98,6 @@
     border-top: 1px solid;
     border-bottom: 1px solid;
 }
-#pep_slider_icons a {
-    text-decoration: none;
-}
 #pep_slider_icons img {
     width:20px;
     height:20px;
@@ -109,4 +106,7 @@
 .glyphicon {
     font-family: 'Glyphicons Halflings' !important;
     top: 3px !important;
+}
+#pep_container a {
+    text-decoration: none;
 }

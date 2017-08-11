@@ -47,6 +47,7 @@
 #pep_videochatheader_title {
     display: inline-block;
     margin: 5px;
+    margin-top: 0px;
     width: 100px;
 }
 #pep_header_right {
@@ -72,46 +73,46 @@
     overflow-y: auto;
     display: inline-block;
 }
-#pep_chatfooter_container {
+#pep_textchatfooter_container,
+#pep_videochatfooter_container {
     position: relative;
     top: 2px;
-    left: -10px;
     height: 30px;
     width: 225px;
+}
+#pep_textchatfooter_container {
+    left: -10px;
+}
+#pep_videochatfooter_container {
+    left: -11px;
+}
+#pep_videotext_panel{
+    right: 0px;
+    padding-right: 10px;
+    padding-left: 15px;
 }
 #pep_chat_input {
     height: 23px;
     border: 1px solid;
     margin-right: 0px;
 }
-
 #pep_chat_icons {
     position: relative;
-    top: 4px;
+    top: 0px;
     left: 0px;
-    height: 30px;
-    padding-top: 3px;
-    padding-left: 0px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    padding-left: 2px;
     padding-right: 0px;
     display: inline-block;
     float: right;
     border-top: 1px solid;
     border-bottom: 1px solid;
 }
-
-/*#pep_chat_icons {
-    margin-left: 5px;
-    padding-left: 2px;
-    padding-right: 0px;
-    border-top: 1px solid;
-    border-bottom: 1px solid;
-}*/
-#pep_chat_icons a {
-    text-decoration: none;
-}
 #pep_chat_icons img {
-    width:20px;
-    height:20px;
+    margin-left: 5px;
+    width:17px;
+    height:17px;
     border:0
 }
 #pep_video_chat {
@@ -119,4 +120,13 @@
     border-left: 1px solid;
     position: relative;
     overflow-y: auto;
+}
+#pep_text_container a {
+    text-decoration: none;
+}
+#pep_header_right a,
+#pep_videochatheader_container a {
+    font-size: 32px;
+    position: relative;
+    top: 4px;
 }
