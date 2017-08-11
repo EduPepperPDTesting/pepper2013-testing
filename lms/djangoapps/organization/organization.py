@@ -653,9 +653,8 @@ def organizational_save_base(request):
             expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
 
             store = dashboard_feeding_store()
-            tmp_doc = store.find_one({"user_id": request.user.id, "source": "organization", "organization_type": "Pepper"})
-            store.remove_feeding(tmp_doc['_id'])
-            store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization')
+            store.remove({"user_id": request.user.id, "source": "organization", "organization_type": "Pepper", "organization_id": oid})
+            store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
