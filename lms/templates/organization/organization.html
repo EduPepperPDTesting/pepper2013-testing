@@ -7,6 +7,7 @@
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State,District,School,User,UserProfile,GradeLevel
+    from permissions.models import PermPermission
 %>
 <%inherit file="../main.html"/>
 
@@ -68,11 +69,12 @@
 	.organizational_dashboard_menu_body2 span{float:left; height:40px; line-height:40px; }
 	.organizational_dashboard_menu_item{width:200px;}
 	.organizational_dashboard_menu_item input{width:98% !important;}
-	.organizational_dashboard_menu_url{width:270px;}
+	.organizational_dashboard_menu_url{width:200px;}
 	.organizational_dashboard_menu_url input{width:98% !important;}
 	.organizational_dashboard_menu_icon{width:180px; overflow:hidden}
 	.organizational_dashboard_menu_icon_view{width:70px; overflow:hidden}
-	.organizational_dashboard_menu_admin{width:70px; text-align:center;}
+	.organizational_dashboard_menu_admin{width:140px; text-align:center;}
+	.organizational_dashboard_menu_admin select{width:100px;}
 	.organizational_dashboard_menu_sub{width:120px; text-align:center;}
 	.organizational_dashboard_menu_sort{width:30px; text-align:center;}
 	.organizational_dashboard_menu_btn{width:50px; text-align:center;}
@@ -587,7 +589,14 @@
                             <span class="organizational_dashboard_menu_url"><input type="text" class="menu_items_url" /></span>
                             <span class="organizational_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
                             <span class="organizational_dashboard_menu_icon_view"></span>
-                            <span class="organizational_dashboard_menu_admin"><input type="checkbox" class="menu_items_admin" /></span>
+                            <span class="organizational_dashboard_menu_admin">
+                            	<input type="checkbox" class="menu_items_admin" />
+                                <select class="menu_items_permissions">
+	                                %for item in PermPermission.objects.all().order_by("item"):
+                                    <option value="${item.id}">${item.name}</option>
+                                    %endfor
+                                </select>
+                            </span>
                             <span class="organizational_dashboard_menu_sub">
                                 <div class="organizational_dashboard_menu_sub_btn">
                                     <span class="btn_txt">Sub Menu</span>
@@ -609,7 +618,10 @@
                                 <div class="organizational_dashboard_menu_body2">
                                     <span class="organizational_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
                                     <span class="organizational_dashboard_menu_url"><input type="text" class="sub_menu_url" /></span>
-                                    <span class="organizational_dashboard_menu_admin"><input type="checkbox" class="sub_menu_admin" /></span>
+                                    <span class="organizational_dashboard_menu_admin">
+                                    	<input type="checkbox" class="sub_menu_admin" />
+                                        <select class="sub_menu_permissions"></select>
+                                    </span>
                                     <span class="organizational_dashboard_menu_sort">
                                         <span class="btn_up"></span>
                                         <span class="btn_dn"></span>
@@ -1435,7 +1447,7 @@
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
-			
+									
 									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
@@ -1447,9 +1459,13 @@
 											$(this).find(".organizational_dashboard_menu_icon_view").html("");
 											$(this).find(".organizational_dashboard_menu_icon_view").removeAttr("icon_name");
 											$(this).find(".menu_items_admin").prop("checked", false);
-											$(this).find("fieldset .sub_menu_item").val("");
+											$(this).find(".menu_items_permissions").hide();
+											
+											/*$(this).find("fieldset .sub_menu_item").val("");
 											$(this).find("fieldset .sub_menu_url").val("");
-											$(this).find("fieldset .sub_menu_admin").prop("checked", false);			
+											$(this).find("fieldset .sub_menu_admin").prop("checked", false);
+											$(this).find("fieldset .sub_menu_permissions").hide();*/
+											
 											$(this).find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
 											$(this).find("fieldset .organizational_dashboard_menu_body2").each(function(j){
 												if(j > 0){
@@ -1457,7 +1473,8 @@
 												}else{
 													$(this).find(".sub_menu_item").val("");
 													$(this).find(".sub_menu_url").val("");
-													$(this).find(".menu_items_admin").prop("checked", false);
+													$(this).find(".sub_menu_admin").prop("checked", false);
+													$(this).find(".sub_menu_permissions").hide();
 													$(this).find(".sub_menu_btn").val("+");
 												}
 											});
@@ -1465,8 +1482,13 @@
 											$(this).find("fieldset").hide();
 										}
 									});
-									
+									$("#press").attr("OK", r["menu_item_permission"]);
 									if(r.menu_items != ""){
+										var permission_json_tmp1 = "{}";
+										if(r["menu_item_permission"]){
+											permission_json_tmp1 = r["menu_item_permission"];
+										}
+										var permission_json = eval("(" + permission_json_tmp1 + ")");
 										var tmp_clonex = $(".organizational_dashboard_menu_body1:first").clone(true);
 										var tmp_sub_clonex = $(".organizational_dashboard_menu_body2:first").clone(true);
 										
@@ -1487,7 +1509,12 @@
 											tmp_el.find(".menu_items_url").val(tmp2[2]);
 											if(tmp2[3] == "True"){
 												tmp_el.find(".menu_items_admin").prop("checked", true);
+												tmp_el.find(".menu_items_permissions").show();
+											}else{
+												tmp_el.find(".menu_items_permissions").hide();
 											}
+											tmp_el.find(".menu_items_permissions").val(permission_json["id_" + tmp2[6]]);
+											
 											if(tmp2[5] != ""){
 												var src = "/static/uploads/organization/" + org_current_id + "/" + tmp2[5];
 												tmp_el.find(".organizational_dashboard_menu_icon_view").attr("icon_name", tmp2[5]);
@@ -1512,12 +1539,31 @@
 												tmp_sub_el.find(".sub_menu_url").val(tmp4[2]);
 												if(tmp4[3] == "True"){
 													tmp_sub_el.find(".sub_menu_admin").prop("checked", true);
+													tmp_sub_el.find(".sub_menu_permissions").show();
+												}else{
+													tmp_sub_el.find(".sub_menu_permissions").hide();
 												}
+												tmp_sub_el.find(".sub_menu_permissions").val(permission_json["id_" + tmp4[4]]);
 											}
 										}
 									}else{
 										org_current_menu_items = "";
 									}
+									//----------
+									$(".menu_items_admin").unbind("change").change(function(){
+										if($(this).attr("checked")){
+											$(this).next().show();
+										}else{
+											$(this).next().hide();
+										}
+									});
+									$(".sub_menu_admin").unbind("change").change(function(){
+										if($(this).attr("checked")){
+											$(this).next().show();
+										}else{
+											$(this).next().hide();
+										}
+									});
 									//----------
 									$(".menu_items_icon").each(function(i){
 										$(this).attr("id", "menu_items_icon_" + (i + 1));
@@ -2464,7 +2510,7 @@
 	
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
-    $(document).ready(function() {	
+    $(document).ready(function() {
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
@@ -2474,6 +2520,9 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+		
+		//--------------------------permissions copy
+		$(".sub_menu_permissions").html($(".menu_items_permissions:first").html());
 		
 		//--------------------------organizational_option_btn_add
 		$("#organizational_option_btn_add").click(function(){
@@ -3110,7 +3159,7 @@
 				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
 			});
 			specific_items += "]";
-			
+
 			//---------------------------------------------------menu_items
 			var menu_items = "", flag_icon_error = false;			
 			var sn1 = 1; 
@@ -3129,6 +3178,7 @@
 					$(this).find(".menu_items_icon").attr("id", "menu_items_icon_" + sn1);
 					$(this).find(".menu_items_icon").attr("name", "menu_items_icon_" + sn1);
 					var menu_admin = ($(this).find(".menu_items_admin").attr('checked')) ? "1" : "0";
+					var menu_permission = $(this).find(".menu_items_permissions").val();
 					
 					var menu_items_child = "";				
 					var sn2 = 1;
@@ -3137,15 +3187,14 @@
 						if(menu_item1 != ""){
 							var menu_url1 = filterStr($(this).find(".sub_menu_url").val());
 							var menu_admin1 = ($(this).find(".sub_menu_admin").attr('checked')) ? "1" : "0";
-							
+							var menu_permission1 = $(this).find(".sub_menu_permissions").val();
 							if(menu_items_child != "")	menu_items_child += "_<_";
-							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1;
+							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1;
 							sn2++;
 						}
-					});	
-					
+					});
 					if(menu_items != "")	menu_items += "=<=";
-					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name;	
+					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name + "=>=" + menu_permission;	
 					
 					sn1++;
 				}
