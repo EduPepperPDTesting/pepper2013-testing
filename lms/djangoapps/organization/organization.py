@@ -433,6 +433,11 @@ def organization_get(request):
                         data['Announcement Content'] = tmp1.DataItem
                         break
 
+                    # --------------OrganizationMoreText
+                    for tmp1 in OrganizationMoreText.objects.filter(organization=organizations, itemType="menu_item_permission"):
+                        data['menu_item_permission'] = tmp1.DataItem
+                        break
+
                     # --------------OrganizationDistricts
                     sid_did = ""
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
@@ -480,9 +485,9 @@ def organization_get(request):
                             if menu_items_child != "":
                                 menu_items_child = menu_items_child + "_<_"
 
-                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin)
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin) + "_>_" + str(tmp2.id)
 
-                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id)
 
                     data["menu_items"] = menu_items
 
@@ -693,6 +698,7 @@ def organizational_save_base(request):
             # --------------OrganizationMenuitem
             OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
             if (menu_items):
+                permission_content = ""
                 for tmp1 in menu_items.split("=<="):
                     tmp2 = tmp1.split("=>=")
 
@@ -709,6 +715,11 @@ def organizational_save_base(request):
                         org_menu_item.isAdmin = False
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
+
+                    if permission_content != "":
+                        permission_content += ", "
+
+                    permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
                     if tmp2[4]:
                         for tmp3 in tmp2[4].split("_<_"):
                             tmp4 = tmp3.split("_>_")
@@ -723,6 +734,23 @@ def organizational_save_base(request):
                             org_menu_item1.rowNum = tmp4[0]
                             org_menu_item1.ParentID = org_menu_item.id
                             org_menu_item1.save()
+
+                            if permission_content != "":
+                                permission_content += ", "
+
+                            permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
+
+                # --------------OrganizationMoreText
+                org_permission = OrganizationMoreText()
+                org_permission_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="menu_item_permission")
+                for tmp1 in org_permission_list:
+                    org_permission = tmp1
+                    break
+
+                org_permission.DataItem = "{" + permission_content + "}"
+                org_permission.organization = org_metadata
+                org_permission.itemType = "menu_item_permission"
+                org_permission.save()
 
             # --------------OrganizationCmsitem
             OrganizationCmsitem.objects.filter(organization=org_metadata).delete()
