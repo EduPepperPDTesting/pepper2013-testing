@@ -422,6 +422,11 @@ from permissions.utils import check_access_level, check_user_perms
         cohort_id: $("#cohort_select").val(),
         community_id: $("#community_select").val()
     }
+    if(!(filter.state_id || filter.district_select || filter.cohort_id || filter.community_id)){
+      var dlgWarn = new Dialog("#dlg-warning");
+      dlgWarn.show("Warning", "Please make filter selection.");
+      return;
+    }
     $("#config-other-table-box table tbody tr").each(function(){
       data.push({
         type_id: $(this).find("input[name=type_id]").val(),
