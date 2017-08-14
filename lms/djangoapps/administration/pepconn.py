@@ -1059,7 +1059,7 @@ def do_import_user(task, csv_lines, request):
 
             #** course enroll
             if district.code == "3968593":
-                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='Edu2000/EDU101/2014_EDU_Jan', email=email)
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
             cea.is_active = True
@@ -1199,7 +1199,7 @@ def single_user_submit(request):
 
         #** course enroll
         if district.code == "3968593":
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='Edu2000/EDU101/2014_EDU_Jan', email=email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
         cea.is_active = True
