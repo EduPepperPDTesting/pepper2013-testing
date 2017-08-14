@@ -702,6 +702,40 @@ def communities(request):
 
     # Set up the data to send to the communities template, with the communities sorted by name.
     data = {'communities': sorted(community_list, key=itemgetter('name'))}
+    return render_to_response('communities/communities.html', data)
+
+@login_required
+def newcommunities(request):
+    """
+    Returns the newcommunities page.
+    :param request: Request object.
+    :return: The NewCommunities page.
+    """
+    community_list = list()
+    filter_dict = dict()
+
+    # If this is a regular user, we only want to show public communities and private communities to which they belong.
+    if not request.user.is_superuser:
+        # Filter the normal query to only show public communities.
+        filter_dict.update({'private': False})
+
+        # Do a separate filter to grab private communities this user belongs to.
+        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        for item in items:
+            community_list.append({'id': item.community.id,
+                                   'name': item.community.name,
+                                   'logo': item.community.logo.upload.url if item.community.logo else '',
+                                   'private': item.community.private})
+    # Query for the communities this user is allowed to see.
+    items = CommunityCommunities.objects.filter(**filter_dict)
+    for item in items:
+        community_list.append({'id': item.id,
+                               'name': item.name,
+                               'logo': item.logo.upload.url if item.logo else '',
+                               'private': item.private})
+
+    # Set up the data to send to the communities template, with the communities sorted by name.
+    data = {'communities': sorted(community_list, key=itemgetter('name'))}
     return render_to_response('communities/communities_new.html', data)
 
 
