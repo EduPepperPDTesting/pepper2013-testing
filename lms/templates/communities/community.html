@@ -14,6 +14,14 @@ import datetime
 <%block name="title">
     <title>${community.name}</title>
 </%block>
+<style>
+    div .cke{
+        width:580px !important;
+    }
+    #dialog{
+        z-index:10000;
+    }
+</style>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -33,7 +41,7 @@ import datetime
              <h2>${community.motto}</h2>
              %if facilitator:
                  <div class="facilitator-wrap">
-                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" widht='110' height='110' id="community-avatar" alt="Facilitator Avatar" />
                      <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
                      <h4>Community Facilitator</h4>
                  </div>
@@ -130,7 +138,7 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" width='110' height='110' class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>

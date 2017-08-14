@@ -131,6 +131,12 @@
  }
 </style>
 <!--@end-->
+
+<link rel="stylesheet" href="/static/css/amazeui.cropper.css">
+<link rel="stylesheet" href="/static/css/custom_up_img.css">
+<script src="/static/js/amazeui.min.js" charset="utf-8"></script>
+<script src="/static/js/cropper.min.js" charset="utf-8"></script>
+<script src="/static/js/custom_up_img.js" charset="utf-8"></script>
 <%block name="js_extra">
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 
@@ -423,35 +429,35 @@
     });
     $("#change_photo_close").click(function(){
       $('#change_photo_error').hide();
-      $('#id_photo')[0].value = "";
+      // $('#id_photo')[0].value = "";
     });
     $("#change_bio_close").click(function(){
-      $('#id_bio')[0].value = "";
+      // $('#id_bio')[0].value = "";
     });
     $("#container_dashboard").click(function(){
       $('#change_name_error').hide();
       $('#change_photo_error').hide();
-      $('#id_photo')[0].value = "";
-      $('#id_bio')[0].value = "";
+      //$('#id_photo')[0].value = "";
+      // $('#id_bio')[0].value = "";
     });
 <!--@end-->
   //-----------------------------------------------
   $(".portfolio-btn").click(function(){
-		if(!$(this).hasClass("disabled_btn")){
-			var curr_user={};
-			var interviewer={};
-			//var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
-			var course_number=$(this).parent().find("a").attr("course_number");
-			interviewer.id="${request.user.id}";
-			interviewer.name="${request.user.username}";
-			interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
-			curr_user.id="${curr_user.id}";
-			var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
-												 'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
-												 'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
-			var url = $(this).attr("link");
-			$.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
-		}
+    if(!$(this).hasClass("disabled_btn")){
+      var curr_user={};
+      var interviewer={};
+      //var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+      var course_number=$(this).parent().find("a").attr("course_number");
+      interviewer.id="${request.user.id}";
+      interviewer.name="${request.user.username}";
+      interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
+      curr_user.id="${curr_user.id}";
+      var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
+                         'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
+                         'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+      var url = $(this).attr("link");
+      $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
+    }
    });
     function imessage_click(obj)
   {
@@ -463,27 +469,27 @@
   </script>
     <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style>
-	.disabled_btn{ cursor:default !important; color:#999999 !important; }
+  .disabled_btn{ cursor:default !important; color:#999999 !important; }
 </style>
 <script>
-	$(document).ready(function(){
-		$(".portfolio-btn").each(function(){
-			var user_id = "${curr_user.id}";
-			var linkx = $(this).attr("link");
-			var course_id = linkx.split("/portfolio")[0];
-			course_id = course_id.replace("/courses/", "");
-			
-			$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourseLevel", linkx:linkx, course_id:course_id, user_id:user_id}, function (r) {
-				if (r.success) {
-					if(r.level == "1"){
-						$(".portfolio-btn[link='" + r.linkx + "']").removeClass("disabled_btn");
-					}
-				}			
-			});
-		});
-		
-		
-	});
+  $(document).ready(function(){
+    $(".portfolio-btn").each(function(){
+      var user_id = "${curr_user.id}";
+      var linkx = $(this).attr("link");
+      var course_id = linkx.split("/portfolio")[0];
+      course_id = course_id.replace("/courses/", "");
+      
+      $.getJSON("${reverse('portfolio_settings')}", {flag:"getCourseLevel", linkx:linkx, course_id:course_id, user_id:user_id}, function (r) {
+        if (r.success) {
+          if(r.level == "1"){
+            $(".portfolio-btn[link='" + r.linkx + "']").removeClass("disabled_btn");
+          }
+        }     
+      });
+    });
+    
+    
+  });
 </script>
 </%block>
 <span id="organization_obj" o_name="dashboard"></span>
@@ -526,15 +532,15 @@
             <div class="icon name-icon"></div><b>${_("Name")}:</b>
             <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
             
-			<script>
-				var full_name = document.getElementById('full_name_span').textContent;
-				if(full_name.length>31)
-				{
-					document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
-				}
-		   </script>
-			
-			%if curr_user==request.user:
+      <script>
+        var full_name = document.getElementById('full_name_span').textContent;
+        if(full_name.length>31)
+        {
+          document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
+        }
+       </script>
+      
+      %if curr_user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
@@ -544,14 +550,14 @@
               <div class="icon skype-icon name-icon"></div><b>${_("Skype")}:</b>
             <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.skype_username }</span>
 
-			<script>
-				var full_name = document.getElementById('skype_name_span').textContent;
-				if(full_name.length>31)
-				{
-					document.getElementById('skype_name_span').textContent = full_name.substring(0,27)+" ...";
-				}
-		   </script>
-			%if curr_user==request.user:
+      <script>
+        var full_name = document.getElementById('skype_name_span').textContent;
+        if(full_name.length>31)
+        {
+          document.getElementById('skype_name_span').textContent = full_name.substring(0,27)+" ...";
+        }
+       </script>
+      %if curr_user==request.user:
             (<a href="#apply_skype_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
@@ -568,7 +574,7 @@
             %endif
           </span> 
           <div style="text-align:center;margin-top:5px;">
-            <img src="${reverse('user_photo',args=[curr_user.id])}" style="" alt="photo" />
+            <img src="${reverse('user_photo',args=[curr_user.id])}" style="" width='110' alt="photo" />
           </div>
         </li>
 <!--@end-->
@@ -613,96 +619,96 @@
       </span>
     </li>
 <!-------------------------------------------------------------------------------------->
-		<li>
+    <li>
           <span class="title">
-		  <div style="font-family: 'Open Sans';font-size:12px;">
+      <div style="font-family: 'Open Sans';font-size:12px;">
             <div class="" style="padding:0 0 5px 0;"> 
               <b style="font-size:14px;color:#000">My Profile:</b>
             </div>
-			<div style="line-height:30px;"><b>State:</b>
-	          % if curr_user.profile.district_id:
-			  ${curr_user.profile.district.state.name}
-			  % endif
-			</div>
-			<div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
-			  % if curr_user.profile.district_id:
-			  <br>${curr_user.profile.district.name}
-			  % endif
-			</div>
-			<div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
-			  % if curr_user.profile.school_id:
-			  <br>${curr_user.profile.school.name}
-			  % endif
+      <div style="line-height:30px;"><b>State:</b>
+            % if curr_user.profile.district_id:
+        ${curr_user.profile.district.state.name}
+        % endif
+      </div>
+      <div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
+        % if curr_user.profile.district_id:
+        <br>${curr_user.profile.district.name}
+        % endif
+      </div>
+      <div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
+        % if curr_user.profile.school_id:
+        <br>${curr_user.profile.school.name}
+        % endif
               %if curr_user==request.user:
-			  (<a href="#change_school" rel="leanModal">edit</a>)
+        (<a href="#change_school" rel="leanModal">edit</a>)
               %endif
-			</div>
-			<div style="line-height:30px;"><b>Grade Level:</b>
+      </div>
+      <div style="line-height:30px;"><b>Grade Level:</b>
               <% gn=list() %>
-			  % if curr_user.profile.grade_level_id:
+        % if curr_user.profile.grade_level_id:
               <br>
-			  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
-			  % if len(c)>0:
-			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
-			  % endif
-			  % endfor
-			  % endif
+        % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+        % if len(c)>0:
+        <% gn.append(GradeLevel.objects.get(id=c).name) %>
+        % endif
+        % endfor
+        % endif
               ${", ".join(gn)}
               %if curr_user==request.user:
-			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
+        (<a href="#change_grade_level" rel="leanModal">edit</a>)
               %endif
-			</div>
-			<div style="line-height:30px;"><b>Major Subject Area:</b>
-			  % if curr_user.profile.major_subject_area_id:
+      </div>
+      <div style="line-height:30px;"><b>Major Subject Area:</b>
+        % if curr_user.profile.major_subject_area_id:
               <br>
-			  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
-			  % endif
+        ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+        % endif
                %if curr_user==request.user:
-			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
+        (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
               %endif
-			</div>
-			<div style="line-height:30px;"><b>Number of Years in Education:</b>
-			  % if curr_user.profile.years_in_education_id:
-			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
-			  % endif
+      </div>
+      <div style="line-height:30px;"><b>Number of Years in Education:</b>
+        % if curr_user.profile.years_in_education_id:
+        ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+        % endif
               %if curr_user==request.user:
               (<a href="#change_years_in_education" rel="leanModal">edit</a>)
               %endif
-			</div>
+      </div>
 
             <div style="padding:15px 0 5px 0;"> 
               <b style="font-size:14px;color:#000;">My Learners' Profile:</b>
             </div>
             
-			<div style="line-height:30px;">
+      <div style="line-height:30px;">
               <b>Free/Reduced Lunch:</b>
-			  % if curr_user.profile.percent_lunch:
-			  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
-			  % endif
+        % if curr_user.profile.percent_lunch:
+        ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+        % endif
               %if curr_user==request.user:
               (<a href="#change_percent_lunch" rel="leanModal">edit</a>)
               %endif
-			</div>
+      </div>
             <div style="line-height:30px;">
               <b>IEPs:</b>
-			  % if curr_user.profile.percent_iep:
-			  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
-			  % endif
+        % if curr_user.profile.percent_iep:
+        ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+        % endif
               %if curr_user==request.user:
               (<a href="#change_percent_iep" rel="leanModal">edit</a>)
               %endif
-			</div>
+      </div>
             <div style="line-height:30px;">
               <b>English Learners:</b>
-			  % if curr_user.profile.percent_eng_learner:
-			  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
-			  % endif
+        % if curr_user.profile.percent_eng_learner:
+        ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+        % endif
               %if curr_user==request.user:
               (<a href="#change_percent_eng_learner" rel="leanModal">edit</a>)
               %endif
-			</div>
+      </div>
             </span>
-		</li>
+    </li>
         <li>
           <span class="title">
           <div style="font-family: 'Open Sans';font-size:12px;">
@@ -821,7 +827,28 @@ Add info that you would like to share about yourself here:
 % endif
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new.css" />
-<section class="my-courses" style="" >
+<section class="my-courses">
+  <!--External Courses-->
+  <!--
+  <header>
+    <h2>${_("External Courses")}</h2>
+  </header>
+  <article class="my-course" style="border-bottom:3px solid #0098C9">
+    <a href="/sso/idp/auth/?sp=edu2000" class="cover" target="_blank">
+      <img src="/static/images/realgebra_icon.png" style="width:200px;height:135px;" alt="PEP101x User’s Guide to Pepper Cover Image">
+    </a>
+    <section class="info">
+      <hgroup>
+        <p class="date-block"></p>
+        <h2 class="university">Edu2000</h2>
+        <h3><a href="/sso/idp/auth/?sp=edu2000" target="_blank">Realgebra</a></h3>
+      </hgroup>
+      <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen">
+      <a href="/sso/idp/auth/?sp=edu2000" target="_blank" class="enter-course dashboard-btn2">View Course</a>
+      <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
+    </section>
+  </article>
+  -->
   <!--Current Courses-->
   <header>
     <h2>${_("MY LEARNING PLAN")}</h2>
@@ -943,8 +970,8 @@ Add info that you would like to share about yourself here:
                      )}
                 </div>
                     % endif
-                   	% if not registration.is_accepted and not registration.is_rejected:
-	            <div class="message message-status is-shown">
+                    % if not registration.is_accepted and not registration.is_rejected:
+              <div class="message message-status is-shown">
                   <p class="message-copy"><strong>${_("Your {link_start}registration for the Pearson exam{link_end} is pending.").format(link_start='<a href="{url}" id="exam_register_link">'.format(url=testcenter_register_target), link_end='</a>')}</strong>
                   ${_("Within a few days, you should see a confirmation number here, which can be used to schedule your exam.")}
                   </p>
@@ -1003,9 +1030,9 @@ Add info that you would like to share about yourself here:
             % endif
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-      		      %if curr_user == request.user:              
-			              <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-			          %else:
+                %if curr_user == request.user:              
+                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+                %else:
                     <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn disabled_btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
                 %if curr_user == request.user and not course.close_course:      
@@ -1013,8 +1040,8 @@ Add info that you would like to share about yourself here:
                 %endif
             % endif
             %if curr_user==request.user:
-	              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
-	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
+                % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+        <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
                <!-- hide email settings -->
               <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
@@ -1040,7 +1067,7 @@ Add info that you would like to share about yourself here:
                         </div>
                     % endif
           <!--end-->
-	              % endif
+                % endif
             %endif
           </section>
         </article>
@@ -1082,47 +1109,48 @@ Add info that you would like to share about yourself here:
 </section>
 <!--@begin:Chagne the table with new profile fields-->
 <!--@date:2013-11-02-->
-<section id="change_photo" class="modal">
-  <div class="inner-wrapper">
-    <header>
-      <h2>${_('Add Profile Picture').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+<section id="change_photo" class="modal" style='width:620px;'>
+  <div class="inner-wrapper" tabindex="-1" id="doc-modal-1" style='width:600px'>
+  <header>
+      <h2>${_('Add Profile Picture').format()}</h2>
       <hr/>
     </header>
-    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="upload_photo">
-      <!--@begin:Shown completed course list-->
-      <!--@date:2013-11-24-->
-      <div id="change_photo_error" class="modal-form-error"> </div>
-      <!--@end-->
-      <fieldset>
-        <div class="input-group">
-          <label>
-            <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
-              <img src="${reverse('user_photo')}" style="" alt="photo" />
-            </div>
-          </label>
-          <label style="margin:20px 0;display:block;">
-            <input type="file" name="photo" id="id_photo" value="Choose a file" />
-          </label>
-          <label>
-            The image will be automatically scaled to fit within 110x110 pixels.
-          </label>  
-          <div id="image_uploading" style="text-align:center;">
-            <img src="/static/images/ora-loading.gif" style=""/> 
-          </div>              
+  <div class="am-modal-dialog up-frame-parent up-frame-radius">
+    <div class="am-modal-bd  up-frame-body">
+      <div class="am-g am-fl">
+        <div class="am-form-group am-form-file">
+          <input type="file" id="inputImage">
         </div>
-      </fieldset>
-	  <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-      <div class="submit">
-        <input type="submit" class="btnx" id="photo_submit" value="Upload" />
-      </div>          
-    </form>
+      </div>
+      <div class="am-g am-fl" >
+        <div class="up-pre-before up-frame-radius">
+            <img alt="" src="" id="image" >
+        </div>
+        <div class="up-pre-after up-frame-radius">
+        </div>
+      </div>
+    </div>
+    </div>
+        <div class="up-control-btns" style='float:left;margin-left: 20px;'>
+            <button class="am-icon-rotate-left"  onclick="rotateimgleft()">turnleft</button>
+            <button class="am-icon-rotate-right" onclick="rotateimgright()">turnright</button>
+            <button class="am-icon-check" id="up-btn-ok" url="upload.php">confirm</button>
+        </div>
     <div class="close-modal" id="change_photo_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
     </div>
-  </div>
+    </div>
+    <div style="display:none">
+    <form id="new_change_photo_form" method="post" action="${reverse('upload_photo')}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+        <input type="text" name="photo" id="new_photo"/>
+    </form>
+    <div>
 </section>
+
+
 <section id="change_school" class="modal">
   <div class="inner-wrapper">
     <header>
@@ -1135,11 +1163,11 @@ Add info that you would like to share about yourself here:
             <label id="organization_obj_dashboard_school2">School:</label>
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
-              	% if curr_user.profile.district_id:
+                % if curr_user.profile.district_id:
                 %for item in School.objects.filter(district_id=curr_user.profile.district.id).order_by("name"):
                 <option value="${item.id}">${item.name}</option>
                 %endfor
-              	% endif
+                % endif
               </select>
           </label>
         </div>

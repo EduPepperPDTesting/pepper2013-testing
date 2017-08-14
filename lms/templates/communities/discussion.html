@@ -386,7 +386,7 @@
                     <img src="/static/images/trash-small.png" alt="Delete Discussion">
                 </a>
             %endif
-            <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
+            <img class="discussion-avatar" width='110' height='110' src="${reverse('user_photo', args=[discussion.user.id])}">
             <h2 id="discussion_subject">${discussion.subject}</h2>
             <span><input type = 'text' id = 'editable_subject' style="display:none" value="${discussion.subject}"><br></span>
             %if discussion.attachment:
@@ -476,7 +476,7 @@
                         <img src="/static/images/trash-small.png" alt="Delete Discussion">
                     </a>
                 %endif
-                <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
+                <img class="discussion-avatar" width='110' height='110' src="${reverse('user_photo', args=[reply.user.id])}">
                 <h2 id = "reply_subject_${reply.id}">${reply.subject}</h2>
                 <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"><br></span>
                 %if reply.attachment:
@@ -525,7 +525,7 @@
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+                <img src="${reverse('user_photo', args=[request.user.id])}" width='110' height='110' alt="PCG Logo" class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>

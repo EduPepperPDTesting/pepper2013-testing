@@ -96,7 +96,7 @@
 a{
     text-decoration:none !important;
 }
-/*--left My Courses--------------------------------------------*/
+/*--left My Learning Plan--------------------------------------------*/
 .con-my-courses-outer{
     float:left;
     width:250px;
@@ -998,7 +998,7 @@ a{
                                     break
                 
                 if cms_add:
-                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
                         
             data["cms_items"] = cms_items
             
@@ -1082,13 +1082,13 @@ a{
             % endif
             % if OrganizationOK and add_Report_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn tab-btn-common">My Progress</div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
             % endif
             % if OrganizationOK and add_Featured_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn tab-btn-common">My Resources</div>
                     <div class="featured-content-btn-line tab-btn-line-common"></div>
                 </div>          
             % endif
@@ -1102,18 +1102,18 @@ a{
                     <div class="my-activity-btn-line tab-btn-line-common"></div>
                 </div>
                 <div class="tab-btn-common-outer">
-                    <div class="my-report-card-btn tab-btn-common">My Report Card</div>
+                    <div class="my-report-card-btn tab-btn-common">My Progress</div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
                 <div class="tab-btn-common-outer">
-                    <div class="featured-content-btn tab-btn-common">Featured Content</div>
+                    <div class="featured-content-btn tab-btn-common">My Resources</div>
                     <div class="featured-content-btn-line tab-btn-line-common"></div>
                 </div>
             % endif
             </div>
 
             <div id="featured_content" class="featured-content">
-                <!--Featured Content-->
+                <!--My Resources-->
                 % if OrganizationOK:
                     ${data["cms_items"]} 
                 % endif
@@ -1228,7 +1228,7 @@ a{
                         ${data["add_profile"]} 
                     % endif
                 </div>
-                <div class="my-title-green">My Courses</div>
+                <div class="my-title-green">My Learning Plan</div>
                 <div class="my-courses-cards">
                     %for course in courses_incomplated_top2:
                         <%
@@ -1251,7 +1251,7 @@ a{
 
                 %if len(allowedcourses) > 0:
                     <!--allowedcourse-->
-                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended For You!</div>
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended Courses</div>
                     <div class="my-courses-cards">
                         %for course in allowedcourses:
                             <div class="course-incomplated">
@@ -1568,8 +1568,8 @@ $(document).ready(function(){
         %endif 
     });
     
-    /*------my report card------*/
-    //my report card - course in progress-----------------------------------------------
+    /*------My Progress------*/
+    //My Progress - course in progress-----------------------------------------------
     var courses_incomplated_more = 0;
     %if courses_incomplated_all_count > 3:
         courses_incomplated_more = 1;
@@ -1695,7 +1695,7 @@ $(document).ready(function(){
         }
     });
 
-    //my report card - completed courses-----------------------------------------------
+    //My Progress - completed courses-----------------------------------------------
     %if courses_complated_all_count > 0:
         get_completed_courses('completed','no'); 
     %endif

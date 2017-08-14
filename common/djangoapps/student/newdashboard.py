@@ -6,7 +6,10 @@ import datetime
 import json
 import logging
 import re
+import base64
+from PIL import Image
 
+from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -46,7 +49,6 @@ from django.conf import settings
 from bson import ObjectId
 from collections import OrderedDict
 from courseware import grades
-from pepper_utilities.decorator import ajax_login_required
 
 log = logging.getLogger("tracking")
 
@@ -1196,7 +1198,7 @@ def dismiss_announcement(request):
         store.dismiss(_id, request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
-    
+
     return HttpResponse(json_util.dumps({"success": True}), content_type='application/json')
 
 
@@ -1365,7 +1367,7 @@ def get_full_likes(request):
 
     store = dashboard_feeding_store()
     likes = store.get_likes(feeding_id)
-    
+
     for like in likes:
         user = User.objects.get(id=like["user_id"])
         html += " <tr><td><img src='"+reverse('user_photo', args=[user.id])+"' width='24px'></img></td><td>"+user.first_name + " " + user.last_name + "</td></tr>"
@@ -1507,4 +1509,19 @@ def time_to_local(user_time,time_diff_m):
 
 def new_upload_photo(request):
     upload_user_photo(request.user.id,request.FILES.get('photo'))
+    return redirect(reverse('user_information',args=[request.user.id]))
+
+def upload_photo_new(request):
+    photo_str = request.POST.get('photo')
+    photo_str = photo_str.split(',')[1]
+    imgData = base64.b64decode(photo_str)
+    img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+    img_file.write(imgData)       
+    img_file.close()
+    im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    x,y = im.size
+    p = Image.new('RGBA', im.size, (255,255,255))
+    p.paste(im, (0, 0, x, y), im)
+    p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
     return redirect(reverse('user_information',args=[request.user.id]))

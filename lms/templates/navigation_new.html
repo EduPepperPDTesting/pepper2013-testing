@@ -519,12 +519,12 @@
                             if data['Is Icon With Text'] == "1":
                                 menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>";
                                 menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />";
-                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr>"
+                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
                                 menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>";
                                 
                                 nav_option_text_top = "top:0px !important; left:40px !important;"
                             else:                                
-                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'>33</span></td></tr><tr><td height='20'></td></tr></table></a>"                                
+                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"                                
                                 nav_option_text_top = "top:0px !important; left:40px !important;"
                                 
                             menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"        
@@ -571,7 +571,7 @@
                     else:                    
                         #---------------text
                         if tmp1_MenuItem_txt == "#Messenger":
-                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'>33</span>)</font></a></li>";
+                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>";
                         else:
                             tmp_menu_icon = " &#9662;"
                             if liClass == "":
@@ -639,7 +639,7 @@
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
-                                    <td width="20" style="font-size:25px !important;">&#9662;</td>
+                                    <td width="20" style="font-size:25px !important;" id="user-photo-arrow">&#9662;</td>
                                 </tr>
                             </table>
                         % else:
@@ -649,22 +649,22 @@
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
-                                    <td width="20" style="font-size:25px !important;">&#9662;</td>
+                                    <td width="20" style="font-size:25px !important;" id="user-photo-arrow">&#9662;</td>
                                 </tr>
                             </table>
                         % endif
                     <!--<span style="text-align:center;display:block;max-width:70px;text-overflow:ellipsis;line-height:20px;overflow:hidden;vertical-align:bottom; color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">Me <font style="float:right; font-size:25px;">&#9662;</font></span>-->
                     % else:
                         <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;">
-                    	<span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me &#9662;</span>
+                    	<span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;" id="user-photo-arrow">Me &#9662;</span>
                     % endif
                     <div class="nav-option-text-left">${request.user.username} </div>
                 </a></span>
-                <ul class="dropdown-menu" style="width:300px;top:64px;"> 
+                <ul class="dropdown-menu" style="width:300px;top:64px;left: inherit" id="me-dropdown"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
                     <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
                         margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
                         <div style="float:left;">   
-                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50"/>
+                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
                         </div>
                         <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
                             <span class="dropdownusername" >${ request.user.first_name | h } ${ request.user.last_name | h }</span>
@@ -740,6 +740,9 @@
                     } else if ($(event.target).closest(".outside_menu").length) {
                         $(".admin-dropdown-menu").hide();
                     }
+                    if($('#user-photo-arrow:hidden')){
+                        $('#user-photo-arrow').css("visibility", "visible");
+                    }
                 });
                 $(document).ready(function(){
                     $(".configuration").click(function(event){
@@ -790,16 +793,12 @@
                 <h2>${_("notifications")}</h2>
                 <hr/>
             </header>
-
-            <div class="info_list"></div>
-            <br/>
-            <br/>
-            <br/>
             <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
                 <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
                     <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
                 </a>
             </div>
+            <div class="info_list"></div>
             <div class="close-modal" id="notifications_close">
                 <div class="inner">
                     <p>&#10005;</p>
@@ -814,6 +813,7 @@
 				if($(this).hasClass("active")){
 					$('ul.dropdown-menu').removeClass("expanded");
 					$(this).removeClass("active");
+					$('#user-photo-arrow').css("visibility", "visible");
 				}else{
 					$('ul.dropdown-menu').addClass("expanded");
 					$('#dropdown').addClass("active");
@@ -822,10 +822,14 @@
 						$('ul.dropdown-menu').removeClass("expanded");
 						$('#dropdown').removeClass("active");
 					});
+					$('#user-photo-arrow').css("visibility", "hidden");
 				}
                 event.stopPropagation();
           	});
-        }); 
+          	$('#me-dropdown').click(function(event){
+                $('#user-photo-arrow').css("visibility", "visible");
+          	});
+        });
         $("#dropdown").mouseover(function(){
             $(this).find(".nav-option-text-left").show();
         })
@@ -1174,7 +1178,7 @@
                 $(".info_btn").hide();
                 $(".info_count_btn").show();
                 var count = data.count > 999 ? 999 : data.count;
-                $(".info_count_btn").find(".info_count").text(count);
+                $(".info_count").text(count);
             }
             $('.info_list').empty();
             for (var i = 0; i < data.results.length; i++) {

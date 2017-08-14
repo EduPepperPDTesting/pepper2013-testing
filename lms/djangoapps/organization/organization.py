@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
@@ -25,6 +25,7 @@ from PIL import Image
 import os
 import os.path
 import shutil
+from student.feeding import dashboard_feeding_store
 
 #-------------------------------------------------------------------main
 def main(request):
@@ -43,6 +44,9 @@ def main(request):
 
         elif (get_flag == "organization_main_get"):
             return organization_main_page_configuration_get(request);
+
+        elif (get_flag == "organization_get_locations"):
+            return organization_get_locations(request);
 
     elif(post_flag):
         if (post_flag == "organization_add"):
@@ -396,6 +400,12 @@ def organization_get(request):
                         data['Footer Content'] = tmp1.DataItem
                         break;
 
+                    # --------------OrganizationMoreText
+                    org_announcement_list = OrganizationMoreText.objects.filter(organization=organizations, itemType="Announcement")
+                    for tmp1 in org_announcement_list:
+                        data['Announcement Content'] = tmp1.DataItem
+                        break;
+
                     # --------------OrganizationDistricts
                     sid_did = "";
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
@@ -467,6 +477,40 @@ def organization_get(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
+#-------------------------------------------------------------------organization_get_locations
+@login_required
+def organization_get_locations(request):
+    data = {}
+    rows_state = []
+    rows_district = []
+    rows_school = []
+    district_id = request.GET.get('district_id', "")
+    school_id = request.GET.get('school_id', "")
+
+    try:
+        if district_id != "":
+            for tmp1 in District.objects.filter(id=district_id):
+                for tmp2 in School.objects.filter(district=tmp1).order_by("name"):
+                    rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
+                break
+        
+        elif school_id != "":
+            for tmp2 in School.objects.filter(id=school_id).order_by("name"):
+                rows_school.append({'id': tmp2.id, 'name': tmp2.name, 'district_id': tmp2.district.id})    
+
+        else:
+            for org in State.objects.all().order_by("name"):
+                rows_state.append({'id': org.id, 'name': org.name})
+
+            for org1 in District.objects.filter(state__isnull=False).order_by("name"):
+                rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
+
+        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
 #-------------------------------------------------------------------organizational_save_base
 @login_required
 def organizational_save_base(request):
@@ -516,6 +560,9 @@ def organizational_save_base(request):
         logo_url = request.POST.get("logo_url", "")
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
+        is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
+        is_Announcement = request.POST.get("is_Announcement", "")
+        announcement_content = request.POST.get("announcement_content", "")
 
         if(oid):
             # --------------OrganizationMetadata
@@ -552,6 +599,27 @@ def organizational_save_base(request):
             org_footer.DataItem = footer_content
             org_footer.organization = org_metadata
             org_footer.save();
+
+             #--------------OrganizationMoreText
+            org_announcement = OrganizationMoreText();
+            org_Announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
+            for tmp1 in org_Announcement_list:
+                org_announcement = tmp1
+                break;
+
+            org_announcement.DataItem = announcement_content
+            org_announcement.organization = org_metadata
+            org_announcement.itemType = "Announcement"
+            org_announcement.save();
+            
+            if is_Announcement_alert == "1":
+                receiver_ids = [0]
+                expiration_date = "01/01/2200"
+                expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
+
+                store = dashboard_feeding_store()
+                store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
+                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date)
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -656,6 +724,7 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
             org_OrganizationMenuSave(org_metadata, "Remove All Menu", remove_all_menu)
             org_OrganizationMenuSave(org_metadata, "Footer Selected", footer_flag)
+            org_OrganizationMenuSave(org_metadata, "Initial Pepper Announcement", is_Announcement)
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
