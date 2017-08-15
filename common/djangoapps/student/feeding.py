@@ -103,7 +103,7 @@ class DashboardFeedingStore(MongoBaseStore):
                 "__doc__.sub_of": None}  # is top leve;
 
         cond.update(cond_ext)
-
+        
         # *** filter cond
         if month:
             cond["month"] = int(month)
@@ -177,7 +177,7 @@ class DashboardFeedingStore(MongoBaseStore):
 
     def get_announcements(self, user_id, organization_type, **kwargs):
         kwargs["type"] = "announcement"
-        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type}
+        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type,"__doc__.organization_id":{"$exists":False}}
         return self.top_level_for_user(user_id, **kwargs)
 
     def get_posts(self, user_id, **kwargs):
