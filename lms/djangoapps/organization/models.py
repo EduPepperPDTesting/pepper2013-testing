@@ -26,6 +26,7 @@ class OrganizationDistricts(models.Model):
         db_table = 'organization_districts'
     EntityType = models.CharField(blank=False, max_length=20, db_index=False)
     OrganizationEnity = models.IntegerField(blank=False, default=0)
+    OtherFields = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
 
