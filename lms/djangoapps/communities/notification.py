@@ -347,7 +347,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                         "body": body,
                         "subject": subject,
                         "location": reverse("community_view", args=[community_id])
-                        })
+                    })
 
                 # Save none instant notification to audit
                 if config and config.via_email:
@@ -389,3 +389,49 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         for member in members_del:
             if member.id != action_user.id:
                 process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
+
+
+def _send_notification(action_user, receive_user, type_name, values):
+    def replace_values(body, values):
+        return re.sub("{([\w ]*?)}", lambda x: values.get(x.group(1)), body)
+
+    ttt = CommunityNotificationType.objects.get(name=type_name)
+    config = CommunityNotificationConfig.objects.filter(user=receive_user, type=ttt)
+
+    if config.exists():
+        config = config[0]
+
+    body = replace_values(ttt.body or "", values)
+    subject = replace_values(ttt.subject or "", values)
+
+    if config and config.via_pepper:
+        save_interactive_info({
+            "user_id": str(receive_user.id),
+            "interviewer_id": action_user.id,
+            "interviewer_name": action_user.username,
+            "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
+            "ttt": ttt.name,
+            "body": body,
+            "subject": subject,
+            "location": values["refer_url"]
+        })
+
+        # Save none instant notification to audit
+        if config and config.via_email:
+            days = {"Daily": 0, "Weekly": 7}
+            if config.frequency != 'Instant':
+                audit = CommunityNotificationAudit()
+                audit.subject = subject
+                audit.body = body
+                audit.receiver = receive_user
+                audit.creator = action_user
+                audit.create_date = datetime.utcnow()
+                audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+                audit.save()
+            else:
+                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
+
+
+def send_course_notification(action_user, course, notification_type, user_id):
+    values = {"refer_url": "", "course_name": course.display_name, "course_id": course.id}
+    _send_notification(action_user, User.objects.get(id=user_id), notification_type, values)

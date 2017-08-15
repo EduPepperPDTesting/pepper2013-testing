@@ -20,9 +20,10 @@ def drop_districts(request):
     access_level = request.GET.get('access_level', 'System')
     if access_level:
         if access_level == 'System':
-            state = request.GET.get('state', False)
+            s = request.GET.get('state', '').strip()
+            state = s.split(',') if s != "" else []
         else:
-            state = request.user.profile.district.state.id
+            state = [request.user.profile.district.state.id]
 
         district = False
         if access_level == 'District' or access_level == 'School':
@@ -31,7 +32,7 @@ def drop_districts(request):
         if district:
             data = District.objects.filter(id=district)
         elif state:
-            data = District.objects.filter(state=state).order_by('name')
+            data = District.objects.filter(state__in=state).order_by('name')
         else:
             data = District.objects.all().order_by('name')
 
@@ -46,8 +47,10 @@ def drop_schools(request):
     if access_level:
         if access_level == 'System' or access_level == 'State':
             district = request.GET.get('district', False)
+            s = request.GET.get('district', '').strip()
+            district = s.split(',') if s != "" else []
         else:
-            district = request.user.profile.district.id
+            district = [request.user.profile.district.id]
 
         school = False
         if access_level == 'School':
@@ -56,7 +59,7 @@ def drop_schools(request):
         if school:
             data = School.objects.filter(id=school)
         elif district:
-            data = School.objects.filter(district=district).order_by('name')
+            data = School.objects.filter(district__in=district).order_by('name')
         else:
             data = School.objects.all().order_by('name')
 

@@ -4,7 +4,7 @@ import json
 
 
 def ajax_get_async_task(request):
-    task = AsyncTask.objects.get(id=request.POST.get('id'))
+    task = AsyncTask.objects.get(id=request.REQUEST.get('id'))
 
     seconds = (task.update_time - task.create_time).seconds
 

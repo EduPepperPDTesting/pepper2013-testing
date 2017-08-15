@@ -1,3 +1,4 @@
+from courseware.courses import get_course_by_id
 from django.conf import settings
 from django.template import Context
 from django.core.urlresolvers import reverse
@@ -10,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
-from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed
+from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
 from pepper_utilities.utils import random_mark
 import json
 import logging
@@ -39,6 +40,8 @@ import mitxmako
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from django.db.models import F
+from communities.notification import send_course_notification 
+
 
 log = logging.getLogger("tracking")
 USER_CSV_COLS = ('email', 'state_name', 'district_name',)
@@ -1819,3 +1822,291 @@ def get_post_array(post, name, max=None):
                 i = 'all'
             output.update({i: value})
     return output
+
+
+def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, districts=None):
+    from xmodule.modulestore.django import modulestore
+    import pymongo
+
+    filterDic = {'_id.category': 'course'}
+
+    if subjects is not None:  # array field
+        filterDic['metadata.display_subject'] = {"$in": subjects}
+
+    if authors is not None:  # none array field
+        filterDic['metadata.display_organization'] = {"$in": authors}
+
+    if grade_levels is not None:  # none array field
+        filterDic['metadata.display_grades'] = {"$in": grade_levels}
+
+    if states is not None:  # array field
+        filterDic['metadata.display_state'] = {"$in": states}
+
+    if districts is not None:  # array field
+        filterDic['metadata.display_district'] = {"$in": districts}
+
+    items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+    return courses
+
+
+@login_required
+def get_course_permission_user_rows(request):
+    columns = {
+        0: ['user_id', '', 'int'],
+        1: ['user__last_name', '__icontains', 'str'],
+        2: ['user__first_name', '__icontains', 'str'],
+        3: ['user__email', '__icontains', 'str'],
+        4: ['state__name', '__iexact', 'str'],
+        5: ['district__name', '__iexact', 'str'],
+        6: ['school__name', '__iexact', 'str'],
+    }
+
+    sorts = get_post_array(request.GET, 'col')
+
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size
+
+    order = build_sorts(columns, sorts)
+
+    users = UserProfile.objects.all()
+
+    if request.GET.get("states", "") != "":
+        users = users.filter(district__state_id__in=request.GET.get("states").split(","))
+
+    if request.GET.get("districts", "") != "":
+        users = users.filter(district__in=request.GET.get("districts").split(","))
+
+    if request.GET.get("schools", "") != "":
+        users = users.filter(school__in=request.GET.get("schools").split(","))
+
+    users = users.order_by(*order)
+
+    count = users.count()
+    json_out = [count]
+
+    def to_list(s):
+        return s.split(',') if s else None
+
+    course_filters = {
+        "subjects": to_list(request.GET.get("subject", "")),
+        "authors": to_list(request.GET.get("author", "")),
+        "grade_levels": to_list(request.GET.get("grade_level", ""))
+    }
+
+    coursenames = []
+    courses = filter_courses(**course_filters)
+    for c in courses:
+        coursenames.append({"display_name": c.display_name})
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in users[start:end]:
+        row = list()
+        row.append(int(item.user.id))
+        row.append(str(item.user.last_name))
+        row.append(str(item.user.first_name))
+        row.append(str(item.user.email))
+
+        try:
+            user_school = item.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.district.name)
+            user_district_state = str(item.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+
+        row.append(str(user_district_state))
+        row.append(str(user_district))
+        row.append(str(user_school))
+
+        for c in courses:
+            if CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True).exists():
+                row.append("E")
+            elif CourseEnrollmentAllowed.objects.filter(email=item.user.email, course_id=c.id, is_active=True).exists():
+                row.append("P")
+            else:
+                row.append("--")
+    
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+    json_out.append(coursenames)
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+@login_required
+def get_course_permission_course_rows(request):
+    def to_list(s):
+        return s.split(',') if s else None
+
+    course_filters = {
+        "subjects": to_list(request.GET.get("subjects")),
+        "authors": to_list(request.GET.get("authors")),
+        "grade_levels": to_list(request.GET.get("grade_levels")),
+        "states": to_list(request.GET.get("states")),
+        "districts": to_list(request.GET.get("districts"))
+    }
+
+    coursenames = []
+    courses = filter_courses(**course_filters)
+    for c in courses:
+        for a in c.metadata_attributes:
+            print a
+        coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
+
+    json_out = [len(courses), coursenames]
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+def _update_user_course_permission(user, course, access, enroll, send_notification=False):
+    # ** access
+    if access:
+        cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
+        if not cea.is_active:
+            cea.is_active = True
+            cea.save()
+            send_course_notification(user, course, "Add Course Access", user.id)
+    else:
+        find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
+        if find.exists():
+            cea = find[0]
+            cea.is_active = False
+            cea.save()
+            if send_notification:
+                send_course_notification(user, course, "Remove Course Access", user.id)
+
+    # ** enroll
+    if enroll:
+        enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
+        if not enr.is_active:
+            enr.is_active = True
+            enr.save()
+            if send_notification:
+                send_course_notification(user, course, "Add Course Enroll", user.id)
+    else:
+        find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
+        if find.exists():
+            enr = find[0]
+            enr.is_active = False
+            enr.save()
+            if send_notification:
+                send_course_notification(user, course, "Remove Course Enroll", user.id)    
+
+    
+def update_course_permission(request):
+    def to_list(s):
+        return s.split(',') if s else []
+
+    user_ids = to_list(request.POST.get('users', ''))
+    course_ids = to_list(request.POST.get('courses', ''))
+    access = to_list(request.POST.get('access', ''))
+    enroll = to_list(request.POST.get('enroll', ''))
+    send_notification = request.POST.get('send_notification', '0') == '1'
+    json_out = {'success': True}
+
+    try:
+        for i, course_id in enumerate(course_ids):
+            course = get_course_by_id(course_id)
+            a = access[i] == "1"
+            e = enroll[i] == "1"
+            for user_id in user_ids:
+                user = User.objects.get(id=user_id)
+                _update_user_course_permission(user, course, a, e, send_notification)
+                    
+    except Exception as e:
+        db.transaction.rollback()
+        json_out = {'success': False, 'error': '%s' % e}
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+def course_permission_load_csv(request):
+    def to_list(s):
+        return s.split(',') if s else []
+
+    attachment = request.FILES['attachment']
+
+    course_ids = to_list(request.POST.get('courses', ''))
+    access = to_list(request.POST.get('access', ''))
+    enroll = to_list(request.POST.get('enroll', ''))
+
+    r = csv.reader(attachment, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    rl = []
+    rl.extend(r)
+
+    try:
+        for i, course_id in enumerate(course_ids):
+            course = get_course_by_id(course_id)
+            a = access[i] == "1"
+            e = enroll[i] == "1"
+            for line in rl:
+                user = User.objects.get(email=line[0])
+                _update_user_course_permission(user, course, a, e)
+    except Exception as e:
+        json_out = {'success': False, 'error': '%s' % e}
+
+    json_out = {'success': True}
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+def course_permission_download_excel(request):
+    from StringIO import StringIO
+    import xlsxwriter
+
+    def to_list(s):
+        return s.split(',') if s else []
+
+    course_ids = to_list(request.GET.get('courses', ''))
+
+    # ** filter users
+    users = UserProfile.objects.all()
+    if request.GET.get("states", "") != "":
+        users = users.filter(district__state_id__in=request.GET.get("states").split(","))
+    if request.GET.get("districts", "") != "":
+        users = users.filter(district__in=request.GET.get("districts").split(","))
+    if request.GET.get("schools", "") != "":
+        users = users.filter(school__in=request.GET.get("schools").split(","))
+    users = users.order_by('user__email')
+
+    # ** io
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    row = 0
+
+    # ** title row
+    titles = ["First Name", "Last Name", "Email"]
+    for course_id in course_ids:
+        course = get_course_by_id(course_id)
+        titles.append(course.display_name)
+
+    for i, k in enumerate(titles):
+        worksheet.write(row, i, k)
+
+    # ** data rows
+    for u in users:
+        row += 1
+        fields = [u.user.first_name, u.user.last_name, u.user.email]
+        for course_id in course_ids:
+            if CourseEnrollment.objects.filter(user=u, course_id=course_id, is_active=True).exists():
+                fields.append("E")
+            elif CourseEnrollmentAllowed.objects.filter(email=u.user.email, course_id=course_id, is_active=True).exists():
+                fields.append("P")
+            else:
+                fields.append("--")
+        for i, v in enumerate(fields):
+            worksheet.write(row, i, v)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=course-permisstions-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
