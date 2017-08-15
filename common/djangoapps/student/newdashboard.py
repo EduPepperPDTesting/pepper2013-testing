@@ -158,7 +158,7 @@ def newdashboard(request, user_id=None):
             break;
     
     if (not(OrganizationOK) and state_id != -1):
-        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+        for tmp1 in OrganizationDistricts.objects.filter(get=state_id, EntityType="State"):
             OrganizationOK = True
             organization_obj = tmp1.organization
             break;
@@ -1145,7 +1145,7 @@ def get_org_announcements(request):
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
 
-@ajax_login_required()
+@ajax_login_required() 
 def get_announcements(request):
     filter_year = request.POST.get("filter_year")
     filter_month = request.POST.get("filter_month")
@@ -1158,6 +1158,24 @@ def get_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
+    user_profile = UserProfile.objects.get(user_id=request.user.id)
+
+    district_id = user_profile.district_id
+    state_id = District.objects.get(id=district_id).state_id
+    school_id = user_profile.school_id
+
+    school_organization = OrganizationDistricts.objects.filter(EntityType="School").filter(OrganizationEnity=school_id)
+    district_organization = OrganizationDistricts.objects.filter(EntityType="District").filter(OrganizationEnity=district_id)
+    state_organization = OrganizationDistricts.objects.filter(EntityType="State").filter(OrganizationEnity=state_id)
+
+    organization = school_organization + district_organization + state_organization
+    organization_id = []
+    for k,v in enumerate(organization):
+        if v.OtherFields.date > request.user.date_joined:
+            if v.organization not in organization_id:
+                organization_id.append(v.organization)
+
+
     store = dashboard_feeding_store()
     # posts = store.top_level_for_user(request.user.id, type=filter_group,
     #                                  year=filter_year, month=filter_month,
@@ -1165,6 +1183,13 @@ def get_announcements(request):
 
     kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
     data = {"orgs": []}
+    inital = []
+    initals = store.get_initals(request.user.id, "Pepper", **kwargs)
+    for k1,v1 in enumerate(initals):
+        if v1.date > request.user.date_joined:
+            inital.append(v1)
+
+    data["orgs"].append(inital)
     data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
