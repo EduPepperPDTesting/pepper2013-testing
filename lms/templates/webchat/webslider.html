@@ -1,6 +1,8 @@
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
 
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <div id="pep_container">
 
     <div id="pep_title_tab">
@@ -19,7 +21,30 @@
             <a type="button" class="btn btn-xs" style="border-right:2px groove;">My Network</a>
             <a type="button" class="btn btn-xs">My Communities</a>
         </div>
-        <div id="pep_user_list"></div>
+        <div id="pep_user_list">
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/125/125702.svg" alt="im-network"></a></span>
+                    <span class="pep_online_status">&#11044;</span>
+                </div>
+                <div class="pep_contact_name">User Name</div>
+            </div>
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/33/33965.svg" alt="im-community"></a></span>
+                </div>
+                <div class="pep_contact_name">User Name</div>
+            </div>
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_online_status">&#11044;</span>
+                </div>
+                <div class="pep_contact_name">User Name</div>
+            </div>
+        </div>
         <div id="pep_slider_list"></div>
         <div id="pep_slider_icons">
             <a href="default.asp">
@@ -38,15 +63,31 @@
 $(document).ready(function(){
     var pos='out';
     $("#pep_title_tab").click(function(){
-    if(pos=='in'){
-        $("#pep_container").animate({right:'-216px'});
-        $("#pep_title_tab").animate({right:'0px'});
-        pos='out';
-    }else{
-        $("#pep_container").animate({right:'0px'});
-        $("#pep_title_tab").animate({right:'211px'});
-        pos='in';
-    }
+        if(pos=='in'){
+            $("#pep_container").animate({right:'-216px'});
+            $("#pep_title_tab").animate({right:'0px'});
+            pos='out';
+        }else{
+            $("#pep_container").animate({right:'0px'});
+            $("#pep_title_tab").animate({right:'211px'});
+            pos='in';
+        }
+    });
+
+    $(".pep_contact_name").tooltip({
+        items: ".pep_contact_name",
+        track: true,
+        open: function (event, ui) {
+            ui.tooltip.css({"text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+        },
+        show: {
+            effect: "slideDown",
+            delay: 250
+        },
+        content: function(){
+            var username = $(this).text();
+            return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+        }
     });
 });
 </script>

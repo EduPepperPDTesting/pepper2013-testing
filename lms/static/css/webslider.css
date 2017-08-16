@@ -76,6 +76,7 @@
     position: relative;
     left: -15px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 #pep_slider_list {
     position: relative;
@@ -99,9 +100,9 @@
     border-bottom: 1px solid;
 }
 #pep_slider_icons img {
-    width:20px;
-    height:20px;
-    border:0
+    width: 20px;
+    height: 20px;
+    border: 0
 }
 .glyphicon {
     font-family: 'Glyphicons Halflings' !important;
@@ -109,4 +110,37 @@
 }
 #pep_container a {
     text-decoration: none;
+}
+.pep_contact_block {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+.pep_contact_block div {
+    display: inline-block;
+    cursor: default;
+}
+.pep_contact_info {
+    width: 35px;
+    margin-right: -3px;
+}
+.pep_add_im {
+    position: relative;
+    top: 5px;
+    font-size: 24px;
+    color: #1d9dd9;
+}
+.pep_type_icon {
+    width: 15px;
+    height: 15px;
+}
+.pep_online_status{
+    color: #34a515;
+    position: absolute;
+    left: 35px;
+    top: 0px;
+}
+.pep_contact_photo {
+    width: 50px;
+    height: 50px;
 }

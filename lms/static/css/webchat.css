@@ -117,6 +117,9 @@
 }
 #pep_video_chat {
     height: 215px;
+    padding-right: 0px;
+    padding-left: 0px;
+    width: 216px;
     border-left: 1px solid;
     position: relative;
     overflow-y: auto;
