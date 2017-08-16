@@ -1,0 +1,112 @@
+#pep_panel {
+    height: 100%;
+    width: 211px;
+    min-width: 211px;
+    background-color: #fff;
+    border: 1px solid black;
+    border-radius: 15px
+}
+#pep_title_tab {
+    position: fixed;
+    top: 50%;
+    margin-top: -68px;
+    right: 0px;
+    width: 60px;
+    height: 155px;
+    background-color: #22EEFF;
+    border-radius: 30px 0 0 30px;
+    cursor: pointer;
+}
+#pep_title_text {
+    position: relative;
+    top: 90px;
+    -moz-transform: scale(-1, -1) rotate(90deg);
+    -webkit-transform: scale(-1, -1) rotate(90deg);
+    -o-transform: scale(-1, -1) rotate(90deg);
+    -ms-transform: scale(-1, -1) rotate(90deg);
+    transform: scale(-1, -1) rotate(90deg);
+    font-size: 2em;
+}
+#pep_container {
+    position: fixed;
+    top: 50%;
+    margin-top: -125px;
+    right: -216px;
+    height: 250px;
+}
+#pep_search_container {
+    height: 34px;
+    width: inherit;
+    position: relative;
+    left: -15px;
+}
+#pep_search {
+    height: 34px;
+    border: 0px;
+    border-radius: 15px 0 0;
+}
+#pep_search_btn {
+    width: 45px;
+    height: 34px;
+    border: 0px;
+    border-radius: 0 15px 0 0;
+    position: relative;
+    left: -2px;
+}
+#pep_groups {
+    width: inherit;
+    box-sizing: border-box;
+    left: -15px;
+}
+.btn-xs {
+    top: 1px;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+    font-size: .9em !important;
+    color: black !important;
+    background-color: buttonface;
+}
+#pep_user_list {
+    width: inherit;
+    height: 155px;
+    border-bottom: 1px solid;
+    position: relative;
+    left: -15px;
+    overflow-y: auto;
+}
+#pep_slider_list {
+    position: relative;
+    top: 4px;
+    left: 0px;
+    height: 30px;
+    width: 130px;
+    border: 1px solid;
+    display: inline-block;
+}
+#pep_slider_icons {
+    position: relative;
+    top: 4px;
+    left: 0px;
+    width: 45px;
+    height: 30px;
+    padding-top: 3px;
+    display: inline-block;
+    float: right;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+}
+#pep_slider_icons img {
+    width:20px;
+    height:20px;
+    border:0
+}
+.glyphicon {
+    font-family: 'Glyphicons Halflings' !important;
+    top: 3px !important;
+}
+#pep_container a {
+    text-decoration: none;
+}
