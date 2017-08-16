@@ -1,0 +1,399 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation, UserProfile, User
+    from baseinfo.models import Enum
+    from communities.models import CommunityCommunities, CommunityUsers
+    from communities.views import user_in_community, community_in_state, community_in_district
+
+%>
+<%! navbar_show_extended=False %>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%block name="title"><title>Communities</title></%block>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+
+<style type="text/css" media="screen">
+a.district-button, a.school-button, a.user-button {
+    outline: none;
+}
+
+.section-tab.public {
+    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+    background-color: rgb(123, 181, 51);
+    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+    text-shadow: 0 -1px 1px rgb(83, 121, 11);
+}
+.section-tab.private {
+    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+    background-color: rgb(47, 167, 229);
+    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+    text-shadow: 0 -1px 1px rgb(47, 87, 169);
+    padding-top: 10px;
+}
+.section-tab.mydistrict {
+    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+    background-color: rgb(234, 110, 7);
+    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+    text-shadow: 0 -1px 1px rgb(154, 30, 7);
+}
+.section-tab {
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 0 0 5px 5px;
+    color: #FFF;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+    letter-spacing: 1px;
+    padding: 4px 20px;
+    text-transform: uppercase;
+    vertical-align: top;
+    margin-left: 5px;
+}
+#page-nav,#page-footer {
+    width: 1180px;
+}
+#btn-logged-user{
+     display: none;
+}
+.form-select {
+    font-size: 14px !important;
+    width: 180px;
+}
+.image-link-style {
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    display: block;
+    float: left;
+    margin: 30px;
+    width:240px;
+    height:150px;
+    background-size: auto 100px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+}
+.image-bottom-style {
+    border-radius: 0 0 6px 6px;
+    -moz-border-radius: 0 0 6px 6px;
+    -webkit-border-radius: 0 0 6px 6px;
+    display: block;
+}
+.card-link {
+    display: table-cell;
+    width: 240px;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 22px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+}
+.card-link span {
+    color: #FFFFFF;
+}
+.data_import_top {
+    padding-top: 20px;
+}
+.data_import_content {
+    margin: auto;
+    background: #e4e4e4;
+    width: 960px;
+}
+.grade_title {
+    float: left;
+    width: 920px;
+    height: 20px;
+    background-color: #fff;
+    text-align: left;
+    padding-left: 40px;
+    color: #666;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Open Sans",Verdana,Geneva,sans-serif;
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+a.btnx:hover {
+    background: #638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    color: #fff;
+}
+a.btnx {
+    background-color: #556370;
+    padding-bottom: 2px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color: #fff;
+    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+a.btnx:normal {
+    background-color: #126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color: #fff;
+    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+div.expand_title {
+    color: #08a;
+    font-size: 20px;
+    padding: 5px 5px 10px 5px;
+    cursor: pointer;
+    background-color: #ccc;
+    box-shadow: 0 1px 0 0 #fff inset;
+    background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
+    text-shadow: 0 -1px 1px #aaa;
+}
+
+div.expand_title .icon {
+    display: inline-block;
+    position: relative;
+    top: 5px;
+    width: 23px;
+    height: 23px;
+    background: url("../images/arrows.png") no-repeat 0 0;
+}
+div.expand_div{
+    display:block !important;
+}
+
+/*--new style----------------------------------*/
+.con-maincontent-all{
+    width:680px;
+    margin-left:27px;
+    float:left;
+    position: relative;
+    margin-bottom:0px;
+    background-color:#fff;
+    margin-bottom:15px;
+
+    border: 0px solid;
+}
+.community-banner{
+    width:680px;
+    height:138px;
+    position:relative;
+}
+.community-banner-title{
+    position:absolute;
+    left:45px;
+    top:35px;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size:25px;
+    font-weight:bold;
+    color:#000;
+    line-height:25px;
+}
+.community-banner-title2{
+    position:absolute;
+    left:45px;
+    top:87px;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size:15px;
+    color:#fff;
+}
+.community-find{
+    height:70px;
+    width:640px;
+    background-color:#2abaee;
+    margin:auto;
+    margin-top:20px;
+    
+    border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+}
+.community-all{
+    width:640px;
+    background-color:#e4e4e4;
+    margin:auto;
+    margin-top:15px;
+    margin-bottom:15px;
+}
+.community-all-title{
+    width:100%;
+    height:30px;
+    background-color:#535456;
+    color:#fff;
+    font-size:17px;
+    text-align:center;
+    padding-top:10px;
+}
+.communities-column{
+    width:193px;
+    float:left;
+    background-color:#fff;
+    margin-left:15px;
+    margin-top:15px;
+    margin-bottom:15px;
+}
+
+.my-communities-title{
+    width:100%;
+    height:30px;
+    color:#fff;
+    font-size:14px;
+    padding-top:10px;
+    text-align:center;
+}
+.my-communities-all{
+    width:100%;
+    height:500px;
+    overflow-y:auto;
+}
+
+.communities-text{
+    width:130px;
+    margin:auto;
+    border-bottom:1px solid #ccc;
+    font-size:13px;
+    padding-top:25px;
+    padding-bottom:25px;
+}
+.communities-text a{
+    color:#000;
+    font-size:13px;
+    text-decoration:none !important;
+}
+.communities-text:last-child{
+    border-bottom:0px !important;
+}
+</style>
+<script>
+    function fsubmit(){
+        var communities = [];
+        %for community in communities:
+            communities[${community['id']}] = "${reverse('community_view', args=[community['id']])}";
+        %endfor
+        var community = $("#community_list_form .form-select").val();
+        window.location.href =  communities[community];
+        return false;
+    }
+</script>
+<span id="organization_obj" o_name="communities"></span>
+<section class="content-wide" style="margin-top:0px;background-color:#e7e7e8;">
+    <section class="communities-new" style="margin:0 auto;width:1240px;padding-top:14px;">
+
+        <!--Communities-My Trending Topics-->
+        <%include file="../navigation_left_list.html" />
+
+        <!--Communities-->
+        <div class="con-maincontent-all clearfix">
+            <div class="community-banner">
+                <img src="/static/images/ppd-courses-banner.jpg" width="680" height="138"/>
+                <div class="community-banner-title">
+                    PROFESSIONAL
+                    <br/>
+                    LEARNING COMMUNITIES
+                </div>
+                <div class="community-banner-title2">
+                    build and enhance your community of practice
+                </div>
+            </div>
+            <div class="community-find">
+                <div style="padding-top:22px;padding-left:30px;">
+                    <form method="" id="community_list_form" action="">
+                        <div style="padding:0px;color:#666;display:inline-block;">
+                            <span style="color:#fff;font-size:14px;">Find a Community</span>
+                        </div>
+                        <div style="display:inline-block;padding:0 5px 0 5px;">
+                            <select name="subject_id" class="form-select">
+                                %for community in communities:
+                                    <option value="${community['id']}">${community['name']}</option>
+                                %endfor
+                            </select>
+                        </div>
+                        <a href="#" class="btnx" onClick="fsubmit();" style="padding:0px 30px 0px 30px;font-size:14px;">Find</a>
+                        %if request.user.is_superuser:
+                            <div style="padding-left:10px;color:#666;display:inline-block;">
+                                <span><a href="${reverse('community_add')}" style="font-size:14px;text-decoration:none;">Create a New Community</a></span>
+                            </div>
+                        %endif
+                    </form>
+                </div>
+            </div>
+            <div class="community-all">
+                <div class="community-all-title">
+                    Pepper Communities
+                </div>
+                <div class="community-content">
+                    <div class="my-communities communities-column">
+                        <div class="my-communities-title" style="background-color:#28bcec;">My Communities</div>
+                        <div class="my-communities-all">
+                            %for community in communities:
+                                %if user_in_community(community['id'], request.user.id):
+                                    <div class="communities-text">
+                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+
+                    <div class="public-communities communities-column">
+                        <div class="my-communities-title" style="background-color:#f8801f;">Public Communities</div>
+                        <div class="my-communities-all">
+                            %for community in communities:
+                                %if community['private'] == 0:
+                                    <div class="communities-text">
+                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+
+                    <div class="my-district-communities communities-column">
+                        <div class="my-communities-title" style="background-color:#89c651;">My District Communities</div>
+                        <div class="my-communities-all">
+                            %for community in communities:
+                                %if community_in_district(community['id'], request.user.id):
+                                    <div class="communities-text">
+                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!--Courses-My Learning Plan-->
+        <%include file="../navigation_right_list.html" />
+
+        <div style="clear:both;"></div>
+    </section>
+</section>
+
+
+

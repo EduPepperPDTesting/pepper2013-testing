@@ -7,6 +7,7 @@
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State,District,School,User,UserProfile,GradeLevel
+    from permissions.models import PermPermission
 %>
 <%inherit file="../main.html"/>
 
@@ -68,11 +69,12 @@
 	.organizational_dashboard_menu_body2 span{float:left; height:40px; line-height:40px; }
 	.organizational_dashboard_menu_item{width:200px;}
 	.organizational_dashboard_menu_item input{width:98% !important;}
-	.organizational_dashboard_menu_url{width:270px;}
+	.organizational_dashboard_menu_url{width:200px;}
 	.organizational_dashboard_menu_url input{width:98% !important;}
 	.organizational_dashboard_menu_icon{width:180px; overflow:hidden}
 	.organizational_dashboard_menu_icon_view{width:70px; overflow:hidden}
-	.organizational_dashboard_menu_admin{width:70px; text-align:center;}
+	.organizational_dashboard_menu_admin{width:140px; text-align:center;}
+	.organizational_dashboard_menu_admin select{width:100px;}
 	.organizational_dashboard_menu_sub{width:120px; text-align:center;}
 	.organizational_dashboard_menu_sort{width:30px; text-align:center;}
 	.organizational_dashboard_menu_btn{width:50px; text-align:center;}
@@ -144,6 +146,7 @@
 	
 	.profileFieldType_add{font-size:14px; padding:0 4px; background-color:#004A98; font-family:Arial, Helvetica, sans-serif !important; border-radius: 17px 17px 17px 17px; color:#FFFFFF; display:none; cursor:pointer;}
 	#permission-option-actions {padding: 10px 0; text-align: right;}
+	#organizational_dashboard_feed_table input[type='text'], #organizational_dashboard_feed_curr_table input[type='text']{width:160px !important; padding:0 !important; height:30px !important; text-align:center; }
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -356,22 +359,22 @@
                             <th width="80">Default</th>
                         </tr>
                         <tr>
-                        	<td align="center">My Feed</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_feed_txt" /><!--My Feed--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="1" checked="checked" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Activities</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_activities_txt" /><!--My Activities--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Progress</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_progress_txt" /><!--My Progress--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="2" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Resources</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_resources_txt" /><!--My Resources--></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="3" onclick="selectPDTable()" /></td>
                         </tr>
@@ -383,22 +386,22 @@
                             <th width="80">Default</th>
                         </tr>
                         <tr>
-                        	<td align="center">My Feed</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_feed_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_feed_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="1" checked="checked" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Activities</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_activities_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_activities_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="0" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Progress</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_progress_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="2" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Resources</td>
+                        	<td align="center"><input type="text" id="organizational_dashboard_resources_txt_curr" /></td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="3" onclick="selectPDTableCurr()" /></td>
                         </tr>
@@ -586,7 +589,14 @@
                             <span class="organizational_dashboard_menu_url"><input type="text" class="menu_items_url" /></span>
                             <span class="organizational_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
                             <span class="organizational_dashboard_menu_icon_view"></span>
-                            <span class="organizational_dashboard_menu_admin"><input type="checkbox" class="menu_items_admin" /></span>
+                            <span class="organizational_dashboard_menu_admin">
+                            	<input type="checkbox" class="menu_items_admin" />
+                                <select class="menu_items_permissions">
+	                                %for item in PermPermission.objects.all().order_by("item"):
+                                    <option value="${item.id}">${item.name}</option>
+                                    %endfor
+                                </select>
+                            </span>
                             <span class="organizational_dashboard_menu_sub">
                                 <div class="organizational_dashboard_menu_sub_btn">
                                     <span class="btn_txt">Sub Menu</span>
@@ -608,7 +618,10 @@
                                 <div class="organizational_dashboard_menu_body2">
                                     <span class="organizational_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
                                     <span class="organizational_dashboard_menu_url"><input type="text" class="sub_menu_url" /></span>
-                                    <span class="organizational_dashboard_menu_admin"><input type="checkbox" class="sub_menu_admin" /></span>
+                                    <span class="organizational_dashboard_menu_admin">
+                                    	<input type="checkbox" class="sub_menu_admin" />
+                                        <select class="sub_menu_permissions"></select>
+                                    </span>
                                     <span class="organizational_dashboard_menu_sort">
                                         <span class="btn_up"></span>
                                         <span class="btn_dn"></span>
@@ -726,8 +739,21 @@
             </tr>
         </table>
       	<div style="width:100%; text-align:right; height:30px;">
+            <input type="button" next_sn="4" value="Next" class="small_btn expand_title_next" />
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
       	</div>
+    </div>
+</div>
+
+<div class="organization_main1 expand_title_parent">
+    <div class="expand_title expand_title_collapse" next_sn="4">Course Assignment<div class="icon"></div></div>
+    <div class="expand_div">
+        
+        
+        
+        <div style="width:100%; text-align:right; height:30px;">
+            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+        </div>
     </div>
 </div>
 
@@ -1147,17 +1173,7 @@
 			}
 		});
 	}
-	
-	//-----------------------------------------------------------------------organizationEditAttach
-	/*function organizationEditAttach() {	
-		$('.permission-edit').click(function (e) {
-			e.preventDefault();
-			var id = $(this).attr('href').substr(1);
-			organizationEdit('edit', id);
-		});
-		$("#press").attr("abc", $('.permission-edit').length);
-	}*/		
-	
+			
 	//-----------------------------------------------------------------------organizationEdit
 	function organizationEdit(type, id, name) {
 		var button_name = 'Add';
@@ -1244,7 +1260,7 @@
 						row += '</tr> ';
 						$('#organization-table tbody').append(row);
 					}
-					//organizationEditAttach();
+				
 					//----------
 					$('.permission-edit').click(function (e) {
 						e.preventDefault();
@@ -1279,7 +1295,6 @@
 									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
 									
-									//$(".organization-item-select").attr("checked", false);									
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
@@ -1287,21 +1302,29 @@
 									//----------dataitems
 									$(".org_table_profile_tr").remove();
 									orgProfileInit(r.specific_items);							
-																		
+															
+									var flag_new = true;
+									
 									//----------Entlty type
 									if(r.sid_did != ""){
 										var sid_did_list = r.sid_did.split(":");
 										for(var j in sid_did_list){
 											var tmpsd = sid_did_list[j].split(",");
-											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1]);
+											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3]);
 										}
 									}
+									if($('#organization-state-table tbody').html() != ""){
+										flag_new = false;
+									}
+									
 									//----------
 									$("#organizational_base_for_district").val(r.DistrictType);
 									$("#organizational_base_for_school").val(r.SchoolType);										
 									$("#organizational_base_motto").val(r['Motto']);
 									$("#organizational_base_motto_curr").val(r['Motto Curriculumn']);
-									
+									if($("#organizational_base_for_district").val() != ""){
+										flag_new = false;
+									}
 									//----------
 									$("input[name='organizational_dashboard_option'][value='" + r["Dashboard option etc"] + "']").attr("checked", "checked");
 									if(r["Menu Color"]){
@@ -1351,7 +1374,19 @@
 									
 									$("input[name='organizational_dashboard_feed_default'][value='" + r["Is My Feed Default"] + "']").attr("checked", "checked");
 									$("input[name='organizational_dashboard_feed_default_curr'][value='" + r["Is My Feed Default Curriculumn"] + "']").attr("checked", "checked");
+								
+									//--------------
+									$("#organizational_dashboard_feed_txt").val((r["Feed Title"])? r["Feed Title"] : "My Feed");
+									$("#organizational_dashboard_activities_txt").val((r["Activities Title"])? r["Activities Title"] : "My Activities");
+									$("#organizational_dashboard_progress_txt").val((r["Progress Title"])? r["Progress Title"] : "My Progress");
+									$("#organizational_dashboard_resources_txt").val((r["Resources Title"])? r["Resources Title"] : "My Resources");
 									
+									$("#organizational_dashboard_feed_txt_curr").val((r["Feed Title Curriculumn"])? r["Feed Title Curriculumn"] : "My Feed");
+									$("#organizational_dashboard_activities_txt_curr").val((r["Activities Title Curriculumn"])? r["Activities Title Curriculumn"] : "My Activities");
+									$("#organizational_dashboard_progress_txt_curr").val((r["Progress Title Curriculumn"])? r["Progress Title Curriculumn"] : "My Progress");
+									$("#organizational_dashboard_resources_txt_curr").val((r["Resources Title Curriculumn"])? r["Resources Title Curriculumn"] : "My Resources");
+									
+									//--------------
 									if(r["My Feed Show"] == "1"){
 										$("input[name='organizational_dashboard_feed_show']").prop("checked", true);
 									}else{
@@ -1383,6 +1418,7 @@
 										$("input[name='organizational_dashboard_show_right']").prop("checked", false);
 									}
 									
+									//--------------
 									if(r["My Feed Show Curriculumn"] == "1"){
 										$("input[name='organizational_dashboard_feed_show_curr']").prop("checked", true);										
 									}else{
@@ -1422,7 +1458,7 @@
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
-			
+									
 									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
@@ -1434,9 +1470,8 @@
 											$(this).find(".organizational_dashboard_menu_icon_view").html("");
 											$(this).find(".organizational_dashboard_menu_icon_view").removeAttr("icon_name");
 											$(this).find(".menu_items_admin").prop("checked", false);
-											$(this).find("fieldset .sub_menu_item").val("");
-											$(this).find("fieldset .sub_menu_url").val("");
-											$(this).find("fieldset .sub_menu_admin").prop("checked", false);			
+											$(this).find(".menu_items_permissions").hide();
+											
 											$(this).find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
 											$(this).find("fieldset .organizational_dashboard_menu_body2").each(function(j){
 												if(j > 0){
@@ -1444,7 +1479,8 @@
 												}else{
 													$(this).find(".sub_menu_item").val("");
 													$(this).find(".sub_menu_url").val("");
-													$(this).find(".menu_items_admin").prop("checked", false);
+													$(this).find(".sub_menu_admin").prop("checked", false);
+													$(this).find(".sub_menu_permissions").hide();
 													$(this).find(".sub_menu_btn").val("+");
 												}
 											});
@@ -1454,6 +1490,11 @@
 									});
 									
 									if(r.menu_items != ""){
+										var permission_json_tmp1 = "{}";
+										if(r["menu_item_permission"]){
+											permission_json_tmp1 = r["menu_item_permission"];
+										}
+										var permission_json = eval("(" + permission_json_tmp1 + ")");
 										var tmp_clonex = $(".organizational_dashboard_menu_body1:first").clone(true);
 										var tmp_sub_clonex = $(".organizational_dashboard_menu_body2:first").clone(true);
 										
@@ -1474,7 +1515,12 @@
 											tmp_el.find(".menu_items_url").val(tmp2[2]);
 											if(tmp2[3] == "True"){
 												tmp_el.find(".menu_items_admin").prop("checked", true);
+												tmp_el.find(".menu_items_permissions").show();
+											}else{
+												tmp_el.find(".menu_items_permissions").hide();
 											}
+											tmp_el.find(".menu_items_permissions").val(permission_json["id_" + tmp2[6]]);
+											
 											if(tmp2[5] != ""){
 												var src = "/static/uploads/organization/" + org_current_id + "/" + tmp2[5];
 												tmp_el.find(".organizational_dashboard_menu_icon_view").attr("icon_name", tmp2[5]);
@@ -1499,12 +1545,31 @@
 												tmp_sub_el.find(".sub_menu_url").val(tmp4[2]);
 												if(tmp4[3] == "True"){
 													tmp_sub_el.find(".sub_menu_admin").prop("checked", true);
+													tmp_sub_el.find(".sub_menu_permissions").show();
+												}else{
+													tmp_sub_el.find(".sub_menu_permissions").hide();
 												}
+												tmp_sub_el.find(".sub_menu_permissions").val(permission_json["id_" + tmp4[4]]);
 											}
 										}
 									}else{
 										org_current_menu_items = "";
 									}
+									//----------
+									$(".menu_items_admin").unbind("change").change(function(){
+										if($(this).attr("checked")){
+											$(this).next().show();
+										}else{
+											$(this).next().hide();
+										}
+									});
+									$(".sub_menu_admin").unbind("change").change(function(){
+										if($(this).attr("checked")){
+											$(this).next().show();
+										}else{
+											$(this).next().hide();
+										}
+									});
 									//----------
 									$(".menu_items_icon").each(function(i){
 										$(this).attr("id", "menu_items_icon_" + (i + 1));
@@ -1585,7 +1650,7 @@
 									$(".cms_item_btn").val("-");
 									$(".cms_item_btn:last").val("+");
 									
-									if(r.New){
+									if(flag_new){
 										//----------
 										$(".expand_title_parent").each(function(i){
 											var $div = $(this).find(".expand_title").next("div.expand_div");
@@ -1604,13 +1669,12 @@
 										//----------
 										$(".expand_title[next_sn='2']").removeAttr("always_on");
 										$(".expand_title[next_sn='3']").removeAttr("always_on");
+										$(".expand_title[next_sn='4']").removeAttr("always_on");
 										
 										$(".expand_title_next").show();
 										$(".org_btn_last_save").eq(0).hide();
 										$(".org_btn_last_save").eq(1).hide();
-
-										//$("#organization-table2_all").prop('checked', true);
-										//$(".organization-item-select").prop('checked', true);
+										$(".org_btn_last_save").eq(2).hide();
 										
 										if(!r["Text Color"]){
  											$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
@@ -1622,10 +1686,12 @@
 										//----------
 										$(".expand_title[next_sn='2']").attr("always_on", "1");
 										$(".expand_title[next_sn='3']").attr("always_on", "1");
+										$(".expand_title[next_sn='4']").attr("always_on", "1");
 
 										$(".expand_title_next").hide();									
 										$(".org_btn_last_save").eq(0).show();
 										$(".org_btn_last_save").eq(1).show();
+										$(".org_btn_last_save").eq(2).show();
 									}
 								}
 							}else{
@@ -1741,13 +1807,13 @@
 	}
 	
 	//-----------------------------------------------------------------------organizationAddDistricts
-	function organizationAddDistricts(add_type, add_txt, add_id){
+	function organizationAddDistricts(add_type, add_txt, add_id, did){
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
 		row += '<td class="check-column">';
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
-		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
@@ -1810,8 +1876,6 @@
 								}
 							}
 							$("#org_school_select").val(sid);
-						}else{
-							alert(r.Error);
 						}
 						loadwin.hide();
 					});
@@ -2454,7 +2518,7 @@
 	
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
-    $(document).ready(function() {	
+    $(document).ready(function() {
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
@@ -2464,6 +2528,9 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+		
+		//--------------------------permissions copy
+		$(".sub_menu_permissions").html($(".menu_items_permissions:first").html());
 		
 		//--------------------------organizational_option_btn_add
 		$("#organizational_option_btn_add").click(function(){
@@ -2614,15 +2681,6 @@
 			}
 		});
 		
-		//--------------------------organization-table2_all
-		/*$("#organization-table2_all").change(function(){
-			var checked = false;
-			if ($(this).is(':checked')) {
-				checked = true;
-			}
-			$(".organization-item-select[child_check='org_dataitems_profile_3']").prop('checked', checked);
-		});*/
-		
 		//--------------------------btn_profile_add
 		$("#btn_profile_add").click(function(){
 			orgAddProfileWin("", "", "");
@@ -2675,8 +2733,6 @@
 					$("#organizational_base_main_page_button_text").val(r.MainPageButtonText);
 					$("#organizational_base_main_page_button_link").val(r.MainPageButtonLink);
 				 }
-			}else{
-				alert(r.Error);
 			}
 		});
 		
@@ -2913,13 +2969,13 @@
 											
 										}
 									});
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else if(add_type == "School"){
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else{
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}
 							}
@@ -3043,8 +3099,9 @@
 			$(".organization-state-edit").each(function(){
 				var sid = $(this).attr("sid");
 				var stype = $(this).attr("stype");
+				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += ":";
-				sid_did += sid + "," + stype;
+				sid_did += sid + "," + stype + "," + did;
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
@@ -3100,7 +3157,7 @@
 				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
 			});
 			specific_items += "]";
-			
+
 			//---------------------------------------------------menu_items
 			var menu_items = "", flag_icon_error = false;			
 			var sn1 = 1; 
@@ -3110,7 +3167,7 @@
 					var menu_url = filterStr($(this).find(".menu_items_url").val());
 					var menu_icon = $(this).find(".menu_items_icon").val();
 					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");					
-					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
+					if(typeof(menu_icon_name) == "undefined"!)	menu_icon_name = "";
 					
 					if(menu_icon != "" && !organizationCheckUploadFile(menu_icon)){
 						flag_icon_error = true;
@@ -3119,6 +3176,7 @@
 					$(this).find(".menu_items_icon").attr("id", "menu_items_icon_" + sn1);
 					$(this).find(".menu_items_icon").attr("name", "menu_items_icon_" + sn1);
 					var menu_admin = ($(this).find(".menu_items_admin").attr('checked')) ? "1" : "0";
+					var menu_permission = $(this).find(".menu_items_permissions").val();
 					
 					var menu_items_child = "";				
 					var sn2 = 1;
@@ -3127,15 +3185,14 @@
 						if(menu_item1 != ""){
 							var menu_url1 = filterStr($(this).find(".sub_menu_url").val());
 							var menu_admin1 = ($(this).find(".sub_menu_admin").attr('checked')) ? "1" : "0";
-							
+							var menu_permission1 = $(this).find(".sub_menu_permissions").val();
 							if(menu_items_child != "")	menu_items_child += "_<_";
-							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1;
+							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1;
 							sn2++;
 						}
-					});	
-					
+					});
 					if(menu_items != "")	menu_items += "=<=";
-					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name;	
+					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name + "=>=" + menu_permission;	
 					
 					sn1++;
 				}
@@ -3154,7 +3211,7 @@
 					var cms_grade = filterStr($(this).find(".cms_items_grade").val());
 					var cms_icon = $(this).find(".cms_items_icon").val();
 					var cms_icon_name = $(this).find(".organizational_dashboard_cms_icon_view").attr("icon_name");					
-					if(!cms_icon_name || cms_icon_name == "undefined")	cms_icon_name = "";
+					if(typeof(cms_icon_name) == "undefined")	cms_icon_name = "";
 					var lid = "";
 					$(this).find(".btn_grade_level_active").each(function(){
 						if(lid != "")	lid += ",";						
@@ -3175,7 +3232,7 @@
 					
 					cms_sn1++;
 				}
-			});	
+			});
 
 			for(var i = 0; i < repeatList.length - 1; i++){
 				for(var j = i + 1; j < repeatList.length; j++){
@@ -3240,7 +3297,24 @@
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData();
 			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
-			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
+			var announcement_content = ceditor_announcement.CKEDITOR.getData();
+			if($("#organizational_dashboard_feed_txt").val() == "")			$("#organizational_dashboard_feed_txt").val("My Feed");
+			if($("#organizational_dashboard_activities_txt").val() == "")	$("#organizational_dashboard_activities_txt").val("My Activities");
+			if($("#organizational_dashboard_progress_txt").val() == "")		$("#organizational_dashboard_progress_txt").val("My Progress");
+			if($("#organizational_dashboard_resources_txt").val() == "")	$("#organizational_dashboard_resources_txt").val("My Resources");
+			if($("#organizational_dashboard_feed_txt_curr").val() == "")			$("#organizational_dashboard_feed_txt_curr").val("My Feed");
+			if($("#organizational_dashboard_activities_txt_curr").val() == "")		$("#organizational_dashboard_activities_txt_curr").val("My Activities");
+			if($("#organizational_dashboard_progress_txt_curr").val() == "")		$("#organizational_dashboard_progress_txt_curr").val("My Progress");
+			if($("#organizational_dashboard_resources_txt_curr").val() == "")		$("#organizational_dashboard_resources_txt_curr").val("My Resources");			
+			
+			var feed_txt = $("#organizational_dashboard_feed_txt").val();
+			var activities_txt = $("#organizational_dashboard_activities_txt").val();
+			var progress_txt = $("#organizational_dashboard_progress_txt").val();
+			var resources_txt = $("#organizational_dashboard_resources_txt").val();
+			var feed_txt_curr = $("#organizational_dashboard_feed_txt_curr").val();
+			var activities_txt_curr = $("#organizational_dashboard_activities_txt_curr").val();
+			var progress_txt_curr = $("#organizational_dashboard_progress_txt_curr").val();
+			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
@@ -3252,6 +3326,14 @@
 				menu_items: menu_items,
 				cms_items: cms_items,
 				dashboard_option: dashboard_option,
+				feed_txt: filterStr2(feed_txt),
+				activities_txt: filterStr2(activities_txt),
+				progress_txt: filterStr2(progress_txt),
+				resources_txt: filterStr2(resources_txt),
+				feed_txt_curr: filterStr2(feed_txt_curr),
+				activities_txt_curr: filterStr2(activities_txt_curr),
+				progress_txt_curr: filterStr2(progress_txt_curr),
+				resources_txt_curr: filterStr2(resources_txt_curr),
 				is_icon: is_icon,
 				is_icon_width_text: is_icon_width_text,
 				is_new_menu: is_new_menu,
@@ -3291,6 +3373,17 @@
 				menu_color: menu_color
 			}, function (r) {
 				if (r.Success){
+					if(r.back_sid_all){
+						try{
+							var tmp1 = r.back_sid_all.split(",");
+							$(".organization-state-edit").each(function(i){								
+								$(this).attr("did", tmp1[i]);
+							});
+						}catch(e){
+						
+						}
+					}
+
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}
