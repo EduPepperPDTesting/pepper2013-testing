@@ -1,3 +1,20 @@
+#webchat {
+    height: 280px !important;
+}
+#publisher {
+    height: 100%;
+}
+#subscriber {
+    position: absolute;
+    top: 72%;
+    left: 0;
+    height: 80px;
+    width: 120px;
+    z-index: 10;
+}
+#videos {
+    height: 100%;
+}
 #pep_text_container {
     position: fixed;
     bottom: 0;

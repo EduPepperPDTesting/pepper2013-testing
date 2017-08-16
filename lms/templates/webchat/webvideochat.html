@@ -1,12 +1,36 @@
+<%! from opentok import OpenTok
+from opentok import MediaModes
+api_key = "45939862"
+api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"
+opentok_sdk = OpenTok(api_key, api_secret)
+session = opentok_sdk.create_session(media_mode=MediaModes.routed)
+%>
+
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
+<script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+
+<div id="webchat" class="modal">
+     <div id="videos">
+        <div id="subscriber"></div>
+        <div id="publisher"></div>
+    </div>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+</div>
+
+<script src = "/static/js/webchat.js"></script>
+
+<a href="#webchat" rel="leanModal" id="start-session">VIDEO DEMO</a>
 
 <div id="pep_text_container">
     <div id="pep_video_panel" class="container">
         <div id="pep_videochatheader_container">
             <div id="pep_videochatheader_title">
                 <span id="uname">Video Chat</span>
-                <a href="default.asp">+</a>
             </div>
             <div id="pep_header_right">
                 <img id="pep_user_photo"
