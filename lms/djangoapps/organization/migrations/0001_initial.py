@@ -31,6 +31,7 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('EntityType', self.gf('django.db.models.fields.CharField')(max_length=20)),
             ('OrganizationEnity', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('OtherFields', self.gf('django.db.models.fields.TextField')()),
             ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
         ))
         db.send_create_signal('organization', ['OrganizationDistricts'])
@@ -101,6 +102,23 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('organization', ['OrganizationDashboard'])
 
+        # Adding model 'OrganizationFooter'
+        db.create_table('organization_footer', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('DataItem', self.gf('django.db.models.fields.TextField')()),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
+        ))
+        db.send_create_signal('organization', ['OrganizationFooter'])
+
+        # Adding model 'OrganizationMoreText'
+        db.create_table('organization_more_text', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('DataItem', self.gf('django.db.models.fields.TextField')()),
+            ('itemType', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
+        ))
+        db.send_create_signal('organization', ['OrganizationMoreText'])
+
 
     def backwards(self, orm):
         # Deleting model 'OrganizationMetadata'
@@ -129,6 +147,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'OrganizationDashboard'
         db.delete_table('organization_dashboard')
+
+        # Deleting model 'OrganizationFooter'
+        db.delete_table('organization_footer')
+
+        # Deleting model 'OrganizationMoreText'
+        db.delete_table('organization_more_text')
 
 
     models = {
@@ -178,6 +202,13 @@ class Migration(SchemaMigration):
             'EntityType': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
             'Meta': {'object_name': 'OrganizationDistricts', 'db_table': "'organization_districts'"},
             'OrganizationEnity': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'OtherFields': ('django.db.models.fields.TextField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
+        },
+        'organization.organizationfooter': {
+            'DataItem': ('django.db.models.fields.TextField', [], {}),
+            'Meta': {'object_name': 'OrganizationFooter', 'db_table': "'organization_footer'"},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
         },
@@ -206,6 +237,13 @@ class Migration(SchemaMigration):
             'SchoolType': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'organization.organizationmoretext': {
+            'DataItem': ('django.db.models.fields.TextField', [], {}),
+            'Meta': {'object_name': 'OrganizationMoreText', 'db_table': "'organization_more_text'"},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'itemType': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['organization.OrganizationMetadata']"})
         }
     }
 
