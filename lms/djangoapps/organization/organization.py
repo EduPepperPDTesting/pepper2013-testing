@@ -725,19 +725,28 @@ def organizational_save_base(request):
                 org_dashboard_motto_curr.save()
 
             # --------------OrganizationMenuitem
-            OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
             if (menu_items):
+                menu_items_list = menu_items.split("=<=")
+
+                # Delete the deleted records
+                for item_c in OrganizationMenuitem.objects.filter(organization=org_metadata, ParentID=0):
+                    if item_c.rowNum > len(menu_items_list):
+                        OrganizationMenuitem.objects.filter(organization=org_metadata, ParentID=item_c.id).delete()
+                        item_c.delete()
+
                 permission_content = ""
-                for tmp1 in menu_items.split("=<="):
+                for tmp1 in menu_items_list:
                     tmp2 = tmp1.split("=>=")
 
                     org_menu_item = OrganizationMenuitem()
+                    for org_menu_item1 in OrganizationMenuitem.objects.filter(organization=org_metadata, ParentID=0, rowNum=int(tmp2[0])):
+                        org_menu_item = org_menu_item1
+                        break
+
                     org_menu_item.organization = org_metadata
                     org_menu_item.MenuItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
-                    if tmp2[5] != "":
-                        org_menu_item.Icon = tmp2[5]
-
+                    org_menu_item.Icon = tmp2[5]
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
                     else:
@@ -747,12 +756,23 @@ def organizational_save_base(request):
 
                     if permission_content != "":
                         permission_content += ", "
-
                     permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+
                     if tmp2[4]:
-                        for tmp3 in tmp2[4].split("_<_"):
+                        sub_items_list = tmp2[4].split("_<_")
+
+                        # Delete the deleted records
+                        for item_c in OrganizationMenuitem.objects.filter(organization=org_metadata, ParentID=org_menu_item.id):
+                            if item_c.rowNum > len(sub_items_list):
+                                item_c.delete()
+
+                        for tmp3 in sub_items_list:
                             tmp4 = tmp3.split("_>_")
                             org_menu_item1 = OrganizationMenuitem()
+                            for org_menu_item1_1 in OrganizationMenuitem.objects.filter(organization=org_metadata, ParentID=org_menu_item.id, rowNum=int(tmp4[0])):
+                                org_menu_item1 = org_menu_item1_1
+                                break
+
                             org_menu_item1.organization = org_metadata
                             org_menu_item1.MenuItem = tmp4[1]
                             org_menu_item1.Url = tmp4[2]
@@ -780,23 +800,36 @@ def organizational_save_base(request):
                 org_permission.organization = org_metadata
                 org_permission.itemType = "menu_item_permission"
                 org_permission.save()
+            else:
+                OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
 
             # --------------OrganizationCmsitem
-            OrganizationCmsitem.objects.filter(organization=org_metadata).delete()
             if (cms_items):
-                for tmp1 in cms_items.split("=<="):
-                    tmp2 = tmp1.split("=>=")
+                cms_items_list = cms_items.split("=<=")
 
+                # Delete the deleted records
+                for item_c in OrganizationCmsitem.objects.filter(organization=org_metadata):
+                    if item_c.rowNum > len(cms_items_list):
+                        item_c.delete()
+
+                # Add all
+                for tmp1 in cms_items_list:
+                    tmp2 = tmp1.split("=>=")
                     org_menu_item = OrganizationCmsitem()
+
+                    for org_menu_item1 in OrganizationCmsitem.objects.filter(organization=org_metadata, rowNum=int(tmp2[0])):
+                        org_menu_item = org_menu_item1
+                        break
+
                     org_menu_item.organization = org_metadata
+                    org_menu_item.rowNum = tmp2[0]
                     org_menu_item.CmsItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
                     org_menu_item.Grade = tmp2[3]
-                    if tmp2[4] != "":
-                        org_menu_item.Icon = tmp2[4]
-
-                    org_menu_item.rowNum = tmp2[0]
+                    org_menu_item.Icon = tmp2[4]
                     org_menu_item.save()
+            else:
+                OrganizationCmsitem.objects.filter(organization=org_metadata).delete()
 
             org_organizationmenusave(org_metadata, "Menu Color", menu_color)
             org_organizationmenusave(org_metadata, "Is Icon", is_icon)
@@ -1127,7 +1160,7 @@ def org_dashboard_upload_cms(request):
         oid = request.POST.get("oid", "")
         fileelementid = request.POST.get("fileelementid", "")
 
-        if(rowNum and oid):
+        if(rownum and oid):
             rownum = str(rownum)
             organization = OrganizationMetadata.objects.get(id=oid)
             imgx = request.FILES.get("cms_items_icon_" + rownum, None)
