@@ -1139,7 +1139,7 @@ def get_org_announcements(request):
     kwargs = {"after": now_utc}
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
-    if org = "Pepper":
+    if org == "Pepper":
         user_profile = UserProfile.objects.get(user_id=request.user.id)
         district_id = user_profile.district_id
         state_id = District.objects.get(id=district_id).state_id
