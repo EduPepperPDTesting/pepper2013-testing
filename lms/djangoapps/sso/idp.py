@@ -70,6 +70,12 @@ class Cache(object):
 def get_saml_setting(sp_name):
     BASE = "http://"
     DIR = path.join(SSO_DIR, "sp", sp_name)
+
+    if getattr(settings, "MONGO_USER") is not None and getattr(settings, "MONGO_PASSWORD") is not None:
+        mongo_uri = "mongodb://%s:%s@%s:%s/saml" % (settings.MONGO_USER, settings.MONGO_PASSWORD, settings.MONGO_HOST, settings.MONGO_PORT)
+    else:
+        mongo_uri = "mongodb://%s:%s/saml" % (settings.MONGO_HOST, settings.MONGO_PORT)
+    
     setting = {
         "entityid": settings.SAML_ENTITY_ID,
         "description": "PepperPD",
@@ -92,7 +98,7 @@ def get_saml_setting(sp_name):
                     },
                 },
                 "subject_data": "./idp.subject",
-                "session_storage": ("mongodb", "saml"),
+                "session_storage": ("mongodb", mongo_uri),
                 "name_id_format": [NAMEID_FORMAT_TRANSIENT,
                                    NAMEID_FORMAT_PERSISTENT]
             },
