@@ -1139,6 +1139,33 @@ def get_org_announcements(request):
     kwargs = {"after": now_utc}
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
+    if org = "Pepper":
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
+        district_id = user_profile.district_id
+        state_id = District.objects.get(id=district_id).state_id
+        school_id = user_profile.school_id
+        organization_id = []
+        organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+        for k,v in enumerate(organization):
+            b = eval(v.OtherFields)
+            b["date"] = b["date"][:19]
+            timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
+            organization_createdate = int(time.mktime(timeArray))
+            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+            if organization_createdate < date_joined:
+                if v.organization.id not in organization_id:
+                    organization_id.append(v.organization.id)
+
+        kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+        data = {"orgs": []}
+        inital = []
+        pepper = []
+        for v2 in organization_id:
+            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+
+        inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+        if len(inital) > 0:
+            list(post).insert(0,inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
