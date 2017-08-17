@@ -1891,7 +1891,7 @@ $(document).ready(function () {
                 data['district'] = id;
             }
             $.get(url, data, function (r) {
-                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                var options = '<option value="" class="null_case">Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
                 $.each(r, function (k, v) {
                     options += '<option value="' + v.name + '" class="' + v.id + '">' + v.name + '</option>';
                 });
