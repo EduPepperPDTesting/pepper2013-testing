@@ -1156,16 +1156,17 @@ def get_org_announcements(request):
                 if v.organization.id not in organization_id:
                     organization_id.append(v.organization.id)
 
-        kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
-        data = {"orgs": []}
         inital = []
-        pepper = []
         for v2 in organization_id:
             inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
 
         inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
         if len(inital) > 0:
-            list(post).insert(0,inital[0])
+            if inital[0].has_key("dismiss"):
+                if long(request.user.id) not in inital[0]["dismiss"]:
+                    posts.append(inital[0])
+            else:
+                posts.append(inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
