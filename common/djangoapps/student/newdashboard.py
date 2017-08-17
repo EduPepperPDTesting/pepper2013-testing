@@ -8,7 +8,8 @@ import logging
 import re
 import base64
 from PIL import Image
-
+from django.db.models import Q
+import time
 from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -1158,14 +1159,50 @@ def get_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
+
     store = dashboard_feeding_store()
+    user_profile = UserProfile.objects.get(user_id=request.user.id)
+
+    district_id = user_profile.district_id
+    state_id = District.objects.get(id=district_id).state_id
+    school_id = user_profile.school_id
+    organization_id = []
+    organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+    for k,v in enumerate(organization):
+        b = eval(v.OtherFields)
+        b["date"] = b["date"][:19]
+        timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
+        organization_createdate = int(time.mktime(timeArray))
+        date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+
+        if organization_createdate < date_joined:
+            if v.organization.id not in organization_id:
+                organization_id.append(v.organization.id)
+
+
     # posts = store.top_level_for_user(request.user.id, type=filter_group,
     #                                  year=filter_year, month=filter_month,
     #                                  page_size=int(page_size), page=int(page), after=now_utc)
 
     kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
     data = {"orgs": []}
-    data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
+
+    inital = []
+    pepper = []
+    for v2 in organization_id:
+        inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+
+    inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+    
+    if len(inital) > 0:
+        if inital[0].has_key("dismiss"):
+            if long(request.user.id) not in inital[0]["dismiss"]:
+                pepper.append(inital[0])
+        else:
+            pepper.append(inital[0])
+
+    pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
+    data["orgs"].append(pepper)
     data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))

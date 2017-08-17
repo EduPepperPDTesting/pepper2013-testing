@@ -177,8 +177,69 @@ class DashboardFeedingStore(MongoBaseStore):
 
     def get_announcements(self, user_id, organization_type, **kwargs):
         kwargs["type"] = "announcement"
-        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type}
+        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type,"__doc__.organization_id":{"$exists":False}}
         return self.top_level_for_user(user_id, **kwargs)
+
+    def top_level_for_user_not_dismiss(self, user_id, type=None, year=None, month=None, page_size=None, page=None, after=None, cond_ext={}):
+        results = []
+
+        # ** fields needed
+        fields = {"__doc__": "$$ROOT", "keep_top": {"$and": [
+            {"$eq": ["$type", "announcement"]},
+            {"$gte": ["$expiration_date", after]}]}}
+        fields["month"] = {"$month": '$date'}
+        fields["year"] = {"$year": '$date'}
+
+        # ** cond
+        cond = {"$and": [{"$or": [{"__doc__.receivers": {"$in": [user_id]}},  # user is receiver
+                                  {"__doc__.receivers": {"$elemMatch": {"$eq": 0}}}]},  # for every one
+                         {"$or": [
+                             {"__doc__.type": {"$ne": "announcement"}},  # none announcement
+                             {"__doc__.expiration_date": {"$gte": after}}]}  # > after
+                         ],
+                "__doc__.sub_of": None}  # is top leve;
+
+        cond.update(cond_ext)
+
+        # *** filter cond
+        if month:
+            cond["month"] = int(month)
+
+        if year:
+            cond["year"] = int(year)
+
+        if type:
+            cond["__doc__.type"] = type
+
+        # ** sort order
+        so = OrderedDict([("keep_top", -1), ("__doc__.date", -1)])
+
+        # ** create command
+        command = [{"$project": fields}, {"$match": cond}, {"$sort": so}]
+
+        # *** paged
+        if page is not None:
+            command.append({"$skip": page * page_size})
+        if page_size is not None:
+            command.append({"$limit": page_size})
+
+        cursor = self.aggregate(command)
+
+        # cursor = self.find({"$or": [{"receivers": {"$elemMatch": {"$eq": 1}}},
+        #                             {"receivers": {"$elemMatch": {"$eq": 0}}}],  # global
+        #                     "sub_of": None})
+
+        for p in cursor["result"]:
+            # p = dict((k, p[k]) for k in ("_id", "content", "user_id"))
+            p.update(p["__doc__"])
+            del p["__doc__"]
+            results.append(p)
+        return results
+
+    def get_initals(self,user_id,organization_type,organization_id,user_joined,**kwargs):
+        kwargs["type"] = "announcement"
+        kwargs["cond_ext"] = {"__doc__.organization_type": organization_type,"__doc__.organization_id":str(organization_id),"__doc__.date": {"$lte": user_joined}} 
+        return self.top_level_for_user_not_dismiss(user_id, **kwargs)
 
     def get_posts(self, user_id, **kwargs):
         kwargs["type"] = "post"
