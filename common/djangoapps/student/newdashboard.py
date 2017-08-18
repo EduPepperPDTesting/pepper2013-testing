@@ -1191,47 +1191,11 @@ def get_announcements(request):
 
 
     store = dashboard_feeding_store()
-    user_profile = UserProfile.objects.get(user_id=request.user.id)
-
-    district_id = user_profile.district_id
-    state_id = District.objects.get(id=district_id).state_id
-    school_id = user_profile.school_id
-    organization_id = []
-    organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
-    for k,v in enumerate(organization):
-        b = eval(v.OtherFields)
-        b["date"] = b["date"][:19]
-        timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
-        organization_createdate = int(time.mktime(timeArray))
-        date_joined = int(time.mktime(request.user.date_joined.timetuple()))
-
-        if organization_createdate < date_joined:
-            if v.organization.id not in organization_id:
-                organization_id.append(v.organization.id)
-
-
-    # posts = store.top_level_for_user(request.user.id, type=filter_group,
-    #                                  year=filter_year, month=filter_month,
-    #                                  page_size=int(page_size), page=int(page), after=now_utc)
-
-    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
-    data = {"orgs": []}
-
-    inital = []
-    pepper = []
-    for v2 in organization_id:
-        inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
-
-    inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
     
+    inital = get_inital(request)
+    pepper = []
     if len(inital) > 0:
-        if inital[0].has_key("dismiss"):
-            if long(request.user.id) not in inital[0]["dismiss"]:
-                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
-                pepper.append(inital[0])
-        else:
-            inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
-            pepper.append(inital[0])
+        pepper.append(inital[0])
 
     pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
     data["orgs"].append(pepper)
@@ -1246,6 +1210,60 @@ def get_announcements(request):
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
+def get_inital(request):
+    user_store = DashboardFeedingUserStore()
+    inital = user_store.get_initals(request.user.id)
+    if len(inital) == 0:
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
+        district_id = user_profile.district_id
+        state_id = District.objects.get(id=district_id).state_id
+        school_id = user_profile.school_id
+        organization_id = []
+        organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+        for k,v in enumerate(organization):
+            b = eval(v.OtherFields)
+            b["date"] = b["date"][:19]
+            timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
+            organization_createdate = int(time.mktime(timeArray))
+            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+
+            if organization_createdate < date_joined:
+                if v.organization.id not in organization_id:
+                    organization_id.append(v.organization.id)
+
+        kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+        data = {"orgs": []}
+
+        inital = []
+        pepper = []
+        for v2 in organization_id:
+            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+
+        inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+        
+        if len(inital) > 0:
+            if inital[0].has_key("dismiss"):
+                if long(request.user.id) not in inital[0]["dismiss"]:
+                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
+                    pepper.append(inital[0])
+                    del inital[0]["_id"]
+                    inital[0]["show_user_id"] = request.user.id
+                    inital[0]["dismissing"] = 0
+                    user_store.create(inital[0])
+            else:
+                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
+                pepper.append(inital[0])
+                del inital[0]["_id"]
+                inital[0]["show_user_id"] = request.user.id
+                inital[0]["dismissing"] = 0
+                user_store.create(inital[0])
+
+        return pepper
+    else:
+        if inital[0]["dismissing"] == 1:
+            return []
+        else:
+            return inital
 
 @ajax_login_required()
 def submit_new_like(request):
