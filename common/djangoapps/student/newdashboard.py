@@ -1164,8 +1164,10 @@ def get_org_announcements(request):
         if len(inital) > 0:
             if inital[0].has_key("dismiss"):
                 if long(request.user.id) not in inital[0]["dismiss"]:
+                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
                     posts.insert(0,inital[0])
             else:
+                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
                 posts.insert(0,inital[0])
 
     for a in posts:
@@ -1225,8 +1227,10 @@ def get_announcements(request):
     if len(inital) > 0:
         if inital[0].has_key("dismiss"):
             if long(request.user.id) not in inital[0]["dismiss"]:
+                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
                 pepper.append(inital[0])
         else:
+            inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
             pepper.append(inital[0])
 
     pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
