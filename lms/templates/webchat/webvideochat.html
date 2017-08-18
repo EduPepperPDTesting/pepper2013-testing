@@ -24,8 +24,6 @@ session = opentok_sdk.create_session(media_mode=MediaModes.routed)
 
 <script src = "/static/js/webchat.js"></script>
 
-<a href="#webchat" rel="leanModal" id="start-session">VIDEO DEMO</a>
-
 <div id="pep_text_container">
     <div id="pep_video_panel" class="container">
         <div id="pep_videochatheader_container">
@@ -42,7 +40,8 @@ session = opentok_sdk.create_session(media_mode=MediaModes.routed)
         <div id="pep_chat_container" class="container-fluid">
             <div class="row">
                 <div class="col-sm-6" id="pep_videotext_panel">
-                    <div id="pep_text_chat"></div>
+                    <div id="pep_text_chat"><a href="#webchat" rel="leanModal" id="start-session">VIDEO DEMO</a>
+</div>
                     <div id="pep_videochatfooter_container" class="container-fluid">
                         <div class="row">
                             <div id="pep_chat_input" class="col-sm-8"></div>
