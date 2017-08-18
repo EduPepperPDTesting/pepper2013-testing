@@ -270,3 +270,26 @@ def dashboard_feeding_store():
     options = {}
     options.update(settings.FEEDINGSTORE['OPTIONS'])
     return DashboardFeedingStore(**options)
+
+def dashboard_feeding_user_store():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return DashboardFeedingUserStore(**options)
+
+class DashboardFeedingUserStore(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="dashboard_feeding_user", port=port, **kwargs)
+
+    def create(self,data):
+        return self.insert(data)
+
+    def get_initial(self,show_user_id):
+        inital = []
+        inital.append(self.find_one({"show_user_id":show_user_id}))
+        return inital
+
+    def set_dismiss(self,user_id):
+        self.update({"show_user_id": user_id},
+                    {"$set": {"dismissing": 1}}, False, True)
