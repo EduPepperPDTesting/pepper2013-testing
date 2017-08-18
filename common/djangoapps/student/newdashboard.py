@@ -1119,6 +1119,8 @@ def dismiss_announcement(request):
     try:
         store = dashboard_feeding_store()
         store.dismiss(_id, request.user.id)
+        user_store = dashboard_feeding_user_store()
+        user_store.set_dismiss(request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
 
@@ -1187,6 +1189,7 @@ def get_announcements(request):
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
 def get_inital(request,now_utc):
+    store = dashboard_feeding_store()
     user_store = dashboard_feeding_user_store()
     inital = user_store.get_initial(request.user.id)
     if inital== None:
@@ -1219,14 +1222,14 @@ def get_inital(request,now_utc):
         if len(inital) > 0:
             if inital[0].has_key("dismiss"):
                 if long(request.user.id) not in inital[0]["dismiss"]:
-                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
+                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com").id
                     pepper.append(inital[0])
                     del inital[0]["_id"]
                     inital[0]["show_user_id"] = request.user.id
                     inital[0]["dismissing"] = 0
                     user_store.create(inital[0])
             else:
-                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
+                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com").id
                 pepper.append(inital[0])
                 del inital[0]["_id"]
                 inital[0]["show_user_id"] = request.user.id
