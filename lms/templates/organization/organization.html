@@ -293,10 +293,10 @@
         <select id="org_district_select" style="width:300px;"></select>
         <select id="org_school_select" style="width:300px;"></select>
         
-        &nbsp;&nbsp;<input type="button" id="org_btn_add_state" value="ADD" class="small_btn" />
-        <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" />
-        <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" />
-        <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" />
+        <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
+        <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
+        <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
+        <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
         
         <div style="width:500px; margin-top:10px;">
             <table id="organization-state-table" class="organization-table">
@@ -745,11 +745,61 @@
     </div>
 </div>
 
-<div class="organization_main1 expand_title_parent">
+<div class="organization_main1 expand_title_parent" style="margin-bottom:20px;">
     <div class="expand_title expand_title_collapse" next_sn="4">Course Assignment<div class="icon"></div></div>
     <div class="expand_div">
+        <select id="org_assignment_subject_id">
+            <option value="all">All Subjects</option>
+            <option value="AR">Assessments and Reporting</option>
+            <option value="DC">Digital Citizenship</option>
+            <option value="ELA">English Language Arts</option>
+            <option value="ELL">English Language Learners</option>
+            <option value="MA">Mathematics</option>
+            <option value="PEP">Pepper</option>
+            <option value="POW">Pepper's Online Workshops!</option>
+            <option value="SC">Science</option>
+            <option value="SE">Special Education</option>
+            <option value="TCH">Teacher ToolKit</option>
+            <option value="TECH">Technology</option>
+            <option value="ARTS">Visual & Performing Arts</option>
+            <option value="WR">Writing and Poetry</option>
+        </select>
+        <select id="org_assignment_author_id">
+            <option value="all">All Authors</option>
+            <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
+            <option value="CHADD">CHADD</option>
+            <option value="Common Sense Education">Common Sense Education</option>
+            <option value="Media Power Youth">Media Power Youth</option>
+            <option value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</option>
+            <option value="PCG Education">PCG Education</option>
+            <option value="SEADAE">SEADAE</option>
+            <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
+            <option value="WestEd">WestEd</option>
+        </select>
         
+        <input type="button" id="org_assignment_btn_find" value="FIND" class="small_btn" style="margin:0 0 0 20px !important;" />        
         
+        <div class="org_assignment_course_all">
+            <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
+                <div style="font-weight:bold; padding:20px 0 10px 0; font-size:1.2em; ">Courses:</div>
+                <div>
+                    <select class="org_assignment_course_select" style="width:500px;">
+                        <option value="">Select a Course</option>
+                    </select>
+                    <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
+                </div>
+                <div style="padding:10px 0 10px 10px;">Qualifications:</div>
+                <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;">
+
+                    <span style="float:left; padding:10px 30px 10px 0;" class="org_assignment_qualifications_item">
+                        <select class="org_assignment_qualifications_select" style="width:300px;">
+                            <option value="">Select a Qualification</option>
+                        </select>
+                        <input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
+                    </span>
+                </td></tr></table>
+            </div>
+        </div>
         
         <div style="width:100%; text-align:right; height:30px;">
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
@@ -986,6 +1036,10 @@
 	//-----------------------------------------------------------------------organization_district__school_list
 	var organization_district_list = new Array();
 	var organization_school_list = new Array();	
+	
+	//-----------------------------------------------------------------------
+	var organization_assignment_all_id = new Array();
+	var organization_assignment_all_name = new Array();	
 	
 	//-----------------------------------------------------------------------organizational_dashboard_menu_text_size
 	for(var i = 9; i < 35; i++){
@@ -1304,6 +1358,9 @@
 									orgProfileInit(r.specific_items);							
 															
 									var flag_new = true;
+									
+									//----------Course Assignment
+									initAssignmentQualifications(r['Course Assignment']);
 									
 									//----------Entlty type
 									if(r.sid_did != ""){
@@ -1726,6 +1783,7 @@
 							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
 							
 							loadwin.hide();
+							updateAssignmentQualifications();
 						});
 					});
 				}
@@ -2157,6 +2215,35 @@
 			$(el).val("-");		
 		}
 	}
+		
+	//-----------------------------------------------------------------------org_assignment_course_clone
+	function org_assignment_course_clone(el){
+		if($(el).val() == "-"){
+			$(el).parent().parent().remove();
+		}else{			
+			var clonex = $(el).parent().parent().clone(true);
+			clonex.find(".org_assignment_course_select").val("");
+			clonex.find(".org_assignment_qualifications_select").val("");
+			clonex.find(".org_assignment_qualifications_item").each(function(i){
+				if(i > 0)	$(this).remove();
+			});
+			clonex.find(".small_btn").val("+");
+			$(".org_assignment_course_all").append(clonex);
+			$(el).val("-");			
+		}
+	}
+	
+	//-----------------------------------------------------------------------org_assignment_qualifications_clone	
+	function org_assignment_qualifications_clone(el){
+		if($(el).val() == "-"){
+			$(el).parent().remove();
+		}else{
+			var clonex = $(el).parent().clone(true);
+			clonex.find(".org_assignment_qualifications_select").val("");
+			$(el).parent().parent().append(clonex);
+			$(el).val("-");
+		}
+	}
 	
 	//-----------------------------------------------------------------------organizational_dashboard_demo_div_reload
 	function organizational_dashboard_demo_div_reload(){
@@ -2442,7 +2529,7 @@
 			$("#organizational_option_btn_cancel").css("cssText", "display:block !important;");
 		});
 		
-		$('#organization-option-table').trigger('update');
+		$('#organization-option-table').trigger('update');		
 	}
 	
 	//-----------------------------------------------------------------------orgAddProfileWin
@@ -2516,6 +2603,60 @@
 		$("#" + tr_id).attr("field_type_" + field_type_val, field_type_content);
 	}
 	
+	//-----------------------------------------------------------------------initAssignmentQualifications
+	function initAssignmentQualifications(content){
+	 	//(PCG_EDU/NMM2/S2017):(Major Subject Area),(Grade Level-Check all that apply);(ZX/test001/2016_Winter):(About me),(Number of Years in Education)
+		/*<div class="org_assignment_course_all">
+            <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
+                <div style="font-weight:bold; padding:20px 0 10px 0; font-size:1.2em; ">Courses:</div>
+                <div>
+                    <select class="org_assignment_course_select" style="width:500px;">
+                        <option value="">Select a Course</option>
+                    </select>
+                    <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
+                </div>
+                <div style="padding:10px 0 10px 10px;">Qualifications:</div>
+                <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;">
+
+                    <span style="float:left; padding:10px 30px 10px 0;" class="org_assignment_qualifications_item">
+                        <select class="org_assignment_qualifications_select" style="width:300px;">
+                            <option value="">Select a Qualification</option>
+                        </select>
+                        <input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
+                    </span>
+                </td></tr></table>
+            </div>
+        </div>*/
+		/*$(".org_assignment_course_item").not(":first").remove();
+		$(".org_assignment_qualifications_item").not(":first").remove();
+		$("#press").attr("d",content);
+		if(content){
+			for(var i in content.split(";")){
+				org_assignment_course_clone($(".org_assignment_course_select:first").find("input"));
+			}
+		}*/
+	}
+	
+	//-----------------------------------------------------------------------updateAssignmentQualifications
+	function updateAssignmentQualifications(){
+		var tmp_first_val = $(".org_assignment_qualifications_select:first").val();
+		$(".org_assignment_qualifications_select:first").empty();
+		$(".org_assignment_qualifications_select:first").append('<option value="">Select a Qualification</option>');		
+		
+		$('.org_dataitems_profile').each(function(){
+			$(".org_assignment_qualifications_select:first").append('<option value="' + $(this).html() + '">' + $(this).html() + '</option>');//;
+		});
+		$(".org_assignment_qualifications_select:first").val(tmp_first_val);
+		
+		$(".org_assignment_qualifications_select").each(function(i){
+			if(i > 0){
+				var tmp1_val = $(this).val();
+				$(this).html($(".org_assignment_qualifications_select:first").html());
+				$(this).val(tmp1_val);
+			}
+		});
+	}
+	
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
@@ -2531,6 +2672,43 @@
 		
 		//--------------------------permissions copy
 		$(".sub_menu_permissions").html($(".menu_items_permissions:first").html());
+		
+		//--------------------------org_assignment_courses_init
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: "all", author_id: "all"}, function (r) {
+			if (r.Success){
+				for(var i in r.courses){
+					organization_assignment_all_id.push(r.courses[i].id);
+					organization_assignment_all_name.push(r.courses[i].course_number + " | " + r.courses[i].title);
+				}
+			}
+		});
+		
+		//--------------------------org_assignment_btn_find
+		$("#org_assignment_btn_find").click(function(){
+			var loadwin = new LoadingWin();
+			
+			$(".org_assignment_course_select").each(function(){
+				if($(this).val() == ""){
+					$(this).empty();
+					$(this).append('<option value="">Select a Course</option>');
+				}
+			});
+			
+			$.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
+				if (r.Success){
+					for(var i in r.courses){
+						$(".org_assignment_course_select").each(function(){
+							if($(this).val() == ""){
+								$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');	
+							}
+						});
+					}
+				}else{
+					alert(r.Error);
+				}
+				loadwin.hide();
+			});
+		});
 		
 		//--------------------------organizational_option_btn_add
 		$("#organizational_option_btn_add").click(function(){
@@ -3257,6 +3435,25 @@
 				return;
 			}
 			
+			//---------------------------------------------------Course Assignment
+			var course_assignment_content = "";
+			$(".org_assignment_course_item").each(function(){
+				var course_id = $(this).find(".org_assignment_course_select").val();
+				if(course_id != ""){
+					var course_assignment_child = "";
+					$(this).find(".org_assignment_qualifications_select").each(function(){
+						var qualifications_id = $(this).val();
+						if(qualifications_id != ""){
+							if(course_assignment_child != "")	course_assignment_child += ",";
+							course_assignment_child += "(" + qualifications_id + ")";
+						}
+					});
+					if(course_assignment_content != "")	course_assignment_content += ";";
+					course_assignment_content += "(" + course_id + "):" + course_assignment_child;
+				}
+			});	
+			
+			//---------------------------------------------------
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
 			//document.getElementById('organizational_menu_color').jscolor.toHEXString();
 			var menu_color = $("#organizational_menu_color").val();
@@ -3318,6 +3515,7 @@
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
+				course_assignment_content: course_assignment_content,
 				for_district: for_district,
 				for_school: for_school,
 				specific_items: specific_items,
@@ -3410,6 +3608,8 @@
 							organizationDashboardUploadFileCms($(this).find(".cms_items_icon").attr("id"));
 						}
 					});
+					
+					updateAssignmentQualifications();
 					$("#org_btn_cancel_state").click();
 				}else{
 					alert(r.Error);

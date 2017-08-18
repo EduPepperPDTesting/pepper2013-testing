@@ -27,6 +27,7 @@ import os.path
 import shutil
 from student.feeding import dashboard_feeding_store
 import csv
+from courseware.courses import get_courses, get_course_about_section
 
 
 # -------------------------------------------------------------------main
@@ -87,6 +88,8 @@ def main(request):
         elif (post_flag == "organization_get_info"):
             return organization_get_info(request)
 
+        elif (post_flag == "organization_course_list"):
+            return organization_course_list(request)
     else:
         tmp = "organization/organization.html"
         return render_to_response(tmp)
@@ -433,6 +436,11 @@ def organization_get(request):
                         data['menu_item_permission'] = tmp1.DataItem
                         break
 
+                    # --------------Course Assignment
+                    for tmp1 in OrganizationMoreText.objects.filter(organization=organizations, itemType="Course Assignment"):
+                        data['Course Assignment'] = tmp1.DataItem
+                        break
+
                     # --------------OrganizationDistricts
                     sid_did = ""
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
@@ -546,6 +554,7 @@ def organizational_save_base(request):
         for_school = request.POST.get("for_school", "")
         specific_items = request.POST.get("specific_items", "")
         sid_did = request.POST.get("sid_did", "")
+        course_assignment_content = request.POST.get("course_assignment_content", "")
         motto = request.POST.get("motto", "")
         motto_curr = request.POST.get("motto_curr", "")
         menu_items = request.POST.get("menu_items", "")
@@ -791,8 +800,7 @@ def organizational_save_base(request):
 
                 # --------------OrganizationMoreText
                 org_permission = OrganizationMoreText()
-                org_permission_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="menu_item_permission")
-                for tmp1 in org_permission_list:
+                for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="menu_item_permission"):
                     org_permission = tmp1
                     break
 
@@ -802,6 +810,17 @@ def organizational_save_base(request):
                 org_permission.save()
             else:
                 OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
+
+            # --------------course_assignment_content
+            org_course_assignment = OrganizationMoreText()
+            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
+                org_course_assignment = tmp1
+                break
+
+            org_course_assignment.DataItem = course_assignment_content
+            org_course_assignment.organization = org_metadata
+            org_course_assignment.itemType = "Course Assignment"
+            org_course_assignment.save()
 
             # --------------OrganizationCmsitem
             if (cms_items):
@@ -1334,3 +1353,161 @@ def organization_get_info(request):
         data = {'SiteURL_OK': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+# -------------------------------------------------------------------organization_course_list
+@login_required
+def organization_course_list(request):
+    subject_id = request.POST.get('subject_id', 'all')
+    grade_id = request.POST.get('grade_id', 'all')
+    author_id = request.POST.get('author_id', 'all')
+    district = request.POST.get('district', '')
+    state = request.POST.get('state', '')
+    collection = request.POST.get('collection', '')
+    credit = request.POST.get('credit', '')
+    is_new = request.POST.get('is_new', '')
+    district_id = request.POST.get('district', '')
+    state_id = request.POST.get('state', '')
+    all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    is_member = {'state': False, 'district': False}
+
+    filter_dic = {'_id.category': 'course'}
+    if subject_id != 'all':
+        filter_dic['metadata.display_subject'] = subject_id
+
+    if grade_id != 'all':
+        if grade_id == '6-8' or grade_id == '9-12':
+            filter_dic['metadata.display_grades'] = {'$in': [grade_id, '6-12']}
+        else:
+            filter_dic['metadata.display_grades'] = grade_id
+
+    if author_id != 'all':
+        filter_dic['metadata.display_organization'] = author_id
+
+    if district_id != '' and district_id != '__NONE__':
+        if district in all_district:
+            is_member['district'] = True
+            filter_dic['metadata.display_district'] = {'$in': [district, 'All']}
+        else:
+            filter_dic['metadata.display_district'] = district
+    elif state_id != '' and state_id != '__NONE__':
+        if state in all_state:
+            is_member['state'] = True
+            filter_dic['metadata.display_state'] = {'$in': [state, 'All']}
+        else:
+            filter_dic['metadata.display_state'] = state
+
+    if collection != '':
+        filter_dic['metadata.content_collections'] = {'$in': [collection, 'All']}
+
+    if credit != '':
+        filter_dic['metadata.display_credit'] = True
+
+    items = modulestore().collection.find(filter_dic).sort("metadata.display_subject.0", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+
+    subject_index = [-1, -1, -1, -1, -1]
+    curr_subject = ["", "", "", "", ""]
+    g_courses = [[], [], [], [], []]
+    # end
+
+    more_subjects_courses = [[], [], [], [], []]
+
+    for course in courses:
+        if is_new == '' or course.is_newish:
+            course_filter(course, subject_index, curr_subject, g_courses, grade_id, more_subjects_courses)
+
+    if subject_id == 'all':
+        for i in range(0, len(more_subjects_courses)):
+            if len(more_subjects_courses[i]) > 0:
+                g_courses[i].append(more_subjects_courses[i])
+    else:
+        for i in range(0, len(more_subjects_courses)):
+            if len(more_subjects_courses[i]) > 0:
+                if len(g_courses[i]) > 0:
+                    for n in range(0, len(more_subjects_courses[i])):
+                        g_courses[i][0].append(more_subjects_courses[i][n])
+
+    for gc in g_courses:
+        for sc in gc:
+            sc.sort(key=lambda x: x.display_coursenumber)
+
+    rows_course = []
+    for course in g_courses[4]:
+        for c in course:
+            if not c.close_course or c.close_course and c.keep_in_directory:
+                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    for course in g_courses[0]:
+        for c in course:
+            if not c.close_course or c.close_course and c.keep_in_directory:
+                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    for course in g_courses[1]:
+        for c in course:
+            if not c.close_course or c.close_course and c.keep_in_directory:
+                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    for course in g_courses[2]:
+        for c in course:
+            if not c.close_course or c.close_course and c.keep_in_directory:
+                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    for course in g_courses[3]:
+        for c in course:
+            if not c.close_course or c.close_course and c.keep_in_directory:
+                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+
+    data = {'Success': True, "courses": rows_course, "subject_id": subject_id}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+# -------------------------------------------------------------------course_filter
+def course_filter(course, subject_index, currSubject, g_courses, currGrades, more_subjects_courses):
+    if not course.close_course or course.close_course and course.keep_in_directory:
+        if course.display_grades == 'K-5':
+            if len(course.display_subject) > 1:
+                more_subjects_courses[0].append(course)
+            else:
+                if course.display_subject != currSubject[0]:
+                    currSubject[0] = course.display_subject
+                    subject_index[0] += 1
+                    g_courses[0].append([])
+                g_courses[0][subject_index[0]].append(course)
+        if (course.display_grades == '6-8' or course.display_grades == '6-12') and currGrades != '9-12':
+            if len(course.display_subject) > 1:
+                more_subjects_courses[1].append(course)
+            else:
+                if course.display_subject != currSubject[1]:
+                    currSubject[1] = course.display_subject
+                    subject_index[1] += 1
+                    g_courses[1].append([])
+                g_courses[1][subject_index[1]].append(course)
+        if (course.display_grades == '9-12' or course.display_grades == '6-12') and currGrades != '6-8':
+            if len(course.display_subject) > 1:
+                more_subjects_courses[2].append(course)
+            else:
+                if course.display_subject != currSubject[2]:
+                    currSubject[2] = course.display_subject
+                    subject_index[2] += 1
+                    g_courses[2].append([])
+                g_courses[2][subject_index[2]].append(course)
+        if course.display_grades == 'K-12':
+            if len(course.display_subject) > 1:
+                more_subjects_courses[3].append(course)
+            else:
+                if course.display_subject != currSubject[3]:
+                    currSubject[3] = course.display_subject
+                    subject_index[3] += 1
+                    g_courses[3].append([])
+                g_courses[3][subject_index[3]].append(course)
+        # end
+
+        # 20160322 add "Add new grade 'PreK-3'"
+        # begin
+        if course.display_grades == 'PreK-3':
+            if len(course.display_subject) > 1:
+                more_subjects_courses[4].append(course)
+            else:
+                if course.display_subject != currSubject[4]:
+                    currSubject[4] = course.display_subject
+                    subject_index[4] += 1
+                    g_courses[4].append([])
+                g_courses[4][subject_index[4]].append(course)
