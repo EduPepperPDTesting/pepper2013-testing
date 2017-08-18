@@ -286,9 +286,7 @@ class DashboardFeedingUserStore(MongoBaseStore):
         return self.insert(data)
 
     def get_initial(self,show_user_id):
-        inital = []
-        inital.append(self.find_one({"show_user_id":show_user_id}))
-        return inital
+        return self.find_one({"show_user_id":show_user_id})
 
     def set_dismiss(self,user_id):
         self.update({"show_user_id": user_id},
