@@ -1164,9 +1164,9 @@ def get_org_announcements(request):
         if len(inital) > 0:
             if inital[0].has_key("dismiss"):
                 if long(request.user.id) not in inital[0]["dismiss"]:
-                    posts.append(inital[0])
+                    posts.insert(0,inital[0])
             else:
-                posts.append(inital[0])
+                posts.insert(0,inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
