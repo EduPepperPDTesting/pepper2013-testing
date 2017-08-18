@@ -26,7 +26,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-from feeding import dashboard_feeding_store
+from feeding import dashboard_feeding_store,dashboard_feeding_user_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
@@ -1140,35 +1140,9 @@ def get_org_announcements(request):
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
     if org == "Pepper":
-        user_profile = UserProfile.objects.get(user_id=request.user.id)
-        district_id = user_profile.district_id
-        state_id = District.objects.get(id=district_id).state_id
-        school_id = user_profile.school_id
-        organization_id = []
-        organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
-        for k,v in enumerate(organization):
-            b = eval(v.OtherFields)
-            b["date"] = b["date"][:19]
-            timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
-            organization_createdate = int(time.mktime(timeArray))
-            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
-            if organization_createdate < date_joined:
-                if v.organization.id not in organization_id:
-                    organization_id.append(v.organization.id)
-
-        inital = []
-        for v2 in organization_id:
-            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
-
-        inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+        inital = get_inital(request,now_utc)
         if len(inital) > 0:
-            if inital[0].has_key("dismiss"):
-                if long(request.user.id) not in inital[0]["dismiss"]:
-                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
-                    posts.insert(0,inital[0])
-            else:
-                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com")
-                posts.insert(0,inital[0])
+            posts.insert(0,inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
@@ -1191,11 +1165,13 @@ def get_announcements(request):
 
 
     store = dashboard_feeding_store()
-    
-    inital = get_inital(request)
+    inital = get_inital(request,now_utc)
     pepper = []
     if len(inital) > 0:
         pepper.append(inital[0])
+    
+    data = {"orgs": []}
+    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
 
     pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
     data["orgs"].append(pepper)
@@ -1210,10 +1186,10 @@ def get_announcements(request):
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
-def get_inital(request):
-    user_store = DashboardFeedingUserStore()
-    inital = user_store.get_initals(request.user.id)
-    if len(inital) == 0:
+def get_inital(request,now_utc):
+    user_store = dashboard_feeding_user_store()
+    inital = user_store.get_initial(request.user.id)
+    if inital== None:
         user_profile = UserProfile.objects.get(user_id=request.user.id)
         district_id = user_profile.district_id
         state_id = District.objects.get(id=district_id).state_id
@@ -1231,8 +1207,7 @@ def get_inital(request):
                 if v.organization.id not in organization_id:
                     organization_id.append(v.organization.id)
 
-        kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
-        data = {"orgs": []}
+        kwargs = {"after": now_utc}
 
         inital = []
         pepper = []
@@ -1260,10 +1235,10 @@ def get_inital(request):
 
         return pepper
     else:
-        if inital[0]["dismissing"] == 1:
+        if inital["dismissing"] == 1:
             return []
         else:
-            return inital
+            return [inital]
 
 @ajax_login_required()
 def submit_new_like(request):
