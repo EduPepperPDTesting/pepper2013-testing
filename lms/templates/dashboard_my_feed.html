@@ -432,7 +432,7 @@ from permissions.utils import check_access_level, check_user_perms
   {post_date} at {post_h}:{post_m} {post_ampm}
   </span>
   <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> {first_name} {last_name} </a>
-  <div class="post-title-link" style="font-style:italic;display:block;">
+  <div class="post-title-link" style="font-style:italic;display:block;visibility:{is_people_add}">
   {last_comment?replied to a post in your network:created a new post in your network}.
   </div>
   <div>
