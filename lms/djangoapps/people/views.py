@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from student.models import CourseEnrollment,get_user_by_id,People
 from django.contrib.auth.models import User
-from feeding import dashboard_feeding_store
+from student.feeding import dashboard_feeding_store
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
 

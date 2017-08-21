@@ -1001,6 +1001,11 @@ def attach_post_info(p, time_diff_m, user):
     p["is_owner"] = (author == user)
     p["removable"] = user.id == author.id or user.is_superuser
 
+    if p["is_people_add"] == 1:
+        p["is_people_add"] = "hidden"
+    else:
+        p["is_people_add"] = "visible"
+        
     if user.id == author.id:
         p["dismissed"] = "hidden"
     else:
