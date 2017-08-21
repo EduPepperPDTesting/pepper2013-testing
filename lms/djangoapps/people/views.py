@@ -73,10 +73,10 @@ def add_people(request):
         add_user_people_of(people,request.user.id)
         store = dashboard_feeding_store()
         if is_people(people,request.user.id) and is_people(request.user,request.POST.get('people_id')):
-            content = "<p>Congratulation! You and "+ people.username +" are now connected.Add more people to your <a href='/people'>network</a>.</p>"
+            content = "<p>Congratulation! You and "+ people.username +" are now connected.\r\nAdd more people to your <a href='/people'>network</a>.</p>"
             store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1)
         else:
-            content = "<p>Added you to her network, to see her posts and communicate with her, please add her to your <a href='/people'>network</a>!Hi "+ people.username +", Please <a href='/people'>add me to your network</a>!\r\n</p>" 
+            content = "<p>Added you to the network, to see the posts and communicate, please add "+ people.username +"to your <a href='/people'>network</a>!</p>" 
             store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1) 
     except Exception as e:
         message={'success':False, 'error': "%s" % e}
