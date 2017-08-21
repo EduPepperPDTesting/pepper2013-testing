@@ -1,11 +1,12 @@
 from django.http import Http404
 from mitxmako.shortcuts import render_to_response
+import datetime
 from django.db import connection
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from student.models import CourseEnrollment,get_user_by_id,People
 from django.contrib.auth.models import User
-
+from feeding import dashboard_feeding_store
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
 
@@ -68,7 +69,15 @@ def add_people(request):
     message={'success':True}
 
     try:
-        add_user_people_of(User.objects.get(id=request.POST.get('people_id')),request.user.id)
+        people = User.objects.get(id=request.POST.get('people_id'))
+        add_user_people_of(people,request.user.id)
+        store = dashboard_feeding_store()
+        if is_people(people,request.user.id):
+            content = "<p>Added you to her network, to see her posts and communicate with her, please add her to your network!Hi "+ people.username +", Please add me to your network!\r\n</p>" 
+            store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),dislike=1)  
+        else:
+            content = "<p>Congratulation! You and "+ people.username +" are now connected.Add more people to your network.</p>"
+            store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),dislike=1)
     except Exception as e:
         message={'success':False, 'error': "%s" % e}
         
@@ -307,3 +316,14 @@ def my_people(request,course_id=''):
     context['profiles']=profiles
 
     return render_to_response('people/my_people.html', context)
+
+def is_people(user,owner_id):
+    owner_id = str(owner_id)
+    people_of=[]
+    if user.profile.people_of:
+        people_of=user.profile.people_of.split(',')
+
+    if not owner_id in people_of:
+        return False
+    else:
+        return True
