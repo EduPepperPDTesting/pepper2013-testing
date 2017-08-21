@@ -441,7 +441,7 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div style="width:100%;margin-top:1em;" class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
-  <div style="text-align:right;">
+  <div style="text-align:right;visibility:{is_people_add}">
   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
   {is_my_like?Unlike:Like}
   ({likes})
