@@ -22,6 +22,10 @@ from django.views.decorators.cache import cache_control
 
 from people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
 
+import re
+from student.models import User
+from xmodule.remindstore import myactivitystore, myactivitystaticstore
+
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
     Borrowed from Django documentation'''
@@ -66,17 +70,35 @@ def pager_params(request):
     return "&".join(b)
 
 def add_people(request):
-    message={'success':True}
+    message = {'success': True}
 
     try:
         people = User.objects.get(id=request.POST.get('people_id'))
-        add_user_people_of(people,request.user.id)
+        add_user_people_of(people, request.user.id)
+
+        user1_id = long(request.user.id)
+        user2_id = people.id
+        ma_db = myactivitystore()
         store = dashboard_feeding_store()
-        if is_people(people,request.user.id) and is_people(request.user,request.POST.get('people_id')):
-            content = "<p style='font-style:italic !important'>Congratulation! You and "+ people.username +" are now connected.</p><p>Add more people to your <a href='/people' style='text-decoration:underline !important'>network</a>.</p>"
+        if is_people(people, request.user.id) and is_people(request.user, request.POST.get('people_id')):
+            my_activity = {"GroupType": "People", "EventType": "Both_Added_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user1_id,
+                           "URLValues": "",
+                           "TokenValues": {"user_id1": user2_id},
+                           "LogoValues": ""}
+            ma_db.insert_item(my_activity)
+
+            # content = "<p style='font-style:italic !important'>Congratulation! You and "+ people.username +" are now connected.</p><p>Add more people to your <a href='/people' style='text-decoration:underline !important'>network</a>.</p>"
+            content = get_my_activity_info(my_activity, "Both_Added_Network")
             store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1)
         else:
-            content = "<p  style='font-style:italic !important'>Added you to the network, to see the posts and communicate, please add "+ people.username +"to your <a href='/people' style='text-decoration:underline !important'>network</a>!</p>" 
+            my_activity = {"GroupType": "People", "EventType": "Add_Me_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user2_id,
+                           "URLValues": "",
+                           "TokenValues": {"user_id1": user1_id, "user_id2": user2_id}, 
+                           "LogoValues": ""}
+            ma_db.insert_item(my_activity)
+
+            # content = "<p  style='font-style:italic !important'>Added you to the network, to see the posts and communicate, please add "+ people.username +"to your <a href='/people' style='text-decoration:underline !important'>network</a>!</p>" 
+            content = get_my_activity_info(my_activity, "Add_Me_Network")
             store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1) 
     except Exception as e:
         message={'success':False, 'error': "%s" % e}
@@ -327,3 +349,82 @@ def is_people(user,owner_id):
         return False
     else:
         return True
+
+def get_my_activity_info(my_activity, etype):
+    static_info = myactivitystaticstore().get_item_by_etype(etype)
+    data = my_activity
+    for data_s in static_info:
+        data['URL'] = data_s['URL']
+        data['Logo'] = data_s['Logo']
+        data['DisplayInfo'] = data_s['DisplayInfo']
+        break
+
+    ma_dict = {}
+
+    #URL
+    ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
+
+    ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#','href=' + ma_dict["URL"])
+
+    return ma_dict["DisplayInfo"]
+
+def get_displayInfo(data):
+    displayInfo_values = {}
+    info_list = re.findall("{([\w |,.()'_/]*)}", data["DisplayInfo"])
+    dt = {}
+    for d in info_list:
+        t1 = d.split(',')
+        value = ''
+        if t1[0] == 'mysql':
+            dt = {}
+            t21 = t1[1].split('|')
+            t22 = t1[2].split('|')
+            dt['db'] = t1[0]
+            dt['models'] = t21[0]
+            dt['models2'] = t21[1]
+            dt['getby'] = t22[0]
+            dt['key'] = data['TokenValues'][t22[1]]
+            dt['key_name'] = t1[3]
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                list_key = str(dt['key']).split(',')
+                _symbol = '='
+                if len(list_key) > 1:
+                    dt['key'] = []
+                    _symbol = '__in='
+                    for d in list_key:
+                        dt['key'].append(int(d))
+                str_get = dt['models'] + '.objects.filter(' + dt['getby'] + _symbol + str(dt['key']) + ')'
+                e1 = eval(str_get)
+                value = ""
+                e2_list = []
+                for d in e1:
+                    if len(e1) == 1:
+                        value = eval("d." + dt['models2'])
+                    else:
+                        e2 = eval("d." + dt['models2'])
+                        e2_list.append(e2)
+                        value = ", ".join(e2_list)
+        elif t1[0] == 'mongo':
+            dt = {}
+            dt['db'] = t1[0]
+            dt['models'] = re.sub("/([\w _]*)/", lambda x: str(data['TokenValues'].get(x.group(1))), t1[1])
+            dt['models'] = dt['models'].replace('|',',')
+            dt['key_name'] = t1[2]
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                try:
+                    value = eval(dt['models'])
+                except:
+                    pass
+        else:
+            info = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["DisplayInfo"])
+            return info
+        displayInfo_values[dt['key_name']] = value
+    info = replace_values(data["DisplayInfo"],displayInfo_values)
+    return info
+
+def replace_values(body, values):
+    return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)

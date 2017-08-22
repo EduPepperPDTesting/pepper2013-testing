@@ -337,8 +337,15 @@ class MongoMyActivityStaticStore(object):
         self.collection.safe = True    
 
     def get_item(self):
-        #results = self.collection.find()
         results = self.collection.find()
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def get_item_by_etype(self,etype):
+        results = self.collection.find({"EventType": etype})
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
