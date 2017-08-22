@@ -107,6 +107,10 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
 
+    # === webchat begin ==
+    url(r'^videochat/(?P<uname>[a-zA-Z]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
+    # === webchat end ==
+
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
     # === Portfolio Settings end ==
@@ -403,7 +407,7 @@ urlpatterns = (
     url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
-    url(r'^newcommunities/$', 'communities.views.newcommunities', name="newcommunities"),
+    #url(r'^newcommunities/$', 'communities.views.newcommunities', name="newcommunities"),
 
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
@@ -551,6 +555,7 @@ js_info_dict = {
     'domain': 'djangojs',
     'packages': ('lms',),
 }
+
 urlpatterns += (
     # Serve catalog of localized strings to be rendered by Javascript
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),

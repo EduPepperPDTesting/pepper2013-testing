@@ -28,30 +28,30 @@
                     <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/125/125702.svg" alt="im-network"></a></span>
                     <span class="pep_online_status">&#11044;</span>
                 </div>
-                <div class="pep_contact_name">User Name</div>
+                <div class="pep_contact_name">First User</div>
             </div>
             <div class="pep_contact_block">
                 <div class="pep_add_im">+</div>
                 <div class="pep_contact_info">
                     <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/33/33965.svg" alt="im-community"></a></span>
                 </div>
-                <div class="pep_contact_name">User Name</div>
+                <div class="pep_contact_name">Second User</div>
             </div>
             <div class="pep_contact_block">
                 <div class="pep_add_im">+</div>
                 <div class="pep_contact_info">
                     <span class="pep_online_status">&#11044;</span>
                 </div>
-                <div class="pep_contact_name">User Name</div>
+                <div class="pep_contact_name">Third User</div>
             </div>
         </div>
         <div id="pep_slider_list"></div>
         <div id="pep_slider_icons">
-            <a href="default.asp">
+            <a href="#">
                 <img src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
                      alt="im-text">
             </a>
-            <a href="default.asp">
+            <a href="#">
                 <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video">
             </a>
         </div>
@@ -78,7 +78,7 @@ $(document).ready(function(){
         items: ".pep_contact_name",
         track: true,
         open: function (event, ui) {
-            ui.tooltip.css({"text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+            ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
         },
         show: {
             effect: "slideDown",
@@ -88,6 +88,12 @@ $(document).ready(function(){
             var username = $(this).text();
             return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
         }
+    });
+
+    $(".pep_contact_block").on("click", ".pep_contact_name", function(){
+        var uname = $(this).text();
+        $(".pep_text_container").load("/videochat/"+uname #pep_video_panel");
+        //$("#pep_uname").text(uname);
     });
 });
 </script>
