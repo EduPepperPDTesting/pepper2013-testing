@@ -1762,9 +1762,9 @@ def reporting_get_row_graphable(request):
         for d in column_data:
             if d['_id'][column_header] == None:
                 d['_id'][column_header] = 'none'
-            d[str(d['_id'][column_header])] = d['count']
+            d[str(d['_id'][column_header])] = d['total']
             del d['_id']
-            del d['count']
+            del d['total']
             rows.append(d)
 
     else:

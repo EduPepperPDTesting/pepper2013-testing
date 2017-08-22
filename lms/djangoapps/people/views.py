@@ -86,10 +86,8 @@ def add_people(request):
                            "TokenValues": {"user_id1": user2_id},
                            "LogoValues": ""}
             ma_db.insert_item(my_activity)
-
-            # content = "<p style='font-style:italic !important'>Congratulation! You and "+ people.username +" are now connected.</p><p>Add more people to your <a href='/people' style='text-decoration:underline !important'>network</a>.</p>"
             content = get_my_activity_info(my_activity, "Both_Added_Network")
-            store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1)
+            store.create(type="post", user_id = long(request.POST.get('people_id')), content=content,receivers=[long(request.user.id)],date=datetime.datetime.utcnow(),is_people_add=1)
         else:
             my_activity = {"GroupType": "People", "EventType": "Add_Me_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user2_id,
                            "URLValues": "",
