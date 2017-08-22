@@ -482,7 +482,7 @@
 // login
 .view-login {
 
-  header.global  .nav-courseware .cta-login {
+  header.pepper-nav  .nav-courseware .cta-login {
     display: none;
   }
 
@@ -515,7 +515,7 @@
 .view-passwordreset {
   background: $sidebar-color;
 
-  header.global {
+  header.pepper-nav {
 
     h1 {
       float: none;

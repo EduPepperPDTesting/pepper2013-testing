@@ -1,4 +1,4 @@
-header.global {
+header.pepper-nav {
   border-bottom: 1px solid $m-gray;
   box-shadow: 0 1px 5px 0 rgba(0,0,0, 0.1);
   background: $header-bg;
@@ -293,7 +293,7 @@ header.global {
 // marketing site design syncing
 .view-register, .view-login {
 
-  header.global nav {
+  header.pepper-nav nav {
     max-width: 1180px;
     min-width: 960px;
   }

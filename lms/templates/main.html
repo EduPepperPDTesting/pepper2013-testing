@@ -12,7 +12,7 @@
     <% curr_user=user %>
 % endif
 <%
-    OrganizationOK = False
+    organization_active = False
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -31,24 +31,24 @@
         if (school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
+                organization_active = True
+                break
 
-        if (not(OrganizationOK) and district_id != -1):
+        if (not(organization_active) and district_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
                 organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
+                organization_active = True
+                break
         
-        if (not(OrganizationOK) and state_id != -1):
+        if (not(organization_active) and state_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                OrganizationOK = True
+                organization_active = True
                 organization_obj = tmp1.organization
-                break;
+                break
                 
         data = {}
-        if OrganizationOK:
-            data["org_id"] = organization_obj.id;
+        if organization_active:
+            data["org_id"] = organization_obj.id
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
                 data[tmp1.itemType] = tmp1.itemValue
 %>
@@ -132,8 +132,8 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-header.html" />
 % elif not suppress_toplevel_navigation:
-    % if OrganizationOK and data["Is New Menu"] == "1":
-        <%include file="navigation_new.html" args="show_extended=self.attr.navbar_show_extended"/>
+    % if organization_active and data["Is New Menu"] == "1":
+        <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, data=data, is_external=False"/>
     % else:
         <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
     % endif 
@@ -151,6 +151,11 @@ navbar_show_extended=True
   <%include file="theme-footer.html" />
 % elif not suppress_toplevel_navigation:
   <%include file="footer.html" />
+  % if organization_active and data["Footer Selected"] == "1":
+      <%include file="footer.html" args="alt_footer=data['footer_content']"/>
+  % else:
+      <%include file="footer.html" args="alt_footer=False"/>
+  % endif
 % endif
 
 
