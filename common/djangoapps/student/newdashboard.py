@@ -1042,7 +1042,7 @@ def get_post(request):
     post = store.get_feeding(_id)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
     attach_post_info(post, time_diff_m, request.user)
-    post["is_member"] = is_people_of(post["user_id"], request.user.id)
+    post["is_member"] = is_people_of(request.user.id, post["user_id"]) and is_people_of(post["user_id"], request.user.id)
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 

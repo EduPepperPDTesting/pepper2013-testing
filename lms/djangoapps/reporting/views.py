@@ -1725,12 +1725,10 @@ def reporting_get_graphable(request):
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     column_header_row = [column_header]
-    row_last = []
     for d in column_data:
         if d['_id'][column_header] == None:
             d['_id'][column_header] = 'none'
         column_header_row.append(d['_id'][column_header])
-        row_last.append(d['count'])
 
     column_header_row.append('count')
 
