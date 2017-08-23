@@ -28,7 +28,7 @@ import shutil
 from student.feeding import dashboard_feeding_store
 import csv
 from courseware.courses import get_courses, get_course_about_section
-
+from django.core.validators import validate_email
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -90,9 +90,74 @@ def main(request):
 
         elif (post_flag == "organization_course_list"):
             return organization_course_list(request)
+
+        elif (post_flag == "organization_manage_user_info"):
+            return organization_manage_user_info(request)
+
+        elif (post_flag == "org_manage_user_cvs_upload"):
+            return org_manage_user_cvs_upload(request)
     else:
         tmp = "organization/organization.html"
         return render_to_response(tmp)
+
+
+# -------------------------------------------------------------------organization_manage_user_info
+@login_required
+def organization_manage_user_info(request):
+    email = request.POST.get('email', "")
+    data = {'Success': False}
+
+    try:
+        if email != "":
+            user = User.objects.get(email=email)
+            if user:
+                data['first_name'] = user.first_name
+                data['last_name'] = user.last_name
+                data['email'] = user.email
+                data['state'] = user.profile.district.state.name
+                data['district'] = user.profile.district.name
+                data['school'] = user.profile.school.name
+            else:
+                data['email_error'] = True
+
+            data['Success'] = True
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+# -------------------------------------------------------------------org_manage_user_cvs_upload
+@login_required
+def org_manage_user_cvs_upload(request):
+    data = {'Success': False}
+    import_file = request.FILES.get('organization_manage_user_cvs')
+    r = csv.reader(import_file, dialect=csv.excel)
+    rows = []
+    rows.extend(r)
+
+    back_rows = []
+    for i, line in enumerate(rows):
+        email = line[0]
+        try:
+            validate_email(email)
+            user = User.objects.get(email=email)
+            back_rows.append({
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "state": user.profile.district.state.name,
+                "district": user.profile.district.name,
+                "school": user.profile.school.name
+            })
+        except Exception as e:
+            pass
+            # data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    data = {'Success': True, 'back_rows': back_rows}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 # -------------------------------------------------------------------organization_list
@@ -501,6 +566,10 @@ def organization_get(request):
 
                     data["cms_items"] = cms_items
 
+                    for tmp1 in OrganizationMoreText.objects.filter(organization=organizations, itemType="Cms Manage User"):
+                        data["cms_manage_user"] = tmp1.DataItem
+                        break
+
                     break
             else:
                 data['find'] = False
@@ -832,6 +901,7 @@ def organizational_save_base(request):
                         item_c.delete()
 
                 # Add all
+                manage_user_content = ""
                 for tmp1 in cms_items_list:
                     tmp2 = tmp1.split("=>=")
                     org_menu_item = OrganizationCmsitem()
@@ -847,6 +917,21 @@ def organizational_save_base(request):
                     org_menu_item.Grade = tmp2[3]
                     org_menu_item.Icon = tmp2[4]
                     org_menu_item.save()
+
+                    if manage_user_content != "":
+                        manage_user_content += ", "
+                    manage_user_content += "{'rowNum':'" + tmp2[0] + "', 'content':'" + tmp2[5] + "'}"
+
+                # --------------manage_user_content
+                org_cmu = OrganizationMoreText()
+                for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Cms Manage User"):
+                    org_cmu = tmp1
+                    break
+
+                org_cmu.DataItem = "[" + manage_user_content + "]"
+                org_cmu.organization = org_metadata
+                org_cmu.itemType = "Cms Manage User"
+                org_cmu.save()
             else:
                 OrganizationCmsitem.objects.filter(organization=org_metadata).delete()
 
