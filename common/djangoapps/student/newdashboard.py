@@ -1227,14 +1227,12 @@ def get_inital(request,now_utc):
         if len(inital) > 0:
             if inital[0].has_key("dismiss"):
                 if long(request.user.id) not in inital[0]["dismiss"]:
-                    inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com").id
                     pepper.append(inital[0])
                     del inital[0]["_id"]
                     inital[0]["show_user_id"] = request.user.id
                     inital[0]["dismissing"] = 0
                     user_store.create(inital[0])
             else:
-                inital[0]["user_id"] = User.objects.get(email="pcgedu@pepperpd.com").id
                 pepper.append(inital[0])
                 del inital[0]["_id"]
                 inital[0]["show_user_id"] = request.user.id
