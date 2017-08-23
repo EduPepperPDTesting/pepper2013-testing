@@ -46,7 +46,25 @@
         height: 10px;
     }
     #table_data tr td:first-child{
-        background-color:black;
+        background-color:grey;
+        color:black;
+        font-weight:700;
+    }
+    .tablesorter-headerRow th{
+        background:blue url(images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x !important;
+        color:black !important;
+    }
+    .graph_title{
+        width: 100px;
+        height: 48px;
+        float: left;
+        margin-left: 0px;
+        border-right: 2px solid;
+        text-align: center;
+        font-size: 30px;
+        line-height: 40px;
+        color:white;
+        border-color: black;
     }
 </style>
 <input type='hidden' value='text' id='row_header_type'>
@@ -134,10 +152,10 @@
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
             <div id="graph" style="height:50px;">
                 <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
-                    <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Line</li>
-                    <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Area</li>
-                    <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Bar</li>
-                    <li style="width: 100px;height: 48px;float: left;margin-left: 0px;border: 1px solid;text-align: center;font-size: 30px;line-height: 40px;">Donut</li>
+                    <li class="graph_title">Line</li>
+                    <li class="graph_title">Area</li>
+                    <li class="graph_title">Bar</li>
+                    <li class="graph_title">Donut</li>
                 </ul>
             </div>
         </div>
