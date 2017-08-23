@@ -1,9 +1,9 @@
 #pepper-nav {
-    font-family: "open sans" !important;
+    font-family: "Open Sans", Verdana, Geneva, sans-serif !important;
 }
 
 #pepper-nav p {
-    font-family: "open sans" !important;
+    font-family: "Open Sans", Verdana, Geneva, sans-serif !important;
 }
 
 #pepper-nav a.blue {
@@ -29,7 +29,7 @@
 }
 
 #pepper-nav a.main-link {
-    font-family: 'open sans';
+    font-family: 'Open Sans', Verdana, Geneva, sans-serif;
     font-size: 16px;
     text-transform: none;
     font-weight: normal !important;
@@ -106,7 +106,8 @@
     height: 200px;
 }
 
-#pepper-nav #show_personalmessage, #show_notifications {
+#pepper-nav #show_personalmessage,
+#pepper-nav #show_notifications {
     background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
     border: 1px solid rgba(0, 0, 0, 0.9);
     border-radius: 0;
@@ -140,13 +141,14 @@
     outline: none !important;
 }
 
-#pepper-nav [class^="icon-"], [class*=" icon-"] {
+#pepper-nav [class^="icon-"],
+#pepper-nav [class*=" icon-"] {
     font-family: "FontAwesome" !important;
 }
 
 #pepper-nav a.pepper-configuration {
     color: #646464;
-    font-family: 'open sans';
+    font-family: 'Open Sans', Verdana, Geneva, sans-serif;
     font-size: 16px;
 }
 
@@ -242,7 +244,7 @@
 
     color: #818181;
     font-size: 15px;
-    font-family: "Arial" !important;
+    font-family: "Arial", Verdana, Geneva, sans-serif !important;
     font-style: italic;
 
     box-shadow: 0 0 0 0;

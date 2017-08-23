@@ -38,184 +38,9 @@
     % endif
 </%block>
 
-<style type="text/css" media="screen">
-    html {font-size: 16px !important;}
-    html, body {line-height: 16px !important;}
-
-    *{font-family:"open sans" !important;}
-    p{font-family:"open sans" !important;}
-
-    .expanded{
-        /*position: absolute;
-        left: -140px !important;*/
-    }
-
-    ul.admin-dropdown-menu.expanded {
-        display: block;
-        position: absolute !important;
-        left: -140px !important;
-    }
-
-    a:link, a:visited {font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif;}
-
-    a.cta{font: normal 16px/16px "Open Sans",Verdana,Geneva,sans-serif; !important;}
-
-    .admin-dropdown-menu a:link, a:visited {font-size: 16px !important;}
-
-    a.blue{
-        color:#556370 !important;
-    }
-
-    a.blue-underline{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.blue-underline:normal{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.blue-underline:hover{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.main-link{
-        font-family:'open sans';
-        font-size: 16px;
-        text-transform:none;
-        font-weight:normal !important;
-    }
-    .imessage_style{
-        margin-right: 0px;
-        display: block;
-        float: left;
-        margin: 0px;
-        padding: 5px 8px 7px 8px;
-        margin-top:-14px;
-    }
-
-    #view_all_note:hover {
-        background:#6e8194;
-        transition-delay: 0s, 0s, 0s;
-        transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-property:color, background,? box-shadow;
-        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-        transition-duration:0.25s,? 0.25s,? 0.25s;
-        color:#fff;
-    }
-    #view_all_note{
-        border-width:0;
-        background:#556370;
-        text-decoration: none;
-        padding-bottom: 10px;
-        padding-left: 90px;
-        padding-right: 90px;
-        padding-top: 10px;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: #949494 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
-    #view_all_note:normal {
-        background:#126F9A;
-        text-decoration: none;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
-    .ftg_button {
-        width:100px;
-        text-align:center;
-        display: block;
-        text-decoration: none!important;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        padding: 3px 3px;
-        border-radius: 3px;
-        -moz-border-radius: 3px;
-        box-shadow: inset 0px 0px 2px #fff;
-        -o-box-shadow: inset 0px 0px 2px #fff;
-        -webkit-box-shadow: inset 0px 0px 2px #fff;
-        -moz-box-shadow: inset 0px 0px 2px #fff;
-    }
-    .ftg_yellow {
-        color: #fff;
-        border: 1px solid #57c4be;
-        background-color: #57c4be;
-    }
-    .linkwin{
-        background:#fff;
-        border: 1px solid rgba(0, 0, 0, 0.9);
-        border-radius: 0;
-        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
-        display: none;
-        left: 50%;
-        padding: 8px;
-        position: absolute;
-        width: 480px;
-        display: none;
-        margin-left:-250px;
-        top: 320px;
-        z-index: 11000;
-        height:200px;
-    }
-    #show_personalmessage, #show_notifications {
-        background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
-        border: 1px solid rgba(0, 0, 0, 0.9);
-        border-radius: 0;
-        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
-        color: #FFF;
-        left: 50%;
-        top: 20px;
-        padding: 8px;
-        display: none;
-        margin-left: -309px;
-        opacity: 1;
-        position: absolute;
-        width: 600px;
-        z-index: 11000;
-    }
-    .message_board_txt_prompt
-    {
-        color:#646464;
-        font-style:italic;
-        font-weight:bold;
-    }
-    .message_board_empty_info
-    {
-        color:#000000;
-        margin-top:80px;
-        text-align:center;
-        font-weight:bold;
-    }
-    .lean-overlay-nav {
-        background: radial-gradient(circle at 50% 30% , rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)) repeat scroll 0% 0% transparent;
-        display: block;
-        height: 100%;
-        left: 0px;
-        position: fixed;
-        top: 0px;
-        width: 100%;
-        z-index: 100;
-    }
-    #show_notifications_link:focus { outline: none!important;}
- [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
-</style>
+<link rel="stylesheet" type="text/css" href="/static/css/navigation.css" />
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
     a.configuration{
@@ -336,42 +161,37 @@
             }
 
         </style>
-        
-        <ol class="left nav-global authenticated">
-        
-        % if not curr_user.is_authenticated():
-            <li><a href="/contact" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Membership</b></a></li>
-            <li><a href="/our_team" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>Our Team</b></a></li>
-            <li><a href="/press" class="main-link" style="font-size:23px !important;line-height:23px !important;"><b>In the News</b></a></li>
-        % endif
 
-        %if request.user.is_authenticated():
-            <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-            <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
-            <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-            <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
-            <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
-            <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->            
-        %endif
+        <ol class="pepper-nav-global">
+        
+            % if not curr_user.is_authenticated():
+                <li><a href="/contact" class="pepper-main-link"><b>Membership</b></a></li>
+                <li><a href="/our_team" class="pepper-main-link"><b>Our Team</b></a></li>
+                <li><a href="/press" class="pepper-main-link"><b>In the News</b></a></li>
+            % endif
 
-        % if request.user.is_authenticated():
-        <%block name="navigation_global_links_authenticated">
-            <li class="nav-global-01" style="display:none;">
-                <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
-            </li>
-        </%block>
+            %if request.user.is_authenticated():
+                <li id="org_tm_course_workshop_obj"><a href="/courses" class="pepper-main-link">Courses &amp; Workshops</a></li>
+                <li id="org_tm_communities_obj"><a href="/communities" class="pepper-main-link">Communities</a></li>
+                <li id="org_tm_my_chunks_obj"><a href="/my_chunks" class="pepper-main-link">My Chunks</a></li>
+                <li id="org_tm_resources_obj"><a href="/resource_library_global" class="pepper-main-link">Resources</a></li>
+                <li id="org_tm_people_obj"><a href="${reverse('people')}" class="pepper-main-link">People</a></li>
+                <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
+            %endif
+
+            % if request.user.is_authenticated():
+            <%block name="navigation_global_links_authenticated">
+                <li class="pepper-nav-global-01" style="display:none;">
+                    <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
+                </li>
+            </%block>
         </ol>
             <!--@end-->
-
-        <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-        <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
-
         
-        <ol class="user admin" style="margin-top: 3px !important;"> <!-- akogan - added style-->
+        <ol class="pepper-user"> <!-- akogan - added style-->
             %if show_extended:
-          <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->
-                <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+                <li class="pepper-user-wrap">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(request.user, 'certificate'):
@@ -499,13 +319,13 @@
         % else:
         <%block name="navigation_global_links">
             % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
-                <li class="nav-global-01">
+                <li class="pepper-nav-global-01">
                     <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
                 </li>
-                <li class="nav-global-02">
+                <li class="pepper-nav-global-02">
                     <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
                 </li>
-                <li class="nav-global-03">
+                <li class="pepper-nav-global-03">
                     <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
                 </li>
             % endif

@@ -227,7 +227,7 @@ header.pepper-nav {
     }
   }
 
-  .nav-global {
+  .pepper-nav-global {
     margin-top: ($baseline/2);
     list-style: none;
 
@@ -300,10 +300,10 @@ header.pepper-nav {
 }
 
 // page-based nav states
-.view-howitworks .nav-global-01,
-.view-courses .nav-global-02,
-.view-schools .nav-global-03,
-.view-register .nav-global-04 {
+.view-howitworks .pepper-nav-global-01,
+.view-courses .pepper-nav-global-02,
+.view-schools .pepper-nav-global-03,
+.view-register .pepper-nav-global-04 {
 
   a {
     text-decoration: none;
