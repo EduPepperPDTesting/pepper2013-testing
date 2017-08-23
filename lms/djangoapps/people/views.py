@@ -4,7 +4,7 @@ import datetime
 from django.db import connection
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from student.models import CourseEnrollment,get_user_by_id,People
+from student.models import CourseEnrollment, get_user_by_id, People
 from django.contrib.auth.models import User
 from student.feeding import dashboard_feeding_store
 from courseware.courses import (get_courses, get_course_with_access,
@@ -25,6 +25,9 @@ from people_in_es import gen_people_search_query, search_people, add_user_people
 import re
 from student.models import User
 from xmodule.remindstore import myactivitystore, myactivitystaticstore
+
+# import logging
+# log = logging.getLogger("tracking")
 
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
@@ -76,30 +79,32 @@ def add_people(request):
         people = User.objects.get(id=request.POST.get('people_id'))
         add_user_people_of(people, request.user.id)
 
-        user1_id = long(request.user.id)
+        user1 = User.objects.get(id=request.user.id)
+        user1_id = user1.id
+        user1_username = user1.username
         user2_id = people.id
         ma_db = myactivitystore()
         store = dashboard_feeding_store()
         if is_people(people, request.user.id) and is_people(request.user, request.POST.get('people_id')):
             my_activity = {"GroupType": "People", "EventType": "Both_Added_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user1_id,
-                           "URLValues": "",
+                           "URLValues": {"username": people.username},
                            "TokenValues": {"user_id1": user2_id},
-                           "LogoValues": ""}
+                           "LogoValues": {}}
             ma_db.insert_item(my_activity)
+            
             content = get_my_activity_info(my_activity, "Both_Added_Network")
-            store.create(type="post", user_id = long(request.POST.get('people_id')), content=content,receivers=[long(request.user.id)],date=datetime.datetime.utcnow(),is_people_add=1)
+            store.create(type="post", user_id=long(request.POST.get('people_id')), content=content,receivers=[long(request.user.id)],date=datetime.datetime.utcnow(),is_people_add=1)
         else:
             my_activity = {"GroupType": "People", "EventType": "Add_Me_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user2_id,
-                           "URLValues": "",
-                           "TokenValues": {"user_id1": user1_id, "user_id2": user2_id}, 
-                           "LogoValues": ""}
+                           "URLValues": {"username": user1_username},
+                           "TokenValues": {"user_id1": user1_id, "user_id2": user2_id},
+                           "LogoValues": {}}
             ma_db.insert_item(my_activity)
 
-            # content = "<p  style='font-style:italic !important'>Added you to the network, to see the posts and communicate, please add "+ people.username +"to your <a href='/people' style='text-decoration:underline !important'>network</a>!</p>" 
             content = get_my_activity_info(my_activity, "Add_Me_Network")
-            store.create(type="post", user_id = request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1) 
+            store.create(type="post", user_id=request.user.id, content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1) 
     except Exception as e:
-        message={'success':False, 'error': "%s" % e}
+        message = {'success': False, 'error': "%s" % e}
         
     return HttpResponse(json.dumps(message))
 
@@ -339,11 +344,11 @@ def my_people(request,course_id=''):
 
 def is_people(user,owner_id):
     owner_id = str(owner_id)
-    people_of=[]
+    people_of = []
     if user.profile.people_of:
-        people_of=user.profile.people_of.split(',')
+        people_of = user.profile.people_of.split(',')
 
-    if not owner_id in people_of:
+    if owner_id not in people_of:
         return False
     else:
         return True
@@ -359,10 +364,10 @@ def get_my_activity_info(my_activity, etype):
 
     ma_dict = {}
 
-    #URL
+    # URL
     ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
 
-    ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#','href=' + ma_dict["URL"])
+    ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#', 'href=' + ma_dict["URL"])
 
     return ma_dict["DisplayInfo"]
 
