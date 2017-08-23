@@ -1761,6 +1761,7 @@
 												cms_item = tmp2_1[0];
 												cms_level = tmp2_1[1];
 											}
+
 											tmp_el.find(".cms_items_cms_item").val(cms_item);
 											tmp_el.find(".cms_items_url").val(tmp2[2]);
 											tmp_el.find(".cms_items_grade").val(tmp2[3]);											
@@ -1779,12 +1780,17 @@
 											}
 											if(r.cms_manage_user){
 												var tmp_cmu = eval("(" + r.cms_manage_user + ")");
+												var sizex = 0;
 												for(var i = 0; i < tmp_cmu.length; i++){
 													if(Number(tmp_cmu[i]["rowNum"]) == Number(tmp2[0])){
 														tmp_el.find(".organizational_dashboard_cms_manage_user").attr("savex_email", tmp_cmu[i]["content"]);
+														sizex = tmp_cmu[i]["content"].split(",").length;
 														break;
 													}
 												}
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (" + sizex + ")");
+											}else{
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 											}
 										}
 									}else{
@@ -2697,29 +2703,7 @@
 	}
 	
 	//-----------------------------------------------------------------------initAssignmentQualifications
-	function initAssignmentQualifications(content){
-	 	//(PCG_EDU/NMM2/S2017):(Major Subject Area),(Grade Level-Check all that apply);(ZX/test001/2016_Winter):(About me),(Number of Years in Education)
-		/*<div class="org_assignment_course_all">
-            <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
-                <div style="font-weight:bold; padding:20px 0 10px 0; font-size:1.2em; ">Courses:</div>
-                <div>
-                    <select class="org_assignment_course_select" style="width:500px;">
-                        <option value="">Select a Course</option>
-                    </select>
-                    <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
-                </div>
-                <div style="padding:10px 0 10px 10px;">Qualifications:</div>
-                <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;">
-
-                    <span style="float:left; padding:10px 30px 10px 0;" class="org_assignment_qualifications_item">
-                        <select class="org_assignment_qualifications_select" style="width:300px;">
-                            <option value="">Select a Qualification</option>
-                        </select>
-                        <input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
-                    </span>
-                </td></tr></table>
-            </div>
-        </div>*/		
+	function initAssignmentQualifications(content){	
 		$(".org_assignment_course_item").each(function(i){
 			if(i == 0){
 				$(this).find(".org_assignment_course_select").val("");
@@ -2743,9 +2727,7 @@
 					org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).parent().find("input")[0]);
 				}
 				var tmp2 = tmp1[i].split(":");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));
-				$("#press").attr("a", tmp2[0].replace("(", "").replace(")", ""));
-				
+				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));				
 			}
 		}
 	}
@@ -2916,6 +2898,8 @@
 			});
 			current_link_manage_user.attr("savex", content);
 			if(is_savex_email)	current_link_manage_user.attr("savex_email", content_email);
+			
+			current_link_manage_user.html("Manage Users (" + $('#organization-manage-user-table').find(".data").length + ")");
 		}
 		
 		//-----------------------------------------------------------------------addManageUserItem
