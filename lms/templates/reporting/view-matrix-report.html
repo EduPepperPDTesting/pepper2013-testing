@@ -54,6 +54,12 @@
         background:rgb(153,191,230) url(images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x !important;
         color:black !important;
     }
+    .tablesorter-headerRow th:hover{
+        opacity:0.7;
+    }
+    .tablesorter-ignoreRow td:first-child{
+        background-color:rgb(170,170,170)
+        }
 
     .graph_title{
         width: 100px;
@@ -71,7 +77,7 @@
         background-color: #AAA;
     }
     #matrix_header{
-        background-image: url(/static/img/matrix-report-header.png)
+        background-image: url(/static/img/matrix-report-header.png) !important;
     }
 </style>
 <input type='hidden' value='text' id='row_header_type'>
