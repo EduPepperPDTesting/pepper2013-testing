@@ -26,8 +26,8 @@ from permissions.utils import check_access_level, check_user_perms
  }
  .feeding-content *{
    font-family: inherit !important;
-   font-style: inherit !important;
-   color: inherit !important;
+   /*font-style: inherit !important;*/
+   /*color: inherit !important;*/
  }
  .feeding-content em{
    font-style: italic !important;
@@ -36,7 +36,7 @@ from permissions.utils import check_access_level, check_user_perms
    white-space: pre-wrap;
    word-wrap: break-word;
    /* word-break: break-all; */
-   line-height:100%;
+   line-height:25px;
  }
  .divide-line{
    border-bottom:1px solid #C6CD58;
@@ -340,7 +340,7 @@ from permissions.utils import check_access_level, check_user_perms
       <h3 class="dialog-title"></h3>
       <div class="close-modal" id="dialog_close">✕</div>
     </div>
-    <div class="add-comment" style="padding:10px;">
+    <div class="add-comment" style="padding:10px;display: none;">
         <img src='/user_photo/${request.user.id}' class='post-profile-image'/>
         <textarea id="comment-input" class="comment-input" placeholder="Add a comment" style="width:75%;"></textarea>
         <div style="text-align:right;">
@@ -394,7 +394,7 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div style="display:inline-block;vertical-align:top;width:510px;">
   <div style="float:right;">
-  <label style="font-style:normal;font-weight:normal;color:#39B6E9"><input type="checkbox" class="dismiss" value="" /> Dismiss</label>
+  <label style="font-style:normal;font-weight:normal;color:#39B6E9;visibility:{dismissed}"><input type="checkbox" class="dismiss" value="" /> Dismiss</label>
   {removable?<img src='/static/images/trash-small.png' class='delete-something announcement-delete'></img>}
   <div style="">
   <a class="view-all-announcements" data-org-type="{organization_type}"
@@ -409,7 +409,7 @@ from permissions.utils import check_access_level, check_user_perms
   {attachment_download?<img src="/static/images/newdashboard/my_feed_add_document_.png" width="25" height="25" style="vertical-align\:bottom"/>}
   {attachment_download}  
   </div>
-  <div style="font-weigh1t:bold;margin-top:1em;" class="feeding-content">{content}</div>
+  <div style="font-weight1:bold;margin-top:1em;" class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
       </div>
     </div>
@@ -432,7 +432,7 @@ from permissions.utils import check_access_level, check_user_perms
   {post_date} at {post_h}:{post_m} {post_ampm}
   </span>
   <a class='ds-post-title-name' target="_blank" href='/dashboard/{user_id}'> {first_name} {last_name} </a>
-  <div class="post-title-link" style="font-style:italic;display:block;">
+  <div class="post-title-link" style="font-style:italic;display:block;visibility:{is_people_add}">
   {last_comment?replied to a post in your network:created a new post in your network}.
   </div>
   <div>
@@ -441,7 +441,7 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div style="width:100%;margin-top:1em;" class="feeding-content">{content}</div>
   <div>{attachment_image?<img src="{attachment_image}" class="attach-image" alt="" />}</div>
-  <div style="text-align:right;">
+  <div style="text-align:right;visibility:{is_people_add}">
   <span class="post-likes-label" style="color:#39B6E9;cursor:pointer;font-weight:bold;">
   {is_my_like?Unlike:Like}
   ({likes})
