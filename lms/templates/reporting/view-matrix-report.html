@@ -46,12 +46,12 @@
         height: 10px;
     }
     #table_data tr td:first-child{
-        background-color:grey;
+        background-color:rgb(170,170,170);
         color:black;
         font-weight:700;
     }
     .tablesorter-headerRow th{
-        background:blue url(images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x !important;
+        background:rgb(153,191,230) url(images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x !important;
         color:black !important;
     }
     .graph_title{
@@ -67,7 +67,7 @@
         border-color: black;
     }
     .graph_title:hover{
-        background-color: black;
+        background-color: #AAA;
     }
 </style>
 <input type='hidden' value='text' id='row_header_type'>
@@ -151,7 +151,7 @@
 
 <div id='detail1'>
     <div id = 'graphable' style="z-index:9999;display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
-        <div style='background-color: #ddd;'>
+        <div style='background-color: #CCC;'>
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
             <div id="graph" style="height:50px;">
                 <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
@@ -516,14 +516,14 @@ $(document).ready(function () {
             }else{
                 tws = window.tws;
                 $(".graph_title").css('background-color','');
-                $(this).css('background-color','black');
+                $(this).css('background-color','#AAA');
                 graph(shape,tws);
             }
         });
         $("#close").click(function(){
             $("#graphable").hide();
             $(".graph_title").css('background-color','');
-            $(".graph_title").eq(0).css('background-color','black')
+            $(".graph_title").eq(0).css('background-color','#AAA')
             $("#maskLayer").remove();
 
         })
