@@ -54,6 +54,7 @@
         background:rgb(153,191,230) url(images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x !important;
         color:black !important;
     }
+
     .graph_title{
         width: 100px;
         height: 48px;
@@ -68,6 +69,9 @@
     }
     .graph_title:hover{
         background-color: #AAA;
+    }
+    #matrix_header{
+        background-image: url(/static/img/matrix-report-header.png)
     }
 </style>
 <input type='hidden' value='text' id='row_header_type'>
@@ -155,7 +159,7 @@
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
             <div id="graph" style="height:50px;">
                 <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
-                    <li class="graph_title" style='background-color: black;'>Line</li>
+                    <li class="graph_title" style='background-color: rgb(170, 170, 170);'>Line</li>
                     <li class="graph_title">Area</li>
                     <li class="graph_title">Bar</li>
                     <li class="graph_title">Donut</li>
@@ -485,7 +489,7 @@ $(document).ready(function () {
         row_header = datas.row_header
         row_header_type = datas.row_header_type
         $('#row_header_type').val(row_header_type)
-        var html = "<tr><th>"+column_header+"<br>"+row_header+"</th>";
+        var html = "<tr><th id='matrix_header'>"+column_header+"<br>"+row_header+"</th>";
         column_header_type = datas.column_header_type
         // if (column_header_type == 'time' || column_header_type == 'int'){
             for (data in column_datas){
