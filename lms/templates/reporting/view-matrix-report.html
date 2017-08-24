@@ -66,6 +66,9 @@
         color:white;
         border-color: black;
     }
+    .graph_title:hover{
+        background-color: black;
+    }
 </style>
 <input type='hidden' value='text' id='row_header_type'>
 <span id="organization_obj" o_name="report"></span>
@@ -148,11 +151,11 @@
 
 <div id='detail1'>
     <div id = 'graphable' style="z-index:9999;display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
-        <div style='background-color: gray;'>
+        <div style='background-color: #ddd;'>
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
             <div id="graph" style="height:50px;">
                 <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
-                    <li class="graph_title">Line</li>
+                    <li class="graph_title" style='background-color: black;'>Line</li>
                     <li class="graph_title">Area</li>
                     <li class="graph_title">Bar</li>
                     <li class="graph_title">Donut</li>
@@ -181,7 +184,7 @@ $.extend($.tablesorter.themes.jui, {
         table        : 'ui-widget ui-widget-content ui-corner-all', // table classes
         caption      : 'ui-widget-content',
         // header class names
-        header       : 'ui-widget-header ui-corner-all ui-state-default', // header classes
+        header       : 'ui-widget-header  ui-state-default', // header classes
         sortNone     : '',
         sortAsc      : '',
         sortDesc     : '',
@@ -511,13 +514,18 @@ $(document).ready(function () {
                 $("#graphable").hide()
                 return
             }else{
-                tws = window.tws
+                tws = window.tws;
+                $(".graph_title").css('background-color','');
+                $(this).css('background-color','black');
                 graph(shape,tws);
             }
         });
         $("#close").click(function(){
             $("#graphable").hide();
+            $(".graph_title").css('background-color','');
+            $(".graph_title").eq(0).css('background-color','black')
             $("#maskLayer").remove();
+
         })
     });
 })
