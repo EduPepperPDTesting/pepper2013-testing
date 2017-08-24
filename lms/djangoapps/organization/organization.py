@@ -51,6 +51,9 @@ def main(request):
         elif (get_flag == "organization_get_locations"):
             return organization_get_locations(request)
 
+        elif (get_flag == "organization_user_email_completion"):
+            return organization_user_email_completion(request)
+
     elif(post_flag):
         if (post_flag == "organization_add"):
             return organization_add(request)
@@ -101,14 +104,61 @@ def main(request):
         return render_to_response(tmp)
 
 
+# -------------------------------------------------------------------organization_user_email_completion
+@login_required
+def organization_user_email_completion(request):
+    r = list()
+    lookup = request.GET.get('q', False)
+    oid = request.GET.get('oid', False)
+    if lookup and oid:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        data = User.objects.filter(**kwargs)
+
+        for orgx in OrganizationMetadata.objects.filter(id=oid):
+            org_dir_list = OrganizationDistricts.objects.filter(organization=orgx)
+
+            for item in data:
+                try:
+                    is_add = False
+                    user = User.objects.get(email=item.email)
+                    try:
+                        school_id = user.profile.school.id
+                    except Exception as e1:
+                        school_id = 0
+
+                    for tmp1 in org_dir_list:
+                        if tmp1.EntityType == "State":
+                            if tmp1.OrganizationEnity == user.profile.district.state.id:
+                                is_add = True
+                                break
+                        elif tmp1.EntityType == "District":
+                            if tmp1.OrganizationEnity == user.profile.district.id:
+                                is_add = True
+                                break
+                        else:
+                            if tmp1.OrganizationEnity == school_id:
+                                is_add = True
+                                break
+                    if is_add:
+                        r.append(item.email)
+
+                except Exception as e:
+                    r.append('item.email')
+
+            break
+
+    return HttpResponse(json.dumps(r), content_type="application/json")
+
+
 # -------------------------------------------------------------------organization_manage_user_info
 @login_required
 def organization_manage_user_info(request):
     email = request.POST.get('email', "")
+    oid = request.POST.get('oid', "")
     data = {'Success': False}
 
     try:
-        if email != "":
+        if email != "" and oid != "":
             user = User.objects.get(email=email)
             if user:
                 data['first_name'] = user.first_name
@@ -116,7 +166,37 @@ def organization_manage_user_info(request):
                 data['email'] = user.email
                 data['state'] = user.profile.district.state.name
                 data['district'] = user.profile.district.name
-                data['school'] = user.profile.school.name
+                try:
+                    data['school'] = user.profile.school.name
+                    school_id = user.profile.school.id
+                except Exception as e1:
+                    data['school'] = ""
+                    school_id = 0
+
+                for orgx in OrganizationMetadata.objects.filter(id=oid):
+                    org_dir_list = OrganizationDistricts.objects.filter(organization=orgx)
+                    try:
+                        is_add = True
+                        for tmp1 in org_dir_list:
+                            if tmp1.EntityType == "State":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.district.state.id):
+                                    is_add = False
+                                    break
+                            elif tmp1.EntityType == "District":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
+                                    is_add = False
+                                    break
+                            else:
+                                if int(tmp1.OrganizationEnity) == int(school_id):
+                                    is_add = False
+                                    break
+
+                        if is_add:
+                            data['email_error_group'] = True
+
+                    except Exception as e1:
+                        data = {'Success': False, 'Error': '{0}'.format(e1)}
+                    break
             else:
                 data['email_error'] = True
 

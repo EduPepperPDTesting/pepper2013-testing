@@ -684,7 +684,7 @@
                                     %endfor
                                 </span>
                                 <span style="margin-left:30px;">
-	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (#)</a>
+	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (0)</a>
                                 </span>
                             </div>
                         </div>                        
@@ -921,11 +921,11 @@
                 	<label><input type="radio" name="organization_manage_user_default" value="1" checked="checked" />
                 	Choose a user by email:</label>
                	</span>
-                <span class="add_input"><input id="organization_manage_user_email" type="text" /></span>
+                <span class="add_input" id="organization_manage_user_email_parent"><input id="organization_manage_user_email" type="text" /></span>
             </div>
             <div class="add_row">
                	<label><input type="radio" name="organization_manage_user_default" value="2" />
-               	Or import a group of users (text file or CSV with one email address per line):</label>
+               	<font style="font-weight:bold">Or</font> import a group of users (text file or CSV with one email address per line):</label>
             </div>
             <div class="add_row"> 
             	CSV File: <span id="organization_manage_user_cvs_span"><input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" /></span>
@@ -1415,6 +1415,13 @@
 						
 						$(".expand_title_next").parent().show();
 						
+						//-----autocomplete
+						$("#organization_manage_user_email").remove();
+						var email_el = $('<input id="organization_manage_user_email" type="text" />');
+						$("#organization_manage_user_email_parent").append(email_el);
+						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
+
+						//-----
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
@@ -1784,7 +1791,8 @@
 												for(var i = 0; i < tmp_cmu.length; i++){
 													if(Number(tmp_cmu[i]["rowNum"]) == Number(tmp2[0])){
 														tmp_el.find(".organizational_dashboard_cms_manage_user").attr("savex_email", tmp_cmu[i]["content"]);
-														sizex = tmp_cmu[i]["content"].split(",").length;
+														if(tmp_cmu[i]["content"] != "")
+															sizex = tmp_cmu[i]["content"].split(",").length;
 														break;
 													}
 												}
@@ -2308,6 +2316,7 @@
 			clonex.find(".organizational_dashboard_cms_icon_view").empty();
 			clonex.find(".organizational_dashboard_cms_icon_view").attr("icon_name", "");
 			clonex.find(".organizational_dashboard_cms_manage_user").attr("savex", "");
+			clonex.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 			clonex.find(".btn_grade_level_active").removeClass("btn_grade_level_active");
 			$(".organizational_dashboard_cms_div").append(clonex);
 			clonex.find("fieldset").hide();
@@ -2766,7 +2775,24 @@
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
 		
 		//--------------------------organization_manage_user
-		$('#organization_manage_user_email').autocomplete("${reverse('pepper_utilities_user_email_completion')}?access_level=System", {remoteDataType: "json"});
+		/*$('#organization_manage_user_email').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion", {remoteDataType: "json",
+			showResult: function(value, data) {
+				return value;         	//return '<span style="color:red">' + value + '</span>';
+        	},
+			processData: function(data) {
+				var i, processed = [];
+				$.ajaxSetup({async : false}); 
+				for (i = 0; i < data.length; i++) {
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", email: data[i]}, function (r) {
+						if (r.Success && !r.email_error){
+							processed.push(r.email);	
+						}
+					});
+				}
+				$.ajaxSetup({async : true});
+				return processed;
+			}
+		});*/
 		
 		//--------organization_manage_user_default
 		$("input[name='organization_manage_user_default']").change(function () {
@@ -2811,7 +2837,7 @@
 				var tmp1 = content_email.split(",");
 				$.ajaxSetup({async : false}); 
 				for(var i = 0; i < tmp1.length; i++){
-					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", email: tmp1[i]}, function (r) {
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: tmp1[i]}, function (r) {
 						if (r.Success){
 							if(r.email_error){
 								alert("The Email ddress does not exist.");
@@ -2844,7 +2870,7 @@
 					var tmp1 = $(this).find("td").eq(2).html();
 					if(tmp1 == email.val()){
 						valid = false;
-						errors.push('The email already exists.');
+						errors.push('This item is already part of this group. It can’t be added again.');
 						email.addClass('error-box');
 						return false;
 					}
@@ -2860,17 +2886,20 @@
 				alert(error);
 			}else{
 				if(type_r == "1"){
-					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", email: filterStr2(email.val())}, function (r) {
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: filterStr2(email.val())}, function (r) {
 						if (r.Success){
 							if(r.email_error){
 								alert("The Email ddress does not exist.");
+							}else if(r.email_error_group){
+								alert("This Email is not part of this group.");
 							}else{
 								addManageUserItem(r);
 								saveManageUser(true);
 								email.val("");
 							}
 						}else{
-							alert(r.Error);
+							//alert("Error:" + r.Error);
+							alert("The Email ddress does not exist.");
 						}
 					});
 				}else{
