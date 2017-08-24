@@ -1329,8 +1329,15 @@ def get_receivers(user, post_type):
         elif level == "School":
             receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
     else:
-        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+        receiver_ids = []
+        if user.profile.people_of != None:
+            people_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+            own_ids = user.profile.people_of.split(',')
+            for k in own_ids:
+                if long(k) in people_ids:
+                    receiver_ids.append(long(k))
         receiver_ids.append(user.id)
+
     return receiver_ids
 
 
