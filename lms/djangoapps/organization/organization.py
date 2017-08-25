@@ -216,24 +216,56 @@ def org_manage_user_cvs_upload(request):
     r = csv.reader(import_file, dialect=csv.excel)
     rows = []
     rows.extend(r)
-
+    oid = request.POST.get('oid', "")
     back_rows = []
     for i, line in enumerate(rows):
         email = line[0]
         try:
             validate_email(email)
             user = User.objects.get(email=email)
-            back_rows.append({
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "email": user.email,
-                "state": user.profile.district.state.name,
-                "district": user.profile.district.name,
-                "school": user.profile.school.name
-            })
+
+            if user:
+                try:
+                    school_name = user.profile.school.name
+                    school_id = user.profile.school.id
+                except Exception as e1:
+                    school_name = ""
+                    school_id = 0
+
+                for orgx in OrganizationMetadata.objects.filter(id=oid):
+                    org_dir_list = OrganizationDistricts.objects.filter(organization=orgx)
+                    try:
+                        is_add = False
+                        for tmp1 in org_dir_list:
+                            if tmp1.EntityType == "State":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.district.state.id):
+                                    is_add = True
+                                    break
+                            elif tmp1.EntityType == "District":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
+                                    is_add = True
+                                    break
+                            else:
+                                if int(tmp1.OrganizationEnity) == int(school_id):
+                                    is_add = True
+                                    break
+
+                        if is_add:
+                            back_rows.append({
+                                "first_name": user.first_name,
+                                "last_name": user.last_name,
+                                "email": user.email,
+                                "state": user.profile.district.state.name,
+                                "district": user.profile.district.name,
+                                "school": school_name
+                            })
+
+                    except Exception as e1:
+                        pass
+                    break
+
         except Exception as e:
             pass
-            # data = {'Success': False, 'Error': '{0}'.format(e)}
 
     data = {'Success': True, 'back_rows': back_rows}
 
