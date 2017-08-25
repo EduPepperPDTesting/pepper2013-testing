@@ -826,6 +826,66 @@
 	var maximum_items = 9;
 	var maximum_sub_items = 20;
 	
+	//--------------------------filterStr
+	function filterStr(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+		}
+		return str;
+	}
+	//--------------------------filterStr2
+	function filterStr2(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+			str = str.replace(new RegExp("'", 'gm'), "\\'");
+			str = str.replace(new RegExp('"', 'gm'), '\\"');
+		}
+		return str;
+	}
+	
+	//-----------------------------------------------------------------------CurrentDialog
+	function CurrentDialog(el){
+		var self=this;
+		this.$ei=$(el);
+		this.$ei.find('.close-modal').off("click").click(function(){
+			self.hide();
+		});
+	}
+	CurrentDialog.prototype.show=function(title,content){
+		var self=this;
+		this.showOverlay();
+		this.$ei.fadeIn(200);
+		return this;
+	};
+	CurrentDialog.prototype.lift=function(n){
+		this.$overlay.css('z-index',this.$overlay.css('z-index')+n);
+		this.$ei.css('z-index',this.$ei.css('z-index')+n);
+		return this;
+	};
+	CurrentDialog.prototype.showOverlay=function(){
+		if(!this.$overlay){
+			this.$overlay=$("<div class='lean-overlay'></div>");
+			this.$overlay.appendTo(document.body);
+		}
+		this.$overlay.css('display','block');
+		return this;
+	};
+	CurrentDialog.prototype.hideOverlay=function(){
+		if(this.$overlay){
+			this.$overlay.remove();
+			this.$overlay=null;
+		}
+		return this;
+	};
+	CurrentDialog.prototype.hide=function(){
+		this.$ei.css('display','none');
+		this.hideOverlay();
+		this.$ei.trigger("hide");
+		return this;
+	};
+		
 	//-----------------------------------------------------------------------CertificateEditor
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
@@ -1201,6 +1261,12 @@
 						$(this).parent().next().addClass("org_table1_selected");
 						
 						$(".expand_title_next").parent().show();
+						
+						//-----autocomplete
+						$("#organization_manage_user_email").remove();
+						var email_el = $('<input id="organization_manage_user_email" type="text" />');
+						$("#organization_manage_user_email_parent").append(email_el);
+						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
@@ -2137,6 +2203,8 @@
             }
         });
 		
+		
+	
 		//--------------------------organizational_dashboard_cms_manage_user
 		var current_link_manage_user = null;
 		$(".organizational_dashboard_cms_manage_user").click(function(){
@@ -2512,6 +2580,7 @@
 		//--------------------------Initialize the select all checkboxes.
 		selectAll('.organization-select-all', '.organization-select');
 		selectAll('.organization-state-select-all', '.organization-state-select');
+		selectAll('.organization-manage-user-select-all', '.organization-manage-user-select');
 		
 		updateOrganizations();
 		
@@ -3316,15 +3385,6 @@
 			$(".new_menu_tr").hide();
 			$(".old_menu_tr").show();
 		}
-	}
-	
-	//--------------------------filterStr
-	function filterStr(str){
-		if(str != ""){
-			str = str.replace(new RegExp("<", 'gm'), '');
-			str = str.replace(new RegExp(">", 'gm'), '');
-		}
-		return str;
 	}
 	var csrf_token = '${csrf_token}';
 </script>
