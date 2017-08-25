@@ -500,6 +500,41 @@ header.pepper-nav {
     top: 320px;
     z-index: 11000;
     height: 200px;
+
+    h3 {
+      padding-left: 10px;
+    }
+
+    form {
+      padding: 0;
+      margin: 0;
+      float: left;
+      width: 100%;
+      text-align: center;
+      position: relative;
+
+      tr {
+        td:first-child {
+          vertical-align: middle;
+        }
+
+        td:last-child {
+          width: 100%
+        }
+      }
+
+      #hyperlink_okBtn {
+        margin: 10px;
+        display: inline;
+        width: 7em;
+      }
+
+      #hyperlink_cancelBtn {
+        margin: 10px;
+        display: inline;
+        width: 7em;
+      }
+    }
   }
 
   #show_personalmessage,
@@ -520,6 +555,127 @@ header.pepper-nav {
     z-index: 11000;
   }
 
+  #show_notifications {
+    .inner-wrapper {
+      width: 578px;
+
+      .view-all-note {
+        width: 500px;
+        height: 40px;
+        margin: 0 auto;
+        text-align: center;
+
+        #view_all_note {
+          color: #fff !important;
+          font-size: 18px;
+
+          #view_all_note_text {
+            display: inline-block;
+            text-align: center;
+            width: 250px;
+          }
+        }
+      }
+
+      .info_list {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  #show_personalmessage {
+    .inner-wrapper {
+      width: 578px;
+      padding-bottom: 0 !important;
+
+      .message_board_listcon {
+        height: 350px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      form {
+        padding: 0;
+        line-height: 18px;
+
+        & > div {
+          width: 520px;
+          margin: 10px;
+
+          .message_board_content {
+            width: 530px;
+            height: 150px;
+            background-color: #fff;
+            color: black;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+          }
+
+          .message_board_max {
+            font-size: 12px;
+            color: #aaa;
+          }
+
+          .message_board {
+            width: 530px;
+            height: 30px;
+
+            tr {
+              color: #000;
+
+              .message_board_buttons {
+                vertical-align: middle;
+
+                .message_board_uploadBtn {
+                  width: 110px;
+                  cursor: pointer;
+
+                  span {
+                    padding-left: 2px;
+                    font-size: 14px;
+                    color: #aaa;
+                  }
+                }
+
+                .message_board_linkBtn {
+                  width: 100px;
+                  cursor: pointer;
+                  margin-left: 5px;
+
+                  span {
+                    padding-left: 2px;
+                    font-size: 14px;
+                    color: #aaa;
+                  }
+                }
+              }
+
+              .message_board_ftg {
+                vertical-align: middle;
+
+                div {
+                  cursor: pointer;
+                }
+              }
+
+              #multiplayer_send_div {
+                width: 300px;
+                color: #000;
+                margin-left: 5px;
+                display: none;
+              }
+            }
+          }
+        }
+
+        #message_board_browseFile {
+          width: 0;
+        }
+      }
+    }
+  }
+
   .message_board_txt_prompt {
     color: #646464;
     font-style: italic;
@@ -531,6 +687,12 @@ header.pepper-nav {
     margin-top: 80px;
     text-align: center;
     font-weight: bold;
+  }
+
+  .global_task_panel_wrapper {
+    textarea {
+      overflow: hidden;
+    }
   }
 
   .lean-overlay-nav {

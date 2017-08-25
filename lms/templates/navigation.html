@@ -248,21 +248,21 @@
     <%include file="help_modal.html"/>
 % endif
 
-    <!--@begin:show_notifications-->
-    <!--@date:2014-06-19-->
+<!--@begin:show_notifications-->
+<!--@date:2014-06-19-->
 % if request.user.is_authenticated() and not is_external:
     <section id="show_notifications" class="modal modal-wide" data-id="${request.user.id}" data-name="${request.user.username}" data-fullname="${request.user.first_name} ${request.user.last_name}">
-        <div class="inner-wrapper" style="width:578px;">
+        <div class="inner-wrapper">
             <header>
                 <h2>${_("notifications")}</h2>
                 <hr/>
             </header>
-            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
-                    <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
+            <div class="view-all-note">
+                <a href="${reverse('notifications')}" id="view_all_note">
+                    <div id="view_all_note_text">View All Notifications (0)</div>
                 </a>
             </div>
-            <div class="info_list" style='margin-top: 10px;'></div>
+            <div class="info_list"></div>
             <div class="close-modal" id="notifications_close">
                 <div class="inner">
                     <p>&#10005;</p>
@@ -276,53 +276,50 @@
 <!--@date:2014-06-30-->
 % if request.user.is_authenticated() and not is_external:
     <section id="show_personalmessage" class="modal modal-wide">
-        <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
+        <div class="inner-wrapper">
             <header>
                 <h2 class="message_board_full_name">${_("namename")}</h2>
                 <hr/>
             </header>
-            <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-            <form id="" method="post" style="padding:0px;line-height:18px;">
+            <div class="message_board_listCon"><div class="message_board_list"></div></div>
+            <form id="" method="post">
+                <div>
+                    <div class="message_board_content" contenteditable="true"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
 
-                <div style="width:520px;margin:10px;">
-                    <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
-
-                    <div style="color:black;font-size:12px;color:#aaa;">
+                    <div class="message_board_max">
                         Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
                     </div>
-                    <div style="width:530px;height:30px;">
+                    <div class="message_board">
                         <table width="530" border="0" cellpadding="0" cellspacing="0">
-                            <tr height="30" style="color:#000;">
-                                <td widht="265" style="vertical-align:middle;">
-              <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-              </span>
+                            <tr height="30">
+                                <td width="265" class="message_board_buttons">
+                                    <span class="message_board_uploadBtn">
+                                        <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                                        <span>Add Photos</span>
+                                    </span>
 
-                                    <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-              </span>
-
+                                    <span class="message_board_linkBtn">
+                                      <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                                      <span>Link</span>
+                                    </span>
                                 </td>
-                                <td align="right" style="vertical-align:middle;">
-                                    <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
+                                <td align="right" class="message_board_ftg">
+                                    <div class="ftg_button ftg_yellow">Send</div>
                                 </td>
                             </tr>
-                            <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
+                            <tr>
+                                <td>
+                                    <div id="multiplayer_send_div">
+                                        <label><input type="checkbox"/>Send to All Users</label>
+                                    </div>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>
-                <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+                <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()"/>
             </form>
             <br/>
-            <!--
-            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-            <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-            <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-            </a>
-            </div>
-            -->
             <div class="close-modal" id="message_board_close">
                 <div class="inner">
                     <p>&#10005;</p>
@@ -333,46 +330,43 @@
 % endif
 %if not is_external:
     <div class="linkwin">
-        <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
+        <h3><b>Insert Hyperlink</b></h3>
         <hr/>
-        <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
+        <form>
             <table>
                 <tr>
-                    <td style="vertical-align:middle">Insert URL:</td>
-                    <td><input type="text" id="link_url_val"style="width:100%"></td>
+                    <td>Insert URL:</td>
+                    <td><input type="text" id="link_url_val"></td>
                 </tr>
                 <tr>
-                    <td width="100" style="vertical-align:middle">Title:</td>
-                    <td width="350"><input id="link_title_val" type="text" style="width:100%"></td>
+                    <td width="100">Title:</td>
+                    <td width="350"><input id="link_title_val" type="text"></td>
                 </tr>
             </table>
-            <input id="hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
-            <input id="hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
+            <input id="hyperlink_okBtn" type="button" value="OK">
+            <input id="hyperlink_cancelBtn" type="button" value="Cancel">
         </form>
     </div>
 %endif
-    <!--@end-->
+<!--@end-->
 
-    <!-- task panel -->
+<!-- task panel -->
 % if not is_external and (request.user.is_superuser or check_user_perms(request.user, 'time_report')):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
             <div class="content"></div>
-            <textarea class="setting" style="overflow:hidden">
-        {
-          "interval": 5000,
-          "urls": {
-            "count": "${reverse('pepconn_import_user_tasks')}",
-            "close": "${reverse('pepconn_task_close')}"
-          }
-        }
-      </textarea>
+            <textarea class="setting">
+                {
+                  "interval": 5000,
+                  "urls": {
+                    "count": "${reverse('pepconn_import_user_tasks')}",
+                    "close": "${reverse('pepconn_task_close')}"
+                  }
+                }
+            </textarea>
         </div>
     </div>
-    <script type="text/javascript">
-        $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
-    </script>
 % endif
 
 <script>
@@ -432,12 +426,12 @@
 
     function record_time(position) {
         timer_record = false;
-        %if request.user.id is not None:
+        % if request.user.id is not None:
             sessionStorage['user_id'] = "${request.user.id}";
-        %endif
-        %if course:
+        % endif
+        % if course:
             RecordTime.setSessionCourseID("${course.id}");
-        %endif
+        % endif
         courseTimer.start();
         RecordTime.coursePosition = position;
         RecordTime.sessionInit();
@@ -475,16 +469,16 @@
     //---------------------Record time (Course refresh or exit)--------------------------//
 
     function course_refresh_or_exit() {
-        %if request.user.id is not None:
+        % if request.user.id is not None:
             sessionStorage['user_id'] = "${request.user.id}";
             RecordTime.sessionInit();
-        %else:
+        % else:
             RecordTime.setSessionVerticalId('');
             RecordTime.setSessionCourseTime(0);
-        %endif
-        %if course:
+        % endif
+        % if course:
             RecordTime.setSessionCourseID("${course.id}");
-        %endif
+        % endif
         //RecordTime.sessionInit();
         if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
             var data = {

@@ -32,4 +32,8 @@
         url_using = str1 + "-" + split_keyword + str2;
     }
     $("#org_tsm_studio_obj").attr("href", url_using);
+
+    $(".control.global_task_panel").each(function(){
+        new GlobalTaskPanelControl(this)
+    });
 })(jQuery);
