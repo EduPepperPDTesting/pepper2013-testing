@@ -124,6 +124,15 @@
 	.btn_grade_level_active {-moz-font-feature-settings: normal; -moz-font-language-override: normal;background: none repeat scroll 0 0 #FF9933;border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;color: #FFFFFF !important;float: left;font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;font-size: 10px;font-size-adjust: none;font-stretch: normal;font-style: normal;font-variant: normal;font-weight: bold !important;height: 30px;line-height: 30px !important;text-align: center;text-decoration: none;text-shadow: 0 1px #884A0C;	width: 31px;}
 	
 	#dialog .content input{display:inline !important;}
+	
+	#dialog_manage_user .add_row{float:left; margin:5px 0; width:100%; text-align:left;}
+	#dialog_manage_user .add_txt{float:left; width:200px; text-align:right; padding-right:5px; line-height:35px;}
+	#dialog_manage_user .add_input{float:left; width:280px;}
+	#dialog_manage_user .add_input input[type=text]{width:100%;}
+	#dialog_manage_user .add_input input[type=button]{float:right;}
+	#dialog_manage_user .content{padding:0 20px;}
+	#dialog_manage_user .content select{display:inline !important;}
+	#dialog_manage_user .content input{display:inline !important;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -314,6 +323,7 @@
     </div>
 </div>
 
+<!--Menu and Dashboard Configuration -->
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="3">Menu and Dashboard Configuration<div class="icon"></div></div>
     <div class="expand_div">
@@ -643,6 +653,9 @@
                                     <span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
                                     %endfor
                                 </span>
+                                <span style="margin-left:30px;">
+	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (0)</a>
+                                </span>
                             </div>
                         </div>                        
                     </div>
@@ -717,6 +730,7 @@
 
 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
 
+<!--dialog -->
 <div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -727,6 +741,7 @@
     </div>
 </div>
 
+<!--dialogYesNo -->
 <div style="" id="dialogYesNo" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -734,6 +749,74 @@
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
         <div class="content"></div>
+    </div>
+</div>
+
+<!--dialog_manage_user -->
+<div style="width:850px;" id="dialog_manage_user" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Manage CMS Item Users</h3>
+            <div class="close-modal">✕</div>
+        </div>
+        <div class="content">
+            <div class="add_row">
+            	<span class="add_txt">
+                	<label><input type="radio" name="organization_manage_user_default" value="1" checked="checked" />
+                	Choose a user by email:</label>
+               	</span>
+                <span class="add_input" id="organization_manage_user_email_parent"><input id="organization_manage_user_email" type="text" /></span>
+            </div>
+            <div class="add_row">
+               	<label><input type="radio" name="organization_manage_user_default" value="2" />
+               	<font style="font-weight:bold">Or</font> import a group of users (text file or CSV with one email address per line):</label>
+            </div>
+            <div class="add_row"> 
+            	CSV File: <span id="organization_manage_user_cvs_span"><input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" /></span>
+            </div>
+            <div class="add_row"></div>
+            <div style="width:100%;">
+                <table id="organization-manage-user-table" class="organization-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>State</th>
+                            <th>District</th>
+                            <th>School</th>
+                            <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-manage-user-select-all"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="organization-manage-user-actions">
+                    <div id="organization-manage-user-pager" class="pager" style="margin-right:50px ;">            
+                        <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                        <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                        <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                        <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                        <select class="pagesize">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    
+                </div>
+            </div>            
+            <div class="add_row">
+            	<span class="add_txt">&nbsp;</span>
+            	<span class="add_input" style="width:600px;">
+	                <input type="button" id="organization_manage_user_btn_remove" value="REMOVE SELECTED" class="small_btn" />
+                	<input type="button" id="organization_manage_user_btn_add" value="ADD" class="small_btn" />
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1389,6 +1472,8 @@
 											$(this).find(".cms_items_icon").parent().html("").append("<input type='file' class='cms_items_icon' id='cms_items_icon_1' name='cms_items_icon_1'>");
 											$(this).find(".organizational_dashboard_cms_icon_view").html("");
 											$(this).find(".organizational_dashboard_cms_icon_view").removeAttr("icon_name");
+											$(this).find(".organizational_dashboard_cms_manage_user").removeAttr("savex");
+											$(this).find(".organizational_dashboard_cms_manage_user").removeAttr("savex_email");
 											$(this).find(".cms_item_btn").val("+");
 										}
 									});
@@ -1431,6 +1516,21 @@
 												for(var jj in cms_level_tmp1){
 													tmp_el.find(".btn_grade_level[lid='" + cms_level_tmp1[jj] + "']").addClass("btn_grade_level_active");
 												}
+											}
+											if(r.cms_manage_user){
+												var tmp_cmu = eval("(" + r.cms_manage_user + ")");
+												var sizex = 0;
+												for(var i = 0; i < tmp_cmu.length; i++){
+													if(Number(tmp_cmu[i]["rowNum"]) == Number(tmp2[0])){
+														tmp_el.find(".organizational_dashboard_cms_manage_user").attr("savex_email", tmp_cmu[i]["content"]);
+														if(tmp_cmu[i]["content"] != "")
+															sizex = tmp_cmu[i]["content"].split(",").length;
+														break;
+													}
+												}
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (" + sizex + ")");
+											}else{
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 											}
 										}
 									}else{
@@ -1902,6 +2002,8 @@
 			clonex.find(".cms_items_grade").val("");
 			clonex.find(".organizational_dashboard_cms_icon_view").empty();
 			clonex.find(".organizational_dashboard_cms_icon_view").attr("icon_name", "");
+			clonex.find(".organizational_dashboard_cms_manage_user").attr("savex", "");
+			clonex.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 			clonex.find(".btn_grade_level_active").removeClass("btn_grade_level_active");
 			$(".organizational_dashboard_cms_div").append(clonex);
 			clonex.find("fieldset").hide();
@@ -2023,7 +2125,215 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+			
+		//--------organization_manage_user_default
+		$("input[name='organization_manage_user_default']").change(function () {
+        	if($(this).val() == '1') {
+                $('#organization_manage_user_email').attr("disabled", false);
+                $('#organization_manage_user_cvs').attr("disabled", true);
+            } else if($(this).val() == '2') {
+				$('#organization_manage_user_email').attr("disabled", true);
+                $('#organization_manage_user_cvs').attr("disabled", false);
+            }
+        });
+		
+		//--------------------------organizational_dashboard_cms_manage_user
+		var current_link_manage_user = null;
+		$(".organizational_dashboard_cms_manage_user").click(function(){
+			current_link_manage_user = $(this);
+			
+			var dialog = new CurrentDialog('#dialog_manage_user');
+			dialog.show();
+			
+			$('#organization_manage_user_email').val("");
+			$("#organization_manage_user_cvs_span").empty();
+			$("#organization_manage_user_cvs_span").append('<input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" />');
+			
+			$("input[name='organization_manage_user_default'][value='1']").attr("checked", "checked");
+			$('#organization_manage_user_email').attr("disabled", false);
+            $('#organization_manage_user_cvs').attr("disabled", true);
+			
+			$('#organization-manage-user-table').find(".data").remove();
+			$('#organization-manage-user-table').trigger('update');	
+			
+			var content = $(this).attr("savex");
+			var content_email = $(this).attr("savex_email");
+			if(typeof(content) != "undefined" && content != ""){
+				var tmp1 = content.split("_$$$_");
+				for(var i = 0; i < tmp1.length; i++){
+					var tmp2 = tmp1[i].split("_$$_");
+					var r = {"first_name":tmp2[0], "last_name":tmp2[1], "email":tmp2[2], "state":tmp2[3], "district":tmp2[4], "school":tmp2[5]};
+					addManageUserItem(r);
+				}
+			}else if(typeof(content_email) != "undefined" && content_email != ""){
+				var tmp1 = content_email.split(",");
+				$.ajaxSetup({async : false}); 
+				for(var i = 0; i < tmp1.length; i++){
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: tmp1[i]}, function (r) {
+						if (r.Success){
+							if(r.email_error){
+								alert("The Email ddress does not exist.");
+							}else{
+								addManageUserItem(r);
+								saveManageUser(false);
+							}							
+						}
+					});
+				}
+				$.ajaxSetup({async : true}); 
+			}
+		});
+		
+		//-----------------------------------------------------------------------organization_manage_user_btn_add
+		$("#organization_manage_user_btn_add").click(function(){
+			var type_r = $("input[name='organization_manage_user_default']:checked").val();			
+			$('.error-box').removeClass('error-box');
+			var valid = true;
+			var errors = ['The following errors occurred:\n'];
+			
+			if(type_r == "1"){
+				var email = $("#organization_manage_user_email");
+				if (email.val() == "") {
+					valid = false;
+					errors.push('Email is required.');
+					email.addClass('error-box');
+				}
+				$('#organization-manage-user-table').find(".data").each(function(){
+					var tmp1 = $(this).find("td").eq(2).html();
+					if(tmp1 == email.val()){
+						valid = false;
+						errors.push('This item is already part of this group. It can’t be added again.');
+						email.addClass('error-box');
+						return false;
+					}
+				});
+			}else{
+				if($("#organization_manage_user_cvs").val() == ""){
+					valid = false;
+					errors.push('CSV File is required.');
+				}
+			}
+			if (!valid) {
+				var error = errors.join('\n');
+				alert(error);
+			}else{
+				if(type_r == "1"){
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: filterStr2(email.val())}, function (r) {
+						if (r.Success){
+							if(r.email_error){
+								alert("The Email ddress does not exist.");
+							}else if(r.email_error_group){
+								alert("This Email is not part of this group.");
+							}else{
+								addManageUserItem(r);
+								saveManageUser(true);
+								email.val("");
+							}
+						}else{
+							//alert("Error:" + r.Error);
+							alert("The Email ddress does not exist.");
+						}
+					});
+				}else{
+					manageUserCSVUploadFile();
+				}
+			}
+		});
+		
+		//-----------------------------------------------------------------------saveManageUser
+		function saveManageUser(is_savex_email){			
+			var content = "";
+			var content_email = "";
+			$('#organization-manage-user-table').find(".data").each(function(){
+				var tmp1 = $(this).find("td").eq(0).html();
+				var tmp2 = $(this).find("td").eq(1).html();
+				var tmp3 = $(this).find("td").eq(2).html();
+				var tmp4 = $(this).find("td").eq(3).html();
+				var tmp5 = $(this).find("td").eq(4).html();
+				var tmp6 = $(this).find("td").eq(5).html();
+				if(content != "")	content += "_$$$_";
+				content += tmp1 + "_$$_" + tmp2 + "_$$_" + tmp3 + "_$$_" + tmp4 + "_$$_" + tmp5 + "_$$_" + tmp6;
 				
+				if(content_email != "")	content_email += ",";
+				content_email += tmp3;
+			});
+			current_link_manage_user.attr("savex", content);
+			if(is_savex_email)	current_link_manage_user.attr("savex_email", content_email);
+			
+			current_link_manage_user.html("Manage Users (" + $('#organization-manage-user-table').find(".data").length + ")");
+		}
+		
+		//-----------------------------------------------------------------------addManageUserItem
+		function addManageUserItem(jsonx){
+			var row = '<tr class="data">';
+			row += '<td>' + jsonx.first_name + '</td>';
+			row += '<td>' + jsonx.last_name + '</td>';
+			row += '<td>' + jsonx.email + '</td>';
+			row += '<td>' + jsonx.state + '</td>';
+			row += '<td>' + jsonx.district + '</td>';
+			row += '<td>' + jsonx.school + '</td>';
+			row += '<td class="check-column">';
+			row += '<input type="checkbox" value="' + jsonx.email + '" class="organization-manage-user-select">';
+			row += '</td>';
+			row += '</tr> ';
+			$('#organization-manage-user-table tbody').append(row);
+						
+			$('#organization-manage-user-table').trigger('update');	
+		}
+		
+		//-----------------------------------------------------------------------manageUserCSVUploadFile
+		function manageUserCSVUploadFile(){
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				fileElementId: "organization_manage_user_cvs",
+				secureuri: false,
+				dataType: 'JSON',
+				data: {flag: 'org_manage_user_cvs_upload', csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");
+					if(tmp2.Success){
+						var tmp_list, tmp_flag;
+						for(var i = 0; i < tmp2.back_rows.length; i++){
+							tmp_flag = true;
+							$('#organization-manage-user-table').find(".data").each(function(){
+								var tmp_name = $(this).find("td").eq(2).html();
+								if(tmp_name == tmp2.back_rows[i].email){
+									tmp_flag = false;
+									return false;
+								}
+							});
+							if(tmp_flag){
+								addManageUserItem(tmp2.back_rows[i]);
+							}
+						}
+						saveManageUser(true);
+						
+						$('#organization-manage-user-table').trigger('update');	
+						$("#organization_manage_user_cvs_span").empty();
+						$("#organization_manage_user_cvs_span").append('<input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" />');
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+				}
+			})			
+		}
+		
+		//--------------------------organization_manage_user_btn_remove
+		$("#organization_manage_user_btn_remove").click(function(){
+			if($(".organization-manage-user-select:checked").length > 0){
+				if(confirm("Are you sure to delete the item?")){
+					$(".organization-manage-user-select:checked").parent().parent().remove();
+					$('#organization-manage-user-table').trigger('update');
+					saveManageUser(true);
+				}
+			}else{
+				alert("Select the item(s) you want to delete.");
+			}
+		});
+			
 		//--------------------------editor_view_btn preview_view_btn
 		$('.editor_view_btn').click(function(){
 			ceditor.switchView("Editor");
@@ -2543,8 +2853,11 @@
 					$(this).find(".cms_items_icon").attr("id", "cms_items_icon_" + cms_sn1);
 					$(this).find(".cms_items_icon").attr("name", "cms_items_icon_" + cms_sn1);
 					
+					var cms_manage_user = $(this).find(".organizational_dashboard_cms_manage_user").attr("savex_email");
+					if(typeof(cms_manage_user) == "undefined")	cms_manage_user = "";
+					
 					if(cms_items != "")	cms_items += "=<=";
-					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name;	
+					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name + "=>=" + cms_manage_user;
 					
 					repeatList.push(cms_item + "__" + cms_grade);
 					

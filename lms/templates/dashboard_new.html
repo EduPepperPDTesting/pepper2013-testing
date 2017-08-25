@@ -10,9 +10,9 @@
     from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
     import datetime
-    
+    import json    
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem, OrganizationMoreText
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -881,7 +881,8 @@ a{
     add_Featured_Show = ""
     add_Default = "1"
     
-    if request.user.is_authenticated():            
+    if request.user.is_authenticated(): 
+    	c_email = request.user.email           
         try:
             state_id = request.user.profile.district.state.id
         except:
@@ -997,7 +998,14 @@ a{
                                 if tmp1_2 == tmp1_3:
                                     cms_add = True
                                     break
-                
+                else:
+                    for tmp_more in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Cms Manage User"):
+                        for tmp_more_1 in tmp_more.DataItem.split("},"):
+                            if tmp_more_1.find("'" + str(tmp1.rowNum) + "'") > -1:
+                            	if tmp_more_1.find(c_email) > -1:
+                                	cms_add = True
+                        break
+                        
                 if cms_add:
                     cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
                         
