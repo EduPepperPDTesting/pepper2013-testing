@@ -2,8 +2,6 @@
     $(document).on('click', function(event) {
         if (!$(event.target).closest('.admin-menu-holder').length) {
             $(".admin-dropdown-menu").hide();
-        } else if ($(event.target).closest(".outside_menu").length) {
-            $(".admin-dropdown-menu").hide();
         }
         if ($('#user-photo-arrow:hidden').length){
             $('#user-photo-arrow').css("visibility", "visible");

@@ -60,7 +60,7 @@
 #pepper-nav .imessage_style {
     display: block;
     float: left;
-    margin: -14px 0 0 0;
+    margin: -14px 0 0 0 !important;
     padding: 5px 8px 7px 8px;
 }
 
@@ -68,9 +68,8 @@
     background: #6e8194;
     transition-delay: 0s, 0s, 0s;
     transition-duration: 0.25s, 0.25s, 0.25s;
-    transition-property: color, background, ? box-shadow;
+    transition-property: color, background, box-shadow;
     transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    transition-duration: 0.25s, ? 0.25s, ? 0.25s;
     color: #fff;
 }
 
@@ -292,9 +291,45 @@
     margin-top: 3px !important;
 }
 
-#pepper-nav .pepper-user-wrap {
+#pepper-nav .pepper-menu-holder {
     display: block;
     float: left;
     padding-top: 10px;
     margin-right: 0;
+}
+
+#pepper-nav .info_count_btn {
+    width: 50px;
+    height: 50px;
+    background: url(/static/images/ppd-iMessage.jpg);
+    display: none;
+}
+
+#pepper-nav .info_count {
+    color: #f00;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+#pepper-nav .info_btn {
+    width: 50px;
+    height: 50px;
+    background: url(/static/images/ppd-iMessage-none.jpg);
+}
+
+#pepper-nav .pepper-user-link {
+    overflow-y: visible;
+    height: 28px;
+    margin-top: 6px;
+}
+
+#pepper-nav .pepper-username {
+    display: block;
+    max-width: 60px;
+    text-overflow: ellipsis;
+    line-height: 12px;
+    height: 18px;
+    font-weight: bold;
+    overflow-x: hidden;
+    vertical-align: top;"
 }

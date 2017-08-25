@@ -2,45 +2,43 @@
 <%! from django.core.urlresolvers import reverse %>
 <%! from django.utils.translation import ugettext as _ %>
 <%namespace name='static' file='static_content.html'/>
+<%page args="alt_footer" />
 
-<style>
- .nav-colophon li{line-height:45px;}
- .nav-colophon a.logo{transition:none !important;border-bottom:none;margin:0 0 0 20px;}
- .nav-colophon a.logo:hover,.nav-colophon a.logo:active{border:none !important;}
- .nav-colophon a.logo img{vertical-align:bottom;}
-</style>
-
-<div class="wrapper wrapper-footer" style="border-top:1px solid #8a8c8f;box-shadow:0 -1px 5px 0 rgba(0, 0, 0, 0.1);z-index:11;padding-bottom:0px;padding-top:20px;">
-  <footer id="page-footer">
-    <div class="colophon" style="width:600px;">
-      <nav class="nav-colophon">
-        <ol>
-          <li class="nav-colophon-03">
-            <a id="press" href="/press" style="font-size:16px !important;"> ${_("Press")} </a>
-          </li>
-          <li class="nav-colophon-04">
-            <a id="faq" href="/faq" style="font-size:16px !important;"> ${_("FAQ")} </a>
-          </li>
-          <li class="nav-colophon-05">
-            <a id="contact" href="/contact" style="font-size:16px !important;"> ${_("Contact")} </a>
-          </li>
-          <li>
-            <a href="https://twitter.com/Pepper_PD" target="_blank" class="logo"><img src="/static/images/twitter_bird_logo.png" width="50"/></a>
-          </li>
-          <li>
-            <a href="https://www.facebook.com/PepperPD" target="_blank" class="logo"><img src="/static/images/facebook_logo.png" width="50"/></a>
-          </li>
-          <li>
-            <a href="https://www.linkedin.com/groups?mostRecent=&gid=6742057&trk=my_groups-tile-flipgrp" target="_blank" class="logo"><img src="/static/images/linkedin-logo.jpg" width="50"/></a>
-          </li>
-          <li>
-            <a href="https://www.youtube.com/channel/UCIgkrFJRifhIN5Thpw5MUFQ" target="_blank" class="logo"><img src="/static/images/new_youtube_logo.png" width="50"/></a>
-          </li>
-        </ol>
-      </nav>
+% if alt_footer:
+    ${alt_footer}
+% else:
+    <div class="pepper-wrapper-footer">
+      <footer>
+        <div class="pepper-colophon">
+          <nav class="pepper-nav-colophon">
+            <ol>
+              <li>
+                <a id="pepper-press" href="/press"> ${_("Press")} </a>
+              </li>
+              <li>
+                <a id="pepper-faq" href="/faq"> ${_("FAQ.")} </a>
+              </li>
+              <li>
+                <a id="pepper-contact" href="/contact"> ${_("Contact")} </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/Pepper_PD" target="_blank" class="pepper-footer-logo"><img src="/static/images/twitter_bird_logo.png"/></a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/PepperPD" target="_blank" class="pepper-footer-logo"><img src="/static/images/facebook_logo.png"/></a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/groups?mostRecent=&gid=6742057&trk=my_groups-tile-flipgrp" target="_blank" class="pepper-footer-logo"><img src="/static/images/linkedin-logo.jpg"/></a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/channel/UCIgkrFJRifhIN5Thpw5MUFQ" target="_blank" class="pepper-footer-logo"><img src="/static/images/new_youtube_logo.png"/></a>
+              </li>
+            </ol>
+          </nav>
+        </div>
+        <img class="pepper-pcg-logo" src="${MITX_ROOT_URL}/static/images/pcgeducationdown.jpg"/>
+        <div class="pepper-references">
+        </div>
+      </footer>
     </div>
-    <img style="float:right;" src="${MITX_ROOT_URL}/static/images/pcgeducationdown.jpg" width="285" height="58"/>
-    <div class="references">
-    </div>
-  </footer>
-</div>
+% endif

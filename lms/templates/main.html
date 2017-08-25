@@ -135,8 +135,8 @@ navbar_show_extended=True
     % if organization_active and data["Is New Menu"] == "1":
         <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, data=data, is_external=False"/>
     % else:
-        <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
-    % endif 
+        <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
+    % endif    
 % endif
   
 <!--@begin:Main module page, change the bottom margin in the body text-->
