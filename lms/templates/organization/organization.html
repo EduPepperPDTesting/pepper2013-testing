@@ -2956,7 +2956,7 @@
 				fileElementId: "organization_manage_user_cvs",
 				secureuri: false,
 				dataType: 'JSON',
-				data: {flag: 'org_manage_user_cvs_upload', csrfmiddlewaretoken: '${csrf_token}'},
+				data: {flag: 'org_manage_user_cvs_upload', csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
 				success: function (data, status){
 					var tmp2 = eval("(" + $(data).html() + ")");
 					if(tmp2.Success){
