@@ -108,7 +108,8 @@ urlpatterns = (
     # === pepreg end ==
 
     # === webchat begin ==
-    url(r'^videochat/(?P<uname>[a-zA-Z]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
+    url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
+    url(r'^textchat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.gettextframe', name='textchat_show'),
     # === webchat end ==
 
     # === Portfolio Settings begin ==

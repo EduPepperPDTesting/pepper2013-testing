@@ -1,10 +1,3 @@
-<%! from opentok import OpenTok
-from opentok import MediaModes
-api_key = "45939862"
-api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"
-opentok_sdk = OpenTok(api_key, api_secret)
-session = opentok_sdk.create_session(media_mode=MediaModes.routed)
-%>
 
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
@@ -22,41 +15,70 @@ session = opentok_sdk.create_session(media_mode=MediaModes.routed)
     </div>
 </div>
 
-<script src = "/static/js/webchat.js"></script>
+<!--<script src = "/static/js/webchat.js"></script>-->
 
-<div id="pep_text_container">
-    <div id="pep_video_panel" class="container">
-        <div id="pep_videochatheader_container">
-            <div id="pep_videochatheader_title">
-                <span id="uname">Video Chat</span>
-            </div>
-            <div id="pep_header_right">
-                <img id="pep_user_photo"
-                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF"
-                     alt="photo"/>
-                <span id="pep_uname">User Name</span>
-            </div>
-        </div>
-        <div id="pep_chat_container" class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6" id="pep_videotext_panel">
-                    <div id="pep_text_chat"></div>
-                    <div id="pep_videochatfooter_container" class="container-fluid">
-                        <div class="row">
-                            <div id="pep_chat_input" class="col-sm-8"></div>
-                            <div id="pep_chat_icons" class="col-sm-3">
-                                <a href="default.asp"><img
-                                        src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
-                                        alt="im-text"></a>
-                                <a href="default.asp"><img src="https://image.flaticon.com/icons/svg/149/149284.svg" alt="im-video"></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="pep_video_chat" class="col-sm-6">
-                    <a href="#webchat" rel="leanModal" id="start-session">VIDEO DEMO</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div id="pep_video_container"></div>
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#pep_video_container').on('mousedown', '#pep_videochatheader_container', function (e) {
+        e.preventDefault();
+        $this = $(this);
+
+        var pos = $('#pep_video_container').offset();
+        var left = pos.left;
+        var top = pos.top;
+        //console.log(e.pageX + " " + e.pageY);
+        distX = e.pageX - left;
+        distY = e.pageY - top;
+
+        $('#pep_video_container').on('mousemove', '#pep_videochatheader_container', function (e) {
+            console.log(e.pageX + " " + e.pageY);
+
+            left = e.pageX - (distX);
+            top = e.pageY - (distY);
+
+            left = (left < 0)? 0 : (left > window.innerWidth - 450)? window.innerWidth - 450 : left;
+            top = (top < 73)? 73 : (top > window.innerHeight - 245)? window.innerHeight - 245 : top;
+            $('#pep_video_container').css({
+                'left': left + 'px',
+                'top': top + 'px'
+            });
+        });
+
+        $('#pep_video_container').on('mouseleave', '#pep_videochatheader_container', function (e) {
+
+            $(document).on('mousemove', function (e) {
+                $(document.body).css("cursor", "move");
+
+                //console.log(e.pageX + " " + e.pageY);
+                left = e.pageX - (distX);
+                top = e.pageY - (distY);
+
+                left = (left < 0)? 0 : (left > window.innerWidth - 450)? window.innerWidth - 450 : left;
+                top = (top < 73)? 73 : (top > window.innerHeight - 245)? window.innerHeight - 245 : top;
+                $('#pep_video_container').css({
+                    'left': left + 'px',
+                    'top': top + 'px'
+                });
+            });
+            $(document).on('mouseup', function (e) {
+                $(document.body).css("cursor", "default");
+                $(document).off('mousemove');
+                $('#pep_video_container').off('mousemove', '#pep_videochatheader_container');
+                $('#pep_video_container').off('mouseleave', '#pep_videochatheader_container');
+            });
+
+        });
+
+        $('#pep_video_container').on('mouseup', '#pep_videochatheader_container', function (e) {
+            $(document.body).css("cursor", "default");
+            $(document).off('mousemove');
+            $('#pep_video_container').off('mousemove', '#pep_videochatheader_container');
+            $('#pep_video_container').off('mouseleave', '#pep_videochatheader_container');
+        });
+    });
+
+});
+</script>

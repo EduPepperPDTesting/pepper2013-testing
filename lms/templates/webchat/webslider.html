@@ -29,6 +29,9 @@
                     <span class="pep_online_status">&#11044;</span>
                 </div>
                 <div class="pep_contact_name">First User</div>
+                <div class="pep_start_video">
+                    <a><img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"></a>
+                </div>
             </div>
             <div class="pep_contact_block">
                 <div class="pep_add_im">+</div>
@@ -36,6 +39,8 @@
                     <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/33/33965.svg" alt="im-community"></a></span>
                 </div>
                 <div class="pep_contact_name">Second User</div>
+                <div>
+                </div>
             </div>
             <div class="pep_contact_block">
                 <div class="pep_add_im">+</div>
@@ -43,6 +48,9 @@
                     <span class="pep_online_status">&#11044;</span>
                 </div>
                 <div class="pep_contact_name">Third User</div>
+                <div class="pep_start_video">
+                    <a><img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"></a>
+                </div>
             </div>
         </div>
         <div id="pep_slider_list"></div>
@@ -91,9 +99,14 @@ $(document).ready(function(){
     });
 
     $(".pep_contact_block").on("click", ".pep_contact_name", function(){
-        var uname = $(this).text();
-        $(".pep_text_container").load("/videochat/"+uname #pep_video_panel");
-        //$("#pep_uname").text(uname);
+        var uname = $(this).text().replace(" ", "_");
+        $("#pep_text_container").load("/textchat/"+uname+" #pep_text_panel");
     });
+
+    $(".pep_contact_block").on("click", ".pep_start_video", function(){
+        var uname = $(this).prev().text().replace(" ", "_");
+        $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
+    });
+
 });
 </script>
