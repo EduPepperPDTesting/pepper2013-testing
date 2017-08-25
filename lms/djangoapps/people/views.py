@@ -86,9 +86,9 @@ def add_people(request):
         ma_db = myactivitystore()
         store = dashboard_feeding_store()
         if is_people(people, request.user.id) and is_people(request.user, request.POST.get('people_id')):
-            my_activity = {"GroupType": "People", "EventType": "Both_Added_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user1_id,
+            my_activity = {"GroupType": "People", "EventType": "Both_Added_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user2_id,
                            "URLValues": {"username": people.username},
-                           "TokenValues": {"user_id1": user2_id},
+                           "TokenValues": {"user_id1": user1_id, "user_id2": user2_id},
                            "LogoValues": {}}
             ma_db.insert_item(my_activity)
             
