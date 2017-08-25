@@ -93,7 +93,7 @@ def add_people(request):
             ma_db.insert_item(my_activity)
             
             content = get_my_activity_info(my_activity, "Both_Added_Network")
-            store.create(type="post", user_id=long(request.POST.get('people_id')), content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1)
+            store.create(type="post", user_id=long(request.user.id), content=content,receivers=[long(request.POST.get('people_id'))],date=datetime.datetime.utcnow(),is_people_add=1)
         else:
             my_activity = {"GroupType": "People", "EventType": "Add_Me_Network", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user2_id,
                            "URLValues": {"username": user1_username},
