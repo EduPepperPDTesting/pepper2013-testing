@@ -150,7 +150,6 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-footer.html" />
 % elif not suppress_toplevel_navigation:
-  <%include file="footer.html" />
   % if organization_active and data["Footer Selected"] == "1":
       <%include file="footer.html" args="alt_footer=data['footer_content']"/>
   % else:

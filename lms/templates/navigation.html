@@ -38,10 +38,10 @@
     % endif
 </%block>
 
-<link rel="stylesheet" type="text/css" href="/static/css/navigation.css" />
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
+<script type="text/javascript" src="/static/js/navigation.js"></script>
 
 % if course:
     <header id="pepper-nav" class="pepper-nav pepper-slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
@@ -226,7 +226,7 @@
                             <!--@date:2013-11-02-->
                             <a class="pepepr-cta peppepr-cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
                         % else:
-                            <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
+                            <a class="pepper-cta pepper-cta-login" href="/login${login_query()}">${_("Login")}</a>
                             <!--@end-->
                         % endif
                     % endif
