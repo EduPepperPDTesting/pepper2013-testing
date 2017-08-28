@@ -802,7 +802,7 @@ def organizational_save_base(request):
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
-        if is_announcement == "1":
+        if is_announcement == 1:
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
                 return HttpResponse(json.dumps(data), content_type="application/json")
@@ -864,9 +864,10 @@ def organizational_save_base(request):
             expiration_date = "01/01/2200"
             expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
 
-            store = dashboard_feeding_store()
-            store.remove({"user_id": user.id, "source": "organization", "organization_type": "Pepper", "organization_id": oid})
-            store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
+            if is_announcement == 1:
+                store = dashboard_feeding_store()
+                store.remove({"source": "organization", "organization_type": "Pepper", "organization_id": oid})
+                store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
             if(sid_did != ""):
