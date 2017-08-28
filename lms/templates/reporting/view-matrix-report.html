@@ -72,12 +72,12 @@
         line-height: 40px;
         color:white;
         border-color: black;
-        background-color:blue;
+        background-color:#4472c5;
         margin:10px;
         border-radius: 10px;
     }
     .graph_title:hover{
-        background-color: #AAA;
+        background-color: #203864;
     }
     #matrix_header{
         background-image: url(/static/img/matrix-report-header.png) !important;
@@ -156,7 +156,7 @@
 <!-- chart -->
 
 <div id='detail1'>
-    <div id = 'graphable' style="z-index:9999;visibility:visible;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
+    <div id = 'graphable' style="z-index:9999;visibility:hidden;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
         <div style='background-color: white;'>
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
             <div id="graph" style="height:50px;border-bottom: 2px solid black;">
@@ -377,6 +377,7 @@ var report_view = {
             }
             window.tws = tws
             graph('Line',tws)
+            $("#graphable").css('visibility','visible');
         })
     }
 
@@ -528,7 +529,7 @@ $(document).ready(function () {
         $("#close").click(function(){
             $("#graphable").css('visibity','hidden');
             $(".graph_title").css('background-color','');
-            $(".graph_title").eq(0).css('background-color','#AAA')
+            $(".graph_title").eq(0).css('background-color','#203864')
             $("#maskLayer").remove();
 
         })
