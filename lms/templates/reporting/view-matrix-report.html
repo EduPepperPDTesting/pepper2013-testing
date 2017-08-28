@@ -522,12 +522,12 @@ $(document).ready(function () {
             }else{
                 tws = window.tws;
                 $(".graph_title").css('background-color','');
-                $(this).css('background-color','#AAA');
+                $(this).css('background-color','#203864');
                 graph(shape,tws);
             }
         });
         $("#close").click(function(){
-            $("#graphable").css('visibity','hidden');
+            $("#graphable").css('visibility','hidden');
             $(".graph_title").css('background-color','');
             $(".graph_title").eq(0).css('background-color','#203864')
             $("#maskLayer").remove();
