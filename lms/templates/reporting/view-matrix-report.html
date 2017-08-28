@@ -138,13 +138,6 @@
             </div>
         </span>
     </div>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
 <!-- aggregate table -->
 <div id="detail">
 <div class="tit"><i class="close">关闭</i></div>
@@ -163,10 +156,10 @@
 <!-- chart -->
 
 <div id='detail1'>
-    <div id = 'graphable' style="z-index:9999;display: none;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
+    <div id = 'graphable' style="z-index:9999;visibility:visible;border: 1px solid ;position: absolute;top: 250px;left: 370px;">
         <div style='background-color: white;'>
             <div style='height:50px;width:100%;text-align:right;font-size: 25px;border-bottom: 1px solid black;border-bottom: 2px solid black;'><span style='margin-right:25px' id='close'>X</span></div>
-            <div id="graph" style="height:50px;">
+            <div id="graph" style="height:50px;border-bottom: 2px solid black;">
                 <ul style="list-style: none;float: left;display: block;height: 50px;margin-bottom: 0px;margin-top: 0px;padding-left: 0px;">
                     <li class="graph_title" style='background-color: rgb(170, 170, 170);'>Line</li>
                     <li class="graph_title">Area</li>
@@ -368,7 +361,6 @@ var report_view = {
     }
 
     function graphable(x){
-        $("#graphable").show();
         popWin("detail1");
         $("#chart").html('')
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
@@ -389,7 +381,6 @@ var report_view = {
     }
 
     function row_graphable(x){
-        $("#graphable").show();
         popWin("detail1");
         $("#chart").html('')
         filter = x.nextSibling.nodeValue;
@@ -406,6 +397,7 @@ var report_view = {
             }
             window.tws = tws
             graph('Line',tws)
+            $("#graphable").css('visibility','visible');
         })
     }
 
@@ -534,7 +526,7 @@ $(document).ready(function () {
             }
         });
         $("#close").click(function(){
-            $("#graphable").hide();
+            $("#graphable").css('visibity','hidden');
             $(".graph_title").css('background-color','');
             $(".graph_title").eq(0).css('background-color','#AAA')
             $("#maskLayer").remove();
