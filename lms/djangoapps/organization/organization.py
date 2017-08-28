@@ -808,7 +808,7 @@ def organizational_save_base(request):
                 return HttpResponse(json.dumps(data), content_type="application/json")
             else:
                 try:
-                    user = User.objects.get(eamil='user_email')
+                    user = User.objects.get(email=user_email)
                 except Exception as e:
                     data = {'Success': False, 'Error': 'The Email does not exist.'}
                     return HttpResponse(json.dumps(data), content_type="application/json")
