@@ -1,15 +1,4 @@
 (function ($) {
-    $('.pepper-configuration').click(function (e) {
-        e.preventDefault();
-        $('.admin ul.pepper-dropdown-menu').toggle();
-    });
-
-    $(document).on('click', function(event) {
-        if (!$(event.target).closest('.pepper-menu-holder').length) {
-            $(".pepper-dropdown-menu").hide();
-        }
-    });
-
     var url_split_array = window.location.href.split('/');
     var split_array_1 = "";
     var split_keyword = "";
@@ -31,9 +20,36 @@
     else{
         url_using = str1 + "-" + split_keyword + str2;
     }
-    $("#org_tsm_studio_obj").attr("href", url_using);
 
-    $(".control.global_task_panel").each(function(){
-        new GlobalTaskPanelControl(this)
+    $(document).ready(function () {
+        $('.pepper-configuration').click(function (e) {
+            e.preventDefault();
+            $('.pepper-menu-holder ul.pepper-dropdown-menu').toggle();
+        });
+
+        $(document).on('click', function(event) {
+            if (!$(event.target).closest('.pepper-menu-holder').length) {
+                $('.pepper-menu-holder ul.pepper-dropdown-menu').hide();
+            }
+        });
+
+        var $dropdown = $('.pepper-dropdown');
+        var $dropdown_menu = $('.pepper-primary ul.pepper-dropdown-menu');
+        $dropdown.click(function(event) {
+            if ($(this).hasClass("active")){
+                $dropdown_menu.removeClass("pepper-expanded");
+                $(this).removeClass("active");
+            } else {
+                $dropdown_menu.addClass("pepper-expanded");
+                $dropdown.addClass("active");
+            }
+            event.stopPropagation();
+        });
+
+        $("#org_tsm_studio_obj").attr("href", url_using);
+
+        $(".control.global_task_panel").each(function(){
+            new GlobalTaskPanelControl(this)
+        });
     });
 })(jQuery);

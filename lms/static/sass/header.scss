@@ -26,24 +26,24 @@ header.pepper-nav {
     font-family: "Open Sans", Verdana, Geneva, sans-serif !important;
   }
 
-  h1.logo {
-    float: left;
-    margin: -2px 39px 0px 0px;
-    position: relative;
-
-    a {
-      display: block;
-    }
-  }
+  //h1.logo {
+  //  float: left;
+  //  margin: -2px 39px 0px 0px;
+  //  position: relative;
+  //
+  //  a {
+  //    display: block;
+  //  }
+  //}
 
   ol {
-    &.left {
-      float: left;
-    }
-
-    &.guest {
-      float: right;
-    }
+    //&.left {
+    //  float: left;
+    //}
+    //
+    //&.guest {
+    //  float: right;
+    //}
 
     > li {
       @include inline-block;
@@ -61,7 +61,7 @@ header.pepper-nav {
       }
     }
 
-    li.secondary {
+    li.pepper-secondary {
       > a {
         color: $link-color;
         display: block;
@@ -82,109 +82,116 @@ header.pepper-nav {
       }
     }
 
-    li.primary {
-      margin-right: 5px;
-
-      > a {
-        @include background-image($button-bg-image);
-        background-color: $button-bg-color;
-        border: 1px solid $border-color-2;
-        border-radius: 3px;
-        @include box-sizing(border-box);
-        box-shadow: 0 1px 0 0 rgba(255,255,255, 0.6);
-        color: $base-font-color;
-        display: inline-block;
-        font-family: $sans-serif;
-        @include inline-block;
-        line-height: 1em;
-        margin: 1px 5px;
-        padding: 10px 12px;
-        text-decoration: none;
-        text-transform: uppercase;
-        text-shadow: 0 1px rgba(255,255,255, 0.6);
-        vertical-align: middle;
-
-        &:last-child {
-          margin-right: 0;
-        }
-
-        &:hover, &.active {
-          background: $button-bg-hover-color;
-        }
-      }
-
-      .pepper-dropdown {
-        height: 28px;
-        margin-top: 6px;
-      }
-    }
-
-    &.user {
+    &.pepper-user {
       float: right;
       margin-top: 4px;
 
-      > li.primary {
+      > li.pepper-primary {
         display: block;
         float: left;
         margin: 0;
 
         > a {
-          margin: 0;
-          @include border-right-radius(0px);
-        }
-
-        &:last-child {
-          > a {
-            border-radius: 0 4px 4px 0;
-            border-left: none;
-            padding: 5px 8px 7px 8px;
-          }
-        }
-      }
-
-      a.user-link {
-        padding: 6px 12px 8px 35px;
-        position: relative;
-        text-transform: none;
-        font-size: 14px;
-        font-weight: bold;
-        letter-spacing: 0;
-
-        .avatar {
-          @include background-image(url('../images/small-header-home-icon.png'));
-          background-repeat: no-repeat;
-          height: 26px;
+          @include background-image($button-bg-image);
+          background-color: $button-bg-color;
+          border: 1px solid $border-color-2;
+          border-radius: 3px;
+          @include box-sizing(border-box);
+          box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.6);
+          color: $base-font-color;
+          display: inline-block;
+          font-family: $sans-serif;
           @include inline-block;
-          left: 8px;
-          opacity: 0.5;
-          overflow: hidden;
-          position: absolute;
-          top: 4px;
-          @include transition(all 0.15s linear 0s);
-          width: 26px;
+          line-height: 1em;
+          margin: 1px 5px;
+          padding: 10px 12px;
+          text-decoration: none;
+          text-transform: uppercase;
+          text-shadow: 0 1px rgba(255, 255, 255, 0.6);
+          vertical-align: middle;
+
+          &:last-child {
+            margin-right: 0;
+          }
+
+          &:hover, &.active {
+            background: $button-bg-hover-color;
+          }
         }
 
-        &:hover {
-          .avatar {
-            opacity: 0.8;
+        a.pepper-user-link {
+          padding: 6px 12px 8px 35px;
+          position: relative;
+          text-transform: none;
+          font-size: 14px;
+          font-weight: bold;
+          letter-spacing: 0;
+          margin: 6px 0 0 0;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+          overflow-y: visible;
+          height: 28px;
+
+          .pepper-avatar {
+            @include background-image(url('../images/small-header-home-icon.png'));
+            background-repeat: no-repeat;
+            height: 26px;
+            @include inline-block;
+            left: 8px;
+            opacity: 0.5;
+            overflow: hidden;
+            position: absolute;
+            top: 4px;
+            @include transition(all 0.15s linear 0s);
+            width: 26px;
           }
+
+          &:hover {
+            .pepper-avatar {
+              opacity: 0.8;
+            }
+          }
+
+          .pepper-sr {
+            border: 0;
+            clip: rect(1px 1px 1px 1px);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+          }
+        }
+
+        a.pepper-dropdown {
+          height: 28px;
+          border-radius: 0 4px 4px 0;
+          border-left: none;
+          margin: 6px 0 0 0;
+          padding: 5px 8px 7px 8px;
         }
       }
 
       ul.pepper-dropdown-menu {
         background: $border-color-4;
         border-radius: 4px;
-        box-shadow: 0 2px 24px 0 rgba(0,0,0, 0.3);
+        box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.3);
         border: 1px solid $border-color-3;
         display: none;
         padding: 5px 10px;
         position: absolute;
-        right: 0;
+        right: -4px;
         top: 34px;
         width: 170px;
         z-index: 3;
 
-        &.expanded {
+        &.pepper-admin {
+          right: -12px;
+          width: 262px;
+        }
+
+        &.pepper-expanded {
           display: block;
         }
 
@@ -210,7 +217,7 @@ header.pepper-nav {
         li {
           display: block;
           border-top: 1px dotted $border-color-2;
-          box-shadow: inset 0 1px 0 0 rgba(255,255,255, 0.05);
+          box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 
           &:first-child {
             border: none;
@@ -279,11 +286,6 @@ header.pepper-nav {
         }
       }
     }
-
-    // logged in
-    &.authenticated {
-
-    }
   }
 
   .pepper-nav-courseware {
@@ -305,68 +307,6 @@ header.pepper-nav {
     // logged in
     &.authenticated {
 
-    }
-  }
-
-
-  ul.admin-dropdown-menu {
-    background: #FCFCFC none repeat scroll 0 0;
-    border-radius: 4px;
-    box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.3);
-    border: 1px solid #646464;
-    display: none;
-    padding: 5px 10px;
-    position: absolute;
-    right: -12px;
-    top: 34px;
-    width: 262px;
-    z-index: 3;
-
-    &:before {
-      background: transparent none repeat scroll 0 0;
-      border-width: 6px;
-      border-style: solid;
-      border-color: #FCFCFC #FCFCFC transparent transparent;
-      box-shadow: 1px 0 0 0 #646464, 0 -1px 0 0 #646464;
-      content: "";
-      display: block;
-      height: 0;
-      position: absolute;
-      transform: rotate(-45deg);
-      right: 12px;
-      top: -6px;
-      width: 0;
-    }
-
-    &.expanded {
-      display: block;
-    }
-
-    li {
-      display: block;
-      border-top: 1px dotted #C8C8C8;
-      box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
-
-      &:first-child {
-        border: medium none;
-        box-shadow: none;
-      }
-    }
-
-    li > a {
-      border: 1px solid transparent;
-      border-radius: 3px;
-      box-sizing: border-box;
-      color: #1D9DD9;
-      cursor: pointer;
-      display: block;
-      margin: 5px 0;
-      overflow: hidden;
-      padding: 3px 5px 4px;
-      text-overflow: ellipsis;
-      transition: padding 0.15s linear 0s;
-      white-space: nowrap;
-      width: 100%;
     }
   }
 
@@ -407,8 +347,15 @@ header.pepper-nav {
       font-family: 'Open Sans', Verdana, Geneva, sans-serif;
       text-transform: none;
       font-weight: normal !important;
-      font-size: 23px !important;
-      line-height: 23px !important;
+
+      &.pepper-unauthenticated {
+        font-size: 23px !important;
+        line-height: 23px !important;
+      }
+
+      &.pepper-authenticated {
+        font-size: 16px !important;
+      }
     }
 
     &.pepper-configuration {
@@ -479,20 +426,20 @@ header.pepper-nav {
     margin-right: 0;
   }
 
-  .info_count_btn {
+  .pepper-info_count_btn {
     width: 50px;
     height: 50px;
     background: url(/static/images/ppd-iMessage.jpg);
     display: none;
   }
 
-  .info_count {
+  .pepper-info_count {
     color: #f00;
     font-weight: bold;
     font-size: 13px;
   }
 
-  .info_btn {
+  .pepper-info_btn {
     width: 50px;
     height: 50px;
     background: url(/static/images/ppd-iMessage-none.jpg);
@@ -708,12 +655,6 @@ header.pepper-nav {
     vertical-align: top;
   }
 
-  .pepper-logo-wrap {
-    margin-top: 8px;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
   .pepper-user {
     float: right;
   }
@@ -728,36 +669,36 @@ header.pepper-nav {
     left: inherit;
   }
 
-  .pepper-dropdown-menu {
-    -moz-box-sizing: border-box;
-    -moz-transition: padding 0.15s linear 0s;
-    border: 1px solid transparent;
-    border-radius: 3px 3px 3px 3px;
-    color: #1D9DD9;
-    cursor: pointer;
-    display: block;
-    margin: 15px 0;
-    overflow: hidden;
-    padding: 3px 5px 4px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    div {
-      float: left;
-    }
-
-    .pepper-dropdown-menu-drop {
-      float: left;
-      margin: 10px 0 0 10px;
-      color: #60B2D6;
-
-      a {
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 15px;
-      }
-    }
-  }
+  //.pepper-dropdown-menu {
+  //  -moz-box-sizing: border-box;
+  //  -moz-transition: padding 0.15s linear 0s;
+  //  border: 1px solid transparent;
+  //  border-radius: 3px 3px 3px 3px;
+  //  color: #1D9DD9;
+  //  cursor: pointer;
+  //  display: none;
+  //  margin: 15px 0;
+  //  overflow: hidden;
+  //  padding: 3px 5px 4px;
+  //  text-overflow: ellipsis;
+  //  white-space: nowrap;
+  //
+  //  div {
+  //    float: left;
+  //  }
+  //
+  //  .pepper-dropdown-menu-drop {
+  //    float: left;
+  //    margin: 10px 0 0 10px;
+  //    color: #60B2D6;
+  //
+  //    a {
+  //      text-decoration: none;
+  //      font-weight: bold;
+  //      font-size: 15px;
+  //    }
+  //  }
+  //}
 
   .pepper-me-arrow {
     font-size: 25px !important;
@@ -1102,6 +1043,9 @@ header.pepper-nav {
   textarea {
     overflow: hidden;
   }
+}
+.control.global_task_panel {
+  display: none;
 }
 
 .lean-overlay-nav {

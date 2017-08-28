@@ -81,29 +81,28 @@
             <h2 class="pepper-course-label"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
         % endif
         
-        <ol class="pepper-nav-global">
-        
-            % if not curr_user.is_authenticated():
-                <li><a href="/contact" class="pepper-main-link"><b>Membership</b></a></li>
-                <li><a href="/our_team" class="pepper-main-link"><b>Our Team</b></a></li>
-                <li><a href="/press" class="pepper-main-link"><b>In the News</b></a></li>
-            % endif
+        % if not curr_user.is_authenticated():
+        <ol class="pepper-nav-global pepper-unauthenticated">
+            <li><a href="/contact" class="pepper-main-link"><b>Membership</b></a></li>
+            <li><a href="/our_team" class="pepper-main-link"><b>Our Team</b></a></li>
+            <li><a href="/press" class="pepper-main-link"><b>In the News</b></a></li>
+        </ol>
+        % endif
 
-            % if request.user.is_authenticated():
-                <li id="org_tm_course_workshop_obj"><a href="/courses" class="pepper-main-link">Courses &amp; Workshops</a></li>
-                <li id="org_tm_communities_obj"><a href="/communities" class="pepper-main-link">Communities</a></li>
-                <li id="org_tm_my_chunks_obj"><a href="/my_chunks" class="pepper-main-link">My Chunks</a></li>
-                <li id="org_tm_resources_obj"><a href="/resource_library_global" class="pepper-main-link">Resources</a></li>
-                <li id="org_tm_people_obj"><a href="${reverse('people')}" class="pepper-main-link">People</a></li>
-                <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
-            % endif
+        % if request.user.is_authenticated():
+        <ol class="pepper-nav-global pepper-authenticated">
+            <li id="org_tm_course_workshop_obj"><a href="/courses" class="pepper-main-link">Courses &amp; Workshops</a></li>
+            <li id="org_tm_communities_obj"><a href="/communities" class="pepper-main-link">Communities</a></li>
+            <li id="org_tm_my_chunks_obj"><a href="/my_chunks" class="pepper-main-link">My Chunks</a></li>
+            <li id="org_tm_resources_obj"><a href="/resource_library_global" class="pepper-main-link">Resources</a></li>
+            <li id="org_tm_people_obj"><a href="${reverse('people')}" class="pepper-main-link">People</a></li>
+            <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
 
-            % if request.user.is_authenticated():
-                <%block name="navigation_global_links_authenticated">
-                    <li class="pepper-nav-global-01" style="display:none;">
-                        <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
-                    </li>
-                </%block>
+            <%block name="navigation_global_links_authenticated">
+                <li class="pepper-nav-global-01" style="display:none;">
+                    <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
+                </li>
+            </%block>
         </ol>
         <!--@end-->
 
@@ -112,7 +111,7 @@
                     <!-- Administration -->
                     <li class="pepper-menu-holder">
                         <a href="#" class="pepper-configuration">Tools &#9662;</a>
-                        <ul class="pepper-dropdown-menu">
+                        <ul class="pepper-dropdown-menu pepper-admin">
                             % if check_user_perms(request.user, 'certificate'):
                                 <li id="org_tsm_configuration_obj"><a href="${reverse('configuration')}">Configuration</a></li>
                             % endif
@@ -505,7 +504,7 @@
     //---------------------------------------------------------------------------//
     function onfocusEventDelay(e){
         course_refresh_or_exit();
-        var is_press_logout = $(document.activeElement).is('.dropdown');
+        var is_press_logout = $(document.activeElement).is('.pepper-dropdown');
         if (document.URL.indexOf('courseware') < 0) {
             if(courseTimer.loadComplete && !is_press_logout){
                 courseTimer.isrun = false;
