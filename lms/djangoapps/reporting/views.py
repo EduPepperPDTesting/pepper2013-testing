@@ -1356,7 +1356,7 @@ def get_column_headers(request):
                 elif row_header_type == 'date':
                     row['row_header'] = time.strftime('%m-%d-%Y', time.strptime(d['_id'][row_header], '%Y-%m-%d'))
                 else:
-                    row['row_header'] = d['_id'][row_header]
+                    row['row_header'] = str(d['_id'][row_header])
                 for index,column in enumerate(column_header_row):
                     if column == None:
                         column = 'none'
