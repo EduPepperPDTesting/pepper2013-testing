@@ -747,7 +747,7 @@
                                 <iframe class = "preview-frame" id="certificate_preview_announcement" name="certificate_preview_announcement" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
                             </div>
                         </div>
-					<div class="">Choose a user by email: <span class="add_input" id='initial_user_name_parent'><input type="text" id='initial_user_name'/></span></div>
+					<div style='margin-top:10px;'>Choose a user by email: <span class="add_input" id='initial_user_name_parent'><input type="text" id='initial_user_name'/></span></div>
                     </div>
                 </td>
             </tr>
@@ -3838,6 +3838,8 @@
 			if(is_Announcement == 1){
 				if (user_email == ""){
 					alert("Please choose announcement user.")
+					loadwin.hide();
+					return;
 				}
 			}
 			var feed_txt = $("#organizational_dashboard_feed_txt").val();
