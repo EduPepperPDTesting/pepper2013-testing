@@ -109,7 +109,7 @@ def main(request):
 @login_required
 def organization_initial_superuser_eamil(request):
     r = list()
-    kup = request.GET.get('q', False)
+    lookup = request.GET.get('q', False)
     oid = request.GET.get('oid', False)
     if lookup and oid:
         kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
@@ -117,7 +117,7 @@ def organization_initial_superuser_eamil(request):
         for item in data:
             r.append(item.email)
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return HttpResponse(json.dumps(r), content_type="application/json")
 # -------------------------------------------------------------------organization_user_email_completion
 @login_required
 def organization_user_email_completion(request):
@@ -807,8 +807,9 @@ def organizational_save_base(request):
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
                 return HttpResponse(json.dumps(data), content_type="application/json")
             else:
-                user = User.objects.get(eamil='user_email')
-                if not user:
+                try:
+                    user = User.objects.get(eamil='user_email')
+                except Exception as e:
                     data = {'Success': False, 'Error': 'The Email does not exist.'}
                     return HttpResponse(json.dumps(data), content_type="application/json")
         if(oid):
@@ -864,7 +865,7 @@ def organizational_save_base(request):
             expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
 
             store = dashboard_feeding_store()
-            store.remove({"user_id": request.user.id, "source": "organization", "organization_type": "Pepper", "organization_id": oid})
+            store.remove({"user_id": user.id, "source": "organization", "organization_type": "Pepper", "organization_id": oid})
             store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
