@@ -53,6 +53,8 @@ def main(request):
 
         elif (get_flag == "organization_user_email_completion"):
             return organization_user_email_completion(request)
+        elif (get_flag == "organization_initial_superuser_eamil"):
+            return organization_initial_superuser_eamil(request)
 
     elif(post_flag):
         if (post_flag == "organization_add"):
@@ -103,7 +105,19 @@ def main(request):
         tmp = "organization/organization.html"
         return render_to_response(tmp)
 
+# -------------------------------------------------------------------organization_user_email_completion
+@login_required
+def organization_initial_superuser_eamil(request):
+    r = list()
+    kup = request.GET.get('q', False)
+    oid = request.GET.get('oid', False)
+    if lookup and oid:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
 
+    return HttpResponse(json.dumps(data), content_type="application/json")
 # -------------------------------------------------------------------organization_user_email_completion
 @login_required
 def organization_user_email_completion(request):
@@ -111,7 +125,7 @@ def organization_user_email_completion(request):
     lookup = request.GET.get('q', False)
     oid = request.GET.get('oid', False)
     if lookup and oid:
-        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        kwargs = {'email__istartswith': lookup,'is_superuser':1, 'profile__subscription_status': 'Registered'}
         data = User.objects.filter(**kwargs)
 
         for orgx in OrganizationMetadata.objects.filter(id=oid):
@@ -787,7 +801,16 @@ def organizational_save_base(request):
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
         back_sid_all = ""
-
+        user_email = request.POST.get("user_email", "")
+        if is_announcement == "1":
+            if user_email == "":
+                data = {'Success': False, 'Error': 'The Email does not exist.'}
+                return HttpResponse(json.dumps(data), content_type="application/json")
+            else:
+                user = User.objects.get(eamil='user_email')
+                if not user:
+                    data = {'Success': False, 'Error': 'The Email does not exist.'}
+                    return HttpResponse(json.dumps(data), content_type="application/json")
         if(oid):
             # --------------OrganizationMetadata
             org_metadata = OrganizationMetadata()
