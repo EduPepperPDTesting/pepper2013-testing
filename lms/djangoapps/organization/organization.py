@@ -112,7 +112,7 @@ def organization_initial_superuser_eamil(request):
     lookup = request.GET.get('q', False)
     oid = request.GET.get('oid', False)
     if lookup and oid:
-        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        kwargs = {'email__istartswith': lookup,'is_superuser': 1, 'profile__subscription_status': 'Registered'}
         data = User.objects.filter(**kwargs)
         for item in data:
             r.append(item.email)
