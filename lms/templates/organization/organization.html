@@ -724,6 +724,7 @@
             <tr>
                 <td colspan="3" class="org_td1" style="padding-top:10px;">
                 	<label><input type="checkbox" name="organizational_is_announcement" onclick="isAnnouncementChange()" />Initial Pepper Announcement</label>
+                	<div class="">Choose a user by email: <span class="add_input" id='initial_user_name_parent'><input type="text" id='initial_user_name'/></span></div>
                 </td>
             </tr>
             <tr>
@@ -1420,7 +1421,7 @@
 						var email_el = $('<input id="organization_manage_user_email" type="text" />');
 						$("#organization_manage_user_email_parent").append(email_el);
 						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
-
+						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
@@ -3832,8 +3833,13 @@
 			if($("#organizational_dashboard_feed_txt_curr").val() == "")			$("#organizational_dashboard_feed_txt_curr").val("My Feed");
 			if($("#organizational_dashboard_activities_txt_curr").val() == "")		$("#organizational_dashboard_activities_txt_curr").val("My Activities");
 			if($("#organizational_dashboard_progress_txt_curr").val() == "")		$("#organizational_dashboard_progress_txt_curr").val("My Progress");
-			if($("#organizational_dashboard_resources_txt_curr").val() == "")		$("#organizational_dashboard_resources_txt_curr").val("My Resources");			
-			
+			if($("#organizational_dashboard_resources_txt_curr").val() == "")		$("#organizational_dashboard_resources_txt_curr").val("My Resources");
+			var user_email = $("#initial_user_name").val()
+			if(is_Announcement == 1){
+				if (user_email == ""){
+					alert("Please choose announcement user.")
+				}
+			}
 			var feed_txt = $("#organizational_dashboard_feed_txt").val();
 			var activities_txt = $("#organizational_dashboard_activities_txt").val();
 			var progress_txt = $("#organizational_dashboard_progress_txt").val();
@@ -3897,6 +3903,7 @@
 				footer_flag: footer_flag,
 				footer_content: footer_content,
 				is_Announcement: is_Announcement,
+				user_email: user_email,
 				announcement_content: announcement_content,
 				menu_color: menu_color
 			}, function (r) {
