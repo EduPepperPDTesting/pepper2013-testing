@@ -811,6 +811,9 @@ def organizational_save_base(request):
             else:
                 try:
                     user = User.objects.get(email=user_email)
+                    if user.is_superuser == 0:
+                        data = {'Success': False, 'Error': " This user doesn't have the permission to send announcement."}
+                        return HttpResponse(json.dumps(data), content_type="application/json")
                 except Exception as e:
                     data = {'Success': False, 'Error': 'The Email does not exist.'}
                     return HttpResponse(json.dumps(data), content_type="application/json")
