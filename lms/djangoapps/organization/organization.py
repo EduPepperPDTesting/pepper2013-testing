@@ -619,7 +619,9 @@ def organization_get(request):
                     # --------------OrganizationMoreText
                     org_announcement_list = OrganizationMoreText.objects.filter(organization=organizations, itemType="Announcement")
                     for tmp1 in org_announcement_list:
-                        data['Announcement Content'] = tmp1.DataItem
+                        tmp2 = eval(tmp1.DataItem)
+                        data['Announcement Content'] = tmp2['DataItem']
+                        data['Announcement user'] = User.objects.get(id=int(tmp2['user_id']))
                         break
 
                     # --------------OrganizationMoreText
@@ -849,22 +851,23 @@ def organizational_save_base(request):
             org_footer.save()
 
             # --------------OrganizationMoreText
-            org_announcement = OrganizationMoreText()
-            org_announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
-            for tmp1 in org_announcement_list:
-                org_announcement = tmp1
-                break
-
-            org_announcement.DataItem = announcement_content
-            org_announcement.organization = org_metadata
-            org_announcement.itemType = "Announcement"
-            org_announcement.save()
-
-            receiver_ids = [0]
-            expiration_date = "01/01/2200"
-            expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
-
             if is_announcement == "1":
+                org_announcement = OrganizationMoreText()
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
+                for tmp1 in org_announcement_list:
+                    org_announcement = tmp1
+                    break
+
+                org_content = {'DataItem':announcement_content,'user_id':user.id}
+                org_announcement.DataItem = org_content
+                org_announcement.organization = org_metadata
+                org_announcement.itemType = "Announcement"
+                org_announcement.save()
+
+                receiver_ids = [0]
+                expiration_date = "01/01/2200"
+                expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
+
                 store = dashboard_feeding_store()
                 store.remove({"source": "organization", "organization_type": "Pepper", "organization_id": oid})
                 store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
