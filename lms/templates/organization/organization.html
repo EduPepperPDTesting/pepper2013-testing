@@ -3011,7 +3011,7 @@
 					return;
 				}
 			}
-			
+
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
 				for_district: for_district,
@@ -3056,7 +3056,8 @@
 				logo_url: logo_url,
 				footer_flag: footer_flag,
 				footer_content: footer_content,
-				is_Announcement: is_Announcement,				
+				is_Announcement: is_Announcement,
+				user_email: user_email,				
 				// is_Announcement_alert: is_Announcement_alert,
 				announcement_content: announcement_content,
 				menu_color: menu_color
