@@ -2840,8 +2840,9 @@
 			$(".organization-state-edit").each(function(){
 				var sid = $(this).attr("sid");
 				var stype = $(this).attr("stype");
+				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += ":";
-				sid_did += sid + "," + stype;
+				sid_did += sid + "," + stype + "," + did;
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
