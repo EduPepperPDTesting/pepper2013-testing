@@ -8,7 +8,8 @@ import logging
 import re
 import base64
 from PIL import Image
-
+from django.db.models import Q
+import time
 from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -25,7 +26,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-from feeding import dashboard_feeding_store
+from feeding import dashboard_feeding_store,dashboard_feeding_user_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
@@ -1093,7 +1094,7 @@ def attach_post_info(p, time_diff_m, user):
         p["dismissed"] = "hidden"
     else:
         p["dismissed"] = "visible"
-        
+
     if p["type"] == "post":
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
@@ -1207,11 +1208,12 @@ def dismiss_announcement(request):
     try:
         store = dashboard_feeding_store()
         store.dismiss(_id, request.user.id)
+        user_store = dashboard_feeding_user_store()
+        user_store.set_dismiss(request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
 
     return HttpResponse(json_util.dumps({"success": True}), content_type='application/json')
-
 
 @ajax_login_required()
 def get_org_announcements(request):
@@ -1227,6 +1229,10 @@ def get_org_announcements(request):
     kwargs = {"after": now_utc}
 
     posts = store.get_announcements(request.user.id, org, **kwargs)
+    if org == "Pepper":
+        inital = get_inital(request,now_utc)
+        if len(inital) > 0:
+            posts.insert(0,inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
@@ -1247,14 +1253,18 @@ def get_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
-    store = dashboard_feeding_store()
-    # posts = store.top_level_for_user(request.user.id, type=filter_group,
-    #                                  year=filter_year, month=filter_month,
-    #                                  page_size=int(page_size), page=int(page), after=now_utc)
 
-    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+    store = dashboard_feeding_store()
+    inital = get_inital(request,now_utc)
+    pepper = []
+    if len(inital) > 0:
+        pepper.append(inital[0])
+    
     data = {"orgs": []}
-    data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
+    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+
+    pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
+    data["orgs"].append(pepper)
     data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
     data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
@@ -1266,6 +1276,58 @@ def get_announcements(request):
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
+def get_inital(request,now_utc):
+    store = dashboard_feeding_store()
+    user_store = dashboard_feeding_user_store()
+    inital = user_store.get_initial(request.user.id)
+    if inital== None:
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
+        district_id = user_profile.district_id
+        state_id = District.objects.get(id=district_id).state_id
+        school_id = user_profile.school_id
+        organization_id = []
+        organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+        for k,v in enumerate(organization):
+            b = eval(v.OtherFields)
+            b["date"] = b["date"][:19]
+            timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
+            organization_createdate = int(time.mktime(timeArray))
+            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+
+            if organization_createdate < date_joined:
+                if v.organization.id not in organization_id:
+                    organization_id.append(v.organization.id)
+
+        kwargs = {"after": now_utc}
+
+        inital = []
+        pepper = []
+        for v2 in organization_id:
+            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+
+        inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+        
+        if len(inital) > 0:
+            if inital[0].has_key("dismiss"):
+                if long(request.user.id) not in inital[0]["dismiss"]:
+                    pepper.append(inital[0])
+                    del inital[0]["_id"]
+                    inital[0]["show_user_id"] = request.user.id
+                    inital[0]["dismissing"] = 0
+                    user_store.create(inital[0])
+            else:
+                pepper.append(inital[0])
+                del inital[0]["_id"]
+                inital[0]["show_user_id"] = request.user.id
+                inital[0]["dismissing"] = 0
+                user_store.create(inital[0])
+
+        return pepper
+    else:
+        if inital["dismissing"] == 1:
+            return []
+        else:
+            return [inital]
 
 @ajax_login_required()
 def submit_new_like(request):

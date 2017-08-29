@@ -718,6 +718,7 @@
                             <div class="preview_view" style="display: none;">
                                 <iframe class = "preview-frame" id="certificate_preview_announcement" name="certificate_preview_announcement" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
                             </div>
+                            <div style='margin-top:10px;'>Choose a user by email: <span class="add_input" id='initial_user_name_parent'><input type="text" id='initial_user_name'/></span></div>
                         </div>
                     </div>
                 </td>
@@ -1268,7 +1269,7 @@
 						var email_el = $('<input id="organization_manage_user_email" type="text" />');
 						$("#organization_manage_user_email_parent").append(email_el);
 						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
-						
+						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
@@ -1336,7 +1337,7 @@
 									}
 									$("input[name='organizational_is_announcement_alert']").prop("checked", false);
 									ceditor_announcement.CKEDITOR.setData(r["Announcement Content"]);
-									
+									$('#initial_user_name').val(r["Announcement user"]);
 									//----------
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										

@@ -53,6 +53,8 @@ def main(request):
 
         elif (get_flag == "organization_user_email_completion"):
             return organization_user_email_completion(request)
+        elif (get_flag == "organization_initial_superuser_eamil"):
+            return organization_initial_superuser_eamil(request)
 
     elif(post_flag):
         if (post_flag == "organization_add"):
@@ -103,7 +105,19 @@ def main(request):
         tmp = "organization/organization.html"
         return render_to_response(tmp)
 
+# -------------------------------------------------------------------organization_initial_superuser_eamil
+@login_required
+def organization_initial_superuser_eamil(request):
+    r = list()
+    lookup = request.GET.get('q', False)
+    oid = request.GET.get('oid', False)
+    if lookup and oid:
+        kwargs = {'email__istartswith': lookup,'is_superuser': 1, 'profile__subscription_status': 'Registered'}
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
 
+    return HttpResponse(json.dumps(r), content_type="application/json")
 # -------------------------------------------------------------------organization_user_email_completion
 @login_required
 def organization_user_email_completion(request):
@@ -595,7 +609,9 @@ def organization_get(request):
                     # --------------OrganizationMoreText
                     org_announcement_list = OrganizationMoreText.objects.filter(organization=organizations, itemType="Announcement")
                     for tmp1 in org_announcement_list:
-                        data['Announcement Content'] = tmp1.DataItem
+                        tmp2 = eval(tmp1.DataItem)
+                        data['Announcement Content'] = tmp2['DataItem']
+                        data['Announcement user'] = User.objects.get(id=int(tmp2['user_id'])).email
                         break
 
                     # --------------OrganizationDistricts
@@ -759,9 +775,22 @@ def organizational_save_base(request):
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
         is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
-        is_Announcement = request.POST.get("is_Announcement", "")
+        is_announcement = request.POST.get("is_Announcement", "")
         announcement_content = request.POST.get("announcement_content", "")
-
+        user_email = request.POST.get("user_email", "")
+        if is_announcement == "1":
+            if user_email == "":
+                data = {'Success': False, 'Error': 'The Email does not exist.'}
+                return HttpResponse(json.dumps(data), content_type="application/json")
+            else:
+                try:
+                    user = User.objects.get(email=user_email)
+                    if user.is_superuser == 0:
+                        data = {'Success': False, 'Error': " This user doesn't have the permission to send announcement."}
+                        return HttpResponse(json.dumps(data), content_type="application/json")
+                except Exception as e:
+                    data = {'Success': False, 'Error': 'The Email does not exist.'}
+                    return HttpResponse(json.dumps(data), content_type="application/json")
         if(oid):
             # --------------OrganizationMetadata
             org_metadata = OrganizationMetadata()
@@ -799,25 +828,26 @@ def organizational_save_base(request):
             org_footer.save()
 
             # --------------OrganizationMoreText
-            org_announcement = OrganizationMoreText()
-            org_Announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
-            for tmp1 in org_Announcement_list:
-                org_announcement = tmp1
-                break
+            if is_announcement == "1":
+                org_announcement = OrganizationMoreText()
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Announcement")
+                for tmp1 in org_announcement_list:
+                    org_announcement = tmp1
+                    break
 
-            org_announcement.DataItem = announcement_content
-            org_announcement.organization = org_metadata
-            org_announcement.itemType = "Announcement"
-            org_announcement.save()
+                org_content = {'DataItem':announcement_content,'user_id':user.id}
+                org_announcement.DataItem = org_content
+                org_announcement.organization = org_metadata
+                org_announcement.itemType = "Announcement"
+                org_announcement.save()
 
-            if is_Announcement_alert == "1":
                 receiver_ids = [0]
                 expiration_date = "01/01/2200"
                 expiration_date = datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S")
 
                 store = dashboard_feeding_store()
-                store.create(type='announcement', organization_type='Pepper', user_id=request.user.id, content=announcement_content, attachment_file=None,
-                           receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date)
+                store.remove({"source": "organization", "organization_type": "Pepper", "organization_id": oid})
+                store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -949,7 +979,7 @@ def organizational_save_base(request):
             org_OrganizationMenuSave(org_metadata, "Logo Url", logo_url)
             org_OrganizationMenuSave(org_metadata, "Remove All Menu", remove_all_menu)
             org_OrganizationMenuSave(org_metadata, "Footer Selected", footer_flag)
-            org_OrganizationMenuSave(org_metadata, "Initial Pepper Announcement", is_Announcement)
+            org_OrganizationMenuSave(org_metadata, "Initial Pepper Announcement", is_announcement)
 
             org_OrganizationDashboardSave(org_metadata, "Dashboard option etc", dashboard_option)
             org_OrganizationDashboardSave(org_metadata, "Profile Logo Url", org_profile_logo_url)
