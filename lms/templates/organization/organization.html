@@ -695,7 +695,8 @@
             <tr>
                 <td colspan="3" class="org_td1" style="padding-top:10px;">
                 	<label><input type="checkbox" name="organizational_is_announcement" onclick="isAnnouncementChange()" />Initial Pepper Announcement</label>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <label><input type="checkbox" name="organizational_is_announcement_alert" />Enable Alert</label>
+                    <label>
+                    <!-- <input type="checkbox" name="organizational_is_announcement_alert" />Enable Alert</label> -->
                 </td>
             </tr>
             <tr>
@@ -1335,7 +1336,7 @@
 									}else{
 										$("input[name='organizational_is_announcement']").prop("checked", false);
 									}
-									$("input[name='organizational_is_announcement_alert']").prop("checked", false);
+									// $("input[name='organizational_is_announcement_alert']").prop("checked", false);
 									ceditor_announcement.CKEDITOR.setData(r["Announcement Content"]);
 									$('#initial_user_name').val(r["Announcement user"]);
 									//----------
@@ -2999,8 +3000,17 @@
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData(); 
 			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
-			var is_Announcement_alert = ($("input[name='organizational_is_announcement_alert']").attr("checked")) ? "1" : "0";
+			// var is_Announcement_alert = ($("input[name='organizational_is_announcement_alert']").attr("checked")) ? "1" : "0";
 			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
+
+			var user_email = $("#initial_user_name").val()
+			if(is_Announcement == 1){
+				if (user_email == ""){
+					alert("Please choose announcement user.")
+					loadwin.hide();
+					return;
+				}
+			}
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
@@ -3051,7 +3061,7 @@
 				announcement_content: announcement_content,
 				menu_color: menu_color
 			}, function (r) {
-				$("input[name='organizational_is_announcement_alert']").prop("checked", false);
+				// $("input[name='organizational_is_announcement_alert']").prop("checked", false);
 				if (r.Success){
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
