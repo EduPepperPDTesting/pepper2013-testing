@@ -850,16 +850,51 @@ def organizational_save_base(request):
                 store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
-            OrganizationDistricts.objects.filter(organization=org_metadata).delete()
-            if(sid_did and sid_did != ""):
-                for tmp1 in sid_did.split(":"):
-                    tmp2 = tmp1.split(",")
+            if(sid_did != ""):
+                sid_did_list = sid_did.split(":")
+                org_dir_list = OrganizationDistricts.objects.filter(organization=org_metadata)
+
+                # Delete the deleted records
+                for org_dir_list_c in org_dir_list:
+                    is_delete = True
+
+                    for sid_did_list_c in sid_did_list:
+                        array1 = sid_did_list_c.split(",")
+                        if str(org_dir_list_c.id) == str(array1[2]):
+                            is_delete = False
+                            break
+
+                    if is_delete:
+                        org_dir_list_c.delete()
+
+                # Add all
+                for sid_did_list_c in sid_did_list:
+                    array1 = sid_did_list_c.split(",")
+                    array1_did = array1[2]
                     org_dis = OrganizationDistricts()
-                    org_dis.EntityType = tmp2[1]
-                    org_dis.OrganizationEnity = tmp2[0]
+                    is_new = True
+                    if array1_did != "":
+                        for org_dir_list_c in OrganizationDistricts.objects.filter(id=array1_did):
+                            org_dis = org_dir_list_c
+                            if str(org_dis.EntityType) != str(array1[1]) or str(org_dis.OrganizationEnity) != str(array1[0]):
+                                org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "'}"
+                            is_new = False
+                            break
+
+                    org_dis.EntityType = array1[1]
+                    org_dis.OrganizationEnity = array1[0]
                     org_dis.organization = org_metadata
+                    if is_new:
+                        org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "'}"
+
                     org_dis.save()
 
+                    if back_sid_all != "":
+                        back_sid_all += ","
+
+                    back_sid_all += str(org_dis.id)
+            else:
+                OrganizationDistricts.objects.filter(organization=org_metadata).delete()
             # --------------OrganizationDashboard
             if(motto != ""):
                 org_dashboard_motto = OrganizationDashboard()
