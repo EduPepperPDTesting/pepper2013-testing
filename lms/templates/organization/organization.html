@@ -1495,7 +1495,7 @@
 										$("input[name='organizational_is_announcement']").prop("checked", false);
 									}									
 									ceditor_announcement.CKEDITOR.setData(r["Announcement Content"]);
-									
+									$('#initial_user_name').val(r["Announcement user"]);
 									//----------
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										
