@@ -1,8 +1,7 @@
-<%page args="show_extended, organization_obj, data, is_external" />
-
 ## mako
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
+<%page args="show_extended, organization_obj, org_data, is_external" />
 
 <%!
     from django.core.urlresolvers import reverse
@@ -16,9 +15,10 @@
     from django.core.urlresolvers import resolve
     from student.models import State,District,School,User,UserProfile
     from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
+%>
 
-
-    base_src = "/static/uploads/organization/" + str(data['org_id']) + "/"
+<%
+    base_src = "/static/uploads/organization/" + str(org_data['org_id']) + "/"
     org_logos = False
     newMeStyleFlag = 0
     newMeStyleFont = ""
@@ -26,13 +26,13 @@
     newMeStyleSize = ""
 
     #---------------OrganizationMenu
-    if data.has_key('logo') and data['logo'] != "":
+    if org_data.has_key('logo') and org_data['logo'] != "":
         org_logos = True
-    if data.has_key('organization_logo') and data['organization_logo'] != "":
+    if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
         org_logos = True
 
     #---------------OrganizationMenuitem
-    if data.has_key('Is Icon With Text') and data['Is Icon With Text'] == "1":
+    if org_data.has_key('Is Icon With Text') and org_data['Is Icon With Text'] == "1":
         menu_items = "<ol class='nav-option-ol' style='margin-top:10px !important;'>"
     else:
         menu_items = "<ol class='nav-option-ol' style='margin-top:11px !important;'>"
@@ -41,8 +41,8 @@
         if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
             #---------------Sub Menu
             liClass = ""
-            if data['Is Icon'] == "1":
-                if data['Is Icon With Text'] == "1":
+            if org_data['Is Icon'] == "1":
+                if org_data['Is Icon With Text'] == "1":
                     menu_items_child = "<ul id='pepper-dropdown-menu-" + str(tmp1.id) + "' class='pepper-dropdown-menu' style='top:66px !important;'>"
                 else:
                     menu_items_child = "<ul id='pepper-dropdown-menu-" + str(tmp1.id) + "' class='pepper-dropdown-menu' style='top:64px !important;'>"
@@ -61,25 +61,25 @@
 
             tmp1_MenuItem_txt = tmp1.MenuItem
 
-            newMeStyleFont = data['Text Font']
-            newMeStyleColor = data['Text Color']
-            newMeStyleSize = data['Text Size']
+            newMeStyleFont = org_data['Text Font']
+            newMeStyleColor = org_data['Text Color']
+            newMeStyleSize = org_data['Text Size']
 
-            if data['Is Icon'] == "1":
+            if org_data['Is Icon'] == "1":
                 img_src = base_src + tmp1.Icon
 
-                if data['Is Icon With Text'] == "1":
+                if org_data['Is Icon With Text'] == "1":
                     newMeStyleFlag = 1
-                    newMeStyleFont = data['Text Font Icons']
-                    newMeStyleColor = data['Text Color Icons']
-                    newMeStyleSize = data['Text Size Icons']
+                    newMeStyleFont = org_data['Text Font Icons']
+                    newMeStyleColor = org_data['Text Color Icons']
+                    newMeStyleSize = org_data['Text Size Icons']
                 else:
                     newMeStyleFlag = 2
-                    newMeStyleFont = data['Text Font Me']
-                    newMeStyleColor = data['Text Color Me']
-                    newMeStyleSize = data['Text Size Me']
+                    newMeStyleFont = org_data['Text Font Me']
+                    newMeStyleColor = org_data['Text Color Me']
+                    newMeStyleSize = org_data['Text Size Me']
 
-                tmp_style = " style='font-family:" + data['Text Font Icons'] + " !important; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px !important;'"
+                tmp_style = " style='font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
 
                 if tmp1_MenuItem_txt == "#Messenger":
                     img_src = "/static/images/ppd-iMessage-default.png"
@@ -88,15 +88,15 @@
 
                     #---------------icon
                     nav_option_text_top = ""
-                    if data['Is Icon With Text'] == "1":
-                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
                         menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />"
                         menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
                         menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>"
 
                         nav_option_text_top = "top:0px !important; left:40px !important;"
                     else:
-                        menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
                         nav_option_text_top = "top:0px !important; left:40px !important;"
 
                     menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
@@ -112,11 +112,11 @@
 
                     #---------------icon
                     nav_option_text_top = ""
-                    if data['Is Icon With Text'] == "1":
-                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
                         if liClass != "":
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
-                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
                         else:
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' clas1s='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
@@ -125,7 +125,7 @@
                         nav_option_text_top = "top:0px !important; left:40px !important;"
 
                     else:
-                        menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'></td></tr><tr>"
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'></td></tr><tr>"
                         if liClass != "":
                             menu_items_tmp1 = menu_items_tmp1 + "<td height='20' align='center' style='font-size:25px; color:" + newMeStyleColor + ";'>&#9662;</td></tr></table>"
                         else:
@@ -143,16 +143,16 @@
             else:
                 #---------------text
                 if tmp1_MenuItem_txt == "#Messenger":
-                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
                 else:
                     tmp_menu_icon = " &#9662;"
                     if liClass == "":
-                        text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                        text_a = "<a href='" + tmp1.Url + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
                         tmp_menu_icon = ""
                     else:
-                        text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
+                        text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
 
-                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>"
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + org_data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>"
 
                     if liClass != "":
                         menu_items_tmp1 = menu_items_tmp1 + menu_items_child
@@ -161,7 +161,7 @@
 
             menu_items = menu_items + menu_items_tmp1
 
-    data["menu_items"] = menu_items + "</ol>"
+    org_data["menu_items"] = menu_items + "</ol>"
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -200,29 +200,29 @@
 <div id="pepper-logged-in"></div>
 
 <!--header-->
-<header id="pepper-nav" class="pepper-nav pepper-nav-fixed" aria-label="${_('Global Navigation')}" style="background-color: ${data['Menu Color']};">
+<header id="pepper-nav" class="pepper-nav pepper-nav-fixed" aria-label="${_('Global Navigation')}" style="background-color: ${org_data['Menu Color']};">
     <!--nav-->
-    <nav>
+    <nav class="pepper-org">
         <!--sub logo-->
 
         <h1 class="pepper-logo-wrap">
             <!--@begin:Choose the link of the top logo according user's login status-->
-            % if data['Is New Menu'] == "1" and org_logos:
-                % if data.has_key('logo') and data['logo'] != "":
-                    % if data['Logo Url'] != "":
-                        <a class="pepper-logo-link" href="${data['Logo Url']}">
+            % if org_data['Is New Menu'] == "1" and org_logos:
+                % if org_data.has_key('logo') and org_data['logo'] != "":
+                    % if org_data['Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${org_data['Logo Url']}">
                     % else:
                         <a class="pepper-logo-link" href="#">
                     % endif
-                    <img class="pepper-logo" src="${base_src}${data['logo']}" /></a>
+                    <img class="pepper-logo" src="${base_src}${org_data['logo']}" /></a>
                 % endif
-                % if data.has_key('organization_logo') and data['organization_logo'] != "":
-                    % if data['Organization Logo Url'] != "":
-                        <a class="pepper-logo-link" href="${data['Organization Logo Url']}">
+                % if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
+                    % if org_data['Organization Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${org_data['Organization Logo Url']}">
                     % else:
                         <a class="pepper-logo-link" href="#">
                     %endif
-                    <img class="pepper-logo" src="${base_src}${data['organization_logo']}" /></a>
+                    <img class="pepper-logo" src="${base_src}${org_data['organization_logo']}" /></a>
                 %endif
             % else:
                 <a href="/dashboard">
@@ -241,27 +241,27 @@
         <span class="pepper-user">
             <ol>
                 <li class="pepper-user-wrap">
-                    <span><a href="javascript:void(0)" class="" id="pepper-dropdown">
+                    <span><a href="javascript:void(0)" id="pepper-dropdown">
                         % if newMeStyleFlag == 0:
                             <table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
-                                    <tr>
-                                        <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
-                                    </tr>
-                                    <tr>
-                                        <td height="20" align="right">Me</td>
-                                        <td width="20" class="pepper-me-arrow">&#9662;</td>
-                                    </tr>
-                                </table>
+                                <tr>
+                                    <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                </tr>
+                                <tr>
+                                    <td height="20" align="right">Me</td>
+                                    <td width="20" class="pepper-me-arrow">&#9662;</td>
+                                </tr>
+                            </table>
                         % else:
                             <table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
-                                    <tr>
-                                        <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
-                                    </tr>
-                                    <tr>
-                                        <td height="20" align="right">Me</td>
-                                        <td width="20" class="pepper-me-arrow">&#9662;</td>
-                                    </tr>
-                                </table>
+                                <tr>
+                                    <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                </tr>
+                                <tr>
+                                    <td height="20" align="right">Me</td>
+                                    <td width="20" class="pepper-me-arrow">&#9662;</td>
+                                </tr>
+                            </table>
                         % endif
                         <div class="nav-option-text-left">${request.user.username} </div>
                     </a></span>
@@ -298,8 +298,8 @@
             </script>
         % endif
 
-        % if data['Is New Menu'] == "1":
-            ${data["menu_items"]}
+        % if org_data['Is New Menu'] == "1":
+            ${org_data["menu_items"]}
         % endif
     </nav>
 </header>

@@ -20,31 +20,349 @@ header.pepper-nav {
     padding: 18px 10px 0;
     max-width: grid-width(12);
     min-width: 760px;
+
+    .pepper-logo-wrap {
+      float: left;
+      margin: -12px 30px 0 0;
+      position: relative;
+
+      img {
+        height: auto;
+        vertical-align: top;
+      }
+    }
+
+    &.pepper-org {
+      /* start org-specific stuff */
+      height: 76px;
+      width: 1180px;
+      padding: 0;
+
+      .pepper-logo-wrap {
+        margin: 8px 0 0 0;
+      }
+
+      .pepper-user {
+        float: right;
+
+        & > ol {
+          float: right;
+          margin-top: 4px;
+
+          .pepper-user-wrap {
+            margin: 6px 0 0 0;
+            display: block;
+            float: left;
+
+            #pepper-dropdown {
+              outline: none;
+            }
+
+            .pepper-me-arrow {
+              font-size: 25px !important;
+            }
+
+            .pepper-dropdown-menu-list {
+              width: 300px;
+              top: 72px;
+              left: inherit;
+              background: #fcfcfc;
+              border-radius: 4px;
+              box-shadow: 0 2px 24px 0 rgba(0,0,0,0.3);
+              border: 1px solid #646464;
+              display: none;
+              padding: 5px 10px;
+              position: absolute;
+              right: -7px;
+              z-index: 3;
+
+              &.expanded {
+                display: block;
+              }
+
+              &::before {
+                background: transparent;
+                border: {
+                  top: 6px solid $border-color-4;
+                  right: 6px solid $border-color-4;
+                  bottom: 6px solid transparent;
+                  left: 6px solid transparent;
+                }
+                box-shadow: 1px 0 0 0 $border-color-3, 0 -1px 0 0 $border-color-3;
+                content: "";
+                display: block;
+                height: 0;
+                position: absolute;
+                @include transform(rotate(-45deg));
+                right: 12px;
+                top: -6px;
+                width: 0;
+              }
+
+              .pepper-dropdown-menu {
+                -moz-box-sizing: border-box;
+                -moz-transition: padding 0.15s linear 0s;
+                border: 1px solid transparent;
+                border-radius: 3px 3px 3px 3px;
+                color: #1D9DD9;
+                cursor: pointer;
+                margin: 15px 0;
+                overflow: hidden;
+                padding: 3px 5px 4px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                div {
+                  float: left;
+                }
+
+                .pepper-dropdown-menu-drop {
+                  float: left;
+                  margin: 10px 0 0 10px;
+                  color: #60B2D6;
+
+                  a {
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-size: 15px;
+                  }
+                }
+              }
+
+              li {
+                display: block;
+                border-top: 1px dotted #c8c8c8;
+
+                a {
+                  border: 1px solid transparent;
+                  border-radius: 3px;
+                  -webkit-box-sizing: border-box;
+                  -moz-box-sizing: border-box;
+                  box-sizing: border-box;
+                  color: #1d9dd9;
+                  cursor: pointer;
+                  display: block;
+                  margin: 5px 0;
+                  overflow: hidden;
+                  padding: 3px 5px 4px;
+                  text-overflow: ellipsis;
+                  -webkit-transition: padding 0.15s linear 0s;
+                  -moz-transition: padding 0.15s linear 0s;
+                  transition: padding 0.15s linear 0s;
+                  white-space: nowrap;
+                  width: 100%;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .searching {
+        width: 240px;
+        height: 30px;
+        border: 2px solid #41719c;
+        float: left;
+        margin-top: 5px;
+
+        margin-left: 10px;
+        border-radius: 5px;
+        background-color: #fff;
+      }
+
+      #searching_keyword {
+        border: 0;
+        height: 28px;
+        width: 208px !important;
+        margin-top: 1px;
+        outline: none;
+        border-radius: 0;
+
+        color: #818181;
+        font-size: 15px;
+        font-family: "Arial", Verdana, Geneva, sans-serif !important;
+        font-style: italic;
+
+        box-shadow: 0 0 0 0;
+
+        &:focus {
+          border: 2px;
+          outline: none;
+        }
+      }
+
+      .searching-text-div {
+        width: 210px;
+        height: 30px;
+        float: left;
+      }
+
+      #searching_btn {
+        width: 30px;
+        height: 30px;
+        float: left;
+        cursor: pointer;
+
+        img {
+          margin-left: 5px;
+          margin-top: 5px;
+        }
+      }
+
+      .userphoto-div {
+        margin-top: -4px;
+        margin-right: 5px;
+        float: right;
+        width: 50px;
+        height: 50px;
+      }
+
+      .nav-option-otheruser {
+        margin-top: 10px;
+        margin-left: 15px;
+        float: left;
+        width: auto;
+
+        a {
+          cursor: default;
+          color: #ccc !important;
+
+          &:link {
+            text-decoration: none;
+          }
+        }
+      }
+
+      .nav-option-ol {
+        margin-top: 14px;
+        margin-left: 10px;
+        float: right;
+        width: auto;
+      }
+
+      .nav-option-ol-li {
+        float: left;
+        height: 65px;
+      }
+
+      .nav-option-ol-li-messenger {
+        float: left;
+        height: 65px;
+      }
+
+      .nav-option-ol-icon {
+        float: left;
+      }
+
+      .nav-option-ol-txt {
+        float: left;
+        width: 45px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 10px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .nav-option-ol-only-txt {
+        float: left;
+        height: 61px;
+        line-height: 61px;
+
+        a {
+          text-decoration: none;
+
+          &:link {
+            text-decoration: none;
+          }
+        }
+      }
+
+      .nav-option-text {
+        position: absolute;
+        top: 50px;
+        left: 0;
+        z-index: 100;
+        padding: 5px;
+        background-color: #eff0f6;
+        border-radius: 3px;
+        color: #666;
+        display: none;
+        border: 1px solid #666;
+        white-space: nowrap;
+      }
+
+      .nav-option-text-left {
+        position: absolute;
+        top: 0;
+        right: 40px;
+        z-index: 100;
+        padding: 5px;
+        background-color: #eff0f6;
+        border-radius: 3px;
+        color: #666;
+        display: none;
+        border: 1px solid #666;
+        white-space: nowrap;
+      }
+
+      .tempdiv {
+        width: 240px;
+        height: 30px;
+        float: left;
+        margin-top: 5px;
+        margin-left: 10px;
+      }
+
+      .dropdownusername {
+        display: block;
+        max-width: 200px;
+        text-overflow: ellipsis;
+        line-height: 18px;
+        height: 20px;
+        font-weight: bold;
+        overflow-x: hidden;
+        vertical-align: top;
+
+        & + a:hover {
+          color: #3c3c3c;
+        }
+      }
+
+      .pepper-nav-fixed {
+        position: fixed !important;
+        top: 0;
+        z-index: 21 !important;
+      }
+
+      .pepper-logo-link {
+        float: left;
+      }
+
+      .pepper-logo {
+        height: 58px;
+      }
+
+      .orig-pepper-logo {
+        height: auto;
+        vertical-align: top;
+      }
+
+      #pepper-logged-in {
+        width: 100%;
+        height: 77px;
+      }
+      /* end org-specific stuff */
+    }
   }
 
   p {
     font-family: "Open Sans", Verdana, Geneva, sans-serif !important;
   }
 
-  //h1.logo {
-  //  float: left;
-  //  margin: -2px 39px 0px 0px;
-  //  position: relative;
-  //
-  //  a {
-  //    display: block;
-  //  }
-  //}
-
   ol {
-    //&.left {
-    //  float: left;
-    //}
-    //
-    //&.guest {
-    //  float: right;
-    //}
-
     > li {
       @include inline-block;
       margin-right: 20px;
@@ -85,6 +403,7 @@ header.pepper-nav {
     &.pepper-user {
       float: right;
       margin-top: 4px;
+      // margin-top: 3px !important;
 
       > li.pepper-primary {
         display: block;
@@ -399,24 +718,9 @@ header.pepper-nav {
     padding-top: 20px;
   }
 
-  .pepper-logo-wrap {
-    float: left;
-    margin: -12px 30px 0px 0px;
-    position: relative;
-
-    img {
-      height: auto;
-      vertical-align: top;
-    }
-  }
-
   .pepper-course-label {
     width: 605px;
     margin-top: 15px;
-  }
-
-  .pepper-user {
-    margin-top: 3px !important;
   }
 
   .pepper-menu-holder {
@@ -461,255 +765,6 @@ header.pepper-nav {
     overflow-x: hidden;
     vertical-align: top;
   }
-
-  /* start org-specific stuff */
-  .searching {
-    width: 240px;
-    height: 30px;
-    border: 2px solid #41719c;
-    float: left;
-    margin-top: 5px;
-
-    margin-left: 10px;
-    border-radius: 5px;
-    background-color: #fff;
-  }
-
-  #searching_keyword {
-    border: 0;
-    height: 28px;
-    width: 208px !important;
-    margin-top: 1px;
-    outline: none;
-    border-radius: 0;
-
-    color: #818181;
-    font-size: 15px;
-    font-family: "Arial", Verdana, Geneva, sans-serif !important;
-    font-style: italic;
-
-    box-shadow: 0 0 0 0;
-
-    &:focus {
-      border: 2px;
-      outline: none;
-    }
-  }
-
-  .searching-text-div {
-    width: 210px;
-    height: 30px;
-    float: left;
-  }
-
-  #searching_btn {
-    width: 30px;
-    height: 30px;
-    float: left;
-    cursor: pointer;
-
-    img {
-      margin-left: 5px;
-      margin-top: 5px;
-    }
-  }
-
-  .userphoto-div {
-    margin-top: -4px;
-    margin-right: 5px;
-    float: right;
-    width: 50px;
-    height: 50px;
-  }
-
-  .nav-option-otheruser {
-    margin-top: 10px;
-    margin-left: 15px;
-    float: left;
-    width: auto;
-
-    a {
-      cursor: default;
-      color: #ccc !important;
-
-      &:link {
-        text-decoration: none;
-      }
-    }
-  }
-
-  .nav-option-ol {
-    margin-top: 14px;
-    margin-left: 10px;
-    float: right;
-    width: auto;
-  }
-
-  .nav-option-ol-li {
-    float: left;
-    height: 65px;
-  }
-
-  .nav-option-ol-li-messenger {
-    float: left;
-    height: 65px;
-  }
-
-  .nav-option-ol-icon {
-    float: left;
-  }
-
-  .nav-option-ol-txt {
-    float: left;
-    width: 45px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 10px;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .nav-option-ol-only-txt {
-    float: left;
-    height: 61px;
-    line-height: 61px;
-
-    a {
-      text-decoration: none;
-
-      &:link {
-        text-decoration: none;
-      }
-    }
-  }
-
-  .nav-option-text {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    z-index: 100;
-    padding: 5px;
-    background-color: #eff0f6;
-    border-radius: 3px;
-    color: #666;
-    display: none;
-    border: 1px solid #666;
-    white-space: nowrap;
-  }
-
-  .nav-option-text-left {
-    position: absolute;
-    top: 0;
-    right: 40px;
-    z-index: 100;
-    padding: 5px;
-    background-color: #eff0f6;
-    border-radius: 3px;
-    color: #666;
-    display: none;
-    border: 1px solid #666;
-    white-space: nowrap;
-  }
-
-  .tempdiv {
-    width: 240px;
-    height: 30px;
-    float: left;
-    margin-top: 5px;
-    margin-left: 10px;
-  }
-
-  .dropdownusername {
-    display: block;
-    max-width: 200px;
-    text-overflow: ellipsis;
-    line-height: 18px;
-    height: 20px;
-    font-weight: bold;
-    overflow-x: hidden;
-    vertical-align: top;
-
-    & + a:hover {
-      color: #3c3c3c;
-    }
-  }
-
-  .pepper-nav-fixed {
-    position: fixed !important;
-    top: 0;
-    z-index: 21 !important;
-  }
-
-  .pepper-logo-link {
-    float: left;
-  }
-
-  .pepper-logo {
-    height: 58px;
-  }
-
-  .orig-pepper-logo {
-    height: auto;
-    vertical-align: top;
-  }
-
-  .pepper-user {
-    float: right;
-  }
-
-  .pepper-user-wrap {
-    margin-top: 6px;
-  }
-
-  .pepper-dropdown-menu-list {
-    width: 300px;
-    top: 64px;
-    left: inherit;
-  }
-
-  //.pepper-dropdown-menu {
-  //  -moz-box-sizing: border-box;
-  //  -moz-transition: padding 0.15s linear 0s;
-  //  border: 1px solid transparent;
-  //  border-radius: 3px 3px 3px 3px;
-  //  color: #1D9DD9;
-  //  cursor: pointer;
-  //  display: none;
-  //  margin: 15px 0;
-  //  overflow: hidden;
-  //  padding: 3px 5px 4px;
-  //  text-overflow: ellipsis;
-  //  white-space: nowrap;
-  //
-  //  div {
-  //    float: left;
-  //  }
-  //
-  //  .pepper-dropdown-menu-drop {
-  //    float: left;
-  //    margin: 10px 0 0 10px;
-  //    color: #60B2D6;
-  //
-  //    a {
-  //      text-decoration: none;
-  //      font-weight: bold;
-  //      font-size: 15px;
-  //    }
-  //  }
-  //}
-
-  .pepper-me-arrow {
-    font-size: 25px !important;
-  }
-
-  #pepper-logged-in {
-    width: 100%;
-    height: 77px;
-  }
-  /* end org-specific stuff */
-
 
   /* nav type overrides */
   &.pepper-default {

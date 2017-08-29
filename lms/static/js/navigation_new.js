@@ -12,7 +12,7 @@
         var $dropdown = $('#pepper-dropdown');
         var $nav = $(".nav-option-ol li");
         var $user_arrow = $('#user-photo-arrow');
-        var $dropdown_menu = $('ul.pepper-dropdown-menu');
+        var $dropdown_menu = $('ul.pepper-dropdown-menu-list');
         var $admin_dropdown = $(".admin-dropdown-menu");
 
         $(".pepper-configuration").click(function(event){

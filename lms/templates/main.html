@@ -1,11 +1,11 @@
-<%! from django.utils.translation import ugettext as _ %>
-
-<%namespace name='static' file='static_content.html'/>
-<%! from django.utils import html %>
 <%!
-    from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+    from django.utils.translation import ugettext as _
+    from django.utils import html
+    from student.models import State, District, School, User, UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter
 %>
+<%namespace name='static' file='static_content.html'/>
+
 % if context.get("curr_user"):
     <% curr_user=context.get("curr_user") %>
 % else:
@@ -13,6 +13,7 @@
 % endif
 <%
     organization_active = False
+    footer = False
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -46,11 +47,13 @@
                 organization_obj = tmp1.organization
                 break
                 
-        data = {}
+        org_data = {}
         if organization_active:
-            data["org_id"] = organization_obj.id
+            org_data["org_id"] = organization_obj.id
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                data[tmp1.itemType] = tmp1.itemValue
+                org_data[tmp1.itemType] = tmp1.itemValue
+            if org_data["Footer Selected"] == "1":
+                footer = OrganizationFooter.objects.get(organization=org_data['org_id']).DataItem
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
@@ -123,8 +126,8 @@
 
 </head>
 
-<%!
-navbar_show_extended=True
+<%
+    navbar_show_extended=True
 %>
 
 <body class="<%block name='bodyclass'/>">
@@ -132,8 +135,8 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-header.html" />
 % elif not suppress_toplevel_navigation:
-    % if organization_active and data["Is New Menu"] == "1":
-        <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, data=data, is_external=False"/>
+    % if organization_active and org_data["Is New Menu"] == "1":
+        <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
     % else:
         <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
     % endif    
@@ -150,11 +153,7 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-footer.html" />
 % elif not suppress_toplevel_navigation:
-  % if organization_active and data["Footer Selected"] == "1":
-      <%include file="footer.html" args="alt_footer=data['footer_content']"/>
-  % else:
-      <%include file="footer.html" args="alt_footer=False"/>
-  % endif
+  <%include file="footer.html" args="alt_footer=footer"/>
 % endif
 
 
