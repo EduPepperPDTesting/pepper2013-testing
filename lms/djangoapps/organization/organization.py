@@ -635,10 +635,7 @@ def organization_get(request):
                                 tmp1_text = tmp2.name
                                 break
 
-                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text
-
-                        if(data['New']):
-                            data['New'] = False
+                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id)
 
                     data['sid_did'] = sid_did
 
