@@ -774,7 +774,7 @@ def organizational_save_base(request):
         logo_url = request.POST.get("logo_url", "")
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
-        is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
+        # is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
         is_announcement = request.POST.get("is_Announcement", "")
         announcement_content = request.POST.get("announcement_content", "")
         user_email = request.POST.get("user_email", "")
