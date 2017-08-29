@@ -774,6 +774,7 @@ def organizational_save_base(request):
         # is_Announcement_alert = request.POST.get("is_Announcement_alert", "")
         is_announcement = request.POST.get("is_Announcement", "")
         announcement_content = request.POST.get("announcement_content", "")
+        back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
             if user_email == "":
@@ -1031,7 +1032,7 @@ def organizational_save_base(request):
             org_OrganizationDashboardSave(org_metadata, "Show Left DB Curriculumn", new_show_left_curr)
             org_OrganizationDashboardSave(org_metadata, "Show Right DB Curriculumn", new_show_right_curr)
 
-        data = {'Success': True}
+        data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 

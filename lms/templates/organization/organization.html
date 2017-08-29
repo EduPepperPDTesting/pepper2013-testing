@@ -3061,6 +3061,17 @@
 			}, function (r) {
 				// $("input[name='organizational_is_announcement_alert']").prop("checked", false);
 				if (r.Success){
+					if(r.back_sid_all){
+						try{
+							var tmp1 = r.back_sid_all.split(",");
+							$(".organization-state-edit").each(function(i){								
+								$(this).attr("did", tmp1[i]);
+							});
+						}catch(e){
+						
+						}
+					}
+					
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}
