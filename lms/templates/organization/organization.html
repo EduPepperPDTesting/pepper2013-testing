@@ -1724,28 +1724,27 @@
 	}
 	
 	//-----------------------------------------------------------------------organizationAddDistricts
-	function organizationAddDistricts(add_type, add_txt, add_id){
+	function organizationAddDistricts(add_type, add_txt, add_id, did){
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
 		row += '<td class="check-column">';
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
-		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
 		
 		//-----------------------------------------edit
-		$(".organization-state-edit").unbind("click");
-		$(".organization-state-edit").click(function(e){
-			e.preventDefault();			
+		$(".organization-state-edit").unbind("click").click(function(e){
+			e.preventDefault();
 			$(".org_edit_selected").removeClass("org_edit_selected");
 			$(this).parent().addClass("org_edit_selected");
 			$(this).parent().prev().addClass("org_edit_selected");
 			$(this).parent().prev().prev().addClass("org_edit_selected");
 			
 			var stype = $(this).attr("stype");
-			var sid = $(this).attr("sid");
+			var sid = $(this).attr("sid");			
 			if(stype == "State"){
 				$("#org_state_select").val(sid);
 				$("#org_state_select").change();
@@ -1794,8 +1793,6 @@
 								}
 							}
 							$("#org_school_select").val(sid);
-						}else{
-							alert(r.Error);
 						}
 						loadwin.hide();
 					});
@@ -1829,7 +1826,6 @@
 		
 		$('#organization-state-table').trigger('update');
 	}
-	
 	//-----------------------------------------------------------------------organizationUploadFile
 	function organizationUploadFile(fileElementId, file_type){
 		if($("#" + fileElementId).val() != ""){
@@ -2710,13 +2706,13 @@
 											
 										}
 									});
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else if(add_type == "School"){
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else{
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}
 							}
