@@ -621,7 +621,7 @@ def organization_get(request):
                     for tmp1 in org_announcement_list:
                         tmp2 = eval(tmp1.DataItem)
                         data['Announcement Content'] = tmp2['DataItem']
-                        data['Announcement user'] = User.objects.get(id=int(tmp2['user_id']))
+                        data['Announcement user'] = User.objects.get(id=int(tmp2['user_id'])).email
                         break
 
                     # --------------OrganizationMoreText
