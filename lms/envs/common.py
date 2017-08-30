@@ -873,10 +873,13 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
-    #organization
+    # Organization
     'organization',
 
-    'async_task'
+    'async_task',
+
+    # Header/footer
+    'header_footer'
 )
 
 ######################### MARKETING SITE ###############################

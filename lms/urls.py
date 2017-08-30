@@ -223,6 +223,9 @@ urlpatterns = (
     url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
+
+    url(r'^header-footer/header$', 'header_footer.service.header_return', name="header_footer_header"),
+    url(r'^header-footer/footer$', 'header_footer.service.footer_return', name="header_footer_footer"),
     
     url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
 
