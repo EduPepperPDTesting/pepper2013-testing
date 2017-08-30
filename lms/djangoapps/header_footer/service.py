@@ -1,14 +1,27 @@
 from mitxmako.shortcuts import render_to_string
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationMenu, OrganizationFooter
 from pepper_utilities.utils import render_json_response
+import lxml
 from lxml.html.clean import Cleaner
 
 
 def check_org(user):
+    """
+    Gets information about the org that a user might belong to.
+
+    :param user: django user object
+    :return:
+        org_enabled: Whether this user has a customized org.
+        org_object: The org data from the DB.
+        org_menu: all of the org metadata.
+    """
     org_enabled = False
     org_menu = {}
     org_object = {}
+
+    # Don't even bother with this if the user isn't logged in.
     if user.is_authenticated():
+        # Get any state, district and school data associated with the user.
         try:
             state_id = user.profile.district.state.id
         except:
@@ -22,6 +35,7 @@ def check_org(user):
         except:
             school_id = -1
 
+        # Look up the org data for each of those.
         if school_id != -1:
             org = OrganizationDistricts.objects.get(OrganizationEnity=school_id, EntityType="School")
             if org:
@@ -40,6 +54,7 @@ def check_org(user):
                 org_object = org.organization
                 org_enabled = True
 
+        # If there is an org customization associated with the user's orgs, parse all of the data.
         if org_enabled:
             org_menu["org_id"] = org_object.id
             for om in OrganizationMenu.objects.filter(organization=org_object):
@@ -48,25 +63,99 @@ def check_org(user):
     return org_enabled, org_object, org_menu
 
 
+def html_parse(html):
+    """
+    Parses the HTML to clean off script and style tags
+
+    :param html: The HTML string to clean
+    :return: The cleaned HTML
+    """
+
+    # Set up the cleaner
+    cleaner = Cleaner()
+    cleaner.scripts = True  # Remove <script> tags.
+    cleaner.style = False  # Make sure it's false, since this will remove inline styles, which are needed in some areas.
+    cleaner.remove_unknown_tags = False  # Don't remove unknown tags, as this list may be outdated.
+    cleaner.safe_attrs_only = False  # Leave attributes alone.
+    cleaner.annoying_tags = False  # Even if they're annoying, we put them there on purpose.
+    cleaner.javascript = False  # Leave any inline JS.
+    cleaner.kill_tags = ['style', 'link']
+
+    # Parse the HTML string (using a div wrapper to avoid having lxml add other unpredictable wrappers), clean the
+    # parsed HTML, then re-render it as a string, leaving out the div wrapper.
+    parsed = lxml.html.tostring(
+        cleaner.clean_html(
+            lxml.html.fragment_fromstring('<div>' + html + '</div>')
+        )
+    )[5:-6]
+
+    return parsed
+
+
 def header_return(request):
+    """
+    View that returns the header for the current user.
+
+    :param request: django request object
+    :return: Rendered JSON
+    """
+
+    # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
+
+    # This JS is used on both templates.
+    js = [
+        request.build_absolute_uri('/static/js/admin_ui_controls.js')
+    ]
+    # This CSS id used in both templates.
+    css = [
+        request.build_absolute_uri('/static/css/admin_ui_controls.css'),
+        request.build_absolute_uri('/static/sass/header.css')
+    ]
+
+    # If there is a customized org, render the new-style header.
     if org_enabled and org_menu["Is New Menu"] == "1":
-        html = render_to_string("navigation_new.html", {})
+        # Get the parsed HTML.
+        html = html_parse(render_to_string("navigation_new.html", {
+            "show_extended": True,
+            "organization_obj": org_object,
+            "org_data": org_menu,
+            "is_external": True
+        }))
+        # Add the template-specific JS.
+        js.append(request.build_absolute_uri('/static/js/navigation_new.js'))
+    # Otherwise use the regular template.
     else:
-        html = render_to_string("navigation.html", {})
-    # <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-    # <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
-    return render_json_response({'html': html, 'css': [], 'js': []})
+        # Get the parsed HTML.
+        html = html_parse(render_to_string("navigation.html", {
+            "show_extended": True,
+            "is_external": True
+        }))
+        # Add the template-specific JS
+        js.append(request.build_absolute_uri('/static/js/navigation.js'))
+
+    return render_json_response({'html': html, 'css': css, 'js': js})
 
 
 def footer_return(request):
+    """
+    View that returns the footer for the current user.
+
+    :param request: django request object
+    :return: Rendered JSON
+    """
+    # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
 
-    html = render_to_string('footer.html', {})
+    # Default to the normal footer.
+    html = render_to_string('footer.html', {'alt_footer': False, 'is_external': True})
+
+    # If there is a customized org, get the footer layout from the DB.
     if org_enabled:
+        # If the footer is customized, get the footer layout and use that instead.
         footer_selected = OrganizationMenu.objects.get(organization=org_object, itemType="Footer Selected")
         if footer_selected and footer_selected.itemValue == "1":
-            footer = OrganizationFooter.objects.filter(organization=org_object)
+            footer = OrganizationFooter.objects.get(organization=org_object)
             if footer:
                 html = footer.DataItem
 

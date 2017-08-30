@@ -29,19 +29,19 @@
             school_id = -1
             
         organization_obj = OrganizationMetadata()
-        if (school_id != -1):
+        if school_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
                 organization_active = True
                 break
 
-        if (not(organization_active) and district_id != -1):
+        if not organization_active and district_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
                 organization_obj = tmp1.organization
                 organization_active = True
                 break
         
-        if (not(organization_active) and state_id != -1):
+        if not organization_active and state_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
                 organization_active = True
                 organization_obj = tmp1.organization
@@ -65,6 +65,11 @@
 
 <%def name="stanford_theme_enabled()">
   <% return theme_enabled() and getattr(settings, "THEME_NAME") == "stanford" %>
+</%def>
+
+## Convert URLs to absolute if this is being called externally.
+<%def name="absolute_url(uri)">
+    <% return request.build_absolute_uri(uri) if is_external else uri %>
 </%def>
 
 <!DOCTYPE html>
@@ -153,7 +158,7 @@
 % if theme_enabled():
   <%include file="theme-footer.html" />
 % elif not suppress_toplevel_navigation:
-  <%include file="footer.html" args="alt_footer=footer"/>
+  <%include file="footer.html" args="alt_footer=footer, is_external=is_external"/>
 % endif
 
 

@@ -1,6 +1,6 @@
 ## mako
 <%namespace name='static' file='static_content.html'/>
-<%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
+<%namespace file='main.html' import="login_query, stanford_theme_enabled, absolute_url"/>
 <%page args="show_extended, organization_obj, org_data, is_external" />
 
 <%!
@@ -18,7 +18,7 @@
 %>
 
 <%
-    base_src = "/static/uploads/organization/" + str(org_data['org_id']) + "/"
+    base_src = absolute_url("/static/uploads/organization/" + str(org_data['org_id']) + "/")
     org_logos = False
     newMeStyleFlag = 0
     newMeStyleFont = ""
@@ -55,7 +55,7 @@
                     if liClass == "":
                         liClass = " class='pepper-menu-holder'"
 
-                    menu_items_child = menu_items_child + "<li><a href='" + tmp2.Url + "'>" + tmp2.MenuItem + "</a></li>"
+                    menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
 
             menu_items_child = menu_items_child + "</ul>"
 
@@ -81,7 +81,7 @@
 
                 tmp_style = " style='font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
 
-                if tmp1_MenuItem_txt == "#Messenger":
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     img_src = "/static/images/ppd-iMessage-default.png"
                     tmp1_MenuItem_txt = "Messenger"
                     icon_a = "<a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important;'>"
@@ -106,7 +106,7 @@
                     menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
                 else:
                     if liClass == "":
-                        icon_a = "<a href='" + tmp1.Url + "'>"
+                        icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>"
                     else:
                         icon_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "'>"
 
@@ -142,12 +142,12 @@
 
             else:
                 #---------------text
-                if tmp1_MenuItem_txt == "#Messenger":
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
                 else:
                     tmp_menu_icon = " &#9662;"
                     if liClass == "":
-                        text_a = "<a href='" + tmp1.Url + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        text_a = "<a href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
                         tmp_menu_icon = ""
                     else:
                         text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
@@ -176,7 +176,7 @@
             course_id = None
         site_status_msg = get_site_status_msg(course_id)
     %>
-    % if site_status_msg:
+    % if site_status_msg and not is_external:
         <div class="site-status">
             <div class="inner-wrapper">
                 <span class="white-error-icon"></span>
@@ -196,8 +196,9 @@
 % else:
     <% curr_user=user %>
 % endif
-
-<div id="pepper-logged-in"></div>
+% if not is_external:
+    <div id="pepper-logged-in"></div>
+% endif
 
 <!--header-->
 <header id="pepper-nav" class="pepper-nav pepper-nav-fixed" aria-label="${_('Global Navigation')}" style="background-color: ${org_data['Menu Color']};">
@@ -210,7 +211,7 @@
             % if org_data['Is New Menu'] == "1" and org_logos:
                 % if org_data.has_key('logo') and org_data['logo'] != "":
                     % if org_data['Logo Url'] != "":
-                        <a class="pepper-logo-link" href="${org_data['Logo Url']}">
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Logo Url'])}">
                     % else:
                         <a class="pepper-logo-link" href="#">
                     % endif
@@ -218,18 +219,18 @@
                 % endif
                 % if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
                     % if org_data['Organization Logo Url'] != "":
-                        <a class="pepper-logo-link" href="${org_data['Organization Logo Url']}">
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Organization Logo Url'])}">
                     % else:
                         <a class="pepper-logo-link" href="#">
                     %endif
                     <img class="pepper-logo" src="${base_src}${org_data['organization_logo']}" /></a>
                 %endif
             % else:
-                <a href="/dashboard">
+                <a href="${absolute_url('/dashboard')}">
                 <%block name="navigation_logo">
                     <!--@begin:Choose the image of the top logo according to user login status-->
                     % if index != 1:
-                        <img class="orig-pepper-logo" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+                        <img class="orig-pepper-logo" src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
                     % endif
                     <!--@end-->
                 </%block>
@@ -245,7 +246,7 @@
                         % if newMeStyleFlag == 0:
                             <table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
                                 <tr>
-                                    <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                    <td height="45" colspan="2"><img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                     <td height="20" align="right">Me</td>
@@ -255,7 +256,7 @@
                         % else:
                             <table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
                                 <tr>
-                                    <td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                    <td height="45" colspan="2"><img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                     <td height="20" align="right">Me</td>
@@ -268,18 +269,18 @@
                     <ul class="pepper-dropdown-menu-list" id="me-dropdown"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
                         <li class="pepper-dropdown-menu">
                             <div>
-                                <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
+                                <img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
                             </div>
                             <div class="pepper-dropdown-menu-drop">
                                 <span class="dropdownusername">${ request.user.first_name | h } ${ request.user.last_name | h }</span>
-                                <a href="${reverse('user_information',args=[request.user.id])}">View Profile</a>
+                                <a href="${absolute_url(reverse('user_information',args=[request.user.id]))}">View Profile</a>
                             </div>
                         </li>
                         <%block name="navigation_dropdown_menu_links" >
-                            <li><a href="/static/resource/Pepper_User_Guide.pdf" target="_blank">${_("Help")}</a></li>
+                            <li><a href="${absolute_url('/static/resource/Pepper_User_Guide.pdf')}" target="_blank">${_("Help")}</a></li>
                         </%block>
-                        <li><a href="/course_credits" class="main-link">Course Credits</a></li>
-                        <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+                        <li><a href="${absolute_url('/course_credits')}" class="main-link">Course Credits</a></li>
+                        <li><a href="${absolute_url(reverse('logout'))}">${_("Log Out")}</a></li>
                     </ul>
                 </li>
             </ol>

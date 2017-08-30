@@ -1,8 +1,8 @@
-<%page args="show_extended=True" />
+<%page args="show_extended, is_external" />
 
 ## mako
 <%namespace name='static' file='static_content.html'/>
-<%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
+<%namespace file='main.html' import="login_query, stanford_theme_enabled, absolute_url"/>
 
 <%!
     from django.core.urlresolvers import reverse
@@ -60,9 +60,9 @@
             % endif
             
             % if curr_user.is_authenticated():
-                <a href="/dashboard">
+                <a href="${absolute_url('/dashboard')}">
             % else:
-                <a href="/">
+                <a href="${absolute_url('/')}">
             % endif
            
             <!--@end-->
@@ -70,7 +70,7 @@
             <%block name="navigation_logo">
                 <!--@begin:Choose the image of the top logo according to user's login status-->
             % if index != 1:
-                <img src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+                <img src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
             % endif
                 <!--@end-->
             </%block>
@@ -82,30 +82,59 @@
         % endif
         
         % if not curr_user.is_authenticated():
-        <ol class="pepper-nav-global pepper-unauthenticated">
-            <li><a href="/contact" class="pepper-main-link"><b>Membership</b></a></li>
-            <li><a href="/our_team" class="pepper-main-link"><b>Our Team</b></a></li>
-            <li><a href="/press" class="pepper-main-link"><b>In the News</b></a></li>
-        </ol>
+            <ol class="pepper-nav-global pepper-unauthenticated">
+                <li><a href="${absolute_url('/contact')}" class="pepper-main-link"><b>Membership</b></a></li>
+                <li><a href="${absolute_url('/our_team')}" class="pepper-main-link"><b>Our Team</b></a></li>
+                <li><a href="${absolute_url('/press')}" class="pepper-main-link"><b>In the News</b></a></li>
+
+                <%block name="navigation_global_links">
+                    % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
+                        <li class="pepper-nav-global-01">
+                            <a href="${absolute_url(marketing_link('HOW_IT_WORKS'))}">${_("How it Works")}</a>
+                        </li>
+                        <li class="pepper-nav-global-02">
+                            <a href="${absolute_url(marketing_link('COURSES'))}">${_("Courses")}</a>
+                        </li>
+                        <li class="pepper-nav-global-03">
+                            <a href="${absolute_url(marketing_link('SCHOOLS'))}">${_("Schools")}</a>
+                        </li>
+                    % endif
+                </%block>
+            </ol>
+
+            <ol class="pepper-nav-courseware">
+                <li><a class="pepper-main-link" href="${absolute_url('/shopping')}" target="_blank"><img src="${absolute_url('/static/images/index_login_cart-537824274.png')}" /></a></li>
+                <li class="pepper-nav-courseware-01">
+                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                            <!--@begin:Change the text in Log in to Login-->
+                            <!--@date:2013-11-02-->
+                            <a class="pepepr-cta peppepr-cta-login" href="${absolute_url(reverse('course-specific-login', args=[course.id]))}${login_query()}">${_("Login")}</a>
+                        % else:
+                            <a class="pepper-cta pepper-cta-login" href="${absolute_url('/login' + login_query())}">${_("Login")}</a>
+                            <!--@end-->
+                        % endif
+                    % endif
+                </li>
+            </ol>
         % endif
 
         % if request.user.is_authenticated():
-        <ol class="pepper-nav-global pepper-authenticated">
-            <li id="org_tm_course_workshop_obj"><a href="/courses" class="pepper-main-link">Courses &amp; Workshops</a></li>
-            <li id="org_tm_communities_obj"><a href="/communities" class="pepper-main-link">Communities</a></li>
-            <li id="org_tm_my_chunks_obj"><a href="/my_chunks" class="pepper-main-link">My Chunks</a></li>
-            <li id="org_tm_resources_obj"><a href="/resource_library_global" class="pepper-main-link">Resources</a></li>
-            <li id="org_tm_people_obj"><a href="${reverse('people')}" class="pepper-main-link">People</a></li>
-            <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
+            <ol class="pepper-nav-global pepper-authenticated">
+                <li id="org_tm_course_workshop_obj"><a href="${absolute_url('/courses')}" class="pepper-main-link">Courses &amp; Workshops</a></li>
+                <li id="org_tm_communities_obj"><a href="${absolute_url('/communities')}" class="pepper-main-link">Communities</a></li>
+                <li id="org_tm_my_chunks_obj"><a href="${absolute_url('/my_chunks')}" class="pepper-main-link">My Chunks</a></li>
+                <li id="org_tm_resources_obj"><a href="${absolute_url('/resource_library_global')}" class="pepper-main-link">Resources</a></li>
+                <li id="org_tm_people_obj"><a href="${absolute_url(reverse('people'))}" class="pepper-main-link">People</a></li>
+                <!-- <li><a href="${absolute_url('/course_credits')}" class="main-link">Course Credits</a></li> -->
 
-            <%block name="navigation_global_links_authenticated">
-                <li class="pepper-nav-global-01" style="display:none;">
-                    <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
-                </li>
-            </%block>
-        </ol>
-        <!--@end-->
-
+                <%block name="navigation_global_links_authenticated">
+                    <li class="pepper-nav-global-01" style="display:none;">
+                        <a href="${absolute_url(marketing_link('COURSES'))}">${_('Find Courses')}</a>
+                    </li>
+                </%block>
+            </ol>
+            <!--@end-->
             <ol class="pepper-user"> <!-- akogan - added style-->
                 % if show_extended:
                     <!-- Administration -->
@@ -113,39 +142,39 @@
                         <a href="#" class="pepper-configuration">Tools &#9662;</a>
                         <ul class="pepper-dropdown-menu pepper-admin">
                             % if check_user_perms(request.user, 'certificate'):
-                                <li id="org_tsm_configuration_obj"><a href="${reverse('configuration')}">Configuration</a></li>
+                                <li id="org_tsm_configuration_obj"><a href="${absolute_url(reverse('configuration'))}">Configuration</a></li>
                             % endif
                             % if request.user.is_superuser:
-                                <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
+                                <li><a href="${absolute_url(reverse('organizational_configuration'))}">Organizational Configuration</a></li>
                             % endif
-                            <li id="org_tsm_pepper_pd_planner_obj"><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
+                            <li id="org_tsm_pepper_pd_planner_obj"><a href="${absolute_url(reverse('pepreg'))}">Pepper PD Planner</a></li>
                             % if check_user_perms(request.user, 'pepconn'):
-                                <li id="org_tsm_pepconn_obj"><a href="${reverse('pepconn')}">PepConn</a></li>
+                                <li id="org_tsm_pepconn_obj"><a href="${absolute_url(reverse('pepconn'))}">PepConn</a></li>
                             % endif
                             % if check_user_perms(request.user, 'permissions'):
-                                <li id="org_tsm_roles_permissions_obj"><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                                <li id="org_tsm_roles_permissions_obj"><a href="${absolute_url(reverse('permissions_view'))}">Roles &amp; Permissions</a></li>
                             % endif
                             % if check_user_perms(request.user, 'time_report'):
-                                <li id="org_tsm_time_report_obj"><a href="${reverse('time_report')}">Time Report</a></li>
+                                <li id="org_tsm_time_report_obj"><a href="${absolute_url(reverse('time_report'))}">Time Report</a></li>
                             % endif
-                            <li id="org_tsm_reporting_obj"><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                            <li id="org_tsm_reporting_obj"><a href="${absolute_url(reverse('reporting_reports'))}">Reporting</a></li>
                             % if check_user_perms(request.user, 'sso'):
-                                <li id="org_tsm_sso_metadata_obj"><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                                <li id="org_tsm_sso_metadata_obj"><a href="${absolute_url(reverse('sso_idp_metadata_edit'))}">SSO Metadata</a></li>
                             % endif
                             % if check_user_perms(request.user, 'tnl'):
-                                <li id="org_tsm_tnl_configuration_obj"><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                                <li id="org_tsm_tnl_configuration_obj"><a href="${absolute_url(reverse('tnl_configuration'))}">TNL Configuration</a></li>
                             % endif
                             % if check_user_perms(request.user, 'studio'):
                                 <li id="org_tsm_studio_obj"><a href="#" target="_blank">Studio</a></li>
                             % endif
                             % if check_user_perms(request.user, 'alert_message'):
-                                <li id="org_tsm_alert_obj"><a href="${reverse('alert_message')}">Alert</a></li>
+                                <li id="org_tsm_alert_obj"><a href="${absolute_url(reverse('alert_message'))}">Alert</a></li>
                             % endif
-                            <li id="org_tsm_notifications_obj"><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                            <li id="org_tsm_notifications_obj"><a href="${absolute_url(reverse('communities_notification_index'))}">Notifications</a></li>
                             % if request.user.is_superuser:
-                                <li id="org_tsm_usage_report_obj"><a href="${reverse('usage_report')}">Usage Report</a></li>
+                                <li id="org_tsm_usage_report_obj"><a href="${absolute_url(reverse('usage_report'))}">Usage Report</a></li>
                             % endif
-                            <li id="org_tsm_portfolio_settings_obj"><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                            <li id="org_tsm_portfolio_settings_obj"><a href="${absolute_url(reverse('portfolio_settings'))}">Portfolio Settings</a></li>
                             <!-- endif -->
                         </ul>
                     </li>
@@ -173,7 +202,7 @@
                 % if show_extended:
                     <!-- Dashboard button with dropdown -->
                     <li class="pepper-primary">
-                        <a href="${reverse('dashboard')}" class="pepper-user-link">
+                        <a href="${absolute_url(reverse('dashboard'))}" class="pepper-user-link">
                             <span class="pepper-avatar"></span>
                             <span class="pepper-sr">${_("Dashboard for:")} </span>
                             <span class="pepper-username">${request.user.username}</span>
@@ -184,11 +213,11 @@
                         <ul class="pepper-dropdown-menu">
                             % if not is_external:
                                 <%block name="navigation_dropdown_menu_links" >
-                                    <li><a href="/static/resource/Pepper_User_Guide.pdf" target="_blank">${_("Help")}</a></li>
+                                    <li><a href="${absolute_url('/static/resource/Pepper_User_Guide.pdf')}" target="_blank">${_("Help")}</a></li>
                                 </%block>
                             % endif
-                            <li><a href="/course_credits" class="pepper-main-link">Course Credits</a></li>
-                            <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+                            <li><a href="${absolute_url('/course_credits')}" class="pepper-main-link">Course Credits</a></li>
+                            <li><a href="${absolute_url(reverse('logout'))}">${_("Log Out")}</a></li>
                         </ul>
                     </li>
                 % endif
@@ -196,41 +225,10 @@
             % if not show_extended:
                 <ol class="pepper-nav-courseware">
                     <li class="pepper-nav-courseware-01">
-                        <a class="pepper-cta pepper-cta-login" href="/dashboard">Dashboard</a>
+                        <a class="pepper-cta pepper-cta-login" href="${absolute_url('/dashboard')}">Dashboard</a>
                     </li>
                 </ol>
             % endif
-        % else:
-                <%block name="navigation_global_links">
-                    % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
-                        <li class="pepper-nav-global-01">
-                            <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
-                        </li>
-                        <li class="pepper-nav-global-02">
-                            <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
-                        </li>
-                        <li class="pepper-nav-global-03">
-                            <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
-                        </li>
-                    % endif
-                </%block>
-            </ol>
-
-            <ol class="pepper-nav-courseware">
-                <li><a class="pepper-main-link" href="/shopping" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
-                <li class="pepper-nav-courseware-01">
-                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                            <!--@begin:Change the text in Log in to Login-->
-                            <!--@date:2013-11-02-->
-                            <a class="pepepr-cta peppepr-cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
-                        % else:
-                            <a class="pepper-cta pepper-cta-login" href="/login${login_query()}">${_("Login")}</a>
-                            <!--@end-->
-                        % endif
-                    % endif
-                </li>
-            </ol>
         % endif
     </nav>
 </header>
