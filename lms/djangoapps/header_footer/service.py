@@ -1,8 +1,7 @@
+from BeautifulSoup import BeautifulSoup
 from mitxmako.shortcuts import render_to_string
-from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationMenu, OrganizationFooter
-from pepper_utilities.utils import render_json_response
-import lxml
-from lxml.html.clean import Cleaner
+from organization.models import OrganizationDistricts, OrganizationMenu, OrganizationFooter
+from pepper_utilities.utils import render_jsonp_response
 
 
 def check_org(user):
@@ -70,26 +69,11 @@ def html_parse(html):
     :param html: The HTML string to clean
     :return: The cleaned HTML
     """
+    soup = BeautifulSoup(html)  # create a new bs4 object from the html data loaded
+    for script in soup(["script", "style", "link"]):  # remove all javascript and stylesheet code
+        script.extract()
 
-    # Set up the cleaner
-    cleaner = Cleaner()
-    cleaner.scripts = True  # Remove <script> tags.
-    cleaner.style = False  # Make sure it's false, since this will remove inline styles, which are needed in some areas.
-    cleaner.remove_unknown_tags = False  # Don't remove unknown tags, as this list may be outdated.
-    cleaner.safe_attrs_only = False  # Leave attributes alone.
-    cleaner.annoying_tags = False  # Even if they're annoying, we put them there on purpose.
-    cleaner.javascript = False  # Leave any inline JS.
-    cleaner.kill_tags = ['style', 'link']
-
-    # Parse the HTML string (using a div wrapper to avoid having lxml add other unpredictable wrappers), clean the
-    # parsed HTML, then re-render it as a string, leaving out the div wrapper.
-    parsed = lxml.html.tostring(
-        cleaner.clean_html(
-            lxml.html.fragment_fromstring('<div>' + html + '</div>')
-        )
-    )[5:-6]
-
-    return parsed
+    return soup.prettify()
 
 
 def header_return(request):
@@ -100,18 +84,15 @@ def header_return(request):
     :return: Rendered JSON
     """
 
+    callback = request.GET.get('callback')
+
     # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
 
     # This JS is used on both templates.
-    js = [
-        request.build_absolute_uri('/static/js/admin_ui_controls.js')
-    ]
+    js = []
     # This CSS id used in both templates.
-    css = [
-        request.build_absolute_uri('/static/css/admin_ui_controls.css'),
-        request.build_absolute_uri('/static/sass/header.css')
-    ]
+    css = [request.build_absolute_uri('/static/sass/header.css')]
 
     # If there is a customized org, render the new-style header.
     if org_enabled and org_menu["Is New Menu"] == "1":
@@ -134,7 +115,8 @@ def header_return(request):
         # Add the template-specific JS
         js.append(request.build_absolute_uri('/static/js/navigation.js'))
 
-    return render_json_response({'html': html, 'css': css, 'js': js})
+    data = {'html': html, 'css': css, 'js': js}
+    return render_jsonp_response(callback, data)
 
 
 def footer_return(request):
@@ -144,6 +126,8 @@ def footer_return(request):
     :param request: django request object
     :return: Rendered JSON
     """
+    callback = request.GET.get('callback')
+
     # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
 
@@ -159,4 +143,5 @@ def footer_return(request):
             if footer:
                 html = footer.DataItem
 
-    return render_json_response({'html': html, 'css': [], 'js': []})
+    data = {'html': html, 'css': [request.build_absolute_uri('/static/sass/footer.css')], 'js': []}
+    return render_jsonp_response(callback, data)
