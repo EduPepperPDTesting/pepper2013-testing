@@ -13,8 +13,8 @@ import datetime
 from datetime import timedelta
 from models import UserLoginInfo
 
-# import logging
-# log = logging.getLogger("tracking")
+import logging
+log = logging.getLogger("tracking")
 
 @login_required
 def main(request):
@@ -38,7 +38,7 @@ def get_user_login_info(request):
 		for user in data:
 			user_array.append(user.user_id)
 
-		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array) #Django model QuerySet array. SQL:in operater
+		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array) # Django model QuerySet array. SQL:in operater
 	else:
 		user_log_info = UserLoginInfo.objects.filter()
 	
@@ -62,11 +62,16 @@ def get_user_login_info(request):
 		except Exception as e:
 			dict_tmp['school'] = ''
 
+		dict_tmp['id'] = d.user_id
 		dict_tmp['email'] = obj_user.user.email
 		dict_tmp['username'] = obj_user.user.username
 		dict_tmp['first_name'] = obj_user.user.first_name
 		dict_tmp['last_name'] = obj_user.user.last_name
 		dict_tmp['login_time'] = d.login_time
+
+		dict_tmp['is_active'] = obj_user.user.is_active
+		dict_tmp['is_staff'] = obj_user.user.is_staff
+		dict_tmp['is_superuser'] = obj_user.user.is_superuser
 
 		if not active_recent(obj_user) or d.logout_press:
 			dict_tmp['logout_time'] = d.logout_time
@@ -81,6 +86,29 @@ def get_user_login_info(request):
 
 		login_info_list.append(dict_tmp)
 	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
+
+@ensure_csrf_cookie
+def save_user_status(request):
+	'''
+	20170830 add for save user 3 status and password in usage_report.
+	'''
+	is_active = int(request.POST.get('is_active'))
+	is_staff = int(request.POST.get('is_staff'))
+	is_superuser = int(request.POST.get('is_superuser'))
+	user_id = int(request.POST.get('user_id'))
+	save_type = int(request.POST.get('save_type'))
+
+	user_login = User.objects.filter(id=user_id)
+	if save_type == 1:
+		for user in user_login:
+			user.is_active = is_active
+			user.is_staff = is_staff
+			user.is_superuser = is_superuser
+			# user.set_password('edutest05')
+			user.save()
+			break
+
+	return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 # -------------- Dropdown Lists -------------
 def drop_states(request):

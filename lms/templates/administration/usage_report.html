@@ -35,6 +35,46 @@
     background-size:25px 25px;
     display:inline-block;
 }
+.three-status {
+    line-height:20px;
+}
+.three-status label{
+    font-size:14px;
+    font-family:"Open Sans" !important;
+    font-style:normal !important;
+}
+.save-status{
+    color:blue;
+    padding:2px 10px;
+    background-color:#ff0;
+    cursor:pointer;
+}
+.change-password{
+    cursor:pointer;
+}
+.form-row{
+    overflow: hidden;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-row label{
+    font-size:13px;
+    font-style:normal;
+    font-weight:bold;
+    padding:3px 10px 0 0;
+    width:140px;
+    border:0px solid;
+    display:block;
+    float:left;
+}
+.form-row input{
+    font-size:13px !important;
+    height:25px;
+    width:200px;
+    margin-top:3px;
+}
 </style>
 
 <div class="data_import_top data_import_bottom">
@@ -78,6 +118,8 @@
                                 <th>Last Session Time</th>
                                 <th>Total Session Time</th>
                                 <th>Online State</th>
+                                <th>3 status</th>
+                                <th>password reset</th>
                                 <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
                             </thead>
                             <tbody></tbody>
@@ -125,7 +167,7 @@
         <div class="content"></div>
     </div>
 </div>
-<!-- dialog_loading -->
+<!-- dialog loading -->
 <div style="" id="dialog_loading" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -133,6 +175,40 @@
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
         <div class="content"><img src="/static/images/posts-loading.gif" style="display:block;margin:auto;"/></div>
+    </div>
+</div>
+<!-- dialog change password -->
+<div style="" id="dialog_change_password" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content" >
+            <div style="margin-left:20px;width:400px;text-align:left;">
+                <div class="form-row">
+                    <label for="id_old_password" class="required">Old password:</label>
+                    <input type="password" name="old_password" id="id_old_password">
+                    <div class="check-error-info" style="text-align:center;color:#f00;margin-top:5px;">
+                        password is invalid
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="id_new_password1" class="required">New password:</label>
+                    <input type="password" name="new_password1" id="id_new_password1">
+                </div>
+                <div class="form-row">
+                    <label for="id_new_password2" class="required">Password (again):</label>
+                    <input type="password" name="new_password2" id="id_new_password2">
+                </div>
+            </div>
+            <div class="check-error-info" style="padding:8px;">
+                change password success
+            </div>
+            <div style="margin:10px 0 10px 0;">
+                <button style="font-size:13px;">Change my password</button>
+            </div>
+        </div>
     </div>
 </div>
 <script>
@@ -224,11 +300,11 @@ $(function() {
         widgetOptions: {
             filter_placeholder: { search : 'Search...' },
             columnSelector_container : $('#columnSelector'),
-            columnSelector_columns : {12: 'disable'},  //columns counter
+            columnSelector_columns : {14: 'disable'},  //columns counter
             columnSelector_mediaqueryName: 'All: '
         }
     }).tablesorterPager(pagerOptions);
-    $(".tblUserTime").trigger('refreshColumnSelector', [[3,4,7,8,9,10,11]]);
+    $(".tblUserTime").trigger('refreshColumnSelector', [[3,7,8,9,10,11,12,13]]);
 
     
     //----------- column selector event----------//
@@ -285,6 +361,27 @@ var userTimeReport = {
             else{
                 table_con += '<td align=center style="vertical-align: middle;"><span style="opacity:0;">Off</span></td>';
             }
+
+            is_active = "";
+            if(data[d].is_active){
+                is_active = "checked";
+            }
+            table_con += '<td class="three-status"><input name="is_active" class="is_active" type="checkbox" value=""' + is_active + '/> Active<br/>';
+
+            is_staff = "";
+            if(data[d].is_staff){
+                is_staff = "checked";
+            }
+            table_con += '<input name="is_staff" class="is_staff" type="checkbox" value="" ' + is_staff + ' /> Staff<br/>';
+
+            is_superuser = "";
+            if(data[d].is_superuser){
+                is_superuser = "checked";
+            }
+            table_con += '<input name="is_superuser" class="is_superuser" type="checkbox" value="" ' + is_superuser + ' /> Superuser<br/>';
+            table_con += '<div style="padding:5px 5px 5px 30px;"><span class="save-status">SAVE</span></div></td>';
+
+            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">change password</span></td>';
             table_con += '<td></td></tr>';
         }
         $(".tblUserTime tbody").append(table_con);
@@ -293,6 +390,61 @@ var userTimeReport = {
         $(".tblUserTime").trigger("update");
         this.total_num = data.length;
         $(".time_download .total").html(data.length);
+
+        //----------- click event save user 3 status----------//
+        var save_status_press = 0;
+        $(".save-status").unbind("click");
+        $(".save-status").click(function(){
+            if(save_status_press == 0){
+                save_status_press = 1;
+                $(".save-status").css({"background-color":"#ccc","color":"#666"});
+
+                var user_id = $(this).parent().parent().parent().attr("user_id")
+                var is_active = $(this).parent().parent().children(".is_active").attr("checked");
+                if(is_active == "checked"){
+                    is_active = 1;
+                }else{
+                    is_active = 0;
+                } 
+
+                var is_staff = $(this).parent().parent().children(".is_staff").attr("checked");
+                if(is_staff == "checked"){
+                    is_staff = 1;
+                }else{
+                    is_staff = 0;
+                } 
+
+                var is_superuser = $(this).parent().parent().children(".is_superuser").attr("checked");
+                if(is_superuser == "checked"){
+                    is_superuser = 1;
+                }else{
+                    is_superuser = 0;
+                } 
+
+                self.dialog = new Dialog($('#dialog_loading'));
+                self.dialog.show('Saving user status, Please wait...');
+
+                $.post("${reverse('save_user_status')}", {'is_active': is_active,'is_staff': is_staff,'is_superuser': is_superuser,'user_id': user_id,'save_type':1}, 
+                function(data) {
+                    if (data.success) {
+                        window.setTimeout(function () {
+                            self.dialog.hide()
+                            save_status_press = 0;
+                            $(".save-status").css({"background-color":"#ff0","color":"blue"});
+                        }, 300);
+                    }
+                });
+            }
+        });
+
+        //----------- click event change user password----------//
+        $(".change-password").unbind("click");
+        $(".change-password").click(function(){
+            self.dialog = new Dialog($('#dialog_change_password'));
+            self.dialog.show('Password Reset');
+            document.getElementById("id_old_password").focus();
+        });
+
     },
 
     get_table_result:function(){
@@ -357,8 +509,6 @@ var userTimeReport = {
     }
 };
 userTimeReport.downloadUserTimeExcel_init();
-
-
 
 //-------------------------- UI control --------------------------//
 //** init expand title
