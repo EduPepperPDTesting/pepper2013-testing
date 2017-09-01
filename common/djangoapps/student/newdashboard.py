@@ -1180,6 +1180,13 @@ def get_announcements(request):
     data = {"orgs": []}
     kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
 
+    announcement_user = dashboard_announcement_user()
+    announcement = dashboard_announcement_store()
+    announcment_id = announcement_user.get_announcements(request.user.id)
+    announcments = []
+    for tmp in announcment_id:
+        announcments.append(announcement.get_announcements(tmp, "Pepper", **kwargs))
+
     pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
     data["orgs"].append(pepper)
     data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
@@ -1412,13 +1419,13 @@ def submit_new_post(request):
         #                    expiration_date=expiration_date, organization_type=organization_type)
         # 
         announcement_store = dashboard_announcement_store()           
-        announcement_id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
+        _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
                            date=datetime.datetime.utcnow(),expiration_date=expiration_date, organization_type=organization_type)
 
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
         for tmp in receivers:
-            announcement_user.create(user_id=tmp,announcement_id=announcement_id)
+            announcement_user.create(user_id=tmp,announcement_id=_id)
 
     if attachment_file:
         upload_attachment(_id, attachment)
