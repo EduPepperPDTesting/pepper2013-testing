@@ -402,8 +402,8 @@ header.pepper-nav {
 
     &.pepper-user {
       float: right;
-      margin-top: 4px;
-      // margin-top: 3px !important;
+      margin: 4px 0 0 0;
+      padding: 0;
 
       > li.pepper-primary {
         display: block;
