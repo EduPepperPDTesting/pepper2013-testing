@@ -363,7 +363,7 @@ class DashboardAnnouncementStore(MongoBaseStore):
 
         # ** cond
         cond = {{"$or": [{"__doc__.type": {"$ne": "announcement"}},  # none announcement
-                          {"__doc__.expiration_date": {"$gte": after}}]}  # > after
+                          {"__doc__.expiration_date": {"$gte": after}}]},  # > after
                 "__doc__.sub_of": None,
                 "__doc__._id":announcement_id}  # is top leve;
 
