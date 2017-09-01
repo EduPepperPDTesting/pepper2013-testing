@@ -1,0 +1,142 @@
+/**/
+div.mul-drop-button-box{
+    display:inline-block;
+    vertical-align:top;
+}
+div.mul-drop-button-box input[type=checkbox]{
+    margin-right:5px;
+}
+div.mul-drop-button{
+    display:inline-block;
+    width:200px;
+    height:30px;
+    cursor: default;
+    white-space:nowrap;
+}
+div.mul-drop-button .label{
+    background-image:url(../image/middle.png);
+    background-size:3px 28px;
+    background-repeat:repeat;
+    display:inline-block;
+    height:30px;
+    width:147px;
+    padding-left:10px;
+    line-height:28px;
+    vertical-align:middle;
+}
+div.mul-drop-button:before{
+    content:"";
+    background-image:url(../image/left.png);
+    background-position:0px 0px;
+    width:3px;
+    height:30px;
+    background-repeat:no-repeat;
+    position:relative;
+    display:inline-block;
+    vertical-align:middle;
+}
+div.mul-drop-button:after{
+    content:"";
+    background-image:url(../image/right.png);
+    background-position:0px 0px;
+    width:30px;
+    height:30px;
+    background-repeat:no-repeat;
+    position:relative;
+    display:inline-block;
+    vertical-align:middle;
+}
+/**/
+div.mul-drop-menu{
+    position:absolute;
+    background:#fff;
+    min-width:220px;
+    border:1px solid #999;
+    z-index:999;
+}
+.mul-drop-menu .filter{
+    width:auto;
+    height:auto;
+    padding:10px 10px;
+    border:none;
+    border-bottom:1px solid #ddd;
+}
+.mul-drop-menu .filter input[type=text]{
+    padding:5px 5px;
+    width:300px;
+    border:none;
+    padding-right:50px;
+    background-image:url(../image/center.jpg);
+    background-repeat: no-repeat;
+    background-position:270px 5px;
+    background-size:20px 20px;
+    border: 1px solid #ddd;
+}
+.mul-drop-menu .filter *{
+    vertical-align:middle;
+} 
+.mul-drop-menu .filter .check-all-label{
+    color:#000;
+    margin-right:10px;
+    margin-left:10px;
+    font-weight:normal;
+    font-style:normal;
+} 
+.mul-drop-menu .list{
+    margin:0;
+    padding:0;
+    list-style:none;
+    max-height:300px;
+    overflow-y:scroll;
+    width:100%;
+}
+div.mul-drop-menu-selection{
+    max-height:120px;
+    overflow-y:scroll;
+    position:relative;    
+    min-width:190px;
+    max-width:190px;
+    background:#fff;
+    border:1px solid #999;
+}
+div.mul-drop-menu-selection .selection{
+    left:0;
+    right:0;
+    width:100%;
+    table-layout:fixed;
+}
+div.mul-drop-menu-selection .item{
+    padding:2px 5px;
+    white-space:nowrap;
+    overflow:hidden;
+    width:100%;
+    word-wrap:break-word;
+    text-overflow:ellipsis;
+    line-height:25px;
+    cursor:default;
+}
+div.mul-drop-menu-selection .item:hover{
+    background:#428BCA;
+    color:#fff;
+}
+div.mul-drop-menu-selection .remove{
+    color:red;
+}
+.mul-drop-menu .list-scroll{
+    max-height:200px;
+    overflow-y:scroll;
+}
+.mul-drop-menu .list .item{
+    padding:2px 5px;
+    cursor: default;
+    white-space:nowrap;
+    line-height:25px;
+    border-bottom: 1px solid #ddd;
+}
+.mul-drop-menu .list .item:hover{
+    background:#428BCA;
+    color:#fff;
+}
+.mul-drop-menu .list .item input{
+    vertical-align: middle;
+}
