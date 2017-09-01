@@ -13,18 +13,22 @@ class OrganizationMetadata(models.Model):
     SchoolType = models.CharField(blank=False, max_length=255, db_index=False)
     url = models.CharField(blank=False, max_length=100, db_index=False)
 
+
 class OrganizationDataitems(models.Model):
     class Meta:
         db_table = 'organization_dataitems'
     DataItem = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+
 class OrganizationDistricts(models.Model):
     class Meta:
         db_table = 'organization_districts'
     EntityType = models.CharField(blank=False, max_length=20, db_index=False)
     OrganizationEnity = models.IntegerField(blank=False, default=0)
+    OtherFields = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
+
 
 class OrganizationAttributes(models.Model):
     class Meta:
@@ -33,6 +37,7 @@ class OrganizationAttributes(models.Model):
     LogoProfile = models.CharField(blank=False, max_length=255, db_index=False)
     Motto = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
+
 
 class MainPageConfiguration(models.Model):
     class Meta:
@@ -45,26 +50,29 @@ class MainPageConfiguration(models.Model):
     MainPageButtonText = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonLink = models.CharField(blank=False, max_length=255, db_index=False)
 
+
 class OrganizationMenuitem(models.Model):
     class Meta:
         db_table = 'organization_menuitem'
     MenuItem = models.CharField(blank=False, max_length=255, db_index=False)
     Url = models.CharField(blank=False, max_length=255, db_index=False)
-    Icon = models.CharField(blank=False, max_length=255, db_index=False)    
+    Icon = models.CharField(blank=False, max_length=255, db_index=False)
     isAdmin = models.BooleanField(blank=False, default=0)
     rowNum = models.IntegerField(blank=False, default=0)
     ParentID = models.IntegerField(blank=False, default=0)
     organization = models.ForeignKey(OrganizationMetadata)
+
 
 class OrganizationCmsitem(models.Model):
     class Meta:
         db_table = 'organization_cmsitem'
     CmsItem = models.CharField(blank=False, max_length=255, db_index=False)
     Url = models.CharField(blank=False, max_length=255, db_index=False)
-    Icon = models.CharField(blank=False, max_length=255, db_index=False)    
+    Icon = models.CharField(blank=False, max_length=255, db_index=False)
     Grade = models.CharField(blank=False, max_length=255, db_index=False)
     rowNum = models.IntegerField(blank=False, default=0)
     organization = models.ForeignKey(OrganizationMetadata)
+
 
 class OrganizationMenu(models.Model):
     class Meta:
@@ -73,6 +81,7 @@ class OrganizationMenu(models.Model):
     itemValue = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+
 class OrganizationDashboard(models.Model):
     class Meta:
         db_table = 'organization_dashboard'
@@ -80,12 +89,14 @@ class OrganizationDashboard(models.Model):
     itemValue = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+
 class OrganizationFooter(models.Model):
     class Meta:
         db_table = 'organization_footer'
     DataItem = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
-    
+
+
 class OrganizationMoreText(models.Model):
     class Meta:
         db_table = 'organization_more_text'

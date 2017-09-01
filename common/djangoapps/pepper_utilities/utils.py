@@ -33,6 +33,15 @@ def render_json_response(data):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+def render_jsonp_response(callback, data):
+    """
+    Shortcut to return JSON responses.
+    :param data: The data to convert to JSON (list or dict).
+    :return: HttpResponse with the converted data and correct content type.
+    """
+    return HttpResponse('{0}({1})'.format(callback, json.dumps(data)), content_type='text/javascript')
+
+
 def random_mark(length):
     """
     Generates a random string of the given length.

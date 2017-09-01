@@ -1083,6 +1083,17 @@ def attach_post_info(p, time_diff_m, user):
     p["post_date_debug"] = debug
     p["is_owner"] = (author == user)
     p["removable"] = user.id == author.id or user.is_superuser
+
+    if p.has_key("is_people_add"):
+        p["is_people_add"] = "hidden"
+    else:
+        p["is_people_add"] = "visible"
+
+    if user.id == author.id:
+        p["dismissed"] = "hidden"
+    else:
+        p["dismissed"] = "visible"
+        
     if p["type"] == "post":
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
@@ -1114,7 +1125,7 @@ def get_post(request):
     post = store.get_feeding(_id)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
     attach_post_info(post, time_diff_m, request.user)
-    post["is_member"] = is_people_of(post["user_id"], request.user.id)
+    post["is_member"] = is_people_of(request.user.id, post["user_id"]) and is_people_of(post["user_id"], request.user.id)
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
@@ -1318,8 +1329,15 @@ def get_receivers(user, post_type):
         elif level == "School":
             receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
     else:
-        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+        receiver_ids = []
+        if user.profile.people_of != None:
+            people_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+            own_ids = user.profile.people_of.split(',')
+            for k in own_ids:
+                if long(k) in people_ids:
+                    receiver_ids.append(long(k))
         receiver_ids.append(user.id)
+
     return receiver_ids
 
 
