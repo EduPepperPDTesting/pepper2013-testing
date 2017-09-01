@@ -103,7 +103,7 @@ def get_css(request, group):
                 staticfiles_storage.url(
                     settings.PIPELINE_CSS[group]['output_filename']
                 )
-            ).replace('http:', 'https:')
+            ).replace('http:', 'https:').replace('sass', 'css')
         )
     else:
         for filename in settings.PIPELINE_CSS[group]['source_filenames']:
