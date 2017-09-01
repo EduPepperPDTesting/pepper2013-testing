@@ -362,12 +362,14 @@ class DashboardAnnouncementStore(MongoBaseStore):
         fields["year"] = {"$year": '$date'}
 
         # ** cond
+        '''
         cond = {{"$or": [{"__doc__.type": {"$ne": "announcement"}},  # none announcement
                           {"__doc__.expiration_date": {"$gte": after}}]},  # > after
-                "__doc__.sub_of": None,
-                "__doc__._id":announcement_id}  # is top leve;
+                #"__doc__.sub_of": None,
+                "__doc__._id": announcement_id}  # is top leve;
 
         cond.update(cond_ext)
+        '''
 
         # *** filter cond
         if month:
