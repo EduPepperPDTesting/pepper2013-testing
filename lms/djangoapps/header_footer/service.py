@@ -39,22 +39,31 @@ def check_org(user):
 
         # Look up the org data for each of those.
         if school_id != -1:
-            org = OrganizationDistricts.objects.get(OrganizationEnity=school_id, EntityType="School")
-            if org:
-                org_object = org.organization
-                org_enabled = True
+            try:
+                org = OrganizationDistricts.objects.get(OrganizationEnity=school_id, EntityType="School")
+                if org:
+                    org_object = org.organization
+                    org_enabled = True
+            except:
+                pass
 
         if (not org_enabled) and district_id != -1:
-            org = OrganizationDistricts.objects.get(OrganizationEnity=district_id, EntityType="District")
-            if org:
-                org_object = org.organization
-                org_enabled = True
+            try:
+                org = OrganizationDistricts.objects.get(OrganizationEnity=district_id, EntityType="District")
+                if org:
+                    org_object = org.organization
+                    org_enabled = True
+            except:
+                pass
 
         if (not org_enabled) and state_id != -1:
-            org = OrganizationDistricts.objects.get(OrganizationEnity=state_id, EntityType="State")
-            if org:
-                org_object = org.organization
-                org_enabled = True
+            try:
+                org = OrganizationDistricts.objects.get(OrganizationEnity=state_id, EntityType="State")
+                if org:
+                    org_object = org.organization
+                    org_enabled = True
+            except:
+                pass
 
         # If there is an org customization associated with the user's orgs, parse all of the data.
         if org_enabled:
