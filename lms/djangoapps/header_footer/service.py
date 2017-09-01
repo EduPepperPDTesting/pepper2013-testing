@@ -88,8 +88,8 @@ def get_css(request, group):
     :return: The list of CSS files.
     """
     css = []
-    if settings.MITX_FEATURES['USE_DJANGO_PIPELINE']:
-        compressed_css(group)
+    if settings.MITX_FEATURES['USE_DJANGO_PIPELINE'] and not settings.TEMPLATE_DEBUG:
+        css.append(request.build_absolute_uri(staticfiles_storage.url(settings.PIPELINE_CSS[group]['output_filename'])))
     else:
         for filename in settings.PIPELINE_CSS[group]['source_filenames']:
             css.append(request.build_absolute_uri(staticfiles_storage.url(filename.replace('.scss', '.css'))))
