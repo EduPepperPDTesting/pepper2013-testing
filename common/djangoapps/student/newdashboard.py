@@ -26,7 +26,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-from feeding import dashboard_feeding_store,dashboard_feeding_user_store
+from feeding import dashboard_feeding_store,dashboard_feeding_user_store,dashboard_announcement_user,dashboard_announcement_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
@@ -1418,7 +1418,7 @@ def submit_new_post(request):
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
         for tmp in receivers:
-            announcement_user.create(user_id=request.user.id,announcement_id=announcement_id)
+            announcement_user.create(user_id=tmp,announcement_id=announcement_id)
 
     if attachment_file:
         upload_attachment(_id, attachment)
