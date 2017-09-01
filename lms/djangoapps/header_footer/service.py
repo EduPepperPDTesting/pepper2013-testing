@@ -85,7 +85,7 @@ def html_parse(html):
     for script in soup(["script", "style", "link"]):  # remove all javascript and stylesheet code
         script.extract()
 
-    return soup.prettify()
+    return soup.prettify().replace('http:', 'https:')
 
 
 def get_css(request, group):
@@ -98,10 +98,22 @@ def get_css(request, group):
     """
     css = []
     if settings.MITX_FEATURES['USE_DJANGO_PIPELINE'] and not settings.TEMPLATE_DEBUG:
-        css.append(request.build_absolute_uri(staticfiles_storage.url(settings.PIPELINE_CSS[group]['output_filename'])))
+        css.append(
+            request.build_absolute_uri(
+                staticfiles_storage.url(
+                    settings.PIPELINE_CSS[group]['output_filename']
+                )
+            ).replace('http:', 'https:')
+        )
     else:
         for filename in settings.PIPELINE_CSS[group]['source_filenames']:
-            css.append(request.build_absolute_uri(staticfiles_storage.url(filename.replace('.scss', '.css'))))
+            css.append(
+                request.build_absolute_uri(
+                    staticfiles_storage.url(
+                        filename.replace('.scss', '.css')
+                    )
+                ).replace('http:', 'https:')
+            )
 
     return css
 
@@ -134,7 +146,7 @@ def header_return(request):
             "is_external": True
         }))
         # Add the template-specific JS.
-        js.append(request.build_absolute_uri('/static/js/navigation_new.js'))
+        js.append(request.build_absolute_uri('/static/js/navigation_new.js').replace('http:', 'https:'))
     # Otherwise use the regular template.
     else:
         # Get the parsed HTML.
@@ -143,7 +155,7 @@ def header_return(request):
             "is_external": True
         }))
         # Add the template-specific JS
-        js.append(request.build_absolute_uri('/static/js/navigation.js'))
+        js.append(request.build_absolute_uri('/static/js/navigation.js').replace('http:', 'https:'))
 
     data = {'html': html, 'css': css, 'js': js}
     return render_jsonp_response(callback, data)
