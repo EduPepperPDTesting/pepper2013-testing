@@ -291,3 +291,49 @@ class DashboardFeedingUserStore(MongoBaseStore):
     def set_dismiss(self,user_id):
         self.update({"show_user_id": user_id},
                     {"$set": {"dismissing": 1}}, False, True)
+
+def dashboard_announcement_user():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return DashboardAnnouncementUser(**options)
+
+class DashboardAnnouncementUser(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="dashboard_announcement_user", port=port, **kwargs)
+
+    def create(self,data):
+        return self.insert(data)
+
+def dashboard_announcement_store():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return DashboardAnnouncementUser(**options)
+
+class DashboardAnnouncementStore(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="dashboard_announcement_store", port=port, **kwargs)
+
+    def create_announcement(self, user_id, type, content, date, attachment_file=None, expiration_date=None, **kwargs):
+        data = {
+            "type":type,
+            "user_id":user_id,
+            "content":content,
+            "date":date
+        }
+
+        data.update(kwargs)
+        
+        if attachment_file:
+            data["attachment_file"] = attachment_file
+
+        if expiration_date:
+            data["expiration_date"] = expiration_date
+
+        return self.insert(data)
+
+
+

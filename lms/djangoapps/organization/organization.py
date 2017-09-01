@@ -105,7 +105,7 @@ def main(request):
         tmp = "organization/organization.html"
         return render_to_response(tmp)
 
-# -------------------------------------------------------------------organization_user_email_completion
+# -------------------------------------------------------------------organization_initial_superuser_eamil
 @login_required
 def organization_initial_superuser_eamil(request):
     r = list()

@@ -1407,9 +1407,18 @@ def submit_new_post(request):
             organization_type = "Pepper"
         else:
             organization_type = check_access_level(request.user, "dashboard_announcement", "create")
-        _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
-                           expiration_date=expiration_date, organization_type=organization_type)
+        # _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
+        #                    receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
+        #                    expiration_date=expiration_date, organization_type=organization_type)
+        # 
+        announcement_store = dashboard_announcement_store()           
+        announcement_id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
+                           date=datetime.datetime.utcnow(),expiration_date=expiration_date, organization_type=organization_type)
+
+        announcement_user = dashboard_announcement_user()
+        receivers=get_receivers(request.user, type)
+        for tmp in receivers:
+            announcement_user.create(user_id=request.user.id,announcement_id=announcement_id)
 
     if attachment_file:
         upload_attachment(_id, attachment)
