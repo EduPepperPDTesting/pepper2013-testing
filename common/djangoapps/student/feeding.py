@@ -309,7 +309,7 @@ class DashboardAnnouncementUser(MongoBaseStore):
 def dashboard_announcement_store():
     options = {}
     options.update(settings.FEEDINGSTORE['OPTIONS'])
-    return DashboardAnnouncementUser(**options)
+    return DashboardAnnouncementStore(**options)
 
 class DashboardAnnouncementStore(MongoBaseStore):
     def __init__(self, host, db, port,
