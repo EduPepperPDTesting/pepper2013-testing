@@ -98,13 +98,13 @@ def get_css(request, group):
     """
     css = []
     if settings.MITX_FEATURES['USE_DJANGO_PIPELINE'] and not settings.TEMPLATE_DEBUG:
-        css.append(
-            request.build_absolute_uri(
-                staticfiles_storage.url(
-                    settings.PIPELINE_CSS[group]['output_filename']
-                )
-            ).replace('http:', 'https:').replace('sass', 'css')
-        )
+        css = request.build_absolute_uri(
+            staticfiles_storage.url(
+                settings.PIPELINE_CSS[group]['output_filename']
+            )
+        ).replace('http:', 'https:')
+        css = css.replace('sass', 'css')
+        css.append(css)
     else:
         for filename in settings.PIPELINE_CSS[group]['source_filenames']:
             css.append(
