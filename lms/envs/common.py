@@ -593,6 +593,18 @@ PIPELINE_CSS = {
         ],
         'output_filename': 'css/lms-application.css',
     },
+    'header': {
+        'source_filenames': [
+            'sass/header.css',
+        ],
+        'output_filename': 'css/lms-header.css',
+    },
+    'footer': {
+        'source_filenames': [
+            'sass/footer.css',
+        ],
+        'output_filename': 'css/lms-footer.css',
+    },
     'course': {
         'source_filenames': [
             'js/vendor/CodeMirror/codemirror.css',

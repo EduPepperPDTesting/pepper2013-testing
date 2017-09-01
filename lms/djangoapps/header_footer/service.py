@@ -1,7 +1,10 @@
+from django.conf import settings
 from BeautifulSoup import BeautifulSoup
 from mitxmako.shortcuts import render_to_string
 from organization.models import OrganizationDistricts, OrganizationMenu, OrganizationFooter
 from pepper_utilities.utils import render_jsonp_response
+from staticfiles.storage import staticfiles_storage
+from pipeline_mako import compressed_css
 
 
 def check_org(user):
@@ -76,12 +79,30 @@ def html_parse(html):
     return soup.prettify()
 
 
+def get_css(request, group):
+    """
+    Gets the CSS files based on whether this is a local dev version or a regular server.
+
+    :param request: The django request object.
+    :param group: The group to get the CSS for (as defined in PIPELINE_CSS).
+    :return: The list of CSS files.
+    """
+    css = []
+    if settings.MITX_FEATURES['USE_DJANGO_PIPELINE']:
+        compressed_css(group)
+    else:
+        for filename in settings.PIPELINE_CSS[group]['source_filenames']:
+            css.append(request.build_absolute_uri(staticfiles_storage.url(filename.replace('.scss', '.css'))))
+
+    return css
+
+
 def header_return(request):
     """
     View that returns the header for the current user.
 
-    :param request: django request object
-    :return: Rendered JSON
+    :param request: The django request object.
+    :return: Rendered JSON.
     """
 
     callback = request.GET.get('callback')
@@ -92,7 +113,7 @@ def header_return(request):
     # This JS is used on both templates.
     js = []
     # This CSS id used in both templates.
-    css = [request.build_absolute_uri('/static/sass/header.css')]
+    css = get_css(request, 'header')
 
     # If there is a customized org, render the new-style header.
     if org_enabled and org_menu["Is New Menu"] == "1":
@@ -123,8 +144,8 @@ def footer_return(request):
     """
     View that returns the footer for the current user.
 
-    :param request: django request object
-    :return: Rendered JSON
+    :param request: The django request object.
+    :return: Rendered JSON.
     """
     callback = request.GET.get('callback')
 
@@ -143,5 +164,5 @@ def footer_return(request):
             if footer:
                 html = footer.DataItem
 
-    data = {'html': html, 'css': [request.build_absolute_uri('/static/sass/footer.css')], 'js': []}
+    data = {'html': html, 'css': get_css(request, 'footer'), 'js': []}
     return render_jsonp_response(callback, data)
