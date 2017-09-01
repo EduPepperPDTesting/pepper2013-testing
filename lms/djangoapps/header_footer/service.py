@@ -96,15 +96,17 @@ def get_css(request, group):
     :param group: The group to get the CSS for (as defined in PIPELINE_CSS).
     :return: The list of CSS files.
     """
+    host = request.get_host()
+
     css = []
-    if settings.MITX_FEATURES['USE_DJANGO_PIPELINE'] and not settings.TEMPLATE_DEBUG:
-        css = request.build_absolute_uri(
-            staticfiles_storage.url(
-                settings.PIPELINE_CSS[group]['output_filename']
-            )
-        ).replace('http:', 'https:')
-        css = css.replace('sass', 'css')
-        css.append(css)
+    if settings.MITX_FEATURES['USE_DJANGO_PIPELINE'] and 'pepperpd.com' in host:
+        css.append(
+            request.build_absolute_uri(
+                staticfiles_storage.url(
+                    settings.PIPELINE_CSS[group]['output_filename']
+                )
+            ).replace('http:', 'https:')
+        )
     else:
         for filename in settings.PIPELINE_CSS[group]['source_filenames']:
             css.append(
