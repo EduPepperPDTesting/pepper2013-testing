@@ -44,14 +44,34 @@
     font-style:normal !important;
 }
 .save-status{
-    color:blue;
-    padding:2px 10px;
-    background-color:#ff0;
+    font-size:12px;
+    color:#fff;
+    padding:3px 10px;
+    background-color:#0054aa;
+    border-radius: 5px;
     cursor:pointer;
+}
+.save-status:hover{
+    background-color:#004a99;
 }
 .change-password{
+    /*
+    font-size:12px;
+    color:#fff;
+    padding:3px 10px;
+    background-color:#0054aa;
+    border-radius: 5px;
+    */
     cursor:pointer;
 }
+.btn-change-password-lock{
+    background-image:linear-gradient(to bottom,#666 0%,#666 50%,#666 50%,#666 100%) !important; 
+    background-color:#666;
+    border:0px;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 0 #666;
+}
+
 .form-row{
     overflow: hidden;
     padding: 8px 12px;
@@ -187,26 +207,19 @@
         <div class="content" >
             <div style="margin-left:20px;width:400px;text-align:left;">
                 <div class="form-row">
-                    <label for="id_old_password" class="required">Old password:</label>
-                    <input type="password" name="old_password" id="id_old_password">
-                    <div class="check-error-info" style="text-align:center;color:#f00;margin-top:5px;">
-                        password is invalid
-                    </div>
-                </div>
-                <div class="form-row">
                     <label for="id_new_password1" class="required">New password:</label>
                     <input type="password" name="new_password1" id="id_new_password1">
+                    <div class="check-error-p1" style="text-align:center;color:#f00;margin-top:5px;"></div>
                 </div>
                 <div class="form-row">
                     <label for="id_new_password2" class="required">Password (again):</label>
                     <input type="password" name="new_password2" id="id_new_password2">
+                    <div class="check-error-p2" style="text-align:center;color:#f00;margin-top:5px;"></div>
                 </div>
             </div>
-            <div class="check-error-info" style="padding:8px;">
-                change password success
-            </div>
+            <div class="check-success" style="padding:8px;"></div>
             <div style="margin:10px 0 10px 0;">
-                <button style="font-size:13px;">Change my password</button>
+                <button style="font-size:13px;" id="btn_change_password">Change password</button>
             </div>
         </div>
     </div>
@@ -430,21 +443,101 @@ var userTimeReport = {
                         window.setTimeout(function () {
                             self.dialog.hide()
                             save_status_press = 0;
-                            $(".save-status").css({"background-color":"#ff0","color":"blue"});
-                        }, 300);
+                            $(".save-status").css({"background-color":"#0054aa","color":"#fff"});
+                        }, 100);
                     }
                 });
             }
         });
 
         //----------- click event change user password----------//
+        var change_psw_press = 0;
         $(".change-password").unbind("click");
         $(".change-password").click(function(){
+            var user_id = $(this).parent().parent().attr("user_id");
+            $("#id_new_password1").attr("user_id",user_id);
+
+            $("#id_new_password1").val("");
+            $("#id_new_password2").val("");
+            $(".check-error-p1").html("");
+            $(".check-error-p2").html("");
+            $(".check-success").html("");
+
             self.dialog = new Dialog($('#dialog_change_password'));
             self.dialog.show('Password Reset');
-            document.getElementById("id_old_password").focus();
+            $("#id_new_password1").focus();
+            change_psw_press = 0;
         });
 
+        $("#btn_change_password").click(function(){
+            if(change_psw_press == 0){
+                change_psw_press = 1;
+                $("#btn_change_password").addClass("btn-change-password-lock");
+                $(".check-success").html("");
+
+                var user_id = $("#id_new_password1").attr("user_id");
+                var psw1 = $("#id_new_password1").val().trim();
+                var psw2 = $("#id_new_password2").val().trim();
+
+                if(psw1 == ""){
+                    $(".check-error-p1").html("password cant't be blank");
+                    $(".check-error-p2").html("");
+                    $("#id_new_password1").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+
+                if(psw1.length < 8 || psw1.length > 16){
+                    $(".check-error-p1").html("password must be 8 to 16 characters");
+                    $(".check-error-p2").html("");
+                    $("#id_new_password1").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;  
+                }
+
+                if(psw1.length != 0){
+                    var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
+                    var r = psw1.match(regexp);
+                    if(r == null){
+                        $(".check-error-p1").html("password must be made up of A-Z, a-z, 0-9 and ~!@#$%^&*");
+                        $(".check-error-p2").html("");
+                        $("#id_new_password1").focus();
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        return;
+                    }
+                    
+                }
+                if(psw1 != psw2){
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("password twice input are different");
+                    $("#id_new_password2").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+                $(".check-error-p1").html("");
+                $(".check-error-p2").html("");
+
+                $(".check-success").html("now saving......");
+                $.post("${reverse('save_user_status')}", {'user_id': user_id,'user_post': psw2,'save_type':2}, 
+                    function(data) {
+                        if (data.success) {
+                            window.setTimeout(function () {
+                                change_psw_press = 0;
+                                $("#btn_change_password").removeClass("btn-change-password-lock");
+                                $(".check-success").html("change password success");
+                            }, 100);
+                        }
+                    });
+            }
+        });
+
+        $("#id_new_password1").change(function(){
+             //$(".check-error-p1").html("");
+        });
     },
 
     get_table_result:function(){

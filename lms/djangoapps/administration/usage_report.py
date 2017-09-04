@@ -92,23 +92,30 @@ def save_user_status(request):
 	'''
 	20170830 add for save user 3 status and password in usage_report.
 	'''
-	is_active = int(request.POST.get('is_active'))
-	is_staff = int(request.POST.get('is_staff'))
-	is_superuser = int(request.POST.get('is_superuser'))
-	user_id = int(request.POST.get('user_id'))
 	save_type = int(request.POST.get('save_type'))
+	user_id = int(request.POST.get('user_id'))
+	context = {'success': False}
 
 	user_login = User.objects.filter(id=user_id)
-	if save_type == 1:
-		for user in user_login:
+	for user in user_login:
+		if save_type == 1:
+			is_active = int(request.POST.get('is_active'))
+			is_staff = int(request.POST.get('is_staff'))
+			is_superuser = int(request.POST.get('is_superuser'))
+
 			user.is_active = is_active
 			user.is_staff = is_staff
 			user.is_superuser = is_superuser
-			# user.set_password('edutest05')
 			user.save()
-			break
+			context["success"] = True
+		elif save_type == 2:
+			user_psw = str(request.POST.get('user_post'))
 
-	return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+			user.set_password(user_psw)
+			user.save()
+			context["success"] = True
+		break
+	return HttpResponse(json.dumps(context), content_type="application/json")
 
 # -------------- Dropdown Lists -------------
 def drop_states(request):
