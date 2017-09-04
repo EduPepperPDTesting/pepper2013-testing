@@ -318,6 +318,9 @@ class DashboardAnnouncementUser(MongoBaseStore):
     def remove_announcement(self,announcement_id):
         self.remove({"announcement_id":ObjectId(announcement_id)})
 
+    def dismiss_announcement(self, announcement_id, user_id):
+        self.remove({"announcement_id":ObjectId(announcement_id),"user_id":user_id})
+
 def dashboard_announcement_store():
     options = {}
     options.update(settings.FEEDINGSTORE['OPTIONS'])
