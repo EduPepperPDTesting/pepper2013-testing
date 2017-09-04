@@ -1122,10 +1122,12 @@ def get_posts(request):
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:
-        store = dashboard_feeding_store()
-        store.dismiss(_id, request.user.id)
+        # initial dismiss
         user_store = dashboard_feeding_user_store()
         user_store.set_dismiss(request.user.id)
+        # announcement dismiss
+        announcement = dashboard_announcement_user()
+        announcement.remove_announcement(_id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
 
@@ -1280,9 +1282,11 @@ def submit_new_like(request):
 
 @ajax_login_required()
 def delete_announcement(request):
-    feeding_id = request.POST.get("_id")
-    store = dashboard_feeding_store()
-    store.remove_feeding(feeding_id)
+    announcement_id = request.POST.get("_id")
+    store = dashboard_announcement_store()
+    store.remove_announcement(announcement_id)
+    user = dashboard_announcement_user()
+    user.remove_announcement(announcement_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 

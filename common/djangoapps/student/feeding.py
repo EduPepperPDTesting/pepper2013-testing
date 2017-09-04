@@ -314,7 +314,9 @@ class DashboardAnnouncementUser(MongoBaseStore):
 
     def get_announcements(self,user_id,organization_type,expiration_date):
         return self.find({"user_id":user_id,"organization_type":organization_type,"expiration_date":{"$gte":expiration_date}})
-        
+    
+    def remove_announcement(self,announcement_id):
+        self.remove({"announcement_id":ObjectId(announcement_id)})
 
 def dashboard_announcement_store():
     options = {}
@@ -352,3 +354,6 @@ class DashboardAnnouncementStore(MongoBaseStore):
             result = tmp
 
         return result
+
+    def remove_announcement(self,announcement_id):
+        self.remove({"_id": ObjectId(announcement_id)})
