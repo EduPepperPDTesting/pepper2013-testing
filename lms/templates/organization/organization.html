@@ -3672,17 +3672,10 @@
 				if(menu_item != ""){					
 					var menu_url = filterStr($(this).find(".menu_items_url").val());
 					var menu_icon = $(this).find(".menu_items_icon").val();
-					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");					
-<<<<<<< HEAD
+					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");
 					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
-
-||||||| merged common ancestors
 					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
 					
-=======
-					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
-					
->>>>>>> 0ddd156bd0b895bf8e5345d0501cf78a245003dc
 					if(menu_icon != "" && !organizationCheckUploadFile(menu_icon)){
 						flag_icon_error = true;
 						return false;
