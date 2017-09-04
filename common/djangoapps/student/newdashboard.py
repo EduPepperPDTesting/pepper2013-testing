@@ -1143,9 +1143,7 @@ def get_org_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
-    kwargs = {"after": now_utc}
-
-    posts = store.get_announcements(request.user.id, org, **kwargs)
+    posts = announcements(request.user.id, org, now_utc)
     if org == "Pepper":
         inital = get_inital(request,now_utc)
         if len(inital) > 0:
