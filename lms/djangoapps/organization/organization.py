@@ -442,6 +442,25 @@ def organization_add(request):
                         if os.path.exists(tmp_logo_src):
                             shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
 
+                # --------------OrganizationFooter
+                org_data_list = OrganizationFooter.objects.filter(organization=organization_old)
+                for tmp1 in org_data_list:
+                    org_footer = OrganizationFooter()
+                    org_footer.DataItem = tmp1.DataItem
+                    org_footer.organization = organization
+                    org_footer.save()
+                    break
+
+                # --------------OrganizationMoreText
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=organization_old, itemType="Announcement")
+                for tmp1 in org_announcement_list:
+                    org_announcement = OrganizationMoreText()
+                    org_announcement.DataItem = tmp1.DataItem
+                    org_announcement.organization = organization
+                    org_announcement.itemType = "Announcement"
+                    org_announcement.save()
+                    break
+
             data = {'Success': True}
         except Exception as e:
             data = {'Success': False, 'Error': '{0}'.format(e)}

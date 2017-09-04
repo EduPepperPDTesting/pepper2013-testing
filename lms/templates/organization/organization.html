@@ -1458,7 +1458,7 @@
 											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3]);
 										}
 									}
-									if($('#organization-state-table tbody').html() != ""){
+									if($(".organization-state-select").length > 0){
 										flag_new = false;
 									}
 									
@@ -1812,7 +1812,7 @@
 									//----------
 									$(".cms_item_btn").val("-");
 									$(".cms_item_btn:last").val("+");
-									
+									$("#press").attr("a", flag_new);
 									if(flag_new){
 										//----------
 										$(".expand_title_parent").each(function(i){
