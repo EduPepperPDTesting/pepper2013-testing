@@ -1159,17 +1159,16 @@ def get_org_announcements(request):
 
 @ajax_login_required()
 def get_announcements(request):
-    filter_year = request.POST.get("filter_year")
-    filter_month = request.POST.get("filter_month")
+    # filter_year = request.POST.get("filter_year")
+    # filter_month = request.POST.get("filter_month")
     # last_id = request.POST.get("last_id")
-    page = request.POST.get("page", 0)
-    page_size = request.POST.get("page_size", 5)
+    # page = request.POST.get("page", 0)
+    # page_size = request.POST.get("page_size", 5)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
 
     now_utc = datetime.datetime.utcnow()
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
-
 
     store = dashboard_feeding_store()
     inital = get_inital(request,now_utc)
@@ -1178,14 +1177,14 @@ def get_announcements(request):
         pepper.append(inital[0])
     
     data = {"orgs": []}
-    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+    kwargs = {"after": now_utc}
 
     announcement_user = dashboard_announcement_user()
     announcement = dashboard_announcement_store()
-    announcment_id = announcement_user.get_announcements(request.user.id)
+    announcment_id = announcement_user.get_announcements(request.user.id,"Pepper",now_utc)
     announcments = []
     for tmp in announcment_id:
-        announcments.append(announcement.get_announcements(tmp, "Pepper", **kwargs))
+        announcments.append(announcement.get_announcements(tmp["_id"]))
 
     pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
     data["orgs"].append(pepper)
@@ -1307,7 +1306,7 @@ def get_receivers(user, post_type):
         up = user.profile
         level = check_access_level(user, "dashboard_announcement", "create")
         if level == "System":
-            receiver_ids = [0]
+            receiver_ids = list(UserProfile.objects.filter().values_list('user_id', flat=True))
         elif level == "State":
             receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
         elif level == "District":
@@ -1420,12 +1419,12 @@ def submit_new_post(request):
         # 
         announcement_store = dashboard_announcement_store()           
         _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           date=datetime.datetime.utcnow(),expiration_date=expiration_date, organization_type=organization_type)
+                           date=datetime.datetime.utcnow(), expiration_date=expiration_date)
 
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
         for tmp in receivers:
-            announcement_user.create(user_id=tmp,announcement_id=_id)
+            announcement_user.create(user_id=tmp, announcement_id=_id, organization_type=organization_type, expiration_date=expiration_date)
 
     if attachment_file:
         upload_attachment(_id, attachment)
