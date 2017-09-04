@@ -10,6 +10,7 @@ from xmodule.modulestore.django import modulestore
 import json
 from administration.models import CustomEmail
 from student.models import State,District,School,Cohort,User,UserProfile
+from permissions.utils import check_user_perms
 %>
 
 <%
@@ -441,6 +442,7 @@ f.close()
           <input type="button" value="Delete Selected Schools" class ="small" style="float:right" id="delete_selected_schools"/>
         </span>
     </div>
+
     <div class="user_table-section table-section">
         <div class="add-area" onclick="$('#filterArea2').slideToggle()">
             FILTER
@@ -454,10 +456,8 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                    
                 </select>
                 <select type="search" class="search-users" data-column="10" id="User_registration_select">
                     <option value="" class="null_case">Select Registration Status</option>
@@ -536,7 +536,6 @@ f.close()
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
-
         <span style="float:right">
             <input type="button" value="Delete Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
             <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
@@ -548,7 +547,6 @@ f.close()
           <li>
             <label>
               <input style="display:none" type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
-
             </label>
           </li>
           <li class="customize-email" style="display: list-item">
@@ -632,10 +630,651 @@ f.close()
           <input type="button" value="Delete Selected Cohorts" class ="small" style="float:right" id="delete_selected_cohort"/>
         </span>
     </div><br><br>
-
+    </div>
+    <!-- Course Permissions -->
+    <style type="text/css" media="screen">
+     .filters-menu>li{display:inline-block;color:#1564F6;cursor:pointer;}
+     .filters-menu>li.active{display:inline-block;color:#72BB53;text-decoration:underline;}
+     .filters-submenu{
+       display:none;
+     }
+     .filters-submenu>li{
+       display:inline-block;
+       background:#2196F3;
+       padding:10px;
+       margin-right:10px;
+       margin-bottom:10px;
+       color:#fff;
+       cursor:pointer;
+       border:5px solid #fff0;
+     }
+     .filters-submenu>li.active{
+       border:5px solid #555;
+     }
+     .course-perm-sub-title{
+       cursor:pointer;
+     }
+    </style>    
+    <script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
+    <link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
+    <div class="expand_title expand_title_collapse">
+      Course Permissions <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <section id="course_permission_user_table">
+        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title">View Access / Select Users</h2>
+        <div style="display:none;">
+        <div class="" style="height:120px;padding:20px;">
+          % if check_user_perms(request.user, access_level='System'):
+          <select id="lst-user-filter-state" name="" autocomplate="off" class="mu" label="State">
+            % for item in State.objects.all().order_by('name'):
+            <option class="${item.id}" value="${item.id}">${item.name}</option>
+            % endfor
+          </select>
+          % endif
+          % if check_user_perms(request.user, access_level='System'):
+          <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
+          </select>
+          % elif check_user_perms(request.user, access_level='State'):
+          ${request.user.profile.district.state.name}
+          <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
+          % for item in District.objects.filter(state=request.user.profile.district.state):
+            <option value="${item.id}">${item.name}</option>
+          % endfor
+          </select>
+          % endif
+          % if check_user_perms(request.user, access_level='District'):
+          <select id="lst-user-filter-school" name="" autocomplate="off" class="mu" label="School">
+          </select>
+          % endif
+        </div>
+        % if check_user_perms(request.user, access_level='System'):
+        <div style="reset:all;text-align:right;padding-right:20px;">
+          <input id="btnCoursePermCsvLoad" type="button" name="" value="Bulk CSV Load" style="background:#DFEDD6;"/>
+          <input type="file" name="" value="" style="display:none;"/>
+        </div>
+        % endif
+        <ul style="padding:10px;font-size:28px;" class="filters-menu">
+          <li id="filters-subject" class="active">Subject</li> |
+          <li id="filters-author">Author</li> |
+          <li id="filters-grade">Grade Level</li>
+        </ul>
+        <ul class="filters-submenu" id="filters-subject-submenu">
+          <li data-value="AR">Assessments and Reporting</li>
+          <li data-value="DC">Digital Citizenship</li>
+          <li data-value="ELA">English Language Arts</li>
+          <li data-value="ELL">English Language Learners</li>
+          <li data-value="MA">Mathematics</li>
+          <li data-value="PEP">Pepper</li>
+          <li data-value="POW">Pepper's Online Workshops!</li>
+          <li data-value="SC">Science</li>
+          <li data-value="SE">Special Education</li>
+          <li data-value="TCH">Teacher ToolKit</li>
+          <li data-value="TECH">Technology</li>
+          <li data-value="ARTS">Visual & Performing Arts</li>
+          <li data-value="WR">Writing and Poetry</li>  
+        </ul>
+        <ul class="filters-submenu" id="filters-author-submenu">
+          <li data-value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</li>
+          <li data-value="CHADD">CHADD</li>
+          <li data-value="Common Sense Education">Common Sense Education</li>
+          <li data-value="CT Core Standards">CT Core Standards</li>
+          <li data-value="Manteca Unified School District">Manteca Unified School District</li>
+          <li data-value="Media Power Youth">Media Power Youth</li>
+          <li data-value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</li>
+          <li data-value="Oklahoma SDE">Oklahoma SDE</li>
+          <li data-value="PCG Education">PCG Education</li>
+          <li data-value="SEADAE">SEADAE</li>
+          <li data-value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</li>
+          <li data-value="WestEd">WestEd</li>                  
+        </ul>
+        <ul class="filters-submenu" id="filters-grade-submenu">
+          <li data-value="PreK-3">PreK-3</li>
+          <li data-value="K-5">K-5</li>
+          <li data-value="6-8">6-8</li>
+          <li data-value="K-12">K-12</li>
+          <li data-value="9-12">9-12</li>
+        </ul>        
+        <div style="text-align: right;padding:20px;"> <input id="btnUserLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/> </div>
+        <div style="padding:10px;" id="course_permission_user">
+          <table class="tablesorter-blue">
+            <thead>
+              <tr>
+                <th class="id">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
+                <th class="first_name">First Name</th>
+                <th class="last_name">Last Name</th>
+                <th class="email">Email</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="">
+            <span class="pager">
+              <form>
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                </select>
+              </form>
+            </span>
+          </div>
+          <p style="padding:20px;"><input type="button" id="btnCoursePermDownloadExcel" value="Export to Excel" style="background:#2E7D32;color:#fff;"/></p>
+        </div>
+        </div>
+      </section>
+      
+      <section id="course_permission_course">
+        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title">Select Courses, Access Level and Notifications</h2>
+        <div style="display:none">
+        <div class="" style="height:120px;padding:20px;display:none;">
+          <select id="lst-course-filter-subject" name="" autocomplate="off" class="mu" label="Subject">
+            <option value="AR">Assessments and Reporting</option>
+            <option value="DC">Digital Citizenship</option>
+            <option value="ELA">English Language Arts</option>
+            <option value="ELL">English Language Learners</option>
+            <option value="MA">Mathematics</option>
+            <option value="PEP">Pepper</option>
+            <option value="POW">Pepper's Online Workshops!</option>
+            <option value="SC">Science</option>
+            <option value="SE">Special Education</option>
+            <option value="TCH">Teacher ToolKit</option>
+            <option value="TECH">Technology</option>
+            <option value="ARTS">Visual & Performing Arts</option>
+            <option value="WR">Writing and Poetry</option>              
+          </select>
+          
+          <select id="lst-course-filter-author" name="" autocomplate="off" class="mu" label="Author">
+            <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
+            <option value="CHADD">CHADD</option>
+            <option value="Common Sense Education">Common Sense Education</option>
+            <option value="CT Core Standards">CT Core Standards</option>
+            <option value="Manteca Unified School District">Manteca Unified School District</option>
+            <option value="Media Power Youth">Media Power Youth</option>
+            <option value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</option>
+            <option value="Oklahoma SDE">Oklahoma SDE</option>
+            <option value="PCG Education">PCG Education</option>
+            <option value="SEADAE">SEADAE</option>
+            <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
+            <option value="WestEd">WestEd</option>            
+          </select>
+          
+          <select id="lst-course-filter-grade-level" name="" autocomplate="off" class="mu" label="Grade Level">
+            <option value="PreK-3">PreK-3</option>
+            <option value="K-5">K-5</option>
+            <option value="6-8">6-8</option>
+            <option value="K-12">K-12</option>
+            <option value="9-12">9-12</option>
+          </select>     
+          % if check_user_perms(request.user, access_level='System'):
+          <select id="lst-course-filter-state" name="" autocomplate="off" class="mu" label="State">
+            %for item in State.objects.all().order_by('name'):
+            <option class="${item.id}" value="${item.id}">${item.name}</option>
+            %endfor
+          </select>
+          <select id="lst-course-filter-district" name="" autocomplate="off" class="mu" label="District">
+          </select>
+          % endif
+      
+        </div>
+        <div style="text-align: right;padding:20px;"><input id="btnCourseLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/></div>
+        <div style="padding:10px;">
+          <table class="tablesorter-blue">
+            <thead>
+              <tr>
+                <th class="">Subject</th>
+                <th class="">Author</th>
+                <th class="">Grade Level</th>
+                <th class="">Course Name</th>
+                <th class="">Access</th>
+                <th class="">Enrollment</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="">
+            <span class="pager">
+              <form>
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                </select>
+              </form>
+            </span>
+          </div>
+        </div>
+        <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save" id="btnSave" style="background:#2E7D32;color:#fff;"></p>
+        <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save & Send Notification" id="btnSaveSend" style="background:#2E7D32;color:#fff;"></p>
+        </div>
+      </section>
+      <!-- end of course permission -->
     </div>
   </div>
 </div>
+
+<style>
+ .toggle{
+   width:54px;
+   height:24px;
+   display:inline-block;
+   background:#ED1C24;
+   border-radius:10px;
+ }
+ .toggle:before{
+   content:"";
+   display:inline-block;
+   height:20px;
+   width:20px;
+   background:#fff;
+   border-radius:10px;
+   margin-top:2px;
+   margin-left:2px;
+ }
+ .toggle.on{
+   background:#4FBE79;
+ }
+ .toggle.on:before{
+   margin-left:32px;
+ }
+ input[type=button]{
+   border:1px solid #000;
+   box-shadow:none;
+   text-shadow:none;
+   color:#000;
+   text-transform:none;
+ }
+</style>
+
+<script type="text/javascript">
+  function CoursePermission(){
+    this.selection=[];
+    this.initUI();
+  }
+  CoursePermission.prototype.downloadExcel = function(url){
+    var user_state_ids = $("#lst-user-filter-state").get_selection();
+    var user_district_ids = $("#lst-user-filter-district").get_selection();
+    var user_school_ids = $("#lst-user-filter-school").get_selection();    
+    var courses = [];
+    $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
+      courses.push($(this).find("td:nth-child(5)").text())
+    });
+    var url = "${reverse('pepconn_course_permission_download_excel')}?";
+    url += "&states=" + user_state_ids.join(",");
+    url += "&districts=" + user_district_ids.join(",");
+    url += "&schools=" + user_school_ids.join(",");
+    url += "&courses=" + courses.join(",");
+    window.open(url, "_blank");
+  }  
+  CoursePermission.prototype.save = function(send_notification){
+    var self = this;
+    var users = []
+    $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input:checked").each(function(){
+      users.push(this.value);
+    });
+    if(!users.length){
+      new Dialog($('#dialog')).show("Warn", "No user selected");
+      return;
+    }
+    var courses = [];
+    var access = [];
+    var enroll = [];
+    $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
+      courses.push($(this).find("td:nth-child(5)").text())
+      access.push($(this).find("td:nth-child(6) .toggle").hasClass("on")?1:0);
+      enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
+    });
+    $.post("${reverse('pepconn_update_course_permission')}", {
+      send_notification: send_notification ? "1" : "0",
+      users: users.join(","),
+      courses: courses.join(","),
+      access: access.join(","),
+      enroll: enroll.join(",")}, function(r){
+        if(r.success){
+          self.loadUserTable(true);
+        }
+      });
+  }
+  CoursePermission.prototype.addTimeStamp = function(url){
+    var r = url.replace(/&timestamp=\d*/, "") + "&timestamp=" + new Date().getTime();
+    return r;
+  }
+  CoursePermission.prototype.loadCourseTable = function(){
+    var self = this;
+
+    var subjects = $("#lst-course-filter-subject").get_selection();
+    var authors = $("#lst-course-filter-author").get_selection();
+    var grade_levels = $("#lst-course-filter-grade_level").get_selection();
+    var state_ids = $("#lst-course-filter-state").get_selection();
+    var district_ids = $("#lst-course-filter-district").get_selection();
+    var url = "${reverse('pepconn_get_course_permission_course_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}";
+
+    if(subjects) url += "&subjects=" + subjects;
+    if(authors) url += "&authors=" + authors;
+    if(grade_levels) url += "&grade_levels=" + grade_levels;
+    if(state_ids) url += "&states=" + state_ids.join(",");
+    if(district_ids) url += "&districts=" + district_ids.join(",");
+    
+    var pagerOptions = {
+      container: '',
+      output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+      fixedHeight: false,
+      removeRows: false,
+      cssGoto: '.gotoPage',
+      ajaxUrl: '',
+      ajaxProcessing: function(data){
+        return data;
+      },
+      processAjaxOnInit: true,
+      page: 0,
+      size: 10
+    };
+    var tablesorterOptions = {
+      theme: 'blue',
+      widthFixed: true,
+      widgets: ["zebra", "filter", "output"],
+      widgetOptions: {
+        filter_external: '',
+        filter_columnFilters: false,
+        filter_placeholder: {search: 'Search...'},
+        filter_saveFilters: false,
+        filter_reset: '.reset',
+        filter_serversideFiltering: true,
+        output_saveFileName: 'data.csv'
+      }
+    };
+
+    pagerOptions.container = $("#course_permission_course .pager");
+    pagerOptions.ajaxUrl = url
+    var $table = $('#course_permission_course table.tablesorter-blue');
+    if($table[0].config){
+      var c = $table[0].config;
+      var p = c.pager;
+      p = $.extend(p, p.last);
+      p.ajaxUrl = url + "&timestamp=" + new Date(); 
+      p.reload();
+      return;
+    }
+    
+    $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $table.bind("pagerComplete", function (a) {
+      $(this).find("tbody tr").each(function(){
+        var id = $(this).find("td:nth-child(5)").text();
+        $(this).find("td:nth-child(5)").hide();
+        var on1, on2;
+        var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5));
+        var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6));
+        toggle1.click(function(){
+          if(on1)
+            $(this).removeClass("on"); else $(this).addClass("on");
+          on1 = !on1;
+        });
+        toggle2.click(function(){
+          if(on2)
+            $(this).removeClass("on"); else $(this).addClass("on");
+          on2 = !on2;
+        });
+      });
+    });
+  }
+  
+  CoursePermission.prototype.loadUserTable = function(use_old_filter){
+    var self = this;
+    var $table = $('#course_permission_user .tablesorter-blue');
+
+    var course_subject = ($("#filters-subject-submenu li.active").attr("data-value"))
+    var course_author = ($("#filters-author-submenu li.active").attr("data-value"))
+    var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value"))
+
+    var user_state_ids = $("#lst-user-filter-state").get_selection();
+    var user_district_ids = $("#lst-user-filter-district").get_selection();
+    var user_school_ids = $("#lst-user-filter-school").get_selection();
+
+    var url = "${reverse('pepconn_get_course_permission_user_rows')}?page={page}&size={size}&{sortList:col}";
+
+    if(course_subject) url += "&subject=" + course_subject;
+    if(course_author) url += "&author=" + course_author;
+    if(course_grade_level) url += "&grade_level=" + course_grade_level;
+    if(user_state_ids) url += "&states=" + user_state_ids.join(",");
+    if(user_district_ids) url += "&districts=" + user_district_ids.join(",");
+    if(user_school_ids) url += "&schools=" + user_school_ids.join(",");
+
+    /** reload with new filters or not */
+    if($table[0].config){
+      var c = $table[0].config;
+      var p = c.pager;
+      p = $.extend(p, p.last);
+      if(use_old_filter){
+        p.ajaxUrl = this.addTimeStamp(p.ajaxUrl);
+        $table.find("td:nth-child(1) input").each(function(){
+          self.selection.push(this.checked);
+        });
+      }else{
+        p.ajaxUrl = this.addTimeStamp(url);
+      }
+      p.reload();
+      return;
+    }
+
+    /** init */
+    var courses;
+    var pagerOptions = {
+      container: $("#course_permission_user .pager"),
+      output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+      fixedHeight: false,
+      removeRows: false,
+      cssGoto: '.gotoPage',
+      ajaxUrl: url,
+      ajaxProcessing: function(data){
+        courses = data[2];
+        return data;
+      },
+      processAjaxOnInit: true,
+      page: 0,
+      size: 10
+    };
+    var tablesorterOptions = {
+      theme: 'blue',
+      widthFixed: true,
+      widgets: ["zebra", "filter", "output"],
+      widgetOptions: {
+        filter_external: '',
+        filter_columnFilters: false,
+        filter_placeholder: {search: 'Search...'},
+        filter_saveFilters: false,
+        filter_reset: '.reset',
+        filter_serversideFiltering: true,
+        output_saveFileName: 'data.csv'
+      }
+    };
+    $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $table.bind("pagerComplete", function (a) {
+      // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
+      // $(this).find("th:nth-child(1)").width(160)
+
+      var this_table=this;
+      
+      $(this).find(".check-all").click(function(){
+        $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
+      });
+      
+      var selection = self.selection;
+
+      $(this).find("td:nth-child(1)").each(function(i){
+        var v = $(this).text();
+        $(this).html("");
+        var check = $("<input type='checkbox'>").appendTo(this).val(v);
+        if(selection[i]){
+          check.prop('checked', true);
+        }
+      });
+
+      self.selection = [];
+
+      /** hide headers only for filter  */
+      $(this).find("th:nth-child(5)").hide();
+      $(this).find("td:nth-child(5)").hide();
+      $(this).find("th:nth-child(6)").hide();
+      $(this).find("td:nth-child(6)").hide();
+      $(this).find("th:nth-child(7)").hide();
+      $(this).find("td:nth-child(7)").hide();
+      var $tr = $(this).find("thead tr");
+      /** headers of filtered courses */
+      $tr.find("th:gt(6)").remove();
+      $.each(courses, function(i, c){
+        $("<th>" + c.display_name + "</th>").appendTo($tr);         
+      });
+    });
+  }
+  CoursePermission.prototype.dropDistrictMu = function(select, state_ids, callback){
+    $(select).find("option").remove();
+    $(select).reload();
+    if(!state_ids.length)
+      return;
+    $.get('/pepper-utilities/drop/districts',{access_level: 'System', state: state_ids.join(",")}, function(r){
+      $.each(r, function(i, d){
+        $(select).append("<option value='" + d.id + "'>" + d.name + "</option>");
+      });
+      $(select).reload();
+    });
+  }
+  CoursePermission.prototype.dropSchoolMu = function(select, district_ids, callback){
+    $(select).find("option").remove();
+    $(select).reload();
+    if(!district_ids.length)
+      return;
+    $.get('/pepper-utilities/drop/schools',{access_level: 'System', district: district_ids.join(",")}, function(r){
+      $.each(r, function(i, d){
+        $(select).append("<option value='" + d.id + "'>" + d.name + "</option>");
+      });
+      $(select).reload();
+    });
+  }
+  CoursePermission.prototype.loadCsv=function(){
+    var $file =  $("#btnCoursePermCsvLoad").next("input");
+    $file.click();
+    $file.change(function(){
+      if(this.value){
+
+        var courses = [];
+        var access = [];
+        var enroll = [];
+        
+        $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
+          courses.push($(this).find("td:nth-child(5)").text())
+          access.push($(this).find("td:nth-child(6) .toggle").hasClass("on")?1:0);
+          enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
+        });
+        
+        var fd = new FormData();
+        fd.append('attachment', this.files[0]);
+        fd.append('courses', courses);
+        fd.append('access', access);
+        fd.append('enroll', enroll);
+        
+        $.ajax({
+          url: "${reverse('pepconn_course_permission_load_csv')}",
+          data: fd,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          beforeSend: function (x) {
+            if (x && x.overrideMimeType) {
+              x.overrideMimeType("multipart/form-data");
+            }
+          },
+          enctype: 'multipart/form-data',
+          mimeType: 'multipart/form-data',
+          error: function(xhr, status){
+            // checkAjaxSessionTimeout(xhr)
+          },
+          success: function(data){
+            alert("finish")
+          }
+        });            
+      }
+    });
+  }
+  CoursePermission.prototype.initUI = function(){
+    var self = this;
+    /** filter subject/author/grade menu */
+    $(".filters-submenu").each(function(){
+      $(this).find("li").each(function(i){
+        var colors=["#2196F3", "#E93578", "#C238EB", "#629C44", "#006E8C"];
+        $(this).css("background", colors[i % colors.length])
+        $(this).click(function(){
+          var on = $(this).hasClass("active");
+          $(this).parent().find("li").removeClass("active");
+          if(!on)
+            $(this).addClass("active");
+        });
+      })
+    });
+    $(".filters-menu li").click(function(){
+      $(this).parent().find("li").removeClass("active");
+      $(this).addClass("active");
+      $(".filters-submenu").hide();
+      $("#" + this.id + "-submenu").show();
+    });
+    $(".filters-menu li").eq(0).click(); /** show subject at 1st */
+    /** filter dropdowns */
+    $(".mu").multi_sele_dropdown().change(function(e){
+      if(this.id == "lst-user-filter-state"){
+        var sele = ("#lst-user-filter-district");
+        self.dropDistrictMu(sele, $(this).get_selection());
+      }else if(this.id == "lst-user-filter-district"){
+        var sele = ("#lst-user-filter-school");
+        self.dropSchoolMu(sele, $(this).get_selection());              
+      }else if(this.id == "lst-course-filter-state"){
+        var sele = ("#lst-course-filter-district");
+        self.dropDistrictMu(sele, $(this).get_selection());
+      }
+    });
+    /** btns load table */
+    $("#btnUserLoad").click(function(){
+      self.loadUserTable();
+    });
+    $("#btnCourseLoad").click(function(){
+      self.loadCourseTable();
+    });
+    /** btn save */
+    $("#btnSave").click(function(){
+      self.save(false);
+    });
+    $("#btnSaveSend").click(function(){
+      self.save(true);
+    });
+    $("#btnCoursePermCsvLoad").click(function(){
+      self.loadCsv();      
+    });
+    $("#btnCoursePermDownloadExcel").click(function(){
+      self.downloadExcel();      
+    });
+    $(".course-perm-sub-title").click(function(){
+      var $div = $(this).next("div");
+      if($div.is(":visible"))
+        $div.slideUp();
+      else
+        $div.slideDown();
+    });
+  }
+  new CoursePermission()
+</script>
+
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -800,7 +1439,6 @@ $("#singleDistrictImportForm").submit(function () {
     return false;
 });
 
-
 $("#singleSchoolImportForm").submit(function () {
     var flds = ["name", "id", "state_id", "district_id", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
@@ -816,7 +1454,6 @@ $("#singleSchoolImportForm").submit(function () {
     }
     return false;
 });
-
 
 $("#singleUserImportForm").submit(function () {
     syncCKEditorData();
@@ -1094,7 +1731,6 @@ $(document).ready(function () {
             ids.push($(this).val());
         });
         if (!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one district to delete.");
-
 
         if (!confirm("Really delete selected districts?")) return;
         $.get("${reverse('district_delete')}", {ids: ids.join()}, function (r) {
@@ -1389,7 +2025,6 @@ function submitRemoveFromCohort() {
     });
 }
 
-
 function openBookmark(table) {
     var code = "<p>Select Filter: <select id = 'bookmark_select_" + table + "'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_" + table + "'></input><br><br><button onClick = 'saveBookmark(\"" + table + "\");'>Save Bookmark</button></p>";
@@ -1405,7 +2040,6 @@ function openBookmark(table) {
     });
 
 }
-
 
 function saveBookmark(table) {
     var nameData = $("#bookmark_newname_" + table).val();
@@ -1774,7 +2408,6 @@ var districtDataImport = {
     }
 };
 districtDataImport.init();
-
 
 //* controller for school data import
 var schoolDataImport = {

@@ -303,6 +303,15 @@ urlpatterns = (
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
     url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
+    url(r'^pepconn/tables/get_course_permission_user_rows/$', 'administration.pepconn.get_course_permission_user_rows', name="pepconn_get_course_permission_user_rows"),
+
+    url(r'^pepconn/get_course_permission_course_rows/$', 'administration.pepconn.get_course_permission_course_rows', name="pepconn_get_course_permission_course_rows"),
+
+    url(r'^pepconn/update_course_permission/$', 'administration.pepconn.update_course_permission', name="pepconn_update_course_permission"),
+
+    url(r'^pepconn/course_permission_load_csv/$', 'administration.pepconn.course_permission_load_csv', name="pepconn_course_permission_load_csv"),
+    
+    url(r'^pepconn/course_permission_download_excel/$', 'administration.pepconn.course_permission_download_excel', name="pepconn_course_permission_download_excel"),
 
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
