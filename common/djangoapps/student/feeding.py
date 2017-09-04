@@ -346,5 +346,4 @@ class DashboardAnnouncementStore(MongoBaseStore):
         return self.insert(data)
 
     def get_announcements(self, announcement_id):
-        return self.findone({"_id":ObjectId(announcement_id)
-
+        return self.findone({"_id":ObjectId(announcement_id)})
