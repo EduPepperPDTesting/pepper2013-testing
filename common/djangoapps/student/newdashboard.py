@@ -1127,7 +1127,7 @@ def dismiss_announcement(request):
         user_store.set_dismiss(request.user.id)
         # announcement dismiss
         announcement = dashboard_announcement_user()
-        announcement.remove_announcement(_id)
+        announcement.dismiss_announcement(_id,request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
 
