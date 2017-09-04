@@ -313,7 +313,7 @@ class DashboardAnnouncementUser(MongoBaseStore):
         return self.insert(data)
 
     def get_announcements(self,user_id,organization_type,expiration_date):
-        return self.find({"user_id":user_id,"organization_type":organization_type,"expiration_date":{"$lte":expiration_date}})
+        return self.find({"user_id":user_id,"organization_type":organization_type,"expiration_date":{"$gte":expiration_date}})
         
 
 def dashboard_announcement_store():
@@ -346,4 +346,9 @@ class DashboardAnnouncementStore(MongoBaseStore):
         return self.insert(data)
 
     def get_announcements(self, announcement_id):
-        return self.findone({"_id":ObjectId(announcement_id)})
+        result = None
+        announcment =  self.find({"_id":ObjectId(announcement_id)})
+        for tmp in announcment:
+            result = tmp
+
+        return result

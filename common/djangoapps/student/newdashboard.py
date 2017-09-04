@@ -1177,27 +1177,31 @@ def get_announcements(request):
         pepper.append(inital[0])
     
     data = {"orgs": []}
-    kwargs = {"after": now_utc}
 
-    announcement_user = dashboard_announcement_user()
-    announcement = dashboard_announcement_store()
-    announcment_id = announcement_user.get_announcements(request.user.id,"Pepper",now_utc)
-    announcments = []
-    for tmp in announcment_id:
-        announcments.append(announcement.get_announcements(tmp["_id"]))
-
-    pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
+    pepper_announcments = announcements(request.user.id,"Pepper",now_utc)
+    pepper.extend(pepper_announcments)
     data["orgs"].append(pepper)
-    data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "School", **kwargs))
+    data["orgs"].append(announcements(request.user.id,"System",now_utc))
+    data["orgs"].append(announcements(request.user.id,"State",now_utc))
+    data["orgs"].append(announcements(request.user.id,"District",now_utc))
+    data["orgs"].append(announcements(request.user.id,"School",now_utc))
 
     for o in data["orgs"]:
         for a in o:
             attach_post_info(a, time_diff_m, request.user)
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
+
+def announcements(user_id,organization_type,expiration_date):
+    announcement_user = dashboard_announcement_user()
+    announcement = dashboard_announcement_store()
+    announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
+    announcments = []
+    for tmp in announcment_id:
+        announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    
+    result = [elem for elem in announcments if elem != None]
+    return result
 
 def get_inital(request,now_utc):
     store = dashboard_feeding_store()
