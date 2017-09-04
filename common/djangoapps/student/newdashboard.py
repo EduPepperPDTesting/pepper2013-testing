@@ -1421,7 +1421,7 @@ def submit_new_post(request):
         # 
         announcement_store = dashboard_announcement_store()           
         _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           date=datetime.datetime.utcnow(), expiration_date=expiration_date)
+                           date=datetime.datetime.utcnow(), expiration_date=expiration_date, organization_type=organization_type)
 
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
