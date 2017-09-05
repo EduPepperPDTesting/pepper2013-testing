@@ -1392,7 +1392,7 @@ def get_receivers(user, post_type):
             receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
     else:
         receiver_ids = []
-        if user.profile.people_of != None:
+        if user.profile.people_of:
             people_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
             own_ids = user.profile.people_of.split(',')
             for k in own_ids:
