@@ -57,12 +57,12 @@
 .change-password{
     /*
     font-size:12px;
-    color:#fff;
     padding:3px 10px;
     background-color:#0054aa;
     border-radius: 5px;
     */
     cursor:pointer;
+    color:#1d9dd9;
 }
 .btn-change-password-lock{
     background-image:linear-gradient(to bottom,#666 0%,#666 50%,#666 50%,#666 100%) !important; 
@@ -138,8 +138,8 @@
                                 <th>Last Session Time</th>
                                 <th>Total Session Time</th>
                                 <th>Online State</th>
-                                <th>3 status</th>
-                                <th>password reset</th>
+                                <th>3 Status</th>
+                                <th>Password Reset</th>
                                 <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
                             </thead>
                             <tbody></tbody>
@@ -207,19 +207,19 @@
         <div class="content" >
             <div style="margin-left:20px;width:400px;text-align:left;">
                 <div class="form-row">
-                    <label for="id_new_password1" class="required">New password:</label>
+                    <label for="id_new_password1" class="required">New Password:</label>
                     <input type="password" name="new_password1" id="id_new_password1">
                     <div class="check-error-p1" style="text-align:center;color:#f00;margin-top:5px;"></div>
                 </div>
                 <div class="form-row">
-                    <label for="id_new_password2" class="required">Password (again):</label>
+                    <label for="id_new_password2" class="required">Confirm Password:</label>
                     <input type="password" name="new_password2" id="id_new_password2">
                     <div class="check-error-p2" style="text-align:center;color:#f00;margin-top:5px;"></div>
                 </div>
             </div>
             <div class="check-success" style="padding:8px;"></div>
             <div style="margin:10px 0 10px 0;">
-                <button style="font-size:13px;" id="btn_change_password">Change password</button>
+                <button style="font-size:13px;" id="btn_change_password">Change Password</button>
             </div>
         </div>
     </div>
@@ -394,7 +394,7 @@ var userTimeReport = {
             table_con += '<input name="is_superuser" class="is_superuser" type="checkbox" value="" ' + is_superuser + ' /> Superuser<br/>';
             table_con += '<div style="padding:5px 5px 5px 30px;"><span class="save-status">SAVE</span></div></td>';
 
-            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">change password</span></td>';
+            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">Change Password</span></td>';
             table_con += '<td></td></tr>';
         }
         $(".tblUserTime tbody").append(table_con);
@@ -480,7 +480,7 @@ var userTimeReport = {
                 var psw2 = $("#id_new_password2").val().trim();
 
                 if(psw1 == ""){
-                    $(".check-error-p1").html("password cant't be blank");
+                    $(".check-error-p1").html("Please fill in new password.");
                     $(".check-error-p2").html("");
                     $("#id_new_password1").focus();
                     change_psw_press = 0;
@@ -489,7 +489,7 @@ var userTimeReport = {
                 }
 
                 if(psw1.length < 8 || psw1.length > 16){
-                    $(".check-error-p1").html("password must be 8 to 16 characters");
+                    $(".check-error-p1").html("It must be 8 to 16 characters.");
                     $(".check-error-p2").html("");
                     $("#id_new_password1").focus();
                     change_psw_press = 0;
@@ -501,7 +501,7 @@ var userTimeReport = {
                     var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
                     var r = psw1.match(regexp);
                     if(r == null){
-                        $(".check-error-p1").html("password must be made up of A-Z, a-z, 0-9 and ~!@#$%^&*");
+                        $(".check-error-p1").html("It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*.");
                         $(".check-error-p2").html("");
                         $("#id_new_password1").focus();
                         change_psw_press = 0;
@@ -510,9 +510,19 @@ var userTimeReport = {
                     }
                     
                 }
+
+                if(psw2 == ""){
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("Confirm password is required. Please enter.");
+                    $("#id_new_password2").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+
                 if(psw1 != psw2){
                     $(".check-error-p1").html("");
-                    $(".check-error-p2").html("password twice input are different");
+                    $(".check-error-p2").html("Your new and confirm password are different. Please enter your passwords again.");
                     $("#id_new_password2").focus();
                     change_psw_press = 0;
                     $("#btn_change_password").removeClass("btn-change-password-lock");
@@ -521,14 +531,14 @@ var userTimeReport = {
                 $(".check-error-p1").html("");
                 $(".check-error-p2").html("");
 
-                $(".check-success").html("now saving......");
+                $(".check-success").html("Now Saving......");
                 $.post("${reverse('save_user_status')}", {'user_id': user_id,'user_post': psw2,'save_type':2}, 
                     function(data) {
                         if (data.success) {
                             window.setTimeout(function () {
                                 change_psw_press = 0;
                                 $("#btn_change_password").removeClass("btn-change-password-lock");
-                                $(".check-success").html("change password success");
+                                $(".check-success").html("Change Password Success.");
                             }, 100);
                         }
                     });
