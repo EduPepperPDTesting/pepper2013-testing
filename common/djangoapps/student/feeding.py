@@ -291,3 +291,72 @@ class DashboardFeedingUserStore(MongoBaseStore):
     def set_dismiss(self,user_id):
         self.update({"show_user_id": user_id},
                     {"$set": {"dismissing": 1}}, False, True)
+
+def dashboard_announcement_user():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return DashboardAnnouncementUser(**options)
+
+class DashboardAnnouncementUser(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="dashboard_announcement_user", port=port, **kwargs)
+
+    def create(self,user_id,announcement_id,organization_type,expiration_date):
+        data = {
+            "user_id":user_id,
+            "announcement_id":announcement_id,
+            "organization_type":organization_type,
+            "expiration_date":expiration_date
+        }
+        return self.insert(data)
+
+    def get_announcements(self,user_id,organization_type,expiration_date):
+        return self.find({"user_id":user_id,"organization_type":organization_type,"expiration_date":{"$gte":expiration_date}}).sort('_id',-1)
+    
+    def remove_announcement(self,announcement_id):
+        self.remove({"announcement_id":ObjectId(announcement_id)})
+
+    def dismiss_announcement(self, announcement_id, user_id):
+        self.remove({"announcement_id":ObjectId(announcement_id),"user_id":user_id})
+
+def dashboard_announcement_store():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return DashboardAnnouncementStore(**options)
+
+class DashboardAnnouncementStore(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="dashboard_announcement_store", port=port, **kwargs)
+
+    def create_announcement(self, user_id, type, content, date, attachment_file=None, expiration_date=None, **kwargs):
+        data = {
+            "type":type,
+            "user_id":user_id,
+            "content":content,
+            "date":date
+        }
+
+        data.update(kwargs)
+        
+        if attachment_file:
+            data["attachment_file"] = attachment_file
+
+        if expiration_date:
+            data["expiration_date"] = expiration_date
+
+        return self.insert(data)
+
+    def get_announcements(self, announcement_id):
+        result = None
+        announcment =  self.find({"_id":ObjectId(announcement_id)})
+        for tmp in announcment:
+            result = tmp
+
+        return result
+
+    def remove_announcement(self,announcement_id):
+        self.remove({"_id": ObjectId(announcement_id)})
