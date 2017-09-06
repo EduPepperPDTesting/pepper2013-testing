@@ -555,6 +555,7 @@ def do_sync_course(task, org, course, name, d, user):
         task.save()
         db.transaction.commit()
 
+
 @login_required
 def sync_course(request):
     org = request.POST.get("id_org", "")

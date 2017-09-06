@@ -22,24 +22,17 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
     var self=this;
     this.$el.find(".content").html("");
     $.each(tasks,function(i,t){
-        var $message = '';
-        if (t.type=='import') {
-            $message = "Import - " + t.filename;
-        } else {
-            $message = "Email - " + t.total + " email" + (t.total > 1 ? "s" : "");
-        }
-        if (t.error == true) {
-            $message += " ERROR (" + t.id + ")";
-        }
-        self.dialog.addProgress($message);
-        self.dialog.setProgress(t.progress,i);
+        var message = '';
+        message = t.source.message_formatter(t);
+        self.dialog.addProgress(message);
+        self.dialog.setProgress(t.progress, i);
         var $progressbar=self.dialog.getProgressBar(i);
         if (t.error == true) {
             if(!$progressbar.hasClass("error")){
                 $progressbar.addClass("error");
                 $progressbar.append('<div class="task-close"><a href="#" id="close-' + i + '"><img src="/static/images/check.png" alt="mark as read"/></a></div>');
                 $("#close-" + i).click(function() {
-                    $.post(self.setting.urls.close, {"taskId": t.id, "taskType": t.type}, function(data){
+                    $.post(t.source.close, {"taskId": t.id, "taskType": t.type}, function(data){
                         $progressbar.hide();
                     });
                 });
@@ -50,7 +43,7 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
                 $progressbar.addClass("finished");
                 $progressbar.append('<div class="task-close"><a href="#" id="close-' + i + '"><img src="/static/images/check.png" alt="mark as read"/></a></div>');
                 $("#close-" + i).click(function() {
-                    $.post(self.setting.urls.close, {"taskId": t.id, "taskType": t.type}, function(data){
+                    $.post(t.source.close, {"taskId": t.id, "taskType": t.type}, function(data){
                         $progressbar.hide();
                     });
                 });
@@ -71,22 +64,33 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
 };
 GlobalTaskPanelControl.prototype.parseSetting=function(){
     var $holder=this.$el.find("textarea.setting");
-    this.setting=$.parseJSON($holder.val());
+    this.setting=eval("("+$holder.val()+")");
     $holder.remove();
 };
 GlobalTaskPanelControl.prototype.loadTasks=function(){
-    var self=this;
-    $.get(this.setting.urls.count,function(r){
-        if(r.tasks.length==0){
-            self.$el.hide();
-        }else{
-            self.$el.show();
-            self.$toggle.val(r.tasks.length+" unread task"+(r.tasks.length>1?"s":""));
-            self.updateProgressDialog(r.tasks);
-        }
-        setTimeout(function(){self.loadTasks()},self.setting.interval)
+    var self = this;
+    var loaded = 0;
+    var all_tasks = [];
+    $.each(this.setting.sources, function(i, source){
+        $.get(source.tasks,function(r){
+            $.each(r.tasks, function(j, task){
+                task.source = source;
+                all_tasks.push(task);
+            });
+            if(++loaded == self.setting.sources.length){
+                if(all_tasks.length == 0){
+                    self.$el.hide();
+                }else{
+                    self.$el.show();
+                    self.$toggle.val(all_tasks.length+" unread task"+(all_tasks.length>1?"s":""));
+                    self.updateProgressDialog(all_tasks);
+                }
+                setTimeout(function(){self.loadTasks()}, self.setting.interval);
+            }
+        });
     });
 };
+
 //////////////////////////////////////////////////////////////////
 function FilterControl(el){
     el.control=this;

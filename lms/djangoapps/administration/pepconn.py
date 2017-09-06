@@ -41,6 +41,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from django.db.models import F
 from communities.notification import send_course_notification 
+from async_task.models import AsyncTask
 
 
 log = logging.getLogger("tracking")
@@ -1088,8 +1089,6 @@ def do_import_user(task, csv_lines, request):
 
                     subject = ''.join(subject.splitlines())
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
-
-
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
 
@@ -1824,6 +1823,10 @@ def get_post_array(post, name, max=None):
     return output
 
 
+def to_list(s, default=None):
+    return s.split(',') if s else default
+
+
 def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, districts=None):
     from xmodule.modulestore.django import modulestore
     import pymongo
@@ -1887,9 +1890,6 @@ def get_course_permission_user_rows(request):
     count = users.count()
     json_out = [count]
 
-    def to_list(s):
-        return s.split(',') if s else None
-
     course_filters = {
         "subjects": to_list(request.GET.get("subject", "")),
         "authors": to_list(request.GET.get("author", "")),
@@ -1943,9 +1943,6 @@ def get_course_permission_user_rows(request):
 
 @login_required
 def get_course_permission_course_rows(request):
-    def to_list(s):
-        return s.split(',') if s else None
-
     course_filters = {
         "subjects": to_list(request.GET.get("subjects")),
         "authors": to_list(request.GET.get("authors")),
@@ -1997,62 +1994,131 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             enr.is_active = False
             enr.save()
             if send_notification:
-                send_course_notification(user, course, "Remove Course Enroll", user.id)    
+                send_course_notification(user, course, "Remove Course Enroll", user.id)
 
-    
+
+@login_required
 def update_course_permission(request):
-    def to_list(s):
-        return s.split(',') if s else []
+    @postpone
+    def async_do(request, task):
+        gevent.sleep(0)
 
-    user_ids = to_list(request.POST.get('users', ''))
-    course_ids = to_list(request.POST.get('courses', ''))
-    access = to_list(request.POST.get('access', ''))
-    enroll = to_list(request.POST.get('enroll', ''))
-    send_notification = request.POST.get('send_notification', '0') == '1'
-    json_out = {'success': True}
+        user_ids = to_list(request.POST.get('users', ''), [])
+        course_ids = to_list(request.POST.get('courses', ''), [])
+        access = to_list(request.POST.get('access', ''), [])
+        enroll = to_list(request.POST.get('enroll', ''), [])
+        send_notification = request.POST.get('send_notification', '0') == '1'
+
+        done_count = 0
+        total_count = len(course_ids) * len(user_ids)
+        try:
+            for i, course_id in enumerate(course_ids):
+                course = get_course_by_id(course_id)
+                a = access[i] == "1"
+                e = enroll[i] == "1"
+                for user_id in user_ids:
+                    user = User.objects.get(id=user_id)
+                    task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
+                    task.update_time = task.create_time
+                    task.title = "update user %s" % user.email
+                    _update_user_course_permission(user, course, a, e, send_notification)
+                    done_count += 1
+                    task.progress = done_count / total_count
+                    task.status = "continue"
+                    task.save()
+                    db.transaction.commit()
+        except Exception as e:
+            task.status = "error"
+            task.last_message = "error occured: %s" % e
+            task.save()
+            db.transaction.commit()
+            return
+
+        task.status = "finish"
+        task.last_message = "all done"
+        task.title = "all done"
+        task.progress = 100
+        task.save()
+        db.transaction.commit()
 
     try:
-        for i, course_id in enumerate(course_ids):
-            course = get_course_by_id(course_id)
-            a = access[i] == "1"
-            e = enroll[i] == "1"
-            for user_id in user_ids:
-                user = User.objects.get(id=user_id)
-                _update_user_course_permission(user, course, a, e, send_notification)
-                    
+        task = AsyncTask()
+        task.group = "course permission"
+        task.type = "manual update"
+        task.create_user = request.user
+        task.create_time = datetime.now(UTC)
+        task.title = "starting"
+        task.save()
+        db.transaction.commit()
+        async_do(request, task)
+        json_out = {'success': True, 'task': task.id}
     except Exception as e:
-        db.transaction.rollback()
         json_out = {'success': False, 'error': '%s' % e}
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
 def course_permission_load_csv(request):
-    def to_list(s):
-        return s.split(',') if s else []
+    @postpone
+    def async_do(request, task):
+        attachment = request.FILES['attachment']
 
-    attachment = request.FILES['attachment']
+        course_ids = to_list(request.POST.get('courses', ''), [])
+        access = to_list(request.POST.get('access', ''), [])
+        enroll = to_list(request.POST.get('enroll', ''), [])
 
-    course_ids = to_list(request.POST.get('courses', ''))
-    access = to_list(request.POST.get('access', ''))
-    enroll = to_list(request.POST.get('enroll', ''))
+        r = csv.reader(attachment, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        rl = []
+        rl.extend(r)
 
-    r = csv.reader(attachment, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    rl = []
-    rl.extend(r)
+        done_count = 0
+        total_count = len(course_ids) * len(rl)
+        try:
+            for i, course_id in enumerate(course_ids):
+                course = get_course_by_id(course_id)
+                a = access[i] == "1"
+                e = enroll[i] == "1"
+                for line in rl:
+                    user = User.objects.get(email=line[0])
 
+                    task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
+                    task.update_time = task.create_time
+                    task.title = "update user %s" % user.email
+
+                    _update_user_course_permission(user, course, a, e)
+                    done_count += 1
+                    task.status = "continue"
+                    task.progress = done_count / total_count
+                    task.save()
+                    db.transaction.commit()
+        except Exception as e:
+            task.status = "error"
+            task.last_message = "error occured: %s" % e
+            task.save()
+            db.transaction.commit()
+            return
+
+        task.status = "finish"
+        task.last_message = "all done"
+        task.title = "all done"
+        task.progress = 100
+        task.save()
+        db.transaction.commit()
+        
     try:
-        for i, course_id in enumerate(course_ids):
-            course = get_course_by_id(course_id)
-            a = access[i] == "1"
-            e = enroll[i] == "1"
-            for line in rl:
-                user = User.objects.get(email=line[0])
-                _update_user_course_permission(user, course, a, e)
+        task = AsyncTask()
+        task.group = "course permission"
+        task.type = "update from csv"
+        task.create_user = request.user
+        task.create_time = datetime.now(UTC)
+        task.title = "starting"
+        task.save()
+        db.transaction.commit()
+        async_do(request, task)
+        json_out = {'success': True, 'task': task.id}
     except Exception as e:
         json_out = {'success': False, 'error': '%s' % e}
 
-    json_out = {'success': True}
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
@@ -2060,10 +2126,7 @@ def course_permission_download_excel(request):
     from StringIO import StringIO
     import xlsxwriter
 
-    def to_list(s):
-        return s.split(',') if s else []
-
-    course_ids = to_list(request.GET.get('courses', ''))
+    course_ids = to_list(request.GET.get('courses', ''), [])
 
     # ** filter users
     users = UserProfile.objects.all()
@@ -2110,3 +2173,24 @@ def course_permission_download_excel(request):
     workbook.close()
     response.write(output.getvalue())
     return response
+
+
+def course_permission_tasks(request):
+    tasks = []
+    for t in AsyncTask.objects.filter(group="course permission", readed=False):
+        task = {"type": "Course Permission " + t.type, "id": t.id, "progress": t.progress, "error": t.status == "error"}
+        tasks.append(task)
+
+    return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
+
+
+def course_permission_task_close(request):
+    task_id = request.REQUEST.get("taskId")
+    try:
+        task = AsyncTask.objects.get(id=int(task_id))
+        task.readed = True
+        task.save()
+        done = True
+    except:
+        done = False
+    return HttpResponse(json.dumps({'success': done}), content_type="application/json")

@@ -38,6 +38,8 @@
     % endif
 </%block>
 
+<script type="text/javascript" src="/static/js/string_utils.js"></script>
+
 <style type="text/css" media="screen">
     html {font-size: 16px !important;}
     html, body {line-height: 16px !important;}
@@ -1368,10 +1370,32 @@
       <textarea class="setting" style="overflow:hidden">
         {
           "interval": 5000,
-          "urls": {
-            "count": "${reverse('pepconn_import_user_tasks')}",
+          "sources": [{
+            "tasks": "${reverse('pepconn_import_user_tasks')}",
+            "message_formatter": function(task){
+                var name = task.type == 'import' ? 'Import' : 'Email';
+
+                if(task.error){
+                    return name + ' - ERROR (' + task.id + ')';
+                }
+                if(task.type == 'import'){
+                   return name + ' - ' + task.filename;
+                }else if(task.type == 'email'){
+                   return name + ' - ' + task.total + ' email' + (task.total > 1 ? 's' : '');
+                }
+            },
             "close": "${reverse('pepconn_task_close')}"
-          }
+          },
+          {
+            "tasks": "${reverse('pepconn_course_permission_tasks')}",
+            "message_formatter": function(task){
+                if(task.error){
+                    return task.type + ' ERROR (' + task.id + ')';
+                }
+                return task.type;
+            },
+            "close": "${reverse('pepconn_course_permission_task_close')}"
+          }]
         }
       </textarea>
         </div>
