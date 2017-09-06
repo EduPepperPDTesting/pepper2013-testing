@@ -1396,7 +1396,7 @@ def get_receivers(user, post_type):
         up = user.profile
         level = check_access_level(user, "dashboard_announcement", "create")
         if level == "System":
-            receiver_ids = [0]
+            receiver_ids = list(UserProfile.objects.filter().values_list('user_id', flat=True))
         elif level == "State":
             receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
         elif level == "District":
