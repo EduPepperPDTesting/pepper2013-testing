@@ -15,81 +15,94 @@
 #videos {
     height: 100%;
 }
-#pep_text_container, #pep_video_container {
+
+.pep_textchat_block, .pep_videochat_block {
+    position: fixed;
+    right: 0px;
+    height: 250px;
+}
+.pep_textchat_block {
+    bottom: 0;
+    index: 9999;
+}
+.pep_videochat_block {
+    top: 73px;
+}
+
+.pep_text_container, .pep_video_container {
+    display: none;
     position: fixed;
     right: 0px;
     height: 250px;
     z-index: 9999;
 }
-#pep_text_container {
-    bottom: 0;
+.pep_text_container {
+    width: 235px;
 }
-#pep_video_container {
+.pep_video_container {
     width: 450px;
-    top: 73px;
 }
-#pep_text_panel,
-#pep_video_panel {
+.pep_text_panel,
+.pep_video_panel {
     padding-right: 0px;
     background-color: #fff;
     border: 1px solid black;
     position: relative;
     bottom: -4px;
 }
-#pep_text_panel {
-    width: 235px;
+.pep_text_panel {
+    width: 100%;
     min-width: 235px;
     border-radius: 15px 15px 0 0;
 }
-#pep_video_panel {
+.pep_video_panel {
     width: 100%;
     min-width: 450px;
 }
-#pep_textchatheader_container {
+.pep_textchatheader_container {
     width: 233px;
     border-radius: 15px 15px 0 0;
 }
-#pep_videochatheader_container {
+.pep_videochatheader_container {
     width: 448px;
-    cursor: move;
 }
-#pep_textchatheader_container,
-#pep_videochatheader_container {
+.pep_textchatheader_container,
+.pep_videochatheader_container {
     position: relative;
     left: -15px;
     height: 30px;
     border-bottom: 1px solid;
     background-color: #b2b2b2;
 }
-.container-fluid[id="pep_chat_container"] {
+/*.container-fluid[class="pep_chat_container"] {
     position: relative;
-    padding: 0px;
-}
-#pep_textchatheader_title {
+    padding-left: 0px !important;
+}*/
+.pep_textchatheader_title {
     display: inline-block;
     margin: 2px;
 }
-#pep_videochatheader_title {
+.pep_videochatheader_title {
     display: inline-block;
     margin: 5px;
     margin-top: 0px;
     width: 100px;
 }
-#pep_header_right {
+.pep_header_right {
     display: inline-block;
     margin: 2px;
     margin-right: 10px;
     float: right;
 }
-#pep_user_photo {
+.pep_user_photo {
     border: 1px solid #000;
     border-radius: 50px;
     height: 25px;
 }
-#pep_uname {
+.pep_uname {
     display: inline-block;
 }
-#pep_text_chat {
+.pep_text_chat {
     width: 232px;
     height: 180px;
     border-bottom: 1px solid;
@@ -98,30 +111,31 @@
     overflow-y: auto;
     display: inline-block;
 }
-#pep_textchatfooter_container,
-#pep_videochatfooter_container {
+.pep_textchatfooter_container,
+.pep_videochatfooter_container {
     position: relative;
     top: 2px;
     height: 30px;
     width: 225px;
 }
-#pep_textchatfooter_container {
+.pep_textchatfooter_container {
     left: -10px;
 }
-#pep_videochatfooter_container {
+.pep_videochatfooter_container {
     left: -11px;
 }
-#pep_videotext_panel{
-    right: 0px;
+.pep_videotext_panel{
+    position:relative;
+    left: -15px;
     padding-right: 10px;
     padding-left: 15px;
 }
-#pep_chat_input {
+.pep_chat_input {
     height: 23px;
     border: 1px solid;
     margin-right: 0px;
 }
-#pep_chat_icons {
+.pep_chat_icons {
     position: relative;
     top: 0px;
     left: 0px;
@@ -134,13 +148,13 @@
     border-top: 1px solid;
     border-bottom: 1px solid;
 }
-#pep_chat_icons img {
+.pep_chat_icons img {
     margin-left: 5px;
     width:17px;
     height:17px;
     border:0;
 }
-#pep_video_chat {
+.pep_video_chat {
     height: 215px;
     padding-right: 0px;
     padding-left: 0px;
@@ -149,13 +163,17 @@
     position: relative;
     overflow-y: auto;
 }
-#pep_text_container a, pep_video_container a {
+.pep_text_container a, .pep_video_container a {
     text-decoration: none;
 }
 
-#pep_header_right a,
-#pep_videochatheader_container a {
+.pep_header_right a,
+.pep_videochatheader_container a {
     font-size: 32px;
     position: relative;
     top: 4px;
+}
+
+.close-chat {
+    cursor: pointer;
 }
