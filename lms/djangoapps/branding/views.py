@@ -117,26 +117,27 @@ def contact(request):
     return render_to_response('contact.html', {})
 
 def contact_us_submit(request):
-    ret={"success":True}
+    ret = {"success":True}
     
-    if request.POST.get("send_by_js")!='true':
-        ret['success']=False
+    if request.POST.get("send_by_js") != 'true':
+        ret['success'] = False
         return HttpResponse(json.dumps(ret))
     
-    email=request.POST.get("email")
-    fullname=request.POST.get("fullname")
-    phone=request.POST.get("phone")
-    inquiry_type=request.POST.get("inquiry_type")
-    message=request.POST.get("message")
-    district_lea=request.POST.get("district_lea")
+    email = request.POST.get("email")
+    fullname = request.POST.get("fullname")
+    phone = request.POST.get("phone")
+    inquiry_type = request.POST.get("inquiry_type")
+    message = request.POST.get("message")
+    district_lea = request.POST.get("district_lea")
+    content_collection = request.POST.get("content_collection")
     
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
     from smtplib import SMTPException
     from mail import send_html_mail
 
-    d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message, "district_lea":district_lea}
-    subject="PepperPd Contact Us From "+request.META['HTTP_HOST']
+    d = {"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "content_collection":content_collection, "message":message, "district_lea":district_lea}
+    subject = "PepperPd Contact Us From " + request.META['HTTP_HOST']
     body = render_to_string('emails/contact_us_body.txt', d)
 
     # todo: catch SMTPAuthenticationError and SMTPException

@@ -176,6 +176,30 @@
           }
           $(this).html(finalTitle);
         });
+		
+		$.getJSON("/portfolio_settings/", {flag:"getCourses", s_txt:"${course.id}"}, function (r) {
+			if (r.success) {
+				if(r.rows.length > 0){
+					for(var i in r.rows){
+						var level = "public";
+						switch(r.rows[i].level){
+							case "2":	level = "State";				break;
+							case "3":	level = "District";				break;
+							case "4":	level = "School";				break;
+							case "5":	level = "Network";				break;
+							case "6":	level = "District & Network";	break;
+							case "7":	level = "Private";				break;
+						}
+						//
+						$(".xmodule_CombinedOpenEndedModule").each(function(){
+							var tmp1 = $(this).attr("data-url").split("/modx");
+							$(this).before("<span style='margin-left:480px'>Portfolio Permissions: <a href='" + tmp1[0] + "/portfolio/about_me'>" + level + "</a></span>");
+						});
+						break;
+					}
+				}
+			}			
+		});
       });
   </script>
 

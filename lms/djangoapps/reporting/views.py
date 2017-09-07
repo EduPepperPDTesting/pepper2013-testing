@@ -22,7 +22,7 @@ from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
-
+from xmodule.remindstore import myactivitystore
 
 def postpone(function):
     """
@@ -45,7 +45,7 @@ def reports_view(request):
     :return: The Reports page.
     """
     levels = {'System': 0, 'State': 1, 'District': 2, 'School': 3}
-    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view_reports'])
+    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view'])
 
     # If this is user has System access, show all the reports, otherwise, only show reports above their access level.
     if access_level == 'System':
@@ -58,6 +58,7 @@ def reports_view(request):
             qs |= Q(access_level='District', access_id=request.user.profile.district.id)
         if not access_level or levels[access_level] > 2:
             qs |= Q(access_level='School', access_id=request.user.profile.school.id)
+        qs |= Q(author_id=request.user.id)
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
@@ -73,6 +74,8 @@ def reports_view(request):
     if admin_rights or create_rights:
         report_list = list()
         qs = Q(category__isnull=True)
+        ####Original logic
+        '''
         if not admin_rights:
             if access_level == 'School':
                 qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
@@ -80,6 +83,9 @@ def reports_view(request):
                 qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
             elif access_level == 'State':
                 qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        '''
+        if not request.user.is_superuser:
+            qs &= Q(author_id=request.user.id)
         category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
@@ -298,7 +304,7 @@ def report_save(request, report_id):
                 report.access_id = request.user.profile.district.id
             elif access_level == 'School':
                 report.access_id = request.user.profile.school.id
-            report.save()
+            report.save()           
 
             ReportViews.objects.filter(report=report).delete()
             for i, view in views.iteritems():
@@ -326,6 +332,21 @@ def report_save(request, report_id):
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
+           
+            rs = reporting_store()
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+            if report_has_school_year(selected_columns):                
+                for item in get_school_year_item():
+                    collection = get_cache_collection(request, report_id, str(item).replace("-","_"))
+                    rs.del_collection(collection)
+
+                collection = get_cache_collection(request, report_id, "all")
+                rs.del_collection(collection)
+
+            
+            collection = get_cache_collection(request, report_id, "")
+            rs.del_collection(collection)
+
         else:
             raise Exception('Report could not be located or created.')
     except Exception as e:
@@ -334,7 +355,17 @@ def report_save(request, report_id):
         return render_json_response({'success': False, 'error': '{0} (Line# {1})'.format(e, exc_traceback.tb_lineno)})
     else:
         transaction.commit()
+
+        if action == 'new':
+            ma_db = myactivitystore()                
+            my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"report_id": report.id},    
+            "TokenValues": {"report_id": report.id}, 
+            "LogoValues": {"report_id": report.id}}
+            ma_db.insert_item(my_activity) 
+
         return render_json_response({'success': True, 'report_id': report.id})
+
 
 
 @ensure_csrf_cookie
@@ -349,7 +380,15 @@ def report_delete(request):
     report_id = request.POST.get('report_id', False)
     if report_id:
         try:
+            report = Reports.objects.get(id=report_id)
+            rid = report.id
+            rname = report.name
+            
             Reports.objects.get(id=report_id).delete()
+
+            ma_db = myactivitystore()                
+            ma_db.set_item_reporting(rid, rname)             
+
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
             transaction.rollback()
@@ -370,9 +409,11 @@ def report_view(request, report_id):
     :param report_id: The ID of the report to be edited.
     :return: The Report page.
     """
+    school_year = ""
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
+        selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
 
         if report.access_level == 'System':
             allowed = True
@@ -382,26 +423,35 @@ def report_view(request, report_id):
             allowed = True
         elif report.access_level == 'School' and request.user.profile.school.id == report.access_id:
             allowed = True
-
+        elif request.user.is_superuser:
+            allowed = True
         if allowed:
+            school_year = request.GET.get('school_year', '')
+            if school_year:
+                school_year = str(school_year).replace("-","_")
+
             rs = reporting_store()
-            collection = get_cache_collection(request)
-            rs.del_collection(collection)
-            selected_view = ReportViews.objects.filter(report=report)[0]
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-            report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+            collection = get_cache_collection(request, report_id, school_year)
 
-            columns = []
-            filters = []
-            for col in selected_columns:
-                columns.append(col)
-            for f in report_filters:
-                filters.append(f)
+            stats = int(rs.get_collection_stats(collection)['ok'])
+            if(not(stats)):
+                rs.del_collection(collection)
+                selected_view = ReportViews.objects.filter(report=report)[0]
+                report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-            create_report_collection(request, report, selected_view, columns, filters)
+                columns = []
+                filters = []
+                for col in selected_columns:
+                    columns.append(col)
+                for f in report_filters:
+                    filters.append(f)
 
+                create_report_collection(request, report, selected_view, columns, filters, report_id)
+
+            view_id = ReportViews.objects.filter(report=report)[0].view_id;
+            pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;
             school_year_item = []
-            if report_has_school_year(selected_columns):
+            if (report_has_school_year(selected_columns)) or (view_id == pd_planner_id):
                 school_year_item = get_school_year_item()
         else:
             raise Exception('Not allowed.')
@@ -413,6 +463,7 @@ def report_view(request, report_id):
         return render_to_response('error.html', data, status=404)
 
     data = {'report': report,
+            'school_year': school_year,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
@@ -430,13 +481,14 @@ def report_get_rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
     start = page * size
     rows = []
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
     sorts, filters = build_sorts_and_filters(selected_columns, sorts, filters)
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id, school_year)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
 
@@ -489,17 +541,18 @@ def build_sorts_and_filters(columns, sorts, filters):
     return order, filter
 
 
-def get_cache_collection(request):
+def get_cache_collection(request, report_id, school_year=""):
     """
     Returns the name of the aggregate collection.
     :param request: Request object.
     :return: aggregate collection name.
     """
-    return 'tmp_collection_' + str(request.user.id)
+
+    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id) + school_year
 
 
 @postpone
-def create_report_collection(request, report, selected_view, columns, filters):
+def create_report_collection(request, report, selected_view, columns, filters, report_id):
     """
     Creates aggregate collections in Mongo in a background process.
     :param request: Request object from the report view.
@@ -509,12 +562,12 @@ def create_report_collection(request, report, selected_view, columns, filters):
     """
     gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters)
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
-def aggregate_query_format(request, query, report, columns, filters, out=True):
+def aggregate_query_format(request, query, report, columns, filters, report_id, out=True):
     """
     Does some formatting to the query for mongo.
     :param request: The request object from upstream.
@@ -524,10 +577,15 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     :param out: Whether to generate aggregate collection.
     :return: The formatted query.
     """
+    
+    school_year = request.GET.get('school_year', '')
+    if school_year:
+        school_year = str(school_year).replace("-","_")
+
     query = query_ref_variable(query, request, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '')
     if out:
-        query += ',{"$out":"' + get_cache_collection(request) + '"}'
+        query += ',{"$out":"' + get_cache_collection(request, report_id, school_year) + '"}'
     query = eval(query)
     return query
 
@@ -546,11 +604,15 @@ def query_ref_variable(query, request, report, columns, filters):
     distinct = get_query_distinct(report.distinct, columns)
     columns = get_query_display_columns(columns)
     filters = get_query_filters(filters)
+    pd_domain, pd_user_domain = get_query_pd_domain(request.user)
     return query.replace('{user_domain}', domain)\
         .replace('{display_columns}', columns)\
         .replace('{filters}', filters)\
         .replace('{distinct}', distinct)\
-        .replace('{school_year}', school_year)
+        .replace('{school_year}', school_year)\
+        .replace('{pd_domain}', pd_domain)\
+        .replace('{pd_user_domain}', pd_user_domain)\
+        .replace(',,', ',')
 
 
 def get_query_user_domain(user):
@@ -571,6 +633,30 @@ def get_query_user_domain(user):
         elif level == 'School':
             domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
     return domain
+
+def get_query_pd_domain(user):
+    """
+    Get the pd domain (permissions).
+    :param user: The user object.
+    :return: Mongo query
+    """
+    domain = '{"$match":{"district_id":' + str(user.profile.district.id) + '}},'
+    pd_user_domain_tmp = '{"$match":{"#domain#":#value#}},'
+    if check_user_perms(user, 'reporting', ['view', 'administer']):
+        level = check_access_level(user, 'reporting', ['view', 'administer'])
+        if level == 'System':
+            domain = ''
+            pd_user_domain = ''
+        elif level == 'State':
+            domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
+            pd_user_domain = ''
+        elif level == 'District':
+            pd_user_domain = ''
+        elif level == 'School':
+            pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'school_id').replace('#value#', str(user.profile.school.id))
+    else:
+        pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'user_id').replace('#value#', str(user.id))
+    return domain, pd_user_domain
 
 
 def get_query_display_columns(columns):
@@ -666,13 +752,14 @@ def report_download_excel(request, report_id):
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
     report = Reports.objects.get(id=report_id)
-    columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    columns = ReportViewColumns.objects.filter(report=report).order_by('order')    
+    school_year = request.GET.get('school_year', '')
 
     for i, k in enumerate(columns):
         worksheet.write(0, i, k.column.name)
     row = 1
     rs = reporting_store()
-    rs.set_collection(get_cache_collection(request))
+    rs.set_collection(get_cache_collection(request, report_id, school_year))
     results = rs.collection.find()
     for p in results:
         for i, k in enumerate(columns):
@@ -691,16 +778,17 @@ def report_download_excel(request, report_id):
 
 
 @login_required
-def report_get_progress(request):
+def report_get_progress(request, report_id):
     """
     Checks the status of the collection creation progress.
     :param request: Request object.
     :return: JSON representation of the status.
-    """
+    """    
+    school_year = request.GET.get('school_year', '')
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id, school_year)
     stats = int(rs.get_collection_stats(collection)['ok'])
-    return render_json_response({'success': stats})
+    return render_json_response({'success': stats, 'collection':collection})
 
 
 def report_get_custom_filters(request, report_id):
@@ -710,8 +798,9 @@ def report_get_custom_filters(request, report_id):
     :param Report object.
     """
     data = []
+    school_year = request.GET.get('school_year', '')
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id, school_year)
     rs.set_collection(collection)
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report, column__custom_filter=1).order_by('order')

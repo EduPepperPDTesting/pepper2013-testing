@@ -1,0 +1,643 @@
+<!--%inherit file="../main.html"/-->
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from student.views import course_from_id
+    from student.models import State,District,School,Cohort,User,UserProfile
+%>
+<%namespace name='static' file='../static_content.html'/>
+
+<%block name="title">
+    <title></title>
+</%block>
+
+<style type="text/css" media="screen">
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+        color: white !important;
+        display: inline-block;
+        padding: 3px 10px;;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-right:5px;
+        text-transform: uppercase;
+    }
+    #back {
+        margin: 10px;
+    }
+    .up_page {
+        display: inline-block;
+        width: 17px !important;
+        line-height: 24px;
+        height: 20px;
+        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+        border: none;
+        vertical-align: middle;
+    }
+    .load{
+        font-size: 12px !important;
+        height: 2em !important;
+        line-height: 2em !important;
+        padding: 0 10px !important;
+        margin: 1px 5px 0 0 !important;
+    }
+    .add-area {
+        font-family: sans-serif  !important;
+        color: #222 !important;
+    }
+</style>
+
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
+
+<link rel = "stylesheet" href = "/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<!--link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/-->
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
+<link rel = "stylesheet" href = "/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen"/>
+
+<style>
+.small-grey {
+    border-color: #777 #777 #555 !important;
+    box-shadow: 0 1px 0 0 #aaa inset !important;
+    background-color: #888 !important;
+    background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%) !important;
+    text-shadow: 0 -1px 1px #555 !important;
+}
+</style>
+
+<body style="text-align:center">
+<div class="data_import_bottom" style="text-align:left;">
+    <div class="main data_import_content">
+        <div id="back">
+            <a href="${reverse('pepreg')}"class="up_page"></a>&nbsp;
+            <a id="close_registration" style="cursor: pointer;" > <!-- href="${reverse('pepreg')}" -->
+                Back to Pepper PD Planner
+            </a>
+        </div>
+        <div class="expand_title expand_title_collapse">  Training Registration <div class="icon"></div> </div>
+        <div class="expand_div">
+            <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Register Students</div></a>
+            <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Unregister Students</div></a>
+
+            <!-- begin add -->
+            <div class="add_table-section table-section" style="height:80vh;">
+                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+                    <div class="clearfix">
+                        %if request.user.is_superuser:
+                            <select type="search" class="search-users" data-column="4" id="User_state_select" autocomplete="off">
+                                <option value="" class="null_case" selected>Select State</option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option class="${item.id}" value="${item.name}">${item.name}</option>
+                                %endfor
+                            </select>
+                            <select type="search" class="search-users" data-column="5" id="User_district_select" autocomplete="off">
+                                <option value="" class="null_case" selected>Select District</option>
+                                %for item in District.objects.all().order_by('name'):
+                                    <option class="${item.state.id}" value="${item.name}" data-id="${item.id}">${item.name}</option>
+                                %endfor
+                            </select>
+                        %endif
+                        <select type="search" class="search-users" data-column="7" id="User_school_select" autocomplete="off">
+                            <option value="" class="null_case">Select School</option>
+                            %for item in School.objects.all().order_by('name'):
+                                %if request.user.is_superuser:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %elif item.district_id == user.profile.district_id:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %endif
+                            %endfor
+                        </select>
+                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table, .checkallusers').show()"/>
+                        <span class="selectall"><input type="checkbox" id="checkallusers" class="checkallusers" name="adduser" autocomplete="off" style="display:none;">&nbsp<span class="checkallusers" style="display:none;"><b>Select All</b></span></span>
+                        <div class="select-columns" id="user-select"><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
+                        </div>
+                    </div>
+                </div>
+                <div style="height:80%;overflow-y:scroll;">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('training_get_add_user_rows',args=[training.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                        <thead>
+                        <tr>
+                            <!-- <th class="user_id_select">ID</th> -->
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_fname">User Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_state">State</th>
+                            <th class="user_adduser">District</th>
+                            <th class="user_cohort">Cohort</th>
+                            <th class="user_removeuser">School</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="user_data_tbody">
+                        </tbody>
+                    </table>
+                </div>
+          <span id="user-pager" class="pager">
+            <form style="float:left;">
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
+            </form>
+            <span style="float: right; margin-right: 10px;">
+              <input type="button" value="Register Selected Students" id="Register_Selected_Students" class="small small-grey" onclick="add_selected_users()"/>
+            </span>
+          </span>
+                </span>
+                <br><br>
+            </div>
+            <!-- end add -->
+
+            <!-- begin remove  -->
+            <div class="remove_table-section table-section">
+                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+                    <div class="clearfix">
+                        %if request.user.is_superuser:
+                            <select type="search" class=" search-users" data-column="4" id="User_state_select"  autocomplete="off">
+                                <option value="" class="null_case">Select State</option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option class="${item.id}" value="${item.name}">${item.name}</option>
+                                %endfor
+                            </select>
+                            <select type="search" class=" search-users" data-column="5" id="User_district_select"  autocomplete="off">
+                                <option value="" class="-1" name="null_case">Select District</option>
+                                %for item in District.objects.all().order_by('name'):
+                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                                %endfor
+                            </select>
+                        %endif
+                        <select type="search" class=" search-users" data-column="6" id="User_school_select" autocomplete="off">
+                            <option value="" class="null_case">Select School</option>
+                            %for item in School.objects.all().order_by('name'):
+                                %if request.user.is_superuser:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %elif item.district_id == user.profile.district_id:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %endif
+                            %endfor
+                        </select>
+                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off">&nbsp<span><b>Select All</b></span></span>
+                        <div class="select-columns" id="user-select"><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('training_get_remove_user_rows',args=[training.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                        <thead>
+                        <tr>
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_username">User Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_state">State</th>
+                            <th class="user_adduser">District</th>
+                            <th class="user_cohort">Cohort</th>
+                            <th class="user_removeuser">School</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="user_data_tbody">
+                        </tbody>
+                    </table>
+                </div>
+          <span id="user-pager" class="pager">
+            <form style="float:left;">
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
+            </form>
+            <span style="float: right; margin-right: 10px;">
+              <input type="button" value="Unregister Selected Students" class ="small small-grey" onclick="remove_selected_users()"/>
+            </span>
+          </span>
+                </span>
+                <br><br>
+            </div>
+            <!-- end remove -->
+        </div>
+    </div>
+    <!-- dialog -->
+    <div style="" id="dialog" class="modal">
+        <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+            <div class="titlebar">
+                <h3 class="dialog-title"></h3>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"></div>
+        </div>
+    </div>
+    <script type="text/javascript"> // help
+        //* ----------- define Tab class
+        function Tab($tab,$content){
+
+            var self=this;
+            this.$tab=$tab;
+            this.$content=$content;
+            this.initContent();
+            this.$tab.click(function(){
+                console.log($tab.selector);
+                checkStudentLimit(${training.id});
+                self.show();
+                return false;
+            });
+        }
+        Tab.prototype.show=function(){
+            $(".table-tab").css("padding-top", "4px");
+            $(".inner-wrapper .table-section").hide();
+            this.$content.show();
+            this.$tab.find(".table-tab").css("padding-top", "10px");
+        };
+        Tab.prototype.initContent=function(){
+            this.initFilter();
+            this.initTable();
+        };
+        Tab.prototype.initTable=function(){
+            var pagerOptions = {
+                container: '',
+                output: '{startRow} - {endRow} / {filteredRows} ({totalRows})', //help
+                fixedHeight: false,
+                removeRows: false,
+                cssGoto: '.gotoPage',
+                ajaxUrl: '',
+                ajaxProcessing: function(data){
+                    return data;
+                },
+                processAjaxOnInit: true,
+                page: 0,
+                size: 10
+            };
+            var tablesorterOptions = {
+                debug: false,
+                theme: 'blue',
+                widthFixed: true,
+                widgets: ["zebra", "filter", "output"],
+                widgetOptions: {
+                    filter_external: '',
+                    filter_columnFilters: true,
+                    filter_placeholder: {search: 'Search...'},
+                    filter_saveFilters: false,
+                    filter_reset: '.reset',
+                    filter_serversideFiltering: true,
+                    output_saveFileName: 'data.csv'
+                }
+            };
+            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users';
+            pagerOptions.container = this.$content.find("#user-pager");
+            pagerOptions.ajaxUrl = this.$content.find("#user-table").attr("ajaxUrl");
+            this.$content.find("#user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        };
+        Tab.prototype.initFilter=function(){
+            var self=this;
+            function filterOptions(item, id) {
+                if ($(item).attr("class") != id) {// help
+                    $(item).css("display", "none");
+                } else {
+                    $(item).css("display", "");
+                }
+                if (id == "null_case" || $(item).attr("class") == "null_case") {
+                    $(item).css("display", "");
+                }
+            }
+            this.$content.find("#selectalluser, #checkallusers").click(function () {
+                if (this.checked) {
+                    self.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                        this.checked = true;
+                    });
+                } else {
+                    self.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                        this.checked = false;
+                    });
+                }
+            });
+            this.$content.find("#User_state_select").change(function () {
+                var id = $(this).children(":selected").attr("class");
+                self.$content.find("#User_district_select > option").each(function() {
+                    filterOptions(this, id)
+                });
+            });
+            this.$content.find("#User_district_select").change(function () {
+                var id = $(this).children(":selected").attr("data-id");
+                var name = $(this).children(":selected").attr("name");
+                self.$content.find("#User_school_select > option").each(function () {
+                    $(this).css("display", "");
+                    if (name != "null_case" && $(this).attr("class") != "null_case") {
+                        if ($(this).attr("class") != id) {
+                            $(this).css("display", "none");
+                        }
+                    }
+                });
+            });
+        };
+        Tab.prototype.reloadTable=function(){
+            var t=this.$content.find('#user-table')[0];
+            var c=t.config;
+            var p=c.pager;
+            p=$.extend(p, p.last);
+            p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        };
+        Tab.prototype.getSelectedIds=function(){
+            var ids = [];
+            this.$content.find("table .select_box:checked").each(function () { //help
+                ids.push($(this).val());
+            });
+            return ids;
+        };
+        //* -----------  init tabs
+        var tabAdd=new Tab($(".add-tab"), $(".inner-wrapper .add_table-section"));
+        tabAdd.show();
+        checkStudentLimit(${training.id});
+        var tabRemove=new Tab($(".remove-tab"), $(".inner-wrapper .remove_table-section"));
+        //* ----------- init expand title
+        $("#dlg-students").find(".expand_title").off("click").bind("click", function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
+                $div.slideUp();
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $div.slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+        //* ----------- expend first title
+        $(document).ready(function () {
+
+            $("#dlg-training-info").find(".dialog-title").text("Training Registration for ${training.name}");
+
+            if($("#dlg-students").find(".expand_title").next("div.expand_div").is(':hidden')){
+                $("#dlg-students").find(".expand_title").click();
+            }
+            $("#user-table").hide();
+            $("#checkall").change(function () {
+                $("input:checkbox").prop('checked', $(this).prop("checked"));
+            });
+
+            $("#dlg-students").find(".close-modal").one("click", function(){
+                $('body').removeClass('modal-open');
+                $('.lean-overlay').remove();
+                $('.modal-backdrop').remove();
+            });
+
+            $("#dlg-students").find(".data_import_content").css({"margin-left": "0px", "width": "auto"});
+
+            $("#close_registration").bind("click", {training_id: ${training.id}}, function(e){
+                e.preventDefault();
+                $("#dlg-students").find(".expand_title").next("div.expand_div").slideUp();
+                $(".expand_title").removeClass("expand_title_expanded");
+                $("#dlg-training-info").hide();
+                showStudents(e.data.training_id);
+                $('.modal-backdrop').remove();
+                $('.lean-overlay').remove();
+                $("#dlg-students").css({"max-width": "800px", "min-width": "800px", "height": "500px",
+                "border-radius": "0px", "margin-left": window.innerWidth/2 - 400, "top": window.innerHeight/2 - 250, "overflow-y":"hidden"});
+                $("#dlg-students").find(".close-modal").show();
+                $("#dlg-students-info").css("display", "block");
+            });
+        });
+        //* ----------- do add/remove member
+        function add_selected_users(){
+            var ids=tabAdd.getSelectedIds();
+            if(ids.length){
+                $.post("${reverse('training_join',args=[training.id])}",{user_ids:ids.join(",")},function(r){
+                    if (!r.error){
+                        tabAdd.reloadTable();
+                        tabRemove.reloadTable();
+                        new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
+                        checkStudentLimit(${training.id});
+                    }else{
+                        $("input:checked").prop("checked", false)
+                        new Dialog($('#dialog')).show("Error", r.error);
+                    }
+                });
+            }else{
+                new Dialog($('#dialog')).show("Error", "Please select at least one student to register.");
+            }
+
+        }
+        function remove_selected_users(){
+            var ids=tabRemove.getSelectedIds();
+            if(ids.length){
+                new Dialog($('#dialog')).showYesNo("Unregister", "Are you sure you want to unregister the students?", function(ans){
+                    this.hide();
+                    if(!ans) return;
+                    $.post("${reverse('training_leave',args=[training.id])}",{user_ids:ids.join(",")},function(){
+                        tabAdd.reloadTable();
+                        tabRemove.reloadTable();
+                    });
+                });
+            }else{
+                new Dialog($('#dialog')).show("Error", "Please select at least one user to remove.");
+            }
+        }
+        function showStudents(training_id) {
+            var self = this;
+
+            $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+                console.log('r.success '+r.success)
+                if (r.success) {
+                    // hide/show register button
+                    if(!r.arrive && r.allow_registration){ // akogan  && !r.student_limit
+                       $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
+                        e.preventDefault();
+                        $("#dlg-students-info").css("display", "none");
+                        $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
+                        $("#dlg-students").height(window.innerHeight).width(window.innerWidth-19)
+                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
+                        $("#dlg-students").find(".close-modal").hide();
+                        $("#dlg-training-info").css("display", "block");
+
+                    });
+                    }else{
+                        $("#register_unregister_students").attr("disabled", true);
+                    }
+
+                    //Last Reminder Email: 08/16/2016
+                    if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){
+                        $("#reminder_mail_date").show();
+                        //$("#reminder_mail_btn").show();
+                        $("#reminder_mail_btn").attr("disabled", false);
+                        $("#reminder_mail_date").html("");
+
+                        if(r.last_date != null && r.last_date != "null")
+                            $("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
+
+                        $("#reminder_mail_btn").unbind("click").click(function () {
+                            last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
+                            $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+                                if(r._res == "1"){
+                                    alert("Sent successfully!");
+                                }else{
+                                    alert("Send failure!");
+                                }
+                            });
+                        });
+                    }else{
+                        $("#reminder_mail_date").hide();
+                        $("#reminder_mail_btn").attr("disabled", true);
+                        //$("#reminder_mail_btn").hide();
+                    }
+
+                    var dlg = new Dialog($("#dlg-students"));
+                    dlg.show("Student Information for " + r.training_name);
+                    $tbody = $("#dlg-students").find("tbody").empty();
+                    function fillRow($r, data) {
+                        data.is_attended = data.is_attended ? "checked" : "";
+                        data.is_validated = data.is_validated ? "checked" : "";
+                        data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
+                        var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+                        <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
+                        <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
+                        if ($r)$r.replaceWith($row);
+                        if (!r.allow_attendance || !r.arrive)
+                            $row.find("input[name=is_attended").remove();
+                        if (!r.allow_validation || !r.arrive)
+                            $row.find("input[name=is_validated").remove();
+                        if (r.allow_attendance) {
+                            if (data.is_attended)
+                                $row.find("input[name=is_validated]").show();
+                            else
+                                $row.find("input[name=is_validated]").hide();
+                        }
+                        $row.find("a").css("color", "red");
+                        $row.find("a").css("cursor", "pointer");
+                        $row.find("a").click(function (e) {
+                            e.preventDefault();
+                            self.confirm("Really delete the student?", dlg, function (r) {
+                                if (r) {
+                                    self.deleteStudent(data.id, function () {
+                                        $row.remove();
+                                    });
+                                }
+                            });
+                        });
+                        $row.find("input[name=is_attended]").change(function () {
+                            var me = this;
+                            self.setStudentAttended(data.student_id, r.training_id, this.checked, function (data) {
+                                if (data)
+                                    fillRow($row, data);
+                                else
+                                    $row.remove();
+                            });
+                        });
+                        $row.find("input[name=is_validated]").change(function () {
+                            var me = this;
+                            self.setStudentValidated(data.student_id, r.training_id, this.checked, function (data) {
+                                fillRow($row, data);
+                            });
+                        });
+                        return $row;
+                    }
+
+                    $.each(r.rows, function (i, data) {
+                        fillRow(null, data).appendTo($tbody);
+                    });
+                    $(".download-students-excel").unbind("click").click(function () {
+                        window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
+                    });
+                    $("#download-students-pdf").unbind("click").click(function () {
+                        var tmp = new Date();
+                        var tmp1 = tmp.getMonth() + 1;
+                        var tmp2 = tmp.getDate();
+                        var tmp3 = tmp.getFullYear();
+                        var tmp4 = tmp.getHours();
+                        var tmp5 = tmp.getMinutes();
+                        tmp1 = (tmp1 < 10) ? "0" + tmp1 : String(tmp1);
+                        tmp2 = (tmp2 < 10) ? "0" + tmp2 : String(tmp2);
+                        tmp4 = (tmp4 < 10) ? "0" + tmp4 : String(tmp4);
+                        tmp5 = (tmp5 < 10) ? "0" + tmp5 : String(tmp5);
+                        tmp1 = tmp1 + tmp2 + tmp3 + tmp4 + tmp5;
+                        window.open("${reverse('pepreg_download_students_excel')}?pdf=" + tmp1 + "&training_id=" + r.training_id);
+                    });
+                }
+            });
+        };
+        fillString = function (s, data) {
+            return s.replace(/\{(.+?)\}/g, function (a, b) {
+                return data[b];
+            });
+        };
+        function deleteStudent(id, cb) {
+            console.log("id-"+id);
+            var self = this;
+            $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
+                if (r.success) {
+                    cb && cb(r.data);
+                }
+            });
+        }
+       function confirm(message, dlgFlyOn, callback) {
+            var dlgWarn = new Dialog("#dlg-warning");
+            dlgFlyOn.hideOverlay();
+            $("#dlg-warning").bind("hide", function () {
+                $(this).unbind('hide');
+                dlgFlyOn.showOverlay();
+            });
+            dlgWarn.showYesNo("Warning", message, function (r) {
+                this.hide();
+                callback(r);
+            });
+            dlgWarn.lift(100);
+        };
+        function checkStudentLimit(training_id){
+            $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+                console.log('r.success '+r.success)
+                if (r.success) {
+                    // hide/show register button
+                    if(!r.student_limit){ // akogan;  && !r.student_limit
+                        $("#Register_Selected_Students").attr("disabled", false);
+                    }else{
+                        $("#Register_Selected_Students").attr("disabled", true);
+                    }
+                }
+            });
+         };
+    </script>
+</body>

@@ -1,13 +1,13 @@
 
-from .models import ReportViews
+from .models import ReportViews,Views
 from .models import reporting_store
 
-school_year_collection = ['UserView', 'UserCourseView']
+school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView','PepRegTrainingView']
 
 
 def report_has_school_year(columns):
     for col in columns:
-        if col.column.data_type == 'time':
+        if col.column.data_type == 'time' or col.column.data_type == 'clk':
             return True
     return False
 
@@ -33,7 +33,9 @@ def get_default_school_year_item(school_year_item):
 
 def get_query_school_year(request, report, columns):
     selected_view = ReportViews.objects.filter(report=report)[0]
-    if report_has_school_year(columns):
+    view_id = ReportViews.objects.filter(report=report)[0].view_id
+    pd_planner_id = Views.objects.filter(name='PD Planner')[0].id
+    if (report_has_school_year(columns)) or (view_id == pd_planner_id):
         school_year_item = request.GET.get('school_year', '')
         school_year_item = get_default_school_year_item(school_year_item)
         if selected_view.view.collection in school_year_collection:
@@ -48,6 +50,6 @@ def get_query_school_year(request, report, columns):
                 return str([1, 1])
     else:
         if selected_view.view.collection in school_year_collection:
-            return '{"$match":{"school_year":"current"}},'
+            return ''
         else:
             return str(["$$item.school_year", "current"])

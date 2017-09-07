@@ -153,6 +153,12 @@ class TextbookList(List):
 
 
 class CourseFields(object):
+    paypal_purchase_price = String(help="", default="0", scope=Scope.settings)
+    paypal_purchase_link = String(help="PayPal purchase link for the course", default="", scope=Scope.settings)
+    paypal_discount_code = String(help="", default="", scope=Scope.settings)
+    paypal_discount_link = String(help="", default="", scope=Scope.settings)
+
+    
     textbooks = TextbookList(help="List of pairs of (title, url) for textbooks used in this course",
                              default=[], scope=Scope.content)
     wiki_slug = String(help="Slug that points to the wiki for this course", scope=Scope.content)
@@ -409,6 +415,11 @@ class CourseFields(object):
     #@begin:close course in courses and dashboard
     #@date:2016-07-06
     close_course = Boolean(help="True if this course closed", default=False, scope=Scope.settings)
+    #@end
+
+    #@begin:keep the course still in directory(Courses & Workshops page) when close_course sets true
+    #@date:2016-12-17
+    keep_in_directory = Boolean(help="True keep the course still in directory when close_course sets true", default=False, scope=Scope.settings)
     #@end
 
     #@begin:Issue Certificate

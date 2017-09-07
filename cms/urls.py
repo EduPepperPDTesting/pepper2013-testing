@@ -34,6 +34,10 @@ urlpatterns = ('',  # nopep8
 
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/export/(?P<name>[^/]+)$',
         'contentstore.views.export_course', name='export_course'),
+    url(r'^sync_course/$', 'contentstore.views.sync_course', name='sync_course'),
+    url(r'ajax_get_async_task/$', 'async_task.views.ajax_get_async_task', name='ajax_get_async_task'),
+    url(r'dest_course_exists/$', 'contentstore.views.dest_course_exists', name='dest_course_exists'),
+
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/generate_export/(?P<name>[^/]+)/(?P<filename>[^/]+)$',
         'contentstore.views.generate_export_course', name='generate_export_course'),
 
@@ -46,7 +50,6 @@ urlpatterns = ('',  # nopep8
         'contentstore.views.manage_users', name='manage_users'),
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/team/(?P<name>[^/]+)/(?P<email>[^/]+)$',
         'contentstore.views.course_team_user', name='course_team_user'),
-
 
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/info/(?P<name>[^/]+)$',
         'contentstore.views.course_info', name='course_info'),
@@ -90,7 +93,6 @@ urlpatterns = ('',  # nopep8
     # this is a generic method to return the data/metadata associated with a xmodule
     url(r'^module_info/(?P<module_location>.*)$',
         'contentstore.views.module_info', name='module_info'),
-
 
     # temporary landing page for a course
     url(r'^edge/(?P<org>[^/]+)/(?P<course>[^/]+)/course/(?P<coursename>[^/]+)$',

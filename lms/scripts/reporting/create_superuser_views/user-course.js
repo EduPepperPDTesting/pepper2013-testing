@@ -1,4 +1,4 @@
-var db = connect("localhost:27018/reporting")
+//var db = connect("localhost:27018/reporting")
 
 db.UserCourseView.remove({'school_year':'current'});
 db.student_courseenrollment.aggregate({

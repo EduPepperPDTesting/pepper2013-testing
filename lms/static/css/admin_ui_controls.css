@@ -14,6 +14,9 @@ input[type=button].small {
     width: 100%;
     z-index: 100;
 }
+.discussion-body a {
+    word-wrap: break-word;
+}
 .data_import_top {
     padding-top: 20px;
 }

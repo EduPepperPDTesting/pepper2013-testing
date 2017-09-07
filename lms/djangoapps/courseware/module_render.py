@@ -26,6 +26,7 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.x_module import ModuleSystem
 from xmodule_modifiers import replace_course_urls, replace_jump_to_id_urls, replace_static_urls, add_histogram, wrap_xmodule, save_module  # pylint: disable=F0401
+from xmodule.remindstore import myactivitystore
 
 import static_replace
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
@@ -51,8 +52,8 @@ from django.utils.timezone import UTC
 # True North Logic integration
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
 
-log = logging.getLogger(__name__)
-
+# log = logging.getLogger(__name__)
+log = logging.getLogger("tracking")
 
 if settings.XQUEUE_INTERFACE.get('basic_auth') is not None:
     requests_auth = HTTPBasicAuth(*settings.XQUEUE_INTERFACE['basic_auth'])
@@ -618,13 +619,21 @@ def modx_dispatch(request, dispatch, location, course_id):
         #@begin:complete_course_survey
         #@data:2013-12-13
         try:
-            if hasattr(instance,'complete_survey') and dispatch == 'problem_check':
+            if hasattr(instance, 'complete_survey') and dispatch == 'problem_check':
                 if instance.complete_survey and dispatch == 'problem_check':
                     student = request.user
                     course_descriptor = get_course_by_id(course_id)
-                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course_descriptor, depth=None)
-                    course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
-                    percent = grade(student,request,course_descriptor,field_data_cache)['percent']
+                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id,
+                                                                                       student,
+                                                                                       course_descriptor,
+                                                                                       depth=None)
+                    course_instance = get_module(student,
+                                                 request,
+                                                 course_descriptor.location,
+                                                 field_data_cache,
+                                                 course_id,
+                                                 grade_bucket_type='ajax')
+                    percent = grade(student, request, course_descriptor, field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
                     if ajax_return_json['success'] == u'correct':
                         if course_descriptor.issue_certificate:
@@ -640,6 +649,13 @@ def modx_dispatch(request, dispatch, location, course_id):
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
+                            ma_db = myactivitystore()
+                            complete_date = "%s-%s-%s" % (course_instance.complete_date.year,course_instance.complete_date.month,course_instance.complete_date.day)
+                            my_activity = {"GroupType": "Courses", "EventType": "course_courseCompletion", "ActivityDateTime": datetime.utcnow(),
+                            "UsrCre": request.user.id, "URLValues": {"course_id":course_id, "complete_date":complete_date},
+                            "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
+                            }
+                            ma_db.insert_item(my_activity)
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)
@@ -647,13 +663,11 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 tnl_instance.register_completion(student, course_id, percent)
                         else:
                             course_instance.complete_course = False
-                            #course_instance.complete_date = datetime.fromtimestamp(0, UTC())
                             course_instance.complete_date = None
                             ajax_return_json['contents'] = uncompleted_course_prompt + ajax_return_json['contents']
                         ajax_return = json.dumps(ajax_return_json)
                     else:
                         course_instance.complete_course = False
-                        #course_instance.complete_date = datetime.fromtimestamp(0, UTC())
                         course_instance.complete_date = None
                         instance.save()
                     course_instance.save()
@@ -661,7 +675,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                     # Save any fields that have changed to the underlying KeyValueStore
                     instance.save()
             else:
-                    instance.save()
+                instance.save()
         except ItemNotFoundError:
             instance.save()
         #@end
@@ -682,6 +696,18 @@ def modx_dispatch(request, dispatch, location, course_id):
         log.exception("error processing ajax call")
         raise
 
+    if dispatch == "save_answer":
+        id2 = request.META['HTTP_REFERER'].split("/")[-2]
+        id1 = request.META['HTTP_REFERER'].split("/")[-3]
+        display_name = request.POST.get('display_name')
+        display_name.strip()
+        page = request.POST.get('page')
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Courses", "EventType": "course_oraCompletion", "ActivityDateTime": datetime.utcnow(),
+        "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"SourceID":id1,"commentable_id":id2,"page":page},
+        "TokenValues": {"course_id": course_id, "ORAdisplayName":display_name}, "LogoValues": {"course_id": course_id},
+        }
+        ma_db.insert_item(my_activity)
     # Return whatever the module wanted to return to the client/caller
     return HttpResponse(ajax_return)
 

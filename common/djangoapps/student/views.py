@@ -10,7 +10,7 @@ import re
 import urllib
 import uuid
 import time
-
+import base64
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
@@ -44,6 +44,7 @@ from certificates.models import CertificateStatuses, certificate_status_for_stud
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.modulestore.django import modulestore
+from xmodule.remindstore import myactivitystore
 from collections import namedtuple
 from courseware.courses import get_courses, sort_by_announcement
 from courseware.access import has_access
@@ -77,6 +78,14 @@ from administration.models import PepRegStudent
 #@date:2016-06-21
 from reporting.models import reporting_store
 #@end
+
+from administration.models import UserLoginInfo
+from datetime import timedelta
+
+from student.models import State,District,School,User,UserProfile
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from django.http import HttpResponseRedirect
+from collections import OrderedDict
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -435,10 +444,57 @@ def more_courses_available(request):
 @login_required
 @ensure_csrf_cookie
 def dashboard(request, user_id=None):
+    flag_OrganizationOK = True
     if user_id:
         user = User.objects.get(id=user_id)
+
+        if request.user.id != user_id:
+            flag_OrganizationOK = False
     else:
         user = User.objects.get(id=request.user.id)
+
+    OrganizationOK = False
+    if flag_OrganizationOK:
+        try:
+            state_id = user.profile.district.state.id
+        except:
+            state_id = -1
+        try:
+            district_id = user.profile.district.id
+        except:
+            district_id = -1
+        try:
+            school_id = user.profile.school.id
+        except:
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;
+            
+    data = {}
+    if OrganizationOK:
+        data["org_id"] = organization_obj.id;
+        for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
+            data[tmp1.itemType] = tmp1.itemValue
+
+    if OrganizationOK and data["Dashboard option etc"] != "0":
+        return HttpResponseRedirect('/newdashboard/')
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
@@ -540,7 +596,7 @@ def dashboard(request, user_id=None):
         course_times = {course.id: 0 for course in courses}
         total_course_times = {course.id: 0 for course in courses}
     else:
-        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+        course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
         #@begin:change to current year course time and total_time
         #@date:2016-06-21
@@ -711,7 +767,14 @@ def change_enrollment(request):
 
         CourseEnrollment.enroll(user, course.id)
 
-        return HttpResponse()
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"course_id": course.id},    
+        "TokenValues": {"course_id": course.id}, 
+        "LogoValues": {"course_id": course.id}}
+        ma_db.insert_item(my_activity)
+
+        return HttpResponse('course_enroll_ok')
 
     elif action == "unenroll":
         try:
@@ -1023,6 +1086,29 @@ def login_user(request, error=""):
                             secure=None,
                             httponly=None)
 
+        #@begin:record user login time
+        #@date:2016-08-22
+        utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        utctime_30m_str = (datetime.datetime.utcnow() + timedelta(seconds=30*60)).strftime('%Y-%m-%d %H:%M:%S')
+
+        user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
+        if user_log_info:
+            user_log_info[0].login_time = utctime_str
+            user_log_info[0].logout_time = utctime_30m_str
+            user_log_info[0].temp_time = utctime_str
+
+            user_log_info[0].last_session = 60 * 30
+            user_log_info[0].total_session = user_log_info[0].total_session + 60 * 30
+
+            user_log_info[0].login_times = user_log_info[0].login_times + 1
+            user_log_info[0].logout_press = 0
+
+            user_log_info[0].save()
+        else:
+            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,temp_time=utctime_str)
+            user_log_info.save();
+        #@end
+
         return response
 
     AUDIT_LOG.warning(u"Login failed - Account not active for user {0}, resending activation".format(username))
@@ -1043,6 +1129,27 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
+    
+    #@begin:record user logout time
+    #@date:2016-08-22
+    user_id = request.user.id
+    utctime = datetime.datetime.utcnow()
+    utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
+
+    user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+    if user_log_info:
+        user_log_info[0].logout_time = utctime_str
+        db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
+        last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
+        user_log_info[0].last_session = last_session.seconds
+
+        time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
+        time_diff_seconds = time_diff.seconds
+        user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
+        user_log_info[0].logout_press = 1
+        user_log_info[0].save()       
+    #@end
+
     logout(request)
     if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
         target = reverse('cas-logout')
@@ -1211,22 +1318,13 @@ def create_account(request, post_override=None):
         js['field'] = 'password'
         return HttpResponse(json.dumps(js))
 
-    required_post_vars_dropdown = ['major_subject_area_id', 'grade_level_id', 'district_id',
-                                   'school_id', 'years_in_education_id',
-                                   'percent_lunch', 'percent_iep', 'percent_eng_learner'
-                                   ]
+    required_post_vars_dropdown = ['district_id', 'school_id']
 
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
-            error_str = {
-                'major_subject_area_id': 'Major Subject Area is required',
-                'grade_level_id': 'Grade Level-heck is required',
+            error_str = {                
                 'district_id': 'District is required',
-                'school_id': 'School is required',
-                'years_in_education_id': 'Number of Years in Education is required',
-                'percent_lunch': 'Free/Reduced Lunch is required',
-                'percent_iep': 'IEPs is required',
-                'percent_eng_learner': 'English Learners is required'
+                'school_id': 'School is required'
             }
             js['value'] = error_str[a]
             js['field'] = a
@@ -1988,7 +2086,12 @@ def activate_imported_account(post_vars, photo):
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                "URLValues": {"course_id": cea.course_id},    
+                "TokenValues": {"course_id": cea.course_id}, 
+                "LogoValues": {"course_id": cea.course_id}}
+                ma_db.insert_item(my_activity)
         # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}
@@ -2070,7 +2173,7 @@ def activate_easyiep_account(request):
                 'district_id': 'District is required',
                 'school_id': 'School is required',
                 'major_subject_area_id': 'Major Subject Area is required',
-                # 'grade_level_id': 'Grade Level-heck is required',
+                # 'grade_level_id': 'Grade Level-Check is required',
                 'years_in_education_id': 'Number of Years in Education is required',
                 'percent_lunch': 'Free/Reduced Lunch is required',
                 'percent_iep': 'IEPs is required',
@@ -2171,12 +2274,13 @@ def upload_user_photo(user_id, file_img):
                       options.get('password'))
 
     # img_name = up.photo
-    _id={"user_id":user_id,"type":"photo"}
+    _id = OrderedDict([("ref_id", user_id), ("type", "photo")])
+    
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 
         img = Image.open(file_img)
-        img.thumbnail((110,110),Image.ANTIALIAS)
+        #img.thumbnail((110,110),Image.ANTIALIAS)
 
         file=StringIO()
         img.save(file, 'JPEG')
@@ -2184,8 +2288,20 @@ def upload_user_photo(user_id, file_img):
 
         us.save(_id,file.getvalue())
 
+
 def upload_photo(request):
-    upload_user_photo(request.user.id,request.FILES.get('photo'))
+    photo_str = request.POST.get('photo')
+    photo_str = photo_str.split(',')[1]
+    imgData = base64.b64decode(photo_str)
+    img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+    img_file.write(imgData)       
+    img_file.close()
+    im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    x,y = im.size
+    p = Image.new('RGBA', im.size, (255,255,255))
+    p.paste(im, (0, 0, x, y), im)
+    p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
     return redirect(reverse('dashboard'))
 
@@ -2359,7 +2475,7 @@ def get_pepper_stats(request):
         total_time_in_pepper = 0
         
     else:
-        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+        course_times = {course.id:study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
 
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time

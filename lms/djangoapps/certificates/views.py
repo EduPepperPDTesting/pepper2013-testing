@@ -54,8 +54,8 @@ from django.contrib.auth.models import User
 from reporting.models import reporting_store
 #@end
 
-#logger = logging.getLogger(__name__) 
-log = logging.getLogger("tracking") 
+logger = logging.getLogger(__name__) 
+
 @csrf_exempt
 def update_certificate(request):
     """
@@ -176,6 +176,14 @@ def download_certificate(request,course_id,completed_time):
 @login_required
 def course_credits(request):
      return render_to_response('course_credits.html', {})
+
+@login_required
+def course_credits_tcsj(request):
+     return render_to_response('course_credits_tcsj.html', {})
+
+@login_required
+def course_credits_baker_univesity(request):
+     return render_to_response('course_credits_baker_univesity.html', {})
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -452,10 +460,9 @@ def download_certificate(request, course_id, completed_time):
 
     #@begin:get course-time for certificate
     #@date:2016-05-04
-    #all_course_time = get_allcoursetime(user_id, course_id)
-    all_course_time = get_total_course_time(user_id, course_id) #2016-06-21 change the Total Course Time
-    log.debug("all_course_time------------------")
-    log.debug(all_course_time)
+    current_course_time = get_current_course_time(user_id, course_id)
+    total_course_time = get_total_course_time(user_id, course_id) #2016-06-21 change the Total Course Time
+    all_course_time = recorded_time_format(total_course_time + current_course_time)
 
     estimated_effort_list = estimated_effort.split()
     estimated_effort_new_list = []
@@ -507,7 +514,9 @@ def get_total_course_time(user_id, course_id):
     for v in results:
         total_time_user = total_time_user + v['total_time']
            
-    total_course_time = recorded_time_format(total_time_user) 
+    #total_course_time = recorded_time_format(total_time_user)
+    if total_time_user:
+        total_course_time = total_time_user
     
     return total_course_time
 #@end
@@ -535,6 +544,28 @@ def get_allcoursetime(user_id, course_id):
     all_course_time_unit = recorded_time_format(all_course_time)
     
     return all_course_time_unit
+
+def get_current_course_time(user_id, course_id):
+    user = User.objects.get(id=str(user_id))
+
+    course_time = 0
+    external_time = 0
+    rts = record_time_store()
+    current_course_time = 0
+
+    try:
+        c = course_from_id(course_id)
+        external_time = rts.get_external_time(str(user.id), c.id)
+    except ItemNotFoundError:
+        log.error("User {0} enrolled in non-existent course {1}"
+                    .format(user.username, course_id))
+    
+    course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
+    time_temp = course_time + external_time
+    if time_temp:
+        current_course_time = time_temp
+    
+    return current_course_time
 
 def study_time_format(t, is_sign=False):
     sign = ''

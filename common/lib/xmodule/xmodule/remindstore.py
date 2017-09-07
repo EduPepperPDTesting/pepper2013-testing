@@ -14,6 +14,7 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger(__name__)
 from bson import ObjectId
 from django.contrib.auth.models import User
+
 # TODO (cpennington): This code currently operates under the assumption that
 # there is only one revision for each item. Once we start versioning inside the CMS,
 # that assumption will have to change
@@ -47,9 +48,12 @@ class MongoRemindStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_status]
+
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_aid.database.authenticate(user, password)
+            self.collection_status.database.authenticate(user, password)
+            
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_aid.safe = True
@@ -171,6 +175,13 @@ class MongoMessageStore(object):
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
 
+    def get_item(self,search_key):
+        results = self.collection.find(search_key)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
 
     def return_items(self,id_1,id_2,skip=0,limit=5):
 
@@ -186,6 +197,171 @@ class MongoMessageStore(object):
 
     def get_total(self,id_1,id_2):
         return self.collection.find({'$or':[{'sender_id':id_1,'recipient_id':id_2},{'sender_id':id_2,'recipient_id':id_1},{'sender_id':id_1,'recipient_id':0},{'sender_id':id_2,'recipient_id':0}]}).count()
+
+class MongoMyActivityStore(object):
+
+    # TODO (cpennington): Enable non-filesystem filestores
+    def __init__(self, host, db, collection,port=27017, default_class=None,
+                 user=None, password=None, mongo_options=None, **kwargs):
+
+        super(MongoMyActivityStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        # Force mongo to report errors, at the expense of performance
+        self.collection.safe = True    
+
+    def get_item_count(self,search_key):
+        count = self.collection.find(search_key).count()
+        return count
+
+    def get_item(self,search_key,order_key,order_order,skip,limit):
+        results = self.collection.find(search_key).sort(order_key, order_order).skip(skip).limit(limit)
+        my_activitiy_static = myactivitystaticstore().get_item()
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            data['URL'] = ""
+            data['Logo'] = ""
+            data['DisplayInfo'] = ""
+            for data_s in my_activitiy_static:
+                if data['EventType'] == data_s['EventType']:
+                    data['URL'] = data_s['URL']
+                    data['Logo'] = data_s['Logo']
+                    data['DisplayInfo'] = data_s['DisplayInfo']
+                    break
+            r.append(data)
+        return r
+
+    def insert_item(self,item):
+        self.collection.insert(item)
+
+    def set_item_pd(self,training_id,training_name, training_date):        
+        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name, 'training_date':training_date}}}, multi=True)
+        self.collection.update({'EventType':'PDTraining_createTraining','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
+
+    def set_item_reporting(self,report_id,report_name):        
+        self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
+
+    def set_item_community(self,community_id,community_name, discussions):        
+        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_facilitator','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+
+        #community discussion
+        self.collection.update({'EventType':'community_creatediscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
+        self.collection.update({'EventType':'community_replydiscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
+  
+        for d in discussions:
+            self.collection.update(
+                {'EventType':'community_creatediscussion','URLValues.discussion_id':d.id},
+                {'$set':{'LogoValues.logoName':community_name,'LogoValues.discussion_name':d.subject}}, 
+                multi=True)
+            self.collection.update(
+                {'EventType':'community_replydiscussion','URLValues.discussion_id':d.id},
+                {'$set':{'LogoValues.logoName':community_name,'LogoValues.discussion_name':d.subject}}, 
+                multi=True)
+    
+    def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
+        self.collection.update({'EventType':'community_creatediscussion','URLValues':{'discussion_id':discussion_id}},
+            {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+        
+        self.collection.update({'EventType':'community_replydiscussion','URLValues':{'discussion_id':discussion_id}},
+            {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+
+    def set_item_my_chunks(self,usrcre,url,chunkTitle):
+        self.collection.update(
+            {'GroupType':'MyChunks','TokenValues':{'UsrCre':usrcre,"url":url}},
+            {'$set':{'LogoValues':{'SourceID':'', 'chunkTitle':chunkTitle}}}, 
+        multi=True)
+
+    def set_item_course_discussion(self,course_id,thread_id,discussiontitle):
+        self.collection.update(
+            {'EventType':'courses_creatediscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+        self.collection.update(
+            {'EventType':'courses_replydiscussion','URLValues.course_id':course_id,'TokenValues.SourceID':thread_id},
+            {'$set':{'LogoValues.discussionSubject':discussiontitle}}, 
+            multi=True)
+
+    def get_my_activity_year_range(self):
+        my_activity_start = self.collection.find().sort('ActivityDateTime',1).limit(1)
+        my_activity_end = self.collection.find().sort('ActivityDateTime',-1).limit(1)
+        year_start = 2017
+        year_end = 2017
+        for d1 in my_activity_start:
+            year_start = str(d1['ActivityDateTime'])[0:4]
+            break
+        for d2 in my_activity_end:
+            year_end = str(d2['ActivityDateTime'])[0:4]
+            break
+        return int(year_start), int(year_end)
+
+class MongoMyActivityStaticStore(object):
+
+    # TODO (cpennington): Enable non-filesystem filestores
+    def __init__(self, host, db, collection,port=27017, default_class=None,
+                 user=None, password=None, mongo_options=None, **kwargs):
+
+        super(MongoMyActivityStaticStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        # Force mongo to report errors, at the expense of performance
+        self.collection.safe = True    
+
+    def get_item(self):
+        results = self.collection.find()
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def get_item_by_etype(self,etype):
+        results = self.collection.find({"EventType": etype})
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def insert_item(self,item):
+        self.collection.insert(item)
+
+    def get_grouptype(self):
+        results = self.collection.find({},{"GroupType":1,"_id":0}).sort("GroupType",1)
+        r = []
+        for data in results:
+            if data['GroupType'] not in r:
+                r.append(data['GroupType'])
+        return r
 
 class MongoChunksStore(object):
 
@@ -271,9 +447,32 @@ class MongoChunksStore(object):
             pa_score=r['pa_rate']['sum']/float(r['pa_rate']['count'])
         return {'hq_rate':{'score':hq_score,'count':r['hq_rate']['count']},'ie_rate':{'score':ie_score,'count':r['ie_rate']['count']},'pa_rate':{'score':pa_score,'count':r['pa_rate']['count']}}
 
+    def get_item(self,search_key):
+        results = self.collection.find(search_key)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def get_chunkTitle(self,user_id,url):
+        results = self.collection.find({"user_id":str(user_id),"url":url})
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        
+        chunkTitle = ''
+        if r:
+            chunkTitle = r[0]['chunkTitle']
+        return chunkTitle
+        
+
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
 _CHUNKSSTORE = {}
+_MYACTIVITYSTORE = {}
+_MYACTIVITYSTATICSTORE = {}
 
 def load_function(path):
     """
@@ -309,6 +508,30 @@ def messagestore(name='default'):
         _MESSAGESTORE[name] = class_(**options)
 
     return _MESSAGESTORE[name]
+
+def myactivitystore(name='default'):
+    if name not in _MYACTIVITYSTORE:
+        class_ = load_function(settings.MYACTIVITYSTORE['ENGINE'])
+        options = {}
+        options.update(settings.MYACTIVITYSTORE['OPTIONS'])
+        if 'ADDITIONAL_OPTIONS' in settings.MYACTIVITYSTORE:
+            if name in settings.MYACTIVITYSTORE['ADDITIONAL_OPTIONS']:
+                options.update(settings.MYACTIVITYSTORE['ADDITIONAL_OPTIONS'][name])
+        _MYACTIVITYSTORE[name] = class_(**options)
+
+    return _MYACTIVITYSTORE[name]
+
+def myactivitystaticstore(name='default'):
+    if name not in _MYACTIVITYSTATICSTORE:
+        class_ = load_function(settings.MYACTIVITYSTATICSTORE['ENGINE'])
+        options = {}
+        options.update(settings.MYACTIVITYSTATICSTORE['OPTIONS'])
+        if 'ADDITIONAL_OPTIONS' in settings.MYACTIVITYSTATICSTORE:
+            if name in settings.MYACTIVITYSTATICSTORE['ADDITIONAL_OPTIONS']:
+                options.update(settings.MYACTIVITYSTATICSTORE['ADDITIONAL_OPTIONS'][name])
+        _MYACTIVITYSTATICSTORE[name] = class_(**options)
+
+    return _MYACTIVITYSTATICSTORE[name]
 
 def chunksstore(name='default'):
     if name not in _CHUNKSSTORE:

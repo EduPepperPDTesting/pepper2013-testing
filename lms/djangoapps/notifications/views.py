@@ -8,13 +8,17 @@ import django_comment_client.utils as utils
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from django.contrib.auth.decorators import login_required
-from xmodule.remindstore import remindstore, messagestore
+from xmodule.remindstore import remindstore, messagestore, myactivitystore
 import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,timedelta
+from time import mktime
+import random
+from bson.objectid import ObjectId
 from pytz import UTC
 import json
 import logging 
+
 log = logging.getLogger("tracking") 
 
 @login_required
@@ -46,6 +50,7 @@ def save_interactive_info(info):
     rs = remindstore()
     info['date'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     user_id = str(info['user_id']).split(',')
+
     if len(user_id) > 1:
         '''
         for v in user_id:
@@ -60,7 +65,18 @@ def save_interactive_info(info):
 
 def save_interactive_update(request):
     info = json.loads(request.POST.get('info'))
+    oid = getObjectId()
+    info['_id']=oid
     save_interactive_info(info)
+
+    if info['type'] == 'my_chunks':
+        ma_db = myactivitystore()    
+        my_activity = {"GroupType": "MyChunks", "EventType": "myChunks_shareChunk", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"url": info['location']},
+        "TokenValues": {"UsrCre": request.user.id, "url": info['location']}, #"TokenValues": {"user_id":info['user_id'], "SourceID": oid}, 
+        "LogoValues": {"SourceID": oid}}    
+        ma_db.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
 
 def set_interactive_update(request):
@@ -99,8 +115,30 @@ def save_message(request):
     rs = messagestore()
     info = json.loads(request.POST.get('info'))
     info['date']=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    oid = getObjectId()    
+    info['_id']=oid
     rs.insert_item(info)
+
+    if int(info['recipient_id']) != 0:
+        ma_db = myactivitystore()    
+        my_activity = {"GroupType": "Messages", "EventType": "people_sendMessage", "ActivityDateTime": datetime.utcnow(), "UsrCre": int(info['sender_id']), 
+        "URLValues": {"recipient_id": int(info['recipient_id'])},
+        "TokenValues": {"recipient_id": int(info['recipient_id'])}, 
+        "LogoValues": {"SourceID": oid}}
+        ma_db.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
+
+def getObjectId():
+    seed = "1234567890abcdef"
+    sa = []
+    for i in range(16):
+        sa.append(random.choice(seed))
+    salt = ''.join(sa)
+    
+    t2 = mktime(datetime.utcnow().timetuple())
+    t3 = str(hex(int(t2)))[2:] + salt    
+    return ObjectId(bytes(t3))
 
 def upload_image(request):
     success = True

@@ -1,10 +1,11 @@
 <%inherit file="../main.html" />
 <%!
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from courseware.courses import course_image_url, get_course_about_section
 from student.views import course_from_id
 from administration.configuration import has_hangout_perms
-from communities.utils import is_facilitator, is_member
+from communities.utils import is_facilitator, is_member, is_private
 from file_uploader.utils import get_file_url
 from django.utils import timezone
 import datetime
@@ -13,6 +14,14 @@ import datetime
 <%block name="title">
     <title>${community.name}</title>
 </%block>
+<style>
+    div .cke{
+        width:580px !important;
+    }
+    #dialog{
+        z-index:10000;
+    }
+</style>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -32,7 +41,7 @@ import datetime
              <h2>${community.motto}</h2>
              %if facilitator:
                  <div class="facilitator-wrap">
-                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" widht='110' height='110' id="community-avatar" alt="Facilitator Avatar" />
                      <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
                      <h4>Community Facilitator</h4>
                  </div>
@@ -129,11 +138,14 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" width='110' height='110' class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
-                %else:
+                    %if not is_facilitator(request.user, community):
+                        <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
+                    %endif
+                %elif not is_private(community):
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
             </div>
@@ -246,7 +258,11 @@ import datetime
     </div>
     <div style="color:#000;text-align:center;padding:10px;">
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> 3212ddf997ea770b263a94a36e5f354649584b69
       <div style="display:inline-block;vertical-align:top;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
@@ -414,6 +430,22 @@ import datetime
         $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
             if(r.success)
                 window.location.reload();
+        });
+    }
+    function leaveCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                       console.log(r.success);
+                       window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       //return redirect(reverse('dashboard'));
+                });
+            }
         });
     }
     function validateDiscussionForm() {
@@ -736,17 +768,29 @@ import datetime
             $(".delete-something").click(function(){
                 if($(this).attr("data-postid")){
                     var pid = $(this).data('postid');
-                    $.post("${reverse('community_delete_post')}", {post_id:pid}, function(data){
+                    $.post("${reverse('community_delete_post')}", {post_id:pid, community_id:community}, function(data){
                         getPosts()
                     });
                 }
                 if($(this).attr("data-commentid")){
                     var cid = $(this).data('commentid');
-                    $.post("${reverse('community_delete_comment')}", {comment_id:cid}, function(data){
+                    $.post("${reverse('community_delete_comment')}", {comment_id:cid, community_id:community}, function(data){
                         getPosts()
                     });
                 }
             })
+            // @author:scott
+            // @date:2017-02-27
+            $(".top-something").click(function(){
+                if($(this).attr("data-postid")){
+                    var pid = $(this).data('postid');
+                    var top = $(this).attr('top');
+                    $.post("${reverse('community_top_post')}", {post_id:pid, community_id:community, top:top,user_id:'${request.user.id}'}, function(data){
+                        getPosts()
+                    });
+                }
+            })
+            // @end
             $(".comment-like-text").click(function(){
                 $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
                     getPosts();
@@ -757,7 +801,7 @@ import datetime
                 if (e.keyCode === 13) {
                     content=$(this).val();
                     post_id=$(this).data('id')
-                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content, community_id:community}, function(data){
                         getPosts();
                     });
                 }
@@ -798,7 +842,7 @@ import datetime
                 if (e.keyCode === 13) {
                     content=$(this).val();
                     post_id=$(this).data('id')
-                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content, community_id:community}, function(data){
                         getPosts();
                     });
                 }
@@ -890,7 +934,7 @@ import datetime
         })
         $(".card-line").remove();
         $("#ask_an_expert_button").click(function(){
-            $.post("${reverse('community_ask_an_expert')}", {facilitator: "${facilitator.user.email}", message:$("#ask_expert_message").val(), subject: "New Question from ${request.user.first_name} ${request.user.last_name}"}, function(data){
+            $.post("${reverse('community_ask_an_expert')}", {facilitator: "${facilitator.user.email}", message:$("#ask_expert_message").val(), subject: "${community.name} Community Question from ${request.user.first_name} ${request.user.last_name}"}, function(data){
                 $("#expert_error").text(data.result);
                 $("#ask_expert_message").val("");
             });
@@ -931,11 +975,12 @@ import datetime
         waiting = false;
         $(window).scroll(function(){
             if(!waiting) {
+                var area = $("#community_content_discussions");
                 var a = $(this).scrollTop();
                 var b = $(this).innerHeight();
                 var body = document.body, html = document.documentElement;
                 var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-                if (a + b >= height - 150) {
+                if (a + b >= (area.position().top + area.height() + 20)) {
                     if ($("#community_content_header_discussions").hasClass("selected"))
                         discussion_size += 5;
                     else

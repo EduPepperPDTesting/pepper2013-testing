@@ -13,6 +13,13 @@ urlpatterns = (
     '',  # nopep8
 
 ####### Ancestor
+    # === shopping begin ===
+    url(r'^shopping/$', 'shopping.views.course_list', name="shopping_course_list"),
+    url(r'^shopping/enroll/post$', 'shopping.views.enroll_post', name="shopping_enroll_post"),
+    url(r'^shopping/(?P<course_id>[^/]+/[^/]+/[^/]+)/course_info/$', 'shopping.views.course_info', name="shopping_course_info"),
+    url(r'^shopping/valid_discount_code/$', 'shopping.views.valid_discount_code', name="shopping_valid_discount_code"),
+    # === shopping end ===
+    
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
@@ -65,6 +72,8 @@ urlpatterns = (
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
     url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
+    url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
+    url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
@@ -72,7 +81,19 @@ urlpatterns = (
     url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
-    # === pepreg end ==    
+    url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
+    url(r'^pepreg/download_calendar_pdf/$', 'administration.pepreg.download_calendar_pdf', name="pepreg_download_calendar_pdf"),#akogan
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
+    #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/leave/$', 'training.views.training_leave', name='training_leave'),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'training.views.get_add_user_rows', name="training_get_add_user_rows"),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
+    # === pepreg end ==
+
+    # === Portfolio Settings begin ==
+    url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
+    # === Portfolio Settings end ==
 
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
@@ -117,9 +138,44 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
-    url(r'^reporting/report/get_progress$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
+    url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
+
+    url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
+    url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
+    url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
+    url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
+    url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
+    url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
+
+    #@begin:Add for Dashboard Posts
+    #@date:2016-12-29
+    url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
+    url(r'^dashboard/announcements/get$', 'student.newdashboard.get_announcements', name='dashboard_get_announcements'),
+    url(r'^dashboard/announcements/getorg$', 'student.newdashboard.get_org_announcements', name='dashboard_get_org_announcements'),
+    url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
+    url(r'^dashboard/comment/get$', 'student.newdashboard.get_comment', name='dashboard_get_comment'),
+    url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
+    url(r'^dashboard/delete/announcement', 'student.newdashboard.delete_announcement', name='dashboard_delete_announcement'),
+    url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
+    url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
+    url(r'^dashboard/post/comment', 'student.newdashboard.submit_new_comment', name='dashboard_submit_new_comment'),
+    url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
+    url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
+    url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
+
+    url(r'^dashboard/announcement/dismiss$', 'student.newdashboard.dismiss_announcement', name='dashboard_dismiss_announcement'),
+    url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
+    url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
+
+    
+    #@end
+    #@begin:Add for Dashboard My Activity
+    #@date:2016-12-29
+    url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    url(r'^dashboard/my_course_in_progress/get$', 'student.newdashboard.get_my_course_in_progress', name='get_my_course_in_progress'),
+    #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -161,6 +217,13 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
+    url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
+    url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
+    url(r'^custom/get-list$', 'administration.pepconn.get_custom_email_list', name="pepconn_get_custom_email_list"),
+    url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
+
+    url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
+    
     url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
@@ -342,7 +405,10 @@ urlpatterns = (
     url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
     url(r'^community/delete/comment', 'communities.views.delete_comment', name='community_delete_comment'),
     url(r'^community/delete/post', 'communities.views.delete_post', name='community_delete_post'),
-
+    # @author:scott
+    # @date:2017-02-27
+    url(r'^community/top/post', 'communities.views.top_post', name='community_top_post'),
+    # @end
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
     url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),
@@ -362,7 +428,7 @@ urlpatterns = (
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -373,19 +439,27 @@ urlpatterns = (
     url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
     url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
+    url(r'^course_credits_tcsj$', 'certificates.views.course_credits_tcsj', name="course_credits_tcsj"),
+    url(r'^course_credits_baker_univesity$', 'certificates.views.course_credits_baker_univesity', name="course_credits_baker_univesity"),
 
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
+    url(r'^newdashboard/$', 'student.newdashboard.newdashboard', name="newdashboard"),
+    url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
-
+    url(r'^new_upload_photo$', 'student.newdashboard.new_upload_photo', name="new_upload_photo"),
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
+    url(r'^upload_photo_new$', 'student.newdashboard.upload_photo_new', name="upload_photo_new"),
 
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
+
+    url(r'^user_profile$', 'student.newdashboard.user_information', name="user_information"),
+    url(r'^user_profile/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),
 
     url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
     url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
@@ -556,8 +630,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
-        url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
-        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
+        url(r'^nccourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^nccourses-list$', 'courseware.views.dpicourse_list', name="nccourse_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
         url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),

@@ -24,10 +24,13 @@ AggregationConfig = {
     },
     "AggregateTimerView": {
         "collection": "user_info"
+    },
+    "PDPlannerView": {
+        "collection": "PepRegTrainingView"
     }
 }
 
-# aggregation query:  (*placeholder: {user_domain}, {display_columns}, {filters}, {distinct}, {school_year})
+# aggregation query:  (*placeholder: {user_domain}, {display_columns}, {filters}, {distinct}, {school_year}, {pd_domain})
 
 #  user -------------------------------------------------------------------------------
 
@@ -332,7 +335,7 @@ AggregationConfig["CourseView"]["query"] = '''{user_domain}{
                             }, {
                                 "$eq": {school_year}
                             }]
-                        }, "$$item.external_time", 0]
+                        }, "$$item.course_time", 0]
                     }
                 }
             }
@@ -754,3 +757,68 @@ AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
         }
     }
 }{filters}{display_columns}{distinct}'''
+
+#  pd planner -------------------------------------------------------------------------------
+
+AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
+    "$lookup": {
+        "from": "PepRegStudentView",
+        "localField": "key",
+        "foreignField": "key",
+        "as": "pegreg_student"
+    }
+}, {
+    "$unwind": {"path":"$pegreg_student", "preserveNullAndEmptyArrays": True}
+}, {
+    "$lookup": {
+        "from": "user_info",
+        "localField": "pegreg_student.student_id",
+        "foreignField": "user_id",
+        "as": "user_info"
+    }
+},{
+    "$project": {
+        "training_id": 1,
+        "type": 1,
+        "district_id": 1,
+        "subject": 1,
+        "name": 1,
+        "pepper_course": 1,
+        "training_date": 1,
+        "training_time_start": 1,
+        "training_time_end": 1,
+        "geo_location": 1,
+        "classroom": 1,
+        "credits": 1,
+        "attendancel_id": 1,
+        "allow_registration": 1,
+        "max_registration": 1,
+        "allow_attendance": 1,
+        "allow_validation": 1,
+        "user_create_id": 1,
+        "date_create": 1,
+        "description": 1,
+        "student_status": "$pegreg_student.student_status",
+        "instructor_status": "$pegreg_student.instructor_status",
+        "student_credit": "$pegreg_student.student_credit",
+        "user_id": "$pegreg_student.student_id",
+        "district": 1,
+        "school": 1,
+        "state_id": 1,
+        "school_id": {
+            "$ifNull": [{"$arrayElemAt": ["$user_info.school_id", 0]}, "1"]
+        },
+        "student": {
+            "$arrayElemAt": ["$user_info.email", 0]
+        },
+        "user_state": {
+            "$arrayElemAt": ["$user_info.state", 0]
+        },
+        "user_district": {
+            "$arrayElemAt": ["$user_info.district", 0]
+        },
+        "user_school": {
+            "$arrayElemAt": ["$user_info.school", 0]
+        }
+    }
+},{pd_user_domain}{filters}{display_columns}{distinct}'''

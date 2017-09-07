@@ -9,9 +9,9 @@
 <%block name="title"><title>${_("Course Credits")}</title></%block>
 
 <style>
-#page-nav,#page-footer{
- 	width:1180px;
-}
+  #page-nav,#page-footer{
+  width:1180px;
+  }
 
 .main_div{
 	font-family:Verdana, Geneva, sans-serif;
@@ -38,40 +38,43 @@ a:hover {
 .form_main {
   	width:1180px;
 	margin:0px auto;
-	height:700px;
+	/*height:700px;*/
 }
 .form_container { margin:20px;}
-.form_tit { font-size:24px; font-family:Verdana, Geneva, sans-serif; text-align:center; line-height:30px; color: #489FDF}
-.form_logo { text-align:center;  margin:20px 0px; }
+.form_tit { margin-bottom:30px; font-size:24px; font-family:Verdana, Geneva, sans-serif; text-align:center; line-height:30px; color: #489FDF}
+.form_logo { text-align:center;  margin:20px 20px; }
+.form_logo img {margin:10px 50px 10px 50px;}
 .form_list { width:300px; margin:0px auto; clear:both; text-align:center; line-height:26px; }
 .xhx { text-decoration:underline;}
 </style>
 
 
 <style type="text/css" media="screen">
-	section.content-wrapper{background:transparent !important;}
+  section.content-wrapper{background:transparent !important;}
 </style>
 
 <div class="form_main main_div">
 	<div class=" form_container" style="margin-top:0;padding-top:20px;">
-	  	<div class="form_tit"><strong>Would you like to earn credits for the courses you are taking?</strong></div>
-	  	<div class="form_logo"><img src="/static/images/course_credits/tcsj.png" width="349" height="97" /></div>
-	  	<p>One unit of professional development credit is available for each course you complete (eligible courses are identified with the <img src="static/images/credit.jpg" width="30" style="margin-top:-7px;"> icon).   To receive credit, please follow these easy steps:</p>
-
-		<ol class="">
-			<li>Download the <a href="/static/resource/TCSJ_CourseCredt_37May20164.docx" target="_blank">Course Completion Form</a> and fill out the required information</li>
-			<li>Print a copy of your Course Certificate from your Pepper dashboard</li>
-			<li> Make a check for $75 for one unit out to<strong> San Joaquin County Office of Education</strong></li>
-		</ol>
-		<p>And finally … mail the form, the certificate and the check to: </p>
-		<div class="form_list">
-	 		San Joaquin County Office of Education<br />
-	 		Teacher Development Department/TCSJ<br />
-	 		Attn:  Admissions/Esmeralda Capello<br />
-	 		P.O. Box 213030<br />
-	 		Stockton, CA 95213-9030
-		</div>
-		<p><strong>Important note:</strong> Please check with your Human Resources Department to confirm that these credits are applicable for certification and salary growth opportunities.</p>
-		<p>For more specific questions, please contact Esmeralda Capello at <a href="mailto:ecapello@sjcoe.net">ecapello@sjcoe.net</a>.</p>
+	  <div class="form_tit"><strong>Would you like to earn credits for the courses you are taking?</strong></div>
+	  <p>One unit of professional development credit is available for each course, or series of eligible courses you complete, totalling 15 hours of effort. Eligible courses are identified with the <img src="static/images/credit.jpg" width="30" style="margin-top:-7px;"> icon on the course thumbnail when viewed in the Courses and Workshops Directory.</p><p><span style="border-bottom: 1px solid gray;text-decoration: none;">To apply for credit, click on one of our partner institutions logo below, and follow their directions for submitting documentation and payment.</span></p>
+	  <div class="form_logo">
+		  <a href="/course_credits_tcsj"><img src="/static/images/course_credits/tcsj.png" width="350" height="97" /></a>
+		  <a href="/course_credits_baker_univesity"><img src="/static/images/course_credits/baker_univesity.png" width="350" height="97" /></a>
+	  </div>
+	<!-- <ol class="">
+	<li>Download the <a href="/static/resource/TCSJ_CourseCredt_37May20164.docx" target="_blank">Course Completion Form</a> and fill out the required information</li>
+	<li>Print a copy of your Course Certificate from your Pepper dashboard</li>
+	<li> Make a check for $75 for one unit out to<strong> San Joaquin County Office of Education</strong></li>
+	</ol> -->
+	<!-- <p>And finally … mail the form, the certificate and the check to: </p>
+	<div class="form_list">
+	 San Joaquin County Office of Education<br />
+	 Teacher Development Department/TCSJ<br />
+	 Attn:  Admissions/Esmeralda Capello<br />
+	 P.O. Box 213030<br />
+	 Stockton, CA 95213-9030
+	</div> -->
+	<p><strong>Important note:</strong> Please check with your Human Resources Department to confirm that these credits are applicable for certification and salary growth opportunities.</p>
+	<!-- <p>For more specific questions, please contact Esmeralda Capello at <a href="mailto:ecapello@sjcoe.net">ecapello@sjcoe.net</a>.</p> -->
 	</div>
 </div>

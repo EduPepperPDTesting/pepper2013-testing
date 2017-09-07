@@ -31,6 +31,7 @@
         margin-left: -64px;
     }
 </style>
+<span id="organization_obj" o_name="report"></span>
 <div id="reporting">
     <div id="back">
         <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
@@ -42,7 +43,7 @@
     <div class="table">
         <div class="" style="padding:5px;"></div>
         <div class="body table_scroll">
-            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}&school_year=${school_year}">
                 <thead>
                     %for col in display_columns:
                         %if col.column.data_type in ['url', 'time']:
@@ -230,15 +231,24 @@
         },
         show_progress: function(obj){
             var self = this;
-            $.post("${reverse('reporting_report_get_progress')}", function(data) {
-                if (data != null) {
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
+                if (data != null) {					
                     if(data.success)
                     {
                         obj.reloadTable()
                         clearInterval(obj.timeID);
                         loadwin.hide();
-                        $.post("${reverse('report_get_custom_filters',args=[report.id])}", function(data) {
+                        $.post("${reverse('report_get_custom_filters',args=[report.id])}?school_year=${school_year}", function(data) {
                             set_custome_filters($(".tblReport"), data.data);
+							
+							$(".tablesorter-header-inner").each(function(){
+								var tmp1 = $(this).text().trim();
+								if(tmp1 == "District"){
+									$(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+								}else if(tmp1 == "School"){
+									$(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+								}
+							});
                         });
                     }
                 }
@@ -271,7 +281,7 @@
             document.body.removeChild(form);
         },
         downloadReportExcel: function(){
-            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}",safeJSON({}));
+            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
         },
         selectSchoolYear: function(){
             $(".school_year_select").change(function(){

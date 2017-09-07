@@ -1,5 +1,6 @@
 from student.models import State, District, School, Cohort, User
 from .utils import render_json_response
+from permissions.utils import check_access_level, check_user_perms
 
 
 def drop_states(request):
@@ -83,10 +84,10 @@ def drop_cohorts(request):
 
 def user_email_completion(request):
     r = list()
-    access_level = request.GET.get('access_level', False)
+    access_level = check_access_level(request.user, 'pepreg', 'add_new_training')
     lookup = request.GET.get('q', False)
     if lookup:
-        kwargs = {'email__istartswith': lookup}
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
         if access_level == 'State':
             kwargs.update({'profile__district__state': request.user.profile.district.state})
         elif access_level == 'District':

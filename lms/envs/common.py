@@ -862,6 +862,17 @@ INSTALLED_APPS = (
 
     # Reporting
     'reporting',
+
+    # SSO
+    'sso',
+
+    # PD Training Registration
+    'training',
+
+    #organization
+    'organization',
+
+    'async_task'
 )
 
 ######################### MARKETING SITE ###############################

@@ -139,7 +139,9 @@
                     <option value="POW">Pepper's Online Workshops!</option>
                     <option value="SC">Science</option>
                     <option value="SE">Special Education</option>
+                    <option value="TCH">Teacher ToolKit</option>
                     <option value="TECH">Technology</option>
+                    <option value="ARTS">Visual & Performing Arts</option>
                     <option value="WR">Writing and Poetry</option>
                 </select>
             </div>
@@ -159,8 +161,10 @@
                     <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
                     <option value="CHADD">CHADD</option>
                     <option value="Common Sense Education">Common Sense Education</option>
+                    <option value="Media Power Youth">Media Power Youth</option>
                     <option value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</option>
                     <option value="PCG Education">PCG Education</option>
+                    <option value="SEADAE">SEADAE</option>
                     <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
                     <option value="WestEd">WestEd</option>
                 </select>
@@ -272,7 +276,22 @@
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
                         </div>
-
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Pepper_Online_Workshop.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper's Online Workshops</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/ARTS.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=ARTS&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Visual & Performing Arts</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/DC-digital_citiznship_tile.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=DC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Digital Citizenship</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/iStock_100266567_MEDIUM.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=TCH&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Teacher ToolKit</span></a>
+                        </div>
                         %if request.user.is_authenticated() and len(states) > 0:
 
                             <!--------State Content Collection-------->
@@ -294,14 +313,6 @@
 
                         %endif
                         <!--------20160218 add-------->
-                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Pepper_Online_Workshop.jpg);background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper's Online Workshops</span></a>
-                        </div>
-                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/DC-digital_citiznship_tile.jpg);background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="/courses-list?subject_id=DC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Digital Citizenship</span></a>
-                        </div>
                         <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
@@ -314,7 +325,7 @@
                         %endif
                         %for course in courses[4]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -327,7 +338,7 @@
                         %endif
                         %for course in courses[0]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -340,7 +351,7 @@
                         %endif
                         %for course in courses[1]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -353,7 +364,7 @@
                         %endif
                         %for course in courses[2]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -366,7 +377,7 @@
                         %endif
                         %for course in courses[3]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor

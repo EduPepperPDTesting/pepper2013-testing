@@ -329,6 +329,10 @@ div.filter {
 .imgBtn_add_new .icon {
     background-image:url(../images/icons/add_new.png);
 }
+
+.imgBtn_my_calendar .icon {
+    background-image:url(../images/icons/my_calendar.png);
+}
 .imgBtn .icon {
     width:auto;
     height:40px;
