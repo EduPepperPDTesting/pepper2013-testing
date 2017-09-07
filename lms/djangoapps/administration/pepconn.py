@@ -2011,8 +2011,12 @@ def update_course_permission(request):
 
         done_count = 0
         total_count = len(course_ids) * len(user_ids)
-        try:
-            for i, course_id in enumerate(course_ids):
+        
+        errors = []
+        user = None
+        course = None        
+        for i, course_id in enumerate(course_ids):
+            try:
                 course = get_course_by_id(course_id)
                 a = access[i] == "1"
                 e = enroll[i] == "1"
@@ -2025,22 +2029,29 @@ def update_course_permission(request):
                     done_count += 1
                     task.progress = done_count / total_count
                     task.status = "continue"
-                    task.save()
-                    db.transaction.commit()
-        except Exception as e:
-            task.status = "error"
-            task.last_message = "error occured: %s" % e
-            task.save()
-            db.transaction.commit()
-            return
+            except Exception as e:
+                if user and course:
+                    errors.append([user.email, course.display_name, str(e)])
+                else:
+                    errors.append(["", "", str(e)])
+                task.status = "error"
+                task.last_message = "error occured: %s" % e
+            finally:
+                task.save()
+                db.transaction.commit()
 
-        task.status = "finish"
-        task.last_message = "all done"
-        task.title = "all done"
-        task.progress = 100
+        task.status = "finish" if len(errors) == 0 else "error"
+        task.last_message = "all done" if len(errors) == 0 else "all done with errors"
+        task.title = "all done" if len(errors) == 0 else "all done with errors"
         task.save()
         db.transaction.commit()
 
+        email_task_errors("Update course permissions",
+                          "Report of updating course permissions, see attachment",
+                          [request.user.email],
+                          ["Email", "Course", "Error"],
+                          errors)
+        
     try:
         task = AsyncTask()
         task.group = "course permission"
@@ -2051,13 +2062,26 @@ def update_course_permission(request):
         task.save()
         db.transaction.commit()
         async_do(request, task)
-        json_out = {'success': True, 'task': task.id}
+        json_out = {'success': True, 'taskId': task.id}
     except Exception as e:
         json_out = {'success': False, 'error': '%s' % e}
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
+def email_task_errors(subject, body, receivers, csv_titles, csv_errors):
+    if len(csv_errors):
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(csv_titles)
+        for e in csv_errors:
+            writer.writerow(e)
+        output.seek(0)
+        attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
+        send_html_mail(subject, body, settings.SUPPORT_EMAIL, receivers, attach)
+        output.close()
+
+        
 def course_permission_load_csv(request):
     @postpone
     def async_do(request, task):
@@ -2073,14 +2097,17 @@ def course_permission_load_csv(request):
 
         done_count = 0
         total_count = len(course_ids) * len(rl)
-        try:
-            for i, course_id in enumerate(course_ids):
+        errors = []
+        user = None
+        course = None
+        for i, course_id in enumerate(course_ids):
+            try:
                 course = get_course_by_id(course_id)
                 a = access[i] == "1"
                 e = enroll[i] == "1"
                 for line in rl:
                     user = User.objects.get(email=line[0])
-
+                    
                     task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                     task.update_time = task.create_time
                     task.title = "update user %s" % user.email
@@ -2089,22 +2116,28 @@ def course_permission_load_csv(request):
                     done_count += 1
                     task.status = "continue"
                     task.progress = done_count / total_count
-                    task.save()
-                    db.transaction.commit()
-        except Exception as e:
-            task.status = "error"
-            task.last_message = "error occured: %s" % e
-            task.save()
-            db.transaction.commit()
-            return
-
-        task.status = "finish"
-        task.last_message = "all done"
-        task.title = "all done"
-        task.progress = 100
+            except Exception as e:
+                if user and course:
+                    errors.append([user.email, course.display_name, str(e)])
+                else:
+                    errors.append(["", "", str(e)])
+                task.status = "error"
+                task.last_message = "error occured: %s" % e
+            finally:
+                task.save()
+                db.transaction.commit()
+        task.status = "finish" if len(errors) == 0 else "error"
+        task.last_message = "all done" if len(errors) == 0 else "all done with errors"
+        task.title = "all done" if len(errors) == 0 else "all done with errors"
         task.save()
         db.transaction.commit()
-        
+
+        email_task_errors("Update course permissions",
+                          "Report of updating course permissions(from csv), see attachment",
+                          [request.user.email],
+                          ["Email", "Course", "Error"],
+                          errors)
+
     try:
         task = AsyncTask()
         task.group = "course permission"
@@ -2115,7 +2148,7 @@ def course_permission_load_csv(request):
         task.save()
         db.transaction.commit()
         async_do(request, task)
-        json_out = {'success': True, 'task': task.id}
+        json_out = {'success': True, 'taskId': task.id}
     except Exception as e:
         json_out = {'success': False, 'error': '%s' % e}
 

@@ -316,6 +316,8 @@ urlpatterns = (
     url(r'^pepconn/course_permission_tasks/$', 'administration.pepconn.course_permission_tasks', name="pepconn_course_permission_tasks"),
     url(r'^pepconn/course_permission_task_close/$', 'administration.pepconn.course_permission_task_close', name="pepconn_course_permission_task_close"),
 
+    url(r'^pepconn/ajax_get_async_task/$', 'async_task.views.ajax_get_async_task', name="ajax_get_async_task"),    
+
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
     url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),

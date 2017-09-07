@@ -38,7 +38,7 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
                 });
             }
         }
-        if(t.progress==100){
+        else if(t.progress==100){
             if(!$progressbar.hasClass("finished")){
                 $progressbar.addClass("finished");
                 $progressbar.append('<div class="task-close"><a href="#" id="close-' + i + '"><img src="/static/images/check.png" alt="mark as read"/></a></div>');
@@ -483,8 +483,13 @@ function Dialog(el){
     var self=this;
     this.$ei=$(el);
     this.$ei.find('.close-modal').off("click").click(function(){
+        self.__onClose && self.__onClose();
         self.hide();
     });
+}
+Dialog.prototype.onClose=function(fn){
+    this.__onClose = fn;
+    return this;
 }
 Dialog.prototype.show=function(title,content){
     var self=this;

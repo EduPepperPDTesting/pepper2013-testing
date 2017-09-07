@@ -62,6 +62,7 @@ div.mul-drop-menu{
     border-bottom:1px solid #ddd;
 }
 .mul-drop-menu .filter input[type=text]{
+    background-image:url(../image/filter.jpg);
     padding:5px 5px;
     width:300px;
     border:none;
@@ -90,7 +91,7 @@ div.mul-drop-menu{
     width:100%;
 }
 div.mul-drop-menu-selection{
-    max-height:120px;
+    max-height:60px;
     overflow-y:scroll;
     position:relative;    
     min-width:190px;

@@ -1374,7 +1374,6 @@
             "tasks": "${reverse('pepconn_import_user_tasks')}",
             "message_formatter": function(task){
                 var name = task.type == 'import' ? 'Import' : 'Email';
-
                 if(task.error){
                     return name + ' - ERROR (' + task.id + ')';
                 }
