@@ -14,4 +14,4 @@ class TrainingUsers(models.Model):
     class Meta:
         db_table = 'training_users'
     training = models.ForeignKey(PepRegTraining, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
