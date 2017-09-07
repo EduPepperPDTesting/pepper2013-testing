@@ -127,8 +127,11 @@ def header_return(request):
     :param request: The django request object.
     :return: Rendered JSON.
     """
-
+    # Get the JSONP callback function name.
     callback = request.GET.get('callback')
+
+    # Get the user status to send along in the AJAX
+    user_status = request.user.is_authenticated()
 
     # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
@@ -159,7 +162,7 @@ def header_return(request):
         # Add the template-specific JS
         js.append(request.build_absolute_uri('/static/js/navigation.js').replace('http:', 'https:'))
 
-    data = {'html': html, 'css': css, 'js': js}
+    data = {'html': html, 'css': css, 'js': js, 'status': user_status}
     return render_jsonp_response(callback, data)
 
 
@@ -170,7 +173,11 @@ def footer_return(request):
     :param request: The django request object.
     :return: Rendered JSON.
     """
+    # Get the JSONP callback function name.
     callback = request.GET.get('callback')
+
+    # Get the user status to send along in the AJAX
+    user_status = request.user.is_authenticated()
 
     # Get some information on whether the user belongs to an org with customizations.
     org_enabled, org_object, org_menu = check_org(request.user)
@@ -187,5 +194,5 @@ def footer_return(request):
             if footer:
                 html = footer.DataItem
 
-    data = {'html': html, 'css': get_css(request, 'footer'), 'js': []}
+    data = {'html': html, 'css': get_css(request, 'footer'), 'js': [], 'status': user_status}
     return render_jsonp_response(callback, data)
