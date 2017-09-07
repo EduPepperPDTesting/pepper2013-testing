@@ -35,6 +35,7 @@ $(document).ready(function(){
 
         //$(this).closest('.pep_video_container').on('mousemove', '.pep_videochatheader_container', function (e) {
         $(this).on('mousemove', function (e) {
+            $(e.target).parents(".pep_video_container").attr("data-left", left);
             //console.log(e.pageX + " " + e.pageY);
             var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
             var thisZindex = $(e.target).parents(".pep_video_container").css("zIndex");
@@ -129,8 +130,20 @@ $(document).ready(function(){
                 console.log(i +" "+ ind);
                 var emptyHolder = 0;
                 thisEl = $(el);
-                do{
+                if(thisEl.prev().length != 0){
                     var posPrev = thisEl.prev(".pep_video_container:has(.pep_video_panel):not(.moved)").offset();
+                    if(posPrev !== undefined){
+                        var leftX = posPrev.left;
+                    }else{
+                        var leftX = parseInt(thisEl.prev().attr("data-left"));
+                    }
+                }else{
+                    var leftX = window.innerWidth - 450;
+                }
+                $(el).css({"right": "", "left": leftX + "px"});
+
+                /*do{
+
                     if(posPrev === undefined)
                     {
                         if(thisEl.prev().length == 0) break;
@@ -145,7 +158,7 @@ $(document).ready(function(){
                     var leftX = posPrev.left;
                     if(emptyHolder == true) leftX -= 450;
                 }
-                $(el).css({"right": "", "left": leftX + "px"});
+                $(el).css({"right": "", "left": leftX + "px"});*/
             }
         });
 
