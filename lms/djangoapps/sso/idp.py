@@ -211,6 +211,12 @@ def saml_redirect(request, sp_name, ms, rs):
                 value = request.user.profile.district.name
             elif attr['name'] == "school":
                 value = request.user.profile.school.name
+            elif attr['name'] == "state_w_id":
+                value = request.user.profile.district.state.name + ':' + request.user.profile.district.state.id
+            elif attr['name'] == "district_w_id":
+                value = request.user.profile.district.name + ':' + request.user.profile.district.code
+            elif attr['name'] == "school_w_id":
+                value = request.user.profile.school.name + ':' + request.user.profile.school.code
             elif attr['name'] == "grades":
                 value = request.user.profile.grade_level_id
             elif attr['name'] == "bio":
