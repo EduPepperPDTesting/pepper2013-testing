@@ -9,6 +9,10 @@ from django.db.models import Q
 from student.models import UserProfile
 from StringIO import StringIO
 import datetime
+# from django.utils.translation import ugettext as _
+from ratelimitbackend.exceptions import RateLimitException
+from student.models import CmsLoginInfo
+from django.contrib.auth import logout, authenticate, login
 
 from datetime import timedelta
 from models import UserLoginInfo
@@ -90,32 +94,87 @@ def get_user_login_info(request):
 @ensure_csrf_cookie
 def save_user_status(request):
 	'''
-	20170830 add for save user 3 status and password in usage_report.
+	20170830 add for save user 3 status in usage_report.
 	'''
-	save_type = int(request.POST.get('save_type'))
 	user_id = int(request.POST.get('user_id'))
 	context = {'success': False}
+	
+	user_login = User.objects.filter(id=user_id)
+	for user in user_login:
+		is_active = int(request.POST.get('is_active'))
+		is_staff = int(request.POST.get('is_staff'))
+		is_superuser = int(request.POST.get('is_superuser'))
+
+		user.is_active = is_active
+		user.is_staff = is_staff
+		user.is_superuser = is_superuser
+		user.save()
+		context['success'] = True
+		break
+	return HttpResponse(json.dumps(context), content_type="application/json")
+
+@ensure_csrf_cookie
+def save_user_password(request):
+	'''
+	20170907 add for save user password in usage_report.
+	'''
+	user_id = int(request.POST.get('user_id'))
+	
+	value_dict = {'error1': 'Too many failed login attempts. Try again later.',
+				  'error2': 'Please verify that the old password is correct.',
+				  'error3': 'The new password needs to be different from the previous one.'
+	}
+	context = {'success': False,'ctype': '','value': ''}
 
 	user_login = User.objects.filter(id=user_id)
 	for user in user_login:
-		if save_type == 1:
-			is_active = int(request.POST.get('is_active'))
-			is_staff = int(request.POST.get('is_staff'))
-			is_superuser = int(request.POST.get('is_superuser'))
+		user_psw = request.POST.get('user_post')
+		user_psw_old = request.POST.get('user_post_old')
+		
+		if user_psw_old:
+			# verify the old password
+			result, ctype = user_authenticate(username=user.username, password=user_psw_old, request=request)
+			if not result:
+				context['ctype'] = ctype
+				context['value'] = value_dict[ctype]
+				return HttpResponse(json.dumps(context), content_type="application/json")
 
-			user.is_active = is_active
-			user.is_staff = is_staff
-			user.is_superuser = is_superuser
-			user.save()
-			context["success"] = True
-		elif save_type == 2:
-			user_psw = str(request.POST.get('user_post'))
-
-			user.set_password(user_psw)
-			user.save()
-			context["success"] = True
+		# verify whether the new password equals to the old one
+		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
+		if user_newpws:
+			context['ctype'] = 'error3'
+			context['value'] = value_dict['error3']
+			return HttpResponse(json.dumps(context), content_type="application/json")
+			
+		user.set_password(user_psw)
+		user.save()
+		context['success'] = True
 		break
 	return HttpResponse(json.dumps(context), content_type="application/json")
+
+def user_authenticate(username, password, request):
+	result = True
+	ctype = ''
+	try:
+		user = authenticate(username=username, password=password, request=request)
+
+		ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
+		login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=True, login_or_logout_time=datetime.datetime.utcnow())
+		login_info.save()
+    # this occurs when there are too many attempts from the same IP address
+	except RateLimitException:
+		result = False
+		ctype = 'error1'
+		return result, ctype
+
+	if user is None:
+		# if we didn't find this username earlier, the account for this email
+		# doesn't exist, and doesn't have a corresponding password
+		result = False
+        ctype = 'error2'
+        return result, ctype
+
+	return result, ctype
 
 # -------------- Dropdown Lists -------------
 def drop_states(request):
