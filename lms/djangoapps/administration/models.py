@@ -261,7 +261,7 @@ class UserLoginInfo(models.Model):
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
     logout_press = models.BooleanField(blank=False, default=0)
     temp_time = models.CharField(max_length=30)
-
+    password_change_date = models.DateTimeField(auto_now_add=False, db_index=False)
 
 class PepRegTraining_Backup(models.Model):
     class Meta:

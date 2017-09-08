@@ -907,7 +907,8 @@ def login_user(request, error=""):
 
             user_log_info[0].save()
         else:
-            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,temp_time=utctime_str)
+            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,
+                temp_time=utctime_str,password_change_date=datetime.datetime.utcnow())
             user_log_info.save();
         #@end
 
