@@ -5,6 +5,12 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
+from .models import CommunityWebchat
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+import opentok
 
 @login_required
 def getvideoframe(request, uname):
@@ -66,6 +72,33 @@ def get_communities(request):
     #data = {'orgs': sorted(community_list, key=itemgetter('name'))}
     data = {'orgs_list': community_list}
     return render_to_response('webchat/listorgusers.html', data)
+
+def get_session_token(request):
+    session_id = request.POST.get("session")
+    api_key = "45939862"        # Replace with your OpenTok API key.
+    api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"  # Replace with your OpenTok API secret.
+    sdk = opentok.OpenTok (api_key, api_secret)
+    connectionMetadata = "username="+request.user.username+",userLevel=4"
+    token = sdk.generate_token (session_id)
+    return HttpResponse (json.dumps({'token':token}), content_type="application/json")
+
+def get_community_session(request):
+    community = CommunityWebchat.objects.filter(community__id=request.POST.get('community_id'))
+    if not community:
+        api_key = "45939862"        # Replace with your OpenTok API key.
+        api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"  # Replace with your OpenTok API secret.
+        opentok_sdk = opentok.OpenTok (api_key, api_secret)
+        sid = opentok_sdk.create_session()
+        comm = CommunityWebchat()
+        ref = CommunityCommunities.objects.get (id=request.POST.get('community_id'))
+        comm.community = ref
+        comm.session_id = sid.session_id
+        comm.save()
+        return HttpResponse(json.dumps({'session': sid.session_id}), content_type="application/json")
+    else:
+        ref = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+        comm = CommunityWebchat.objects.get(community=ref)
+        return HttpResponse (json.dumps({'session': comm.session_id}), content_type="application/json")
 
 def get_community_user_rows(request):
     """
