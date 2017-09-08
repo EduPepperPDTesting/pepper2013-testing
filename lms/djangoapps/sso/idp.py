@@ -336,8 +336,12 @@ def slo_request_send_one(request, sp_name):
     assertion = IDP.session_db.get_authn_statements(nid)[0]
     slo_request.session_index = SessionIndex(text=assertion[0].session_index)
 
-    binding, destination = IDP.pick_binding("single_logout_service", entity_id=entity_id, bindings=[BINDING_HTTP_POST, BINDING_HTTP_REDIRECT])
-
+    try:
+        binding, destination = IDP.pick_binding("single_logout_service", entity_id=entity_id, bindings=[BINDING_HTTP_POST, BINDING_HTTP_REDIRECT])
+    except:
+        del request.session["sso_participants"][sp_name]
+        return slo_request_send(request)
+ 
     http_args = IDP.apply_binding(
         binding=binding,
         msg_str=slo_request,
@@ -353,17 +357,22 @@ def slo_request_send(request):
     Return a slo request (a redirect/post to sp), this is used for slo issused by IDP
     """
 
-    if not request.user.is_authenticated() or not request.session.get("sso_participants"):
+    if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse("signin_user"))
 
-    if request.GET.get("sp"):
-        sp = request.GET.get("sp")
-        return slo_request_send_one(request, sp)
-    else:
-        sso_participants = request.session.get("sso_participants")
-        if sso_participants:
-            for sp in sso_participants:
+    sp_name = request.GET.get("sp")
+    buf = request.session.get("sso_participants")
+
+    if buf and len(buf):
+        if sp_name and buf.get(sp_name):
+            return slo_request_send_one(request, sp_name)
+        else:
+            for sp in buf:
                 return slo_request_send_one(request, sp)
+    else:
+        if request.session.get("sso_participants"):
+            del request.session["sso_participants"]
+        return logout_user(request)
 
 
 @csrf_exempt
