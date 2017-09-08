@@ -1,7 +1,7 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
-<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
 
      <div id="videos">
@@ -34,7 +34,7 @@ window.resizeTo(528,396);
 }
 
 location.getParams = getParams;
-    token = location.search.substr(1).split('&')[1].replace("token=",'');   
+    token = location.search.substr(1).split('&')[1].replace("token=",'');
     sessionId = location.getParams()['session']
 console.log (sessionId);
 console.log (token);
