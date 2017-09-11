@@ -251,17 +251,20 @@ class PepRegStudent(models.Model):
 class UserLoginInfo(models.Model):
     class Meta:
         db_table = 'user_login_info'
-    user_id = models.IntegerField(blank=False, max_length=11)
+    user = models.ForeignKey(UserProfile, to_field='user', on_delete=models.CASCADE, related_name="loginfo")
+    # user_id = models.IntegerField(blank=False, max_length=11)
     login_time = models.CharField(max_length=30)
     logout_time = models.CharField(max_length=30)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
-    last_session =  models.IntegerField(blank=False, max_length=15)
+    last_session = models.IntegerField(blank=False, max_length=15)
     total_session = models.IntegerField(blank=False, max_length=30)
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
     logout_press = models.BooleanField(blank=False, default=0)
     temp_time = models.CharField(max_length=30)
-    password_change_date = models.DateTimeField(auto_now_add=False, db_index=False)
+    password_change_date = models.CharField(max_length=30)
+    # password_change_date = models.DateTimeField(auto_now_add=False, db_index=False)
+    # user_info = models.ForeignKey(UserProfile, on_delete=models.PROTECT, related_name="FAN")
 
 class PepRegTraining_Backup(models.Model):
     class Meta:
