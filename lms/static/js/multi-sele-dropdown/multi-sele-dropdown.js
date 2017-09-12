@@ -109,7 +109,8 @@
     $.fn.clear_all = function() {
         this.each(function(i, c){
             var $table = c.$table;
-            $table.find("tr:visible td input").prop("checked", false);
+            $table.find("tr td input").prop("checked", false);
+            show_selection(c);
         });
     }     
     $.fn.get_selection = function(verbose) {

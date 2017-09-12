@@ -16,3 +16,5 @@ class AsyncTask(models.Model):
     create_user = models.ForeignKey(User, null=False)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now_add=True)
+    readed = models.BooleanField(default=False)
+    progress = models.IntegerField(db_index=False, default=0)

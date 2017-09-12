@@ -654,6 +654,29 @@ f.close()
      .course-perm-sub-title{
        cursor:pointer;
      }
+     .course-perm-sub-title img{
+       display: inline-block;
+       -moz-box-sizing: border-box;
+       box-sizing: border-box;
+       background: url(/static/images/course-permission/sub_arrow_2.png) no-repeat;
+       width: 30px; /* Width of new image */
+       height: 30px; /* Height of new image */
+       padding-left: 30px; /* Equal to width of new image */
+       background-size:cover;
+     }
+     .course-perm-sub-title.shown img{
+       display: inline-block;
+       -moz-box-sizing: border-box;
+       box-sizing: border-box;
+       background: url(/static/images/course-permission/sub_arrow_1.png) no-repeat;
+       width: 30px; /* Width of new image */
+       height: 30px; /* Height of new image */
+       padding-left: 30px; /* Equal to width of new image */
+       background-size:cover;       
+     }
+     #course_permission_user .tablesorter-blue thead *{
+       /* white-space:nowrap; */
+     }
     </style>    
     <script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
     <link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
@@ -661,205 +684,230 @@ f.close()
       Course Permissions <div class="icon"></div>
     </div>
     <div class="expand_div">
-      <section id="course_permission_user_table">
-        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title">View Access / Select Users</h2>
-        <div style="display:none;">
-        <div class="" style="height:120px;padding:20px;">
-          % if check_user_perms(request.user, access_level='System'):
-          <select id="lst-user-filter-state" name="" autocomplate="off" class="mu" label="State">
-            % for item in State.objects.all().order_by('name'):
-            <option class="${item.id}" value="${item.id}">${item.name}</option>
-            % endfor
-          </select>
-          % endif
-          % if check_user_perms(request.user, access_level='System'):
-          <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
-          </select>
-          % elif check_user_perms(request.user, access_level='State'):
-          ${request.user.profile.district.state.name}
-          <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
-          % for item in District.objects.filter(state=request.user.profile.district.state):
-            <option value="${item.id}">${item.name}</option>
-          % endfor
-          </select>
-          % endif
-          % if check_user_perms(request.user, access_level='District'):
-          <select id="lst-user-filter-school" name="" autocomplate="off" class="mu" label="School">
-          </select>
-          % endif
-        </div>
-        % if check_user_perms(request.user, access_level='System'):
-        <div style="reset:all;text-align:right;padding-right:20px;">
-          <input id="btnCoursePermCsvLoad" type="button" name="" value="Bulk CSV Load" style="background:#DFEDD6;"/>
-          <input type="file" name="" value="" style="display:none;"/>
-        </div>
-        % endif
-        <ul style="padding:10px;font-size:28px;" class="filters-menu">
-          <li id="filters-subject" class="active">Subject</li> |
-          <li id="filters-author">Author</li> |
-          <li id="filters-grade">Grade Level</li>
-        </ul>
-        <ul class="filters-submenu" id="filters-subject-submenu">
-          <li data-value="AR">Assessments and Reporting</li>
-          <li data-value="DC">Digital Citizenship</li>
-          <li data-value="ELA">English Language Arts</li>
-          <li data-value="ELL">English Language Learners</li>
-          <li data-value="MA">Mathematics</li>
-          <li data-value="PEP">Pepper</li>
-          <li data-value="POW">Pepper's Online Workshops!</li>
-          <li data-value="SC">Science</li>
-          <li data-value="SE">Special Education</li>
-          <li data-value="TCH">Teacher ToolKit</li>
-          <li data-value="TECH">Technology</li>
-          <li data-value="ARTS">Visual & Performing Arts</li>
-          <li data-value="WR">Writing and Poetry</li>  
-        </ul>
-        <ul class="filters-submenu" id="filters-author-submenu">
-          <li data-value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</li>
-          <li data-value="CHADD">CHADD</li>
-          <li data-value="Common Sense Education">Common Sense Education</li>
-          <li data-value="CT Core Standards">CT Core Standards</li>
-          <li data-value="Manteca Unified School District">Manteca Unified School District</li>
-          <li data-value="Media Power Youth">Media Power Youth</li>
-          <li data-value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</li>
-          <li data-value="Oklahoma SDE">Oklahoma SDE</li>
-          <li data-value="PCG Education">PCG Education</li>
-          <li data-value="SEADAE">SEADAE</li>
-          <li data-value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</li>
-          <li data-value="WestEd">WestEd</li>                  
-        </ul>
-        <ul class="filters-submenu" id="filters-grade-submenu">
-          <li data-value="PreK-3">PreK-3</li>
-          <li data-value="K-5">K-5</li>
-          <li data-value="6-8">6-8</li>
-          <li data-value="K-12">K-12</li>
-          <li data-value="9-12">9-12</li>
-        </ul>        
-        <div style="text-align: right;padding:20px;"> <input id="btnUserLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/> </div>
-        <div style="padding:10px;" id="course_permission_user">
-          <table class="tablesorter-blue">
-            <thead>
-              <tr>
-                <th class="id">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
-                <th class="first_name">First Name</th>
-                <th class="last_name">Last Name</th>
-                <th class="email">Email</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-          <div id="">
-            <span class="pager">
-              <form>
-                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-                <select class="pagesize">
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                </select>
-              </form>
-            </span>
+      <section id="course_permission_user">
+        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title shown">
+          View Access / Select Users <img/>
+        </h2>
+        <div style="display:;">
+          <div class="filters">
+            <div style="height:60px;padding:20px;">
+              <!-- state -->
+              % if check_user_perms(request.user, access_level='System'):
+              <select id="lst-user-filter-state" name="" autocomplate="off" class="mu" label="State">
+                % for item in State.objects.all().order_by('name'):
+                <option class="${item.id}" value="${item.id}">${item.name}</option>
+                % endfor
+              </select>
+              % else:
+              <input type="hidden" name="state_id" value="${request.user.profile.district.state.id}" />
+              % endif
+              <!-- district -->
+              % if check_user_perms(request.user, access_level='System'):
+              <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
+              </select>
+              % elif check_user_perms(request.user, access_level='State'):
+              ${request.user.profile.district.state.name}
+              <select id="lst-user-filter-district" name="" autocomplate="off" class="mu" label="District">
+                % for item in District.objects.filter(state=request.user.profile.district.state):
+                <option value="${item.id}">${item.name}</option>
+                % endfor
+              </select>
+              %else:
+              <input type="hidden" name="district_id" value="${request.user.profile.district.id}" />
+              % endif
+              <!-- school -->
+              % if check_user_perms(request.user, access_level='District'):
+              <select id="lst-user-filter-school" name="" autocomplate="off" class="mu" label="School">
+              </select>
+              % else:
+              <input type="hidden" name="school_id" value="${request.user.profile.school.id}" />
+              % endif
+              <!-- csv load buttn -->
+              % if check_user_perms(request.user, access_level='System'):
+              <div style="reset:all;float:right;">
+                <input id="btnCoursePermCsvLoad" type="button" name="" value="Bulk CSV Load" style="background:#DFEDD6;"/>
+                <input type="file" name="" value="" style="display:none;"/>
+              </div>
+              % endif
+            </div>
+            <ul style="padding:10px;font-size:28px;" class="filters-menu">
+              <li id="filters-subject" class="active">Subject</li> |
+              <li id="filters-author">Author</li> |
+              <li id="filters-grade">Grade Level</li>
+            </ul>
+            <ul class="filters-submenu" id="filters-subject-submenu">
+              <li data-value="AR">Assessments and Reporting</li>
+              <li data-value="DC">Digital Citizenship</li>
+              <li data-value="ELA">English Language Arts</li>
+              <li data-value="ELL">English Language Learners</li>
+              <li data-value="MA">Mathematics</li>
+              <li data-value="PEP">Pepper</li>
+              <li data-value="POW">Pepper's Online Workshops!</li>
+              <li data-value="SC">Science</li>
+              <li data-value="SE">Special Education</li>
+              <li data-value="TCH">Teacher ToolKit</li>
+              <li data-value="TECH">Technology</li>
+              <li data-value="ARTS">Visual & Performing Arts</li>
+              <li data-value="WR">Writing and Poetry</li>  
+            </ul>
+            <ul class="filters-submenu" id="filters-author-submenu">
+              <li data-value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</li>
+              <li data-value="CHADD">CHADD</li>
+              <li data-value="Common Sense Education">Common Sense Education</li>
+              <li data-value="CT Core Standards">CT Core Standards</li>
+              <li data-value="Manteca Unified School District">Manteca Unified School District</li>
+              <li data-value="Media Power Youth">Media Power Youth</li>
+              <li data-value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</li>
+              <li data-value="Oklahoma SDE">Oklahoma SDE</li>
+              <li data-value="PCG Education">PCG Education</li>
+              <li data-value="SEADAE">SEADAE</li>
+              <li data-value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</li>
+              <li data-value="WestEd">WestEd</li>                  
+            </ul>
+            <ul class="filters-submenu" id="filters-grade-submenu">
+              <li data-value="PreK-3">PreK-3</li>
+              <li data-value="K-5">K-5</li>
+              <li data-value="6-8">6-8</li>
+              <li data-value="K-12">K-12</li>
+              <li data-value="9-12">9-12</li>
+            </ul>
           </div>
-          <p style="padding:20px;"><input type="button" id="btnCoursePermDownloadExcel" value="Export to Excel" style="background:#2E7D32;color:#fff;"/></p>
-        </div>
+          <div style="text-align:right;padding:20px;">
+            <input id="btnClearUserFilter" type="button" name="" value="Clear Filter" style="background:#2E7D32;color:#fff;"/>
+            <input id="btnUserLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/>
+          </div>
+          <div style="padding:10px;" id="course_permission_user">
+            <div style="overflow-x:auto;">
+              <table class="tablesorter-blue">
+                <thead>
+                  <tr>
+                    <th class="id">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
+                    <th class="first_name">First Name</th>
+                    <th class="last_name">Last Name</th>
+                    <th class="email">Email</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div id="">
+              <span class="pager">
+                <form>
+                  <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                  <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                  <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                  <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                  <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                  <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                  </select>
+                </form>
+              </span>
+            </div>
+            <p style="padding:20px;">
+              <input type="button" id="btnCoursePermDownloadExcel" value="Export to Excel" style="background:#2E7D32;color:#fff;"/>
+            </p>
+          </div>
         </div>
       </section>
-      
       <section id="course_permission_course">
-        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title">Select Courses, Access Level and Notifications</h2>
+        <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title">
+          Select Courses, Access Level and Notifications <img/>
+        </h2>
         <div style="display:none">
-        <div class="" style="height:120px;padding:20px;display:none;">
-          <select id="lst-course-filter-subject" name="" autocomplate="off" class="mu" label="Subject">
-            <option value="AR">Assessments and Reporting</option>
-            <option value="DC">Digital Citizenship</option>
-            <option value="ELA">English Language Arts</option>
-            <option value="ELL">English Language Learners</option>
-            <option value="MA">Mathematics</option>
-            <option value="PEP">Pepper</option>
-            <option value="POW">Pepper's Online Workshops!</option>
-            <option value="SC">Science</option>
-            <option value="SE">Special Education</option>
-            <option value="TCH">Teacher ToolKit</option>
-            <option value="TECH">Technology</option>
-            <option value="ARTS">Visual & Performing Arts</option>
-            <option value="WR">Writing and Poetry</option>              
-          </select>
-          
-          <select id="lst-course-filter-author" name="" autocomplate="off" class="mu" label="Author">
-            <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
-            <option value="CHADD">CHADD</option>
-            <option value="Common Sense Education">Common Sense Education</option>
-            <option value="CT Core Standards">CT Core Standards</option>
-            <option value="Manteca Unified School District">Manteca Unified School District</option>
-            <option value="Media Power Youth">Media Power Youth</option>
-            <option value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</option>
-            <option value="Oklahoma SDE">Oklahoma SDE</option>
-            <option value="PCG Education">PCG Education</option>
-            <option value="SEADAE">SEADAE</option>
-            <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
-            <option value="WestEd">WestEd</option>            
-          </select>
-          
-          <select id="lst-course-filter-grade-level" name="" autocomplate="off" class="mu" label="Grade Level">
-            <option value="PreK-3">PreK-3</option>
-            <option value="K-5">K-5</option>
-            <option value="6-8">6-8</option>
-            <option value="K-12">K-12</option>
-            <option value="9-12">9-12</option>
-          </select>     
-          % if check_user_perms(request.user, access_level='System'):
-          <select id="lst-course-filter-state" name="" autocomplate="off" class="mu" label="State">
-            %for item in State.objects.all().order_by('name'):
-            <option class="${item.id}" value="${item.id}">${item.name}</option>
-            %endfor
-          </select>
-          <select id="lst-course-filter-district" name="" autocomplate="off" class="mu" label="District">
-          </select>
-          % endif
-      
-        </div>
-        <div style="text-align: right;padding:20px;"><input id="btnCourseLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/></div>
-        <div style="padding:10px;">
-          <table class="tablesorter-blue">
-            <thead>
-              <tr>
-                <th class="">Subject</th>
-                <th class="">Author</th>
-                <th class="">Grade Level</th>
-                <th class="">Course Name</th>
-                <th class="">Access</th>
-                <th class="">Enrollment</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-          <div id="">
-            <span class="pager">
-              <form>
-                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-                <select class="pagesize">
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                </select>
-              </form>
-            </span>
+          <div class="filters">
+            <div class="" style="height:60px;padding:20px;">
+              <select id="lst-course-filter-subject" name="" autocomplate="off" class="mu" label="Subject">
+                <option value="AR">Assessments and Reporting</option>
+                <option value="DC">Digital Citizenship</option>
+                <option value="ELA">English Language Arts</option>
+                <option value="ELL">English Language Learners</option>
+                <option value="MA">Mathematics</option>
+                <option value="PEP">Pepper</option>
+                <option value="POW">Pepper's Online Workshops!</option>
+                <option value="SC">Science</option>
+                <option value="SE">Special Education</option>
+                <option value="TCH">Teacher ToolKit</option>
+                <option value="TECH">Technology</option>
+                <option value="ARTS">Visual & Performing Arts</option>
+                <option value="WR">Writing and Poetry</option>              
+              </select>
+              <select id="lst-course-filter-author" name="" autocomplate="off" class="mu" label="Author">
+                <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
+                <option value="CHADD">CHADD</option>
+                <option value="Common Sense Education">Common Sense Education</option>
+                <option value="CT Core Standards">CT Core Standards</option>
+                <option value="Manteca Unified School District">Manteca Unified School District</option>
+                <option value="Media Power Youth">Media Power Youth</option>
+                <option value="O'Neill Sea Odyssey">O'Neill Sea Odyssey</option>
+                <option value="Oklahoma SDE">Oklahoma SDE</option>
+                <option value="PCG Education">PCG Education</option>
+                <option value="SEADAE">SEADAE</option>
+                <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
+                <option value="WestEd">WestEd</option>            
+              </select>
+              <select id="lst-course-filter-grade-level" name="" autocomplate="off" class="mu" label="Grade Level">
+                <option value="PreK-3">PreK-3</option>
+                <option value="K-5">K-5</option>
+                <option value="6-8">6-8</option>
+                <option value="K-12">K-12</option>
+                <option value="9-12">9-12</option>
+              </select>     
+              % if check_user_perms(request.user, access_level='System'):
+              <select id="lst-course-filter-state" name="" autocomplate="off" class="mu" label="State">
+                %for item in State.objects.all().order_by('name'):
+                <option class="${item.id}" value="${item.id}">${item.name}</option>
+                %endfor
+              </select>
+              <select id="lst-course-filter-district" name="" autocomplate="off" class="mu" label="District">
+              </select>
+              % endif
+            </div>    
           </div>
-        </div>
-        <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save" id="btnSave" style="background:#2E7D32;color:#fff;"></p>
-        <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save & Send Notification" id="btnSaveSend" style="background:#2E7D32;color:#fff;"></p>
+          <div style="text-align: right;padding:20px;">
+            <input id="btnClearCourseFilter" type="button" name="" value="Clear Filter" style="background:#2E7D32;color:#fff;"/>            
+            <input id="btnCourseLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/>
+          </div>
+          <div style="padding:10px;">
+            <table class="tablesorter-blue">
+              <thead>
+                <tr>
+                  <th class="">Subject</th>
+                  <th class="">Author</th>
+                  <th class="">Grade Level</th>
+                  <th class="">Course Name</th>
+                  <th class="">Access</th>
+                  <th class="">Enrollment</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div id="">
+              <span class="pager">
+                <form>
+                  <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                  <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                  <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                  <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                  <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                  <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                  </select>
+                </form>
+              </span>
+            </div>
+          </div>
+          <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save" id="btnSave" style="background:#2E7D32;color:#fff;"></p>
+          <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save & Send Notification" id="btnSaveSend" style="background:#2E7D32;color:#fff;"></p>
         </div>
       </section>
       <!-- end of course permission -->
@@ -919,7 +967,28 @@ f.close()
     url += "&schools=" + user_school_ids.join(",");
     url += "&courses=" + courses.join(",");
     window.open(url, "_blank");
-  }  
+  }
+  CoursePermission.prototype.checkTaskProgress = function(taskId){
+    var self = this;
+    function check(r){
+      if(r && r.title == 'all done'){
+        new Dialog($('#dialog')).show("Bulk CSV Load ", "The users are imported successfuly.").onClose(function(){
+          self.loadUserTable(true);  
+        });
+      }else if(r && r.title == 'all done with errors'){
+        new Dialog($('#dialog')).show("Bulk CSV Load", "CSV import finished with errors, Please check your email.").onClose(function(){
+          self.loadUserTable(true);  
+        });
+      }else{
+        setTimeout(function(){
+          $.get("${reverse('ajax_get_async_task')}", {id: taskId}, function(r){
+            check(r);
+          });
+        }, 2000);
+      }
+    }
+    check();
+  }
   CoursePermission.prototype.save = function(send_notification){
     var self = this;
     var users = []
@@ -938,6 +1007,10 @@ f.close()
       access.push($(this).find("td:nth-child(6) .toggle").hasClass("on")?1:0);
       enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
     });
+    if(!courses.length){
+      new Dialog($('#dialog')).show("Warn", "No course loaded");
+      return;
+    }    
     $.post("${reverse('pepconn_update_course_permission')}", {
       send_notification: send_notification ? "1" : "0",
       users: users.join(","),
@@ -945,7 +1018,9 @@ f.close()
       access: access.join(","),
       enroll: enroll.join(",")}, function(r){
         if(r.success){
-          self.loadUserTable(true);
+          self.checkTaskProgress(r.taskId);
+        }else{
+          new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
         }
       });
   }
@@ -955,20 +1030,17 @@ f.close()
   }
   CoursePermission.prototype.loadCourseTable = function(){
     var self = this;
-
     var subjects = $("#lst-course-filter-subject").get_selection();
     var authors = $("#lst-course-filter-author").get_selection();
     var grade_levels = $("#lst-course-filter-grade_level").get_selection();
     var state_ids = $("#lst-course-filter-state").get_selection();
     var district_ids = $("#lst-course-filter-district").get_selection();
     var url = "${reverse('pepconn_get_course_permission_course_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}";
-
     if(subjects) url += "&subjects=" + subjects;
     if(authors) url += "&authors=" + authors;
     if(grade_levels) url += "&grade_levels=" + grade_levels;
     if(state_ids) url += "&states=" + state_ids.join(",");
     if(district_ids) url += "&districts=" + district_ids.join(",");
-    
     var pagerOptions = {
       container: '',
       output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
@@ -1040,8 +1112,12 @@ f.close()
     var course_author = ($("#filters-author-submenu li.active").attr("data-value"))
     var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value"))
 
-    var user_state_ids = $("#lst-user-filter-state").get_selection();
-    var user_district_ids = $("#lst-user-filter-district").get_selection();
+    var hidden = {}
+    $("#course_permission_user .filters input[type=hidden]").each(function(){
+      hidden[this.name] = this.value;
+    });
+    var user_state_ids = hidden["state_id"] || $("#lst-user-filter-state").get_selection();
+    var user_district_ids = hidden["district_id"] || $("#lst-user-filter-district").get_selection();
     var user_school_ids = $("#lst-user-filter-school").get_selection();
 
     var url = "${reverse('pepconn_get_course_permission_user_rows')}?page={page}&size={size}&{sortList:col}";
@@ -1105,15 +1181,11 @@ f.close()
     $table.bind("pagerComplete", function (a) {
       // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
       // $(this).find("th:nth-child(1)").width(160)
-
       var this_table=this;
-      
       $(this).find(".check-all").click(function(){
         $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
       });
-      
       var selection = self.selection;
-
       $(this).find("td:nth-child(1)").each(function(i){
         var v = $(this).text();
         $(this).html("");
@@ -1122,9 +1194,7 @@ f.close()
           check.prop('checked', true);
         }
       });
-
       self.selection = [];
-
       /** hide headers only for filter  */
       $(this).find("th:nth-child(5)").hide();
       $(this).find("td:nth-child(5)").hide();
@@ -1165,11 +1235,11 @@ f.close()
     });
   }
   CoursePermission.prototype.loadCsv=function(){
+    var self = this;
     var $file =  $("#btnCoursePermCsvLoad").next("input");
     $file.click();
     $file.change(function(){
       if(this.value){
-
         var courses = [];
         var access = [];
         var enroll = [];
@@ -1180,11 +1250,18 @@ f.close()
           enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
         });
         
+        if(!courses.length){
+          new Dialog($('#dialog')).show("Warn", "No course loaded");
+          return;
+        }
+        
         var fd = new FormData();
         fd.append('attachment', this.files[0]);
         fd.append('courses', courses);
         fd.append('access', access);
         fd.append('enroll', enroll);
+
+        $(this).val("");
         
         $.ajax({
           url: "${reverse('pepconn_course_permission_load_csv')}",
@@ -1200,10 +1277,14 @@ f.close()
           enctype: 'multipart/form-data',
           mimeType: 'multipart/form-data',
           error: function(xhr, status){
-            // checkAjaxSessionTimeout(xhr)
+            
           },
           success: function(data){
-            alert("finish")
+            if(data.success){
+              self.checkTaskProgress(data.taskId);
+            }else{
+              new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
+            }
           }
         });            
       }
@@ -1266,10 +1347,19 @@ f.close()
     });
     $(".course-perm-sub-title").click(function(){
       var $div = $(this).next("div");
-      if($div.is(":visible"))
+      if($div.is(":visible")){
         $div.slideUp();
-      else
+        $(this).removeClass("shown");
+      }else{
         $div.slideDown();
+        $(this).addClass("shown");
+      }
+    });
+    $("#btnClearUserFilter, #btnClearCourseFilter").click(function(){
+      $("#course_permission_user, #course_permission_course").find("div.filters").find("select").each(function(){
+        $(this).clear_all();
+        $(".filters-submenu li").removeClass("active");
+      });
     });
   }
   new CoursePermission()
