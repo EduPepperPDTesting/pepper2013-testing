@@ -364,7 +364,12 @@ var userTimeReport = {
             table_con += '<tr role="row" user_id=' + data[d].id + '>';
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
             table_con += '<td class="useremail">' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
-            table_con += '<td>' + moment(data[d].login_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
+            if(data[d].login_time == ''){
+                table_con += '<td>' + ' ' + '</td>';
+            }
+            else{
+                table_con += '<td>' + moment(data[d].login_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
+            }
             if(data[d].logout_time == ''){
                 table_con += '<td>' + ' ' + '</td>';
             }
@@ -570,7 +575,6 @@ var userTimeReport = {
 
     get_table_result:function(){
         $(".tblUserTime tbody").empty();
-        
         var self = this;
         var filter = $('#fltUserTime')[0].control.getFilter();
         var local_time =  new Date();

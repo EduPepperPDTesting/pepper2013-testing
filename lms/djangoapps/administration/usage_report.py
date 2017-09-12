@@ -46,15 +46,6 @@ def get_user_login_info(request):
 	else:
 		user_log_info = UserLoginInfo.objects.filter()
 
-	'''
-	fan = UserProfile.objects.filter(loginfo__last_session=25)
-	for dd in fan:
-		log.debug("======================")
-		log.debug(dd.school_id)
-		log.debug(dd.user.email)
-		log.debug(dd.loginfo.all()[0].user_id)
-	'''
-
 	login_info_list = []
 	for d in user_log_info:
 		dict_tmp = {}
