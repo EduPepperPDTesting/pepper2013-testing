@@ -26,10 +26,27 @@ def gettextframe(request, uname):
 # def get_all_users(request):
 #     user = User.objects.get(id=request.user.id)
 
-# @login_required
-# def get_network_contacts(request):
-#     user = User.objects.get(id=request.user.id)
-#     #contacts = PepRegStudent.objects.filter(student=request.user, )
+@login_required
+def get_networ(request):
+    data = {'orgs_list': 'My Network'}
+    return render_to_response('webchat/listorgusers.html', data)
+
+def get_network_user_rows(request):
+    rows = list()
+
+    # for item in users[start:end]:
+    for item in users:
+        row = list()
+        row.append(str(item.user.first_name) + " " + str(item.user.last_name))
+
+        rows.append(row)
+
+    if not rows:
+        return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps(
+            {'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/33/33965.svg', 'imagealt': 'im-network',
+             'rows': rows})
 
 @login_required
 def get_communities(request):

@@ -19,18 +19,25 @@
 	$(document).ready(function(){
 		$(".org-list-table").each(function(){
 			var tableData = $(this).attr("data");
-			tableData = tableData.replace(/~/g, "\'");
-			var idStartIndex = tableData.indexOf(": ") + 2;
-			var idEndIndex = tableData.indexOf(",") - 1;
-			var nameStartIndex = tableData.indexOf(": u") + 4;
-			var nameEndIndex = tableData.indexOf("}") - 1;
-			var commId = tableData.substring(idStartIndex, idEndIndex);
-			var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
+			if(tableData != 'My Network'){
+				tableData = tableData.replace(/~/g, "\'");
+				var idStartIndex = tableData.indexOf(": ") + 2;
+				var idEndIndex = tableData.indexOf(",") - 1;
+				var nameStartIndex = tableData.indexOf(": u") + 4;
+				var nameEndIndex = tableData.indexOf("}") - 1;
+				var commId = tableData.substring(idStartIndex, idEndIndex);
+				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
+				var rowSource = 'community';
+			}else{
+				var commId = 'network';
+				var commName = tableData;
+				var rowSource = 'network';
+			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
-				$.post("${reverse('get_community_user_rows')}", {community_id: commId}, function (data) {
+				$.post("${reverse('get_" + rowSource + "_user_rows')}", {community_id: commId}, function (data) {
 					if (data.success) {
 						tbodyID = "#users_"+commId;
 						var username;

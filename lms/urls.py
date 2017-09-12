@@ -112,6 +112,8 @@ urlpatterns = (
     url(r'^textchat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.gettextframe', name='textchat_show'),
     url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
     url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
+    url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
+    url(r'^getnetworkusers/$', 'webchat.views.get_network_user_rows', name="get_network_user_rows"),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
