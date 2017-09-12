@@ -1,18 +1,19 @@
-<%! from django.utils.translation import ugettext as _ %>
-
-<%namespace name='static' file='static_content.html'/>
-<%! from django.utils import html %>
 <%!
-    from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+    from django.utils.translation import ugettext as _
+    from django.utils import html
+    from student.models import State, District, School, User, UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter
 %>
+<%namespace name='static' file='static_content.html'/>
+
 % if context.get("curr_user"):
     <% curr_user=context.get("curr_user") %>
 % else:
     <% curr_user=user %>
 % endif
 <%
-    OrganizationOK = False
+    organization_active = False
+    footer = False
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -28,29 +29,31 @@
             school_id = -1
             
         organization_obj = OrganizationMetadata()
-        if (school_id != -1):
+        if school_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
+                organization_active = True
+                break
 
-        if (not(OrganizationOK) and district_id != -1):
+        if not organization_active and district_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
                 organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
+                organization_active = True
+                break
         
-        if (not(OrganizationOK) and state_id != -1):
+        if not organization_active and state_id != -1:
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                OrganizationOK = True
+                organization_active = True
                 organization_obj = tmp1.organization
-                break;
+                break
                 
-        data = {}
-        if OrganizationOK:
-            data["org_id"] = organization_obj.id;
+        org_data = {}
+        if organization_active:
+            org_data["org_id"] = organization_obj.id;
             for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                data[tmp1.itemType] = tmp1.itemValue
+                org_data[tmp1.itemType] = tmp1.itemValue
+            if org_data["Footer Selected"] == "1":
+                footer = OrganizationFooter.objects.get(organization=org_data['org_id']).DataItem
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
@@ -62,6 +65,11 @@
 
 <%def name="stanford_theme_enabled()">
   <% return theme_enabled() and getattr(settings, "THEME_NAME") == "stanford" %>
+</%def>
+
+## Convert URLs to absolute if this is being called externally.
+<%def name="absolute_url(uri)">
+    <% return request.build_absolute_uri(uri) if is_external else uri %>
 </%def>
 
 <!DOCTYPE html>
@@ -123,8 +131,8 @@
 
 </head>
 
-<%!
-navbar_show_extended=True
+<%
+    navbar_show_extended=True
 %>
 
 <body class="<%block name='bodyclass'/>">
@@ -132,11 +140,11 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-header.html" />
 % elif not suppress_toplevel_navigation:
-    % if OrganizationOK and data["Is New Menu"] == "1":
-        <%include file="navigation_new.html" args="show_extended=self.attr.navbar_show_extended"/>
+    % if organization_active and org_data["Is New Menu"] == "1":
+        <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
     % else:
-        <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
-    % endif    
+        <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
+    % endif
 % endif
   
 <!--@begin:Main module page, change the bottom margin in the body text-->
@@ -150,7 +158,7 @@ navbar_show_extended=True
 % if theme_enabled():
   <%include file="theme-footer.html" />
 % elif not suppress_toplevel_navigation:
-  <%include file="footer.html" />
+  <%include file="footer.html" args="alt_footer=footer, is_external=is_external"/>
 % endif
 
 
