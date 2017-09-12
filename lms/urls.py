@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from ratelimitbackend import admin
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 import django.contrib.auth.views
 
@@ -112,8 +113,12 @@ urlpatterns = (
     url(r'^textchat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.gettextframe', name='textchat_show'),
     url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
     url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
+
     url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
     url(r'^getnetworkusers/$', 'webchat.views.get_network_user_rows', name="get_network_user_rows"),
+
+    url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
+    url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
@@ -540,6 +545,7 @@ urlpatterns = (
     url(r'^begin_exam_registration/(?P<course_id>[^/]+/[^/]+/[^/]+)$', 'student.views.begin_exam_registration', name="begin_exam_registration"),
     url(r'^create_exam_registration$', 'student.views.create_exam_registration'),
     url(r'^password_reset/$', 'student.views.password_reset', name='password_reset'),
+    url(r'^webchat/videopopup$', TemplateView.as_view(template_name="webchat/videopopup.html"), name="getvideopopup"),
     ## Obsolete Django views for password resets
     ## TODO: Replace with Mako-ized views
     url(r'^password_change/$', django.contrib.auth.views.password_change,

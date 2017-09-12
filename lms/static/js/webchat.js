@@ -1,13 +1,11 @@
 var apiKey = "45939862";
+window.resizeTo(528,396);
 var sessionId = "2_MX40NTkzOTg2Mn5-MTUwNDEwMzMwMTkyNn5XR2dwbTVNTjk2SFZScU9zZFBMM2hTOUV-fg";
 var token = "T1==cGFydG5lcl9pZD00NTkzOTg2MiZzaWc9Y2RiZWQwMWUzNTgwY2JkMzk0ZDE1M2Q2OWZjOTI2ZmMwNmVmYmVjYjpzZXNzaW9uX2lkPTJfTVg0ME5Ua3pPVGcyTW41LU1UVXdOREV3TXpNd01Ua3lObjVYUjJkd2JUVk5UamsyU0ZaU2NVOXpaRkJNTTJoVE9VVi1mZyZjcmVhdGVfdGltZT0xNTA0MTAzMzE1Jm5vbmNlPTAuMTgyNzA2MDAzOTc5MTc2NTgmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTUwNjY5NTI5OCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ";
 $(document).ready(function(){
-    $("#start-session").click(function() {
+        console.log ("starting...");
+
         initializeSession();
-    });
-    $("#webchat > .close-modal").click(function () {
-        disconnectSession();
-    })
 });
 
 function handleError(error) {

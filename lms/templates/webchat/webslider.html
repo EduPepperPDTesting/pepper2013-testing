@@ -28,7 +28,7 @@
                     <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/125/125702.svg" alt="im-network"></a></span>
                     <span class="pep_online_status">&#11044;</span>
                 </div>
-                <div class="pep_contact_name">First User</div>
+                <div class="pep_contact_name">Mike</div>
                 <div class="pep_start_video">
                     <a><img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"></a>
                 </div>
@@ -170,6 +170,10 @@ $(document).ready(function(){
     $("#my_communities").on("click", function(e){
         $("#pep_user_list").load("/getcommunities/");
     });
-
+    $(".pep_contact_block").on("click", ".pep_start_video", function(){
+        var uname = $(this).prev().text().replace(" ", "_");
+        $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
+        window.open("/webchat/videopopup",'mypopup', 'postwindow');
+    });
 });
 </script>

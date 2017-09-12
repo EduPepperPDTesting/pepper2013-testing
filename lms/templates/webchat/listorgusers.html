@@ -35,6 +35,7 @@
 			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
+            $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				$.post("${reverse('get_" + rowSource + "_user_rows')}", {community_id: commId}, function (data) {
@@ -69,7 +70,17 @@
 			}
 
 		});
-
+        $("thead").on ("click", function (e){
+            community_id = $(this).parent().attr("id").replace("community_", '');
+            $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                   console.log (session);
+                    console.log (data.token);
+                   window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                });
+            });
+        })
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
 			var $link = $(e.target);
 			e.preventDefault();
@@ -103,6 +114,7 @@
 		});
 
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
+            alert ('hit')
 			var $link = $(e.target);
 			e.preventDefault();
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {

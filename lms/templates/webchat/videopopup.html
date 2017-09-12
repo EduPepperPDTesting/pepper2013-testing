@@ -1,0 +1,87 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
+
+     <div id="videos">
+        <div id="subscriber"></div>
+        <div id="publisher"></div>
+    </div>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+
+<script>
+window.resizeTo(528,396);
+    function getParams ()
+{
+    var result = {};
+    var tmp = [];
+
+    location.search
+        .substr (1)
+        .split ("&")
+        .forEach (function (item)
+        {
+            tmp = item.split ("=");
+            result [tmp[0]] = decodeURIComponent (tmp[1]);
+        });
+
+    return result;
+}
+
+location.getParams = getParams;
+    token = location.search.substr(1).split('&')[1].replace("token=",'');   
+    sessionId = location.getParams()['session']
+console.log (sessionId);
+console.log (token);
+    var apiKey = "45939862";
+$(document).ready(function(){
+        console.log ("starting...");
+
+        initializeSession();
+});
+
+function handleError(error) {
+  if (error) {
+    alert(error.message);
+  }
+}
+
+function disconnectSession () {
+    var session = OT.initSession(apiKey, sessionId);
+    session.disconnect();
+}
+
+function initializeSession() {
+    var session = OT.initSession(apiKey, sessionId);
+
+    session.on('streamCreated', function(event) {
+        session.subscribe(event.stream, 'subscriber', {
+            insertMode: 'append',
+            width: '100%',
+            height: '100%'
+        }, handleError);
+    });
+
+    var publisher = OT.initPublisher('publisher', {
+        insertMode: 'append',
+        width: '100%',
+        height: '100%'
+    }, handleError);
+
+    session.connect(token, function(error) {
+        if (error) {
+          handleError(error);
+        } else {
+          session.publish(publisher, handleError);
+        }
+    });
+}
+</script>
+
+<div id="pep_video_container"></div>
+
