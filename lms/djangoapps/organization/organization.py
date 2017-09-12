@@ -1,5 +1,4 @@
-from mitxmako.shortcuts import render_to_response, render_to_string
-from django.http import HttpResponse
+from mitxmako.shortcuts import render_to_response
 import json
 from models import *
 from django import db
@@ -15,13 +14,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
-import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+# from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from student.models import District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
 from django.conf import settings
-from PIL import Image
+# from PIL import Image
 import os
 import os.path
 import shutil
@@ -29,81 +28,85 @@ from student.feeding import dashboard_feeding_store
 import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
+from pepper_utilities.utils import render_json_response
+
 
 # -------------------------------------------------------------------main
 def main(request):
     get_flag = request.GET.get("flag")
     post_flag = request.POST.get("flag")
 
-    if(get_flag):
-        if(get_flag == "organization_list"):
+    if get_flag:
+        if get_flag == "organization_list":
             return organization_list(request)
 
-        elif(get_flag == "checkPost"):
+        elif get_flag == "checkPost":
             return organization_check(request)
 
-        elif (get_flag == "organization_get"):
+        elif get_flag == "organization_get":
             return organization_get(request)
 
-        elif (get_flag == "organization_main_get"):
+        elif get_flag == "organization_main_get":
             return organization_main_page_configuration_get(request)
 
-        elif (get_flag == "organization_get_locations"):
+        elif get_flag == "organization_get_locations":
             return organization_get_locations(request)
 
-        elif (get_flag == "organization_user_email_completion"):
+        elif get_flag == "organization_user_email_completion":
             return organization_user_email_completion(request)
-        elif (get_flag == "organization_initial_superuser_eamil"):
+
+        elif get_flag == "organization_initial_superuser_eamil":
             return organization_initial_superuser_eamil(request)
 
-    elif(post_flag):
-        if (post_flag == "organization_add"):
+    elif post_flag:
+        if post_flag == "organization_add":
             return organization_add(request)
 
-        elif (post_flag == "organization_delete"):
+        elif post_flag == "organization_delete":
             return organization_delete(request)
 
-        elif (post_flag == "organizational_save_base"):
+        elif post_flag == "organizational_save_base":
             return organizational_save_base(request)
 
-        elif (post_flag == "org_upload"):
+        elif post_flag == "org_upload":
             return org_upload(request)
 
-        elif (post_flag == "organizational_save_main_base"):
+        elif post_flag == "organizational_save_main_base":
             return organizational_save_main_base(request)
 
-        elif (post_flag == "org_main_upload"):
+        elif post_flag == "org_main_upload":
             return org_main_upload(request)
 
-        elif (post_flag == "org_dashboard_upload"):
+        elif post_flag == "org_dashboard_upload":
             return org_dashboard_upload(request)
 
-        elif (post_flag == "org_dashboard_upload_cms"):
+        elif post_flag == "org_dashboard_upload_cms":
             return org_dashboard_upload_cms(request)
 
-        elif (post_flag == "org_option_cvs_upload"):
+        elif post_flag == "org_option_cvs_upload":
             return org_option_cvs_upload(request)
 
-        elif (post_flag == "organization_check_Entity"):
+        elif post_flag == "organization_check_Entity":
             return org_check_Entity(request)
 
-        elif (post_flag == "organization_remove_img"):
+        elif post_flag == "organization_remove_img":
             return organization_remove_img(request)
 
-        elif (post_flag == "organization_get_info"):
+        elif post_flag == "organization_get_info":
             return organization_get_info(request)
 
-        elif (post_flag == "organization_course_list"):
+        elif post_flag == "organization_course_list":
             return organization_course_list(request)
 
-        elif (post_flag == "organization_manage_user_info"):
+        elif post_flag == "organization_manage_user_info":
             return organization_manage_user_info(request)
 
-        elif (post_flag == "org_manage_user_cvs_upload"):
+        elif post_flag == "org_manage_user_cvs_upload":
             return org_manage_user_cvs_upload(request)
     else:
         tmp = "organization/organization.html"
         return render_to_response(tmp)
+
 
 # -------------------------------------------------------------------organization_initial_superuser_eamil
 @login_required
@@ -112,12 +115,14 @@ def organization_initial_superuser_eamil(request):
     lookup = request.GET.get('q', False)
     oid = request.GET.get('oid', False)
     if lookup and oid:
-        kwargs = {'email__istartswith': lookup,'is_superuser': 1, 'profile__subscription_status': 'Registered'}
+        kwargs = {'email__istartswith': lookup, 'is_superuser': 1, 'profile__subscription_status': 'Registered'}
         data = User.objects.filter(**kwargs)
         for item in data:
             r.append(item.email)
 
-    return HttpResponse(json.dumps(r), content_type="application/json")
+    return render_json_response(r)
+
+
 # -------------------------------------------------------------------organization_user_email_completion
 @login_required
 def organization_user_email_completion(request):
@@ -125,7 +130,7 @@ def organization_user_email_completion(request):
     lookup = request.GET.get('q', False)
     oid = request.GET.get('oid', False)
     if lookup and oid:
-        kwargs = {'email__istartswith': lookup,'is_superuser':1, 'profile__subscription_status': 'Registered'}
+        kwargs = {'email__istartswith': lookup, 'is_superuser': 1, 'profile__subscription_status': 'Registered'}
         data = User.objects.filter(**kwargs)
 
         for orgx in OrganizationMetadata.objects.filter(id=oid):
@@ -161,7 +166,7 @@ def organization_user_email_completion(request):
 
             break
 
-    return HttpResponse(json.dumps(r), content_type="application/json")
+    return render_json_response(r)
 
 
 # -------------------------------------------------------------------organization_manage_user_info
@@ -219,7 +224,7 @@ def organization_manage_user_info(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_manage_user_cvs_upload
@@ -283,23 +288,23 @@ def org_manage_user_cvs_upload(request):
 
     data = {'Success': True, 'back_rows': back_rows}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_list
 @login_required
 def organization_list(request):
-    oid = request.GET.get("oid")
-    if (oid):
-        list = OrganizationMetadata.objects.filter(id=oid)
+    oid = request.GET.get("oid", False)
+    if oid:
+        org_list = OrganizationMetadata.objects.filter(id=oid)
     else:
-        list = OrganizationMetadata.objects.prefetch_related().all()
+        org_list = OrganizationMetadata.objects.prefetch_related().all()
 
     rows = []
-    for org in list:
+    for org in org_list:
         rows.append({'id': org.id, 'OrganizationName': org.OrganizationName})
 
-    return HttpResponse(json.dumps({'success': True, 'rows': rows}), content_type="application/json")
+    return render_json_response({'success': True, 'rows': rows})
 
 
 # -------------------------------------------------------------------organization_check
@@ -311,14 +316,14 @@ def organization_check(request):
     oid = request.GET.get('oid')
 
     qs = Q(OrganizationName=name)
-    if(oid != "-1"):
+    if oid != "-1":
         qs &= ~Q(id=oid)
 
-    if (OrganizationMetadata.objects.filter(qs).count()):
+    if OrganizationMetadata.objects.filter(qs).count():
         valid = False
         error = 'This name is already in use. '
 
-    return HttpResponse(json.dumps({'success': valid, 'Error': error}), content_type="application/json")
+    return render_json_response({'success': valid, 'Error': error})
 
 
 # -------------------------------------------------------------------organization_add
@@ -345,8 +350,10 @@ def organization_add(request):
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
                 dataitems = dataitems + '{"name":"Number of Years in Education","required":"1","default":"3"},'
-                dataitems = dataitems + '{"name":"My Learners\' Profile","required":"1","default":"4"},'
-                dataitems = dataitems + '{"name":"About me","default":"5"}'
+                dataitems = dataitems + '{"name":"Free/Reduced Lunch","required":"1","default":"4"},'
+                dataitems = dataitems + '{"name":"IEPs","required":"1","default":"5"},'
+                dataitems = dataitems + '{"name":"English Learners","required":"1","default":"6"},'
+                dataitems = dataitems + '{"name":"About me","default":"7"}'
                 dataitems = dataitems + ']'
 
                 org_data = OrganizationDataitems()
@@ -401,7 +408,7 @@ def organization_add(request):
                         org_menu_item2.save()
 
                 # --------------OrganizationCmsitem
-                for bean1 in OrganizationCmsitem.objects.filter(organization=organization_old,):
+                for bean1 in OrganizationCmsitem.objects.filter(organization=organization_old):
                     org_cms_item = OrganizationCmsitem()
                     org_cms_item.CmsItem = bean1.CmsItem
                     org_cms_item.Url = bean1.Url
@@ -465,7 +472,7 @@ def organization_add(request):
         except Exception as e:
             data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_add
@@ -487,7 +494,7 @@ def organization_delete(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_check_Entity
@@ -499,7 +506,7 @@ def org_check_Entity(request):
         add_type = request.POST.get("add_type", "")
         is_add = True
 
-        if(oid and add_id and add_type):
+        if oid and add_id and add_type:
             org_districts_list = OrganizationDistricts.objects.filter(EntityType=add_type, OrganizationEnity=add_id)
             for tmp1 in org_districts_list:
                 if(tmp1.organization.id != oid):
@@ -510,7 +517,7 @@ def org_check_Entity(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_remove_img
@@ -522,13 +529,13 @@ def organization_remove_img(request):
         column = request.POST.get("column", "")
         db = request.POST.get("db", "")
 
-        if(column and db):
-            if(db == "configuration"):
+        if column and db:
+            if db == "configuration":
                 for tmp1 in MainPageConfiguration.objects.all():
-                    if(column == "TopMainLogo"):
+                    if column == "TopMainLogo":
                         filename = tmp1.TopMainLogo
                         tmp1.TopMainLogo = ""
-                    elif(column == "BottomMainLogo"):
+                    elif column == "BottomMainLogo":
                         filename = tmp1.BottomMainLogo
                         tmp1.BottomMainLogo = ""
                     else:
@@ -543,8 +550,8 @@ def organization_remove_img(request):
                     data = {'Success': True}
                     break
             else:
-                if(oid):
-                    if (column == "LogoHome"):
+                if oid:
+                    if column == "LogoHome":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="logo"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
@@ -557,7 +564,7 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break
                             break
-                    elif (column == "OrganizationLogo"):
+                    elif column == "OrganizationLogo":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
@@ -571,7 +578,7 @@ def organization_remove_img(request):
                                 break
                             break
 
-                    elif (column == "LogoProfile"):
+                    elif column == "LogoProfile":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
@@ -585,7 +592,7 @@ def organization_remove_img(request):
                                 break
                             break
 
-                    elif (column == "LogoProfileCurr"):
+                    elif column == "LogoProfileCurr":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo Curriculumn"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
@@ -602,7 +609,7 @@ def organization_remove_img(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_get
@@ -614,7 +621,7 @@ def organization_get(request):
         if oid:
             data = {'Success': True}
             organizations = OrganizationMetadata.objects.filter(id=oid)
-            if(len(organizations) > 0):
+            if len(organizations) > 0:
                 data['find'] = True
                 for tmp in organizations:
                     org = tmp
@@ -657,15 +664,15 @@ def organization_get(request):
                     sid_did = ""
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
                     for tmp1 in org_dir_list:
-                        if(not sid_did == ""):
+                        if not sid_did == "":
                             sid_did += ":"
 
                         tmp1_text = ""
-                        if(tmp1.EntityType == "State"):
+                        if tmp1.EntityType == "State":
                             for tmp2 in State.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
                                 break
-                        elif(tmp1.EntityType == "District"):
+                        elif tmp1.EntityType == "District":
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
                                 break
@@ -723,7 +730,7 @@ def organization_get(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_get_locations
@@ -758,7 +765,7 @@ def organization_get_locations(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organizational_save_base
@@ -826,17 +833,17 @@ def organizational_save_base(request):
         if is_announcement == "1":
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
-                return HttpResponse(json.dumps(data), content_type="application/json")
+                return render_json_response(data)
             else:
                 try:
                     user = User.objects.get(email=user_email)
                     if user.is_superuser == 0:
                         data = {'Success': False, 'Error': " This user doesn't have the permission to send announcement."}
-                        return HttpResponse(json.dumps(data), content_type="application/json")
+                        return render_json_response(data)
                 except Exception as e:
                     data = {'Success': False, 'Error': 'The Email does not exist.'}
-                    return HttpResponse(json.dumps(data), content_type="application/json")
-        if(oid):
+                    return render_json_response(data)
+        if oid:
             # --------------OrganizationMetadata
             org_metadata = OrganizationMetadata()
             org_metadata_list = OrganizationMetadata.objects.filter(id=oid)
@@ -849,7 +856,7 @@ def organizational_save_base(request):
             org_metadata.save()
 
             # --------------OrganizationDataitems
-            if(not specific_items):
+            if not specific_items:
                 specific_items = ""
             org_data = OrganizationDataitems()
             org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
@@ -880,7 +887,7 @@ def organizational_save_base(request):
                     org_announcement = tmp1
                     break
 
-                org_content = {'DataItem':announcement_content,'user_id':user.id}
+                org_content = {'DataItem': announcement_content, 'user_id': user.id}
                 org_announcement.DataItem = org_content
                 org_announcement.organization = org_metadata
                 org_announcement.itemType = "Announcement"
@@ -895,7 +902,7 @@ def organizational_save_base(request):
                 store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
-            if(sid_did != ""):
+            if sid_did != "":
                 sid_did_list = sid_did.split(":")
                 org_dir_list = OrganizationDistricts.objects.filter(organization=org_metadata)
 
@@ -942,7 +949,7 @@ def organizational_save_base(request):
                 OrganizationDistricts.objects.filter(organization=org_metadata).delete()
 
             # --------------OrganizationDashboard
-            if(motto != ""):
+            if motto != "":
                 org_dashboard_motto = OrganizationDashboard()
                 for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto"):
                     org_dashboard_motto = tmp1
@@ -953,7 +960,7 @@ def organizational_save_base(request):
                 org_dashboard_motto.itemValue = motto
                 org_dashboard_motto.save()
 
-            if(motto_curr != ""):
+            if motto_curr != "":
                 org_dashboard_motto_curr = OrganizationDashboard()
                 for tmp1 in OrganizationDashboard.objects.filter(organization=org_metadata, itemType="Motto Curriculumn"):
                     org_dashboard_motto_curr = tmp1
@@ -965,7 +972,7 @@ def organizational_save_base(request):
                 org_dashboard_motto_curr.save()
 
             # --------------OrganizationMenuitem
-            if (menu_items):
+            if menu_items:
                 menu_items_list = menu_items.split("=<=")
 
                 # Delete the deleted records
@@ -1054,7 +1061,7 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # --------------OrganizationCmsitem
-            if (cms_items):
+            if cms_items:
                 cms_items_list = cms_items.split("=<=")
 
                 # Delete the deleted records
@@ -1147,7 +1154,7 @@ def organizational_save_base(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_organizationmenusave
@@ -1185,7 +1192,7 @@ def org_upload(request):
         file_type = request.POST.get("file_type", "")
         oid = request.POST.get("oid", "")
 
-        if(file_type and oid):
+        if file_type and oid:
             organization = OrganizationMetadata.objects.get(id=oid)
 
             if file_type == "home_logo":
@@ -1263,7 +1270,7 @@ def org_upload(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_main_page_configuration_get
@@ -1290,7 +1297,7 @@ def organization_main_page_configuration_get(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organizational_save_main_base
@@ -1317,7 +1324,7 @@ def organizational_save_main_base(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_main_upload
@@ -1370,7 +1377,7 @@ def org_main_upload(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_dashboard_upload
@@ -1383,7 +1390,7 @@ def org_dashboard_upload(request):
         oid = request.POST.get("oid", "")
         fileelementid = request.POST.get("fileelementid", "")
 
-        if(rownum and oid):
+        if rownum and oid:
             rownum = str(rownum)
             organization = OrganizationMetadata.objects.get(id=oid)
             imgx = request.FILES.get("menu_items_icon_" + rownum, None)
@@ -1413,7 +1420,7 @@ def org_dashboard_upload(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_dashboard_upload_cms
@@ -1426,7 +1433,7 @@ def org_dashboard_upload_cms(request):
         oid = request.POST.get("oid", "")
         fileelementid = request.POST.get("fileelementid", "")
 
-        if(rownum and oid):
+        if rownum and oid:
             rownum = str(rownum)
             organization = OrganizationMetadata.objects.get(id=oid)
             imgx = request.FILES.get("cms_items_icon_" + rownum, None)
@@ -1459,7 +1466,7 @@ def org_dashboard_upload_cms(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------org_option_cvs_upload
@@ -1476,10 +1483,11 @@ def org_option_cvs_upload(request):
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_get_info
+@login_required
 def organization_get_info(request):
     source = request.POST.get('source', False)
     flag_main = request.POST.get('flag_main', False)
@@ -1488,10 +1496,10 @@ def organization_get_info(request):
     try:
         data['url'] = request.get_host()
         for org_main in MainPageConfiguration.objects.prefetch_related().all():
-            if (org_main.SiteURL == data['url']):
+            if org_main.SiteURL == data['url']:
                 data['SiteURL_OK'] = True
 
-                if(flag_main == "index"):
+                if flag_main == "index":
                     data['TopMainLogo'] = org_main.TopMainLogo
                     data['MainLogoText'] = org_main.MainLogoText
                     data['BottomMainLogo'] = org_main.BottomMainLogo
@@ -1502,33 +1510,33 @@ def organization_get_info(request):
                 data['SiteURL_OK'] = False
             break
 
-        if(data['SiteURL_OK']):
-            if (source == "register"):
+        if data['SiteURL_OK']:
+            if source == "register":
                 district = request.POST.get('district', False)
                 state = request.POST.get('state', False)
                 school = request.POST.get('school', False)
 
                 data['OrganizationOK'] = False
 
-                if (school):
+                if school:
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school, EntityType="School"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
                         break
 
-                if (not(data['OrganizationOK']) and district):
+                if not(data['OrganizationOK']) and district:
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
                         break
 
-                if(not(data['OrganizationOK']) and state):
+                if not(data['OrganizationOK']) and state:
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
                         break
 
-                if(data['OrganizationOK']):
+                if data['OrganizationOK']:
                     data['DistrictType'] = organization_obj.DistrictType
                     data['SchoolType'] = organization_obj.SchoolType
                     data['OrganizationName'] = organization_obj.OrganizationName
@@ -1538,7 +1546,7 @@ def organization_get_info(request):
 
                 data['Success'] = True
 
-            elif(source == "navigation"):
+            elif source == "navigation":
                 if request.user.is_authenticated():
                     try:
                         state = request.user.profile.district.state.id
@@ -1555,27 +1563,27 @@ def organization_get_info(request):
 
                     data['OrganizationOK'] = False
 
-                    if (school != -1):
+                    if school != -1:
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school,
                                                                          EntityType="School"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
                             break
 
-                    if (not (data['OrganizationOK']) and district != -1):
+                    if not (data['OrganizationOK']) and district != -1:
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
                                                                          EntityType="District"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
                             break
 
-                    if (not (data['OrganizationOK']) and state != -1):
+                    if not (data['OrganizationOK']) and state != -1:
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
                             data['OrganizationOK'] = True
                             organization_obj = tmp1.organization
                             break
 
-                    if (data['OrganizationOK']):
+                    if data['OrganizationOK']:
                         data['OrganizationName'] = organization_obj.OrganizationName
                         data['OrganizationId'] = organization_obj.id
                         data['DistrictType'] = organization_obj.DistrictType
@@ -1599,7 +1607,7 @@ def organization_get_info(request):
     except Exception as e:
         data = {'SiteURL_OK': False, 'Error': '{0}'.format(e)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_course_list
@@ -1703,7 +1711,7 @@ def organization_course_list(request):
 
     data = {'Success': True, "courses": rows_course, "subject_id": subject_id}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------course_filter
