@@ -2,6 +2,10 @@
 //   overflow-y: scroll;
 // }
 
+* {
+  font-family: "Open Sans", Verdana, Geneva, sans-serif !important;
+}
+
 html, body {
   background: $body-bg;
   font-family: $sans-serif;

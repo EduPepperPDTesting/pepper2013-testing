@@ -43,8 +43,8 @@
 
 // shared - course 
 @import 'shared/forms';
-@import 'shared/footer';
-@import 'shared/header';
+// @import 'shared/footer';
+// @import 'shared/header';
 @import 'shared/course_object';
 @import 'shared/course_filter';
 @import 'shared/modal';
