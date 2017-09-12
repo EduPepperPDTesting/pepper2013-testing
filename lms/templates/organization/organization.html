@@ -6,8 +6,9 @@
     from certificates.models import CertificateStatuses
     from xmodule.modulestore.django import modulestore
     import json
-    from student.models import State,District,School,User,UserProfile,GradeLevel
+    from student.models import State, District, School, User, UserProfile, GradeLevel, SubjectArea, YearsInEducation
     from permissions.models import PermPermission
+    from baseinfo.models import Enum
 %>
 <%inherit file="../main.html"/>
 
@@ -156,6 +157,10 @@
 	#dialog_manage_user .content{padding:0 20px;}
 	#dialog_manage_user .content select{display:inline !important;}
 	#dialog_manage_user .content input{display:inline !important;}
+	
+	.org_assignment_qualifications_item{float:left; padding:5px 0; width:100%; }
+	.org_assignment_qualifications_item .oaq_item{float:left; margin:5px 30px 5px 0;}
+	.org_assignment_qualifications_item .oaq_title{font-weight:bold;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -202,6 +207,7 @@
     </div>
 </div>
 
+<!--organization-table-->
 <div class="organization_main">
 	<div style="width:600px;">
         <table id="organization-table" class="organization-table">
@@ -236,6 +242,7 @@
     </div>
 </div>
 
+<!--Organization Structure-->
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" always_on="1">Organization Structure<div class="icon"></div></div>
     <div class="expand_div">
@@ -293,6 +300,7 @@
     </div>
 </div>
 
+<!--Organization Locations-->
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="2">Organization Locations<div class="icon"></div></div>
     <div class="expand_div">
@@ -790,10 +798,8 @@
             <option value="SEADAE">SEADAE</option>
             <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
             <option value="WestEd">WestEd</option>
-        </select>
-        
-        <input type="button" id="org_assignment_btn_find" value="FIND" class="small_btn" style="margin:0 0 0 20px !important;" />        
-        
+        </select>        
+        <input type="button" id="org_assignment_btn_find" value="FIND" class="small_btn" style="margin:0 0 0 20px !important;" />
         <div class="org_assignment_course_all">
             <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
                 <div style="font-weight:bold; padding:20px 0 10px 0; font-size:1.2em; ">Courses:</div>
@@ -803,18 +809,10 @@
                     </select>
                     <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
                 </div>
-                <div style="padding:10px 0 10px 10px;">Qualifications:</div>
-                <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;">
-                    <span style="float:left; padding:10px 30px 10px 0;" class="org_assignment_qualifications_item">
-                        <select class="org_assignment_qualifications_select" style="width:300px;">
-                            <option value="">Select a Qualification</option>
-                        </select>
-                        <input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
-                    </span>
-                </td></tr></table>
+                <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>                
+                <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;"></td></tr></table>
             </div>
         </div>
-        
         <div style="width:100%; text-align:right; height:30px;">
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
         </div>
@@ -1887,9 +1885,8 @@
 							
 							isPDDashboardChange($("input[name='organizational_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='organizational_dashboard_on_menu']:checked").val());
-							
+							$("#org_btn_cancel_state").click();
 							loadwin.hide();
-							updateAssignmentQualifications();
 						});
 					});
 				}
@@ -2331,11 +2328,14 @@
 		}else{			
 			var clonex = $(el).parent().parent().clone(true);
 			clonex.find(".org_assignment_course_select").val("");
-			clonex.find(".org_assignment_qualifications_select").val("");
-			clonex.find(".org_assignment_qualifications_item").each(function(i){
-				if(i > 0)	$(this).remove();
-			});
 			clonex.find(".small_btn").val("+");
+			clonex.find(".org_assignment_qualifications_item").each(function(){
+				$(this).find(".oaq_item").each(function(i){
+					if(i > 0){
+						$(this).remove();
+					}
+				});
+			});
 			$(".org_assignment_course_all").append(clonex);
 			$(el).val("-");			
 		}
@@ -2541,6 +2541,13 @@
 				}else{
 					$(this).parent().find(".profileFieldType_add").hide();
 				}
+				if($(this).val() == "6" || $(this).val() == "7"){
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").prop('checked', false);
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").hide();
+				}else{
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").show();
+				}
+				dataItemsCheckBoxChange("org_dataitems_profile_2");
 			});
 			
 			//-------------------profileFieldType_add
@@ -2605,6 +2612,19 @@
 			});
 		}
 		dataItemsCheckBoxChange("org_dataitems_profile_1");
+		
+		$(".org_table_profile_tr").each(function(){
+			if($(this).attr("default") == "7"){
+				$(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").hide();
+				
+			}else if($(this).find(".profileFieldType").length > 0 && ($(this).find(".profileFieldType").val() == "6" || $(this).find(".profileFieldType").val() == "7")){
+				$(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").hide();
+				
+			}else{
+				$(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").show();
+			}
+		});
+		
 		dataItemsCheckBoxChange("org_dataitems_profile_2");
 	}
 	
@@ -2712,64 +2732,166 @@
 	}
 	
 	//-----------------------------------------------------------------------initAssignmentQualifications
-	function initAssignmentQualifications(content){	
+	var organization_major_subject_area = "";
+	%for item in SubjectArea.objects.all().order_by("so"):
+	organization_major_subject_area += "|-|-|${item.id}|-|${item.name}";	
+  	%endfor
+	
+	var organization_grade_level_check = "";
+	%for item in GradeLevel.objects.all():
+	organization_grade_level_check += "|-|-|${item.id}|-|${item.name}";	
+  	%endfor
+	
+	var organization_number_of_years = "";
+	%for item in YearsInEducation.objects.all():
+	organization_number_of_years += "|-|-|${item.id}|-|${item.name}";	
+	%endfor 
+	
+	var organization_reduced_lunch = "";
+	%for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+	organization_reduced_lunch += "|-|-|${item.value}|-|${item.content}";	
+  	%endfor 
+  	
+	var organization_ieps = "";
+	%for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+  	organization_ieps += "|-|-|${item.value}|-|${item.content}";	
+  	%endfor 
+	
+  	var organization_english_learners = "";
+	%for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+  	organization_english_learners += "|-|-|${item.value}|-|${item.content}";	
+  	%endfor
+	
+	function initAssignmentQualifications(content){
+		//-----------------org_assignment_course_item
 		$(".org_assignment_course_item").each(function(i){
 			if(i == 0){
+				$(this).find(".org_assignment_qualifications_all").empty();
 				$(this).find(".org_assignment_course_select").val("");
 				$(this).find(".small_btn:first").val("+");
-				$(this).find(".org_assignment_qualifications_item").each(function(j){
-					if(j == 0){
-						$(this).find(".org_assignment_qualifications_select").val("");
-						$(this).find(".small_btn:first").val("+");
-					}else{
-						$(this).remove();
-					}
-				});	
 			}else{
 				$(this).remove();
 			}
 		});
-		if(content){
-			var tmp1 = content.split(";");
-			for(var i = 0; i < tmp1.length; i++){
-				if(i > 0){
-					org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).parent().find("input")[0]);
-				}				
-				var parent1 = $(".org_assignment_course_item").eq(i);
-				var tmp2 = tmp1[i].split(":");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));				
-				var tmp3 = tmp2[1].split(",");
-				for(var j = 0; j < tmp3.length; j++){
-					if(j > 0){
-						org_assignment_qualifications_clone(parent1.find(".org_assignment_qualifications_select").eq(j - 1).parent().find("input")[0]);
-					}
-					parent1.find(".org_assignment_qualifications_select").eq(j).attr("bak_val", tmp3[j].replace("(", "").replace(")", ""));	
+		
+		//-----------------org_table_profile_tr
+		$('.org_table_profile_tr').each(function(){
+			var tmp_qualification = ($(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").attr("checked")) ? "1" : "0";
+			if(tmp_qualification == "1"){
+				var tmp_profile_name = $(this).find(".org_dataitems_profile").html();
+				
+				var tmp_content = '<span class="org_assignment_qualifications_item">';
+				tmp_content += '<div class="oaq_title">' + tmp_profile_name + '</div><div class="oaq_item">';
+				tmp_content += '<select class="org_assignment_qualifications_select" style="width:300px;">';
+				tmp_content += '<option value="">Select a Qualification</option>';
+				var tmp_is_default = false;
+				var tmp_profileFieldType_content = "";
+				if($(this).attr("default") == "1"){
+					tmp_profileFieldType_content = organization_major_subject_area;
+					tmp_is_default = true;
+					
+				}else if($(this).attr("default") == "2"){
+					tmp_profileFieldType_content = organization_grade_level_check;
+					tmp_is_default = true;
+					
+				}else if($(this).attr("default") == "3"){
+					tmp_profileFieldType_content = organization_number_of_years;
+					tmp_is_default = true;
+					
+				}else if($(this).attr("default") == "4"){
+					tmp_profileFieldType_content = organization_reduced_lunch;
+					tmp_is_default = true;
+				
+				}else if($(this).attr("default") == "5"){
+					tmp_profileFieldType_content = organization_ieps;
+					tmp_is_default = true;
+				
+				}else if($(this).attr("default") == "6"){
+					tmp_profileFieldType_content = organization_english_learners;
+					tmp_is_default = true;
+				
+				}else if($(this).attr("default") == "7"){
+				
+				}else{
+					var tmp_profileFieldType_val = $(this).find(".profileFieldType").val();					
+					if(tmp_profileFieldType_val == 2)			tmp_profileFieldType_content = $(this).attr("field_type_2");						
+					else if(tmp_profileFieldType_val == 3)		tmp_profileFieldType_content = $(this).attr("field_type_3");
+					else if(tmp_profileFieldType_val == 4)		tmp_profileFieldType_content = $(this).attr("field_type_4");					
 				}
+				if(tmp_profileFieldType_content != ""){
+					var list2 = tmp_profileFieldType_content.split("|-|-|");
+					for(var ii in list2){
+						if(list2[ii] != ""){
+							var list3 = list2[ii].split("|-|");
+							if(tmp_is_default){
+								tmp_content += '<option value="' + list3[0] + '">' + list3[1] + '</option>';
+							}else{
+								tmp_content += '<option value="' + list3[0] + '">' + list3[0] + '</option>';
+							}
+						}
+					}
+				}
+				tmp_content += '</select>';
+				tmp_content += '<input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />';
+				tmp_content += '</div></span>';
+				$(".org_assignment_qualifications_all").append(tmp_content);
 			}
-		}
-	}
-	
-	//-----------------------------------------------------------------------updateAssignmentQualifications
-	function updateAssignmentQualifications(){
-		var tmp_first_val = $(".org_assignment_qualifications_select:first").val();
-		$(".org_assignment_qualifications_select:first").empty();
-		$(".org_assignment_qualifications_select:first").append('<option value="">Select a Qualification</option>');		
-		
-		$('.org_dataitems_profile').each(function(){
-			$(".org_assignment_qualifications_select:first").append('<option value="' + $(this).html() + '">' + $(this).html() + '</option>');//;
 		});
-		$(".org_assignment_qualifications_select:first").val(tmp_first_val);
 		
-		$(".org_assignment_qualifications_select").each(function(i){
+		//-----------------
+		if($(".org_assignment_qualifications_item").length == 0)	
+			$(".org_assignment_qualifications_title").hide();
+		else
+			$(".org_assignment_qualifications_title").show();
+		//$(".org_assignment_qualifications_select:first").val(tmp_first_val);
+		
+		/*$(".org_assignment_qualifications_select").each(function(i){
 			if(i > 0){
 				var tmp1_val = $(this).val();
 				$(this).html($(".org_assignment_qualifications_select:first").html());
 				$(this).val(tmp1_val);
 			}
 			if(typeof($(this).attr("bak_val")) != "undefined"){
-				$(this).val($(this).attr("bak_val"));
+				$(this).val($(this).attr("bak_val"));d
 			}
-		});
+		});*/
+		
+		//var tmp_first_val = $(".org_assignment_qualifications_select:first").val();
+		//$(".org_assignment_qualifications_select:first").empty();
+		//$(".org_assignment_qualifications_select:first").append('<option value="">Select a Qualification</option>');		
+
+		// (PCG_EDU/NMM2/S2017)<(Major Subject Area)>(3),(Grade Level-Check all that apply)>()>(),(Number of Years in Education)>()>()>(),(My Learners' Profile)>()>()>()>(),(gj)>(1)>()>()>(2)>(333333);(ZX/test001/2016_Winter)<(Major Subject Area)>()
+		//-----------------	
+		if(content){
+			var tmp1 = content.split(";");
+			for(var i = 0; i < tmp1.length; i++){
+				var parent1 = $(".org_assignment_course_item").eq(i);
+				if(i > 0){
+					org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+				}				
+				
+				var tmp2 = tmp1[i].split("<");
+				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));				
+				
+				/*var tmp3 = tmp2[1].split(",");
+				for(var j = 0; j < tmp3.length; j++){
+					var parent2 = parent1.find(".org_assignment_qualifications_item").eq(j);
+					var tmp4 = tmp3[j].split(">");
+					
+					var db_title = tmp4[0].replace("(", "").replace(")", "");
+					if(parent2.find(".oaq_title").html() == db_title){
+						for(var k = 1; k < tmp4.length; k++){
+							var q_val = tmp4[k].replace("(", "").replace(")", "");
+							if(k > 1){
+								org_assignment_qualifications_clone(parent2.find(".small_btn:last")[0]);
+							}
+							parent2.find(".org_assignment_qualifications_select").eq(k - 1).val(q_val);	
+							//parent2.find(".org_assignment_qualifications_select").eq(j).attr("bak_val", tmp3[j].replace("(", "").replace(")", ""));	
+						}
+					}
+				}*/
+			}
+		}
 	}
 	
 	//-----------------------------------------------------------------------
@@ -3021,21 +3143,22 @@
 			var loadwin = new LoadingWin();
 			
 			$(".org_assignment_course_select").each(function(){
-				if($(this).val() == ""){
-					$(this).empty();
-					$(this).append('<option value="">Select a Course</option>');
-				}
+				$(this).attr("bak_val", $(this).val());
+				$(this).empty();
+				$(this).append('<option value="">Select a Course</option>');
 			});
 			
 			$.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
 				if (r.Success){
 					for(var i in r.courses){
 						$(".org_assignment_course_select").each(function(){
-							if($(this).val() == ""){
-								$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');	
-							}
+							$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
 						});
 					}
+					
+					$(".org_assignment_course_select").each(function(){
+						$(this).val($(this).attr("bak_val"));
+					});
 				}else{
 					alert(r.Error);
 				}
@@ -3778,22 +3901,25 @@
 			}
 			
 			//---------------------------------------------------Course Assignment
+			//(PCG_EDU/NMM2/S2017):(Major Subject Area)-(1)-(2)-(3)-()-(),(Grade Level-Check all that apply)-(1)-(2)-(3)-()-();(ZX/test001/2016_Winter):() 
 			var course_assignment_content = "";
 			$(".org_assignment_course_item").each(function(){
 				var course_id = $(this).find(".org_assignment_course_select").val();
 				if(course_id != ""){
 					var course_assignment_child = "";
-					$(this).find(".org_assignment_qualifications_select").each(function(){
-						var qualifications_id = $(this).val();
-						if(qualifications_id != ""){
-							if(course_assignment_child != "")	course_assignment_child += ",";
-							course_assignment_child += "(" + qualifications_id + ")";
-						}
-					});
+					$(this).find(".org_assignment_qualifications_item").each(function(){
+						var course_assignment_child_1 = "";
+						$(this).find(".org_assignment_qualifications_select").each(function(){
+							if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
+							course_assignment_child_1 += "(" + $(this).val() + ")";
+						});						
+						if(course_assignment_child != "")	course_assignment_child += ",";
+						course_assignment_child += "(" + $(this).find(".oaq_title").html() + ")>" + course_assignment_child_1;
+					});					
 					if(course_assignment_content != "")	course_assignment_content += ";";
-					course_assignment_content += "(" + course_id + "):" + course_assignment_child;
+					course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
 				}
-			});	
+			});
 			
 			//---------------------------------------------------
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
@@ -3931,7 +4057,6 @@
 						
 						}
 					}
-
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}
@@ -3958,13 +4083,12 @@
 							organizationDashboardUploadFileCms($(this).find(".cms_items_icon").attr("id"));
 						}
 					});
-					
-					updateAssignmentQualifications();
-					$("#org_btn_cancel_state").click();
 				}else{
 					alert(r.Error);
 				}
 				loadwin.hide();
+				
+				if(r.Success)	$(".org_table1_selected").find(".organization_next").click();
 			});
 		});
 		
@@ -4274,7 +4398,7 @@
 	function dataItemsCheckBoxChange(profile){
 		var checked = true;
 		if($(".org_child_menu[child_check='" + profile + "']").length > 0){
-			$(".org_child_menu[child_check='" + profile + "']").each(function(){
+			$(".org_child_menu[child_check='" + profile + "']:visible").each(function(){
 				if (!$(this).is(':checked')) {
 					checked = false;
 					return false;
