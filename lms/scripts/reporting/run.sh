@@ -64,7 +64,10 @@ echo '-------------------------------------------'
 
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
-
+echo $mongo2_host
+echo $mongo2_user
+echo $mongo2_port
+echo $mongo2_db_xmodule 
 mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_xmodule -c modulestore -o /tmp/modulestore.json
 $mongo3_path/mongo --port=$mongo3_port <<EOF
 use $mongo3_db_reporting

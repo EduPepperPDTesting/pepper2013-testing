@@ -1122,10 +1122,12 @@ def get_posts(request):
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:
-        store = dashboard_feeding_store()
-        store.dismiss(_id, request.user.id)
+        # initial dismiss
         user_store = dashboard_feeding_user_store()
         user_store.set_dismiss(request.user.id)
+        # announcement dismiss
+        announcement = dashboard_announcement_user()
+        announcement.dismiss_announcement(_id,request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
 
@@ -1143,9 +1145,7 @@ def get_org_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
-    kwargs = {"after": now_utc}
-
-    posts = store.get_announcements(request.user.id, org, **kwargs)
+    posts = announcements(request.user.id, org, now_utc)
     if org == "Pepper":
         inital = get_inital(request,now_utc)
         if len(inital) > 0:
@@ -1159,17 +1159,16 @@ def get_org_announcements(request):
 
 @ajax_login_required()
 def get_announcements(request):
-    filter_year = request.POST.get("filter_year")
-    filter_month = request.POST.get("filter_month")
+    # filter_year = request.POST.get("filter_year")
+    # filter_month = request.POST.get("filter_month")
     # last_id = request.POST.get("last_id")
-    page = request.POST.get("page", 0)
-    page_size = request.POST.get("page_size", 5)
+    # page = request.POST.get("page", 0)
+    # page_size = request.POST.get("page_size", 5)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
 
     now_utc = datetime.datetime.utcnow()
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
-
 
     store = dashboard_feeding_store()
     inital = get_inital(request,now_utc)
@@ -1178,27 +1177,31 @@ def get_announcements(request):
         pepper.append(inital[0])
     
     data = {"orgs": []}
-    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
 
-    announcement_user = dashboard_announcement_user()
-    announcement = dashboard_announcement_store()
-    announcment_id = announcement_user.get_announcements(request.user.id)
-    announcments = []
-    for tmp in announcment_id:
-        announcments.append(announcement.get_announcements(tmp, "Pepper", **kwargs))
-
-    pepper.extend(list(store.get_announcements(request.user.id, "Pepper", **kwargs)))
+    pepper_announcments = announcements(request.user.id,"Pepper",now_utc)
+    pepper.extend(pepper_announcments)
     data["orgs"].append(pepper)
-    data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "School", **kwargs))
+    data["orgs"].append(announcements(request.user.id,"System",now_utc))
+    data["orgs"].append(announcements(request.user.id,"State",now_utc))
+    data["orgs"].append(announcements(request.user.id,"District",now_utc))
+    data["orgs"].append(announcements(request.user.id,"School",now_utc))
 
     for o in data["orgs"]:
         for a in o:
             attach_post_info(a, time_diff_m, request.user)
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
+
+def announcements(user_id,organization_type,expiration_date):
+    announcement_user = dashboard_announcement_user()
+    announcement = dashboard_announcement_store()
+    announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
+    announcments = []
+    for tmp in announcment_id:
+        announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    
+    result = [elem for elem in announcments if elem != None]
+    return result
 
 def get_inital(request,now_utc):
     store = dashboard_feeding_store()
@@ -1279,9 +1282,11 @@ def submit_new_like(request):
 
 @ajax_login_required()
 def delete_announcement(request):
-    feeding_id = request.POST.get("_id")
-    store = dashboard_feeding_store()
-    store.remove_feeding(feeding_id)
+    announcement_id = request.POST.get("_id")
+    store = dashboard_announcement_store()
+    store.remove_announcement(announcement_id)
+    user = dashboard_announcement_user()
+    user.remove_announcement(announcement_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
@@ -1307,7 +1312,7 @@ def get_receivers(user, post_type):
         up = user.profile
         level = check_access_level(user, "dashboard_announcement", "create")
         if level == "System":
-            receiver_ids = [0]
+            receiver_ids = list(UserProfile.objects.filter().values_list('user_id', flat=True))
         elif level == "State":
             receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
         elif level == "District":
@@ -1420,12 +1425,12 @@ def submit_new_post(request):
         # 
         announcement_store = dashboard_announcement_store()           
         _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           date=datetime.datetime.utcnow(),expiration_date=expiration_date, organization_type=organization_type)
+                           date=datetime.datetime.utcnow(), expiration_date=expiration_date, organization_type=organization_type)
 
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
         for tmp in receivers:
-            announcement_user.create(user_id=tmp,announcement_id=_id)
+            announcement_user.create(user_id=tmp, announcement_id=_id, organization_type=organization_type, expiration_date=expiration_date)
 
     if attachment_file:
         upload_attachment(_id, attachment)

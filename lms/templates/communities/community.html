@@ -439,7 +439,8 @@ import datetime
                 $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
                     if(r.success)
                        console.log(r.success);
-                       window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       window.location.replace("${reverse('communities')}");
+                       //window.location.replace("${reverse('dashboard',args=[user.id])}");
                        //return redirect(reverse('dashboard'));
                 });
             }

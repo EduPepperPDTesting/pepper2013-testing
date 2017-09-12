@@ -805,7 +805,6 @@
                 </div>
                 <div style="padding:10px 0 10px 10px;">Qualifications:</div>
                 <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;">
-
                     <span style="float:left; padding:10px 30px 10px 0;" class="org_assignment_qualifications_item">
                         <select class="org_assignment_qualifications_select" style="width:300px;">
                             <option value="">Select a Qualification</option>
@@ -1459,7 +1458,7 @@
 											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3]);
 										}
 									}
-									if($('#organization-state-table tbody').html() != ""){
+									if($(".organization-state-select").length > 0){
 										flag_new = false;
 									}
 									
@@ -1813,7 +1812,7 @@
 									//----------
 									$(".cms_item_btn").val("-");
 									$(".cms_item_btn:last").val("+");
-									
+									$("#press").attr("a", flag_new);
 									if(flag_new){
 										//----------
 										$(".expand_title_parent").each(function(i){
@@ -2735,9 +2734,17 @@
 			for(var i = 0; i < tmp1.length; i++){
 				if(i > 0){
 					org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).parent().find("input")[0]);
-				}
+				}				
+				var parent1 = $(".org_assignment_course_item").eq(i);
 				var tmp2 = tmp1[i].split(":");
 				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));				
+				var tmp3 = tmp2[1].split(",");
+				for(var j = 0; j < tmp3.length; j++){
+					if(j > 0){
+						org_assignment_qualifications_clone(parent1.find(".org_assignment_qualifications_select").eq(j - 1).parent().find("input")[0]);
+					}
+					parent1.find(".org_assignment_qualifications_select").eq(j).attr("bak_val", tmp3[j].replace("(", "").replace(")", ""));	
+				}
 			}
 		}
 	}
@@ -2758,6 +2765,9 @@
 				var tmp1_val = $(this).val();
 				$(this).html($(".org_assignment_qualifications_select:first").html());
 				$(this).val(tmp1_val);
+			}
+			if(typeof($(this).attr("bak_val")) != "undefined"){
+				$(this).val($(this).attr("bak_val"));
 			}
 		});
 	}
@@ -3672,17 +3682,10 @@
 				if(menu_item != ""){					
 					var menu_url = filterStr($(this).find(".menu_items_url").val());
 					var menu_icon = $(this).find(".menu_items_icon").val();
-					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");					
-<<<<<<< HEAD
+					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");
 					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
-
-||||||| merged common ancestors
 					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
 					
-=======
-					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
-					
->>>>>>> 0ddd156bd0b895bf8e5345d0501cf78a245003dc
 					if(menu_icon != "" && !organizationCheckUploadFile(menu_icon)){
 						flag_icon_error = true;
 						return false;

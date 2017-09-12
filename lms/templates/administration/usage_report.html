@@ -44,27 +44,46 @@
     font-style:normal !important;
 }
 .save-status{
-    color:blue;
-    padding:2px 10px;
-    background-color:#ff0;
+    font-size:12px;
+    color:#fff;
+    padding:3px 10px;
+    background-color:#0054aa;
+    border-radius: 5px;
     cursor:pointer;
+}
+.save-status:hover{
+    background-color:#004a99;
 }
 .change-password{
+    /*
+    font-size:12px;
+    padding:3px 10px;
+    background-color:#0054aa;
+    border-radius: 5px;
+    */
     cursor:pointer;
+    color:#1d9dd9;
 }
+.btn-change-password-lock{
+    background-image:linear-gradient(to bottom,#666 0%,#666 50%,#666 50%,#666 100%) !important; 
+    background-color:#666;
+    border:0px;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 0 #666;
+}
+
 .form-row{
     overflow: hidden;
     padding: 8px 12px;
     font-size: 11px;
     border-bottom: 1px solid #eee;
 }
-
 .form-row label{
     font-size:13px;
     font-style:normal;
     font-weight:bold;
-    padding:3px 10px 0 0;
-    width:140px;
+    padding:3px 0 0 0;
+    width:135px;
     border:0px solid;
     display:block;
     float:left;
@@ -74,6 +93,12 @@
     height:25px;
     width:200px;
     margin-top:3px;
+}
+.error-info{
+    color:#f00;
+    margin-top:5px;
+    width:380px;
+    padding-left:135px;
 }
 </style>
 
@@ -118,8 +143,8 @@
                                 <th>Last Session Time</th>
                                 <th>Total Session Time</th>
                                 <th>Online State</th>
-                                <th>3 status</th>
-                                <th>password reset</th>
+                                <th>3 Status</th>
+                                <th>Password Reset</th>
                                 <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
                             </thead>
                             <tbody></tbody>
@@ -187,26 +212,19 @@
         <div class="content" >
             <div style="margin-left:20px;width:400px;text-align:left;">
                 <div class="form-row">
-                    <label for="id_old_password" class="required">Old password:</label>
-                    <input type="password" name="old_password" id="id_old_password">
-                    <div class="check-error-info" style="text-align:center;color:#f00;margin-top:5px;">
-                        password is invalid
-                    </div>
+                    <label for="id_new_password1" class="required">New Password:</label>
+                    <input type="password" name="new_password1" id="id_new_password1" maxlength="16">
+                    <div class="check-error-p1 error-info"></div>
                 </div>
                 <div class="form-row">
-                    <label for="id_new_password1" class="required">New password:</label>
-                    <input type="password" name="new_password1" id="id_new_password1">
-                </div>
-                <div class="form-row">
-                    <label for="id_new_password2" class="required">Password (again):</label>
-                    <input type="password" name="new_password2" id="id_new_password2">
+                    <label for="id_new_password2" class="required">Confirm Password:</label>
+                    <input type="password" name="new_password2" id="id_new_password2" maxlength="16">
+                    <div class="check-error-p2 error-info"></div>
                 </div>
             </div>
-            <div class="check-error-info" style="padding:8px;">
-                change password success
-            </div>
+            <div class="check-success" style="padding:8px;"></div>
             <div style="margin:10px 0 10px 0;">
-                <button style="font-size:13px;">Change my password</button>
+                <button style="font-size:13px;" id="btn_change_password">Change Password</button>
             </div>
         </div>
     </div>
@@ -345,7 +363,7 @@ var userTimeReport = {
         for(d in data){
             table_con += '<tr role="row" user_id=' + data[d].id + '>';
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
-            table_con += '<td>' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
+            table_con += '<td class="useremail">' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
             table_con += '<td>' + moment(data[d].login_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
             if(data[d].logout_time == ''){
                 table_con += '<td>' + ' ' + '</td>';
@@ -381,7 +399,7 @@ var userTimeReport = {
             table_con += '<input name="is_superuser" class="is_superuser" type="checkbox" value="" ' + is_superuser + ' /> Superuser<br/>';
             table_con += '<div style="padding:5px 5px 5px 30px;"><span class="save-status">SAVE</span></div></td>';
 
-            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">change password</span></td>';
+            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">Change Password</span></td>';
             table_con += '<td></td></tr>';
         }
         $(".tblUserTime tbody").append(table_con);
@@ -424,27 +442,130 @@ var userTimeReport = {
                 self.dialog = new Dialog($('#dialog_loading'));
                 self.dialog.show('Saving user status, Please wait...');
 
-                $.post("${reverse('save_user_status')}", {'is_active': is_active,'is_staff': is_staff,'is_superuser': is_superuser,'user_id': user_id,'save_type':1}, 
+                $.post("${reverse('save_user_status')}", {'is_active': is_active,'is_staff': is_staff,'is_superuser': is_superuser,'user_id': user_id}, 
                 function(data) {
                     if (data.success) {
                         window.setTimeout(function () {
                             self.dialog.hide()
                             save_status_press = 0;
-                            $(".save-status").css({"background-color":"#ff0","color":"blue"});
-                        }, 300);
+                            $(".save-status").css({"background-color":"#0054aa","color":"#fff"});
+                        }, 100);
                     }
                 });
             }
         });
 
         //----------- click event change user password----------//
+        var change_psw_press = 0;
         $(".change-password").unbind("click");
         $(".change-password").click(function(){
+            var user_id = $(this).parent().parent().attr("user_id");
+            $("#id_new_password1").attr("user_id",user_id);
+
+            $("#id_old_password").val("");
+            $("#id_new_password1").val("");
+            $("#id_new_password2").val("");
+            $(".check-error-p1").html("");
+            $(".check-error-p2").html("");
+            $(".check-success").html("");
+
             self.dialog = new Dialog($('#dialog_change_password'));
-            self.dialog.show('Password Reset');
-            document.getElementById("id_old_password").focus();
+            var dialog_title = 'Password Reset - ' + $(this).parent().parent().children(".useremail").html();
+            //self.dialog.show('Password Reset');
+            self.dialog.show(dialog_title);
+            //$("#id_old_password").focus();
+            $("#id_new_password1").focus();
+            change_psw_press = 0;
         });
 
+        $("#btn_change_password").click(function(){
+            if(change_psw_press == 0){
+                change_psw_press = 1;
+                $("#btn_change_password").addClass("btn-change-password-lock");
+                $(".check-success").html("");
+
+                var user_id = $("#id_new_password1").attr("user_id");
+                var psw1 = $("#id_new_password1").val().trim();
+                var psw2 = $("#id_new_password2").val().trim();
+
+                if(psw1 == ""){
+                    $(".check-error-p1").html("Please fill in new password.");
+                    $(".check-error-p2").html("");
+                    $("#id_new_password1").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+
+                if(psw1.length < 8 || psw1.length > 16){
+                    $(".check-error-p1").html("It must be 8 to 16 characters.");
+                    $(".check-error-p2").html("");
+                    $("#id_new_password1").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;  
+                }
+
+                if(psw1.length != 0){
+                    var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
+                    var r = psw1.match(regexp);
+                    if(r == null){
+                        $(".check-error-p1").html("It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*.");
+                        $(".check-error-p2").html("");
+                        $("#id_new_password1").focus();
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        return;
+                    }
+                    
+                }
+
+                if(psw2 == ""){
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("Confirm password is required.");
+                    $("#id_new_password2").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+
+                if(psw1 != psw2){
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("Your new and confirm password are different. Please enter again.");
+                    $("#id_new_password2").focus();
+                    change_psw_press = 0;
+                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                    return;
+                }
+                $(".check-error-p1").html("");
+                $(".check-error-p2").html("");
+
+                $(".check-success").html("Now Saving......");
+                $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2}, 
+                    function(data) {
+                        if (data.success) {
+                            window.setTimeout(function () {
+                                change_psw_press = 0;
+                                $("#btn_change_password").removeClass("btn-change-password-lock");
+                                $(".check-success").html("Change Password Success.");
+                            }, 100);
+                        }
+                        else if(!data.success && data.ctype == 'error3'){
+                            window.setTimeout(function () {
+                                change_psw_press = 0;
+                                $("#btn_change_password").removeClass("btn-change-password-lock");
+                                $(".check-success").html("");
+                                $(".check-error-p1").html(data.value);
+                                $("#id_new_password1").focus();
+                            }, 100);
+                        }
+                    });
+            }
+        });
+
+        $("#id_new_password1").change(function(){
+             //$(".check-error-p1").html("");
+        });
     },
 
     get_table_result:function(){

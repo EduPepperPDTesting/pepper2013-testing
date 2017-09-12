@@ -1,4 +1,4 @@
-header.global {
+header.pepper-nav {
   border-bottom: 1px solid $m-gray;
   box-shadow: 0 1px 5px 0 rgba(0,0,0, 0.1);
   background: $header-bg;
@@ -293,17 +293,17 @@ header.global {
 // marketing site design syncing
 .view-register, .view-login {
 
-  header.global nav {
+  header.pepper-nav nav {
     max-width: 1180px;
     min-width: 760px;
   }
 }
 
 // page-based nav states
-.view-howitworks .nav-global-01,
-.view-courses .nav-global-02,
-.view-schools .nav-global-03,
-.view-register .nav-global-04 {
+.view-howitworks .pepper-nav-global-01,
+.view-courses .pepper-nav-global-02,
+.view-schools .pepper-nav-global-03,
+.view-register .pepper-nav-global-04 {
 
   a {
     text-decoration: none;
