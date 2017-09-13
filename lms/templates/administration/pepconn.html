@@ -1030,30 +1030,31 @@ f.close()
   }
   CoursePermission.prototype.loadCourseTable = function(){
     var self = this;
-    var subjects = $("#lst-course-filter-subject").get_selection();
-    var authors = $("#lst-course-filter-author").get_selection();
-    var grade_levels = $("#lst-course-filter-grade_level").get_selection();
-    var state_ids = $("#lst-course-filter-state").get_selection();
-    var district_ids = $("#lst-course-filter-district").get_selection();
     var url = "${reverse('pepconn_get_course_permission_course_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}";
-    if(subjects) url += "&subjects=" + subjects;
-    if(authors) url += "&authors=" + authors;
-    if(grade_levels) url += "&grade_levels=" + grade_levels;
-    if(state_ids) url += "&states=" + state_ids.join(",");
-    if(district_ids) url += "&districts=" + district_ids.join(",");
+
+    var data = {
+      subjects: $("#lst-course-filter-subject").get_selection().join(","),
+      authors: $("#lst-course-filter-author").get_selection().join(","),
+      grade_levels: $("#lst-course-filter-grade-level").get_selection().join(","),
+      state_ids: $("#lst-course-filter-state").get_selection().join(","),
+      district_ids: $("#lst-course-filter-district").get_selection().join(",")
+    };
+    
     var pagerOptions = {
       container: '',
       output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
       fixedHeight: false,
       removeRows: false,
       cssGoto: '.gotoPage',
-      ajaxUrl: '',
+      ajaxUrl: url,
       ajaxProcessing: function(data){
         return data;
       },
       processAjaxOnInit: true,
       page: 0,
-      size: 10
+      size: 10,
+      method: 'POST',
+      data: data
     };
     var tablesorterOptions = {
       theme: 'blue',
@@ -1071,13 +1072,13 @@ f.close()
     };
 
     pagerOptions.container = $("#course_permission_course .pager");
-    pagerOptions.ajaxUrl = url
     var $table = $('#course_permission_course table.tablesorter-blue');
     if($table[0].config){
       var c = $table[0].config;
       var p = c.pager;
       p = $.extend(p, p.last);
-      p.ajaxUrl = url + "&timestamp=" + new Date(); 
+      p.ajaxUrl = url + "&timestamp=" + new Date();
+      p.data = data;
       p.reload();
       return;
     }
@@ -1108,26 +1109,32 @@ f.close()
     var self = this;
     var $table = $('#course_permission_user .tablesorter-blue');
 
-    var course_subject = ($("#filters-subject-submenu li.active").attr("data-value"))
-    var course_author = ($("#filters-author-submenu li.active").attr("data-value"))
-    var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value"))
-
+    
     var hidden = {}
     $("#course_permission_user .filters input[type=hidden]").each(function(){
       hidden[this.name] = this.value;
     });
-    var user_state_ids = hidden["state_id"] || $("#lst-user-filter-state").get_selection();
-    var user_district_ids = hidden["district_id"] || $("#lst-user-filter-district").get_selection();
-    var user_school_ids = $("#lst-user-filter-school").get_selection();
+    
+
+    var data = {
+      var course_subject = ($("#filters-subject-submenu li.active").attr("data-value"))
+      var course_author = ($("#filters-author-submenu li.active").attr("data-value"))
+      var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value"))
+
+      var user_state_ids = hidden["state_id"] || $("#lst-user-filter-state").get_selection();
+      var user_district_ids = hidden["district_id"] || $("#lst-user-filter-district").get_selection();
+      var user_school_ids = $("#lst-user-filter-school").get_selection();
+
+    };
 
     var url = "${reverse('pepconn_get_course_permission_user_rows')}?page={page}&size={size}&{sortList:col}";
-
-    if(course_subject) url += "&subject=" + course_subject;
-    if(course_author) url += "&author=" + course_author;
-    if(course_grade_level) url += "&grade_level=" + course_grade_level;
-    if(user_state_ids) url += "&states=" + user_state_ids.join(",");
-    if(user_district_ids) url += "&districts=" + user_district_ids.join(",");
-    if(user_school_ids) url += "&schools=" + user_school_ids.join(",");
+    /* 
+     *     if(course_subject) url += "&subject=" + course_subject;
+     *     if(course_author) url += "&author=" + course_author;
+     *     if(course_grade_level) url += "&grade_level=" + course_grade_level;
+     *     if(user_state_ids) url += "&states=" + user_state_ids.join(",");
+     *     if(user_district_ids) url += "&districts=" + user_district_ids.join(",");
+     *     if(user_school_ids) url += "&schools=" + user_school_ids.join(",");*/
 
     /** reload with new filters or not */
     if($table[0].config){
@@ -1268,7 +1275,7 @@ f.close()
           data: fd,
           processData: false,
           contentType: false,
-          type: 'POST',
+          type: 'post',
           beforeSend: function (x) {
             if (x && x.overrideMimeType) {
               x.overrideMimeType("multipart/form-data");
@@ -1290,6 +1297,7 @@ f.close()
       }
     });
   }
+
   CoursePermission.prototype.initUI = function(){
     var self = this;
     /** filter subject/author/grade menu */

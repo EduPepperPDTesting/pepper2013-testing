@@ -1944,13 +1944,13 @@ def get_course_permission_user_rows(request):
 @login_required
 def get_course_permission_course_rows(request):
     course_filters = {
-        "subjects": to_list(request.GET.get("subjects")),
-        "authors": to_list(request.GET.get("authors")),
-        "grade_levels": to_list(request.GET.get("grade_levels")),
-        "states": to_list(request.GET.get("states")),
-        "districts": to_list(request.GET.get("districts"))
+        "subjects": to_list(request.REQUEST.get("subjects")),
+        "authors": to_list(request.REQUEST.get("authors")),
+        "grade_levels": to_list(request.REQUEST.get("grade_levels")),
+        "states": to_list(request.REQUEST.get("states")),
+        "districts": to_list(request.REQUEST.get("districts"))
     }
-
+    
     coursenames = []
     courses = filter_courses(**course_filters)
     for c in courses:
