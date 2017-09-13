@@ -811,6 +811,9 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         "student": {
             "$arrayElemAt": ["$user_info.email", 0]
         },
+        "username":{
+            "$arrayElemAt": ["$user_info.username", 0]
+        },
         "user_state": {
             "$arrayElemAt": ["$user_info.state", 0]
         },
