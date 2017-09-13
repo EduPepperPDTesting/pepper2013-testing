@@ -6,6 +6,8 @@ from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
 from .models import CommunityWebchat
+from people.views import my_people
+from django.contrib.auth.models import User
 try:
     from urllib import urlencode
 except ImportError:
@@ -33,17 +35,19 @@ def gettextframe(request, uname):
 #     user = User.objects.get(id=request.user.id)
 
 @login_required
-def get_networ(request):
+def get_network(request):
     data = {'orgs_list': 'My Network'}
     return render_to_response('webchat/listorgusers.html', data)
 
-def get_network_user_rows(request):
+def get_network_users(request):
     rows = list()
 
-    # for item in users[start:end]:
-    for item in users:
+    user_ids = request.POST.get("user_ids")
+
+    for user_id in user_ids:
         row = list()
-        row.append(str(item.user.first_name) + " " + str(item.user.last_name))
+        user = User.objects.get(id=int(user_id))
+        row.append(str(user.first_name) + " " + str(user.last_name))
 
         rows.append(row)
 
@@ -51,8 +55,9 @@ def get_network_user_rows(request):
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
         return HttpResponse(json.dumps(
-            {'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/33/33965.svg', 'imagealt': 'im-network',
-             'rows': rows})
+            {'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/125/125702.svg', 'imagealt': 'im-network',
+             'rows': rows}))
+
 
 @login_required
 def get_communities(request):

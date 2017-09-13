@@ -40,10 +40,17 @@
 			if (commId != ""){
 				$.post("${reverse('get_" + rowSource + "_user_rows')}", {community_id: commId}, function (data) {
 					if (data.success) {
+						if (commId == 'network'){
+							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){
+								var userRows = networkData.rows;
+							});
+						}else{
+							var userRows = data.rows;
+						}
 						tbodyID = "#users_"+commId;
 						var username;
-						for(i = 0; i < data.rows.length; i++){
-							username = data.rows[i];
+						for(i = 0; i < userRows.length; i++){
+							username = userRows[i];
 							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
