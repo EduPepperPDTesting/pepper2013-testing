@@ -1108,39 +1108,29 @@ f.close()
   CoursePermission.prototype.loadUserTable = function(use_old_filter){
     var self = this;
     var $table = $('#course_permission_user .tablesorter-blue');
-
     
     var hidden = {}
     $("#course_permission_user .filters input[type=hidden]").each(function(){
       hidden[this.name] = this.value;
     });
-    
 
     var data = {
-      var course_subject = ($("#filters-subject-submenu li.active").attr("data-value"))
-      var course_author = ($("#filters-author-submenu li.active").attr("data-value"))
-      var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value"))
-
-      var user_state_ids = hidden["state_id"] || $("#lst-user-filter-state").get_selection();
-      var user_district_ids = hidden["district_id"] || $("#lst-user-filter-district").get_selection();
-      var user_school_ids = $("#lst-user-filter-school").get_selection();
-
+      subject: ($("#filters-subject-submenu li.active").attr("data-value")),
+      author: ($("#filters-author-submenu li.active").attr("data-value")),
+      grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
+      states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(","),
+      districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(","),
+      schools: $("#lst-user-filter-school").get_selection().join(",")
     };
 
     var url = "${reverse('pepconn_get_course_permission_user_rows')}?page={page}&size={size}&{sortList:col}";
-    /* 
-     *     if(course_subject) url += "&subject=" + course_subject;
-     *     if(course_author) url += "&author=" + course_author;
-     *     if(course_grade_level) url += "&grade_level=" + course_grade_level;
-     *     if(user_state_ids) url += "&states=" + user_state_ids.join(",");
-     *     if(user_district_ids) url += "&districts=" + user_district_ids.join(",");
-     *     if(user_school_ids) url += "&schools=" + user_school_ids.join(",");*/
-
+ 
     /** reload with new filters or not */
     if($table[0].config){
       var c = $table[0].config;
       var p = c.pager;
       p = $.extend(p, p.last);
+      p.data = data;
       if(use_old_filter){
         p.ajaxUrl = this.addTimeStamp(p.ajaxUrl);
         $table.find("td:nth-child(1) input").each(function(){
@@ -1168,7 +1158,9 @@ f.close()
       },
       processAjaxOnInit: true,
       page: 0,
-      size: 10
+      size: 10,
+      method: 'POST',
+      data: data
     };
     var tablesorterOptions = {
       theme: 'blue',
