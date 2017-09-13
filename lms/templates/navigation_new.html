@@ -1,8 +1,7 @@
-<%page args="show_extended=True" />
-
 ## mako
 <%namespace name='static' file='static_content.html'/>
-<%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
+<%namespace file='main.html' import="login_query, stanford_theme_enabled, absolute_url"/>
+<%page args="show_extended, organization_obj, org_data, is_external" />
 
 <%!
     from django.core.urlresolvers import reverse
@@ -18,6 +17,153 @@
     from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 %>
 
+<%
+    base_src = absolute_url("/static/uploads/organization/" + str(org_data['org_id']) + "/")
+    org_logos = False
+    newMeStyleFlag = 0
+    newMeStyleFont = ""
+    newMeStyleColor = "#000"
+    newMeStyleSize = ""
+
+    #---------------OrganizationMenu
+    if org_data.has_key('logo') and org_data['logo'] != "":
+        org_logos = True
+    if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
+        org_logos = True
+
+    #---------------OrganizationMenuitem
+    if org_data.has_key('Is Icon With Text') and org_data['Is Icon With Text'] == "1":
+        menu_items = "<ol class='nav-option-ol' style='margin-top:10px !important;'>"
+    else:
+        menu_items = "<ol class='nav-option-ol' style='margin-top:11px !important;'>"
+
+    for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj, ParentID=0):
+        if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
+            #---------------Sub Menu
+            liClass = ""
+            if org_data['Is Icon'] == "1":
+                if org_data['Is Icon With Text'] == "1":
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:66px !important;'>"
+                else:
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:64px !important;'>"
+            else:
+                menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:65px !important;'>"
+
+            #---------------
+            for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj, ParentID=tmp1.id):
+                if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser):
+                    if liClass == "":
+                        liClass = " class='pepper-menu-holder'"
+
+                    menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
+
+            menu_items_child = menu_items_child + "</ul>"
+
+            tmp1_MenuItem_txt = tmp1.MenuItem
+
+            newMeStyleFont = org_data['Text Font']
+            newMeStyleColor = org_data['Text Color']
+            newMeStyleSize = org_data['Text Size']
+
+            if org_data['Is Icon'] == "1":
+                img_src = base_src + tmp1.Icon
+
+                if org_data['Is Icon With Text'] == "1":
+                    newMeStyleFlag = 1
+                    newMeStyleFont = org_data['Text Font Icons']
+                    newMeStyleColor = org_data['Text Color Icons']
+                    newMeStyleSize = org_data['Text Size Icons']
+                else:
+                    newMeStyleFlag = 2
+                    newMeStyleFont = org_data['Text Font Me']
+                    newMeStyleColor = org_data['Text Color Me']
+                    newMeStyleSize = org_data['Text Size Me']
+
+                tmp_style = " style='font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
+
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
+                    img_src = "/static/images/ppd-iMessage-default.png"
+                    tmp1_MenuItem_txt = "Messenger"
+                    icon_a = "<a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important;'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />"
+                        menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>"
+
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_childy
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
+                else:
+                    if liClass == "":
+                        icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>"
+                    else:
+                        icon_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        if liClass != "":
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
+                        else:
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
+
+                        menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'></td></tr><tr>"
+                        if liClass != "":
+                            menu_items_tmp1 = menu_items_tmp1 + "<td height='20' align='center' style='font-size:25px; color:" + newMeStyleColor + ";'>&#9662;</td></tr></table>"
+                        else:
+                            menu_items_tmp1 = menu_items_tmp1 + "<td height='20'></td></tr></table>"
+
+                        menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</li>"
+
+            else:
+                #---------------text
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count'  style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
+                else:
+                    tmp_menu_icon = " &#9662;"
+                    if liClass == "":
+                        text_a = "<a href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        tmp_menu_icon = ""
+                    else:
+                        text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + org_data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>"
+
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</li>"
+
+            menu_items = menu_items + menu_items_tmp1
+
+    org_data["menu_items"] = menu_items + "</ol>"
+%>
+
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
 <%block cached="False">
@@ -30,7 +176,7 @@
             course_id = None
         site_status_msg = get_site_status_msg(course_id)
     %>
-    % if site_status_msg:
+    % if site_status_msg and not is_external:
         <div class="site-status">
             <div class="inner-wrapper">
                 <span class="white-error-icon"></span>
@@ -39,167 +185,13 @@
         </div>
     % endif
 </%block>
-<style type="text/css" media="screen">
-    *{font-family:"open sans" !important;}
-    p{font-family:"open sans" !important;}
 
-    a.blue{
-        color:#556370 !important;
-    }
-
-    a.blue-underline{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.blue-underline:normal{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.blue-underline:hover{
-        color:#556370 !important;
-        text-decoration:underline !important;
-        border:none;
-    }
-
-    a.main-link{
-        font-family:'open sans';
-        font-size:16px;
-        text-transform:none;
-        font-weight:normal !important;
-    }
-    /*
-    .imessage_style{
-        margin-right: 0px;
-        display: block;
-        float: left;
-        margin: 0px;
-        padding: 5px 8px 7px 8px;
-        margin-top:-14px;
-    }
-    */
-    #view_all_note:hover {
-        background:#6e8194;
-        transition-delay: 0s, 0s, 0s;
-        transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-property:color, background,? box-shadow;
-        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-        transition-duration:0.25s,? 0.25s,? 0.25s;
-        color:#fff;
-    }
-    #view_all_note{
-        border-width:0;
-        background:#556370;
-        text-decoration: none;
-        padding-bottom: 10px;
-        padding-left: 90px;
-        padding-right: 90px;
-        padding-top: 10px;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: #949494 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
-    #view_all_note:normal {
-        background:#126F9A;
-        text-decoration: none;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
-    .ftg_button {
-        width:100px;
-        text-align:center;
-        display: block;
-        text-decoration: none!important;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        padding: 3px 3px;
-        border-radius: 3px;
-        -moz-border-radius: 3px;
-        box-shadow: inset 0px 0px 2px #fff;
-        -o-box-shadow: inset 0px 0px 2px #fff;
-        -webkit-box-shadow: inset 0px 0px 2px #fff;
-        -moz-box-shadow: inset 0px 0px 2px #fff;
-    }
-    .ftg_yellow {
-        color: #fff;
-        border: 1px solid #57c4be;
-        background-color: #57c4be;
-    }
-    .linkwin{
-        background:#fff;
-        border: 1px solid rgba(0, 0, 0, 0.9);
-        border-radius: 0;
-        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
-        display: none;
-        left: 50%;
-        padding: 8px;
-        position: absolute;
-        width: 480px;
-        display: none;
-        margin-left:-250px;
-        top: 320px;
-        z-index: 11000;
-        height:200px;
-    }
-    #show_personalmessage, #show_notifications {
-        background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
-        border: 1px solid rgba(0, 0, 0, 0.9);
-        border-radius: 0;
-        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
-        color: #FFF;
-        left: 50%;
-        top: 20px;
-        padding: 8px;
-        display: none;
-        margin-left: -309px;
-        opacity: 1;
-        position: absolute;
-        width: 600px;
-        z-index: 11000;
-    }
-    .message_board_txt_prompt
-    {
-        color:#646464;
-        font-style:italic;
-        font-weight:bold;
-    }
-    .message_board_empty_info
-    {
-        color:#000000;
-        margin-top:80px;
-        text-align:center;
-        font-weight:bold;
-    }
-
-    #show_notifications_link:focus { outline: none!important;}
-    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
-</style>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
+<script type="text/javascript" src="/static/js/navigation_new.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <style type="text/css" media="screen">
-    a.configuration{
-        color:#646464;
-        font-family:'open sans';
-        font-size:16px;
-    }
-    a.configuration:hover{
-        text-decoration:none;
-        color:#1d9dd9;
-    }
     ul.admin-dropdown-menu.expanded {
         display: block;
     }
@@ -255,547 +247,139 @@
         top: -6px;
         width: 0px;
     }
-    .sequence-list-wrapper{z-index:2 !important;}
 </style>
-<style>
-.searching{
-    width: 240px;
-    height:30px;
-    border:2px solid #41719c;
-    float: left;
-    margin-top: 5px;
-
-    margin-left:10px;
-    border-radius: 5px;
-    background-color:#fff; 
-}
-#searching_keyword{
-  border:0;
-  height:28px;
-  width:208px !important;
-  margin-top:1px;
-  outline: none;
-  border-radius: 0px;
-
-  color:#818181;
-  font-size: 15px;
-  font-family: "Arial" !important;
-  font-style:italic;
-
-  box-shadow:0 0 0 0;
-}
-#searching_keyword:focus{
-  border:2;
-  outline: none;
-}
-.searching-text-div{
-    width:210px;
-    height:30px;
-    float:left;
-}
-#searching_btn{
-    width:30px;
-    height:30px;
-    float:left;
-    cursor:pointer;
-}
-#searching_btn img{
-    margin-left:5px;
-    margin-top:5px;
-}
-.userphoto-div{
-    margin-top:-4px;
-    margin-right:5px;
-    float:right;
-    width:50px;
-    height:50px;
-}
-.nav-option-otheruser{
-  margin-top:10px;
-  margin-left:15px;
-  float:left;
-  width:auto;
-}
-.nav-option-otheruser a{
-    cursor: default;
-    color:#ccc !important;
-}
-.nav-option-otheruser a:link{
-    text-decoration: none;
-}
-.nav-option-ol{margin-top:14px; margin-left:10px; float:right; width:auto;}
-.nav-option-ol-li{float:left; height:65px; }
-.nav-option-ol-li-messenger{float:left; height:65px; }
-.nav-option-ol-icon{float:left;}
-.nav-option-ol-txt{float:left; width:45px; height:20px; line-height:20px; font-size:10px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.nav-option-ol-only-txt{float:left; height:61px; line-height:61px; }
-.nav-option-ol-only-txt a{text-decoration: none;}
-.nav-option-ol-only-txt a:link{text-decoration: none;}
-.nav-option-text{
-    position:absolute;
-    top:50px;
-    left:0px;
-    z-index:100;
-    padding:5px;
-    background-color:#eff0f6;
-    border-radius: 3px;
-    color:#666;
-    display:none;
-    border:1px solid #666;
-    white-space:nowrap;
-}
-.nav-option-text-left{
-    position:absolute;
-    top:0px;
-    right: 40px;
-    z-index:100;
-    padding:5px;
-    background-color:#eff0f6;
-    border-radius: 3px;
-    color:#666;
-    display:none;
-    border:1px solid #666;
-    white-space:nowrap;
-}
-.tempdiv{
-    width: 240px;
-    height:30px;
-    float: left;
-    margin-top: 5px;
-    margin-left:10px;
-}
-.dropdownusername{
-    display:block;
-    max-width:200px;
-    text-overflow:ellipsis;
-    line-height:18px;
-    height:20px;
-    font-weight:bold;
-    overflow-x:hidden;
-    vertical-align:top;
-}
-.dropdownusername + a:hover{
-    color:#3c3c3c;
-}
-.nav-fixed{
-    position: fixed !important;
-    top:0px;
-    z-index:21 !important;
-}
-</style>
-
 % if context.get("curr_user"):
     <% curr_user=context.get("curr_user") %>
 % else:
     <% curr_user=user %>
 % endif
-
-% if request.user.is_authenticated():
-    <div style="width:100%;height:77px"></div>
+% if not is_external:
+    <div id="pepper-logged-in"></div>
 % endif
 
-<%    
-    OrganizationOK = False
-    if request.user.is_authenticated():
-        organization_flag = "login"
-        
-        try:
-            state_id = request.user.profile.district.state.id
-        except:
-            state_id = -1
-        try:
-            district_id = request.user.profile.district.id
-        except:
-            district_id = -1
-        try:
-            school_id = request.user.profile.school.id
-        except:
-            school_id = -1
-            
-        organization_obj = OrganizationMetadata()
-        if (school_id != -1):
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-                organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
-
-        if (not(OrganizationOK) and district_id != -1):
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-                organization_obj = tmp1.organization
-                OrganizationOK = True
-                break;
-        
-        if (not(OrganizationOK) and state_id != -1):
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                OrganizationOK = True
-                organization_obj = tmp1.organization
-                break;
-                
-        data = {}
-        if OrganizationOK:
-            data["org_id"] = organization_obj.id;
-            base_src = "/static/uploads/organization/" + str(data['org_id']) + "/";
-            base_logo = "";
-            newMeStyleFlag = 0;            
-            newMeStyleFont = "";
-            newMeStyleColor = "#000";
-            newMeStyleSize = "";   
-            
-            #---------------OrganizationMenu 
-            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                data[tmp1.itemType] = tmp1.itemValue
-            
-            if data.has_key('logo') and data['logo'] != "":
-                if data['Logo Url'] != "":
-                    tmp_url = data['Logo Url'];
-                else:
-                    tmp_url = "javascript:void(0);"
-                base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['logo'] + "' height='58' /></a>";
-            
-            if data.has_key('organization_logo') and data['organization_logo'] != "":
-                if data['Organization Logo Url'] != "":
-                    tmp_url = data['Organization Logo Url'];
-                else:
-                    tmp_url = "javascript:void(0);"
-                base_logo = base_logo + "<a style='float:left' href='" + tmp_url + "'><img src='" + base_src + data['organization_logo'] + "' height='58' /></a>";
-        
-            #---------------OrganizationMenuitem 
-            if data.has_key('Is Icon With Text') and data['Is Icon With Text'] == "1":
-                menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:10px !important;'>"
-            else:
-                menu_items = "<ol class='authenticated nav-option-ol' style='margin-top:11px !important;'>"                
-                 
-            for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=0):
-                if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
-                    #---------------Sub Menu
-                    liClass = ""
-                    if data['Is Icon'] == "1":
-                        if data['Is Icon With Text'] == "1":
-                            menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:66px !important;'>"
-                        else:
-                            menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:64px !important;'>"
-                    else:
-                        menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:65px !important;'>"
-                    
-                    #---------------    
-                    for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj,ParentID=tmp1.id):
-                        if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser):
-                            if liClass == "":
-                                liClass = " class='admin-menu-holder'"
-                            
-                            menu_items_child = menu_items_child + "<li><a href='" + tmp2.Url + "'>" + tmp2.MenuItem + "</a></li>"
-                            
-                    menu_items_child = menu_items_child + "</ul>";
-                    
-                    tmp1_MenuItem_txt = tmp1.MenuItem
-                    
-                    newMeStyleFont = data['Text Font'];
-                    newMeStyleColor = data['Text Color'];
-                    newMeStyleSize = data['Text Size'];
-                    
-                    if data['Is Icon'] == "1":
-                    	img_src = base_src + tmp1.Icon;
-                        
-                        if data['Is Icon With Text'] == "1":
-                            newMeStyleFlag = 1;
-                            newMeStyleFont = data['Text Font Icons'];
-                            newMeStyleColor = data['Text Color Icons'];
-                            newMeStyleSize = data['Text Size Icons'];
-                        else:
-                            newMeStyleFlag = 2;
-                            newMeStyleFont = data['Text Font Me'];
-                            newMeStyleColor = data['Text Color Me'];
-                            newMeStyleSize = data['Text Size Me'];
-                        
-                        tmp_style = " style='font-family:" + data['Text Font Icons'] + " !important; color:" + data['Text Color Icons'] + "; font-size:" + data['Text Size Icons'] + "px !important;'"
-                            
-                        if tmp1_MenuItem_txt == "#Messenger":
-                            img_src = "/static/images/ppd-iMessage-default.png";
-                            tmp1_MenuItem_txt = "Messenger"                            
-                            icon_a = "<a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important;'>"
-                            
-                            #---------------icon
-                            nav_option_text_top = ""
-                            if data['Is Icon With Text'] == "1":
-                                menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>";
-                                menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />";
-                                menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
-                                menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>";
-                                
-                                nav_option_text_top = "top:0px !important; left:40px !important;"
-                            else:                                
-                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"                                
-                                nav_option_text_top = "top:0px !important; left:40px !important;"
-                                
-                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"        
-                            if liClass != "":
-                                menu_items_tmp1 = menu_items_tmp1 + menu_items_childy
-                                
-                            menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
-                        else:
-                            if liClass == "":
-                                icon_a = "<a href='" + tmp1.Url + "'>"    
-                            else:
-                                icon_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "'>"
-                                
-                            #---------------icon
-                            nav_option_text_top = ""
-                            if data['Is Icon With Text'] == "1":
-                                menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"                                
-                                if liClass != "":
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
-                                else:
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
-                                    menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' clas1s='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
-                                
-                                menu_items_tmp1 = menu_items_tmp1 + "</a>"
-                                nav_option_text_top = "top:0px !important; left:40px !important;"
-                                
-                            else:
-                                menu_items_tmp1 = "<li style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'></td></tr><tr>"
-                                if liClass != "":
-                                    menu_items_tmp1 = menu_items_tmp1 + "<td height='20' align='center' style='font-size:25px; color:" + newMeStyleColor + ";'>&#9662;</td></tr></table>"    
-                                else:
-                                    menu_items_tmp1 = menu_items_tmp1 + "<td height='20'></td></tr></table>"
-                                
-                                menu_items_tmp1 = menu_items_tmp1 + "</a>"                                
-                                nav_option_text_top = "top:0px !important; left:40px !important;"
-                                
-                            menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"        
-                            if liClass != "":
-                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                                
-                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
-                        
-                    else:                    
-                        #---------------text
-                        if tmp1_MenuItem_txt == "#Messenger":
-                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + " !important; font-family:" + data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count' style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>";
-                        else:
-                            tmp_menu_icon = " &#9662;"
-                            if liClass == "":
-                                text_a = "<a href='" + tmp1.Url + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"    
-                                tmp_menu_icon = ""
-                            else:
-                                text_a = "<a href='javascript:void(0)' class='configuration' mid='" + str(tmp1.id) + "' style='font-size:" + data['Text Size'] + "px !important; color:" + data['Text Color'] + "  !important; font-family:" + data['Text Font'] + " !important;'>"
-                                
-                            menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>";
-                            
-                            if liClass != "":
-                                menu_items_tmp1 = menu_items_tmp1 + menu_items_child
-                                
-                            menu_items_tmp1 = menu_items_tmp1 + "</li>"
-                                           
-                    menu_items = menu_items + menu_items_tmp1
-
-            data["menu_items"] = menu_items + "</ol>"
-%>
-
 <!--header-->
-<header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:${data['Menu Color']};">
+<header id="pepper-nav" class="pepper-nav pepper-nav-fixed" aria-label="${_('Global Navigation')}" style="background-color: ${org_data['Menu Color']};">
+    <!--nav-->
+    <nav class="pepper-org">
+        <!--sub logo-->
 
-<!--nav-->
-<nav id="page-nav" style="height:76px;width:1180px;padding:0px;">
-<!--sub logo-->
-   
-	<h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:0px;">   
-        <!--@begin:Choose the link of the top logo according user's login status-->
-        % if OrganizationOK and data['Is New Menu'] == "1" and base_logo != "":
-            ${base_logo}
-        % else:
-        	<!--@date:2013-11-02-->           
-            % if request.user.is_authenticated():
-                <a href="/dashboard">
-            % else:
-                <a href="/">
-            % endif
-            <!--@end-->
-            <%block name="navigation_logo">
-                <!--@begin:Choose the image of the top logo according to user login status-->
-                % if index != 1:
-                   <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+        <h1 class="pepper-logo-wrap">
+            <!--@begin:Choose the link of the top logo according user's login status-->
+            % if org_data['Is New Menu'] == "1" and org_logos:
+                % if org_data.has_key('logo') and org_data['logo'] != "":
+                    % if org_data['Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Logo Url'])}">
+                    % else:
+                        <a class="pepper-logo-link" href="#">
+                    % endif
+                    <img class="pepper-logo" src="${base_src}${org_data['logo']}" /></a>
                 % endif
-                <!--@end-->
-            </%block>
-            </a>
-        % endif
-    </h1>
-	
-	<!--sub nav option-->
-    <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
-    <!--sub userphoto and dropdown menu--> 
-    <span style="float:right;">
-    % if request.user.is_authenticated():         
-        <ol class="user admin">
-            <li class="primary" style="margin-top:6px;">
-                <span><a href="javascript:void(0)" class="" id="dropdown">                    
-                    % if OrganizationOK:
+                % if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
+                    % if org_data['Organization Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Organization Logo Url'])}">
+                    % else:
+                        <a class="pepper-logo-link" href="#">
+                    %endif
+                    <img class="pepper-logo" src="${base_src}${org_data['organization_logo']}" /></a>
+                %endif
+            % else:
+                <a href="${absolute_url('/dashboard')}">
+                <%block name="navigation_logo">
+                    <!--@begin:Choose the image of the top logo according to user login status-->
+                    % if index != 1:
+                        <img class="orig-pepper-logo" src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
+                    % endif
+                    <!--@end-->
+                </%block>
+                </a>
+            % endif
+        </h1>
+
+        <!--sub userphoto and dropdown menu-->
+        <span class="pepper-user">
+            <ol>
+                <li class="pepper-user-wrap">
+                    <span><a href="javascript:void(0)" id="pepper-dropdown">
                         % if newMeStyleFlag == 0:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-family:${newMeStyleFont}">
-                            	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                <tr>
+                                    <td height="45" colspan="2"><img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
-                                    <td width="20" style="font-size:25px !important;" id="user-photo-arrow">&#9662;</td>
+                                    <td width="20" class="pepper-me-arrow">&#9662;</td>
                                 </tr>
                             </table>
                         % else:
                         	<table border="0" cellpadding="0" cellspacing="0" style="color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">
-                            	<tr>
-                                	<td height="45" colspan="2"><img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
+                                <tr>
+                                    <td height="45" colspan="2"><img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="45" height="45" style="border:2px solid ${newMeStyleColor} !important; border-radius:50px;"></td>
                                 </tr>
                                 <tr>
                                 	<td height="20" align="right">Me</td>
-                                    <td width="20" style="font-size:25px !important;" id="user-photo-arrow">&#9662;</td>
+                                    <td width="20" class="pepper-me-arrow">&#9662;</td>
                                 </tr>
                             </table>
                         % endif
-                    <!--<span style="text-align:center;display:block;max-width:70px;text-overflow:ellipsis;line-height:20px;overflow:hidden;vertical-align:bottom; color:${newMeStyleColor}; font-size:${newMeStyleSize}px; font-family:${newMeStyleFont}">Me <font style="float:right; font-size:25px;">&#9662;</font></span>-->
-                    % else:
-                        <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="45" height="45" style="border-radius:50px;">
-                    	<span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;" id="user-photo-arrow">Me &#9662;</span>
-                    % endif
-                    <div class="nav-option-text-left">${request.user.username} </div>
-                </a></span>
-                <ul class="dropdown-menu" style="width:300px;top:64px;left: inherit" id="me-dropdown"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
-                    <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
-                        margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
-                        <div style="float:left;">   
-                            <img src="${reverse('user_photo',args=[request.user.id])}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
-                        </div>
-                        <div style="float:left;margin: 10px 0 0 10px;color:#60B2D6">
-                            <span class="dropdownusername" >${ request.user.first_name | h } ${ request.user.last_name | h }</span>
-                            <a style="text-decoration:none;font-weight: bold;font-size:15px;"  href="${reverse('user_information',args=[request.user.id])}">View Profile</a>
-                        </div>
-                    </li>
-                    <%block name="navigation_dropdown_menu_links" >
-                        <li><a href="/static/resource/Pepper_User_Guide.pdf" target="_blank">${_("Help")}</a></li>
-                    </%block>
-                    <li><a href="/course_credits" class="main-link">Course Credits</a></li>
-                    <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>                        
-                </ul>
-            </li>
-        </ol>  
-	<!--unlogin status-->         
-    % else:
-        <%block name="navigation_global_links">
-            % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
-                <ol>
-                    <li class="nav-global-01">
-                        <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
-                    </li>
-                    <li class="nav-global-02">
-                        <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
-                    </li>
-                    <li class="nav-global-03">
-                        <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
-                    </li>
-                </ol>
-            % endif
-        </%block> 
-        <ol class="right nav-courseware" style="margin-top:-5px;">
-<!--sub shopping ico-->
-            <li><a class="main-link" href="/shopping" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
-<!--sub login button-->
-            <li class="nav-courseware-01">
-                % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-                    % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                        <!--@begin:Change the text in Log in to Login-->
-                        <!--@date:2013-11-02-->
-                        <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
-                    % else:
-                        <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="/login${login_query()}">${_("Login")}</a>
-                        <!--@end-->
-                    % endif
-                % endif
-            </li>
-        </ol>
-    % endif
-    </span>
-    
-    % if course:
-        <!--<h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
-        </h2>-->
-        <script type="text/javascript">			
-			$(document).ready(function(){				
-				//$("#dropdown").find("span").css("cssText", "text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;font-family:${data['Text Font']} !important;");				
-				var tmp1 = "<div style=\"text-align:left; padding:5px 0 5px 22px; font-family:'Open Sans',Verdana,Geneva,sans-serif; \">";
-				tmp1 += "<span style='color:#3c3c3c; font-weight:bold; font-size:18px;'>${course.display_org_with_default | h}: </span><span style='color:#646464; font-weight:bold;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
-				tmp1 += "</div>";
-				$(".inner-wrapper").prepend(tmp1);
-				$(".course-tabs").css("paddingTop", "0");
-			});
-		</script>
-    % endif
-    % if request.user.is_authenticated():
-        % if OrganizationOK and data['Is New Menu'] == "1":
-            ${data["menu_items"]}
-            <script type="text/javascript">
-                $(document).on('click', function(event) {
-                    if (!$(event.target).closest('.admin-menu-holder').length) {
-                        $(".admin-dropdown-menu").hide();
-                    } else if ($(event.target).closest(".outside_menu").length) {
-                        $(".admin-dropdown-menu").hide();
-                    }
-                    if($('#user-photo-arrow:hidden')){
-                        $('#user-photo-arrow').css("visibility", "visible");
-                    }
-                });
+                  <div class="nav-option-text-left">${request.user.username} </div>
+                    </a></span>
+                    <ul class="pepper-dropdown-menu-list" id="me-dropdown"> <!-- akogan - added left: inherit to move dropdown pointer under user image -->
+                        <li class="pepper-dropdown-menu">
+                            <div>
+                                <img src="${absolute_url(reverse('user_photo',args=[request.user.id]))}" alt="photo" width="50" height="50" style="border-radius:50px;"/>
+                            </div>
+                            <div class="pepper-dropdown-menu-drop">
+                                <span class="dropdownusername">${ request.user.first_name | h } ${ request.user.last_name | h }</span>
+                                <a href="${absolute_url(reverse('user_information',args=[request.user.id]))}">View Profile</a>
+                            </div>
+                        </li>
+                        <%block name="navigation_dropdown_menu_links" >
+                            <li><a href="${absolute_url('/static/resource/Pepper_User_Guide.pdf')}" target="_blank">${_("Help")}</a></li>
+                        </%block>
+                        <li><a href="${absolute_url('/course_credits')}" class="main-link">Course Credits</a></li>
+                        <li><a href="${absolute_url(reverse('logout'))}">${_("Log Out")}</a></li>
+                    </ul>
+                </li>
+            </ol>
+            <!--unlogin status-->
+        </span>
+
+        % if course and not is_external: 
+            <script type="text/javascript">                
                 $(document).ready(function(){
-                    $(".configuration").click(function(event){
-						var e = window.event || event;
-						if(e.stopPropagation){
-                            e.stopPropagation();
-                        }else{
-                            e.cancelBubble = true;
-                        }
-						if($('#dropdown').hasClass("active")){
-							$('ul.dropdown-menu').removeClass("expanded");
-							$('#dropdown').removeClass("active");
-						}                        
-                        var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
-                        if(tmp_el.length > 0){
-                            if(tmp_el.is(":visible"))
-                                tmp_el.hide();
-                            else{
-                                $(".admin-dropdown-menu").hide();
-                                tmp_el.show();
-                            }
-                        }
-                    });
+                    var tmp1 = "<div style=\"text-align:left; padding:5px 0 5px 22px; font-family:'Open Sans',Verdana,Geneva,sans-serif; \">";
+                    tmp1 += "<span style='color:#3c3c3c; font-weight:bold; font-size:18px;'>${course.display_org_with_default | h}: </span><span style='color:#646464; font-weight:bold;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
+                    tmp1 += "</div>";
+                    $(".inner-wrapper").prepend(tmp1);
+                    $(".course-tabs").css("paddingTop", "0");
                 });
             </script>
         % endif
-    % endif    
-</nav>
+  		
+        % if org_data['Is New Menu'] == "1":
+            ${org_data["menu_items"]}
+        % endif
+    </nav>
 </header>
 
-
-% if course:
+% if course and not is_external:
     <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif
 
-%if not request.user.is_authenticated():
-    <%include file="forgot_password_modal.html" />
-%endif
-
 <%include file="help_modal.html"/>
 
-    <!--@begin:show_notifications-->
-    <!--@date:2014-06-19-->
-%if request.user.is_authenticated():
+<!--@begin:show_notifications-->
+<!--@date:2014-06-19-->
+% if not is_external:
     <section id="show_notifications" class="modal modal-wide" data-id="${request.user.id}" data-name="${request.user.username}" data-fullname="${request.user.first_name} ${request.user.last_name}">
-        <div class="inner-wrapper" style="width:578px;">
+        <div class="inner-wrapper">
             <header>
                 <h2>${_("notifications")}</h2>
                 <hr/>
             </header>
-            <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
-                    <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
+            <div class="view-all-note">
+                <a href="${reverse('notifications')}" id="view_all_note">
+                    <div id="view_all_note_text">View All Notifications (0)</div>
                 </a>
             </div>
             <div class="info_list"></div>
@@ -806,785 +390,54 @@
             </div>
         </div>
     </section>
-%endif
-    <script>
-        $(document).ready(function () {
-            $('#dropdown').click(function(event) {
-				if($(this).hasClass("active")){
-					$('ul.dropdown-menu').removeClass("expanded");
-					$(this).removeClass("active");
-					$('#user-photo-arrow').css("visibility", "visible");
-				}else{
-					$('ul.dropdown-menu').addClass("expanded");
-					$('#dropdown').addClass("active");
-					$(".admin-dropdown-menu").hide();
-					$(document).one("click", function(){
-						$('ul.dropdown-menu').removeClass("expanded");
-						$('#dropdown').removeClass("active");
-					});
-					$('#user-photo-arrow').css("visibility", "hidden");
-				}
-                event.stopPropagation();
-          	});
-          	$('#me-dropdown').click(function(event){
-                $('#user-photo-arrow').css("visibility", "visible");
-          	});
-        }); 
-        $("#dropdown").mouseover(function(){
-            $(this).find(".nav-option-text-left").show();
-        })
-        $("#dropdown").mouseout(function(){
-           $(this).find(".nav-option-text-left").hide();
-        })
-        $(".nav-option-ol li").mouseover(function(){
-            $(this).find(".nav-option-text").show();
-        })
-         $(".nav-option-ol li").mouseout(function(){
-           $(this).find(".nav-option-text").hide();
-        })
-        //---------------------Notifications variable-----------------------------------------//
+% endif
 
-        var interactive_update_window_top = 0;
-
-        //---------------------Message board variable-----------------------------------------//
-
-        var message_people = null;
-        var user_info = null;
-        var message_board_isload = false;
-        var message_board_loadNum = 0;
-        var message_board_totalNum = 0;
-        var message_board_focus = 0;
-        var message_board_maxCharNum = 1000;
-        var message_board_hover = 0;
-
-        //---------------------Record time variable-------------------------------------------//
-
-        var courseTimer = null;
-        var externalTimer = null;
-        RecordTime.firstRun = true;
-        var timer_record = false;
-        
-        //---------------------Pepper stats refresh-------------------------------------------//
-
-        function pepper_stats_refresh() {
-             if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0 || document.URL.indexOf('user_profile') >= 0) {
-                $.post("${reverse('get_pepper_stats')}", {
-                 'user_id': "${request.user.id}"
-               }, function(data) {
-                 $('#all_course_time').html(data.all_course_time);
-                 $('#collaboration_time').html(data.collaboration_time);
-                 //hide totle adjustment time
-                 //$('#totle_adjustment_time').html(data.totle_adjustment_time);
-                 $('#total_time_in_pepper').html(data.total_time_in_pepper);
-                 $(".course-time,.course-time-completed").each(function() {
-                   var course_id = $(this).attr('course_id');
-                   var time_type = $(this).attr('time_type');
-                   if (time_type == 'course') {
-                     $(this).children('span').html(data.course_times[course_id]);
-                   } else {
-                     $(this).children('span').html(data.external_times[course_id]);
-                   }
-                 });
-    
-                 $(".total-course-time").each(function() {
-                    var course_id = $(this).attr('course_id');
-                    $(this).children('span').html(data.total_course_times[course_id]);
-                 });
-               });
-            }
-        }
-    
-        //---------------------Record time (Page switching)----------------------------------//
-
-        function record_time(position) {
-            timer_record = false;
-            %if request.user.id is not None:
-                sessionStorage['user_id'] = "${request.user.id}";
-            %endif
-            %if course:
-                RecordTime.setSessionCourseID("${course.id}");
-            %endif
-            courseTimer.start();
-            RecordTime.coursePosition = position;
-            RecordTime.sessionInit();
-            var vertical_id = $("#sequence-list li .active").attr("data-id");
-            var time = new Date().toISOString();
-            var path = RecordTime.getCourseFullPath(document.URL, position);
-            var data = {
-                'type': 'course_page',
-                'user_id': RecordTime.userID,
-                'time': time,
-                'new_vertical_id': vertical_id,
-                'prev_vertical_id': RecordTime.getSessionVerticalId(),
-                'prev_time': RecordTime.getSessionTime(),
-                'location': path
-            };
-            if (RecordTime.getSessionVerticalId() != vertical_id) {
-                RecordTime.ajaxRecordTime(data, function() {
-                    RecordTime.setSessionVerticalId(vertical_id);
-                    RecordTime.setSessionTime(time);
-                    courseTimer.load();
-                    timer_record = true;
-                });
-
-            } else {
-                if (RecordTime.firstRun) {
-                    RecordTime.ajaxRecordTime(data, function() {
-                        RecordTime.setSessionVerticalId(vertical_id);
-                        RecordTime.setSessionTime(time);
-                        RecordTime.firstRun = false;
-                        timer_record = true;
-                    });
-                }
-            }
-        }
-        //---------------------Record time (Course refresh or exit)--------------------------//
-
-        function course_refresh_or_exit() {
-            %if request.user.id is not None:
-                sessionStorage['user_id'] = "${request.user.id}";
-                RecordTime.sessionInit();
-            %else:
-                RecordTime.setSessionVerticalId('');
-                RecordTime.setSessionCourseTime(0);
-            %endif
-            %if course:
-                RecordTime.setSessionCourseID("${course.id}");
-            %endif
-            //RecordTime.sessionInit();
-            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
-                var data = {
-                    'type': 'new_page',
-                    'user_id': RecordTime.userID,
-                    'time': (new Date()).toISOString(),
-                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
-                    'prev_time': RecordTime.getSessionTime()
-                };
-                RecordTime.ajaxRecordTime(data, function() {
-                    RecordTime.setSessionVerticalId("");
-                    RecordTime.setSessionTime("");
-                    pepper_stats_refresh();
-                });
-                timer_record = true;
-            }
-            var verticalId = RecordTime.getSessionVerticalId()||'';
-            var time = RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType())||0;
-            if(verticalId == '' && time == 0){
-                pepper_stats_refresh();
-            }
-        }
-
-        //---------------------------------------------------------------------------//
-        function onfocusEventDelay(e){
-            course_refresh_or_exit();
-            var is_press_logout = $(document.activeElement).is('.dropdown');
-            if (document.URL.indexOf('courseware') < 0) {
-                if(courseTimer.loadComplete && !is_press_logout){
-                    courseTimer.isrun = false;
-                    courseTimer.create();
-                }
-            } else {
-                if (RecordTime.getSessionVerticalId() == "" && !is_press_logout && timer_record) {
-                    record_time(RecordTime.coursePosition);
-                }
-            }
-
-        }
-        function onblurEventDelay(e){
-            //console.log(e.type);
-            //var isfocusOut = $(document.activeElement).is('.courseware,.dropdown,.seq_other,.sequence-nav-buttons li a');
-            var isfocusOut = $(document.activeElement).get(0).tagName!='IFRAME';
-            course_refresh_or_exit();
-            if (document.URL.indexOf('courseware') < 0) {
-                courseTimer.stop();
-                courseTimer.save();
-            }
-            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0 && isfocusOut) {
-                RecordTime.sessionInit();
-                var data = {
-                    'type': 'new_page',
-                    'user_id': RecordTime.userID,
-                    'time': (new Date()).toISOString(),
-                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
-                    'prev_time': RecordTime.getSessionTime()
-                };
-                RecordTime.ajaxRecordTime(data, function () {
-                    RecordTime.setSessionVerticalId("");
-                    RecordTime.setSessionTime("");
-                    courseTimer.load();
-                });
-                
-            }
-        }
-        $(function() {
-            $(window).blur(function(e) {
-                setTimeout(function(){onblurEventDelay(e);}, 200);
-            });
-            $(window).focus(function(e) {
-                setTimeout(function(){onfocusEventDelay(e);}, 200);
-            });
-            $('.dropdown').mouseup(function(e){
-                if (document.URL.indexOf('courseware') > 0) {
-                    if (RecordTime.getSessionVerticalId() != ""){
-                        setTimeout(function(){onblurEventDelay(null);}, 200); 
-                    }
-                }
-                else{
-                    if(RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType()) > 0){
-                        setTimeout(function(){onblurEventDelay(null);}, 200);
-                    }
-                }
-            })
-            course_refresh_or_exit();
-            courseTimer = new CourseTimer();
-            externalTimer = new ExternalTimer();
-            //courseTimer.isrun = false;
-            //courseTimer.create();
-            
-            interactive_update();
-            $(".info_count_btn").click(function() {
-                interactive_update();
-            });
-
-            $(".info_btn").click(function() {
-                interactive_update();
-            });
-
-            $(".ftg_button").click(function() {
-                message_board_saveInfo();
-            });
-
-            $(".message_board_uploadBtn").click(function() {
-                $("#message_board_browseFile").click();
-            });
-
-            $(".message_board_linkBtn").click(function() {
-                $(".linkwin").show();
-            });
-
-            $("#hyperlink_okBtn").click(function() {
-                var content = $(".message_board_content");
-                if ($("#link_url_val").val() != '') {
-                    if (!message_board_focus) {
-                        content.html("");
-                        message_board_focus = 1;
-                    }
-                    content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
-                    $(".linkwin").hide();
-                }
-            });
-
-            $("#hyperlink_cancelBtn").click(function() {
-                $(".linkwin").hide();
-            });
-
-            $("#message_board_close").click(function() {
-                $(".linkwin").hide();
-                message_board_clearContent();
-            });
-
-            //-----------------------------------------------------------------
-            $(".message_board_content").focusin(function() {
-                if (!message_board_focus) {
-                    $(this).html("");
-                    message_board_focus = 1;
-                }
-            });
-
-            $(".message_board_content").keyup(function(event) {
-                message_board_updateMaxCharNum();
-            });
-
-            $("#show_personalmessage").hover(function() {
-                $("body").css("overflow", "hidden");
-                message_board_hover = 1;
-            }, function() {
-                $("body").css("overflow", "");
-                message_board_hover = 0;
-            });
-
-            $(".message_board_listCon").scroll(function(event) {
-                var scrollTop = $(this).scrollTop();
-                var scrollHeight = $(".message_board_list").height();
-                var windowHeight = $(this).height();
-                /*
-                  if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
-                  {
-                  message_board_getMessage(message_board_loadNum);
-                  }
-                */
-                if (scrollTop == 0 && message_board_isload) {
-                    message_board_getMessage(message_board_loadNum);
-                }
-            });
-        });
-
-        function interactive_update_createItem(data) {
-            var body = data.body == undefined ? '' : data.body;
-            interactive_update_switchType(data);
-            if(data.type_community){
-                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:450px;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
-            }
-            else{
-                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
-            }
-            $('.info_list').append(element);
-            element.click(function() {
-                if (data.activate == 'false') {
-                    interactive_update_activateItem(data);
-                } else {
-                    interactive_update_openWindow(data)
-                }
-            });
-        }
-
-        function interactive_update_switchType(data) {
-            data.type_community = 0;
-            switch (data.type) {
-                case 'discussion':
-                    data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
-                    break;
-                case 'portfolio':
-                    data.type_text = "<b>" + data.interviewer_name + "</b> has commented on " + (data.portfolio_username || 'your') + "'s portfolio in course " + data.course_number + ".";
-                    break;
-                case 'add_network':
-                    data.type_text = "<b>" + data.interviewer_name + "</b> has added you to their personal network."
-                    break;
-                case 'view_portfolio':
-                    data.type_text = "<b>" + data.interviewer_name + "</b> is checking out your " + data.course_number + " portfolio."
-                    break;
-                case 'message':
-                    data.type_text = "Personal Message from <b>" + data.interviewer_name + "</b>"
-                    break;
-                case 'my_chunks':
-                    data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
-                    break;
-                default:
-                    data.type_text = data.subject || data.body;
-                    data.type_community = 1;
-            }
-        }
-
-        function interactive_update() {
-            datainfo = {};
-            $.post("${reverse('get_interactive_update')}", datainfo, function(data) {
-                interactive_update_init(data);
-            });
-        }
-
-        function interactive_update_init(data) {
-            $("#view_all_note_text").text("View All Notifications (" + data.count + ")");
-            if (data.count > 0) {
-                $(".info_btn").hide();
-                $(".info_count_btn").show();
-                var count = data.count > 999 ? 999 : data.count;
-                $(".info_count").text(count);
-            }
-            $('.info_list').empty();
-            for (var i = 0; i < data.results.length; i++) {
-                interactive_update_createItem(data.results[i]);
-            }
-        }
-
-        function fillZero(val) {
-            return val < 10 ? '0' + val : val;
-        }
-
-        function interactive_update_dateFormat(data) {
-            dateinfo = {};
-            interval = interactive_update_getTimeInterval(data);
-            var darr = new Date(data.date).toString().split(' ');
-            var sign = 'am';
-            if (interval < 1) {
-                dateinfo.date = "Today";
-            } else if (interval < 2) {
-                dateinfo.date = "Yesterday";
-            } else {
-                dateinfo.date = darr[1] + " " + darr[2];
-            }
-            var timeArr = darr[4].substr(0, 5).split(":");
-            if (timeArr[0] > 12 && timeArr[0] < 24) {
-                timeArr[0] = fillZero(timeArr[0] - 12);
-                sign = 'pm';
-            }
-            var time = timeArr[0] + ":" + timeArr[1] + sign;
-            dateinfo.full_date = dateinfo.date + " at " + time;
-            dateinfo.time = time;
-            return dateinfo;
-        }
-
-        function interactive_update_activateItem(data) {
-            var user_id = "${request.user.id}";
-            $.post("${reverse('set_interactive_update')}", {
-                _id: data._id,
-                _name: 'activate',
-                _value: 'true',
-                _user_id: user_id,
-                _record_id: data.user_id,
-                _ismultiple: data.multiple
-            }, function(rdata) {
-                interactive_update_openWindow(data);
-            });
-        }
-
-        function interactive_update_getActivateStyle(data) {
-            var notActivateColor = data.user_id != 0 ? "#eeeff4" : "#ffffcc";
-            //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
-            bcolor = data.activate == 'true' ? '#ffffff' : notActivateColor;
-            return {
-                'backgroundColor': bcolor
-            };
-        }
-
-        function interactive_update_getTimeInterval(data) {
-            var t = new Date();
-            var today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
-            var d = new Date(data.date);
-            var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-            return parseInt((today - date) / 3600000 / 24);
-        }
-
-        function interactive_update_openWindow(data) {
-            if (data.type == "message" || data.type == "view_portfolio") {
-                $("#show_notifications").hide();
-                if ($("#show_personalmessage").css("zIndex") < 10000) {
-                    $("#show_personalmessage").addClass("leanmodalStyle");
-                }
-                $("#lean_overlay").show();
-                $("#show_personalmessage").show();
-                $("#show_personalmessage").find(".close-modal").click(function() {
-                    $("#show_personalmessage").hide();
-                    $(".linkwin").hide();
-                    $("#lean_overlay").hide();
-                    $(window).scrollTop(interactive_update_window_top);
-                })
-                message_board_clearContent();
-                $("#lean_overlay").click(function() {
-                    $("#show_personalmessage").hide();
-                    $(".linkwin").hide();
-                    $(this).hide();
-                    $(window).scrollTop(interactive_update_window_top);
-                })
-                var userInfo = [];
-                var data_ele = $("#show_notifications");
-                userInfo['message_people'] = {
-                    id: data.interviewer_id,
-                    fullname: data.interviewer_fullname,
-                    name: data.interviewer_name
-                };
-                userInfo['user'] = {
-                    id: data_ele.data('id'),
-                    fullname: data_ele.data('fullname'),
-                    name: data_ele.data('name')
-                };
-                message_board(userInfo);
-                return 0;
-            }
-            if (data.location.indexOf("/dashboard") >= 0) {
-                window.open(data.location);
-                return 0;
-            }
-            if (data.location.indexOf("/my_coursework") >= 0) {
-                var curr_user_id = "${request.user.id}";
-                var user_id = data.location.substring(data.location.indexOf("/my_coursework") + 15, data.location.lastIndexOf("/"));
-                if (curr_user_id != user_id) {
-                    window.open(data.location, '_blank');
-                    return 0;
-                }
-            }
-            if (data.location.indexOf("/my_discussions") >= 0) {
-                var curr_user_id = "${request.user.id}";
-                var user_id = data.location.substring(data.location.indexOf("/my_discussions") + 16, data.location.indexOf("?"));
-                if (curr_user_id != user_id) {
-                    window.open(data.location, '_blank');
-                    return 0;
-                }
-            }
-            if (window.location.href.indexOf("/courses") >= 0) {
-                var curr_url = "/courses" + window.location.href.split("/courses")[1].split("#")[0];
-                var location = data.location.split("#")[0];
-                if (curr_url != location) {
-                    window.open(data.location, '_self');
-                } else {
-                    window.location.href = data.location;
-                    window.location.reload();
-                }
-            } else {
-                window.open(data.location, '_self');
-            }
-
-        }
-        //-------------------------message_board---------------------//
-
-        function message_board(_user_info) {
-            user_info = _user_info;
-            message_people = user_info["message_people"];
-            $('.message_item').remove();
-            message_board_hideLoadMore();
-            message_board_isload = false;
-            message_board_loadNum = 0;
-            message_board_totalNum = 0;
-            message_board_focus = 0;
-            message_board_clearContent();
-            message_board_multiplayerSend_init();
-            message_board_getMessage(message_board_loadNum);
-        }
-
-        function message_board_getMessage(skip) {
-            message_board_isload = false;
-            $.post("${reverse('get_message')}", {
-                message_people: message_people.id,
-                skip: skip,
-                limit: 6
-            }, function(data) {
-                message_board_init(data)
-            });
-        }
-
-        function message_board_init(data) {
-            message_board_loadNum += 6;
-            message_board_totalNum = data.count;
-            $(".message_board_full_name").text(message_people.fullname);
-            $('.message_board_empty_info').remove();
-            if (data.results.length == 0) {
-                $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with ' + message_people.fullname.split(' ')[0] + '.</div>');
-            } else {
-                $('.message_board_empty_info').remove();
-            }
-            for (var i = 0; i < data.results.length; i++) {
-                message_board_createItem(data.results[i], 1);
-            }
-
-            if (message_board_loadNum >= message_board_totalNum) {
-                message_board_isload = false;
-                message_board_hideLoadMore();
-            } else {
-                message_board_isload = true;
-                message_board_hideLoadMore();
-                message_board_showLoadMore();
-            }
-            $('.message_board_listCon').scrollTop($(".message_board_list").height());
-        }
-
-        function message_board_saveInfo() {
-            var content = $(".message_board_content");
-            var msReturnVal = message_board_multiplayerSend_returnVal();
-            var winR = 1;
-            if (msReturnVal) {
-                winR = confirm("Do you want to send this message to all users?", "Warning");
-                if (!winR) {
-                    return 0;
-                }
-            }
-            if (content.text().length > 0 && content.text().length <= message_board_maxCharNum && message_board_focus && winR) {
-                var recipient_id = msReturnVal ? 0 : message_people.id.toString();
-                var datainfo = {
-                    'info': JSON.stringify({
-                        'sender_id': '${user.id}',
-                        'recipient_id': recipient_id,
-                        'date': (new Date()).toISOString(),
-                        'body': content.html()
-                    })
-                };
-                $.post("${reverse('save_message')}", datainfo, function(rdata) {
-                    if ($(".message_board_list").find('.message_board_empty_info').length > 0) {
-                        $('.message_board_empty_info').remove();
-                    }
-                    message_board_createItem(JSON.parse(datainfo.info));
-                    $('.message_board_listCon').scrollTop($(".message_board_list").height());
-                    message_board_updateMaxCharNum();
-                    var interviewer_id = user_info["user"].id.toString();
-                    var interviewer_name = user_info["user"].name;
-                    var interviewer_fullname = user_info["user"].fullname;
-                    var body = content.text().length > 100 ? content.text().substr(0, 100) : content.text();
-                    var messageinfo = {
-                        'info': JSON.stringify({
-                            'user_id': recipient_id,
-                            'interviewer_id': interviewer_id,
-                            'interviewer_name': interviewer_name,
-                            'interviewer_fullname': interviewer_fullname,
-                            'type': 'message',
-                            'body': body,
-                            'date': (new Date()).toISOString(),
-                            'activate': 'false'
-                        })
-                    };
-                    $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
-                    content.html("");
-                });
-            } else {
-                if (content.text().length > message_board_maxCharNum)
-                    alert('Exceed the maximum number of characters.');
-            }
-        }
-
-        function message_board_user(data) {
-            var userObj = [];
-            userObj[message_people.id] = message_people;
-            userObj[user_info["user"].id] = user_info["user"];
-            return userObj[data.sender_id];
-        }
-
-        function message_board_createItem(data, _pos) {
-            pos = _pos || 0;
-            var element = $('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.sender_id + ');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">' + message_board_user(data).name + '</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">' + interactive_update_dateFormat(data).full_date + '</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">' + data.body + '</div></td></tr></table><div style="height:2px;"></div></div>');
-            if (pos) {
-                $('.message_board_list').prepend(element);
-            } else {
-                $('.message_board_list').append(element);
-            }
-
-        }
-
-        function message_board_changeImg(objImg) {
-            var max = 300;
-            if (objImg.width > max) {
-                var scaling = 1 - (objImg.width - max) / objImg.width;
-                objImg.width = objImg.width * scaling;
-                objImg.height = objImg.height;
-            }
-            $('.message_board_listCon').scrollTop($(".message_board_list").height());
-        }
-
-        function message_board_upload_file() {
-            var fd, files, max_filesize, settings;
-            var content = $(".message_board_content");
-            max_filesize = 0.5 * 1000 * 1000;
-            if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
-                files = "";
-                files = $("#message_board_browseFile")[0].files[0];
-                if (files != void 0) {
-                    if (files.size > max_filesize) {
-                        files = "";
-                        alert("File is too large. Max file size is 500 Kb.");
-                        $("#message_board_browseFile")[0].files = [];
-                        return false;
-                    }
-                }
-                fd = new FormData();
-                fd.append('image_file', files);
-                settings = {
-                    type: "POST",
-                    data: fd,
-                    processData: false,
-                    contentType: false,
-                    async: false,
-                    success: function(response) {
-                        if (response == null) {
-                            alert("Network error. Please try again.");
-                            return false;
-                        }
-                        if (response.success == true) {
-                            alert("Upload success!");
-                        } else {
-                            alert("Upload fail");
-                        }
-                        if (!message_board_focus) {
-                            content.html("");
-                            message_board_focus = 1;
-                        }
-                        content.html(content.html() + "<img src='" + response.file_info + "' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
-                        message_board_updateMaxCharNum();
-                    }
-                };
-                return $.ajax("${reverse('upload_message_image')}", settings);
-
-            } else {
-                alert("The file format is not supported.");
-            }
-        }
-
-        function message_board_showLoadMore() {
-            var element = $('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
-            $('.message_board_list').prepend(element);
-        }
-
-        function message_board_hideLoadMore() {
-            $(".loadMoreBtn").remove();
-        }
-
-        function message_board_updateMaxCharNum() {
-            var charNum = $(".message_board_content").text().length;
-            var num = charNum > message_board_maxCharNum ? "<font color='#ff0000'>" + charNum + "</font>" : charNum;
-            $("#curr_char_num").html(num);
-        }
-
-        function message_board_hyperlinks(url, title) {
-            //return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
-            if (title == "")
-                title = url;
-            if (url.indexOf('://') < 0)
-                url = "http://" + url;
-            return "<a href='" + url + "' target='_blank'>" + title + "</a><br/>";
-        }
-
-        function message_board_multiplayerSend_init() {
-            var isStaff = "${request.user.is_staff}";
-            var ms = $("#multiplayer_send_div");
-            ms.find("input").attr("checked", false);
-            if (isStaff == "True") {
-                ms.show();
-            } else {
-                ms.hide();
-            }
-        }
-
-        function message_board_multiplayerSend_returnVal() {
-            var msCBox = $("#multiplayer_send_div").find("input");
-            return (msCBox.is(":visible") && msCBox.is(":checked")) ? true : false;
-        }
-
-        function message_board_clearContent() {
-            var content = $('.message_board_content');
-            content.html("");
-            message_board_updateMaxCharNum();
-            $('.message_board_listCon').scrollTop(0);
-            content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
-        }
-    </script>
-    <!--@end-->
-
-    <!--@begin:show_personalmessage-->
-    <!--@date:2014-06-30-->
-%if request.user.is_authenticated():
+<!--@begin:show_personalmessage-->
+<!--@date:2014-06-30-->
+% if not is_external:
     <section id="show_personalmessage" class="modal modal-wide">
-        <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
+        <div class="inner-wrapper">
             <header>
                 <h2 class="message_board_full_name">${_("namename")}</h2>
                 <hr/>
             </header>
-            <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-            <form id="" method="post" style="padding:0px;line-height:18px;">
+            <div class="message_board_listCon"><div class="message_board_list"></div></div>
+            <form id="" method="post">
+                <div>
+                    <div class="message_board_content" contenteditable="true"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
 
-                <div style="width:520px;margin:10px;">
-                    <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
-
-                    <div style="color:black;font-size:12px;color:#aaa;">
+                    <div class="message_board_max">
                         Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
                     </div>
-                    <div style="width:530px;height:30px;">
+                    <div class="message_board">
                         <table width="530" border="0" cellpadding="0" cellspacing="0">
-                            <tr height="30" style="color:#000;">
-                                <td widht="265" style="vertical-align:middle;">
-                                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-                                  </span>
-                                  
-                                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-                                  </span>
+                            <tr height="30">
+                                <td width="265" class="message_board_buttons">
+                                    <span class="message_board_uploadBtn">
+                                        <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                                        <span>Add Photos</span>
+                                    </span>
+
+                                    <span class="message_board_linkBtn">
+                                      <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                                      <span>Link</span>
+                                    </span>
                                 </td>
-                                <td align="right" style="vertical-align:middle;">
-                                    <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
+                                <td align="right" class="message_board_ftg">
+                                    <div class="ftg_button ftg_yellow">Send</div>
                                 </td>
                             </tr>
-                            <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
+                            <tr>
+                                <td>
+                                    <div id="multiplayer_send_div">
+                                        <label><input type="checkbox"/>Send to All Users</label>
+                                    </div>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>
-                <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+                <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()"/>
             </form>
             <br/>
             <div class="close-modal" id="message_board_close">
@@ -1594,153 +447,887 @@
             </div>
         </div>
     </section>
-%endif
     <div class="linkwin">
-        <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
+        <h3><b>Insert Hyperlink</b></h3>
         <hr/>
-        <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
+        <form>
             <table>
                 <tr>
-                    <td style="vertical-align:middle">Insert URL:</td>
-                    <td><input type="text" id="link_url_val" style="width:100%"></td>
+                    <td>Insert URL:</td>
+                    <td><input type="text" id="link_url_val"></td>
                 </tr>
                 <tr>
-                    <td width="100" style="vertical-align:middle">Title:</td>
-                    <td width="350"><input id="link_title_val" type="text" style="width:100%"></td>
+                    <td width="100">Title:</td>
+                    <td width="350"><input id="link_title_val" type="text"></td>
                 </tr>
             </table>
-            <input id="hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
-            <input id="hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
+            <input id="hyperlink_okBtn" type="button" value="OK">
+            <input id="hyperlink_cancelBtn" type="button" value="Cancel">
         </form>
     </div>
-    <!--@end-->
+% endif
+<!--@end-->
 
-    <!-- task panel -->
-%if request.user.is_superuser or check_user_perms(request.user, 'time_report'):
+<!-- task panel -->
+% if not is_external and (request.user.is_superuser or check_user_perms(request.user, 'time_report')):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
             <div class="content"></div>
-      <textarea class="setting">
-        {
-          "interval": 5000,
-          "urls": {
-            "count": "${reverse('pepconn_import_user_tasks')}",
-            "close": "${reverse('pepconn_task_close')}"
-          }
-        }
-      </textarea>
+            <textarea class="setting">
+                {
+                  "interval": 5000,
+                  "urls": {
+                    "count": "${reverse('pepconn_import_user_tasks')}",
+                    "close": "${reverse('pepconn_task_close')}"
+                  }
+                }
+            </textarea>
         </div>
     </div>
-    <script type="text/javascript">
-        $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
-    </script>
 %endif
 
-<script type="text/javascript">
-	function LoadingWinNav(){
-		this.$loader = null;
-		this.show();
-	}
-	LoadingWinNav.prototype.show = function () {
-		if (!this.$loader) {
-			this.$loader = $('<div class="lean-overlay-nav"></div>');
-			//this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
-			this.$loader.appendTo(document.body);
+<script>
+	$(document).on('click', function(event) {
+		if (!$(event.target).closest('.admin-menu-holder').length) {
+			$(".admin-dropdown-menu").hide();
+		} else if ($(event.target).closest(".outside_menu").length) {
+			$(".admin-dropdown-menu").hide();
 		}
-		this.$loader.css('display','block');
-	};
-	LoadingWinNav.prototype.hide = function () {
-		if (this.$loader) {
-			this.$loader.remove();
-			this.$loader = null;
+		if($('#user-photo-arrow:hidden')){
+			$('#user-photo-arrow').css("visibility", "visible");
 		}
-	};
-	var loadwinnav = new LoadingWinNav();
-	
-	//------------------organization_get_info
-	var organization_data;
-	$(function(){
-		var flag_main;
-		if($(".mainlogo").length > 0) 					flag_main = "index";
-		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
-		
-		if($("#organization_obj").attr("o_name") == "report"){
-			loadwinnav.hide();
-		}
-					
-		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
-			if (r.SiteURL_OK){
-				if(r.flag_main == "index"){
-					if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
-					if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
-					if(r.BottomMainLogo)	$(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");							
-					if(r.MainPageBottomImage){
-						$(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
-						var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
-						var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
-						$(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
-					}else{
-						if(r.MainPageButtonText)	$(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
-						if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
-					}
-				}
-				
-				if(r.Success && r.OrganizationOK){
-					if(r['Footer Selected'] && r['Footer Selected'] == "1"){
-						$("#page-footer").empty();
-						$("#page-footer").append(r['footer_content']);
-					}
-					
-					if(r.flag_main == "dashboard"){						
-						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
-						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
-						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
-					}else if(r.flag_main == "communities"){
-						$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
-						
-					}else if(r.flag_main == "pepconn"){
-						$("#District_search").attr("placeholder", "Search " + r.DistrictType);
-						$("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
-						$("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
-						
-						$("#School_district_select").find("option:first").html("Select " + r.DistrictType);
-						$("#School_search").attr("placeholder", "Search " + r.SchoolType);
-						$("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
-						$("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
-						$("#school_table_init").find(".school_district_id").html(r.DistrictType);
-						$("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
-						
-						$("#User_district_select").find("option:first").html("Select " + r.DistrictType);
-						$("#User_school_select").find("option:first").html("Select " + r.SchoolType);
-						$("#user_table_init").find(".user_school").html(r.SchoolType);
-						$("#user_table_init").find(".user_district").html(r.DistrictType);
-						
-						$("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
-						$("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
-						$("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
-						
-					}else if(r.flag_main == "pepreg"){
-						var tmp_first = $("#district_select").find("option:first");
-						if(tmp_first.val() == ""){
-							tmp_first.html("Select " + r.DistrictType);
-						}
-						$("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
-						$("#organization_pepreg_d1").text(r.DistrictType + ":");
-						$("#organization_pepreg_s1").text(r.SchoolType + ":");
-						
-					}else if(r.flag_main == "people"){
-						$("select[name='district_id']").find("option:first").html(r.DistrictType);
-						$("select[name='school_id']").find("option:first").html(r.SchoolType);
-						
-					}else if(r.flag_main == "report"){
-						organization_data = r;
-					}					
+	});
+	$(document).ready(function(){
+		 $(".configuration").click(function(event){
+			var e = window.event || event;
+			if(e.stopPropagation){
+				e.stopPropagation();
+			}else{
+				e.cancelBubble = true;
+			}
+			if($('#dropdown').hasClass("active")){
+				$('ul.dropdown-menu').removeClass("expanded");
+				$('#dropdown').removeClass("active");
+			}                        
+			var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
+			if(tmp_el.length > 0){
+				if(tmp_el.is(":visible"))
+					tmp_el.hide();
+				else{
+					$(".admin-dropdown-menu").hide();
+					tmp_el.show();
 				}
 			}
-			if($("#organization_obj").attr("o_name") != "report"){
+		});
+	});
+    //---------------------Notifications variable-----------------------------------------//
+
+    var interactive_update_window_top = 0;
+
+    //---------------------Message board variable-----------------------------------------//
+
+    var message_people = null;
+    var user_info = null;
+    var message_board_isload = false;
+    var message_board_loadNum = 0;
+    var message_board_totalNum = 0;
+    var message_board_focus = 0;
+    var message_board_maxCharNum = 1000;
+    var message_board_hover = 0;
+
+    //---------------------Record time variable-------------------------------------------//
+
+    var courseTimer = null;
+    var externalTimer = null;
+    RecordTime.firstRun = true;
+    var timer_record = false;
+
+    //---------------------Pepper stats refresh-------------------------------------------//
+
+    function pepper_stats_refresh() {
+        if (document.URL.indexOf('dashboard') >= 0 || document.URL.indexOf('my_courses') >= 0 || document.URL.indexOf('user_profile') >= 0) {
+            $.post("${reverse('get_pepper_stats')}", {
+                'user_id': "${request.user.id}"
+            }, function(data) {
+                $('#all_course_time').html(data.all_course_time);
+                $('#collaboration_time').html(data.collaboration_time);
+                //hide totle adjustment time
+                //$('#totle_adjustment_time').html(data.totle_adjustment_time);
+                $('#total_time_in_pepper').html(data.total_time_in_pepper);
+                $(".course-time,.course-time-completed").each(function() {
+                    var course_id = $(this).attr('course_id');
+                    var time_type = $(this).attr('time_type');
+                    if (time_type == 'course') {
+                        $(this).children('span').html(data.course_times[course_id]);
+                    } else {
+                        $(this).children('span').html(data.external_times[course_id]);
+                    }
+                });
+
+                $(".total-course-time").each(function() {
+                    var course_id = $(this).attr('course_id');
+                    $(this).children('span').html(data.total_course_times[course_id]);
+                 });
+		   	});
+		}
+	}
+    
+    //---------------------Record time (Page switching)----------------------------------//
+
+    function record_time(position) {
+        timer_record = false;
+        %if request.user.id is not None:
+            sessionStorage['user_id'] = "${request.user.id}";
+        %endif
+        %if course:
+            RecordTime.setSessionCourseID("${course.id}");
+        %endif
+        courseTimer.start();
+        RecordTime.coursePosition = position;
+        RecordTime.sessionInit();
+        var vertical_id = $("#sequence-list li .active").attr("data-id");
+        var time = new Date().toISOString();
+        var path = RecordTime.getCourseFullPath(document.URL, position);
+        var data = {
+            'type': 'course_page',
+            'user_id': RecordTime.userID,
+            'time': time,
+            'new_vertical_id': vertical_id,
+            'prev_vertical_id': RecordTime.getSessionVerticalId(),
+            'prev_time': RecordTime.getSessionTime(),
+            'location': path
+        };
+        if (RecordTime.getSessionVerticalId() != vertical_id) {
+            RecordTime.ajaxRecordTime(data, function() {
+                RecordTime.setSessionVerticalId(vertical_id);
+                RecordTime.setSessionTime(time);
+                courseTimer.load();
+                timer_record = true;
+            });
+
+        } else {
+           if (RecordTime.firstRun) {
+                RecordTime.ajaxRecordTime(data, function() {
+                    RecordTime.setSessionVerticalId(vertical_id);
+                    RecordTime.setSessionTime(time);
+                    RecordTime.firstRun = false;
+                    timer_record = true;
+                });
+            }
+        }
+	}
+	//---------------------Record time (Course refresh or exit)--------------------------//
+
+	function course_refresh_or_exit() {
+		%if request.user.id is not None:
+            sessionStorage['user_id'] = "${request.user.id}";
+            RecordTime.sessionInit();
+        %else:
+            RecordTime.setSessionVerticalId('');
+            RecordTime.setSessionCourseTime(0);
+        %endif
+        %if course:
+            RecordTime.setSessionCourseID("${course.id}");
+        %endif
+        //RecordTime.sessionInit();
+        if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
+            var data = {
+                'type': 'new_page',
+                'user_id': RecordTime.userID,
+                'time': (new Date()).toISOString(),
+                'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                'prev_time': RecordTime.getSessionTime()
+            };
+            RecordTime.ajaxRecordTime(data, function() {
+                RecordTime.setSessionVerticalId("");
+                RecordTime.setSessionTime("");
+				pepper_stats_refresh();
+			});
+			timer_record = true;
+		}
+		var verticalId = RecordTime.getSessionVerticalId()||'';
+		var time = RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType())||0;
+		if(verticalId == '' && time == 0){
+			pepper_stats_refresh();
+		}
+	}
+
+	//---------------------------------------------------------------------------//
+	function onfocusEventDelay(e){
+		course_refresh_or_exit();
+		var is_press_logout = $(document.activeElement).is('.dropdown');
+		if (document.URL.indexOf('courseware') < 0) {
+			if(courseTimer.loadComplete && !is_press_logout){
+				courseTimer.isrun = false;
+				courseTimer.create();
+			}
+		} else {
+			if (RecordTime.getSessionVerticalId() == "" && !is_press_logout && timer_record) {
+				record_time(RecordTime.coursePosition);
+			}
+		}
+	}
+	
+	function onblurEventDelay(e){
+		var isfocusOut = $(document.activeElement).get(0).tagName!='IFRAME';
+		course_refresh_or_exit();
+		if (document.URL.indexOf('courseware') < 0) {
+			courseTimer.stop();
+			courseTimer.save();
+		}
+		if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0 && isfocusOut) {
+			RecordTime.sessionInit();
+			var data = {
+				'type': 'new_page',
+				'user_id': RecordTime.userID,
+				'time': (new Date()).toISOString(),
+				'prev_vertical_id': RecordTime.getSessionVerticalId(),
+				'prev_time': RecordTime.getSessionTime()
+			};
+			RecordTime.ajaxRecordTime(data, function () {
+				RecordTime.setSessionVerticalId("");
+				RecordTime.setSessionTime("");
+				courseTimer.load();
+			});
+			
+		}
+	}
+	$(function() {
+		$(window).blur(function(e) {
+			setTimeout(function(){onblurEventDelay(e);}, 200);
+		});
+		$(window).focus(function(e) {
+			setTimeout(function(){onfocusEventDelay(e);}, 200);
+		});
+		$('.dropdown').mouseup(function(e){
+			if (document.URL.indexOf('courseware') > 0) {
+				if (RecordTime.getSessionVerticalId() != ""){
+					setTimeout(function(){onblurEventDelay(null);}, 200); 
+				}
+			}
+			else{
+				if(RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType()) > 0){
+					setTimeout(function(){onblurEventDelay(null);}, 200);
+				}
+			}
+		});
+		course_refresh_or_exit();
+		courseTimer = new CourseTimer();
+		externalTimer = new ExternalTimer();
+		
+		
+		interactive_update();
+		$(".info_count_btn").click(function() {
+			interactive_update();
+		});
+
+		$(".info_btn").click(function() {
+			interactive_update();
+		});
+
+		$(".ftg_button").click(function() {
+			message_board_saveInfo();
+		});
+
+		$(".message_board_uploadBtn").click(function() {
+			$("#message_board_browseFile").click();
+		});
+
+		$(".message_board_linkBtn").click(function() {
+			$(".linkwin").show();
+		});
+
+		$("#hyperlink_okBtn").click(function() {
+			var content = $(".message_board_content");
+			if ($("#link_url_val").val() != '') {
+				if (!message_board_focus) {
+					content.html("");
+					message_board_focus = 1;
+				}
+				content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+				$(".linkwin").hide();
+			}
+		});
+
+		$("#hyperlink_cancelBtn").click(function() {
+			$(".linkwin").hide();
+		});
+
+		$("#message_board_close").click(function() {
+			$(".linkwin").hide();
+			message_board_clearContent();
+		});
+
+		//-----------------------------------------------------------------
+		$(".message_board_content").focusin(function() {
+			if (!message_board_focus) {
+				$(this).html("");
+				message_board_focus = 1;
+			}
+		});
+
+		$(".message_board_content").keyup(function(event) {
+			message_board_updateMaxCharNum();
+		});
+
+		$("#show_personalmessage").hover(function() {
+			$("body").css("overflow", "hidden");
+			message_board_hover = 1;
+		}, function() {
+			$("body").css("overflow", "");
+			message_board_hover = 0;
+		});
+
+		$(".message_board_listCon").scroll(function(event) {
+			var scrollTop = $(this).scrollTop();
+			var scrollHeight = $(".message_board_list").height();
+			var windowHeight = $(this).height();
+			/*
+			  if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+			  {
+			  message_board_getMessage(message_board_loadNum);
+			  }
+			*/
+			if (scrollTop == 0 && message_board_isload) {
+				message_board_getMessage(message_board_loadNum);
+			}
+		});
+	});
+
+	function interactive_update_createItem(data) {
+		var body = data.body == undefined ? '' : data.body;
+		interactive_update_switchType(data);
+		if(data.type_community){
+			element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:450px;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+		}
+		else{
+			element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+		}
+		$('.info_list').append(element);
+		element.click(function() {
+			if (data.activate == 'false') {
+				interactive_update_activateItem(data);
+			} else {
+				interactive_update_openWindow(data)
+			}
+		});
+	}
+
+	function interactive_update_switchType(data) {
+		data.type_community = 0;
+		switch (data.type) {
+			case 'discussion':
+				data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
+				break;
+			case 'portfolio':
+				data.type_text = "<b>" + data.interviewer_name + "</b> has commented on " + (data.portfolio_username || 'your') + "'s portfolio in course " + data.course_number + ".";
+				break;
+			case 'add_network':
+				data.type_text = "<b>" + data.interviewer_name + "</b> has added you to their personal network."
+				break;
+			case 'view_portfolio':
+				data.type_text = "<b>" + data.interviewer_name + "</b> is checking out your " + data.course_number + " portfolio."
+				break;
+			case 'message':
+				data.type_text = "Personal Message from <b>" + data.interviewer_name + "</b>"
+				break;
+			case 'my_chunks':
+				data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
+				break;
+			default:
+				data.type_text = data.subject || data.body;
+				data.type_community = 1;
+		}
+	}
+
+	function interactive_update() {
+		datainfo = {};
+		$.post("${reverse('get_interactive_update')}", datainfo, function(data) {
+			interactive_update_init(data);
+		});
+	}
+
+	function interactive_update_init(data) {
+		$("#view_all_note_text").text("View All Notifications (" + data.count + ")");
+		if (data.count > 0) {
+			$(".info_btn").hide();
+			$(".info_count_btn").show();
+			var count = data.count > 999 ? 999 : data.count;
+			$(".info_count").text(count);
+		}
+		$('.info_list').empty();
+		for (var i = 0; i < data.results.length; i++) {
+			interactive_update_createItem(data.results[i]);
+		}
+	}
+
+	function fillZero(val) {
+		return val < 10 ? '0' + val : val;
+	}
+
+	function interactive_update_dateFormat(data) {
+		dateinfo = {};
+		interval = interactive_update_getTimeInterval(data);
+		var darr = new Date(data.date).toString().split(' ');
+		var sign = 'am';
+		if (interval < 1) {
+			dateinfo.date = "Today";
+		} else if (interval < 2) {
+			dateinfo.date = "Yesterday";
+		} else {
+			dateinfo.date = darr[1] + " " + darr[2];
+		}
+		var timeArr = darr[4].substr(0, 5).split(":");
+		if (timeArr[0] > 12 && timeArr[0] < 24) {
+			timeArr[0] = fillZero(timeArr[0] - 12);
+			sign = 'pm';
+		}
+		var time = timeArr[0] + ":" + timeArr[1] + sign;
+		dateinfo.full_date = dateinfo.date + " at " + time;
+		dateinfo.time = time;
+		return dateinfo;
+	}
+
+	function interactive_update_activateItem(data) {
+		var user_id = "${request.user.id}";
+		$.post("${reverse('set_interactive_update')}", {
+			_id: data._id,
+			_name: 'activate',
+			_value: 'true',
+			_user_id: user_id,
+			_record_id: data.user_id,
+			_ismultiple: data.multiple
+		}, function(rdata) {
+			interactive_update_openWindow(data);
+		});
+	}
+
+	function interactive_update_getActivateStyle(data) {
+		var notActivateColor = data.user_id != 0 ? "#eeeff4" : "#ffffcc";
+		//bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+		bcolor = data.activate == 'true' ? '#ffffff' : notActivateColor;
+		return {
+			'backgroundColor': bcolor
+		};
+	}
+
+	function interactive_update_getTimeInterval(data) {
+		var t = new Date();
+		var today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+		var d = new Date(data.date);
+		var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+		return parseInt((today - date) / 3600000 / 24);
+	}
+
+	function interactive_update_openWindow(data) {
+		if (data.type == "message" || data.type == "view_portfolio") {
+			$("#show_notifications").hide();
+			if ($("#show_personalmessage").css("zIndex") < 10000) {
+				$("#show_personalmessage").addClass("leanmodalStyle");
+			}
+			$("#lean_overlay").show();
+			$("#show_personalmessage").show();
+			$("#show_personalmessage").find(".close-modal").click(function() {
+				$("#show_personalmessage").hide();
+				$(".linkwin").hide();
+				$("#lean_overlay").hide();
+				$(window).scrollTop(interactive_update_window_top);
+			})
+			message_board_clearContent();
+			$("#lean_overlay").click(function() {
+				$("#show_personalmessage").hide();
+				$(".linkwin").hide();
+				$(this).hide();
+				$(window).scrollTop(interactive_update_window_top);
+			})
+			var userInfo = [];
+			var data_ele = $("#show_notifications");
+			userInfo['message_people'] = {
+				id: data.interviewer_id,
+				fullname: data.interviewer_fullname,
+				name: data.interviewer_name
+			};
+			userInfo['user'] = {
+				id: data_ele.data('id'),
+				fullname: data_ele.data('fullname'),
+				name: data_ele.data('name')
+			};
+			message_board(userInfo);
+			return 0;
+		}
+		if (data.location.indexOf("/dashboard") >= 0) {
+			window.open(data.location);
+			return 0;
+		}
+		if (data.location.indexOf("/my_coursework") >= 0) {
+			var curr_user_id = "${request.user.id}";
+			var user_id = data.location.substring(data.location.indexOf("/my_coursework") + 15, data.location.lastIndexOf("/"));
+			if (curr_user_id != user_id) {
+				window.open(data.location, '_blank');
+				return 0;
+			}
+		}
+		if (data.location.indexOf("/my_discussions") >= 0) {
+			var curr_user_id = "${request.user.id}";
+			var user_id = data.location.substring(data.location.indexOf("/my_discussions") + 16, data.location.indexOf("?"));
+			if (curr_user_id != user_id) {
+				window.open(data.location, '_blank');
+				return 0;
+			}
+		}
+		if (window.location.href.indexOf("/courses") >= 0) {
+			var curr_url = "/courses" + window.location.href.split("/courses")[1].split("#")[0];
+			var location = data.location.split("#")[0];
+			if (curr_url != location) {
+				window.open(data.location, '_self');
+			} else {
+				window.location.href = data.location;
+				window.location.reload();
+			}
+		} else {
+			window.open(data.location, '_self');
+		}
+
+	}
+	//-------------------------message_board---------------------//
+
+	function message_board(_user_info) {
+		user_info = _user_info;
+		message_people = user_info["message_people"];
+		$('.message_item').remove();
+		message_board_hideLoadMore();
+		message_board_isload = false;
+		message_board_loadNum = 0;
+		message_board_totalNum = 0;
+		message_board_focus = 0;
+		message_board_clearContent();
+		message_board_multiplayerSend_init();
+		message_board_getMessage(message_board_loadNum);
+	}
+
+	function message_board_getMessage(skip) {
+		message_board_isload = false;
+		$.post("${reverse('get_message')}", {
+			message_people: message_people.id,
+			skip: skip,
+			limit: 6
+		}, function(data) {
+			message_board_init(data)
+		});
+	}
+
+	function message_board_init(data) {
+		message_board_loadNum += 6;
+		message_board_totalNum = data.count;
+		$(".message_board_full_name").text(message_people.fullname);
+		$('.message_board_empty_info').remove();
+		if (data.results.length == 0) {
+			$('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with ' + message_people.fullname.split(' ')[0] + '.</div>');
+		} else {
+			$('.message_board_empty_info').remove();
+		}
+		for (var i = 0; i < data.results.length; i++) {
+			message_board_createItem(data.results[i], 1);
+		}
+
+		if (message_board_loadNum >= message_board_totalNum) {
+			message_board_isload = false;
+			message_board_hideLoadMore();
+		} else {
+			message_board_isload = true;
+			message_board_hideLoadMore();
+			message_board_showLoadMore();
+		}
+		$('.message_board_listCon').scrollTop($(".message_board_list").height());
+	}
+
+	function message_board_saveInfo() {
+		var content = $(".message_board_content");
+		var msReturnVal = message_board_multiplayerSend_returnVal();
+		var winR = 1;
+		if (msReturnVal) {
+			winR = confirm("Do you want to send this message to all users?", "Warning");
+			if (!winR) {
+				return 0;
+			}
+		}
+		if (content.text().length > 0 && content.text().length <= message_board_maxCharNum && message_board_focus && winR) {
+			var recipient_id = msReturnVal ? 0 : message_people.id.toString();
+			var datainfo = {
+				'info': JSON.stringify({
+					'sender_id': '${user.id}',
+					'recipient_id': recipient_id,
+					'date': (new Date()).toISOString(),
+					'body': content.html()
+				})
+			};
+			$.post("${reverse('save_message')}", datainfo, function(rdata) {
+				if ($(".message_board_list").find('.message_board_empty_info').length > 0) {
+					$('.message_board_empty_info').remove();
+				}
+				message_board_createItem(JSON.parse(datainfo.info));
+				$('.message_board_listCon').scrollTop($(".message_board_list").height());
+				message_board_updateMaxCharNum();
+				var interviewer_id = user_info["user"].id.toString();
+				var interviewer_name = user_info["user"].name;
+				var interviewer_fullname = user_info["user"].fullname;
+				var body = content.text().length > 100 ? content.text().substr(0, 100) : content.text();
+				var messageinfo = {
+					'info': JSON.stringify({
+						'user_id': recipient_id,
+						'interviewer_id': interviewer_id,
+						'interviewer_name': interviewer_name,
+						'interviewer_fullname': interviewer_fullname,
+						'type': 'message',
+						'body': body,
+						'date': (new Date()).toISOString(),
+						'activate': 'false'
+					})
+				};
+				$.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+				content.html("");
+			});
+		} else {
+			if (content.text().length > message_board_maxCharNum)
+				alert('Exceed the maximum number of characters.');
+		}
+	}
+
+	function message_board_user(data) {
+		var userObj = [];
+		userObj[message_people.id] = message_people;
+		userObj[user_info["user"].id] = user_info["user"];
+		return userObj[data.sender_id];
+	}
+
+	function message_board_createItem(data, _pos) {
+		pos = _pos || 0;
+		var element = $('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.sender_id + ');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">' + message_board_user(data).name + '</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">' + interactive_update_dateFormat(data).full_date + '</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">' + data.body + '</div></td></tr></table><div style="height:2px;"></div></div>');
+		if (pos) {
+			$('.message_board_list').prepend(element);
+		} else {
+			$('.message_board_list').append(element);
+		}
+
+	}
+
+	function message_board_changeImg(objImg) {
+		var max = 300;
+		if (objImg.width > max) {
+			var scaling = 1 - (objImg.width - max) / objImg.width;
+			objImg.width = objImg.width * scaling;
+			objImg.height = objImg.height;
+		}
+		$('.message_board_listCon').scrollTop($(".message_board_list").height());
+	}
+
+	function message_board_upload_file() {
+		var fd, files, max_filesize, settings;
+		var content = $(".message_board_content");
+		max_filesize = 0.5 * 1000 * 1000;
+		if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
+			files = "";
+			files = $("#message_board_browseFile")[0].files[0];
+			if (files != void 0) {
+				if (files.size > max_filesize) {
+					files = "";
+					alert("File is too large. Max file size is 500 Kb.");
+					$("#message_board_browseFile")[0].files = [];
+					return false;
+				}
+			}
+			fd = new FormData();
+			fd.append('image_file', files);
+			settings = {
+				type: "POST",
+				data: fd,
+				processData: false,
+				contentType: false,
+				async: false,
+				success: function(response) {
+					if (response == null) {
+						alert("Network error. Please try again.");
+						return false;
+					}
+					if (response.success == true) {
+						alert("Upload success!");
+					} else {
+						alert("Upload fail");
+					}
+					if (!message_board_focus) {
+						content.html("");
+						message_board_focus = 1;
+					}
+					content.html(content.html() + "<img src='" + response.file_info + "' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
+					message_board_updateMaxCharNum();
+				}
+			};
+			return $.ajax("${reverse('upload_message_image')}", settings);
+
+		} else {
+			alert("The file format is not supported.");
+		}
+	}
+
+	function message_board_showLoadMore() {
+		var element = $('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
+		$('.message_board_list').prepend(element);
+	}
+
+	function message_board_hideLoadMore() {
+		$(".loadMoreBtn").remove();
+	}
+
+	function message_board_updateMaxCharNum() {
+		var charNum = $(".message_board_content").text().length;
+		var num = charNum > message_board_maxCharNum ? "<font color='#ff0000'>" + charNum + "</font>" : charNum;
+		$("#curr_char_num").html(num);
+	}
+
+	function message_board_hyperlinks(url, title) {
+		//return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
+		if (title == "")
+			title = url;
+		if (url.indexOf('://') < 0)
+			url = "http://" + url;
+		return "<a href='" + url + "' target='_blank'>" + title + "</a><br/>";
+	}
+
+	function message_board_multiplayerSend_init() {
+		var isStaff = "${request.user.is_staff}";
+		var ms = $("#multiplayer_send_div");
+		ms.find("input").attr("checked", false);
+		if (isStaff == "True") {
+			ms.show();
+		} else {
+			ms.hide();
+		}
+	}
+
+	function message_board_multiplayerSend_returnVal() {
+		var msCBox = $("#multiplayer_send_div").find("input");
+		return (msCBox.is(":visible") && msCBox.is(":checked")) ? true : false;
+	}
+
+	function message_board_clearContent() {
+		var content = $('.message_board_content');
+		content.html("");
+		message_board_updateMaxCharNum();
+		$('.message_board_listCon').scrollTop(0);
+		content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
+	}
+	
+	function LoadingWinNav(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWinNav.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay-nav"></div>');
+            //this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWinNav.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+    var loadwinnav = new LoadingWinNav();
+
+    //------------------organization_get_info
+    var organization_data;
+    $(function(){
+        var flag_main;
+        if ($(".mainlogo").length > 0) {
+            flag_main = "index";
+        } else if ($("#organization_obj").length > 0) {
+            flag_main = $("#organization_obj").attr("o_name");
+		}
+		
+		if ($("#organization_obj").attr("o_name") === "report"){
+            loadwinnav.hide();
+        }
+		
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
+            if (r.SiteURL_OK){
+                if (r.flag_main === "index"){
+                    if (r.TopMainLogo) {
+                        $(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
+                    }
+                    if (r.MainLogoText) {
+                        $(".maintitle").html(r.MainLogoText);
+                    }
+                    if (r.BottomMainLogo){
+                        $(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");
+                    }
+                    if (r.MainPageBottomImage) {
+                        $(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
+                        var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
+                        var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
+                        $(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
+                    } else {
+                        if (r.MainPageButtonText){
+                            $(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
+                        }
+                        if (r.MainPageButtonLink) {
+                            $(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
+                        }
+                    }
+                }
+				
+				if (r.Success && r.OrganizationOK) {
+                    if (r.flag_main === "dashboard") {
+                        $("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+                        $("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+                        $("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+                    } else if (r.flag_main === "communities") {
+                        $(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
+                    } else if (r.flag_main === "pepconn") {
+                        $("#District_search").attr("placeholder", "Search " + r.DistrictType);
+                        $("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
+                        $("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
+
+                        $("#School_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#School_search").attr("placeholder", "Search " + r.SchoolType);
+                        $("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
+                        $("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
+                        $("#school_table_init").find(".school_district_id").html(r.DistrictType);
+                        $("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
+
+                        $("#User_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#User_school_select").find("option:first").html("Select " + r.SchoolType);
+                        $("#user_table_init").find(".user_school").html(r.SchoolType);
+                        $("#user_table_init").find(".user_district").html(r.DistrictType);
+
+                        $("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
+                        $("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
+
+                    } else if (r.flag_main === "pepreg") {
+                        var tmp_first = $("#district_select").find("option:first");
+                        if(tmp_first.val() == ""){
+                            tmp_first.html("Select " + r.DistrictType);
+                        }
+                        $("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
+                        $("#organization_pepreg_d1").text(r.DistrictType + ":");
+                        $("#organization_pepreg_s1").text(r.SchoolType + ":");
+						
+					} else if (r.flag_main === "people") {
+                        $("select[name='district_id']").find("option:first").html(r.DistrictType);
+                        $("select[name='school_id']").find("option:first").html(r.SchoolType);
+						
+					} else if (r.flag_main === "report") {
+						organization_data = r;
+					}
+				}
+			}
+			if ($("#organization_obj").attr("o_name") !== "report") {
 				loadwinnav.hide();
 			}
-		});		
-	});							
+		});
+	});			
 </script>

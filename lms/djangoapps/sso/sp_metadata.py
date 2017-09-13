@@ -14,9 +14,71 @@ from django.core.urlresolvers import reverse
 
 BASEDIR = settings.PROJECT_HOME + "/sso/sp"
 
+
 @user_has_perms('sso', 'administer')
 def edit(request):
-    return render_to_response('sso/manage/sp_metadata.html')
+    context = {
+        "data_items":
+            [
+                {
+                    "field": "email",
+                    "name": "Email"
+                },
+                {
+                    "field": "first_name",
+                    "name": "First Name"
+                },
+                {
+                    "field": "last_name",
+                    "name": "Last Name"
+                },
+                {
+                    "field": "username",
+                    "name": "Username"
+                },
+                {
+                    "field": "state",
+                    "name": "State"
+                },
+                {
+                    "field": "district",
+                    "name": "District"
+                },
+                {
+                    "field": "school",
+                    "name": "School"
+                },
+                {
+                    "field": "state_w_id",
+                    "name": "State with ID"
+                },
+                {
+                    "field": "district_w_id",
+                    "name": "District with ID"
+                },
+                {
+                    "field": "school_w_id",
+                    "name": "School with ID"
+                },
+                {
+                    "field": "grades",
+                    "name": "Grades"
+                },
+                {
+                    "field": "bio",
+                    "name": "Biography"
+                },
+                {
+                    "field": "internal_id",
+                    "name": "Internal Pepper ID"
+                },
+                {
+                    "field": "avatar",
+                    "name": "User Photo"
+                }
+            ]
+    }
+    return render_to_response('sso/manage/sp_metadata.html', context)
 
 
 @user_has_perms('sso', 'administer')
