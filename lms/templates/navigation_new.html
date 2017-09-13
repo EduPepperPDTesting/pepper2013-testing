@@ -43,11 +43,11 @@
             liClass = ""
             if org_data['Is Icon'] == "1":
                 if org_data['Is Icon With Text'] == "1":
-                    menu_items_child = "<ul id='pepper-dropdown-menu-" + str(tmp1.id) + "' class='pepper-dropdown-menu' style='top:66px !important;'>"
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:66px !important;'>"
                 else:
-                    menu_items_child = "<ul id='pepper-dropdown-menu-" + str(tmp1.id) + "' class='pepper-dropdown-menu' style='top:64px !important;'>"
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:64px !important;'>"
             else:
-                menu_items_child = "<ul id='pepper-dropdown-menu-" + str(tmp1.id) + "' class='pepper-dropdown-menu' style='top:65px !important;'>"
+                menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:65px !important;'>"
 
             #---------------
             for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj, ParentID=tmp1.id):
@@ -190,7 +190,65 @@
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <script type="text/javascript" src="/static/js/navigation_new.js"></script>
-
+<script type="text/javascript" src="/static/js/string_utils.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<style type="text/css" media="screen">
+    ul.admin-dropdown-menu.expanded {
+        display: block;
+    }
+    ul.admin-dropdown-menu {
+        background: #FCFCFC none repeat scroll 0% 0%;
+        border-radius: 4px;
+        box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #646464;
+        display: none;
+        padding: 5px 10px;
+        position: absolute;
+        right: -12px;
+        top: 50px;
+        width1: 262px;
+        z-index: 3;
+    }
+    ul.admin-dropdown-menu li {
+        display: block;
+        border-top: 1px dotted #C8C8C8;
+        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
+    }
+    ul.admin-dropdown-menu li > a {
+        border: 1px solid transparent;
+        border-radius: 3px;
+        box-sizing: border-box;
+        color: #1D9DD9;
+        cursor: pointer;
+        display: block;
+        margin: 5px 0px;
+        overflow: hidden;
+        padding: 3px 10px 4px;
+        text-overflow: ellipsis;
+        transition: padding 0.15s linear 0s;
+        white-space: nowrap;
+        width: 100%;
+    }
+    ul.admin-dropdown-menu li:first-child {
+        border: medium none;
+        box-shadow: none;
+    }
+    ul.admin-dropdown-menu:before {
+        background: transparent none repeat scroll 0% 0%;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #FCFCFC #FCFCFC transparent transparent;
+        box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
+        content: "";
+        display: block;
+        height: 0px;
+        position: absolute;
+        transform: rotate(-45deg);
+        right: 12px;
+        top: -6px;
+        width: 0px;
+    }
+</style>
 % if context.get("curr_user"):
     <% curr_user=context.get("curr_user") %>
 % else:
@@ -419,11 +477,32 @@
             <div class="content"></div>
             <textarea class="setting">
                 {
-                  "interval": 5000,
-                  "urls": {
-                    "count": "${reverse('pepconn_import_user_tasks')}",
+                  	"interval": 5000,
+                 	"sources": [{
+                    "tasks": "${reverse('pepconn_import_user_tasks')}",
+                    "message_formatter": function(task){
+                        var name = task.type == 'import' ? 'Import' : 'Email';
+                        if(task.error){
+                            return name + ' - ERROR (' + task.id + ')';
+                        }
+                        if(task.type == 'import'){
+                           return name + ' - ' + task.filename;
+                        }else if(task.type == 'email'){
+                           return name + ' - ' + task.total + ' email' + (task.total > 1 ? 's' : '');
+                        }
+                    },
                     "close": "${reverse('pepconn_task_close')}"
-                  }
+                  },
+                  {
+                    "tasks": "${reverse('pepconn_course_permission_tasks')}",
+                    "message_formatter": function(task){
+                        if(task.error){
+                            return task.type + ' ERROR (' + task.id + ')';
+                        }
+                        return task.type;
+                    },
+                    "close": "${reverse('pepconn_course_permission_task_close')}"
+                  }]
                 }
             </textarea>
         </div>
@@ -431,6 +510,39 @@
 %endif
 
 <script>
+	$(document).on('click', function(event) {
+		if (!$(event.target).closest('.admin-menu-holder').length) {
+			$(".admin-dropdown-menu").hide();
+		} else if ($(event.target).closest(".outside_menu").length) {
+			$(".admin-dropdown-menu").hide();
+		}
+		if($('#user-photo-arrow:hidden')){
+			$('#user-photo-arrow').css("visibility", "visible");
+		}
+	});
+	$(document).ready(function(){
+		 $(".configuration").click(function(event){
+			var e = window.event || event;
+			if(e.stopPropagation){
+				e.stopPropagation();
+			}else{
+				e.cancelBubble = true;
+			}
+			if($('#dropdown').hasClass("active")){
+				$('ul.dropdown-menu').removeClass("expanded");
+				$('#dropdown').removeClass("active");
+			}                        
+			var tmp_el = $("#admin-dropdown-menu-" + $(this).attr("mid"));
+			if(tmp_el.length > 0){
+				if(tmp_el.is(":visible"))
+					tmp_el.hide();
+				else{
+					$(".admin-dropdown-menu").hide();
+					tmp_el.show();
+				}
+			}
+		});
+	});
     //---------------------Notifications variable-----------------------------------------//
 
     var interactive_update_window_top = 0;

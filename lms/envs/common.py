@@ -595,30 +595,10 @@ staff_grading_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/staff
 open_ended_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/open_ended/**/*.js'))
 notes_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/notes/**/*.coffee'))
 
-
-
-
-
 PIPELINE_CSS = {
     'application': {
-        'source_filenames': [
-            'sass/application.css',
-            'sass/header.css',
-            'sass/footer.css',
-        ],
+        'source_filenames': ['sass/application.css'],
         'output_filename': 'css/lms-application.css',
-    },
-    'header': {
-        'source_filenames': [
-            'sass/header.css',
-        ],
-        'output_filename': 'css/lms-header.css',
-    },
-    'footer': {
-        'source_filenames': [
-            'sass/footer.css',
-        ],
-        'output_filename': 'css/lms-footer.css',
     },
     'course': {
         'source_filenames': [
@@ -637,7 +617,6 @@ PIPELINE_CSS = {
         'output_filename': 'css/lms-ie.css',
     },
 }
-
 
 # test_order: Determines the position of this chunk of javascript on
 # the jasmine test page
