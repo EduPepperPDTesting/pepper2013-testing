@@ -691,6 +691,7 @@ f.close()
         <div style="display:;">
           <div class="filters">
             <div style="height:60px;padding:20px;">
+              <input type="hidden" name="csv_users" value="" />
               <!-- state -->
               % if check_user_perms(request.user, access_level='System'):
               <select id="lst-user-filter-state" name="" autocomplate="off" class="mu" label="State">
@@ -861,7 +862,7 @@ f.close()
               % if check_user_perms(request.user, access_level='System'):
               <select id="lst-course-filter-state" name="" autocomplate="off" class="mu" label="State">
                 %for item in State.objects.all().order_by('name'):
-                <option class="${item.id}" value="${item.id}">${item.name}</option>
+                <option value="${item.id}">${item.name}</option>
                 %endfor
               </select>
               <select id="lst-course-filter-district" name="" autocomplate="off" class="mu" label="District">
@@ -1036,8 +1037,8 @@ f.close()
       subjects: $("#lst-course-filter-subject").get_selection().join(","),
       authors: $("#lst-course-filter-author").get_selection().join(","),
       grade_levels: $("#lst-course-filter-grade-level").get_selection().join(","),
-      state_ids: $("#lst-course-filter-state").get_selection().join(","),
-      district_ids: $("#lst-course-filter-district").get_selection().join(",")
+      states: $("#lst-course-filter-state").get_selection().join(","),
+      districts: $("#lst-course-filter-district").get_selection().join(",")
     };
     
     var pagerOptions = {
@@ -1054,7 +1055,8 @@ f.close()
       page: 0,
       size: 10,
       method: 'POST',
-      data: data
+      data: data,
+      savePages: false
     };
     var tablesorterOptions = {
       theme: 'blue',
@@ -1066,11 +1068,9 @@ f.close()
         filter_placeholder: {search: 'Search...'},
         filter_saveFilters: false,
         filter_reset: '.reset',
-        filter_serversideFiltering: true,
-        output_saveFileName: 'data.csv'
+        filter_serversideFiltering: true
       }
     };
-
     pagerOptions.container = $("#course_permission_course .pager");
     var $table = $('#course_permission_course table.tablesorter-blue');
     if($table[0].config){
@@ -1082,49 +1082,52 @@ f.close()
       p.reload();
       return;
     }
-    
     $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $table.bind("pagerComplete", function (a) {
       $(this).find("tbody tr").each(function(){
         var id = $(this).find("td:nth-child(5)").text();
         $(this).find("td:nth-child(5)").hide();
-        var on1, on2;
         var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5));
         var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6));
         toggle1.click(function(){
-          if(on1)
-            $(this).removeClass("on"); else $(this).addClass("on");
-          on1 = !on1;
+          if($(this).hasClass("on")) {
+            $(this).removeClass("on")
+            $(this).parent().next("td").find(".toggle").removeClass("on");
+          }else{
+            $(this).addClass("on");
+          }
         });
         toggle2.click(function(){
-          if(on2)
-            $(this).removeClass("on"); else $(this).addClass("on");
-          on2 = !on2;
+          if($(this).hasClass("on")) {
+            $(this).removeClass("on");
+          }else{
+            $(this).addClass("on");
+            $(this).parent().prev("td").find(".toggle").addClass("on");
+          }
         });
       });
     });
   }
-  
   CoursePermission.prototype.loadUserTable = function(use_old_filter){
     var self = this;
     var $table = $('#course_permission_user .tablesorter-blue');
-    
     var hidden = {}
     $("#course_permission_user .filters input[type=hidden]").each(function(){
       hidden[this.name] = this.value;
     });
-
-    var data = {
-      subject: ($("#filters-subject-submenu li.active").attr("data-value")),
-      author: ($("#filters-author-submenu li.active").attr("data-value")),
-      grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
-      states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(","),
-      districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(","),
-      schools: $("#lst-user-filter-school").get_selection().join(",")
-    };
-
+    if(hidden['csv_users']){
+      var data = {csv_users: hidden['csv_users']};
+    }else{
+      var data = {
+        subject: ($("#filters-subject-submenu li.active").attr("data-value")),
+        author: ($("#filters-author-submenu li.active").attr("data-value")),
+        grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
+        states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(","),
+        districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(","),
+        schools: $("#lst-user-filter-school").get_selection().join(",")
+      };
+    }
     var url = "${reverse('pepconn_get_course_permission_user_rows')}?page={page}&size={size}&{sortList:col}";
- 
     /** reload with new filters or not */
     if($table[0].config){
       var c = $table[0].config;
@@ -1209,7 +1212,7 @@ f.close()
       });
     });
   }
-  CoursePermission.prototype.dropDistrictMu = function(select, state_ids, callback){
+  CoursePermission.prototype.dropDistrictMu = function(select, state_ids){
     $(select).find("option").remove();
     $(select).reload();
     if(!state_ids.length)
@@ -1221,7 +1224,7 @@ f.close()
       $(select).reload();
     });
   }
-  CoursePermission.prototype.dropSchoolMu = function(select, district_ids, callback){
+  CoursePermission.prototype.dropSchoolMu = function(select, district_ids){
     $(select).find("option").remove();
     $(select).reload();
     if(!district_ids.length)
@@ -1234,6 +1237,41 @@ f.close()
     });
   }
   CoursePermission.prototype.loadCsv=function(){
+    var self = this;
+    var $file =  $("#btnCoursePermCsvLoad").next("input");
+    $file.click();
+    $file.change(function(){
+      if(this.value){
+        var fd = new FormData();
+        fd.append('attachment', this.files[0]);
+        $(this).val("");
+        $.ajax({
+          url: "${reverse('pepconn_course_permission_csv_users')}",
+          data: fd,
+          processData: false,
+          contentType: false,
+          type: 'post',
+          beforeSend: function (x) {
+            if (x && x.overrideMimeType) {
+              x.overrideMimeType("multipart/form-data");
+            }
+          },
+          enctype: 'multipart/form-data',
+          mimeType: 'multipart/form-data',
+          error: function(xhr, status){},
+          success: function(data){
+            if(data.success){
+              $("input[name=csv_users]").val(data.users);
+              self.loadUserTable();
+              if(data.errors.length)
+                new Dialog($('#dialog')).show("Buld CSV Load", data.errors.join("<br/>"));
+            }
+          }
+        });            
+      }
+    });
+  }
+  CoursePermission.prototype.loadCsv_old=function(){
     var self = this;
     var $file =  $("#btnCoursePermCsvLoad").next("input");
     $file.click();
@@ -1275,9 +1313,7 @@ f.close()
           },
           enctype: 'multipart/form-data',
           mimeType: 'multipart/form-data',
-          error: function(xhr, status){
-            
-          },
+          error: function(xhr, status){},
           success: function(data){
             if(data.success){
               self.checkTaskProgress(data.taskId);
@@ -1327,6 +1363,7 @@ f.close()
     });
     /** btns load table */
     $("#btnUserLoad").click(function(){
+      $("input[name=csv_users]").val("");
       self.loadUserTable();
     });
     $("#btnCourseLoad").click(function(){

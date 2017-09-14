@@ -312,6 +312,8 @@ urlpatterns = (
 
     url(r'^pepconn/update_course_permission/$', 'administration.pepconn.update_course_permission', name="pepconn_update_course_permission"),
 
+    url(r'^pepconn/course_permission_csv_users/$', 'administration.pepconn.course_permission_csv_users', name="pepconn_course_permission_csv_users"),
+
     url(r'^pepconn/course_permission_load_csv/$', 'administration.pepconn.course_permission_load_csv', name="pepconn_course_permission_load_csv"),
     
     url(r'^pepconn/course_permission_download_excel/$', 'administration.pepconn.course_permission_download_excel', name="pepconn_course_permission_download_excel"),

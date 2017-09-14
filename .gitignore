@@ -21,6 +21,7 @@ cover/
 log/
 reports/
 /src/
+
 \#*\#
 *.egg-info
 Gemfile.lock
