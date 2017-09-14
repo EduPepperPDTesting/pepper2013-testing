@@ -467,7 +467,7 @@ var userTimeReport = {
             var user_id = $(this).parent().parent().attr("user_id");
             $("#id_new_password1").attr("user_id",user_id);
 
-            $("#id_old_password").val("");
+            //$("#id_old_password").val("");
             $("#id_new_password1").val("");
             $("#id_new_password2").val("");
             $(".check-error-p1").html("");
@@ -493,84 +493,92 @@ var userTimeReport = {
                 var psw1 = $("#id_new_password1").val().trim();
                 var psw2 = $("#id_new_password2").val().trim();
 
-                if(psw1 == ""){
-                    $(".check-error-p1").html("Please fill in new password.");
-                    $(".check-error-p2").html("");
-                    $("#id_new_password1").focus();
-                    change_psw_press = 0;
-                    $("#btn_change_password").removeClass("btn-change-password-lock");
-                    return;
-                }
-
-                if(psw1.length < 8 || psw1.length > 16){
-                    $(".check-error-p1").html("It must be 8 to 16 characters.");
-                    $(".check-error-p2").html("");
-                    $("#id_new_password1").focus();
-                    change_psw_press = 0;
-                    $("#btn_change_password").removeClass("btn-change-password-lock");
-                    return;  
-                }
-
-                if(psw1.length != 0){
-                    var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
-                    var r = psw1.match(regexp);
-                    if(r == null){
-                        $(".check-error-p1").html("It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*.");
+                var check_status = {};
+                check_status = password_verify_local(psw1,psw2);
+                if(check_status.type != 200){
+                    if(check_status.type == 1 || check_status.type == 2 || check_status.type ==3){
+                        $(".check-error-p1").html(check_status.info);
                         $(".check-error-p2").html("");
                         $("#id_new_password1").focus();
-                        change_psw_press = 0;
-                        $("#btn_change_password").removeClass("btn-change-password-lock");
-                        return;
+                        
                     }
-                    
-                }
-
-                if(psw2 == ""){
-                    $(".check-error-p1").html("");
-                    $(".check-error-p2").html("Confirm password is required.");
-                    $("#id_new_password2").focus();
+                    else if(check_status.type == 4 || check_status.type == 5){
+                        $(".check-error-p1").html("");
+                        $(".check-error-p2").html(check_status.info);
+                        $("#id_new_password2").focus();
+                    }
                     change_psw_press = 0;
                     $("#btn_change_password").removeClass("btn-change-password-lock");
                     return;
                 }
-
-                if(psw1 != psw2){
-                    $(".check-error-p1").html("");
-                    $(".check-error-p2").html("Your new and confirm password are different. Please enter again.");
-                    $("#id_new_password2").focus();
-                    change_psw_press = 0;
-                    $("#btn_change_password").removeClass("btn-change-password-lock");
-                    return;
-                }
+        
                 $(".check-error-p1").html("");
                 $(".check-error-p2").html("");
-
                 $(".check-success").html("Now Saving......");
-                $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2}, 
+                $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2,'psw_change_date_save': 1}, 
                     function(data) {
                         if (data.success) {
                             window.setTimeout(function () {
                                 change_psw_press = 0;
                                 $("#btn_change_password").removeClass("btn-change-password-lock");
-                                $(".check-success").html("Change Password Success.");
+                                $(".check-success").html("Your password has been changed successfully.");
                             }, 100);
                         }
-                        else if(!data.success && data.ctype == 'error3'){
-                            window.setTimeout(function () {
+                        else{
+                            window.setTimeout(function () { 
                                 change_psw_press = 0;
                                 $("#btn_change_password").removeClass("btn-change-password-lock");
-                                $(".check-success").html("");
-                                $(".check-error-p1").html(data.value);
-                                $("#id_new_password1").focus();
+                                if(data.ctype == 'error3'){
+                                    $(".check-success").html("");
+                                    $(".check-error-p1").html(data.value);
+                                    $("#id_new_password1").focus();
+                                }
+                                else if(data.ctype == 'error0'){
+                                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                                    $(".check-success").html(data.value);
+                                }
                             }, 100);
                         }
                     });
             }
         });
 
+        function password_verify_local(psw1,psw2){
+            var error_info = [{"type":200,"info":""},
+                              {"type":1,"info":"Please fill in new password."},
+                              {"type":2,"info":"It must be 8 to 16 characters."},
+                              {"type":3,"info":"It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*."},
+                              {"type":4,"info":"Confirm password is required."},
+                              {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
+            if(psw1 == ""){
+                return error_info[1];
+            }
+            if(psw1.length < 8 || psw1.length > 16){
+                 return error_info[2];  
+            }
+            if(psw1.length != 0){
+                var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
+                var r = psw1.match(regexp);
+                if(r == null){
+                     return error_info[3];
+                }
+                    
+            }
+            if(psw2 == ""){
+                return error_info[4];
+            }
+
+            if(psw1 != psw2){
+                return error_info[5];
+            }
+            return error_info[0];
+        }
+
+        /*
         $("#id_new_password1").change(function(){
-             //$(".check-error-p1").html("");
+             $(".check-error-p1").html("");
         });
+        */
     },
 
     get_table_result:function(){

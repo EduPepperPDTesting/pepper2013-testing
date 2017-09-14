@@ -120,19 +120,22 @@ def save_user_password(request):
 	'''
 	user_id = int(request.POST.get('user_id'))
 	
-	value_dict = {'error1': 'Too many failed login attempts. Try again later.',
+	value_dict = {'error0': 'Save password failure, Please try later or contact administrator.',
+				  'error1': 'Too many failed login attempts. Try again later.',
 				  'error2': 'Please verify that the old password is correct.',
 				  'error3': 'The new password needs to be different from the previous one.'
 	}
-	context = {'success': False,'ctype': '','value': ''}
+	context = {'success': False,'ctype': 'error0','value': value_dict['error0']}
 
 	user_login = User.objects.filter(id=user_id)
-	for user in user_login:
+	if user_login:
+		user = user_login[0]
 		user_psw = request.POST.get('user_post')
 		user_psw_old = request.POST.get('user_post_old')
+		psw_change_date_save = request.POST.get('psw_change_date_save')
 		
+		# verify the old password if old password in request
 		if user_psw_old:
-			# verify the old password
 			result, ctype = user_authenticate(username=user.username, password=user_psw_old, request=request)
 			if not result:
 				context['ctype'] = ctype
@@ -145,11 +148,20 @@ def save_user_password(request):
 			context['ctype'] = 'error3'
 			context['value'] = value_dict['error3']
 			return HttpResponse(json.dumps(context), content_type="application/json")
-			
+		
+		# save user password
 		user.set_password(user_psw)
 		user.save()
-		context['success'] = True
-		break
+		
+		# save user password_change_date if psw_change_date_save in request
+		if psw_change_date_save:
+			user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+			if user_log_info:
+				utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+				user_log_info[0].password_change_date = utctime_str
+				user_log_info[0].save()
+
+		context = {'success': True,'ctype': '','value': ''}
 	return HttpResponse(json.dumps(context), content_type="application/json")
 
 def user_authenticate(username, password, request):
