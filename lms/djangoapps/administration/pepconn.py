@@ -1876,14 +1876,17 @@ def get_course_permission_user_rows(request):
 
     users = UserProfile.objects.all()
 
-    if request.GET.get("states", "") != "":
-        users = users.filter(district__state_id__in=request.GET.get("states").split(","))
+    if request.REQUEST.get("states", "") != "":
+        users = users.filter(district__state_id__in=request.REQUEST.get("states").split(","))
 
-    if request.GET.get("districts", "") != "":
-        users = users.filter(district__in=request.GET.get("districts").split(","))
+    if request.REQUEST.get("districts", "") != "":
+        users = users.filter(district__in=request.REQUEST.get("districts").split(","))
 
-    if request.GET.get("schools", "") != "":
-        users = users.filter(school__in=request.GET.get("schools").split(","))
+    if request.REQUEST.get("schools", "") != "":
+        users = users.filter(school__in=request.REQUEST.get("schools").split(","))
+
+    if request.REQUEST.get("csv_users", "") != "":
+        users = users.filter(user_id__in=request.REQUEST.get("csv_users").split(","))
 
     users = users.order_by(*order)
 
@@ -1891,9 +1894,9 @@ def get_course_permission_user_rows(request):
     json_out = [count]
 
     course_filters = {
-        "subjects": to_list(request.GET.get("subject", "")),
-        "authors": to_list(request.GET.get("author", "")),
-        "grade_levels": to_list(request.GET.get("grade_level", ""))
+        "subjects": to_list(request.REQUEST.get("subject", "")),
+        "authors": to_list(request.REQUEST.get("author", "")),
+        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
     }
 
     coursenames = []
@@ -1943,19 +1946,36 @@ def get_course_permission_user_rows(request):
 
 @login_required
 def get_course_permission_course_rows(request):
+    # sorts = get_post_array(request.GET, 'col')
+    page = int(request.REQUEST['page'])
+    size = int(request.REQUEST['size'])
+    start = page * size
+    end = start + size
+
+    states = None
+    if request.REQUEST.get("states"):
+        states = []
+        for id in request.REQUEST.get("states").split(","):
+            states.append(State.objects.get(id=id).name)
+
+    districts = None
+    if request.REQUEST.get("districts"):
+        districts = []
+        for id in request.REQUEST.get("districts").split(","):
+            districts.append(District.objects.get(id=id).code)
+                
     course_filters = {
         "subjects": to_list(request.REQUEST.get("subjects")),
         "authors": to_list(request.REQUEST.get("authors")),
         "grade_levels": to_list(request.REQUEST.get("grade_levels")),
-        "states": to_list(request.REQUEST.get("states")),
-        "districts": to_list(request.REQUEST.get("districts"))
+        "states": states,
+        "districts": districts
     }
     
     coursenames = []
     courses = filter_courses(**course_filters)
-    for c in courses:
-        for a in c.metadata_attributes:
-            print a
+    
+    for c in courses[start:end]:
         coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
 
     json_out = [len(courses), coursenames]
@@ -2081,7 +2101,7 @@ def email_task_errors(subject, body, receivers, csv_titles, csv_errors):
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, receivers, attach)
         output.close()
 
-        
+
 def course_permission_load_csv(request):
     @postpone
     def async_do(request, task):
@@ -2210,7 +2230,7 @@ def course_permission_download_excel(request):
 
 def course_permission_tasks(request):
     tasks = []
-    for t in AsyncTask.objects.filter(group="course permission", readed=False):
+    for t in AsyncTask.objects.filter(group="course permission", readed=False, create_user=request.user):
         task = {"type": "Course Permission " + t.type, "id": t.id, "progress": t.progress, "error": t.status == "error"}
         tasks.append(task)
 
@@ -2227,3 +2247,25 @@ def course_permission_task_close(request):
     except:
         done = False
     return HttpResponse(json.dumps({'success': done}), content_type="application/json")
+
+
+def course_permission_csv_users(request):
+    attachment = request.FILES['attachment']
+
+    r = csv.reader(attachment, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    rl = []
+    rl.extend(r)
+
+    users = []
+    errors = []
+    for line in rl:
+        try:
+            user = User.objects.get(email=line[0])
+            users.append(user.id)
+        except User.DoesNotExist as e:
+            errors.append("user %s does not exists" % line[0])
+        except Exception as e:
+            errors.append("%s" % e)
+
+    json_out = {'success': True, 'users': users, 'errors': errors}
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
