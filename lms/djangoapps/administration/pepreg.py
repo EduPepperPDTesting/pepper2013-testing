@@ -1489,9 +1489,9 @@ def download_calendar_pdf(request):
                 long_text = training_desc if info_text_width >= loc_text_width else training_geo
                 long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
 
-                if (long_text_width > 170):
+                if (long_text_width > 160):
 
-                    num_lines = (long_text_width / 170)  # number of lines to fit
+                    num_lines = (long_text_width / 160)  # number of lines to fit
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
 
@@ -1513,28 +1513,38 @@ def download_calendar_pdf(request):
             if (training_desc and string_desc_length > 160):
                 num_string = (string_desc_length / 160) + 1 #number of lines to draw
 
-                training_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
+                #training_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
+                training_desc_char_length = round((int(len(str(training_desc)) / (num_string - 1))), 0)
                 while 1: #get first line size
-                    string_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
+                    string_desc_length = stringWidth(training_desc[0: int(training_desc_char_length)], "Helvetica", base_font_size)
                     if (string_desc_length >= 160):
                         break
                     else:
-                        training_desc_length += 1 #add to end index to increase line size
+                        training_desc_char_length += 1 #add to end index to increase line size
 
                 num = 1
                 start_index = 0
-                end_draw = 0
-                while(num < num_string):
-                    if (len(str(training_desc)) > int(training_desc_length)):
-                        end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
-                        end_index = end_index + start_index  if end_index > 0 else training_desc_length - 1
-                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]).encode('utf-8'))
-                        start_index = end_index + 1
-                        training_desc_length = start_index + training_desc_length
-                    elif(end_draw == 0):
-                        c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]).encode('utf-8'))
-                        end_draw = 1
-                    num += 1
+
+                while 1: #(num < num_string):
+                    try:
+                        if len(str(training_desc[start_index:])) > training_desc_char_length:
+                            getstr = str(training_desc[start_index: start_index + int(training_desc_char_length) - 1])
+                            if (getstr[-1] != " "):
+                                end_index = start_index + int(getstr.rfind(" "))
+                                getstr = str(training_desc[start_index: end_index])
+                                c.drawString(33, ty + tr_height - ((10 * num) + 10), getstr.encode('utf-8'))
+                                start_index = end_index + 1
+                            elif (getstr[-1] == " "):
+                                c.drawString(33, ty + tr_height - ((10 * num) + 10), getstr.encode('utf-8'))
+                                start_index = start_index + int(training_desc_char_length) - 1
+                            num += 1
+                        else:
+                            c.drawString(33, ty + tr_height - ((10 * num) + 10), str(training_desc[start_index:]).encode('utf-8'))
+                            break
+
+                    except IndexError:
+                            break
+
             elif(len(training_desc) > 0):
                 c.drawCentredString(116, ty + tr_height - 20, str(training_desc).encode('utf-8'))
 
@@ -1562,28 +1572,37 @@ def download_calendar_pdf(request):
             if (training_geo and string_geo_length > 160):
                 num_string = (string_geo_length / 160) + 1 #number of lines to draw
 
-                training_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
-                while 1: #get first line size
-                    string_geo_length = stringWidth(training_geo[0: int(training_geo_length)], "Helvetica", base_font_size)
-                    if (string_geo_length >= 160):
+                training_geo_char_length = round((int(len(str(training_geo)) / (num_string - 1))), 0)
+                while 1:  # get first line size
+                    string_desc_length = stringWidth(training_geo[0: int(training_geo_char_length)], "Helvetica",
+                                                     base_font_size)
+                    if (string_desc_length >= 160):
                         break
                     else:
-                        training_geo_length += 1 #add to end index to increase line size
+                        training_geo_char_length += 1  # add to end index to increase line size
 
                 num = 1
                 start_index = 0
-                end_draw = 0
-                while (num < num_string):
-                    if(len(str(training_geo)) > int(training_geo_length)):
-                        end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
-                        end_index = end_index + start_index if end_index > 0 else training_geo_length - 1
-                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]).encode('utf-8'))
-                        start_index = end_index + 1
-                        training_geo_length = start_index + training_geo_length
-                    elif(end_draw == 0):
-                        c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]).encode('utf-8'))
-                        end_draw = 1
-                    num += 1
+
+                while 1:
+                    try:
+                        if len(str(training_geo[start_index:])) > training_geo_char_length:
+                            getstr = str(training_geo[start_index: start_index + int(training_geo_char_length) - 1])
+                            if (getstr[-1] != " "):
+                                end_index = start_index + int(getstr.rfind(" "))
+                                getstr = str(training_geo[start_index: end_index])
+                                c.drawString(413, ty + tr_height - ((10 * num) + 10), getstr.encode('utf-8'))
+                                start_index = end_index + 1
+                            elif (getstr[-1] == " "):
+                                c.drawString(413, ty + tr_height - ((10 * num) + 10), getstr.encode('utf-8'))
+                                start_index = start_index + int(training_geo_char_length) - 1
+                            num += 1
+                        else:
+                            c.drawString(413, ty + tr_height - ((10 * num) + 10), str(training_geo[start_index:]).encode('utf-8'))
+                            break
+
+                    except IndexError:
+                        break
             elif(len(training_geo) > 0):
                 c.drawCentredString(496, ty + tr_height - 20, str(training_geo).encode('utf-8'))
 

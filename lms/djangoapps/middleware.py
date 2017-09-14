@@ -30,7 +30,7 @@ class UserLastActiveSaveMiddleware(object):
             user_log_info = UserLoginInfo.objects.filter(user_id=request.user.id)
             if user_log_info:
                 time_diff = utc_time - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
-                time_diff_seconds = time_diff.seconds
+                time_diff_seconds = int(time_diff.total_seconds()) 
 
                 if time_diff_seconds > 120:
                     utc_time_str = utc_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -40,6 +40,6 @@ class UserLastActiveSaveMiddleware(object):
                     user_log_info[0].logout_time = utc_time_30m_str
                     db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
                     last_session = datetime.datetime.strptime(utc_time_str, '%Y-%m-%d %H:%M:%S') - db_login_time
-                    user_log_info[0].last_session = last_session.seconds + 1800
+                    user_log_info[0].last_session = int(last_session.total_seconds()) + 1800
                     user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds
                     user_log_info[0].save()

@@ -811,6 +811,9 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         "student": {
             "$arrayElemAt": ["$user_info.email", 0]
         },
+        "username":{
+            "$arrayElemAt": ["$user_info.username", 0]
+        },
         "user_state": {
             "$arrayElemAt": ["$user_info.state", 0]
         },
@@ -819,7 +822,13 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         },
         "user_school": {
             "$arrayElemAt": ["$user_info.school", 0]
-        }
+        },
+        "first_name":{
+            "$arrayElemAt": ["$user_info.first_name", 0]
+        },
+        "last_name":{
+            "$arrayElemAt": ["$user_info.last_name", 0]
+        },
     }
 },{pd_user_domain}{filters}{display_columns}{distinct}'''
 

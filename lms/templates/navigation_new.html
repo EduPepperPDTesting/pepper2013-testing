@@ -190,6 +190,7 @@
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <script type="text/javascript" src="/static/js/navigation_new.js"></script>
+<script type="text/javascript" src="/static/js/string_utils.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <style type="text/css" media="screen">
     ul.admin-dropdown-menu.expanded {
@@ -476,11 +477,32 @@
             <div class="content"></div>
             <textarea class="setting">
                 {
-                  "interval": 5000,
-                  "urls": {
-                    "count": "${reverse('pepconn_import_user_tasks')}",
+                  	"interval": 5000,
+                 	"sources": [{
+                    "tasks": "${reverse('pepconn_import_user_tasks')}",
+                    "message_formatter": function(task){
+                        var name = task.type == 'import' ? 'Import' : 'Email';
+                        if(task.error){
+                            return name + ' - ERROR (' + task.id + ')';
+                        }
+                        if(task.type == 'import'){
+                           return name + ' - ' + task.filename;
+                        }else if(task.type == 'email'){
+                           return name + ' - ' + task.total + ' email' + (task.total > 1 ? 's' : '');
+                        }
+                    },
                     "close": "${reverse('pepconn_task_close')}"
-                  }
+                  },
+                  {
+                    "tasks": "${reverse('pepconn_course_permission_tasks')}",
+                    "message_formatter": function(task){
+                        if(task.error){
+                            return task.type + ' ERROR (' + task.id + ')';
+                        }
+                        return task.type;
+                    },
+                    "close": "${reverse('pepconn_course_permission_task_close')}"
+                  }]
                 }
             </textarea>
         </div>
