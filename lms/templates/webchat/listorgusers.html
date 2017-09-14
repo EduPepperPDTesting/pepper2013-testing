@@ -19,6 +19,7 @@
 	$(document).ready(function(){
 		$(".org-list-table").each(function(){
 			var tableData = $(this).attr("data");
+			console.log(tableData);
 			if(tableData != 'My Network'){
 				tableData = tableData.replace(/~/g, "\'");
 				var idStartIndex = tableData.indexOf(": ") + 2;
@@ -27,18 +28,18 @@
 				var nameEndIndex = tableData.indexOf("}") - 1;
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
-				var rowSource = 'community';
+				var rowSource = "${reverse('get_community_user_rows')}";
 			}else{
 				var commId = 'network';
 				var commName = tableData;
-				var rowSource = 'network';
+				var rowSource = "${reverse('get_network_user_rows')}";
 			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
             $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
-				$.post("${reverse('get_" + rowSource + "_user_rows')}", {community_id: commId}, function (data) {
+				$.post(rowSource, {community_id: commId}, function (data) {
 					if (data.success) {
 						if (commId == 'network'){
 							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){

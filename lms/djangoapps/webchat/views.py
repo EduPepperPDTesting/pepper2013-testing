@@ -36,7 +36,9 @@ def gettextframe(request, uname):
 
 @login_required
 def get_network(request):
-    data = {'orgs_list': 'My Network'}
+    orgs_list = list()
+    orgs_list.append('My Network')
+    data = {'orgs_list': orgs_list}
     return render_to_response('webchat/listorgusers.html', data)
 
 def get_network_users(request):
