@@ -828,7 +828,7 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         },
         "last_name":{
             "$arrayElemAt": ["$user_info.last_name", 0]
-        },
+        }
     }
 },{pd_user_domain}{filters}{display_columns}{distinct}'''
 
