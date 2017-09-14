@@ -1116,7 +1116,12 @@ f.close()
       hidden[this.name] = this.value;
     });
     if(hidden['csv_users']){
-      var data = {csv_users: hidden['csv_users']};
+      var data = {
+        subject: ($("#filters-subject-submenu li.active").attr("data-value")),
+        author: ($("#filters-author-submenu li.active").attr("data-value")),
+        grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
+        csv_users: hidden['csv_users']
+      };
     }else{
       var data = {
         subject: ($("#filters-subject-submenu li.active").attr("data-value")),

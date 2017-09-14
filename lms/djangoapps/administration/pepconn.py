@@ -1894,9 +1894,9 @@ def get_course_permission_user_rows(request):
     json_out = [count]
 
     course_filters = {
-        "subjects": to_list(request.GET.get("subject", "")),
-        "authors": to_list(request.GET.get("author", "")),
-        "grade_levels": to_list(request.GET.get("grade_level", ""))
+        "subjects": to_list(request.REQUEST.get("subject", "")),
+        "authors": to_list(request.REQUEST.get("author", "")),
+        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
     }
 
     coursenames = []
