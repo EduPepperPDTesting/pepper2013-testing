@@ -323,7 +323,7 @@ def newdashboard(request, user_id=None):
 
     if len(communit_tt_list) < 3:
         community_joined = list(CommunityUsers.objects.select_related().filter(user=request.user).values_list('community__id', flat=True))
-        community_all = list(CommunityCommunities.objects.select_related().filter().order_by('name').values_list('id', flat=True))
+        community_all = list(CommunityCommunities.objects.select_related().filter(private=0).order_by('name').values_list('id', flat=True))
         for cid in community_joined:
             if cid in community_all:
                 community_all.remove(cid)
