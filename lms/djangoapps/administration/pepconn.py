@@ -2200,8 +2200,16 @@ def course_permission_download_excel(request):
 
     # ** title row
     titles = ["First Name", "Last Name", "Email"]
-    for course_id in course_ids:
-        course = get_course_by_id(course_id)
+
+    course_filters = {
+        "subjects": to_list(request.REQUEST.get("subject", "")),
+        "authors": to_list(request.REQUEST.get("author", "")),
+        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
+    }
+    
+    courses = filter_courses(**course_filters)
+    
+    for course in courses:
         titles.append(course.display_name)
 
     for i, k in enumerate(titles):
@@ -2211,10 +2219,10 @@ def course_permission_download_excel(request):
     for u in users:
         row += 1
         fields = [u.user.first_name, u.user.last_name, u.user.email]
-        for course_id in course_ids:
-            if CourseEnrollment.objects.filter(user=u, course_id=course_id, is_active=True).exists():
+        for course in courses:
+            if CourseEnrollment.objects.filter(user=u, course_id=course.id, is_active=True).exists():
                 fields.append("E")
-            elif CourseEnrollmentAllowed.objects.filter(email=u.user.email, course_id=course_id, is_active=True).exists():
+            elif CourseEnrollmentAllowed.objects.filter(email=u.user.email, course_id=course.id, is_active=True).exists():
                 fields.append("P")
             else:
                 fields.append("--")

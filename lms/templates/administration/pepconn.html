@@ -957,16 +957,19 @@ f.close()
   CoursePermission.prototype.downloadExcel = function(url){
     var user_state_ids = $("#lst-user-filter-state").get_selection();
     var user_district_ids = $("#lst-user-filter-district").get_selection();
-    var user_school_ids = $("#lst-user-filter-school").get_selection();    
-    var courses = [];
-    $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
-      courses.push($(this).find("td:nth-child(5)").text())
-    });
+    var user_school_ids = $("#lst-user-filter-school").get_selection();
+    var course_subject = ($("#filters-subject-submenu li.active").attr("data-value") || '');
+    var course_author = ($("#filters-author-submenu li.active").attr("data-value") || '');
+    var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value") || '');
+
     var url = "${reverse('pepconn_course_permission_download_excel')}?";
     url += "&states=" + user_state_ids.join(",");
     url += "&districts=" + user_district_ids.join(",");
     url += "&schools=" + user_school_ids.join(",");
-    url += "&courses=" + courses.join(",");
+    url += "&subject=" + course_subject;
+    url += "&author=" + course_author;
+    url += "&grade_level=" + course_grade_level;
+
     window.open(url, "_blank");
   }
   CoursePermission.prototype.checkTaskProgress = function(taskId){
