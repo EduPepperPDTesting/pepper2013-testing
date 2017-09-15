@@ -164,13 +164,14 @@
                 $("label").parent().removeClass("is-focused");
             });
 
+            /*
             var dialog_change_psw;
             $("#submit").click(function(event){
                 //dialog_change_psw = new Dialog($('#dialog_change_password'));
                 //dialog_change_psw.show('Password Reset');
-                console.log("submit");
                 //return false;
             });
+            */
         });
 
         (function() {
@@ -218,7 +219,6 @@
                     }
 
                 } else {
-                    console.log(json.user_id);
                     if(json.user_id){
                         toggleSubmitButton(true);
 
@@ -270,7 +270,6 @@
                         $("#btn_change_password").removeClass("btn-change-password-lock");
                         return;
                     }
-                    console.log("check-success");
                     $(".check-error-p1").html("");
                     $(".check-error-p2").html("");
                     $(".check-success").html("Now Saving......");
@@ -282,6 +281,7 @@
                                     $("#btn_change_password").removeClass("btn-change-password-lock");
                                     $(".check-success").html("Your password has been changed successfully.");
                                 }, 100);
+                                //location.href = "${reverse('dashboard')}";
                             }
                             else{
                                 window.setTimeout(function () { 
@@ -305,8 +305,8 @@
             function password_verify_local(psw1,psw2){
                 var error_info = [{"type":200,"info":""},
                                   {"type":1,"info":"Please fill in new password."},
-                                  {"type":2,"info":"It must be 8 to 16 characters."},
-                                  {"type":3,"info":"It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*."},
+                                  {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
                                   {"type":4,"info":"Confirm password is required."},
                                   {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
                 if(psw1 == ""){

@@ -546,8 +546,8 @@ var userTimeReport = {
         function password_verify_local(psw1,psw2){
             var error_info = [{"type":200,"info":""},
                               {"type":1,"info":"Please fill in new password."},
-                              {"type":2,"info":"It must be 8 to 16 characters."},
-                              {"type":3,"info":"It must made up of A-Z, a-z, 0-9 and ~!@#$%^&*."},
+                              {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                              {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
                               {"type":4,"info":"Confirm password is required."},
                               {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
             if(psw1 == ""){
