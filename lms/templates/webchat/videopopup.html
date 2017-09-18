@@ -7,11 +7,7 @@
      <div id="videos">
         <div id="subscriber"></div>
         <div id="publisher"></div>
-    </div>
-    <div class="close-modal">
-      <div class="inner">
-        <p>&#10005;</p>
-      </div>
+         <div id="screen-preview"></div>
     </div>
 
 <script>
@@ -34,14 +30,15 @@ window.resizeTo(528,396);
 }
 
 location.getParams = getParams;
-    token = location.search.substr(1).split('&')[1].replace("token=",'');
-    sessionId = location.getParams()['session']
+    //token = location.search.substr(1).split('&')[1].replace("token=",'');
+    //sessionId = location.getParams()['session']
+sessionId = '2_MX40NTkzOTg2Mn5-MTUwNTc0MjU0NDU4NH5xWkxFSXVNd20va3NydE5nY2NQazhJbSt-fg'
+token = 'T1==cGFydG5lcl9pZD00NTkzOTg2MiZzaWc9NjY0MWM5YzhjM2UyOTM1MDFiM2QyYjJmMTdkYTUzYjUzZWY5NzYzZjpzZXNzaW9uX2lkPTJfTVg0ME5Ua3pPVGcyTW41LU1UVXdOVGMwTWpVME5EVTROSDV4V2t4RlNYVk5kMjB2YTNOeWRFNW5ZMk5RYXpoSmJTdC1mZyZjcmVhdGVfdGltZT0xNTA1NzQyNTc5Jm5vbmNlPTAuMjEwNzgxNjYwMzk0Mjc1Mzcmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTUwNjM0NzM3NCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=='
 console.log (sessionId);
 console.log (token);
     var apiKey = "45939862";
 $(document).ready(function(){
         console.log ("starting...");
-
         initializeSession();
 });
 
@@ -77,7 +74,26 @@ function initializeSession() {
         if (error) {
           handleError(error);
         } else {
-          session.publish(publisher, handleError);
+          session.publish(publisher, function(){
+              screenshare();
+          });
+        }
+    });
+}
+function screenshare() {
+    OT.checkScreenSharingCapability(function(response) {
+        if (!response.supported || response.extensionRegistered === false) {
+            alert('This browser does not support screen sharing.');
+        } else if (response.extensionInstalled === false) {
+            alert('Please install the screen sharing extension and load your app over https.');
+        } else {
+            // Screen sharing is available. Publish the screen.
+            var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
+            session.publish(screenSharingPublisher, function(error) {
+                if (error) {
+                    alert('Could not share the screen: ' + error.message);
+                }
+            });
         }
     });
 }
