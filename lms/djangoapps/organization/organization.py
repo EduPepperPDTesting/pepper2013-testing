@@ -1544,6 +1544,11 @@ def organization_get_info(request):
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem
 
+                    # --------------Course Assignment
+                    for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
+                        data['Course Assignment'] = tmp1.DataItem
+                        break
+
                 data['Success'] = True
 
             elif source == "navigation":

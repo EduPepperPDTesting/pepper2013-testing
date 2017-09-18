@@ -88,14 +88,16 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 #@end
 
 from student.models import State,District,School,User,UserProfile
-from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
 
 
 log = logging.getLogger("mitx.student")
+# log = logging.getLogger("tracking")
 AUDIT_LOG = logging.getLogger("audit")
+
 
 Article = namedtuple('Article', 'title url author image deck publication publish_date')
 
@@ -846,6 +848,24 @@ def login_user(request, error=""):
                             content_type="application/json")
 
     if user is not None and user.is_active:
+        # @begin:verify the user password_change_date
+        # @date:2017-09-13
+        user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
+        if user_log_info:
+            if user_log_info[0].password_change_date:
+                password_change_time_diff = datetime.datetime.utcnow() - datetime.datetime.strptime(user_log_info[0].password_change_date, '%Y-%m-%d %H:%M:%S')
+                if int(password_change_time_diff.total_seconds()) > 3600 * 3: # 3600 * 24 * 30 * 6
+                    return HttpResponse(json.dumps({'success': False,
+                                                    'value': _('Your password has expired. Please enter a new password.'),
+                                                    'user_id': user.id,
+                                                    'user_email': email}),
+                                                     content_type="application/json")
+            else:
+                utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                user_log_info[0].password_change_date = utctime_str
+                user_log_info[0].save()
+        # @end
+
         try:
             # We do not log here, because we have a handler registered
             # to perform logging on successful logins.
@@ -907,8 +927,11 @@ def login_user(request, error=""):
 
             user_log_info[0].save()
         else:
+            psw_change_date = utctime_str
+            if user.profile.activate_date:
+                psw_change_date = user.profile.activate_date.strftime('%Y-%m-%d %H:%M:%S')
             user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,
-                temp_time=utctime_str,password_change_date=utctime_str)
+                temp_time=utctime_str,password_change_date=psw_change_date)
             user_log_info.save();
         #@end
 
@@ -932,9 +955,9 @@ def record_logout(user_id):
         user_log_info[0].logout_time = utctime_str
         db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
         last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
-        user_log_info[0].last_session = int(last_session.total_seconds())
+        user_log_info[0].last_session = last_session.seconds
         time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
-        time_diff_seconds = int(time_diff.total_seconds())
+        time_diff_seconds = time_diff.seconds
         user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
         user_log_info[0].logout_press = 1
         user_log_info[0].save()

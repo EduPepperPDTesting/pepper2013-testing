@@ -9,46 +9,133 @@
 <!--@begin:New added page style-->
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+
 <style>
-    #submit:hover {
-        background:#6e8194;
-        transition-delay: 0s, 0s, 0s;
-        transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-property:color, background,​ box-shadow;
-        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-        transition-duration:0.25s,​ 0.25s,​ 0.25s;
-        color:#fff;
-    }
-    #submit {
-        background-color:#556370;
-        text-decoration: none;
-        padding-bottom: 7px;
-        padding-left: 10px;
-        padding-right: 10px;
-        padding-top: 7px;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: #949494 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
-    #submit:normal {
-        background-color:#126F9A;
-        text-decoration: none;
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
-        cursor: pointer;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-        box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-        color:#fff;
-        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    }
+#submit:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+#submit {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+#submit:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+.form-row{
+    overflow: hidden;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-row label{
+    font-size:13px;
+    font-style:normal;
+    font-weight:bold;
+    padding:3px 10px 0 0;
+    width:140px;
+    border:0px solid;
+    display:block;
+    float:left;
+}
+.form-row input{
+    font-size:13px !important;
+    height:25px;
+    width:200px;
+    margin-top:3px;
+}
+.error-info{
+    font-size:13px !important;
+    color:#f00;
+    margin-top:5px;
+    width:230px;
+    padding-left:150px;
+}
+#btn_change_password:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+#btn_change_password {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
+    padding:12px 0 12px 0; 
+    width: 418px;
+}
+#btn_change_password:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+.btn-change-password-lock{
+    background-image:linear-gradient(to bottom,#6e8194 0%,#6e8194 50%,#6e8194 50%,#6e8194 100%) !important; 
+    background-color:#6e8194;
+    /*
+    border:0px;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 0 #666;
+    */
+}
 </style>
 <!--@end-->
 
@@ -76,6 +163,15 @@
             }).blur(function() {
                 $("label").parent().removeClass("is-focused");
             });
+
+            /*
+            var dialog_change_psw;
+            $("#submit").click(function(event){
+                //dialog_change_psw = new Dialog($('#dialog_change_password'));
+                //dialog_change_psw.show('Password Reset');
+                //return false;
+            });
+            */
         });
 
         (function() {
@@ -103,6 +199,7 @@
                 toggleSubmitButton(true);
             });
 
+            var change_psw_press = 0;
             $('#login-form').on('ajax:success', function(event, json, xhr) {
                 if (json.success) {
                     if ($('#remember-yes').attr("checked"))
@@ -123,11 +220,140 @@
                     }
 
                 } else {
-                    toggleSubmitButton(true);
-                    $('.message.submission-error').addClass('is-shown').focus();
-                    $('.message.submission-error .message-copy').html(json.value);
+                    if(json.user_id){
+                        toggleSubmitButton(true);
+
+                        $("#id_new_password1").val("");
+                        $("#id_new_password2").val("");
+                        $(".check-error-p1").html("");
+                        $(".check-error-p2").html("");
+                        $(".check-success").html("");
+                        $(".login-failed").html("");
+                        $("#id_new_password1").attr("user_id",json.user_id);
+                        $("#id_new_password1").attr("user_email",json.user_email);
+
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        dialog_change_psw = new Dialog($('#dialog_change_password'));
+                        dialog_change_psw.show();
+                        $(".password-change-date-error").html(json.value);
+                    }
+                    else{
+                        toggleSubmitButton(true);
+                        $('.message.submission-error').addClass('is-shown').focus();
+                        $('.message.submission-error .message-copy').html(json.value);
+                    }
                 }
             });
+            
+            //----------- click event change user password----------//
+            $("#btn_change_password").click(function(){
+                if(change_psw_press == 0){
+                    change_psw_press = 1;
+                    $("#btn_change_password").addClass("btn-change-password-lock");
+                    $(".check-success").html("");
+                    $(".login-failed").html("");
+
+                    var user_id = $("#id_new_password1").attr("user_id");
+                    var user_email = $("#id_new_password1").attr("user_email");
+                    var psw1 = $("#id_new_password1").val().trim();
+                    var psw2 = $("#id_new_password2").val().trim();
+
+                    var check_status = {};
+                    check_status = password_verify_local(psw1,psw2);
+                    if(check_status.type != 200){
+                        if(check_status.type == 1 || check_status.type == 2 || check_status.type ==3){
+                            $(".check-error-p1").html(check_status.info);
+                            $(".check-error-p2").html("");
+                            $("#id_new_password1").focus();
+                            
+                        }
+                        else if(check_status.type == 4 || check_status.type == 5){
+                            $(".check-error-p1").html("");
+                            $(".check-error-p2").html(check_status.info);
+                            $("#id_new_password2").focus();
+                        }
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        return;
+                    }
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("");
+                    $(".check-success").html("Now Saving......");
+                    $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2,'psw_change_date_save': 1}, 
+                        function(data) {
+                            if (data.success) {
+                                $(".password-change-date-error").html("");
+                                $(".check-success").html("Your password has been changed successfully.");
+
+                                $.post("/login_ajax", {'email': user_email,'password': psw2}, 
+                                    function(json) {
+                                        if(json.success){
+                                            window.setTimeout(function () {
+                                                location.href = "${reverse('dashboard')}";
+                                            }, 500);
+                                        }
+                                        else{
+                                            //dialog_change_psw.hide();
+                                            change_psw_press = 0;
+                                            $("#btn_change_password").removeClass("btn-change-password-lock");
+                                            login_failed_info = "But login failed. " + json.value;
+                                            $(".login-failed").html(login_failed_info);
+                                        }
+                                    }
+                                );
+                                
+                            }
+                            else{
+                                window.setTimeout(function () { 
+                                    change_psw_press = 0;
+                                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                                    if(data.ctype == 'error3'){
+                                        $(".check-success").html("");
+                                        $(".check-error-p1").html(data.value);
+                                        $("#id_new_password1").focus();
+                                    }
+                                    else if(data.ctype == 'error0'){
+                                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                                        $(".check-success").html(data.value);
+                                    }
+                                }, 100);
+                            }
+                    });
+                }
+            });
+
+            function password_verify_local(psw1,psw2){
+                var error_info = [{"type":200,"info":""},
+                                  {"type":1,"info":"Please fill in new password."},
+                                  {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":4,"info":"Confirm password is required."},
+                                  {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
+                if(psw1 == ""){
+                    return error_info[1];
+                }
+                if(psw1.length < 8 || psw1.length > 16){
+                     return error_info[2];  
+                }
+                if(psw1.length != 0){
+                    var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
+                    var r = psw1.match(regexp);
+                    if(r == null){
+                         return error_info[3];
+                    }
+                        
+                }
+                if(psw2 == ""){
+                    return error_info[4];
+                }
+
+                if(psw1 != psw2){
+                    return error_info[5];
+                }
+                return error_info[0];
+            }
+            
         })(this);
 
         function toggleSubmitButton(enable) {
@@ -169,6 +395,45 @@
 
     </script>
 </%block>
+<!-- dialog change password -->
+<section id="dialog_change_password" class="modal">
+    <div class="inner-wrapper" style="background-color:#fff;">
+        <div style="width:418px;margin:auto;text-align:left;">
+            <div style="border:0px solid #f00;padding:17px 0 18px 0;">
+                <span style="font-size:25px;color:#1580b9;font-weight:lighter;margin-top:15px;text-transform:uppercase;">${_("Password Reset")}</span>
+            </div>
+
+            <div class="password-change-date-error" style="font-size:15px;line-height:21px;color:#f00;">
+            </div>
+
+            <div>
+                <div style="margin-left:20px;width:400px;text-align:left;">
+                    <div class="form-row">
+                        <label for="id_new_password1" class="required">New Password:</label>
+                        <input type="password" name="new_password1" id="id_new_password1" maxlength="16">
+                        <div class="check-error-p1 error-info"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="id_new_password2" class="required">Confirm Password:</label>
+                        <input type="password" name="new_password2" id="id_new_password2" maxlength="16">
+                        <div class="check-error-p2 error-info"></div>
+                    </div>
+                </div>
+                <div class="check-success" style="color:#000;padding:8px;text-align:center;font-size:14px;"></div>
+                <div class="login-failed" style="color:#f00;padding:0 8px 8px 8px;text-align:center;font-size:14px;"></div>
+                <div style="margin:10px 0 10px 0;">
+                    <div id="btn_change_password">Change Password</div>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="close-modal" title="Close Modal">
+            <div class="inner">
+                <p>&#10005;</p>
+            </div>
+        </a>
+  </div>
+</section>
+
 <div style="width:960px;margin:0 auto;">
     <section class="introduction">
         <!--@begin:use new image name(ppd-...); modify the style-->

@@ -21,11 +21,12 @@
 <script type="text/javascript" src="/static/js/certificate-editor.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/configuration.js"></script>
-<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
 <link rel="stylesheet" href="/static/css/permissions.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/css/configuration.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
 	div.expand_title_expanded .icon {background: url("/static/images/arrows.png")no-repeat 0 -23px !important;}
@@ -161,8 +162,11 @@
 	.org_assignment_qualifications_item{float:left; padding:5px 0; width:100%; }
 	.org_assignment_qualifications_item .oaq_item{float:left; margin:5px 30px 5px 0;}
 	.org_assignment_qualifications_item .oaq_title{font-weight:bold;}
+	
+	.ui-datepicker-current{display:none;}
 </style>
 
+<!--Main Page Configuration-->
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
     <div class="expand_title expand_title_collapse" always_on="1">Main Page Configuration<div class="icon"></div></div>
     <div class="expand_div">
@@ -2487,7 +2491,9 @@
 				}else{
 					tmp_item = "<tr id='" + tmp_tr_id + "' class='org_table_profile_tr' default=''>";
 				}
-				tmp_item += "<td><span class='org_table_menu_child1 org_dataitems_profile' sn='" + tmp_sn + "'>" + tmp_json["name"] + "</span></td>";
+				var tmp_id = (tmp_json.hasOwnProperty("_id")) ? tmp_json["_id"] : ("_id" + Math.round(Math.random() * 10000000000));
+				
+				tmp_item += "<td><span class='org_table_menu_child1 org_dataitems_profile' _id='" + tmp_id + "' sn='" + tmp_sn + "'>" + tmp_json["name"] + "</span></td>";
 				tmp_item += "<td class='td_center org_dataitems_profile_description'>" + tmp_description + "</td>";
 				if(tmp_json["default"] && tmp_json["default"] != ""){
 					tmp_item += "<td></td>";
@@ -2775,15 +2781,13 @@
 		});
 		
 		//-----------------org_table_profile_tr
-		$('.org_table_profile_tr').each(function(){
+		$('.org_table_profile_tr').each(function(ee){
 			var tmp_qualification = ($(this).find(".org_child_menu[child_check='org_dataitems_profile_2']").attr("checked")) ? "1" : "0";
 			if(tmp_qualification == "1"){
 				var tmp_profile_name = $(this).find(".org_dataitems_profile").html();
 				
-				var tmp_content = '<span class="org_assignment_qualifications_item">';
+				var tmp_content = '<span class="org_assignment_qualifications_item" _id="' + $(this).find(".org_dataitems_profile").attr("_id") + '">';
 				tmp_content += '<div class="oaq_title">' + tmp_profile_name + '</div><div class="oaq_item">';
-				tmp_content += '<select class="org_assignment_qualifications_select" style="width:300px;">';
-				tmp_content += '<option value="">Select a Qualification</option>';
 				var tmp_is_default = false;
 				var tmp_profileFieldType_content = "";
 				if($(this).attr("default") == "1"){
@@ -2814,27 +2818,35 @@
 				
 				}else{
 					var tmp_profileFieldType_val = $(this).find(".profileFieldType").val();					
-					if(tmp_profileFieldType_val == 2)			tmp_profileFieldType_content = $(this).attr("field_type_2");						
+					if(tmp_profileFieldType_val == 1)			tmp_profileFieldType_content = "|-|-|";//"Read-Only";
+					else if(tmp_profileFieldType_val == 2)		tmp_profileFieldType_content = $(this).attr("field_type_2");
 					else if(tmp_profileFieldType_val == 3)		tmp_profileFieldType_content = $(this).attr("field_type_3");
-					else if(tmp_profileFieldType_val == 4)		tmp_profileFieldType_content = $(this).attr("field_type_4");					
+					else if(tmp_profileFieldType_val == 4)		tmp_profileFieldType_content = $(this).attr("field_type_4");
+					else if(tmp_profileFieldType_val == 8)		tmp_profileFieldType_content = "Date Field";
 				}
 				if(tmp_profileFieldType_content != ""){
-					var list2 = tmp_profileFieldType_content.split("|-|-|");
-					for(var ii in list2){
-						if(list2[ii] != ""){
-							var list3 = list2[ii].split("|-|");
-							if(tmp_is_default){
-								tmp_content += '<option value="' + list3[0] + '">' + list3[1] + '</option>';
-							}else{
-								tmp_content += '<option value="' + list3[0] + '">' + list3[0] + '</option>';
+					if(tmp_profileFieldType_content == "Date Field"){
+						tmp_content += '<input type="text" class="org_assignment_qualifications_datex" value="" placeholder="Select Date" readonly="true" />';
+					}else{
+						tmp_content += '<select class="org_assignment_qualifications_select" style="width:300px;">';
+						tmp_content += '<option value="">Select a Qualification</option>';
+						var list2 = tmp_profileFieldType_content.split("|-|-|");
+						for(var ii in list2){
+							if(list2[ii] != ""){
+								var list3 = list2[ii].split("|-|");
+								if(tmp_is_default){
+									tmp_content += '<option value="' + list3[0] + '">' + list3[1] + '</option>';
+								}else{
+									tmp_content += '<option value="' + list3[0] + '">' + list3[0] + '</option>';
+								}
 							}
 						}
+						tmp_content += '</select>';
+						tmp_content += '<input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />';
 					}
 				}
-				tmp_content += '</select>';
-				tmp_content += '<input type="button" onclick="org_assignment_qualifications_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />';
 				tmp_content += '</div></span>';
-				$(".org_assignment_qualifications_all").append(tmp_content);
+				$(".org_assignment_qualifications_all").append(tmp_content);				
 			}
 		});
 		
@@ -2842,56 +2854,49 @@
 		if($(".org_assignment_qualifications_item").length == 0)	
 			$(".org_assignment_qualifications_title").hide();
 		else
-			$(".org_assignment_qualifications_title").show();
-		//$(".org_assignment_qualifications_select:first").val(tmp_first_val);
+			$(".org_assignment_qualifications_title").show();	
 		
-		/*$(".org_assignment_qualifications_select").each(function(i){
-			if(i > 0){
-				var tmp1_val = $(this).val();
-				$(this).html($(".org_assignment_qualifications_select:first").html());
-				$(this).val(tmp1_val);
-			}
-			if(typeof($(this).attr("bak_val")) != "undefined"){
-				$(this).val($(this).attr("bak_val"));d
-			}
-		});*/
-		
-		//var tmp_first_val = $(".org_assignment_qualifications_select:first").val();
-		//$(".org_assignment_qualifications_select:first").empty();
-		//$(".org_assignment_qualifications_select:first").append('<option value="">Select a Qualification</option>');		
-
-		// (PCG_EDU/NMM2/S2017)<(Major Subject Area)>(3),(Grade Level-Check all that apply)>()>(),(Number of Years in Education)>()>()>(),(My Learners' Profile)>()>()>()>(),(gj)>(1)>()>()>(2)>(333333);(ZX/test001/2016_Winter)<(Major Subject Area)>()
 		//-----------------	
 		if(content){
 			var tmp1 = content.split(";");
 			for(var i = 0; i < tmp1.length; i++){
+				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+			}			
+			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
-				if(i > 0){
-					org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
-				}				
-				
 				var tmp2 = tmp1[i].split("<");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));				
-				
-				/*var tmp3 = tmp2[1].split(",");
+				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));
+				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].replace("(", "").replace(")", ""));				
+
+				var tmp3 = tmp2[1].split(",");
 				for(var j = 0; j < tmp3.length; j++){
 					var parent2 = parent1.find(".org_assignment_qualifications_item").eq(j);
 					var tmp4 = tmp3[j].split(">");
+					var tmp_db_id = tmp4[0].replace("(", "").replace(")", "");
 					
-					var db_title = tmp4[0].replace("(", "").replace(")", "");
-					if(parent2.find(".oaq_title").html() == db_title){
+					if(parent2.attr("_id") == tmp_db_id){
+						for(var k = 1; k < tmp4.length; k++){
+							if(k > 1)			org_assignment_qualifications_clone(parent2.find(".small_btn:last")[0]);
+						}
+						
 						for(var k = 1; k < tmp4.length; k++){
 							var q_val = tmp4[k].replace("(", "").replace(")", "");
-							if(k > 1){
-								org_assignment_qualifications_clone(parent2.find(".small_btn:last")[0]);
+							if(q_val != ""){
+								if(parent2.find(".org_assignment_qualifications_datex").length > 0){
+									parent2.find(".org_assignment_qualifications_datex").eq(k - 1).val(q_val);
+									
+								}else if(parent2.find(".org_assignment_qualifications_select").length > 0){
+									parent2.find(".org_assignment_qualifications_select").eq(k - 1).val(q_val);	
+								}
 							}
-							parent2.find(".org_assignment_qualifications_select").eq(k - 1).val(q_val);	
-							//parent2.find(".org_assignment_qualifications_select").eq(j).attr("bak_val", tmp3[j].replace("(", "").replace(")", ""));	
 						}
 					}
-				}*/
+				}
 			}
 		}
+		$(".org_assignment_qualifications_datex").each(function(ex){
+			$(this).datepicker();
+		});
 	}
 	
 	//-----------------------------------------------------------------------
@@ -3143,7 +3148,6 @@
 			var loadwin = new LoadingWin();
 			
 			$(".org_assignment_course_select").each(function(){
-				$(this).attr("bak_val", $(this).val());
 				$(this).empty();
 				$(this).append('<option value="">Select a Course</option>');
 			});
@@ -3155,7 +3159,6 @@
 							$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
 						});
 					}
-					
 					$(".org_assignment_course_select").each(function(){
 						$(this).val($(this).attr("bak_val"));
 					});
@@ -3753,6 +3756,8 @@
 			$(".org_table_profile_tr").each(function(){
 				var tmp_default = $(this).attr("default");
 				var tmp_name = $(this).find(".org_dataitems_profile").html();
+				var tmp_id = $(this).find(".org_dataitems_profile").attr("_id");
+				if(typeof(tmp_id) == "undefined" || tmp_id == "undefined")		tmp_id = "_id" + Math.round(Math.random() * 10000000000)
 				var tmp_description = $(this).find(".org_dataitems_profile_description").html();
 				var tmp_type = "";
 				var tmp_field_type_2 = "";
@@ -3792,7 +3797,8 @@
 				specific_items += '"field_type_5":"' + tmp_field_type_5 + '",';
 				specific_items += '"required":"' + tmp_required + '",';
 				specific_items += '"course_qualification":"' + tmp_qualification + '",';
-				specific_items += '"default":"' + tmp_default + '",';				
+				specific_items += '"default":"' + tmp_default + '",';
+				specific_items += '"_id":"' + tmp_id + '",';
 				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
 			});
 			specific_items += "]";
@@ -3901,20 +3907,35 @@
 			}
 			
 			//---------------------------------------------------Course Assignment
-			//(PCG_EDU/NMM2/S2017):(Major Subject Area)-(1)-(2)-(3)-()-(),(Grade Level-Check all that apply)-(1)-(2)-(3)-()-();(ZX/test001/2016_Winter):() 
-			var course_assignment_content = "";
+			var course_assignment_content = "", tmp_var1;
 			$(".org_assignment_course_item").each(function(){
 				var course_id = $(this).find(".org_assignment_course_select").val();
 				if(course_id != ""){
 					var course_assignment_child = "";
 					$(this).find(".org_assignment_qualifications_item").each(function(){
 						var course_assignment_child_1 = "";
-						$(this).find(".org_assignment_qualifications_select").each(function(){
-							if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
-							course_assignment_child_1 += "(" + $(this).val() + ")";
-						});						
+						$(this).find(".oaq_item").each(function(){
+							if($(this).find(".org_assignment_qualifications_datex").length > 0){
+								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
+								var tmp_date = $(this).find(".org_assignment_qualifications_datex").datepicker("getDate");
+								var tmp_date_val = "";
+								if(tmp_date){
+									tmp_var1 = tmp_date.getMonth() + 1;
+									tmp_date_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+									tmp_date_val += "/";
+									tmp_var1 = tmp_date.getDate();
+									tmp_date_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+									tmp_date_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
+								}
+								course_assignment_child_1 += "(" + tmp_date_val + ")";
+								
+							}else if($(this).find(".org_assignment_qualifications_select").length > 0){
+								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
+								course_assignment_child_1 += "(" + $(this).find(".org_assignment_qualifications_select").val() + ")";
+							}
+						});
 						if(course_assignment_child != "")	course_assignment_child += ",";
-						course_assignment_child += "(" + $(this).find(".oaq_title").html() + ")>" + course_assignment_child_1;
+						course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
 					});					
 					if(course_assignment_content != "")	course_assignment_content += ";";
 					course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
@@ -4409,7 +4430,34 @@
 		}
 		$(".org_parent_menu[child_check='" + profile + "']").prop('checked', checked);
 	}
-											
+	
+	//--------------------------
+	$.datepicker.setDefaults({
+		showButtonPanel: true, 
+		closeText: 'Clear', 
+		currentText: 'Today',
+		autoSize: true,
+		gotoCurrent: true,
+		firstDay: 0,
+		minDate: new Date("1999-9-9"),
+		hideIfNoPrevNext: false,
+		navigationAsDateFormat: true,
+		showOtherMonths: true,
+		selectOtherMonths: false,
+		stepMonths: 1,
+		changeMonth: true,
+		numberOfMonths: [1, 1],
+		showCurrentAtPos: 0,
+		showAnim: "",
+		showWeek: true,
+		dateFormat: 'mm/dd/yy',
+        beforeShow: function (input, inst) {
+            datepicker_CurrentInput = input;
+        }
+    });
+	$(".ui-datepicker-close").live("click", function () {
+        $(datepicker_CurrentInput).val("");
+        $(datepicker_CurrentInput).change();
+    });											
 	var csrf_token = '${csrf_token}';
 </script>
-
