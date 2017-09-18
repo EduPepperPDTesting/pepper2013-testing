@@ -163,6 +163,10 @@ $(document).ready(function(){
         $link.data('lockedAt', +new Date());
     });
 
+    $("#my_network").on("click", function(e){
+        $("#pep_user_list").load("/getnetwork/");
+    });
+
     $("#my_communities").on("click", function(e){
         $("#pep_user_list").load("/getcommunities/");
     });

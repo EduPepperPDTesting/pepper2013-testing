@@ -283,27 +283,33 @@ def my_people(request,course_id=''):
 
     profiles,total=search_people(cond)
 
-    # gether pager params
-    params=pager_params(request)
+    community_id = request.GET.get('community_id')
+    if community_id is None:
 
-    context={
-        'params':params,
-        'people_search_debug':1}
-    
-    courses=list()
-    courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-    
-    courses=sorted(courses, key=lambda course: course.display_name.lower())
-    
-    context['courses']=courses
-    course=None
-    if course_id:
-        course=get_course_with_access(request.user, course_id, 'load')
+        # gether pager params
+        params=pager_params(request)
 
-    context['pager']=get_pager(total,size,page,5)
-    context['course']=course
-    context['course_id'] = course_id
-    context['search_course_id'] = search_course_id
-    context['profiles']=profiles
+        context={
+            'params':params,
+            'people_search_debug':1}
 
-    return render_to_response('people/my_people.html', context)
+        courses=list()
+        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+
+        courses=sorted(courses, key=lambda course: course.display_name.lower())
+
+        context['courses']=courses
+        course=None
+        if course_id:
+            course=get_course_with_access(request.user, course_id, 'load')
+
+        context['pager']=get_pager(total,size,page,5)
+        context['course']=course
+        context['course_id'] = course_id
+        context['search_course_id'] = search_course_id
+        context['profiles']=profiles
+
+        return render_to_response('people/my_people.html', context)
+
+    else:
+        return HttpResponse(json.dumps({'users': profiles}), content_type="application/json")
