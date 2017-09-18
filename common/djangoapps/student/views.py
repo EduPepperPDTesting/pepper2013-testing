@@ -857,7 +857,8 @@ def login_user(request, error=""):
                 if int(password_change_time_diff.total_seconds()) > 3600 * 3: # 3600 * 24 * 30 * 6
                     return HttpResponse(json.dumps({'success': False,
                                                     'value': _('Your password has expired. Please enter a new password.'),
-                                                    'user_id': user.id}),
+                                                    'user_id': user.id,
+                                                    'user_email': email}),
                                                      content_type="application/json")
             else:
                 utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')

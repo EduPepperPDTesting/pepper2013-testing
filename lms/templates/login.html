@@ -199,6 +199,7 @@
                 toggleSubmitButton(true);
             });
 
+            var change_psw_press = 0;
             $('#login-form').on('ajax:success', function(event, json, xhr) {
                 if (json.success) {
                     if ($('#remember-yes').attr("checked"))
@@ -227,8 +228,13 @@
                         $(".check-error-p1").html("");
                         $(".check-error-p2").html("");
                         $(".check-success").html("");
+                        $(".login-failed").html("");
                         $("#id_new_password1").attr("user_id",json.user_id);
-                        var dialog_change_psw = new Dialog($('#dialog_change_password'));
+                        $("#id_new_password1").attr("user_email",json.user_email);
+
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        dialog_change_psw = new Dialog($('#dialog_change_password'));
                         dialog_change_psw.show();
                         $(".password-change-date-error").html(json.value);
                     }
@@ -241,14 +247,15 @@
             });
             
             //----------- click event change user password----------//
-            var change_psw_press = 0;
             $("#btn_change_password").click(function(){
                 if(change_psw_press == 0){
                     change_psw_press = 1;
                     $("#btn_change_password").addClass("btn-change-password-lock");
                     $(".check-success").html("");
+                    $(".login-failed").html("");
 
                     var user_id = $("#id_new_password1").attr("user_id");
+                    var user_email = $("#id_new_password1").attr("user_email");
                     var psw1 = $("#id_new_password1").val().trim();
                     var psw2 = $("#id_new_password2").val().trim();
 
@@ -276,12 +283,26 @@
                     $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2,'psw_change_date_save': 1}, 
                         function(data) {
                             if (data.success) {
-                                window.setTimeout(function () {
-                                    change_psw_press = 0;
-                                    $("#btn_change_password").removeClass("btn-change-password-lock");
-                                    $(".check-success").html("Your password has been changed successfully.");
-                                }, 100);
-                                //location.href = "${reverse('dashboard')}";
+                                $(".password-change-date-error").html("");
+                                $(".check-success").html("Your password has been changed successfully.");
+
+                                $.post("/login_ajax", {'email': user_email,'password': psw2}, 
+                                    function(json) {
+                                        if(json.success){
+                                            window.setTimeout(function () {
+                                                location.href = "${reverse('dashboard')}";
+                                            }, 500);
+                                        }
+                                        else{
+                                            //dialog_change_psw.hide();
+                                            change_psw_press = 0;
+                                            $("#btn_change_password").removeClass("btn-change-password-lock");
+                                            login_failed_info = "But login failed. " + json.value;
+                                            $(".login-failed").html(login_failed_info);
+                                        }
+                                    }
+                                );
+                                
                             }
                             else{
                                 window.setTimeout(function () { 
@@ -298,7 +319,7 @@
                                     }
                                 }, 100);
                             }
-                        });
+                    });
                 }
             });
 
@@ -399,6 +420,7 @@
                     </div>
                 </div>
                 <div class="check-success" style="color:#000;padding:8px;text-align:center;font-size:14px;"></div>
+                <div class="login-failed" style="color:#f00;padding:0 8px 8px 8px;text-align:center;font-size:14px;"></div>
                 <div style="margin:10px 0 10px 0;">
                     <div id="btn_change_password">Change Password</div>
                 </div>
