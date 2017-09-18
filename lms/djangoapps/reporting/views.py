@@ -1332,6 +1332,7 @@ def get_column_headers(request):
     column_header_type = column_header_data.data_type
     row_header_data = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].row_headers)[0]
     aggregate_type_id = ReportMatrixColumns.objects.filter(report=report)[0].aggregate_type
+    aggregate_type = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].data_type
     row_header = row_header_data.column
     row_header_type = row_header_data.data_type
     column_header_row = []
@@ -1408,8 +1409,14 @@ def get_column_headers(request):
                         if dd[aggregate_data] == None:
                             dd[aggregate_data] = 0
                         sum_total += int(dd[aggregate_data])
-                    row[column] = str(sum_total)
-                row['count'] = str(d['total'])
+                    if aggregate_type == 'time':
+                        row[column] = study_time_format(int(sum_total))
+                    else:
+                        row[column] = str(sum_total)
+                if aggregate_type == 'time':
+                    row['count'] = study_time_format(int(d['total']))
+                else:
+                    row['count'] = str(d['total'])
                 tmps.append(row)
                 rs.insert_datas(tmps,collection+"aggregate")
 
@@ -1457,10 +1464,16 @@ def get_column_headers(request):
                             dd[aggregate_data] = 0
                         if max_dat < dd[aggregate_data]:
                             max_dat = dd[aggregate_data]
-                    row[column] = str(max_dat)
-                    sum_tmp.append(max_dat)
+                    if aggregate_type == 'time':
+                        row[column] = study_time_format(int(max_dat))
+                    else:
+                        row[column] = str(max_dat)
 
-                row['count'] = sum(sum_tmp)
+                    sum_tmp.append(max_dat)
+                if aggregate_type == 'time':
+                    row['count'] = study_time_format(sum(sum_tmp))
+                else:
+                    row['count'] = str(sum(sum_tmp))
                 rows.append(row)
                 rs.insert_datas(rows,collection+"aggregate")
 
@@ -1510,10 +1523,16 @@ def get_column_headers(request):
 
                     if len(min_dat) == 0:
                         min_dat = [0]
-                    row[column] = str(min(min_dat))
-                    sum_tmp.append(min(min_dat))
 
-                row['count'] = sum(sum_tmp)
+                    if aggregate_type == 'time':
+                        row[column] = study_time_format(min(min_dat))
+                    else:
+                        row[column] = str(min(min_dat))
+                    sum_tmp.append(min(min_dat))
+                if aggregate_type == 'time':
+                    row['count'] = study_time_format(sum(sum_tmp))
+                else:
+                    row['count'] = str(sum(sum_tmp))
                 rows.append(row)
                 rs.insert_datas(rows,collection+"aggregate")
 
@@ -1564,10 +1583,16 @@ def get_column_headers(request):
                     if len(sum_dat) == 0:
                         sum_dat = [0]
                     avg = round(sum(sum_dat)/len(sum_dat),2)
-                    row[column] = str(avg)
+                    if aggregate_type == 'time':
+                        row[column] = study_time_format(avg)
+                    else:
+                        row[column] = str(avg)
                     sum_tmp.append(avg)
 
-                row['count'] = sum(sum_tmp)
+                if aggregate_type == 'time':
+                     row['count'] = study_time_format(sum(sum_tmp))
+                else:
+                    row['count'] = sum(sum_tmp)
                 rows.append(row)
                 rs.insert_datas(rows,collection+"aggregate")
 
@@ -1600,6 +1625,7 @@ def report_get_matrix_rows(request):
     column_data = rs.get_datas(collection_column_header)
     column_header = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].column_headers)[0].column
     column_header_row = [column_header]
+    aggregate_type = ViewColumns.objects.filter(id=ReportMatrixColumns.objects.filter(report=report)[0].aggregate_data)[0].data_type
     row_last = []
     for d in column_data:
         if d['_id'][column_header] == None:
@@ -1653,6 +1679,8 @@ def report_get_matrix_rows(request):
         rows.append(row)
 
     row_last.append(sum(row_last))
+    if aggregate_type == 'time':
+        row_last = map(study_time_format,row_last)
     row_last.insert(0,'Total')
     rows.append(row_last)
 
