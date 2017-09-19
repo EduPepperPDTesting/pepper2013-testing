@@ -622,10 +622,17 @@ class GenericSSO:
 
 @ensure_csrf_cookie
 def register_user_easyiep(request, activation_key):
-
-    registration = Registration.objects.get(activation_key=activation_key)
+    from django.core.exceptions import ObjectDoesNotExist
+    try:
+        registration = Registration.objects.get(activation_key=activation_key)
+    except ObjectDoesNotExist:
+        error_context = {'window_title': 'Missing Account',
+                         'error_title': 'Missing Account',
+                         'error_message': "You do not have access to Pepper, please contact support at <a href='mailto:helpdesk@pepperpd.com'>helpdesk@pepperpd.com</a>.",
+                         'contact_info': ''}
+        return render_to_response('error.html', error_context)
+    
     user_id = registration.user_id
-
     profile = UserProfile.objects.get(user_id=user_id)
 
     context = {

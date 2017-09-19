@@ -2107,40 +2107,39 @@ def course_permission_load_csv(request):
     def async_do(request, task):
         attachment = request.FILES['attachment']
 
-        course_ids = to_list(request.POST.get('courses', ''), [])
-        access = to_list(request.POST.get('access', ''), [])
-        enroll = to_list(request.POST.get('enroll', ''), [])
-
         r = csv.reader(attachment, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         rl = []
         rl.extend(r)
 
         done_count = 0
-        total_count = len(course_ids) * len(rl)
+        total_count = len(rl)
         errors = []
-        user = None
-        course = None
-        for i, course_id in enumerate(course_ids):
-            try:
-                course = get_course_by_id(course_id)
-                a = access[i] == "1"
-                e = enroll[i] == "1"
-                for line in rl:
-                    user = User.objects.get(email=line[0])
-                    
-                    task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
-                    task.update_time = task.create_time
-                    task.title = "update user %s" % user.email
+                
+        for line in rl:
+            user = None
+            course = None
 
-                    _update_user_course_permission(user, course, a, e)
-                    done_count += 1
-                    task.status = "continue"
-                    task.progress = done_count / total_count
+            email = next(iter(line[0:]), '')
+            course_id = next(iter(line[1:]), '')
+            conf = next(iter(line[2:]), '').lower()
+            
+            try:
+                user = User.objects.get(email=email)
+                course = get_course_by_id(course_id)
+                e = (conf == "enrollment")
+                a = e or (conf == "access")
+                
+                task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
+                task.update_time = task.create_time
+                task.title = "update user %s" % user.email
+
+                _update_user_course_permission(user, course, a, e)
+                
+                done_count += 1
+                task.status = "continue"
+                task.progress = done_count / total_count
             except Exception as e:
-                if user and course:
-                    errors.append([user.email, course.display_name, str(e)])
-                else:
-                    errors.append(["", "", str(e)])
+                errors.append([email, course_id, str(e)])
                 task.status = "error"
                 task.last_message = "error occured: %s" % e
             finally:
