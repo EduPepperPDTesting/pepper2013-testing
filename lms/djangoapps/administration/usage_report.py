@@ -188,7 +188,9 @@ def save_user_password_checkold(request):
 		user = user_login[0]
 		user_psw = request.POST.get('user_post_1')
 		user_psw_confirm = request.POST.get('user_post_2')
-		user_psw_old = request.POST.get('user_post_old')
+		user_psw_old = request.POST.get('user_post_0')
+		if not user_psw_old:
+			user_psw_old = ''
 
 		# check the password and password_confirm format again
 		psw_format_check = password_format_check(user_psw, user_psw_confirm)
@@ -199,11 +201,10 @@ def save_user_password_checkold(request):
 		'''
 		verify the old password if old password in request
 		'''
-		if user_psw_old:
-			oldpsw_check = user_authenticate(username=user.username, password=user_psw_old, request=request)
-			if oldpsw_check['type'] != 200:
-				context['value'] = oldpsw_check
-				return HttpResponse(json.dumps(context), content_type="application/json")
+		oldpsw_check = user_authenticate(username=user.username, password=user_psw_old, request=request)
+		if oldpsw_check['type'] != 200:
+			context['value'] = oldpsw_check
+			return HttpResponse(json.dumps(context), content_type="application/json")
 
 		# verify whether the new password equals to the old one
 		user_newpws = authenticate(username=user.username, password=user_psw, request=request)

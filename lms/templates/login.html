@@ -225,6 +225,7 @@
 
                         $("#id_new_password1").val("");
                         $("#id_new_password2").val("");
+                        $("#id_old_password").val("");
                         $(".check-error-p1").html("");
                         $(".check-error-p2").html("");
                         $(".check-success").html("");
@@ -256,19 +257,28 @@
 
                     var user_id = $("#id_new_password1").attr("user_id");
                     var user_email = $("#id_new_password1").attr("user_email");
+                    var psw0 = $("#id_old_password").val().trim();
                     var psw1 = $("#id_new_password1").val().trim();
                     var psw2 = $("#id_new_password2").val().trim();
                     
                     var check_status = {};
-                    check_status = password_verify_local(psw1,psw2);
+                    check_status = password_verify_local(psw0,psw1,psw2);
                     if(check_status.type != 200){
-                        if(check_status.type == 1 || check_status.type == 2 || check_status.type ==3){
+                        if(check_status.type == 6){
+                            $(".check-error-p0").html(check_status.info);
+                            $(".check-error-p1").html("");
+                            $(".check-error-p2").html("");
+                            $("#id_old_password").focus();
+                        }
+                        else if(check_status.type == 1 || check_status.type == 2 || check_status.type ==3){
+                            $(".check-error-p0").html("");
                             $(".check-error-p1").html(check_status.info);
                             $(".check-error-p2").html("");
                             $("#id_new_password1").focus();
                             
                         }
                         else if(check_status.type == 4 || check_status.type == 5){
+                            $(".check-error-p0").html("");
                             $(".check-error-p1").html("");
                             $(".check-error-p2").html(check_status.info);
                             $("#id_new_password2").focus();
@@ -277,11 +287,12 @@
                         $("#btn_change_password").removeClass("btn-change-password-lock");
                         return;
                     }
-                    
+
+                    $(".check-error-p0").html("");
                     $(".check-error-p1").html("");
                     $(".check-error-p2").html("");
                     $(".check-success").html("Now Saving......");
-                    $.post("${reverse('save_user_passwordold')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2}, 
+                    $.post("${reverse('save_user_passwordold')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
                         function(data) {
                             if (data.success) {
                                 $(".password-change-date-error").html("");
@@ -310,6 +321,7 @@
                                     $("#btn_change_password").removeClass("btn-change-password-lock");
                                     $(".check-success").html("");
                                     if(data.value.grouptype == 'error1'){
+                                        $(".check-error-p0").html("");
                                         if(data.value.type == 1 || data.value.type == 2 || data.value.type == 3){
                                             $(".check-error-p1").html(data.value.info);
                                             $(".check-error-p2").html("");
@@ -321,7 +333,14 @@
                                             $("#id_new_password2").focus();
                                         }
                                     }
+                                    else if(data.value.grouptype == 'error2'){
+                                        $(".check-error-p0").html(data.value.info);
+                                        $(".check-error-p1").html("");
+                                        $(".check-error-p2").html("");
+                                        $("#id_old_password").focus();
+                                    }
                                     else if(data.value.grouptype == 'error3'){
+                                        $(".check-error-p0").html("");
                                         $(".check-error-p1").html(data.value.info);
                                         $(".check-error-p2").html("");
                                         $("#id_new_password1").focus();
@@ -332,13 +351,19 @@
                 }
             });
 
-            function password_verify_local(psw1,psw2){
+            function password_verify_local(psw0,psw1,psw2){
                 var error_info = [{"type":200,"info":""},
                                   {"type":1,"info":"Please fill in new password."},
                                   {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
                                   {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
                                   {"type":4,"info":"Confirm password is required."},
-                                  {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
+                                  {"type":5,"info":"Your new and confirm password are different. Please enter again."},
+                                  {"type":6,"info":"Please fill in old password."}];
+                
+                if(psw0 == ""){
+                    return error_info[6];
+                }
+
                 if(psw1 == ""){
                     return error_info[1];
                 }
@@ -416,6 +441,11 @@
 
             <div>
                 <div style="margin-left:20px;width:400px;text-align:left;">
+                    <div class="form-row">
+                        <label for="id_old_password" class="required">Old Password:</label>
+                        <input type="password" name="old_password" id="id_old_password" maxlength="30">
+                        <div class="check-error-p0 error-info"></div>
+                    </div>
                     <div class="form-row">
                         <label for="id_new_password1" class="required">New Password:</label>
                         <input type="password" name="new_password1" id="id_new_password1" maxlength="16">
