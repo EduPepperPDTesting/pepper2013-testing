@@ -172,6 +172,7 @@ urlpatterns = (
     url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
     url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
     url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
+    url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
     
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29

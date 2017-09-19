@@ -258,7 +258,7 @@
                     var user_email = $("#id_new_password1").attr("user_email");
                     var psw1 = $("#id_new_password1").val().trim();
                     var psw2 = $("#id_new_password2").val().trim();
-
+                    
                     var check_status = {};
                     check_status = password_verify_local(psw1,psw2);
                     if(check_status.type != 200){
@@ -277,10 +277,11 @@
                         $("#btn_change_password").removeClass("btn-change-password-lock");
                         return;
                     }
+                    
                     $(".check-error-p1").html("");
                     $(".check-error-p2").html("");
                     $(".check-success").html("Now Saving......");
-                    $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post': psw2,'psw_change_date_save': 1}, 
+                    $.post("${reverse('save_user_passwordold')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2}, 
                         function(data) {
                             if (data.success) {
                                 $(".password-change-date-error").html("");
@@ -301,21 +302,29 @@
                                             $(".login-failed").html(login_failed_info);
                                         }
                                     }
-                                );
-                                
+                                ); 
                             }
                             else{
                                 window.setTimeout(function () { 
                                     change_psw_press = 0;
                                     $("#btn_change_password").removeClass("btn-change-password-lock");
-                                    if(data.ctype == 'error3'){
-                                        $(".check-success").html("");
-                                        $(".check-error-p1").html(data.value);
-                                        $("#id_new_password1").focus();
+                                    $(".check-success").html("");
+                                    if(data.value.grouptype == 'error1'){
+                                        if(data.value.type == 1 || data.value.type == 2 || data.value.type == 3){
+                                            $(".check-error-p1").html(data.value.info);
+                                            $(".check-error-p2").html("");
+                                            $("#id_new_password1").focus();
+                                        }
+                                        else{
+                                            $(".check-error-p1").html("");
+                                            $(".check-error-p2").html(data.value.info);
+                                            $("#id_new_password2").focus();
+                                        }
                                     }
-                                    else if(data.ctype == 'error0'){
-                                        $("#btn_change_password").removeClass("btn-change-password-lock");
-                                        $(".check-success").html(data.value);
+                                    else if(data.value.grouptype == 'error3'){
+                                        $(".check-error-p1").html(data.value.info);
+                                        $(".check-error-p2").html("");
+                                        $("#id_new_password1").focus();
                                     }
                                 }, 100);
                             }
@@ -341,8 +350,7 @@
                     var r = psw1.match(regexp);
                     if(r == null){
                          return error_info[3];
-                    }
-                        
+                    }     
                 }
                 if(psw2 == ""){
                     return error_info[4];
