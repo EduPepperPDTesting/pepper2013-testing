@@ -150,7 +150,7 @@ def save_user_password(request):
 		user_psw_confirm = request.POST.get('user_post_2')
 
 		# check the password and password_confirm format again
-		psw_format_check = password_format_check(user_psw, user_psw_confirm)
+		psw_format_check = password_format_check(user_psw, psw2=user_psw_confirm)
 		if psw_format_check['type'] != 200:
 			context['value'] = psw_format_check
 			return HttpResponse(json.dumps(context), content_type="application/json")
@@ -193,7 +193,7 @@ def save_user_password_checkold(request):
 			user_psw_old = ''
 
 		# check the password and password_confirm format again
-		psw_format_check = password_format_check(user_psw, user_psw_confirm)
+		psw_format_check = password_format_check(user_psw, psw2=user_psw_confirm)
 		if psw_format_check['type'] != 200:
 			context['value'] = psw_format_check
 			return HttpResponse(json.dumps(context), content_type="application/json")
@@ -226,7 +226,7 @@ def save_user_password_checkold(request):
 		context['success'] = True
 	return HttpResponse(json.dumps(context), content_type="application/json")
 
-def password_format_check(psw1, psw2):
+def password_format_check(psw1, **psw2):
 	error_info = [{"grouptype": "error1", "type": 200, "info": ""},
                   {"grouptype": "error1", "type": 1, "info": "Please fill in new password."},
                   {"grouptype": "error1", "type": 2, "info": "New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
@@ -235,25 +235,25 @@ def password_format_check(psw1, psw2):
                   {"grouptype": "error1", "type": 5, "info": "Your new and confirm password are different. Please enter again."}]
 
 	p1 = psw1.strip()
-	p2 = psw2.strip()
-
-	if not psw1:
+	if not p1:
 		return error_info[1]
 
 	if len(p1) < 8 or len(p1) > 16:
 		return error_info[2]
 
 	regexp = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$'
-	match_str = re.findall(regexp, psw1)
+	match_str = re.findall(regexp, p1)
 	if not match_str:
 		return error_info[3]
 
-	if not psw2:
-		return error_info[4]
+	for p in psw2:
+		p2 = psw2[p].strip()
+		if not p2:
+			return error_info[4]
 
-	if psw1 != psw2:
-		return error_info[5]
-
+		if p1 != p2:
+			return error_info[5]
+		break
 	return error_info[0]
 
 def user_authenticate(username, password, request):

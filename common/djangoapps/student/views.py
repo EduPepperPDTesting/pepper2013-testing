@@ -92,7 +92,7 @@ from organization.models import OrganizationMetadata, OrganizationDistricts, Org
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
-
+from administration.usage_report import password_format_check
 
 log = logging.getLogger("mitx.student")
 # log = logging.getLogger("tracking")
@@ -1124,6 +1124,12 @@ def create_account(request, post_override=None):
     # TODO: Confirm e-mail is not from a generic domain (mailinator, etc.)? Not sure if
     # this is a good idea
     # TODO: Check password is sane
+    
+    # @begin:check the password format
+    # @date:2017-09-20
+    
+    # @end
+
     required_post_vars = ['username', 'email', 'first_name', 'last_name', 'password', 'terms_of_service']     # 'honor_code'
     if tos_not_required:
         required_post_vars = ['username', 'email', 'first_name', 'last_name', 'password']  # 'honor_code'
