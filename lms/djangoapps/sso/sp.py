@@ -1,18 +1,16 @@
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from pytz import UTC
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import login, logout
 from django.utils.translation import ugettext as _
-from django.core.validators import validate_email, validate_slug, ValidationError
 import datetime
 import json
-import random
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
+from pepper_utilities.utils import random_mark
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from saml2.client import Saml2Client
 from cache import IdentityCache, OutstandingQueriesCache
-from saml2 import BINDING_HTTP_REDIRECT, BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 from saml2.config import SPConfig
 import copy
 from os import path
@@ -24,17 +22,22 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib import auth
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
-from mitxmako.shortcuts import render_to_response, render_to_string
-import time
-import calendar
+from student.models import SubjectArea, GradeLevel, YearsInEducation
+from mitxmako.shortcuts import render_to_response
 from student.views import upload_user_photo
 import idp_metadata as metadata
 import logging
-from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
 from django import db
 import requests
 import base64
+from student.models import District, School, State
+from django_future.csrf import ensure_csrf_cookie
+from django.core.validators import validate_email, validate_slug, ValidationError
+import random
+from .models import CourseAssignmentCourse
+from util import saml_django_response
+
 
 # *Guess the xmlsec_path
 try:
@@ -49,102 +52,21 @@ else:
 
 SSO_DIR = settings.PROJECT_HOME + "/sso"
 BASEDIR = SSO_DIR + "/idp"
+LMS_BASE = settings.LMS_BASE
 
-log = logging.getLogger("tracking")
-
-
-@csrf_exempt
-def genericsso(request):
-    '''Assertion consume service (acs) of pepper'''
-
-    log.debug("===== genericsso: receiving a token =====")
-
-    # Both POST and GET method are supported to get IDP name
-    idp_name = request.REQUEST.get('idp', '')
-
-    request.session['idp'] = idp_name
-
-    if idp_name == '':
-        raise Exception("error: No IDP name passed")
-        # log.error("error: No IDP name passed")
-        # raise Http404()
-
-    metadata_setting = metadata.idp_by_name(idp_name)
-
-    if metadata_setting is None:
-        raise Exception("error: Unkonwn IDP")
-        # log.error("error: Unkonwn IDP")
-        # raise Http404()
-    
-    # Call different type of ACS seperatly
-    if metadata_setting.get('sso_type') == 'SAML':
-        log.debug("message: it's SAML")
-        return saml_acs(request, idp_name, metadata_setting)
-    elif metadata_setting.get('sso_type') == 'OAuth2':
-        return oauth2_acs(request, idp_name, metadata_setting)
+log = logging.getLogger("audit")
 
 
 def flat_dict(var, prefix=""):
     out = {}
-    if isinstance(var,dict):
-        for k,v in var.items():
-            p = (prefix+".") if prefix else ""
-            out.update(flat_dict(v, p+k))
+    if isinstance(var, dict):
+        for k, v in var.items():
+            p = (prefix + ".") if prefix else ""
+            out.update(flat_dict(v, p + k))
     else:
         out[prefix] = var
 
     return out
-
-
-def oauth2_acs(request, idp_name, ms):
-    request_token_url = ms.get('typed').get("oauth2_request_token_url")
-    client_id = ms.get('typed').get("oauth2_client_id")
-    client_secret = ms.get('typed').get("oauth2_client_secret")
-    redirect_url = ms.get('typed').get("oauth2_redirect_url")
-
-    basic = base64.b64encode(client_id + ":" + client_secret)
-    headers = {'Authorization': "Basic " + basic, 'Content-Type': 'application/x-www-form-urlencoded'}
-
-    try:
-        req = requests.request('POST', request_token_url,
-                               data={'code': request.GET.get('code'),
-                                     'grant_type': 'authorization_code',
-                                     'redirect_uri': redirect_url}, timeout=15,
-                               headers=headers)
-
-        content = json.loads(req.text)
-
-        me_url = ms.get('typed').get("oauth2_me_url")
-        api_url = ms.get('typed').get("oauth2_api_url")
-        # tokeninfo_url = ms.get('typed').get("oauth2_tokeninfo_url")
-        
-        # -----------------------
-        # req = requests.request('GET', tokeninfo_url, timeout=15,
-        #                        headers={'Authorization': 'Bearer '+content.get('access_token')})
-        # # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
-        # print req.text
-        # tokeninfo = json.loads(req.text)
-        
-        # -----------------------
-        req = requests.request('GET', api_url+me_url, timeout=15,
-                               headers={'Authorization': 'Bearer '+content.get('access_token')})
-        me = json.loads(req.text)
-        
-        # -----------------------
-        profile_url = ""
-        for link in me.get("links"):
-            if link["rel"] == "canonical":
-                profile_url = link["uri"]
-
-        req = requests.request('GET', api_url+profile_url, timeout=15,
-                               headers={'Authorization': 'Bearer '+content.get('access_token')})
-
-        profile = json.loads(req.text)
-    except Exception as e:
-        return HttpResponse(str(e))
-    
-    data = flat_dict(profile)
-    return post_acs(request, ms, data)
 
 
 def map_data(setting, data):
@@ -156,19 +78,37 @@ def map_data(setting, data):
     return parsed_data
 
 
-def saml_acs(request, idp_name, ms):
-    '''SAML ACS'''
+def https_redirect(request, url):
+    '''Force redirect to a https address'''
+    absolute_URL = request.build_absolute_uri(url)
+    new_URL = "https%s" % absolute_URL[4:]
+    return HttpResponseRedirect(new_URL)
 
-    xmlstr = request.POST.get("SAMLResponse")
 
+def login_error(message):
+    error_context = {'window_title': 'Login Error',
+                     'error_title': 'Login Error',
+                     'error_message': message,
+                     'contact_info': ''}
+    return render_to_response('error.html', error_context)
+
+
+@csrf_exempt
+def genericsso(request):
+    """Assertion consume service (acs) of pepper"""
+    sso_process = GenericSSO(request)
+    return sso_process.acs_processor()
+
+
+def get_sp_conf(idp_name):
     # Create setting before call pysaml2 method for current IDP
     # Refer to: https://pythonhosted.org/pysaml2/howto/config.html
-    setting = {
+    return {
         "allow_unknown_attributes": True,
         # full path to the xmlsec1 binary programm
         'xmlsec_binary': xmlsec_path,
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': 'PCG:PepperPD:Entity:ID',
+        'entityid': settings.SAML_ENTITY_ID,  # 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
         'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
         # this block states what services we provide
@@ -176,23 +116,24 @@ def saml_acs(request, idp_name, ms):
             # we are just a lonely SP
             'sp': {
                 "allow_unsolicited": True,
-                'name': 'Federated Django sample SP',
+                'name': 'PepperPD',
                 'name_id_format': saml.NAMEID_FORMAT_PERSISTENT,
                 'endpoints': {
-                    # url and binding to the assetion consumer service view
+                    # url and binding to the assertion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        ('https://59.45.37.54/genericsso/', saml2.BINDING_HTTP_POST),
-                        ],
+                        ('https://{0}/genericsso/'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
+                    ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
-                        ('https://59.45.37.54/saml2/ls/', saml2.BINDING_HTTP_REDIRECT),
-                        ('https://59.45.37.54/saml2/ls/post', saml2.BINDING_HTTP_POST),
-                      ]
-                    },
+                        # ('https://{0}/saml2/ls/'.format(LMS_BASE), saml2.BINDING_HTTP_REDIRECT),
+                        # ('https://{0}/saml2/ls/post'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
+                        settings.SAML_ENTITY_ID,  # sp's entity id
+                    ]
+                },
                 # attributes that this project need to identify a user
-                'required_attributes': ['uid'],
+                'required_attributes': ['email'],
                 # attributes that may be useful to have but not required
                 'optional_attributes': ['eduPersonAffiliation'],
                 # in this section the list of IdPs we talk to are defined
@@ -209,15 +150,15 @@ def saml_acs(request, idp_name, ms):
                     #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SingleLogoutService.php',
                     #         },
                     #     },
-                    },
                 },
             },
+        },
         # where the remote metadata is stored
         'metadata': {
             'local': [
                 path.join(BASEDIR, idp_name, 'FederationMetadata.xml')
-                ],
-            },
+            ],
+        },
         # set to 1 to output debugging information
         'debug': 1,
         # ===  CERTIFICATE ===
@@ -226,7 +167,7 @@ def saml_acs(request, idp_name, ms):
         # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
         # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
         # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part        
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part
         # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
@@ -249,147 +190,462 @@ def saml_acs(request, idp_name, ms):
         'valid_for': 24,  # how long is our metadata valid
     }
 
-    #** load IDP config and parse the saml response
-    conf = SPConfig()
-    conf.load(copy.deepcopy(setting))
 
-    client = Saml2Client(conf, identity_cache=IdentityCache(request.session))
-    oq_cache = OutstandingQueriesCache(request.session)
-    outstanding_queries = oq_cache.outstanding_queries()
-
-    response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
-    session_info = response.session_info()
-
-    # print session_info['issuer']
-
-    # Parse ava (received attributes) as dict
-    data = {}
-    for k, v in session_info['ava'].items():
-        data[k] = v[0]
-    
-    return post_acs(request,  ms, data)
-
-
-def post_acs(request, ms, data):
-    # Fetch email
-    attribute_setting = ms.get('attributes')
+class GenericSSO:
+    request = None
+    sso_type = ''
+    idp_name = ''
+    token = ''
+    url = ''
+    metadata_setting = {}
+    acs_processor = None
+    data = None
     parsed_data = {}
+    user = None
 
-    for attr in attribute_setting:
-        mapped_name = attr['map'] if 'map' in attr else attr['name']
-        if attr['name']:
-            parsed_data[mapped_name] = data.get(attr['name'])    
-    
-    email = parsed_data.get('email')
+    def __init__(self, request):
+        log.debug("===== genericsso: receiving a token =====")
+        self.request = request
 
-    users = User.objects.filter(email=email)
+        # Both POST and GET method are supported to get IDP name
+        self.idp_name = request.REQUEST.get('idp', False)
+        self.token = request.GET.get('easyieptoken', False)
+        self.url = request.GET.get('auth_link', False)
 
-    if users.exists():
-        user = users.all()[0]
-        if not user.is_active:
-            registration = Registration.objects.get(user_id=user.id)
-            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
+        if not self.idp_name and not self.token:
+            raise Exception("error: No IDP name passed")
+        elif not self.idp_name and self.token:
+            self.idp_name = 'EasyIEP'
+            self.sso_type = 'EasyIEP'
+
+        if self.idp_name == 'EasyIEP':
+            self.acs_processor = self.easyiep_acs
         else:
-            user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
-            auth.login(request, user)
-            return https_redirect(request, "/dashboard")
-    else:
-        return create_unknown_user(request, ms, data)
+            self.metadata_setting = metadata.idp_by_name(self.idp_name)
 
-    
-def https_redirect(request, url):
-    '''Force redirect to a https address'''
-    absolute_URL = request.build_absolute_uri(url)
-    new_URL = "https%s" % absolute_URL[4:]
-    return HttpResponseRedirect(new_URL)
+            if self.metadata_setting is None:
+                raise Exception("error: Unknown IDP")
 
+            # Call different type of ACS separately
+            self.sso_type = self.metadata_setting.get('sso_type')
+            if self.sso_type == 'SAML':
+                log.debug("message: it's SAML")
+                self.acs_processor = self.saml_acs
+            elif self.sso_type == 'OAuth2':
+                self.acs_processor = self.oauth2_acs
+            else:
+                raise Exception("error: No SSO Type set.")
 
-def random_mark(length):
-    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
+    def easyiep_acs(self):
+        debug = self.request.GET.get('debug', False)
+        # request json
+        data = {'token': self.token}
+        try:
+            response = requests.request('post', self.url, data=data, timeout=15)
+            text = response.text
+        except Exception as e:
+            log.warning(u"There was an EasyIEP SSO login error: {0}.".format(e))
+            return login_error('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
+        if debug == 'true':
+            return HttpResponse(text)
 
-def create_unknown_user(request, ms, data):
-    '''Create the sso user who\'s not exists in pepper'''
+        # parse json
+        parsed = json.loads(text)
 
-    try:
-        attribute_setting = ms.get('attributes')
-        
-        # Parse to mapped attribute
-        parsed_data = {}
+        sso_error = parsed.get('lErrors')
+        if sso_error:
+            log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                        .format("EasyIEP returned an error", text))
+            return login_error('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        self.data = parsed.get('User')
+
+        sso_id = self.data.get('idp_user_id', '')
+        # sso_email = self.data.get('Email', '')
+        sso_usercode = self.data.get('UserCode', '')
+        self.data['Unique'] = str(sso_usercode) + '--' + str(sso_id)
+        self.data['UserName'] = "EasyIEP{0}".format(random.randint(10000000000, 99999999999))
+
+        if not self.data:
+            log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                        .format("No SSO User loaded", text))
+            return login_error('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        self.request.session['idp'] = sso_usercode
+
+        return self.post_acs()
+
+        # try:
+        #     validate_email(sso_email)
+        # except ValidationError as e:
+        #     log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+        #                 .format(e, text))
+        #     return login_error('''The supplied email is invalid. Please contact support at
+        #         <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        # try:
+        #     profile = UserProfile.objects.get(sso_type='EasyIEP', sso_id=sso_unique)
+        #     user = profile.user
+        # except UserProfile.DoesNotExist:
+        #     user = None
+        #
+        # if not user:
+        #     try:
+        #         username = "EasyIEP{0}".format(random.randint(10000000000, 99999999999))
+        #
+        #         # user
+        #         user = User(username=username, email=sso_email, is_active=False)
+        #         user.save()
+        #
+        #         # registration
+        #         registration = Registration()
+        #         registration.register(user)
+        #
+        #         # profile
+        #         profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_unique)
+        #         profile.save()
+        #
+        #         # update user
+        #         self.update_sso_usr(user, profile, parsed)
+        #
+        #         # allow courses
+        #         cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=sso_email)
+        #         cea.is_active = True
+        #         cea.auto_enroll = True
+        #         cea.save()
+        #
+        #         # add courses above (cause user will not finish registration himself to trigger auto course enroll)
+        #         CourseEnrollment.enroll(user, 'PCG_Education/PEP101.1/S2016')
+        #
+        #     except Exception as e:
+        #         db.transaction.rollback()
+        #         log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+        #                     .format(e, text))
+        #         return login_error('''An error occurred while creating your user, please contact support at
+        #             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        #
+        #     return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+        #
+        # elif not user.is_active:
+        #     try:
+        #         self.update_sso_usr(user, user.profile, parsed)
+        #     except Exception as e:
+        #         db.transaction.rollback()
+        #         log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+        #                     .format(e, text))
+        #         return login_error('''An error occurred while updating your user, please contact support at
+        #             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        #     registration = Registration.objects.get(user_id=user.id)
+        #     return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+        # else:
+        #     # update user
+        #     try:
+        #         # update_sso_usr(user, parsed, False)
+        #         pass
+        #     except Exception as e:
+        #         db.transaction.rollback()
+        #         log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+        #                     .format(e, text))
+        #         return login_error('''An error occurred while updating your user, please contact support at
+        #             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        #
+        # user.backend = 'django.contrib.auth.backends.ModelBackend'
+        # user = authenticate(username=post_vars['username'], password=post_vars['password'])
+        # login(self.request, user)
+        # return redirect(reverse('dashboard'))
+        # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
+
+    def oauth2_acs(self):
+        request_token_url = self.metadata_setting.get('typed').get("oauth2_request_token_url")
+        client_id = self.metadata_setting.get('typed').get("oauth2_client_id")
+        client_secret = self.metadata_setting.get('typed').get("oauth2_client_secret")
+        redirect_url = self.metadata_setting.get('typed').get("oauth2_redirect_url")
+
+        basic = base64.b64encode(client_id + ":" + client_secret)
+        headers = {'Authorization': "Basic " + basic, 'Content-Type': 'application/x-www-form-urlencoded'}
+
+        try:
+            req = requests.request('POST', request_token_url,
+                                   data={'code': self.request.GET.get('code'),
+                                         'grant_type': 'authorization_code',
+                                         'redirect_uri': redirect_url}, timeout=15,
+                                   headers=headers)
+
+            content = json.loads(req.text)
+
+            me_url = self.metadata_setting.get('typed').get("oauth2_me_url")
+            api_url = self.metadata_setting.get('typed').get("oauth2_api_url")
+            # tokeninfo_url = self.metadata_setting.get('typed').get("oauth2_tokeninfo_url")
+
+            # -----------------------
+            # req = requests.request('GET', tokeninfo_url, timeout=15,
+            #                        headers={'Authorization': 'Bearer '+content.get('access_token')})
+            # # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
+            # print req.text
+            # tokeninfo = json.loads(req.text)
+
+            # -----------------------
+            req = requests.request('GET', api_url + me_url, timeout=15,
+                                   headers={'Authorization': 'Bearer ' + content.get('access_token')})
+            me = json.loads(req.text)
+
+            # -----------------------
+            profile_url = ""
+            for link in me.get("links"):
+                if link["rel"] == "canonical":
+                    profile_url = link["uri"]
+
+            req = requests.request('GET', api_url + profile_url, timeout=15,
+                                   headers={'Authorization': 'Bearer ' + content.get('access_token')})
+
+            profile = json.loads(req.text)
+        except Exception as e:
+            return HttpResponse(str(e))
+
+        self.data = flat_dict(profile)
+        return self.post_acs()
+
+    def saml_acs(self):
+        '''SAML ACS'''
+
+        xmlstr = self.request.REQUEST.get("SAMLResponse")
+
+        # ** load IDP config and parse the saml response
+        conf = SPConfig()
+        conf.load(copy.deepcopy(get_sp_conf(self.idp_name)))
+
+        SP = Saml2Client(conf, identity_cache=IdentityCache(self.request.session))
+        oq_cache = OutstandingQueriesCache(self.request.session)
+        outstanding_queries = oq_cache.outstanding_queries()
+
+        response = SP.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
+        if not response:
+            response = SP.parse_authn_request_response(xmlstr, BINDING_HTTP_REDIRECT, outstanding_queries)
+            
+        session_info = response.session_info()
+
+        # Parse ava (received attributes) as dict
+        self.data = {}
+        for k, v in session_info['ava'].items():
+            self.data[k] = v[0]
+
+        return self.post_acs()
+
+    def post_acs(self):
+        # Fetch attributes
+        if self.sso_type == 'EasyIEP':
+            attribute_setting = [{'map': 'email', 'name': 'Email'},
+                                 {'map': 'idp_user_id', 'name': 'Unique'},
+                                 {'map': 'username', 'name': 'UserName'}]
+        else:
+            attribute_setting = self.metadata_setting.get('attributes')
+
         for attr in attribute_setting:
             mapped_name = attr['map'] if 'map' in attr else attr['name']
             if attr['name']:
-                parsed_data[mapped_name] = data.get(attr['name'])
+                self.parsed_data[mapped_name] = self.data.get(attr['name'])
 
-        print attribute_setting
-        print data
-        print parsed_data
+        idp_user_id = self.parsed_data.get('idp_user_id', False)
+        email = self.parsed_data.get('email', False)
+ 
+        if email:
+            try:
+                self.user = User.objects.get(email=email)
+                # self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=idp_user_id,
+                #                                                                      sso_type=self.sso_type,
+                #                                                                      sso_idp=self.idp_name)
+            except:
+                self.create_unknown_user()
 
-        # Generate username if not provided
-        if not parsed_data.get('username'):
-            username = random_mark(20)
+            # self.user = User.objects.get(id=self.user.id)
+            
+            self.update_user()
+
+            if not self.user.is_active:
+                registration = Registration.objects.get(user_id=self.user.id)
+                if self.sso_type == 'EasyIEP':
+                    return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+                return redirect(reverse('register_sso_user', args=[registration.activation_key]))
+            else:
+                self.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+                auth.login(self.request, self.user)
+                return redirect(reverse("dashboard"))
         else:
-            username = parsed_data['username']
+            raise Exception('Invalid Email')
 
-        # Email must be profided
-        email = parsed_data['email']
-
-        user = User(username=username, email=email, is_active=False)
-        user.set_password(username)  # Set password the same with username
-        user.save()
-
-        registration = Registration()
-        registration.register(user)
-
-        profile = UserProfile(user=user)
-        profile.subscription_status = "Imported"
-        profile.sso_type = ms.get('sso_type')
-        profile.sso_idp = ms.get('sso_name')
-
+    
+    def update_user(self):
         # Save mapped attributes
-        for k, v in parsed_data.items():
+        for k, v in self.parsed_data.items():
             if k == 'first_name':
-                user.first_name = parsed_data['first_name']
+                self.user.first_name = self.parsed_data['first_name']
             elif k == 'last_name':
-                user.last_name = parsed_data['last_name']
-            elif k == 'sso_user_id':
-                profile.sso_user_id = parsed_data['sso_user_id']
+                self.user.last_name = self.parsed_data['last_name']
+            elif k == 'email':
+                self.user.email = self.parsed_data['email']
             elif k == 'district':
-                profile.district = District.object.get(name=parsed_data['district'])
+                self.user.profile.district = District.objects.get(name=self.parsed_data['district'])
             elif k == 'school':
-                profile.school = School.object.get(name=parsed_data['school'])
+                self.user.profile.school = School.objects.get(name=self.parsed_data['school'])
             elif k == 'grade_level':
-                ids = GradeLevel.object.filter(name__in=parsed_data['grade_level'].split(',')).values_list('id', flat=True)
-                profile.grade_level = ','.join(ids)
+                ids = GradeLevel.objects.filter(name__in=self.parsed_data['grade_level'].split(',')).values_list(
+                    'id', flat=True)
+                self.user.profile.grade_level = ','.join(ids)
             elif k == 'major_subject_area':
-                ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list('id', flat=True)
-                profile.major_subject_area = ','.join(ids)
+                ids = SubjectArea.objects.filter(name__in=self.parsed_data['major_subject_area'].split(',')).values_list(
+                    'id', flat=True)
+                self.user.profile.major_subject_area = ','.join(ids)
             elif k == 'years_in_education':
-                profile.years_in_education = YearsInEducation.object.get(name=parsed_data['years_in_education'])
+                self.user.profile.years_in_education = YearsInEducation.objects.get(
+                    name=self.parsed_data['years_in_education'])
             elif k == 'percent_lunch':
-                profile.percent_lunch = Enum.object.get(name='percent_lunch', content=parsed_data['percent_lunch'])
+                self.user.profile.percent_lunch = Enum.objects.get(name='percent_lunch',
+                                                                   content=self.parsed_data['percent_lunch'])
             elif k == 'percent_iep':
-                profile.percent_iep = Enum.object.get(name='percent_iep', content=parsed_data['percent_iep'])
+                self.user.profile.percent_iep = Enum.objects.get(name='percent_iep',
+                                                                 content=self.parsed_data['percent_iep'])
             elif k == 'percent_eng_learner':
-                profile.percent_eng_learner = Enum.object.get(name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
+                self.user.profile.percent_eng_learner = Enum.objects.get(
+                    name='percent_eng_learner', content=self.parsed_data['percent_eng_learner'])
 
+            self.user.profile.sso_type = self.sso_type
+            self.user.profile.sso_idp = self.idp_name
+            self.user.profile.sso_user_id = self.parsed_data.get('idp_user_id')
+
+            self.user.save()
+            self.user.profile.save()
+
+    def create_unknown_user(self):
+        """Create the sso user who does not exist in pepper"""
+
+        try:
+            # Generate username if not provided
+            if not self.parsed_data.get('username'):
+                username = random_mark(20)
+            else:
+                username = self.parsed_data['username']
+
+            # Email must be provided
+            email = self.parsed_data['email']
+
+            self.user = User(username=username, email=email, is_active=False)
+            self.user.set_password(username)  # Set password the same with username
+            self.user.save()
+
+            registration = Registration()
+            registration.register(self.user)
+
+            self.user.profile = UserProfile(user=self.user)
+            self.user.profile.subscription_status = "Imported"
+
+            self.update_user()
+
+            courses = []
+            try:
+                cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user.profile.sso_idp)
+                for course in cas:
+                    courses.append(course.course)
+            except:
+                pass
+            for course in courses:
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=course, email=email)
+                cea.is_active = True
+                cea.auto_enroll = True
+                cea.save()
+
+            if self.sso_type == 'EasyIEP':
+                return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+            return redirect(reverse('register_sso_user', args=[registration.activation_key]))
+
+        except Exception as e:
+            db.transaction.rollback()
+            log.error("error: failed to create SSO user: {0}".format(e))
+            raise e
+
+    def update_sso_usr(self, user, profile, parsed):
+        sso_user = json.get('User')
+        sso_id = sso_user.get('idp_user_id', '')
+        sso_district_code = json.get('SchoolSystemCode')
+        sso_email = sso_user.get('Email', '')
+        sso_usercode = sso_user.get('UserCode', '')
+        sso_unique = str(sso_usercode) + '--' + str(sso_id)
+
+        try:
+            sso_state = State.objects.get(name=json.get('State'))
+        except State.DoesNotExist as e:
+            log.warning(u"There was an EasyIEP SSO login error: {0}."
+                              .format(e))
+            return login_error('''An error occurred while updating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        try:
+            validate_email(sso_email)
+        except ValidationError as e:
+            log.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, json))
+            return login_error('''The supplied email is invalid. Please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        # user
+        user.set_password('EasyIEPSSO')
+        user.email = sso_email
+        # if update_first_name:
+        #     user.first_name = sso_user.get('FirstName', '')
+        # user.last_name = sso_user.get('LastName', '')
         user.save()
+
+        # district
+        # profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
+
+        # school
+        # safe_state = re.sub(' ', '', sso_state.name)
+        # multi_school_id = 'pepper' + safe_state + str(sso_district_code)
+        # if len(sso_user['SchoolCodes']) == 1:
+        #     try:
+        #         school = School.objects.get(code=sso_user['SchoolCodes'][0], district=profile.district.id)
+        #     except School.DoesNotExist:
+        #         school = School.objects.get(code=multi_school_id)
+        # else:
+        #     school = School.objects.get(code=multi_school_id)
+
+        # profile.school = school
+
+        # unique ID for our records
+        profile.sso_idp = sso_unique
+
+        # save
         profile.save()
 
-        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
-        cea.is_active = True
-        cea.auto_enroll = True
-        cea.save()
-        return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
-    except Exception as e:
-        raise e
-        db.transaction.rollback()
-        log.error("error: failed to create SSO user: %s" % e)
+@ensure_csrf_cookie
+def register_user_easyiep(request, activation_key):
+    from django.core.exceptions import ObjectDoesNotExist
+    try:
+        registration = Registration.objects.get(activation_key=activation_key)
+    except ObjectDoesNotExist:
+        error_context = {'window_title': 'Missing Account',
+                         'error_title': 'Missing Account',
+                         'error_message': "You do not have access to Pepper, please contact support at <a href='mailto:helpdesk@pepperpd.com'>helpdesk@pepperpd.com</a>.",
+                         'contact_info': ''}
+        return render_to_response('error.html', error_context)
+    
+    user_id = registration.user_id
+    profile = UserProfile.objects.get(user_id=user_id)
+
+    context = {
+        'profile': profile,
+        'activation_key': activation_key
+    }
+
+    return render_to_response('register_easyiep.html', context)
 
 
 def register_sso(request, activation_key):
-    '''Register page for not acitved sso auto created user.'''
+    '''Register page for non-activated sso auto created user.'''
     registration = Registration.objects.get(activation_key=activation_key)
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
@@ -411,15 +667,15 @@ def register_sso(request, activation_key):
 
 
 def activate_account(request):
-    '''Process posted data from registeration form'''
+    '''Process posted data from registration form'''
     vars = request.POST
 
-    #** fetch user by activation_key
+    # ** fetch user by activation_key
     registration = Registration.objects.get(activation_key=vars.get('activation_key', ''))
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
-    #** validate username
+    # ** validate username
     try:
         validate_slug(vars['username'])
     except ValidationError:
@@ -428,14 +684,15 @@ def activate_account(request):
         js['field'] = 'username'
         return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate if user exists
+    # ** validate if user exists
     if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
         js = {'success': False}
-        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
+        js['value'] = _("An account with the Public Username '{username}' already exists.").format(
+            username=vars['username'])
         js['field'] = 'username'
         return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate fields
+    # ** validate fields
     required_post_vars_dropdown = [
         'first_name',
         'last_name',
@@ -469,7 +726,7 @@ def activate_account(request):
             js['field'] = a
             return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate terms_of_service
+    # ** validate terms_of_service
     if vars.get('terms_of_service', 'false') != u'true':
         js = {'success': False}
         js['value'] = _("You must accept the terms of service.")
@@ -477,14 +734,14 @@ def activate_account(request):
         return HttpResponse(json.dumps(js), content_type="application/json")
 
     try:
-        #** update user
+        # ** update user
         profile.user.username = vars.get('username', '')
         profile.user.first_name = vars.get('first_name', '')
         profile.user.last_name = vars.get('last_name', '')
         profile.user.is_active = True
         profile.user.save()
 
-        #** update profile
+        # ** update profile
         profile.district_id = vars.get('district_id', '')
         profile.school_id = vars.get('school_id', '')
         profile.subscription_status = 'Registered'
@@ -498,24 +755,78 @@ def activate_account(request):
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
 
-        #** upload photo
+        # ** upload photo
         photo = request.FILES.get("photo")
         upload_user_photo(profile.user.id, photo)
 
-        #** auto enroll courses
+        # ** auto enroll courses
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-        
+
         js = {'success': True}
     except Exception as e:
         transaction.rollback()
         js = {'success': False}
         js['error'] = "%s" % e
 
-    #** log the user in
+    # ** log the user in
     profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, profile.user)
 
     return HttpResponse(json.dumps(js), content_type="application/json")
+
+
+@csrf_exempt
+def slo_request_receive(request):    
+    """
+    Receive a saml slo request (from IDP)
+    """
+    # ** todo: is it possible to get idp name just from saml request body?
+    # ** by: idp_name = req_info.issuer.text
+    # ** but we need to parse_logout_request at first
+    # ** that requires idp's FederationMetadata.xml
+    # ** so we need to know idp's name before that
+    idp_name = request.REQUEST.get("idp")
+    relay_state = request.REQUEST.get("RelayState")
+    saml_request = request.REQUEST.get("SAMLResponse")
+    saml_setting = {
+        'entityid': settings.SAML_ENTITY_ID,  # sp's entity id
+        'service': {
+            'sp': {
+                'endpoints': {
+                    'single_logout_service': [
+                        settings.SAML_ENTITY_ID  # sp's entity id
+                    ]
+                }
+            }
+        },
+        'metadata': {
+            'local': [
+                path.join(BASEDIR, idp_name, 'FederationMetadata.xml')  # metadata of idp
+            ]
+        },
+        # 'valid_for': 24,  # how long is our metadata valid
+    }
+
+    conf = SPConfig()
+    conf.load(copy.deepcopy(saml_setting))
+
+    SP = Saml2Client(conf, identity_cache=IdentityCache(request.session))
+    binding, destination = SP.pick_binding("single_logout_service", entity_id=idp_name)
+    req_info = SP.parse_logout_request(saml_request, binding)
+
+    if request.user.is_authenticated() and request.user.email == req_info.message.name_id.text:
+        logout(request)
+    
+    saml_response = SP.create_logout_response(req_info.message, [binding])
+
+    http_args = SP.apply_binding(
+        binding=binding,
+        msg_str=saml_response,
+        destination=destination,
+        relay_state=relay_state,
+        response=True)
+    
+    return saml_django_response(binding, http_args)
