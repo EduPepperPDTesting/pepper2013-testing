@@ -225,41 +225,46 @@ from baseinfo.models import Enum
           </li>
           <li class="field required text" id="field-name">
             <label for="state_id">${_('State')}</label>
-            %if profile.district_id:
-            <span id="organization_info_state">${profile.district.state.name}</span>
-            %else:
             <select name="state_id" autocomplete="off">
               <option value="">--</option>
               %for item in State.objects.all().order_by('name'):
-              <option value="${item.id}">${item.name}</option>
+                %if profile.district_id:
+                  %if item.name == profile.district.state.name:
+                    <option value="${item.id}" selected="selected">${item.name}</option>
+                  %else:
+                    <option value="${item.id}">${item.name}</option>
+                  %endif
+                %else:
+                  <option value="${item.id}">${item.name}</option>
+                %endif
               %endfor
             </select>
-            %endif
           </li>
           <li class="field required text" id="field-name">
-            <label for="district_id">${_('District')}</label>
-            %if profile.district_id:
-            <span id="organization_info_district">${profile.district.name}</span>
-            %else:            
+            <label for="district_id">${_('District')}</label>      
             <select name="district_id" autocomplete="off">
               <option value="">--</option>
+              %if profile.district_id:
+                %for item in District.objects.filter(state=profile.district.state).order_by('name'):
+                  %if item.name == profile.district.name:
+                    <option value="${item.id}" selected="selected">${item.name}</option>
+                  %else:
+                    <option value="${item.id}">${item.name}</option>
+                  %endif
+                %endfor
+              %endif
             </select>
-            %endif
           </li>
           <li class="field required text" id="field-name">
             <label for="school_id">${_('School')}</label>
-            %if profile.district_id:
             <select autocomplete="off" id="school_id" name="school_id">
               <option value="">--</option>
-              %for item in School.objects.filter(district=profile.district).order_by('name'):
-              <option value="${item.id}">${item.name}</option>
-              %endfor
-            </select>            
-            %else:
-            <select autocomplete="off" id="school_id" name="school_id">
-              <option value="">--</option>
+              %if profile.district_id:
+                %for item in School.objects.filter(district=profile.district).order_by('name'):
+                  <option value="${item.id}">${item.name}</option>
+                %endfor
+              %endif
             </select>
-            %endif
           </li>
           <li class="field required text" id="field-name">
             <label for="major_subject_area_id">${_('Major Subject Area')}</label>
