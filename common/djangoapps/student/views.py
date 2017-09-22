@@ -82,17 +82,17 @@ from reporting.models import reporting_store
 from administration.models import UserLoginInfo
 from datetime import timedelta
 
-#@begin:Add for Dashboard Posts
-#@date:2016-12-29
+# @begin:Add for Dashboard Posts
+# @date:2016-12-29
 from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
-#@end
+# @end
 
 from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
-
+from administration.usage_report import password_format_check
 
 log = logging.getLogger("mitx.student")
 # log = logging.getLogger("tracking")
@@ -854,7 +854,7 @@ def login_user(request, error=""):
         if user_log_info:
             if user_log_info[0].password_change_date:
                 password_change_time_diff = datetime.datetime.utcnow() - datetime.datetime.strptime(user_log_info[0].password_change_date, '%Y-%m-%d %H:%M:%S')
-                if int(password_change_time_diff.total_seconds()) > 3600 * 3: # 3600 * 24 * 30 * 6
+                if int(password_change_time_diff.total_seconds()) > 3600 * 24 * 30 * 6: # 3600 * 24 * 30 * 6
                     return HttpResponse(json.dumps({'success': False,
                                                     'value': _('Your password has expired. Please enter a new password.'),
                                                     'user_id': user.id,
@@ -1124,6 +1124,16 @@ def create_account(request, post_override=None):
     # TODO: Confirm e-mail is not from a generic domain (mailinator, etc.)? Not sure if
     # this is a good idea
     # TODO: Check password is sane
+    
+    # @begin:check the password format
+    # @date:2017-09-20
+    psw_format_check = password_format_check(post_vars['password'])
+    if psw_format_check['type'] != 200:
+        js['value'] = psw_format_check['info']
+        js['field'] = 'password'
+        return HttpResponse(json.dumps(js))
+    # @end
+
     required_post_vars = ['username', 'email', 'first_name', 'last_name', 'password', 'terms_of_service']     # 'honor_code'
     if tos_not_required:
         required_post_vars = ['username', 'email', 'first_name', 'last_name', 'password']  # 'honor_code'

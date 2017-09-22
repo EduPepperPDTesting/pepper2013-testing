@@ -284,7 +284,7 @@
                                     <td></td>
                                     <td></td>
                                     <td class="td_center"><input type="checkbox" child_check="org_dataitems_profile_1" class="org_parent_menu" /></td>
-                                    <td class="td_center"><input type="checkbox" child_check="org_dataitems_profile_2" class="org_parent_menu" /></td>
+                                    <td class="td_center"><!--<input type="checkbox" child_check="org_dataitems_profile_2" class="org_parent_menu" />--></td>
                                     <td><input type="checkbox" child_check="org_dataitems_profile_3" class="org_parent_menu" /></td>
                                 </tr>
                             </tbody>
@@ -2494,22 +2494,26 @@
 				var tmp_id = (tmp_json.hasOwnProperty("_id")) ? tmp_json["_id"] : ("_id" + Math.round(Math.random() * 10000000000));
 				
 				tmp_item += "<td><span class='org_table_menu_child1 org_dataitems_profile' _id='" + tmp_id + "' sn='" + tmp_sn + "'>" + tmp_json["name"] + "</span></td>";
-				tmp_item += "<td class='td_center org_dataitems_profile_description'>" + tmp_description + "</td>";
+				tmp_item += "<td class='org_dataitems_profile_description'>" + tmp_description + "</td>";
 				if(tmp_json["default"] && tmp_json["default"] != ""){
 					tmp_item += "<td></td>";
 				}else{
-					tmp_item += "<td class='td_center'>" + profileFieldType + " <span class='profileFieldType_add'>+</span></td>";
+					tmp_item += "<td>" + profileFieldType + " <span class='profileFieldType_add'>+</span></td>";
 				}
 				tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_1' class='org_child_menu' " + tmp_required + " /></td>";
-				tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_2' class='org_child_menu' " + tmp_course + " /></td>";
-				tmp_item += "<td>";				
 				if(tmp_json["default"] && tmp_json["default"] != ""){
 					if(tmp_json["default_visible"] && tmp_json["default_visible"] == "1"){
+						tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_2' class='org_child_menu' disabled='true' /></td>";
+						tmp_item += "<td>";				
 						tmp_item += "<a href='javascript:void(0)' class='org_child_disable org_child_enable'></a>";
 					}else{
+						tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_2' class='org_child_menu' " + tmp_course + " /></td>";
+						tmp_item += "<td>";				
 						tmp_item += "<a href='javascript:void(0)' class='org_child_disable'></a>";
 					}
 				}else{
+					tmp_item += "<td class='td_center'><input type='checkbox' child_check='org_dataitems_profile_2' class='org_child_menu' " + tmp_course + " /></td>";
+					tmp_item += "<td>";	
 					tmp_item += "<input type='checkbox' child_check='org_dataitems_profile_3' class='org_child_menu' style='float:left; margin:0 5px;' />";
 				}
 				tmp_item += "<a href='javascript:void(0)' class='org_child_edit'><img src='/static/images/portal-icons/pencil-icon.png' width='16' height='16'></a>";
@@ -2611,9 +2615,12 @@
 			//-------------------org_child_disable
 			$(".org_child_disable").unbind("click").click(function(){
 				if($(this).hasClass("org_child_enable")){
-					$(this).removeClass("org_child_enable");
+					$(this).removeClass("org_child_enable");					
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").attr("disabled", false);
 				}else{
 					$(this).addClass("org_child_enable");
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").prop('checked', false);
+					$(this).parent().parent().find(".org_child_menu[child_check='org_dataitems_profile_2']").attr("disabled", true);
 				}
 			});
 		}

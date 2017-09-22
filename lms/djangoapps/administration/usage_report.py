@@ -14,6 +14,7 @@ from ratelimitbackend.exceptions import RateLimitException
 from student.models import CmsLoginInfo
 from django.contrib.auth import logout, authenticate, login
 
+import re
 from datetime import timedelta
 from models import UserLoginInfo
 
@@ -91,16 +92,24 @@ def get_user_login_info(request):
 		login_info_list.append(dict_tmp)
 	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
 
+@login_required
 @ensure_csrf_cookie
 def save_user_status(request):
 	'''
 	20170830 add for save user 3 status in usage_report.
 	'''
-	user_id = int(request.POST.get('user_id'))
+	user_request = User.objects.filter(id=request.user.id)
+	if user_request:
+		if not user_request[0].is_superuser:
+			return
+	else:
+		return
+
 	context = {'success': False}
-	
-	user_login = User.objects.filter(id=user_id)
-	for user in user_login:
+	user_id = int(request.POST.get('user_id'))
+	user_changed = User.objects.filter(id=user_id)
+	if user_changed:
+		user = user_changed[0]
 		is_active = int(request.POST.get('is_active'))
 		is_staff = int(request.POST.get('is_staff'))
 		is_superuser = int(request.POST.get('is_superuser'))
@@ -110,63 +119,148 @@ def save_user_status(request):
 		user.is_superuser = is_superuser
 		user.save()
 		context['success'] = True
-		break
 	return HttpResponse(json.dumps(context), content_type="application/json")
 
+@login_required
 @ensure_csrf_cookie
 def save_user_password(request):
 	'''
 	20170907 add for save user password in usage_report.
+	Save user password without check old password.
+	grouptype:
+	error0: Save password failure, Please try later or contact administrator.
+	error1: New password format or confirm password error.
+	error2: Old password error.
+	error3: New password equals to the old one error'
 	'''
+	user_request = User.objects.filter(id=request.user.id)
+	if user_request:
+		if not user_request[0].is_superuser:
+			return
+	else:
+		return
+
 	user_id = int(request.POST.get('user_id'))
-	
-	value_dict = {'error0': 'Save password failure, Please try later or contact administrator.',
-				  'error1': 'Too many failed login attempts. Try again later.',
-				  'error2': 'Please verify that the old password is correct.',
-				  'error3': 'The new password needs to be different from the previous one.'
-	}
-	context = {'success': False,'ctype': 'error0','value': value_dict['error0']}
+	context = {'success': False, 'value': {}}
 
 	user_login = User.objects.filter(id=user_id)
 	if user_login:
 		user = user_login[0]
-		user_psw = request.POST.get('user_post')
-		user_psw_old = request.POST.get('user_post_old')
-		psw_change_date_save = request.POST.get('psw_change_date_save')
-		
-		# verify the old password if old password in request
-		if user_psw_old:
-			result, ctype = user_authenticate(username=user.username, password=user_psw_old, request=request)
-			if not result:
-				context['ctype'] = ctype
-				context['value'] = value_dict[ctype]
-				return HttpResponse(json.dumps(context), content_type="application/json")
+		user_psw = request.POST.get('user_post_1')
+		user_psw_confirm = request.POST.get('user_post_2')
+
+		# check the password and password_confirm format again
+		psw_format_check = password_format_check(user_psw, psw2=user_psw_confirm)
+		if psw_format_check['type'] != 200:
+			context['value'] = psw_format_check
+			return HttpResponse(json.dumps(context), content_type="application/json")
 
 		# verify whether the new password equals to the old one
 		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
 		if user_newpws:
-			context['ctype'] = 'error3'
-			context['value'] = value_dict['error3']
+			context['value'] = {"grouptype":"error3","type":1,"info":"The password needs to be different from the previous one."}
 			return HttpResponse(json.dumps(context), content_type="application/json")
 		
 		# save user password
 		user.set_password(user_psw)
 		user.save()
 		
-		# save user password_change_date if psw_change_date_save in request
-		if psw_change_date_save:
-			user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
-			if user_log_info:
-				utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-				user_log_info[0].password_change_date = utctime_str
-				user_log_info[0].save()
+		# save user password_change_date
+		user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+		if user_log_info:
+			utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+			user_log_info[0].password_change_date = utctime_str
+			user_log_info[0].save()
 
-		context = {'success': True,'ctype': '','value': ''}
+		context['success'] = True
 	return HttpResponse(json.dumps(context), content_type="application/json")
 
+@ensure_csrf_cookie
+def save_user_password_checkold(request):
+	'''
+	Save password for no login user with check old password.
+	'''
+	user_id = int(request.POST.get('user_id'))
+	context = {'success': False, 'value': {}}
+
+	user_login = User.objects.filter(id=user_id)
+	if user_login:
+		user = user_login[0]
+		user_psw = request.POST.get('user_post_1')
+		user_psw_confirm = request.POST.get('user_post_2')
+		user_psw_old = request.POST.get('user_post_0')
+		if not user_psw_old:
+			user_psw_old = ''
+
+		# check the password and password_confirm format again
+		psw_format_check = password_format_check(user_psw, psw2=user_psw_confirm)
+		if psw_format_check['type'] != 200:
+			context['value'] = psw_format_check
+			return HttpResponse(json.dumps(context), content_type="application/json")
+
+		'''
+		verify the old password if old password in request
+		'''
+		oldpsw_check = user_authenticate(username=user.username, password=user_psw_old, request=request)
+		if oldpsw_check['type'] != 200:
+			context['value'] = oldpsw_check
+			return HttpResponse(json.dumps(context), content_type="application/json")
+
+		# verify whether the new password equals to the old one
+		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
+		if user_newpws:
+			context['value'] = {"grouptype":"error3","type":1,"info":"The password needs to be different from the previous one."}
+			return HttpResponse(json.dumps(context), content_type="application/json")
+		
+		# save user password
+		user.set_password(user_psw)
+		user.save()
+		
+		# save user password_change_date
+		user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+		if user_log_info:
+			utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+			user_log_info[0].password_change_date = utctime_str
+			user_log_info[0].save()
+
+		context['success'] = True
+	return HttpResponse(json.dumps(context), content_type="application/json")
+
+def password_format_check(psw1, **psw2):
+	error_info = [{"grouptype": "error1", "type": 200, "info": ""},
+                  {"grouptype": "error1", "type": 1, "info": "Please fill in new password."},
+                  {"grouptype": "error1", "type": 2, "info": "New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                  {"grouptype": "error1", "type": 3, "info": "New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                  {"grouptype": "error1", "type": 4, "info": "Confirm password is required."},
+                  {"grouptype": "error1", "type": 5, "info": "Your new and confirm password are different. Please enter again."}]
+
+	p1 = psw1.strip()
+	if not p1:
+		return error_info[1]
+
+	if len(p1) < 8 or len(p1) > 16:
+		return error_info[2]
+
+	regexp = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$'
+	match_str = re.findall(regexp, p1)
+	if not match_str:
+		return error_info[3]
+
+	for p in psw2:
+		p2 = psw2[p].strip()
+		if not p2:
+			return error_info[4]
+
+		if p1 != p2:
+			return error_info[5]
+		break
+	return error_info[0]
+
 def user_authenticate(username, password, request):
-	result = True
-	ctype = ''
+	error_info = [{"grouptype": "error2", "type": 200, "info": ""},
+                  {"grouptype": "error2", "type": 1, "info": "Too many failed login attempts. Try again later."},
+                  {"grouptype": "error2", "type": 2, "info": "Please verify that the old password is correct."}]
+
 	try:
 		user = authenticate(username=username, password=password, request=request)
 
@@ -175,18 +269,14 @@ def user_authenticate(username, password, request):
 		login_info.save()
     # this occurs when there are too many attempts from the same IP address
 	except RateLimitException:
-		result = False
-		ctype = 'error1'
-		return result, ctype
+		return error_info[1]
 
 	if user is None:
 		# if we didn't find this username earlier, the account for this email
 		# doesn't exist, and doesn't have a corresponding password
-		result = False
-        ctype = 'error2'
-        return result, ctype
+		return error_info[2]
 
-	return result, ctype
+	return error_info[0]
 
 # -------------- Dropdown Lists -------------
 def drop_states(request):
