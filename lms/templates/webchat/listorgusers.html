@@ -83,9 +83,7 @@
             $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                   console.log (session);
-                    console.log (data.token);
-                   window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
                 });
             });
         })
@@ -122,9 +120,10 @@
 		});
 
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
-            alert ('hit')
+            alert('click')
 			var $link = $(e.target);
 			e.preventDefault();
+            window.open ('/webchat/videopopup?session=default&token=default', 'popup', 'postwindow')
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).prev().text();
 				if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
