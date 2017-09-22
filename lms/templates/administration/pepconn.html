@@ -1244,6 +1244,41 @@ f.close()
       $(select).reload();
     });
   }
+  /* CoursePermission.prototype.loadCsv=function(){
+   *   var self = this;
+   *   var $file =  $("#btnCoursePermCsvLoad").next("input");
+   *   $file.click();
+   *   $file.change(function(){
+   *     if(this.value){
+   *       var fd = new FormData();
+   *       fd.append('attachment', this.files[0]);
+   *       $(this).val("");
+   *       $.ajax({
+   *         url: "${reverse('pepconn_course_permission_csv_users')}",
+   *         data: fd,
+   *         processData: false,
+   *         contentType: false,
+   *         type: 'post',
+   *         beforeSend: function (x) {
+   *           if (x && x.overrideMimeType) {
+   *             x.overrideMimeType("multipart/form-data");
+   *           }
+   *         },
+   *         enctype: 'multipart/form-data',
+   *         mimeType: 'multipart/form-data',
+   *         error: function(xhr, status){},
+   *         success: function(data){
+   *           if(data.success){
+   *             $("input[name=csv_users]").val(data.users);
+   *             self.loadUserTable();
+   *             if(data.errors.length)
+   *               new Dialog($('#dialog')).show("Buld CSV Load", data.errors.join("<br/>"));
+   *           }
+   *         }
+   *       });            
+   *     }
+   *   });
+   * }*/
   CoursePermission.prototype.loadCsv=function(){
     var self = this;
     var $file =  $("#btnCoursePermCsvLoad").next("input");
@@ -1252,60 +1287,6 @@ f.close()
       if(this.value){
         var fd = new FormData();
         fd.append('attachment', this.files[0]);
-        $(this).val("");
-        $.ajax({
-          url: "${reverse('pepconn_course_permission_csv_users')}",
-          data: fd,
-          processData: false,
-          contentType: false,
-          type: 'post',
-          beforeSend: function (x) {
-            if (x && x.overrideMimeType) {
-              x.overrideMimeType("multipart/form-data");
-            }
-          },
-          enctype: 'multipart/form-data',
-          mimeType: 'multipart/form-data',
-          error: function(xhr, status){},
-          success: function(data){
-            if(data.success){
-              $("input[name=csv_users]").val(data.users);
-              self.loadUserTable();
-              if(data.errors.length)
-                new Dialog($('#dialog')).show("Buld CSV Load", data.errors.join("<br/>"));
-            }
-          }
-        });            
-      }
-    });
-  }
-  CoursePermission.prototype.loadCsv_old=function(){
-    var self = this;
-    var $file =  $("#btnCoursePermCsvLoad").next("input");
-    $file.click();
-    $file.change(function(){
-      if(this.value){
-        var courses = [];
-        var access = [];
-        var enroll = [];
-        
-        $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
-          courses.push($(this).find("td:nth-child(5)").text())
-          access.push($(this).find("td:nth-child(6) .toggle").hasClass("on")?1:0);
-          enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
-        });
-        
-        if(!courses.length){
-          new Dialog($('#dialog')).show("Warn", "No course loaded");
-          return;
-        }
-        
-        var fd = new FormData();
-        fd.append('attachment', this.files[0]);
-        fd.append('courses', courses);
-        fd.append('access', access);
-        fd.append('enroll', enroll);
-
         $(this).val("");
         
         $.ajax({

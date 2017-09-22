@@ -2137,7 +2137,7 @@ def course_permission_load_csv(request):
                 
                 done_count += 1
                 task.status = "continue"
-                task.progress = done_count / total_count
+                task.progress = int(done_count / total_count * 100)
             except Exception as e:
                 errors.append([email, course_id, str(e)])
                 task.status = "error"
