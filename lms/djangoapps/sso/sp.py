@@ -626,7 +626,7 @@ def register_user_easyiep(request, activation_key):
     from django.core.exceptions import ObjectDoesNotExist
     try:
         registration = Registration.objects.get(activation_key=activation_key)
-    except ObjectDoesNotExist:
+    except Registration.DoesNotExist:
         error_context = {'window_title': 'Missing Account',
                          'error_title': 'Missing Account',
                          'error_message': "You do not have access to Pepper, please contact support at <a href='mailto:helpdesk@pepperpd.com'>helpdesk@pepperpd.com</a>.",
