@@ -82,10 +82,10 @@ from reporting.models import reporting_store
 from administration.models import UserLoginInfo
 from datetime import timedelta
 
-#@begin:Add for Dashboard Posts
-#@date:2016-12-29
+# @begin:Add for Dashboard Posts
+# @date:2016-12-29
 from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
-#@end
+# @end
 
 from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
@@ -1127,7 +1127,11 @@ def create_account(request, post_override=None):
     
     # @begin:check the password format
     # @date:2017-09-20
-    
+    psw_format_check = password_format_check(post_vars['password'])
+    if psw_format_check['type'] != 200:
+        js['value'] = psw_format_check['info']
+        js['field'] = 'password'
+        return HttpResponse(json.dumps(js))
     # @end
 
     required_post_vars = ['username', 'email', 'first_name', 'last_name', 'password', 'terms_of_service']     # 'honor_code'
