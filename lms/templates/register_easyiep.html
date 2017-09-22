@@ -224,24 +224,46 @@ from baseinfo.models import Enum
             <input class="" id="last_name" type="text" name="last_name" value="" placeholder="${_('example: Doe')}" required aria-required="true" />
           </li>
           <li class="field required text" id="field-name">
-           <label for="state_id">${_('State')}</label>
-           <select name="state_id" autocomplete="off">
-             <option value="">--</option>
+            <label for="state_id">${_('State')}</label>
+            <select name="state_id" autocomplete="off">
+              <option value="">--</option>
               %for item in State.objects.all().order_by('name'):
-              <option value="${item.id}">${item.name}</option>
+                %if profile.district_id:
+                  %if item.name == profile.district.state.name:
+                    <option value="${item.id}" selected="selected">${item.name}</option>
+                  %else:
+                    <option value="${item.id}">${item.name}</option>
+                  %endif
+                %else:
+                  <option value="${item.id}">${item.name}</option>
+                %endif
               %endfor
             </select>
           </li>
           <li class="field required text" id="field-name">
-            <label for="district_id">${_('District')}</label>
+            <label for="district_id">${_('District')}</label>      
             <select name="district_id" autocomplete="off">
               <option value="">--</option>
-            </select>            
+              %if profile.district_id:
+                %for item in District.objects.filter(state=profile.district.state).order_by('name'):
+                  %if item.name == profile.district.name:
+                    <option value="${item.id}" selected="selected">${item.name}</option>
+                  %else:
+                    <option value="${item.id}">${item.name}</option>
+                  %endif
+                %endfor
+              %endif
+            </select>
           </li>
           <li class="field required text" id="field-name">
             <label for="school_id">${_('School')}</label>
             <select autocomplete="off" id="school_id" name="school_id">
               <option value="">--</option>
+              %if profile.district_id:
+                %for item in School.objects.filter(district=profile.district).order_by('name'):
+                  <option value="${item.id}">${item.name}</option>
+                %endfor
+              %endif
             </select>
           </li>
           <li class="field required text" id="field-name">
@@ -459,42 +481,6 @@ from baseinfo.models import Enum
     <header>
       <h3 class="sr">${_("Registration Help")}</h3>
     </header>
-    % if has_extauth_info is UNDEFINED:
-    <div class="cta">
-      <h3>${_("Already registered?")}</h3>
-      <p class="instructions">
-        <a href="${reverse('signin_user')}${login_query()}">
-          ${_("Click here to log in.")}
-        </a>
-      </p>
-    </div>
-    % endif
-    ## TODO: Use a %block tag or something to allow themes to
-    ##       override in a more generalizable fashion.
-    <div class="cta cta-nextsteps">
-      <h3>${_("Next Steps")}</h3>
-      % if self.stanford_theme_enabled():
-        <p>${_("You will receive an activation email.  You must click on the activation link to complete the process.  Don't see the email?  Check your spam folder and mark emails from class.stanford.edu as 'not spam', since you'll want to be able to receive email from your courses.")}</p>
-      % else:
-<!--@begin:Change the text on the right side-->
-<!--@date:2013-11-02-->
-      <p>${_("As part of joining {platform_name}, you will receive a confirmation email.  Don’t see the email? Check your spam folder and mark {platform_name} emails as “not spam.”  At {platform_name}, we communicate mostly through email.").format(platform_name=settings.PLATFORM_NAME)}</p>
-<!--@end-->              
-      % endif
-    </div>
-<!--@begin:Remove the default FQA-->
-<!--@date:2013-11-02-->
-    % if False and settings.MKTG_URL_LINK_MAP.get('FAQ'):
-      <div class="cta cta-help">
-        <h3>${_("Need Help?")}</h3>
-        <p>${_("Need help in registering with {platform_name}?").format(platform_name=settings.PLATFORM_NAME)}
-          <a href="${marketing_link('FAQ')}">
-              ${_("View our FAQs for answers to commonly asked questions.")}
-          </a>
-          ${_("Once registered, most questions can be answered in the course specific discussion forums or through the FAQs.")}</p>
-      </div>
-    % endif
-<!--@end-->    
   </aside>
 </section>
 
