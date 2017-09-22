@@ -103,9 +103,45 @@ def main(request):
 
         elif post_flag == "org_manage_user_cvs_upload":
             return org_manage_user_cvs_upload(request)
+
+        elif post_flag == "organization_register_save":
+            return organization_register_save(request)
     else:
         tmp = "organization/organization.html"
         return render_to_response(tmp)
+
+
+# -------------------------------------------------------------------organization_register_save
+@login_required
+def organization_register_save(request):
+    try:
+        OrganizationId = request.POST.get("OrganizationId", "")
+        content = request.POST.get("content", "")
+
+        if OrganizationId:
+            # --------------OrganizationMetadata
+            org_metadata = OrganizationMetadata()
+            org_metadata_list = OrganizationMetadata.objects.filter(id=OrganizationId)
+            for tmp1 in org_metadata_list:
+                org_metadata = tmp1
+                break
+
+            # --------------course_assignment_content
+            org_register = OrganizationMoreText()
+            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+                org_register = tmp1
+                break
+
+            org_register.DataItem = content
+            org_register.organization = org_metadata
+            org_register.itemType = "Register Organization Structure"
+            org_register.save()
+
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 
 
 # -------------------------------------------------------------------organization_initial_superuser_eamil
@@ -1487,7 +1523,6 @@ def org_option_cvs_upload(request):
 
 
 # -------------------------------------------------------------------organization_get_info
-@login_required
 def organization_get_info(request):
     source = request.POST.get('source', False)
     flag_main = request.POST.get('flag_main', False)
@@ -1539,7 +1574,7 @@ def organization_get_info(request):
                 if data['OrganizationOK']:
                     data['DistrictType'] = organization_obj.DistrictType
                     data['SchoolType'] = organization_obj.SchoolType
-                    data['OrganizationName'] = organization_obj.OrganizationName
+                    data['OrganizationId'] = organization_obj.id
 
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem

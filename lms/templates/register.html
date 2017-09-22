@@ -78,7 +78,8 @@ import json
 <!--@end-->
 <%block name="title"><title>${_("Register for {platform_name}").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
 <%block name="js_extra">
-  <script type="text/javascript">
+  <script type="text/javascript">	
+  	var OrganizationId = "";
     $(function() {
       var view_name = 'view-register';
       // adding js class for styling with accessibility in mind
@@ -100,13 +101,14 @@ import json
       toggleSubmitButton(true);
       $('#register-form').on('submit', function() {
         toggleSubmitButton(false);
-			
+										
 		//----------------Major Subject Area
 		if(!$("select[name='major_subject_area_id']").is(":hidden")){
 			if($("select[name='major_subject_area_id']").val() == ""){
 				toggleSubmitButton(true);
+				var tmp_name = $("#organization_info_org_default_1").find(".org_name").html().replace(" *", "");
 			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("Major Subject Area is required").stop().css("display", "block");
+			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
 				$(".field-error").removeClass('field-error');
 				$("select[name='major_subject_area_id']").addClass('field-error');			 	
 				return false;	
@@ -116,8 +118,9 @@ import json
 		if(!$(".btn_grade_level").is(":hidden")){
 			if($("#grade_level_id").val() == ""){
 				toggleSubmitButton(true);
+				var tmp_name = $("#organization_info_org_default_2").find(".org_name").html().replace(" *", "");
 			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("Grade Level-Check is required").stop().css("display", "block");
+			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
 				$(".field-error").removeClass('field-error');
 				$("#grade_level_id").addClass('field-error');			 	
 				return false;	
@@ -127,8 +130,9 @@ import json
 		if(!$("select[name='years_in_education_id']").is(":hidden")){
 			if($("select[name='years_in_education_id']").val() == ""){
 				toggleSubmitButton(true);
+				var tmp_name = $("#organization_info_org_default_3").find(".org_name").html().replace(" *", "");
 			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("Number of Years in Education is required").stop().css("display", "block");
+			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
 				$(".field-error").removeClass('field-error');
 				$("select[name='years_in_education_id']").addClass('field-error');			 	
 				return false;	
@@ -171,10 +175,82 @@ import json
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
 		}
+		//-----------------	
+		var org_content = '"email":"${profile.user.email}"';
+		var is_pass = true;
+		$(".org_field").each(function(){
+			var tmp_type = $(this).attr("field_type");
+			var tmp_required = $(this).attr("isRequired");
+			var tmp_name = $(this).attr("name");
+			var tmp_val = "";
+			
+			if(tmp_type == "2"){
+				tmp_val = $(this).val();
+				
+			}else if(tmp_type == "3"){
+				tmp_val = $(this).val();
+				
+			}else if(tmp_type == "4"){
+				$(this).find('input[type="checkbox"]').each(function() {
+					if ($(this).attr('checked')) {
+						if(tmp_val != "")	tmp_val += ",";
+						tmp_val += $(this).val();
+					}
+				});
+			}else if(tmp_type == "5"){
+				tmp_val = $(this).find("input[type='radio']:checked").val();
+				
+			}else if(tmp_type == "6"){
+				tmp_val = escape($(this).val());
+				
+			}else if(tmp_type == "7"){
+				tmp_val = escape($(this).val());
+				
+			}else if(tmp_type == "8"){
+				var tmp_date = $(this).datepicker("getDate");
+				var tmp_var1 = "";
+				if(tmp_date){
+					tmp_var1 = tmp_date.getMonth() + 1;
+					tmp_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+					tmp_val += "/";
+					tmp_var1 = tmp_date.getDate();
+					tmp_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+					tmp_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
+				}
+			}
+			
+			if(tmp_required == " *" && tmp_val == ""){
+				toggleSubmitButton(true);
+				$('.status.message.submission-error').addClass('is-shown').focus();
+				$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+				$(".field-error").removeClass('field-error');
+				$("*[name='" + tmp_name + "']").addClass('field-error');
+				is_pass = false;
+				return false;	
+			}else{
+				org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
+			}
+		});
+		if(!is_pass) {
+			return false;
+		}else{
+			$.ajaxSettings.async = false; 
+			$.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", OrganizationId: OrganizationId, content: "{" + org_content + "}"}, function (r) {
+				if (r.Success){
+					
+				}else{
+					toggleSubmitButton(true);
+					return false;	
+				}
+			});
+			$.ajaxSettings.async = true;
+		}
       });
+	  
       $('#register-form').on('ajax:error', function() {
         toggleSubmitButton(true);
       });
+	  
       $('#register-form').on('ajax:success', function(event, json, xhr) {
        if(json.success) {
            var urlParams = {};
@@ -637,6 +713,7 @@ $(document).ready(function(){
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){
+					OrganizationId = r.OrganizationId;
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
 		  			
@@ -664,7 +741,7 @@ $(document).ready(function(){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<span>' + tmp_json["description"] + '</span>';
+									tmp_content += '<span></span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "2"){
@@ -672,7 +749,7 @@ $(document).ready(function(){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<select autocomplete="off" name="" style="width:400px;"><option value="">--</option>';
+									tmp_content += '<select class="org_field" field_type="2" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;"><option value="">--</option>';
 									for(var ii in tmp_list1){
 										var tmp_list2 = tmp_list1[ii].split("|-|");
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
@@ -685,7 +762,7 @@ $(document).ready(function(){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<select autocomplete="off" name="" style="width:400px;" size="5" multiple="multiple">';
+									tmp_content += '<select class="org_field" field_type="3" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;" size="5" multiple="multiple">';
 									for(var ii in tmp_list1){
 										var tmp_list2 = tmp_list1[ii].split("|-|");
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
@@ -696,12 +773,12 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "4"){
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
-									tmp_content += '<li class="field required text" id="field-name">';
+									tmp_content += '<li class="field required text org_field" id="field-name" field_type="4" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
 									if(tmp_json["field_type_4"] != ""){
 										var tmp_list1 = tmp_json["field_type_4"].split("|-|-|");
 										for(var ii in tmp_list1){
 											var tmp_list2 = tmp_list1[ii].split("|-|");
-											tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" />' + tmp_list2[0] + '</label>';
+											tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
 									tmp_content += '</li>';
@@ -709,12 +786,12 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "5"){
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
-									tmp_content += '<li class="field required text" id="field-name">';
+									tmp_content += '<li class="field required text org_field" id="field-name" field_type="5" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
 									if(tmp_json["field_type_5"] != ""){
 										var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
 										for(var ii in tmp_list1){
 											var tmp_list2 = tmp_list1[ii].split("|-|");
-											tmp_content += '<label class="my_label"><input type="radio" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+											tmp_content += '<label class="my_label"><input type="radio" ' + ((ii == 0) ? "checked=checked" : "") + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
 									tmp_content += '</li>';
@@ -723,21 +800,21 @@ $(document).ready(function(){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<input type="text" name="' + tmp_json["name"] + '" value="" required aria-required="true" maxlength="30"/>';
+									tmp_content += '<input type="text" name="' + tmp_json["name"] + '" value="" required aria-required="true" maxlength="30"  class="org_field" field_type="6" isRequired="' + tmp_required + '"/>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<textarea maxlength="255" name="bio" rows="" cols="" tabindex=""></textarea>';
+									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "8"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<input type="text" class="org_assignment_qualifications_datex" value="" placeholder="Select Date" readonly="true" />';
+									tmp_content += '<input type="text" class="org_assignment_qualifications_datex org_field" value="" placeholder="Select Date" readonly="true" name="' + tmp_json["name"] + '" field_type="8" isRequired="' + tmp_required + '" />';
 									tmp_content += '</li>';
 								}
 								
