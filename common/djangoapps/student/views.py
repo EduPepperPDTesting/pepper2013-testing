@@ -87,12 +87,13 @@ from datetime import timedelta
 from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
 # @end
 
-from student.models import State,District,School,User,UserProfile
+from student.models import State, District, School, User, UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
 from administration.usage_report import password_format_check
+from django.template.response import TemplateResponse
 
 log = logging.getLogger("mitx.student")
 # log = logging.getLogger("tracking")
@@ -1578,8 +1579,8 @@ def password_reset_confirm_wrapper(
         Needed because we want to set the user as active at this step.
     """
     # cribbed from django.contrib.auth.views.password_reset_confirm
+    uid_int = base36_to_int(uidb36)
     try:
-        uid_int = base36_to_int(uidb36)
         user = User.objects.get(id=uid_int)
 
         if not user.is_active:
@@ -1592,9 +1593,42 @@ def password_reset_confirm_wrapper(
     # we also want to pass settings.PLATFORM_NAME in as extra_context
 
     extra_context = {"platform_name": settings.PLATFORM_NAME}
-    return password_reset_confirm(
-        request, uidb36=uidb36, token=token, extra_context=extra_context
-    )
+
+    # password server check
+    if request.method == 'POST':
+        context = {'form': None, 'validlink': True, 'error_info': ''}
+        template_name = 'registration/password_reset_confirm.html'
+
+        # check the password and password_confirm format again
+        psw1 = request.POST.get('new_password1')
+        psw2 = request.POST.get('new_password2')
+        psw_format_check = password_format_check(psw1, psw2=psw2)
+        if psw_format_check['type'] != 200:
+            context['error_info'] = psw_format_check['info']
+            return TemplateResponse(request, template_name, context, current_app=None)
+
+        # verify whether the new password equals to the old one
+        user = User.objects.filter(id=uid_int)
+        if user:
+            user_newpws = authenticate(username=user[0].username, password=psw1, request=request)
+            if user_newpws:
+                context['error_info'] = "The password needs to be different from the previous one."
+                return TemplateResponse(request, template_name, context, current_app=None)
+
+    result_response = password_reset_confirm(
+        request, uidb36=uidb36, token=token, extra_context=extra_context)
+
+    # save password change date
+    try:
+        validlink = result_response.context_data['validlink']
+    except Exception as e:
+        user_log_info = UserLoginInfo.objects.filter(user_id=uid_int)
+        if user_log_info:
+            utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+            user_log_info[0].password_change_date = utctime_str
+            user_log_info[0].save()
+
+    return result_response
 
 def reactivation_email_for_user(user):
     try:
