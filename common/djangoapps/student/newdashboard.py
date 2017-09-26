@@ -1297,7 +1297,7 @@ def get_inital(request,now_utc):
         state_id = District.objects.get(id=district_id).state_id
         school_id = user_profile.school_id
         organization_id = []
-        organization = OrganizationDistricts.objects.filter(Q(EntityType="School",OrganizationEnity=school_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+        organization = OrganizationDistricts.objects.filter(Q(EntityType="State",OrganizationEnity=state_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
         for k,v in enumerate(organization):
             b = eval(v.OtherFields)
             b["date"] = b["date"][:19]
