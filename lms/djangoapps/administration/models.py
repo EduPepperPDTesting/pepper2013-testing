@@ -253,11 +253,11 @@ class UserLoginInfo(models.Model):
     class Meta:
         db_table = 'user_login_info'
     user = models.ForeignKey(UserProfile, to_field='user', on_delete=models.CASCADE, related_name="loginfo", null=True)
-    user_id = models.IntegerField(blank=False, max_length=11, default=0)
+    # user_id = models.IntegerField(blank=False, max_length=11, default=0)
     login_time = models.CharField(max_length=30)
     logout_time = models.CharField(max_length=30)
     create_time = models.DateTimeField(auto_now_add=True)
-    update_time = models.DateTimeField(auto_now=True)
+    update_time = models.DateTimeField(auto_now=True)2
     last_session = models.IntegerField(blank=False, max_length=15)
     total_session = models.IntegerField(blank=False, max_length=30)
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
