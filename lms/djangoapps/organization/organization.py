@@ -1096,6 +1096,33 @@ def organizational_save_base(request):
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
 
+            # -----get_organization_course_assignment_qualifications
+            qualifications = organization_qualifications(specific_items,course_assignment_content)
+
+            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+                data = eval(tmp1.DataItem)
+                for tmp2 in qualifications:
+                    sign = True
+                    for tmp3 in tmp2['filters']:
+                        if tmp3['data'] != '':
+                            tmp4 = tmp3['data'].split(',')
+                            if len(tmp4) <= 1:
+                                if data[tmp3['name']] != tmp3['data']:
+                                    sign = None
+                                    break
+                            else:
+                                tmp5 = data[tmp3['name']].split(',')
+                                retA = [i for i in tmp4 if i in tmp5]
+                                if len(retA) == 0:
+                                    sign = None
+                                    break
+
+                    if sign:
+                        user = User.objects.get(email=data['email'])
+                        CourseEnrollment.enroll(user, tmp2['course_id'])
+                        
+
+
             # --------------OrganizationCmsitem
             if cms_items:
                 cms_items_list = cms_items.split("=<=")
@@ -1801,3 +1828,34 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades, mor
                     subject_index[4] += 1
                     g_courses[4].append([])
                 g_courses[4][subject_index[4]].append(course)
+
+def organization_qualifications(specific_items,course_assignment_content):
+    specific_items_list = eval(specific_items)
+    if course_assignment_content:
+        assignments = course_assignment_content.split(';')
+        qualifications = []
+        for tmp1 in assignments:
+            qualification = {}
+            qualification['filters'] = []
+            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            qualifications_items = tmp1.split('<')[1].split(',')
+            for tmp2 in qualifications_items:
+                tmp3 = tmp2.split('>')
+                item = {}
+                item['_id'] = tmp3[0].replace('(','').replace(')','')
+                item['data'] = ''
+                for i in range(len(tmp3)):
+                    if i <= 1:
+                        item['data'] = tmp3[i].replace('(','').replace(')','')
+                    if i > 1:
+                        item['data'] = item['data'] + ',' +tmp3[i].replace('(','').replace(')','')
+                    if i == len(tmp3)-1:
+                        qualification['filters'].append(item)
+            qualifications.append(qualification)
+        for tmp1 in specific_items_list:
+            for i in range(len(qualifications)):
+                for n in range(len(qualifications[i]['filters'])):
+                    if qualifications[i]['filters'][n]['_id'] == tmp1['_id']:
+                         qualifications[i]['filters'][n]['name'] = tmp1['name']
+
+    return qualifications
