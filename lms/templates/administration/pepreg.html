@@ -195,7 +195,7 @@
                     <option value="Other">Other</option>
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;">
-                    %for item in PepRegTraining.objects.all().filter(training_date__gte=datetime.date.today()).order_by("subjectOther"):
+                    %for item in PepRegTraining.objects.all().filter(subjectOther__isnull=False, subjectOthertraining_date__gte=datetime.date.today()).order_by("subjectOther"):
                         <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
                     %endfor
                 </select>
