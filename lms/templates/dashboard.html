@@ -7,9 +7,11 @@
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
   from django.utils import timezone
-  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from student.models import State,District,School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation,User,UserProfile
   from baseinfo.models import Enum
   import datetime
+  import json
+  from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDataitems, OrganizationMoreText
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -18,6 +20,144 @@
 </style>
 <!--@end-->
 <%inherit file="main.html" />
+<%
+    OrganizationOK = False
+    organization_structure = ""
+    register_organization_structure = ""
+    organization_default_1_name = "Major Subject Area:"
+    organization_default_2_name = "Grade Level:"
+    organization_default_3_name = "Number of Years in Education:"
+    organization_default_4_name = "Free/Reduced Lunch:"
+    organization_default_5_name = "IEPs:"
+    organization_default_6_name = "English Learners:"
+    organization_default_7_name = "Bio:"
+    organization_default_1_visible = ""
+    organization_default_2_visible = ""
+    organization_default_3_visible = ""
+    organization_default_4_visible = ""
+    organization_default_5_visible = ""
+    organization_default_6_visible = ""
+    organization_default_456_visible = ""
+    organization_default_7_visible = ""
+    
+    organization_default_content = ""
+    organization_default_content_dialog = ""
+    organization_id = ""
+    
+    if request.user.is_authenticated():
+    	c_email = request.user.email
+        try:
+            state_id = request.user.profile.district.state.id
+        except:
+            state_id = -1
+        try:
+            district_id = request.user.profile.district.id
+        except:
+            district_id = -1
+        try:
+            school_id = request.user.profile.school.id
+        except:
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;                
+        
+        if OrganizationOK:
+            organization_id = organization_obj.id
+            
+        	# --------------OrganizationDataitems
+            for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                organization_structure = tmp1.DataItem
+                break
+
+            # --------------Register Organization Structure
+            # startswith = '{"email":"sjtest43@edu.com'
+            startswith = '{"email":"' + c_email
+            for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
+                register_organization_structure = tmp1.DataItem
+                break
+			
+            if organization_structure != "":
+                organization_structure_list = json.loads(organization_structure)
+                for item in organization_structure_list:
+                    if item["default"] == "1":
+                        organization_default_1_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_1_visible = "display:none;"
+                    elif item["default"] == "2":
+                        organization_default_2_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_2_visible = "display:none;"
+                    elif item["default"] == "3":
+                        organization_default_3_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_3_visible = "display:none;"
+                    elif item["default"] == "4":
+                        organization_default_4_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_4_visible = "display:none;"
+                    elif item["default"] == "5":
+                        organization_default_5_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_5_visible = "display:none;"
+                    elif item["default"] == "6":
+                        organization_default_6_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_6_visible = "display:none;"
+                    elif item["default"] == "7":
+                        organization_default_7_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_7_visible = "display:none;"
+                    else:
+                        organization_default_content += '<div style="line-height:30px;" class="org_field">'
+                        organization_default_content += '<b>' + item["name"] + ':</b>'
+                        tmp_item_value = ""
+                        
+                        if register_organization_structure != "":
+                            register_organization_structure_json = json.loads(register_organization_structure)
+                            try:
+                                tmp_item_value = register_organization_structure_json[item["name"]]
+                                if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
+                                    tmp_item_value = ""
+                            except:
+                                pass
+                                
+                        if curr_user == request.user:
+                            organization_default_content += '<span field_type="' + item["field_type"] + '" field_type_2="' + item["field_type_2"] + '" field_type_3="' + item["field_type_3"] + '" field_type_4="' + item["field_type_4"] + '" field_type_5="' + item["field_type_5"] + '">' + tmp_item_value + '</span>'
+                        else:
+                            organization_default_content += tmp_item_value
+                                        
+                        if curr_user == request.user and item["field_type"] != "1" and item["field_type"] != "8":
+                            organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
+                                
+                        organization_default_content += '</div>'
+                        
+                        if item["field_type"] == "2" or item["field_type"] == "3" or item["field_type"] == "4" or item["field_type"] == "5":
+                            organization_default_content_dialog += ""
+                        elif item["field_type"] == "6":
+                            pass
+                        elif item["field_type"] == "7":
+                            pass
+                        
+                if organization_default_4_visible != "" and organization_default_5_visible != "" and organization_default_6_visible != "":
+                    organization_default_456_visible = "display:none;"
+%>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
 <!--@begin:Add new page style-->
@@ -139,7 +279,179 @@
 <script src="/static/js/custom_up_img.js" charset="utf-8"></script>
 <%block name="js_extra">
 <script src="https://apis.google.com/js/platform.js" async defer></script>
-
+<script>
+	 $(document).ready(function(){
+	 	$(".org_field").each(function(){
+			var tmp_type = $(this).find("span").attr("field_type");
+			if(tmp_type == "6"){
+				$(this).find("span").html(unescape($(this).find("span").html()));
+				
+			}else if(tmp_type == "7"){
+				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
+			}
+		});
+	 });
+	 
+	//-----------------------------------------------orgFieldEditClick
+	function orgFieldEditClick(el){
+		var tmp_span_name = $(el).parent().find("b").html().replace(":","");
+		var tmp_span_el = $(el).parent().find("span");
+		var tmp_span_val = $(el).parent().find("span").html();
+		var tmp_span_type = tmp_span_el.attr("field_type");
+		$("#change_org_dialog_title").html(tmp_span_name);
+		$("#change_org_dialog_title").attr("field_type", tmp_span_type);
+		if(tmp_span_type == "7"){
+			tmp_span_val = $(el).parent().find("pre").html();
+		}
+		var tmp_span_content = "";
+		var tmp_field_content = "";
+		
+		$("#change_org_dialog_field").empty();
+		if(tmp_span_type == "2"){
+			tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off"><option value="">--</option>';
+			tmp_span_content = tmp_span_el.attr("field_type_2");
+			if(tmp_span_content != ""){
+				var list1 = tmp_span_content.split("|-|-|");
+				for(var ii in list1){
+					var list2 = list1[ii].split("|-|");
+					tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
+				}
+			}
+			tmp_field_content += '</select>';
+			$("#change_org_dialog_field").append(tmp_field_content);
+			$("#change_org_dialog_field").find("select").val(tmp_span_val);
+		
+		}else if(tmp_span_type == "3"){
+			tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off" size="5" multiple="multiple"><option value="">--</option>';
+			tmp_span_content = tmp_span_el.attr("field_type_3");
+			if(tmp_span_content != ""){
+				var list1 = tmp_span_content.split("|-|-|");
+				for(var ii in list1){
+					var list2 = list1[ii].split("|-|");
+					tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
+				}
+			}
+			tmp_field_content += '</select>';
+			$("#change_org_dialog_field").append(tmp_field_content);
+			if(tmp_span_val != ""){
+				var tmp_span_val_list = tmp_span_val.split(",");
+				for(var i = 0; i < tmp_span_val_list.length; i++){
+					$("#change_org_dialog_field").find("option[value='" + tmp_span_val_list[i] + "']").attr("selected", "selected");
+				}
+			}
+			
+		}else if(tmp_span_type == "4"){
+			tmp_span_content = tmp_span_el.attr("field_type_4");
+			if(tmp_span_content != ""){
+				var list1 = tmp_span_content.split("|-|-|");
+				for(var ii in list1){
+					var list2 = list1[ii].split("|-|");
+					tmp_field_content += "<div><label><input type='checkbox' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
+				}
+			}
+			$("#change_org_dialog_field").append(tmp_field_content);
+			if(tmp_span_val != ""){
+				var tmp_span_val_list = tmp_span_val.split(",");
+				for(var i = 0; i < tmp_span_val_list.length; i++){
+					$("#change_org_dialog_field").find("input[value='" + tmp_span_val_list[i] + "']").prop("checked", true);	
+				}
+			}			
+		}else if(tmp_span_type == "5"){			
+			tmp_span_content = tmp_span_el.attr("field_type_5");
+			if(tmp_span_content != ""){
+				var list1 = tmp_span_content.split("|-|-|");
+				for(var ii in list1){
+					var list2 = list1[ii].split("|-|");
+					tmp_field_content += "<div><label><input type='radio' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
+				}
+			}
+			
+			$("#change_org_dialog_field").append(tmp_field_content);
+			$("#change_org_dialog_field").find("input[value='" + tmp_span_val + "']").attr("checked", "checked");	
+				
+		}else if(tmp_span_type == "6"){	
+			$("#change_org_dialog_field").append('<input type="text" name="change_org_dialog_field_text" style="width:100%" value="' + tmp_span_val + '">');
+			
+		}else if(tmp_span_type == "7"){
+			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
+		}
+	}
+	
+	//-----------------------------------------------orgSaveChange
+	function orgSaveChange(){
+		var org_field_name = $("#change_org_dialog_title").html() + ":";
+		$(".org_field").each(function(){			
+			var tmp_name = $(this).find("b").html();
+			if(org_field_name == tmp_name){
+				var tmp_type = $("#change_org_dialog_title").attr("field_type");
+				if(tmp_type == "2"){
+					$(this).find("span").html($("#change_org_dialog_field").find("select").val());
+					
+				}else if(tmp_type == "3"){
+					var tmp_val = "";
+					$("#change_org_dialog_field").find('option').each(function() {
+						if ($(this).attr('selected')) {
+							if(tmp_val != "")	tmp_val += ",";
+							tmp_val += $(this).val();
+						}
+					});
+					$(this).find("span").html(tmp_val);
+				}else if(tmp_type == "4"){
+					var tmp_val = "";
+					$("#change_org_dialog_field").find('input[type="checkbox"]').each(function() {
+						if ($(this).attr('checked')) {
+							if(tmp_val != "")	tmp_val += ",";
+							tmp_val += $(this).val();
+						}
+					});
+					$(this).find("span").html(tmp_val);
+					
+				}else if(tmp_type == "5"){
+					$(this).find("span").html($("#change_org_dialog_field").find("input[type='radio']:checked").val());
+					
+				}else if(tmp_type == "6"){
+					$(this).find("span").html($("#change_org_dialog_field").find("input").val());
+					
+				}else if(tmp_type == "7"){
+					$(this).find("span").html("<pre>" + $("#change_org_dialog_field").find("textarea").val() + "</pre>");
+					
+				}else if(tmp_type == "8"){
+					var tmp_val = "";
+					var tmp_date = $(this).datepicker("getDate");
+					var tmp_var1 = "";
+					if(tmp_date){
+						tmp_var1 = tmp_date.getMonth() + 1;
+						tmp_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+						tmp_val += "/";
+						tmp_var1 = tmp_date.getDate();
+						tmp_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+						tmp_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
+					}
+					$(this).find("span").html(tmp_val);
+				}
+			}
+		});
+		//$("#pepper-press").attr("aa", org_content);
+		var org_content = '"email":"${request.user.email}"';
+		$(".org_field").each(function(){
+			var tmp_type = $(this).find("span").attr("field_type");
+			var tmp_name = $(this).find("b").html().replace(":", "");
+			var tmp_val = $(this).find("span").html();
+			if(tmp_type == "7") 		tmp_val = escape($(this).find("pre").html());
+			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
+			
+			org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
+		});
+		
+		$.ajaxSettings.async = false; 
+		$.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", email:"${request.user.email}", OrganizationId: $("#change_org_dialog").attr("oid"), content: "{" + org_content + "}"}, function (r) {
+			if (r.Success){
+				window.location.reload();
+			}
+		});
+		$.ajaxSettings.async = true;		
+	}
+</script>
 <script type="text/javascript">
   /*@begin:Click the round button in grade_level table*/
   /*@date:2013-11-02*/
@@ -621,95 +933,99 @@
 <!-------------------------------------------------------------------------------------->
 		<li>
           <span class="title">
-		  <div style="font-family: 'Open Sans';font-size:12px;">
-            <div class="" style="padding:0 0 5px 0;"> 
-              <b style="font-size:14px;color:#000">My Profile:</b>
-            </div>
-			<div style="line-height:30px;"><b>State:</b>
-	          % if curr_user.profile.district_id:
-			  ${curr_user.profile.district.state.name}
-			  % endif
-			</div>
-			<div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
-			  % if curr_user.profile.district_id:
-			  <br>${curr_user.profile.district.name}
-			  % endif
-			</div>
-			<div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
-			  % if curr_user.profile.school_id:
-			  <br>${curr_user.profile.school.name}
-			  % endif
-              %if curr_user==request.user:
-			  (<a href="#change_school" rel="leanModal">edit</a>)
-              %endif
-			</div>
-			<div style="line-height:30px;"><b>Grade Level:</b>
-              <% gn=list() %>
-			  % if curr_user.profile.grade_level_id:
-              <br>
-			  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
-			  % if len(c)>0:
-			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
-			  % endif
-			  % endfor
-			  % endif
-              ${", ".join(gn)}
-              %if curr_user==request.user:
-			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
-              %endif
-			</div>
-			<div style="line-height:30px;"><b>Major Subject Area:</b>
-			  % if curr_user.profile.major_subject_area_id:
-              <br>
-			  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
-			  % endif
-               %if curr_user==request.user:
-			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
-              %endif
-			</div>
-			<div style="line-height:30px;"><b>Number of Years in Education:</b>
-			  % if curr_user.profile.years_in_education_id:
-			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_years_in_education" rel="leanModal">edit</a>)
-              %endif
-			</div>
-
-            <div style="padding:15px 0 5px 0;"> 
-              <b style="font-size:14px;color:#000;">My Learners' Profile:</b>
-            </div>
-            
-			<div style="line-height:30px;">
-              <b>Free/Reduced Lunch:</b>
-			  % if curr_user.profile.percent_lunch:
-			  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_lunch" rel="leanModal">edit</a>)
-              %endif
-			</div>
-            <div style="line-height:30px;">
-              <b>IEPs:</b>
-			  % if curr_user.profile.percent_iep:
-			  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_iep" rel="leanModal">edit</a>)
-              %endif
-			</div>
-            <div style="line-height:30px;">
-              <b>English Learners:</b>
-			  % if curr_user.profile.percent_eng_learner:
-			  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_eng_learner" rel="leanModal">edit</a>)
-              %endif
-			</div>
+              <div style="font-family: 'Open Sans';font-size:12px;">
+                <div class="" style="padding:0 0 5px 0;"> 
+                  <b style="font-size:14px;color:#000">My Profile:</b>
+                </div>
+                <div style="line-height:30px;"><b>State:</b>
+                  % if curr_user.profile.district_id:
+                  ${curr_user.profile.district.state.name}
+                  % endif
+                </div>
+                <div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
+                  % if curr_user.profile.district_id:
+                  <br>${curr_user.profile.district.name}
+                  % endif
+                </div>
+                <div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
+                  % if curr_user.profile.school_id:
+                  <br>${curr_user.profile.school.name}
+                  % endif
+                  %if curr_user==request.user:
+                  (<a href="#change_school" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                <div style="line-height:30px; ${organization_default_2_visible}" id="organization_info_org_default_2">
+                  <b>${organization_default_2_name}</b>
+                  <% gn=list() %>
+                  % if curr_user.profile.grade_level_id:
+                  <br>
+                  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+                  % if len(c)>0:
+                  <% gn.append(GradeLevel.objects.get(id=c).name) %>
+                  % endif
+                  % endfor
+                  % endif
+                  ${", ".join(gn)}
+                  %if curr_user==request.user:
+                  (<a href="#change_grade_level" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                <div style="line-height:30px; ${organization_default_1_visible}" id="organization_info_org_default_1">
+                  <b>${organization_default_1_name}</b>
+                  % if curr_user.profile.major_subject_area_id:
+                  <br>
+                  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+                  % endif
+                   %if curr_user==request.user:
+                  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                <div style="line-height:30px; ${organization_default_3_visible}" id="organization_info_org_default_3">
+                  <b>${organization_default_3_name}</b>
+                  % if curr_user.profile.years_in_education_id:
+                  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+                  % endif
+                  %if curr_user==request.user:
+                  (<a href="#change_years_in_education" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+    
+                <div style="padding:15px 0 5px 0; ${organization_default_456_visible}" id="organization_info_org_default_456"> 
+                  <b style="font-size:14px;color:#000;">My Learners' Profile:</b>
+                </div>
+                
+                <div style="line-height:30px; ${organization_default_4_visible}" id="organization_info_org_default_4">
+                  <b>${organization_default_4_name}</b>
+                  % if curr_user.profile.percent_lunch:
+                  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+                  % endif
+                  %if curr_user==request.user:
+                  (<a href="#change_percent_lunch" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                <div style="line-height:30px; ${organization_default_5_visible}" id="organization_info_org_default_5">
+                  <b>${organization_default_6_name}</b>
+                  % if curr_user.profile.percent_iep:
+                  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+                  % endif
+                  %if curr_user==request.user:
+                  (<a href="#change_percent_iep" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                <div style="line-height:30px; ${organization_default_6_visible}" id="organization_info_org_default_6">
+                  <b>${organization_default_6_name}</b>
+                  % if curr_user.profile.percent_eng_learner:
+                  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+                  % endif
+                  %if curr_user==request.user:
+                  (<a href="#change_percent_eng_learner" rel="leanModal">edit</a>)
+                  %endif
+                </div>
+                ${organization_default_content}
             </span>
 		</li>
-        <li>
+        <li style="${organization_default_7_visible}">
           <span class="title">
           <div style="font-family: 'Open Sans';font-size:12px;">
             <b style="color:#000;font-size:14px;">Bio:</b>
@@ -1404,6 +1720,33 @@ Add info that you would like to share about yourself here:
   </div>
   <!--@end-->
 </section>
+
+<section id="change_org_dialog" class="modal" oid="${organization_id}">
+  <div class="inner-wrapper">
+    <header>
+      <h2 id="change_org_dialog_title"></h2>
+      <hr/>
+    </header>
+    <form method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;" id="change_org_dialog_field">
+            
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="button" class="btnx" id="submit" value="Save Changes" style="width:100%;" onclick="orgSaveChange()" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="email-settings-modal" class="modal">
   <div class="inner-wrapper">
     <header>
