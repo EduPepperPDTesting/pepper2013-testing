@@ -248,12 +248,13 @@ class PepRegStudent(models.Model):
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
-    
+
+    # user_id = models.IntegerField(blank=False, max_length=11, default=0)
 class UserLoginInfo(models.Model):
     class Meta:
         db_table = 'user_login_info'
     user = models.ForeignKey(UserProfile, to_field='user', on_delete=models.CASCADE, related_name="loginfo")
-    # user_id = models.IntegerField(blank=False, max_length=11, default=0)
+    
     login_time = models.CharField(max_length=30)
     logout_time = models.CharField(max_length=30)
     create_time = models.DateTimeField(auto_now_add=True)
