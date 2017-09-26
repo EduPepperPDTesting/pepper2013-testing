@@ -230,6 +230,7 @@ class PepRegInstructor(models.Model):
     class Meta:
         db_table = 'pepreg_instructor'
     training = models.ForeignKey(PepRegTraining)
+    training_id = models.IntegerField(blank=False, default=0)
     instructor = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
