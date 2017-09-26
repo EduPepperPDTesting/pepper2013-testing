@@ -257,7 +257,7 @@ class UserLoginInfo(models.Model):
     login_time = models.CharField(max_length=30)
     logout_time = models.CharField(max_length=30)
     create_time = models.DateTimeField(auto_now_add=True)
-    update_time = models.DateTimeField(auto_now=True)2
+    update_time = models.DateTimeField(auto_now=True)
     last_session = models.IntegerField(blank=False, max_length=15)
     total_session = models.IntegerField(blank=False, max_length=30)
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
