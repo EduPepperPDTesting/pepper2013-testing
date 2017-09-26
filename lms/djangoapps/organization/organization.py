@@ -117,8 +117,9 @@ def organization_register_save(request):
     try:
         OrganizationId = request.POST.get("OrganizationId", "")
         content = request.POST.get("content", "")
+        email = request.POST.get("email", "")
 
-        if OrganizationId:
+        if OrganizationId and email:
             # --------------OrganizationMetadata
             org_metadata = OrganizationMetadata()
             org_metadata_list = OrganizationMetadata.objects.filter(id=OrganizationId)
@@ -128,7 +129,8 @@ def organization_register_save(request):
 
             # --------------course_assignment_content
             org_register = OrganizationMoreText()
-            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+            startswith = '{"email":"' + email
+            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure", DataItem__startswith=startswith):
                 org_register = tmp1
                 break
 
