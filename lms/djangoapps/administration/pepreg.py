@@ -323,6 +323,9 @@ def save_training(request):
             training.attendancel_id = request.POST.get("attendancel_id", "")
 
         training.subject = request.POST.get("subject")
+        if training.subject == "Other":
+            training.subjectOther =  request.POST.get("subjectOther")
+
         training.training_date = request.POST.get("training_date", "")
         training.training_time_start = request.POST.get("training_time_start", "")
         training.training_time_end = request.POST.get("training_time_end", "")
