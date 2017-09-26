@@ -235,9 +235,8 @@ import json
 			return false;
 		}else{
 			$.ajaxSettings.async = false; 
-			$.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", OrganizationId: OrganizationId, content: "{" + org_content + "}"}, function (r) {
+			$.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", email:"${profile.user.email}", OrganizationId: OrganizationId, content: "{" + org_content + "}"}, function (r) {
 				if (r.Success){
-					
 				}else{
 					toggleSubmitButton(true);
 					return false;	
