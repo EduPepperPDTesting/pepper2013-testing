@@ -89,7 +89,7 @@ class TimeReportTask(models.Model):
 class AdjustmentTimeLog(models.Model):
     class Meta:
         db_table = 'adjustment_time_log'
-    user_id = models.IntegerField(blank=False, max_length=11)
+    user_id = models.IntegerField(blank=False, max_length=11, default=0)
     user_email = models.CharField(blank=False, max_length=75, db_index=True)
     admin_email = models.CharField(blank=False, max_length=75, db_index=True)
     type = models.CharField(blank=False, max_length=30, db_index=True)
