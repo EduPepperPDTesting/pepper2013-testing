@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
-# from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from student.models import District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
@@ -139,6 +139,10 @@ def organization_register_save(request):
             org_register.itemType = "Register Organization Structure"
             org_register.save()
 
+            specific_items = OrganizationDataitems.objects.get(organization=org_metadata)
+            course_assignment_content = OrganizationMoreText.objects.get(organization=org_metadata, itemType="Course Assignment")
+            qualifications = organization_qualifications(specific_items.DataItem, course_assignment_content.DataItem)
+            course_assign(qualifications, content)
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1098,30 +1102,10 @@ def organizational_save_base(request):
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
 
-            # -----get_organization_course_assignment_qualifications
+            # -----get_organization_course_assignment_qualifications and course_assign
             qualifications = organization_qualifications(specific_items,course_assignment_content)
-
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                data = eval(tmp1.DataItem)
-                for tmp2 in qualifications:
-                    sign = True
-                    for tmp3 in tmp2['filters']:
-                        if tmp3['data'] != '':
-                            tmp4 = tmp3['data'].split(',')
-                            if len(tmp4) <= 1:
-                                if data[tmp3['name']] != tmp3['data']:
-                                    sign = None
-                                    break
-                            else:
-                                tmp5 = data[tmp3['name']].split(',')
-                                retA = [i for i in tmp4 if i in tmp5]
-                                if len(retA) == 0:
-                                    sign = None
-                                    break
-
-                    if sign:
-                        user = User.objects.get(email=data['email'])
-                        CourseEnrollment.enroll(user, tmp2['course_id'])
+                course_assign(qualifications,tmp1.DataItem)
                         
 
 
@@ -1861,3 +1845,24 @@ def organization_qualifications(specific_items,course_assignment_content):
                          qualifications[i]['filters'][n]['name'] = tmp1['name']
 
     return qualifications
+
+def course_assign(qualifications,data):
+    data = eval(tmp1.DataItem)
+    for tmp2 in qualifications:
+        sign = True
+        for tmp3 in tmp2['filters']:
+            if tmp3['data'] != '':
+                tmp4 = tmp3['data'].split(',')
+                if len(tmp4) <= 1:
+                    if data[tmp3['name']] != tmp3['data']:
+                        sign = None
+                        break
+                else:
+                    tmp5 = data[tmp3['name']].split(',')
+                    retA = [i for i in tmp4 if i in tmp5]
+                    if len(retA) == 0:
+                        sign = None
+                        break
+        if sign:
+            user = User.objects.get(email=data['email'])
+            CourseEnrollment.enroll(user, tmp2['course_id'])
