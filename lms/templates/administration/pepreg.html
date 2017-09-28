@@ -10,6 +10,7 @@
     from student.models import State,District,School,Cohort,User,UserProfile
     from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
     from permissions.utils import check_access_level, check_user_perms
+    from models import PepRegTraining
 %>
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -195,7 +196,7 @@
                     <option value="Other">Other</option>
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;"><!--, training_date__gte=datetime.date.today()-->
-                    %for item in PepRegTraining.objects.filter(subjectOther__isnull=False).order_by("subjectOther"):
+                    %for item in PepRegTraining.objects.filter(subjectOther__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectOther"):
                         <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
                     %endfor
                 </select>
