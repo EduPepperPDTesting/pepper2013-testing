@@ -1064,8 +1064,13 @@ def do_import_user(task, csv_lines, request):
             #** course enroll
             if district.code == "3968593":
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
+            elif district.state.name == "Oklahoma":
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
@@ -1202,8 +1207,13 @@ def single_user_submit(request):
         #** course enroll
         if district.code == "3968593":
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
+        elif district.state.name == "Oklahoma":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
