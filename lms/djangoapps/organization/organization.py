@@ -139,10 +139,6 @@ def organization_register_save(request):
             org_register.itemType = "Register Organization Structure"
             org_register.save()
 
-            specific_items = OrganizationDataitems.objects.get(organization=org_metadata)
-            course_assignment_content = OrganizationMoreText.objects.get(organization=org_metadata, itemType="Course Assignment")
-            qualifications = organization_qualifications(specific_items.DataItem, course_assignment_content.DataItem)
-            course_assign(qualifications, content)
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1102,10 +1098,10 @@ def organizational_save_base(request):
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
 
-            # -----get_organization_course_assignment_qualifications and course_assign
+            # -----get_organization_course_assignment_qualifications
             qualifications = organization_qualifications(specific_items,course_assignment_content)
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                course_assign(qualifications,tmp1.DataItem)
+                course_assign(tmp1.DataItem)
                         
 
 
