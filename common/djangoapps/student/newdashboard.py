@@ -1213,7 +1213,7 @@ def announcements(user_id,organization_type,expiration_date):
             organization_id = user.profile.school.id
         elif organization_type == 'Pepper':
             organization_id = 0
-        announcments = list(announcement.find_announcements(expiration_date,organization_id,,organization_type))
+        announcments = list(announcement.find_announcements(expiration_date,organization_id,organization_type))
         if announcments:
             for tmp in announcments:
                 announcement_user.create(user_id=user.id, announcement_id=tmp['_id'], organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
