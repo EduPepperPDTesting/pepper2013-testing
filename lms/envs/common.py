@@ -597,8 +597,24 @@ notes_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/notes/**/*.co
 
 PIPELINE_CSS = {
     'application': {
-        'source_filenames': ['sass/application.css'],
+        'source_filenames': [
+            'sass/application.css',
+            'sass/header.css',
+            'sass/footer.css',
+        ],
         'output_filename': 'css/lms-application.css',
+    },
+    'header': {
+        'source_filenames': [
+            'sass/header.css',
+        ],
+        'output_filename': 'css/lms-header.css',
+    },
+    'footer': {
+        'source_filenames': [
+            'sass/footer.css',
+        ],
+        'output_filename': 'css/lms-footer.css',
     },
     'course': {
         'source_filenames': [
@@ -879,7 +895,7 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
-    # organization
+    # Organization
     'organization',
 
     'async_task',
