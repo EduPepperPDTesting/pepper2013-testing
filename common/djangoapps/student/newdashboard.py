@@ -1195,7 +1195,7 @@ def get_announcements(request):
 def announcements(user_id,organization_type,expiration_date):
     announcement_user = dashboard_announcement_user()
     announcement = dashboard_announcement_store()
-    announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
+    announcment_id = list(announcement_user.get_announcements(user_id,organization_type,expiration_date))
     announcments = []
     if len(announcment_id) > 0:
         for tmp in announcment_id:
