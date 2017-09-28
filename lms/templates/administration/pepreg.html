@@ -2168,6 +2168,7 @@
         $("#filter-suject-drop").change(function () {
             var val = $(this).val();
             var $input = $(this).next("select"); //("input");
+            $input.show().val("");
             /*if (val == "Other") {
                 $input.show().val("");
             } else {
