@@ -1847,7 +1847,7 @@ def organization_qualifications(specific_items,course_assignment_content):
     return qualifications
 
 def course_assign(qualifications,data):
-    data = eval(data.DataItem)
+    data = eval(data)
     for tmp2 in qualifications:
         sign = True
         for tmp3 in tmp2['filters']:
