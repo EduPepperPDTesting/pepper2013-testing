@@ -319,7 +319,7 @@ class DashboardAnnouncementUser(MongoBaseStore):
         self.remove({"announcement_id":ObjectId(announcement_id)})
 
     def dismiss_announcement(self, announcement_id, user_id):
-        self.remove({"announcement_id":ObjectId(announcement_id),"user_id":user_id})
+        self.update({"announcement_id":ObjectId(announcement_id),"user_id":user_id},{"$set":{"dismiss":1}})
 
 def dashboard_announcement_store():
     options = {}
@@ -360,3 +360,6 @@ class DashboardAnnouncementStore(MongoBaseStore):
 
     def remove_announcement(self,announcement_id):
         self.remove({"_id": ObjectId(announcement_id)})
+
+    def find_announcements(self,expiration_date,organization_id,organization_type):
+        self.find({"organization_type":organization_type,"expiration_date":{"$gte":expiration_date},"organization_id":organization_id}).sort('_id',-1)

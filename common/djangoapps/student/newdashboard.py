@@ -1197,8 +1197,25 @@ def announcements(user_id,organization_type,expiration_date):
     announcement = dashboard_announcement_store()
     announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
     announcments = []
-    for tmp in announcment_id:
-        announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    if len(announcment_id) > 0:
+        for tmp in announcment_id:
+            if not tmp.has_key('dismiss'):
+                announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    else:
+        user = User.objects.get(id=user_id)
+        if organization_type == "System":
+            organization_id = 0
+        elif organization_type == "State":
+            organization_id = user.profile.district.state.id
+        elif level == "District":
+            organization_id = user.profile.district.id
+        elif organization_type == "School":
+            organization_id = user.profile.school.id
+        elif organization_type == 'Pepper':
+            organization_id = 0
+            announcments = announcement.find_announcements(expiration_date,organization_type,organization_id)
+            for tmp in announcments:
+                announcement_user.create(user_id=user.id, announcement_id=tmp._id, organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
     
     result = [elem for elem in announcments if elem != None]
     return result
