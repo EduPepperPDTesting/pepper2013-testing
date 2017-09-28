@@ -27,7 +27,10 @@
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
-
+<style>
+	.icon-edit:before {font-family:FontAwesome;	}
+	.icon-remove:before {font-family:FontAwesome;	}
+</style>
 <!-- Time Report -->
 %if check_user_perms(request.user, 'time_report', 'adjust_time'):
 <div class = "data_import_top">
