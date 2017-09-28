@@ -1207,15 +1207,16 @@ def announcements(user_id,organization_type,expiration_date):
             organization_id = 0
         elif organization_type == "State":
             organization_id = user.profile.district.state.id
-        elif level == "District":
+        elif organization_type == "District":
             organization_id = user.profile.district.id
         elif organization_type == "School":
             organization_id = user.profile.school.id
         elif organization_type == 'Pepper':
             organization_id = 0
-            announcments = announcement.find_announcements(expiration_date,organization_type,organization_id)
+        announcments = list(announcement.find_announcements(expiration_date,organization_id,,organization_type))
+        if announcments:
             for tmp in announcments:
-                announcement_user.create(user_id=user.id, announcement_id=tmp._id, organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
+                announcement_user.create(user_id=user.id, announcement_id=tmp['_id'], organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
     
     result = [elem for elem in announcments if elem != None]
     return result
