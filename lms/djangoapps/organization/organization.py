@@ -1101,7 +1101,7 @@ def organizational_save_base(request):
             # -----get_organization_course_assignment_qualifications
             qualifications = organization_qualifications(specific_items,course_assignment_content)
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                course_assign(tmp1.DataItem)
+                course_assign(qualifications,tmp1.DataItem)
                         
 
 
