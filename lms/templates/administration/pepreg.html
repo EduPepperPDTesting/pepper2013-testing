@@ -194,8 +194,8 @@
                     <option value="WR">Writing and Poetry</option>
                     <option value="Other">Other</option>
                 </select>
-                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;"><!--subjectOther__isnull=False,-->
-                    %for item in PepRegTraining.objects.filter(training_date__gte=datetime.date.today()).order_by("subjectOther"):
+                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;"><!--, training_date__gte=datetime.date.today()-->
+                    %for item in PepRegTraining.objects.filter(subjectOther__isnull=False, subjectOther__exact!='').order_by("subjectOther"):
                         <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
                     %endfor
                 </select>
