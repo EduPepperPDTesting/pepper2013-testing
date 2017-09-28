@@ -2168,13 +2168,13 @@
         $("#filter-suject-drop").change(function () {
             var val = $(this).val();
             var $input = $(this).next("select"); //("input");
-            if (val == "Other") {
+            /*if (val == "Other") {
                 $input.show().val("");
             } else {
                 $input.hide();
                 $input.val(val);
             }
-            $input.change();
+            $input.change();*/
         });
     };
     PepReg.prototype.showStudents = function (training_id) {
