@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
-from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed
+from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
 from pepper_utilities.utils import random_mark
 import json
 import logging
