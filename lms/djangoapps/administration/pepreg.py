@@ -77,6 +77,7 @@ def build_filters(columns, filters):
         # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
             c = int(column)
+            if c == 16: c = 11
             # If the column is an integer value, convert the search term.
             out_value = value
             if columns[c][2] == 'int' and value.isdigit():
