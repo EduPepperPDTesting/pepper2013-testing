@@ -43,9 +43,6 @@
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <script type="text/javascript" src="/static/js/navigation.js"></script>
 <script type="text/javascript" src="/static/js/string_utils.js"></script>
-<style>	
-   .sequence-list-wrapper {z-index: 2 !important}
-</style>
 % if course:
     <header id="pepper-nav" class="pepper-nav pepper-slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
 % else:
@@ -281,7 +278,7 @@
                 <h2 class="message_board_full_name">${_("namename")}</h2>
                 <hr/>
             </header>
-            <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
+            <div class="message_board_listCon"><div class="message_board_list"></div></div>
             <form id="" method="post">
                 <div>
                     <div class="message_board_content" contenteditable="true"><p class="message_board_txt_prompt">Type Your Message Here</p></div>

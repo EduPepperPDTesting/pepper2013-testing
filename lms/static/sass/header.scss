@@ -708,6 +708,71 @@ header.pepper-nav {
   .sequence-list-wrapper {
     z-index: 2 !important;
   }
+  
+  	ul.admin-dropdown-menu.expanded {
+        display: block;
+    }
+    ul.admin-dropdown-menu {
+        background: #FCFCFC none repeat scroll 0% 0%;
+        border-radius: 4px;
+        box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #646464;
+        display: none;
+        padding: 5px 10px;
+        position: absolute;
+        right: -12px;
+        top: 50px;
+        width1: 262px;
+        z-index: 3;
+    }
+    ul.admin-dropdown-menu li {
+        display: block;
+        border-top: 1px dotted #C8C8C8;
+        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
+    }
+    ul.admin-dropdown-menu li > a {
+        border: 1px solid transparent;
+        border-radius: 3px;
+        box-sizing: border-box;
+        color: #1D9DD9;
+        cursor: pointer;
+        display: block;
+        margin: 5px 0px;
+        overflow: hidden;
+        padding: 3px 10px 4px;
+        text-overflow: ellipsis;
+        transition: padding 0.15s linear 0s;
+        white-space: nowrap;
+        width: 100%;
+    }
+    ul.admin-dropdown-menu li:first-child {
+        border: medium none;
+        box-shadow: none;
+    }
+    ul.admin-dropdown-menu:before {
+        background: transparent none repeat scroll 0% 0%;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #FCFCFC #FCFCFC transparent transparent;
+        box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
+        content: "";
+        display: block;
+        height: 0px;
+        position: absolute;
+        transform: rotate(-45deg);
+        right: 12px;
+        top: -6px;
+        width: 0px;
+    }
+    .message_item{
+        margin-bottom: 10px;
+    }
+  
+  .message_board_listCon{
+  	height:350px;
+	overflow-y:auto;
+	overflow-x:hidden;
+  }
 
   .pepper-slim h1.pepper-logo-wrap::before {
     top: 5px;
@@ -817,6 +882,10 @@ header.pepper-nav {
     text-decoration: none;
     color: $link-color !important;
   }
+}
+
+.pepper-nav-global-01{
+	display:none;
 }
 
 // login
