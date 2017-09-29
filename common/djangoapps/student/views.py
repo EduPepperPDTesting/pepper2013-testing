@@ -1204,7 +1204,7 @@ def create_account(request, post_override=None):
         return HttpResponse(json.dumps(js))
 
     if post_vars.get('activation_key'):
-        return activate_imported_account(post_vars, request.FILES.get("photo"))
+        return activate_imported_account(post_vars)
 
     # Ok, looks like everything is legit.  Create the account.
     ret = _do_create_account(post_vars)
@@ -1954,7 +1954,7 @@ def change_percent_eng_learner(request):
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
 # called by create_account()
-def activate_imported_account(post_vars, photo):
+def activate_imported_account(post_vars):
     ret = {'success': False}
     try:
         registration = Registration.objects.get(activation_key=post_vars.get('activation_key', ''))
@@ -2009,7 +2009,19 @@ def activate_imported_account(post_vars, photo):
                 ret['field'] = 'username'
             raise e
 
-        upload_user_photo(profile.user.id, photo)
+        # upload_user_photo(profile.user.id, photo)
+        photo_str = post_vars.get('photo','')
+        photo_str = photo_str.split(',')[1]
+        imgData = base64.b64decode(photo_str)
+        img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+        img_file.write(imgData)       
+        img_file.close()
+        im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+        x,y = im.size
+        p = Image.new('RGBA', im.size, (255,255,255))
+        p.paste(im, (0, 0, x, y), im)
+        p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+        upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
 
