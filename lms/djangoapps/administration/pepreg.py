@@ -77,12 +77,12 @@ def build_filters(columns, filters):
         # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
             c = int(column)
-            raise Exception("c="+str(c))
+
             # If the column is an integer value, convert the search term.
             try:
                 out_value = value
             except:
-                raise Exception("c="+c)
+                raise Exception("c="+str(c))
             if columns[c][2] == 'int' and value.isdigit():
                 out_value = int(value)
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
