@@ -131,7 +131,7 @@
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
                     window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
-                    link = "<a href = '/webchat/videopopup?session="+session+"&token="+data.token+"'>Video Chat</a>";
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
                     sendMessage(request_user_id, link);
                 });
             });
@@ -167,7 +167,7 @@
 	});
 
     function sendMessage(send_user, link) {
-        message = "Click here to join!";
+        message = "${request.user.username} wants to start a video chat! ";
         message += link;
         var datainfo = {
             'info': JSON.stringify({

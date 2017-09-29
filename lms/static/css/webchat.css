@@ -7,7 +7,7 @@
 #subscriber {
     position: absolute;
     top: 72%;
-    left: 0;
+    right: 0;
     height: 80px;
     width: 120px;
     z-index: 10;
