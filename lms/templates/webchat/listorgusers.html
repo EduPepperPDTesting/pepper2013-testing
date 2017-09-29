@@ -51,8 +51,11 @@
 						tbodyID = "#users_"+commId;
 						var username;
 						for(i = 0; i < userRows.length; i++){
-							username = userRows[i];
-							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							var r = userRows[i];
+                            username = userRows[i][0];
+                            id = userRows[i][1];
+                            console.log(r);
+							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
 						$(".pep_contact_name").tooltip({
@@ -122,7 +125,16 @@
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
 			var $link = $(e.target);
 			e.preventDefault();
-            window.open ('/webchat/videopopup?session=default&token=default', 'popup', 'postwindow')
+            user_id = ${request.user.id};
+            request_user_id = $(this).attr("id");
+            $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                    link = "<a href = '/webchat/videopopup?session="+session+"&token="+data.token+"'>Video Chat</a>";
+                    sendMessage(request_user_id, link);
+                });
+            });
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).prev().text();
 				if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
@@ -153,4 +165,31 @@
 			$link.data('lockedAt', +new Date());
 		});
 	});
+
+    function sendMessage(send_user, link) {
+        message = "Click here to join!";
+        message += link;
+        var datainfo = {
+            'info': JSON.stringify({
+            'sender_id': '${user.id}',
+            'recipient_id': send_user,
+            'date': (new Date()).toISOString(),
+            'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user,
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': '',
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+    }
 </script>

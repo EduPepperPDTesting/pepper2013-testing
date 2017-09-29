@@ -119,6 +119,7 @@ urlpatterns = (
     url(r'^getnetworkusers/$', 'get_network_users', name="get_network_users"),
 
     url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
+    url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 

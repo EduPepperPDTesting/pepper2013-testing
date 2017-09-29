@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat
+from .models import CommunityWebchat, UserWebchat
 from people.views import my_people
 from django.contrib.auth.models import User
 try:
@@ -124,6 +124,26 @@ def get_community_session(request):
         comm = CommunityWebchat.objects.get(community=ref)
         return HttpResponse (json.dumps({'session': comm.session_id}), content_type="application/json")
 
+
+def get_user_session(request):
+    user = UserWebchat.objects.filter(user__id=request.POST.get('user_id'))
+    if not user:
+        api_key = "45939862"        # Replace with your OpenTok API key.
+        api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"  # Replace with your OpenTok API secret.
+        opentok_sdk = opentok.OpenTok (api_key, api_secret)
+        sid = opentok_sdk.create_session()
+        use = UserWebchat()
+        ref = User.objects.get (id=request.POST.get('user_id'))
+        use.user = ref
+        use.session_id = sid.session_id
+        use.save()
+        return HttpResponse(json.dumps({'session': sid.session_id}), content_type="application/json")
+    else:
+        ref = User.objects.get(id=request.POST.get('user_id'))
+        use = UserWebchat.objects.get(user=ref)
+        return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
+
+
 def get_community_user_rows(request):
     """
     Builds the rows for display in the community members in webchat widget.
@@ -145,7 +165,7 @@ def get_community_user_rows(request):
     for item in users:
         row = list()
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
-
+        row.append(str(item.user.id))
         rows.append(row)
 
     if not rows:

@@ -7,3 +7,9 @@ class CommunityWebchat (models.Model):
         db_table = 'community_webchat'
     community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     session_id = models.CharField(max_length=255)
+
+class UserWebchat (models.Model):
+    class Meta:
+        db_table = 'auth_user_webchat'
+    user = models.ForeignKey (User, on_delete=models.CASCADE)
+    session_id = models.CharField(max_length=255)
