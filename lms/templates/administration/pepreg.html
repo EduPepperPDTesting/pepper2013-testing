@@ -198,8 +198,8 @@
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
-                    %for item in PepRegTraining.objects.exclude(subjectOther__exact='').filter(subjectOther__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectOther"):
-                        <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
+                    %for item in PepRegTraining.objects.exclude(subjectother__exact='').filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                        <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
                     %endfor
                 </select>
                 <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
@@ -1640,7 +1640,7 @@
             allow_validation: $form.find("input[name=allow_validation]:checked").val()
         };
         if (json.subject == "Other") {
-            json.subjectOther = $form.find("input[name=subject-other]").val();
+            json.subjectother = $form.find("input[name=subject-other]").val();
             //json.subject = $form.find("input[name=subject-other]").val();
         }
         if (json.training_time_start) {
