@@ -10,6 +10,8 @@
     from student.models import State,District,School,Cohort,User,UserProfile
     from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
     from permissions.utils import check_access_level, check_user_perms
+    from administration.models import PepRegTraining
+    import datetime
 %>
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -179,7 +181,7 @@
                         %endif
                     </select>
                 %endif
-                <select id="filter-suject-drop" name="" autocomplete="off">
+                <select id="filter-suject-drop" name="" autocomplete="off" data-column="3">
                     <option value="">Select Subject</option>
                     <option value="AR">Assessments and Reporting</option>
                     <option value="DC">Digital Citizenship</option>
@@ -194,8 +196,9 @@
                     <option value="WR">Writing and Poetry</option>
                     <option value="Other">Other</option>
                 </select>
-                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;">
-                    %for item in PepRegTraining.objects.all().filter(subjectOther__isnull=False, subjectOthertraining_date__gte=datetime.date.today()).order_by("subjectOther"):
+                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="8">
+                    <option value="">Select</option>
+                    %for item in PepRegTraining.objects.exclude(subjectOther__exact='').filter(subjectOther__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectOther"):
                         <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
                     %endfor
                 </select>
@@ -2165,13 +2168,14 @@
         $("#filter-suject-drop").change(function () {
             var val = $(this).val();
             var $input = $(this).next("select"); //("input");
+            $input.val("");
             if (val == "Other") {
-                $input.show().val("");
+                $input.show();
             } else {
                 $input.hide();
-                $input.val(val);
+                //$input.val(val);
             }
-            $input.change();
+            //$input.change();
         });
     };
     PepReg.prototype.showStudents = function (training_id) {
