@@ -166,7 +166,8 @@ def rows(request):
         7: ['training_date', '__iexact', False],
         8: ['training_time_start', '__iexact', 'str'],
         9: ['geo_location', '__iexact', 'str'],
-        10: ['credits', '__iexact', 'int']
+        10: ['credits', '__iexact', 'int'],
+        16: ['subjectother', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
@@ -288,7 +289,8 @@ def rows(request):
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
                 remain
-            )
+            ),
+            item.subjectother,
         ]
         rows.append(row)
 

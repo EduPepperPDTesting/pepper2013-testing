@@ -196,7 +196,7 @@
                     <option value="WR">Writing and Poetry</option>
                     <option value="Other">Other</option>
                 </select>
-                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="4">
+                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
                     %for item in PepRegTraining.objects.exclude(subjectOther__exact='').filter(subjectOther__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectOther"):
                         <option class="${item.id}" value="${item.subjectOther}">${item.subjectOther}</option>
@@ -240,7 +240,6 @@
                             <th>State</th>
                             <th>District</th>
                             <th>Subject</th>
-                            <th>Other Subject</th>
                             <th>Course</th>
                             <th>Training Name</th>
                             <th>Description</th>
@@ -257,6 +256,7 @@
                                     <label class="columnSelectorButton" for="colSelect1"></label>
                                 </div>
                             </th>
+                            <th>Other Subject</th>
                         </tr>
                     </thead>
                     <tbody id="user_data_tbody"></tbody>
