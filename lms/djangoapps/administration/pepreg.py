@@ -167,7 +167,7 @@ def rows(request):
         8: ['training_time_start', '__iexact', 'str'],
         9: ['geo_location', '__iexact', 'str'],
         10: ['credits', '__iexact', 'int'],
-        16: ['subjectother', '__iexact', 'str'],
+        11: ['subjectother', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
