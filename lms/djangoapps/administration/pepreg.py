@@ -78,7 +78,6 @@ def build_filters(columns, filters):
         if not column == 'all':
             c = int(column)
             # If the column is an integer value, convert the search term.
-            
             try:
                 out_value = value
             except:
