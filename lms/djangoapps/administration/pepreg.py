@@ -77,7 +77,6 @@ def build_filters(columns, filters):
         # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
             c = int(column)
-            if c == 16: c = 11
             # If the column is an integer value, convert the search term.
             try:
                 out_value = value
@@ -122,6 +121,8 @@ def get_post_array(post, name, max=None):
         if key.startswith(name + '[') and not value == 'undefined':
             start = key.find('[')
             i = key[start + 1:-1]
+            if name =='fcol' and i == '16':
+                i = '11'
             if max and int(i) > max:
                 i = 'all'
             output.update({i: value})
