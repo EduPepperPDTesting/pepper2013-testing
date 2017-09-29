@@ -77,7 +77,7 @@ def build_filters(columns, filters):
         # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
             c = int(column)
-            raise Exception("c="+c)
+            raise Exception("c="+str(c))
             # If the column is an integer value, convert the search term.
             try:
                 out_value = value
