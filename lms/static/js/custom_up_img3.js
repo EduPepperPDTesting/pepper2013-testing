@@ -90,6 +90,7 @@ $(function() {
     	var url=$(this).attr("url");
     	var canvas=$("#image").cropper('getCroppedCanvas');
     	var data=canvas.toDataURL(); //转成base64
+        $("#show_photo").val(data);
         $("#user_photo").val(data);
         $("#change_photo").hide();
     });
