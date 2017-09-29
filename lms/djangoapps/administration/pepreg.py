@@ -121,8 +121,6 @@ def get_post_array(post, name, max=None):
         if key.startswith(name + '[') and not value == 'undefined':
             start = key.find('[')
             i = key[start + 1:-1]
-            if name =='fcol' and i == '16':
-                i = '11'
             if max and int(i) > max:
                 i = 'all'
             output.update({i: value})
@@ -189,6 +187,11 @@ def rows(request):
 
     if filters.get('7'):
         filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+
+    if filters.get('16'):
+        filters['11'] = filters.get('16')
+        del filters['16']
+
 
     # limit to district trainings for none-system
     is_no_System = False
