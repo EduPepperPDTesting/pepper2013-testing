@@ -79,7 +79,10 @@ def build_filters(columns, filters):
             c = int(column)
             if c == 16: c = 11
             # If the column is an integer value, convert the search term.
-            out_value = value
+            try:
+                out_value = value
+            except:
+                raise Exception("c="+c)
             if columns[c][2] == 'int' and value.isdigit():
                 out_value = int(value)
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
