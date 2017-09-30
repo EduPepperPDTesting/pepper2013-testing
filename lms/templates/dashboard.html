@@ -139,7 +139,7 @@
                                 pass
                                 
                         if curr_user == request.user:
-                            organization_default_content += '<span field_type="' + item["field_type"] + '" field_type_2="' + item["field_type_2"] + '" field_type_3="' + item["field_type_3"] + '" field_type_4="' + item["field_type_4"] + '" field_type_5="' + item["field_type_5"] + '">' + tmp_item_value + '</span>'
+                            organization_default_content += '<span style="display:inline !important;" field_type="' + item["field_type"] + '" field_type_2="' + item["field_type_2"] + '" field_type_3="' + item["field_type_3"] + '" field_type_4="' + item["field_type_4"] + '" field_type_5="' + item["field_type_5"] + '">' + tmp_item_value + '</span>'
                         else:
                             organization_default_content += tmp_item_value
                                         
