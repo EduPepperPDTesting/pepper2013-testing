@@ -595,6 +595,10 @@ staff_grading_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/staff
 open_ended_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/open_ended/**/*.js'))
 notes_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/notes/**/*.coffee'))
 
+
+
+
+
 PIPELINE_CSS = {
     'application': {
         'source_filenames': ['sass/application.css'],
@@ -617,6 +621,7 @@ PIPELINE_CSS = {
         'output_filename': 'css/lms-ie.css',
     },
 }
+
 
 # test_order: Determines the position of this chunk of javascript on
 # the jasmine test page
@@ -879,13 +884,13 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
-    # organization
+    # web chat
+    'webchat',
+
+    #organization
     'organization',
 
-    'async_task',
-
-    # Header/footer
-    'header_footer'
+    'async_task'
 )
 
 ######################### MARKETING SITE ###############################

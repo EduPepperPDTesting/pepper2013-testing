@@ -1,0 +1,179 @@
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<div id="pep_container">
+
+    <div id="pep_title_tab">
+        <div id="pep_title_text">PepTalk</div>
+    </div>
+    <div id="pep_panel" class="container">
+        <div id="pep_search_container" class="input-group">
+            <input type="text" class="form-control" placeholder="Search" name="srch-term" id="pep_search">
+            <div class="input-group-btn">
+                <button id="pep_search_btn" class="btn btn-default" type="submit"><i
+                        class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>
+        <div id="pep_groups" class="btn-group">
+            <a type="button" class="btn btn-xs" style="border-right:2px groove;" id="my_all">All</a>
+            <a type="button" class="btn btn-xs" style="border-right:2px groove;" id="my_network">My Network</a>
+            <a type="button" class="btn btn-xs" id="my_communities">My Communities</a>
+        </div>
+        <div id="pep_user_list">
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/125/125702.svg" alt="im-network"></a></span>
+                    <span class="pep_online_status">&#11044;</span>
+                </div>
+                <div class="pep_contact_name">Mike</div>
+                <div class="pep_start_video">
+                    <a><img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"></a>
+                </div>
+            </div>
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_contact_type"><a><img class="pep_type_icon" src="https://image.flaticon.com/icons/svg/33/33965.svg" alt="im-community"></a></span>
+                </div>
+                <div class="pep_contact_name">Second User</div>
+                <div>
+                </div>
+            </div>
+            <div class="pep_contact_block">
+                <div class="pep_add_im">+</div>
+                <div class="pep_contact_info">
+                    <span class="pep_online_status">&#11044;</span>
+                </div>
+                <div class="pep_contact_name">Third User</div>
+                <div class="pep_start_video">
+                    <a><img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"></a>
+                </div>
+            </div>
+        </div>
+        <div id="pep_slider_list"></div>
+        <div id="pep_slider_icons">
+            <a href="#">
+                <img src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
+                     alt="im-text">
+            </a>
+            <a href="#">
+                <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video">
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    var pos='out';
+    $("#pep_title_tab").click(function(){
+        if(pos=='in'){
+            $("#pep_container").animate({right:'-216px'});
+            $("#pep_title_tab").animate({right:'0px'});
+            pos='out';
+        }else{
+            $("#pep_container").animate({right:'0px'});
+            $("#pep_title_tab").animate({right:'211px'});
+            pos='in';
+        }
+    });
+
+    $(".pep_contact_name").tooltip({
+        items: ".pep_contact_name",
+        track: true,
+        open: function (event, ui) {
+            ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+        },
+        show: {
+            effect: "slideDown",
+            delay: 250
+        },
+        content: function(){
+            var username = $(this).text();
+            return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+        }
+    });
+
+    $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
+        var $link = $(e.target);
+        e.preventDefault();
+        if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+            var uname = $(this).text();
+            if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
+                var uname = uname.replace(" ", "_");
+
+                var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
+                if(elCount <= 19){
+                    var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
+                    if(leftMin < 0){
+                        $(".pep_text_container:has(.pep_text_panel)").each(function(i, el){
+                            if(i > 0){
+                                var pos = $(el).offset();
+                                var leftX = pos.left + (i * 2 * 235) / elCount;
+                                if(leftX + 235 <= window.innerWidth){
+                                    $(el).css({"right": "", "left": leftX + "px"});
+                                }
+                            }
+                        });
+                    }
+                    var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
+                    $(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
+                    leftX-=235;
+                    $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+                }
+            }
+        }
+        $link.data('lockedAt', +new Date());
+    });
+
+    $(".pep_contact_block").on("click", ".pep_start_video", function(e){
+        var $link = $(e.target);
+        e.preventDefault();
+        if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+            var uname = $(this).prev().text();
+            if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
+                var uname = uname.replace(" ", "_");
+
+                var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
+                if(elCountAll <= 9){
+                    elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
+                    var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
+                    if(leftMin < 0){
+                        $(".pep_video_container:not(.moved)").each(function(i, el){
+                            if(i > 0){
+                                var pos = $(el).offset();
+                                var leftX = pos.left + (i * 2 * 450) / elCountStatic;
+                                if(leftX + 450 <= window.innerWidth){
+                                    $(el).css({"right": "", "left": leftX + "px"});
+                                }
+                            }
+                        });
+                    }
+                    var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
+                    $(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
+                    leftX-=450;
+                    $(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+                }
+            }
+        }
+        $link.data('lockedAt', +new Date());
+    });
+
+    $("#my_network").on("click", function(e){
+        $("#pep_user_list").load("/getnetwork/");
+    });
+
+    $("#my_communities").on("click", function(e){
+        $("#pep_user_list").load("/getcommunities/");
+    });
+    $(".pep_contact_block").on("click", ".pep_start_video", function(){
+        var uname = $(this).prev().text().replace(" ", "_");
+        $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
+        window.open("/webchat/videopopup",'mypopup', 'postwindow');
+    });
+});
+</script>

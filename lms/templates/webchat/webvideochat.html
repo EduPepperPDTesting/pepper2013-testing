@@ -1,0 +1,162 @@
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
+
+<div id="webchat" class="modal">
+     <div id="videos">
+        <div id="subscriber"></div>
+        <div id="publisher"></div>
+    </div>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+</div>
+<div class="pep_videochat_block">
+    <div class="pep_video_container"></div>
+</div>
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.pep_videochat_block').on('mousedown', '.pep_videochatheader_container', function (e) {
+        e.preventDefault();
+        var header = $(this);
+        $(this).css("cursor", "move");
+        var pos = $(this).offset();
+        var left = pos.left;
+        var top = pos.top;
+        //console.log(e.pageX + " " + e.pageY);
+        distX = e.pageX - left;
+        distY = e.pageY - top;
+
+        //$(this).closest('.pep_video_container').on('mousemove', '.pep_videochatheader_container', function (e) {
+        $(this).on('mousemove', function (e) {
+            var attr = $(e.target).parents(".pep_video_container").attr("data-left");
+            if (typeof attr === typeof undefined || attr === false) {
+                $(e.target).parents(".pep_video_container").attr("data-left", left - 1);
+            }
+            //console.log(e.pageX + " " + e.pageY);
+            var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
+            var thisZindex = $(e.target).parents(".pep_video_container").css("zIndex");
+            var topZindex = 0;
+            for(var i = 0; i < elCountAll; i++){
+                var getZindex = $(".pep_video_container:eq("+ i +")").css("zIndex");
+                if(topZindex < parseInt(getZindex)) topZindex = parseInt(getZindex);
+            }
+
+            if(thisZindex < topZindex){
+                topZindex += 1;
+                if(thisZindex < topZindex) $(e.target).parents(".pep_video_container").css("z-index", topZindex);
+            }
+
+            $(e.target).parents(".pep_video_container").addClass("moved");
+            left = e.pageX - (distX);
+            top = e.pageY - (distY);
+
+            left = (left < 0)? 0 : (left > window.innerWidth - 450)? window.innerWidth - 450 : left;
+            top = (top < 73)? 73 : (top > window.innerHeight - 245)? window.innerHeight - 245 : top;
+            $(this).closest('.pep_video_container').css({
+                'left': left + 'px',
+                'top': top + 'px'
+            });
+        });
+
+        //$(this).closest('.pep_video_container').on('mouseleave', '.pep_videochatheader_container', function (e) {
+        $(this).on('mouseleave', function (e) {
+            console.log(e.pageX + " " + e.pageY);
+            var pos = header.offset();
+            var leftLeave = pos.left;
+            var topLeave = pos.top;
+            distLeaveX = e.pageX - leftLeave;
+            distLeaveY = e.pageY - topLeave;
+            leftLeave = e.pageX - (distLeaveX);
+            topLeave = e.pageY - (distLeaveY);
+            $(document.body).css("cursor", "move");
+
+            $(document).on('mousemove', function (e) {
+                left = (leftLeave < 0)? 0 : (leftLeave > window.innerWidth - 450)? window.innerWidth - 450 : leftLeave;
+                top = (topLeave < 73)? 73 : (topLeave > window.innerHeight - 245)? window.innerHeight - 245 : topLeave;
+                //$(this).closest('.pep_video_container').css({
+                header.parents('.pep_video_container').css({
+                    'left': leftLeave + 'px',
+                    'top': topLeave + 'px'
+                });
+            });
+
+            $(document).on('mouseup', function (e) {
+                header.css("cursor", "default");
+                header.off('mousemove');
+                header.off('mouseleave');
+                $(document.body).css("cursor", "default");
+                $(document).off('mousemove');
+                header.off('mousemove');
+                header.off('mouseleave');
+            });
+
+            $(this).on('mouseenter', function (e) {
+                $(document.body).css("cursor", "default");
+                $(document).off('mousemove');
+            });
+        });
+
+    });
+
+    $('.pep_videochat_block').on('mouseup', '.pep_videochatheader_container', function (e) {
+        $(this).css("cursor", "default");
+        $(document.body).css("cursor", "default");
+        $(document).off('mousemove');
+        $(this).off('mousemove');
+        $(this).off('mouseleave');
+    });
+
+    $(".pep_videochat_block").on("click", ".close-chat", function(){
+        var videocont = $(this).parents(".pep_video_container");
+
+        var getContainers = $(document).find(".pep_video_container:has(.pep_video_panel):not(.moved)");
+        var elCount = getContainers.length - 1;
+        if(!videocont.hasClass("moved")){
+            var ind = videocont.index();
+        }else{
+            var ind = videocont.index() - 1;
+
+            if(ind < 0) {elCount += 1; ind = 0;}
+        }
+        console.log(ind);
+        ind = elCount - ind;
+        console.log(elCount);
+        $(getContainers.get().reverse()).each(function(i, el){
+            if(i < ind){
+                console.log(i +" "+ ind);
+                var emptyHolder = 0;
+                thisEl = $(el);
+                if(thisEl.prev().length != 0){
+                    var posPrev = thisEl.prev(".pep_video_container:has(.pep_video_panel):not(.moved)").offset();
+                    if(posPrev !== undefined){
+                        var leftX = posPrev.left;
+                    }else{
+                        var leftX = parseInt(thisEl.prev().attr("data-left"));
+                    }
+                }else{
+                    var leftX = window.innerWidth - 450;
+                }
+                $(el).css({"right": "", "left": leftX + "px"});
+            }
+        });
+
+        videocont.remove();
+        var elCount = $(document).find(".pep_video_container:has(.pep_video_panel):not(.moved)").length;
+        if(elCount > 1){
+            var totalLength = elCount * 450;
+            if(totalLength < window.innerWidth){
+                for(var i=1; i<elCount; i++){
+                    $(document).find(".pep_video_container:has(.pep_video_panel):not(.moved):eq('"+ i +"')").css("left", window.innerWidth - (450 * (i + 1)));
+                }
+            }
+        }else if(elCount == 1){
+            $(document).find(".pep_video_container:has(.pep_video_panel):not(.moved)").css("left", window.innerWidth - 450);
+        }
+    });
+
+});
+</script>

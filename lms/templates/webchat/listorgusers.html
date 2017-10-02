@@ -1,0 +1,195 @@
+<%!
+   from django.core.urlresolvers import reverse
+%>
+
+<div>
+	%for org in orgs_list:
+	<table class="org-list-table pep_contact_block" data="${org}">
+		<thead>
+			<tr>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+	%endfor
+</div>
+
+<script>
+	$(document).ready(function(){
+		$(".org-list-table").each(function(){
+			var tableData = $(this).attr("data");
+			console.log(tableData);
+			if(tableData != 'My Network'){
+				tableData = tableData.replace(/~/g, "\'");
+				var idStartIndex = tableData.indexOf(": ") + 2;
+				var idEndIndex = tableData.indexOf(",") - 1;
+				var nameStartIndex = tableData.indexOf(": u") + 4;
+				var nameEndIndex = tableData.indexOf("}") - 1;
+				var commId = tableData.substring(idStartIndex, idEndIndex);
+				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
+				var rowSource = "${reverse('get_community_user_rows')}";
+			}else{
+				var commId = 'network';
+				var commName = tableData;
+				var rowSource = "${reverse('get_network_user_rows')}";
+			}
+			$(this).attr('id', 'community_'+commId);
+			$(this).find('th').text(commName);
+            $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
+			$(this).find('tbody').attr('id', 'users_'+commId);
+			if (commId != ""){
+				$.post(rowSource, {community_id: commId}, function (data) {
+					if (data.success) {
+						if (commId == 'network'){
+							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){
+								var userRows = networkData.rows;
+							});
+						}else{
+							var userRows = data.rows;
+						}
+						tbodyID = "#users_"+commId;
+						var username;
+						for(i = 0; i < userRows.length; i++){
+							var r = userRows[i];
+                            username = userRows[i][0];
+                            id = userRows[i][1];
+                            console.log(r);
+							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+						}
+
+						$(".pep_contact_name").tooltip({
+							items: ".pep_contact_name",
+							track: true,
+							open: function (event, ui) {
+								ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+							},
+							show: {
+								effect: "slideDown",
+								delay: 250
+							},
+							content: function(){
+								var username = $(this).text();
+								return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+							}
+						});
+					}
+					else{
+						$('#community_'+commId).remove();
+					}
+				});
+			}
+
+		});
+        $("thead").on ("click", function (e){
+            community_id = $(this).parent().attr("id").replace("community_", '');
+            $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                });
+            });
+        })
+		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
+			var $link = $(e.target);
+			e.preventDefault();
+			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+				var uname = $(this).text();
+				if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
+					var uname = uname.replace(" ", "_");
+
+					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
+					if(elCount <= 19){
+						var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
+						if(leftMin < 0){
+							$(".pep_text_container:has(.pep_text_panel)").each(function(i, el){
+								if(i > 0){
+									var pos = $(el).offset();
+									var leftX = pos.left + (i * 2 * 235) / elCount;
+									if(leftX + 235 <= window.innerWidth){
+										$(el).css({"right": "", "left": leftX + "px"});
+									}
+								}
+							});
+						}
+						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
+						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
+						leftX-=235;
+						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+					}
+				}
+			}
+			$link.data('lockedAt', +new Date());
+		});
+
+		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
+			var $link = $(e.target);
+			e.preventDefault();
+            user_id = ${request.user.id};
+            request_user_id = $(this).attr("id");
+            $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                    sendMessage(request_user_id, link);
+                });
+            });
+			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+				var uname = $(this).prev().text();
+				if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
+					var uname = uname.replace(" ", "_");
+
+					var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
+					if(elCountAll <= 9){
+						elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
+						var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
+						if(leftMin < 0){
+							$(".pep_video_container:not(.moved)").each(function(i, el){
+								if(i > 0){
+									var pos = $(el).offset();
+									var leftX = pos.left + (i * 2 * 450) / elCountStatic;
+									if(leftX + 450 <= window.innerWidth){
+										$(el).css({"right": "", "left": leftX + "px"});
+									}
+								}
+							});
+						}
+						var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
+						$(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
+						leftX-=450;
+						$(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+					}
+				}
+			}
+			$link.data('lockedAt', +new Date());
+		});
+	});
+
+    function sendMessage(send_user, link) {
+        message = "${request.user.username} wants to start a video chat! ";
+        message += link;
+        var datainfo = {
+            'info': JSON.stringify({
+            'sender_id': '${user.id}',
+            'recipient_id': send_user,
+            'date': (new Date()).toISOString(),
+            'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user,
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': '',
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+    }
+</script>
