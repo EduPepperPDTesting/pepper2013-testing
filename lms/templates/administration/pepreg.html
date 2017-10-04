@@ -56,6 +56,8 @@
     html {font-size: 16px !important;}
     html, body {line-height: 16px !important;}
 
+    .pepper-wrapper-footer {position: relative !important; bottom: -70px !important;}
+
     *{font-family: "open sans" !important;}
 
     .label{color: #000000 !important;}
@@ -157,7 +159,7 @@
 <%include file="../webchat/webvideochat.html" />
 <%include file="../webchat/webchat.html" />
 <span id="organization_obj" o_name="pepreg"></span>
-<div class="data_import_bottom">
+<div class="data_import_bottom" style="padding-bottom: calc(100%/6) !important;">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse expand_title_expanded">
             Pepper PD Planner
@@ -394,7 +396,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
+<div class="modal" id="dlg-map" style="width:800px;margin-left:400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
         <div class="content" id="map_show"
