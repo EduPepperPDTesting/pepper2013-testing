@@ -240,7 +240,7 @@ def saml_send_acs(request, sp_name, ms, rs):
                 value = request.user.profile.grade_level_id
             elif attr['name'] == "bio":
                 value = request.user.profile.bio
-            elif attr['name'] == "id":
+            elif attr['name'] == "internal_id":
                 value = str(request.user.id)
             elif attr['name'] == "avatar":
                 value = request.build_absolute_uri(reverse('user_photo', args=[request.user.id]))
@@ -258,8 +258,6 @@ def saml_send_acs(request, sp_name, ms, rs):
 
     # ** Create authn response
     identity = parsed_data
-
-    print identity
     resp = IDP.create_authn_response(
         issuer=setting.get('entityid'),
         identity=identity,
