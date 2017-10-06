@@ -705,10 +705,6 @@ header.pepper-nav {
     font-family: "FontAwesome" !important;
   }
 
-  .sequence-list-wrapper {
-    z-index: 2 !important;
-  }
-
   .pepper-slim h1.pepper-logo-wrap::before {
     top: 5px;
   }
@@ -993,7 +989,7 @@ header.pepper-nav {
     width: 578px;
     padding-bottom: 0 !important;
 
-    .message_board_listcon {
+    .message_board_listCon {
       height: 350px;
       overflow-y: auto;
       overflow-x: hidden;
