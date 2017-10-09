@@ -5,7 +5,8 @@
         top: 100,
         overlay: 0.5,
         closeButton: null,
-        position: 'fixed'
+        position: 'fixed',
+        bottom: 120
       }
       
       if ($("#lean_overlay").length == 0) {
@@ -57,7 +58,8 @@
             'z-index': 11000,
             'left' : 50 + '%',
             'margin-left' : -(modal_width/2) + "px",
-            'top' : o.top + "px"
+            'top' : o.top + "px",
+            'bottom' : o.bottom + "px"
           })
 
           $(modal_id).fadeTo(200,1);
