@@ -417,9 +417,9 @@
 		}
 		var tmp_span_content = "";
 		var tmp_field_content = "";
-		try{
-		//$("#change_org_dialog_field").empty();
-		/*if(tmp_span_type == "2"){
+		
+		$("#change_org_dialog_field").empty();
+		if(tmp_span_type == "2"){
 			tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off"><option value="">--</option>';
 			tmp_span_content = tmp_span_el.attr("field_type_2");
 			if(tmp_span_content != ""){
@@ -486,18 +486,9 @@
 			
 		}else if(tmp_span_type == "7"){
 			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
-		}else if(tmp_span_type == "8"){
+		}/*else if(tmp_span_type == "8"){
 			$("#change_org_dialog_field").append('<input type="text" class="change_org_dialog_field_datex" placeholder="Select Date" readonly="true" />');
 		}*/
-		
-		/*$(".change_org_dialog_field_datex").each(function(ex){
-			$(this).datepicker();
-		});
-		$("#pepper-press").attr("abc", $(".change_org_dialog_field_datex").length);*/
-		
-		}catch(e){
-		alert(e);
-		}
 	}
 	
 	//-----------------------------------------------orgSaveChange
@@ -1112,7 +1103,7 @@
       <fieldset>
         <div class="input-group">
           <label style="margin:20px 0;display:block;" id="change_org_dialog_field">
-            	<input type="text" id="change_org_dialog_field_datex_id" class="change_org_dialog_field_datex" placeholder="Select Date" readonly="true" value="2017-01-05" />
+            	
           </label>
         </div>
       </fieldset>
