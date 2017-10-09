@@ -1163,9 +1163,13 @@
 					}
 
 					if (r.flag_main === "dashboard") {
-						$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
-						$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
-						$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+						if(r.DistrictType != ""){
+							$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+						}
+						if(r.SchoolType != ""){
+							$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+							$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+						}
 						
 					} else if (r.flag_main === "communities") {
 						$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");

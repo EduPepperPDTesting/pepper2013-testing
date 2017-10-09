@@ -226,6 +226,7 @@
 </style>
 <style type="text/css" media="screen">
   #image_uploading{display:none;}
+  .ui-datepicker-current{display:none;}
 </style>
 <%inherit file="main.html" />
 <%
@@ -289,8 +290,11 @@
         
         if OrganizationOK:
             organization_id = organization_obj.id
-            organization_districtType = organization_obj.DistrictType
-            organization_schoolType = organization_obj.SchoolType
+            if organization_obj.DistrictType != "":
+                organization_districtType = organization_obj.DistrictType
+            
+            if organization_obj.SchoolType != "":
+	            organization_schoolType = organization_obj.SchoolType
     
         	# --------------OrganizationDataitems
             for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
@@ -336,7 +340,7 @@
                             organization_default_7_visible = "display:none;"
                     else:
                         organization_default_content += '<div style="line-height:30px;" class="org_field">'
-                        organization_default_content += '<b>' + item["name"] + ':</b>'
+                        organization_default_content += '<b>' + item["name"] + ': </b>'
                         tmp_item_value = ""
                         
                         if register_organization_structure != "":
@@ -353,7 +357,7 @@
                         else:
                             organization_default_content += tmp_item_value
                                         
-                        if curr_user == request.user and item["field_type"] != "1" and item["field_type"] != "8":
+                        if curr_user == request.user and item["field_type"] != "1":
                             organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
                                 
                         organization_default_content += '</div>'
@@ -371,8 +375,11 @@
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Profile")}</title></%block>
 
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <script src="/static/js/amazeui.min.js" charset="utf-8"></script>
 <script src="/static/js/cropper.min.js" charset="utf-8"></script>
 <script src="/static/js/custom_up_img.js" charset="utf-8"></script>
@@ -386,7 +393,7 @@
 			}else if(tmp_type == "7"){
 				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
 			}
-		});
+		});		
 	 });
 	 
 	//-----------------------------------------------orgFieldEditClick
@@ -471,7 +478,9 @@
 			
 		}else if(tmp_span_type == "7"){
 			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
-		}
+		}/*else if(tmp_span_type == "8"){
+			$("#change_org_dialog_field").append('<input type="text" class="change_org_dialog_field_datex" placeholder="Select Date" readonly="true" />');
+		}*/
 	}
 	
 	//-----------------------------------------------orgSaveChange
@@ -1086,7 +1095,7 @@
       <fieldset>
         <div class="input-group">
           <label style="margin:20px 0;display:block;" id="change_org_dialog_field">
-            
+            	
           </label>
         </div>
       </fieldset>
@@ -1507,7 +1516,36 @@
 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 </style>
 <script>
-    $(document).ready(function(){
+	//--------------------------
+	$.datepicker.setDefaults({
+		showButtonPanel: true, 
+		closeText: 'Clear', 
+		currentText: 'Today',
+		autoSize: true,
+		gotoCurrent: true,
+		firstDay: 0,
+		minDate: new Date("1999-9-9"),
+		hideIfNoPrevNext: false,
+		navigationAsDateFormat: true,
+		showOtherMonths: true,
+		selectOtherMonths: false,
+		stepMonths: 1,
+		changeMonth: true,
+		numberOfMonths: [1, 1],
+		showCurrentAtPos: 0,
+		showAnim: "",
+		showWeek: true,
+		dateFormat: 'mm/dd/yy',
+        beforeShow: function (input, inst) {
+            datepicker_CurrentInput = input;
+        }
+    });
+	$(".ui-datepicker-close").live("click", function () {
+        $(datepicker_CurrentInput).val("");
+        $(datepicker_CurrentInput).change();
+    });
+	
+    $(document).ready(function(){		
         $(".portfolio-btn").each(function(){
             var user_id = "${curr_user.id}";
             var linkx = $(this).attr("link");
