@@ -40,6 +40,7 @@ from util import saml_django_response
 import base64
 from PIL import Image
 
+
 # *Guess the xmlsec_path
 try:
     from saml2.sigver import get_xmlsec_binary
