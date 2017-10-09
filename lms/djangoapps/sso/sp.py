@@ -37,7 +37,8 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 import random
 from .models import CourseAssignmentCourse
 from util import saml_django_response
-
+import base64
+from PIL import Image
 
 # *Guess the xmlsec_path
 try:
@@ -755,8 +756,21 @@ def activate_account(request):
         profile.save()
 
         # ** upload photo
-        photo = request.FILES.get("photo")
-        upload_user_photo(profile.user.id, photo)
+        # photo = request.FILES.get("photo")
+        # upload_user_photo(profile.user.id, photo)
+        photo_str = vars.get('photo','')
+        if photo_str:
+            photo_str = photo_str.split(',')[1]
+            imgData = base64.b64decode(photo_str)
+            img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+            img_file.write(imgData)       
+            img_file.close()
+            im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+            x,y = im.size
+            p = Image.new('RGBA', im.size, (255,255,255))
+            p.paste(im, (0, 0, x, y), im)
+            p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+            upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
         # ** auto enroll courses
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
