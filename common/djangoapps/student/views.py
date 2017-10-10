@@ -985,16 +985,16 @@ def logout_user(request):
     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
     login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=False, login_or_logout_time=datetime.datetime.utcnow())
     login_info.save()
-    response = redirect(target)
-    response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
-                           path='/',
-                           domain=settings.SESSION_COOKIE_DOMAIN)
 
     from sso.idp import slo_request_send
 
     if request.session.get("sso_participants"):
         return slo_request_send(request)
 
+    response = redirect(target)
+    response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
+                           path='/',
+                           domain=settings.SESSION_COOKIE_DOMAIN)
     return response
 
 @login_required
