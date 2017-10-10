@@ -385,6 +385,7 @@
 <script src="/static/js/custom_up_img.js" charset="utf-8"></script>
 <script>
 	 $(document).ready(function(){
+
 	 	$(".org_field").each(function(){
 			var tmp_type = $(this).find("span").attr("field_type");
 			if(tmp_type == "6"){
@@ -394,6 +395,7 @@
 				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
 			}
 		});
+
 		window.setTimeout(function(){
 			/*$(".change_org_dialog_field_datex").each(function(){
 				$(this).datepicker();
@@ -402,7 +404,7 @@
 			$("#pepper-press").attr("abc","OK");
 		},5000);
 		
-	 });
+		});		
 	 
 	//-----------------------------------------------orgFieldEditClick
 	function orgFieldEditClick(el){
