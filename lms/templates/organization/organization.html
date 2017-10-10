@@ -53,7 +53,6 @@
 	.expand_title_parent{ display:none}
 	.org_logo_remmove {float:left; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
 	
-
 	select[name='organizational_copy_from']{width:400px; padding:5px; margin-bottom:20px;}
 	
 	.org_table1 .org_icon_dn{background:url(/static/images/configuration/sort_dn.gif) no-repeat right center}
@@ -1339,7 +1338,7 @@
 		content += '<label>Organization Name:<input type="text" name="organizational_name" placeholder="Name" value="' + name + '"></label>';
 		
 		if(type != "edit"){
-			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Organization</option>';
+			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Oraganiztion</option>';
 			$(".organization_next").each(function(){
 				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
 			});
@@ -2940,7 +2939,7 @@
 			}
 		});*/
 		
-		//--------------------------organization_manage_user_default
+		//--------organization_manage_user_default
 		$("input[name='organization_manage_user_default']").change(function () {
         	if($(this).val() == '1') {
                 $('#organization_manage_user_email').attr("disabled", false);
@@ -3505,6 +3504,24 @@
 				var $div = $(".expand_title[next_sn='" + next_sn + "']").next("div.expand_div");
 				$div.slideDown();
 				$(this).addClass("expand_title_expanded");
+				if($(".expand_title[next_sn='" + next_sn + "']").text() == "Organization Locations"){
+					if($("#org_state_select").find("option").length < 2){
+						var loadwin = new LoadingWin();
+						$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
+							if (r.Success){
+								for(var i in r.rows_state){
+									$("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
+								}
+								for(var i in r.rows_district){
+									organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
+								}
+							}else{
+								alert(r.Error);
+							}
+							loadwin.hide();
+						});
+					}
+				}
 			}
 		});
 		
@@ -3810,7 +3827,7 @@
 				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
 			});
 			specific_items += "]";
-			
+
 			//---------------------------------------------------menu_items
 			var menu_items = "", flag_icon_error = false;			
 			var sn1 = 1; 
