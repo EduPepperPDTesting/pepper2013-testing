@@ -434,7 +434,6 @@ import json
           </li>
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_1">
-              	<span class="org_description"></span>
                 <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area')}</label>
                 <select autocomplete="off" name="major_subject_area_id">
                   <option value="">--</option>
@@ -442,12 +441,12 @@ import json
                   <option value="${item.id}">${item.name}</option>
                   %endfor
                 </select>
+                <br><span class="org_description"></span>
               </span>
           </li>
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_2">
-              	<span class="org_description"></span>
                 <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
                 <div class="level_containter" style="margin-bottom:10px;">
                 <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
@@ -459,11 +458,11 @@ import json
                   </span>
                   %endfor
                   </div>
+                  <br><span class="org_description"></span>
               </span> 
          </li>          
          <li class="field required text" id="field-name">
-             <span id="organization_info_org_default_3">           
-              	<span class="org_description"></span>
+             <span id="organization_info_org_default_3">
                 <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education')}</label>
                 <select autocomplete="off" name="years_in_education_id" style="width:100px;">
                   <option value="">--</option>
@@ -471,6 +470,7 @@ import json
                   <option value="${item.id}">${item.name}</option>
                   %endfor                
                 </select>
+                <br><span class="org_description"></span>
 			  </span>
           </li>
           <span id="organization_info_org_default_456">       
@@ -763,6 +763,8 @@ $(document).ready(function(){
 			if(r.Success){
 				if(r.OrganizationOK){
 					OrganizationId = r.OrganizationId;
+          if (r.DistrictType == "") r.DistrictType="District"
+          if (r.SchoolType == "") r.SchoolType="School"
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
 		  			
@@ -788,15 +790,16 @@ $(document).ready(function(){
 								var tmp_content = "";
 								if(tmp_json["field_type"] == "1"){
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<span></span>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "2"){
 									var tmp_list1 = tmp_json["field_type_2"].split("|-|-|");
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<select class="org_field" field_type="2" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;"><option value="">--</option>';
 									for(var ii in tmp_list1){
@@ -804,12 +807,13 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "3"){
 									var tmp_list1 = tmp_json["field_type_3"].split("|-|-|");
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<select class="org_field" field_type="3" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;" size="5" multiple="multiple">';
 									for(var ii in tmp_list1){
@@ -817,10 +821,11 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "4"){
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
 									tmp_content += '<li class="field required text org_field" id="field-name" field_type="4" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
 									if(tmp_json["field_type_4"] != ""){
@@ -830,10 +835,11 @@ $(document).ready(function(){
 											tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "5"){
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
 									tmp_content += '<li class="field required text org_field" id="field-name" field_type="5" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
 									if(tmp_json["field_type_5"] != ""){
@@ -843,27 +849,31 @@ $(document).ready(function(){
 											tmp_content += '<label class="my_label"><input type="radio" ' + ((ii == 0) ? "checked=checked" : "") + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 								
 								}else if(tmp_json["field_type"] == "6"){
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<input type="text" name="' + tmp_json["name"] + '" value="" required aria-required="true" maxlength="30"  class="org_field" field_type="6" isRequired="' + tmp_required + '"/>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "8"){
 									tmp_content += '<li class="field required text" id="field-name">';
-									tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+									
 									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
 									tmp_content += '<input type="text" class="org_assignment_qualifications_datex org_field" value="" placeholder="Select Date" readonly="true" name="' + tmp_json["name"] + '" field_type="8" isRequired="' + tmp_required + '" />';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 								}
 								
