@@ -406,7 +406,7 @@ def slo_response_receive(request):
     else:
         binding = BINDING_HTTP_REDIRECT
 
-    r = IDP.parse_logout_request_response(saml_request, binding)
+    r = IDP.parse_logout_request(saml_request, binding)
     sp_name = r.issuer()
 
     if not r.status_ok():
