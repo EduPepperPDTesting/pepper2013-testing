@@ -1138,10 +1138,10 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # -----get_organization_course_assignment_qualifications
-            if course_assignment_content != "":
-                qualifications = organization_qualifications(specific_items, course_assignment_content)
-                for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                    course_assign(qualifications, tmp1.DataItem)
+            # if course_assignment_content != "":
+            #     qualifications = organization_qualifications(specific_items, course_assignment_content)
+            #     for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+            #         course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
