@@ -345,6 +345,9 @@ def slo_request_send_one(request, sp_name):
     except:
         del request.session["sso_participants"][sp_name]
         return slo_request_send(request)
+
+    # Log the user out locally.
+    logout(request)
  
     http_args = IDP.apply_binding(
         binding=binding,

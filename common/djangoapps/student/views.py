@@ -974,6 +974,11 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
+    from sso.idp import slo_request_send
+
+    if request.session.get("sso_participants"):
+        return slo_request_send(request)
+
     record_logout(request.user.id)
     logout(request)
     
@@ -985,12 +990,6 @@ def logout_user(request):
     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
     login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=False, login_or_logout_time=datetime.datetime.utcnow())
     login_info.save()
-
-    from sso.idp import slo_request_send
-
-    if request.session.get("sso_participants"):
-        return slo_request_send(request)
-
     response = redirect(target)
     response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
                            path='/',
