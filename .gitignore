@@ -49,3 +49,4 @@ autodeploy.properties
 logs
 .testids/
 lms/sso
+idp.log
