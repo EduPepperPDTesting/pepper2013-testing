@@ -358,7 +358,7 @@ def slo_request_send_one(request, sp_name):
 
 def slo_request_send(request):
     """
-    Return a slo request (a redirect/post to sp), this is used for slo issused by IDP
+    Return a slo request (a redirect/post to sp), this is used for slo issued by IDP
     """
 
     if not request.user.is_authenticated():
@@ -382,7 +382,7 @@ def slo_request_send(request):
 @csrf_exempt
 def slo_response_receive(request):
     """
-    Receive a slo response (from sp), for slo issused by IDP
+    Receive a slo response (from sp), for slo issued by IDP
     """
 
     # ** todo: we can get sp name from saml body, because the body's not encrypted ?
@@ -407,9 +407,9 @@ def slo_response_receive(request):
         binding = BINDING_HTTP_REDIRECT
 
     r = IDP.parse_logout_request(saml_request, binding)
-    sp_name = r.issuer()
+    sp_name = r.issuer
 
-    if not r.status_ok():
+    if not r:
         raise Exception("SP %s return an error for slo." % sp_name)
 
     # nid = NameID(name_qualifier=sp_name, format=NAMEID_FORMAT_PERSISTENT, text=request.user.email)
@@ -420,12 +420,17 @@ def slo_response_receive(request):
         if sso_participants.get(sp_name):
             del request.session["sso_participants"][sp_name]
 
-        for sp in sso_participants:
-            return slo_request_send_one(request, sp)
+            #for sp in sso_participants:
+            #    return slo_request_send_one(request, sp)
 
-        if len(sso_participants) == 0:
-            del request.session["sso_participants"]
-            return logout_user(request)
-    else:
-        return logout_user(request)
-
+            #if len(sso_participants) == 0:
+            #    del request.session["sso_participants"]
+            #return logout_user(request)
+            #else:
+            #return logout_user(request)
+    logout(request)
+    response = redirect('/')
+    response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
+                           path='/',
+                           domain=settings.SESSION_COOKIE_DOMAIN)
+    return response
