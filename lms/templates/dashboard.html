@@ -160,7 +160,7 @@
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
-<%block name="bootstrap_css" %></%block>
+{% block name="bootstrap_css" %}{% endblock %}
 <%include file="/webchat/webslider.html" />
 <%include file="/webchat/webchat.html" />
 
