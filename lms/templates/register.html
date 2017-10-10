@@ -111,71 +111,92 @@ import json
 		if(!$("select[name='major_subject_area_id']").is(":hidden")){
 			if($("select[name='major_subject_area_id']").val() == ""){
 				toggleSubmitButton(true);
-				var tmp_name = $("#organization_info_org_default_1").find(".org_name").html().replace(" *", "");
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("select[name='major_subject_area_id']").addClass('field-error');			 	
-				return false;	
+				var tmp_name = $("#organization_info_org_default_1").find(".org_name").html();
+				if(tmp_name.indexOf("*") > -1){
+					tmp_name = tmp_name.replace(" *", "");
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("select[name='major_subject_area_id']").addClass('field-error');			 	
+					return false;	
+				}
 			}
 		}
 		//----------------Grade Level-Check all that apply
 		if(!$(".btn_grade_level").is(":hidden")){
 			if($("#grade_level_id").val() == ""){
 				toggleSubmitButton(true);
-				var tmp_name = $("#organization_info_org_default_2").find(".org_name").html().replace(" *", "");
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("#grade_level_id").addClass('field-error');			 	
-				return false;	
+				var tmp_name = $("#organization_info_org_default_2").find(".org_name").html();
+				if(tmp_name.indexOf("*") > -1){
+					tmp_name = tmp_name.replace(" *", "");
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("#grade_level_id").addClass('field-error');			 	
+					return false;	
+				}
 			}
 		}
 		//----------------Number of Years in Education
 		if(!$("select[name='years_in_education_id']").is(":hidden")){
 			if($("select[name='years_in_education_id']").val() == ""){
 				toggleSubmitButton(true);
-				var tmp_name = $("#organization_info_org_default_3").find(".org_name").html().replace(" *", "");
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("select[name='years_in_education_id']").addClass('field-error');			 	
-				return false;	
+				var tmp_name = $("#organization_info_org_default_3").find(".org_name").html();
+				if(tmp_name.indexOf("*") > -1){
+					tmp_name = tmp_name.replace(" *", "");
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("select[name='years_in_education_id']").addClass('field-error');			 	
+					return false;	
+				}
 			}
 		}
 		//----------------My Learners' Profile
 		if(!$("select[name='percent_lunch']").is(":hidden")){
-			if($("select[name='percent_lunch']").val() == ""){
-				toggleSubmitButton(true);
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("Free/Reduced Lunch is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("select[name='percent_lunch']").addClass('field-error');			 	
-				return false;	
+			if($("#organization_info_org_default_4").find("b").html().indexOf("*") > -1){
+				if($("select[name='percent_lunch']").val() == ""){
+					toggleSubmitButton(true);
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html("Free/Reduced Lunch is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("select[name='percent_lunch']").addClass('field-error');			 	
+					return false;	
+				}
+			}else{
+				$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
 			}
 		}else{
 			$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
 		}
 		if(!$("select[name='percent_iep']").is(":hidden")){
-			if($("select[name='percent_iep']").val() == ""){
-				toggleSubmitButton(true);
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("IEPs is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("select[name='percent_iep']").addClass('field-error');			 	
-				return false;	
+			if($("#organization_info_org_default_5").find("b").html().indexOf("*") > -1){
+				if($("select[name='percent_iep']").val() == ""){
+					toggleSubmitButton(true);
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html("IEPs is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("select[name='percent_iep']").addClass('field-error');			 	
+					return false;	
+				}
+			}else{
+				$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
 			}
 		}else{
 			$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
 		}
 		if(!$("select[name='percent_eng_learner']").is(":hidden")){
-			if($("select[name='percent_eng_learner']").val() == ""){
-				toggleSubmitButton(true);
-			 	$('.status.message.submission-error').addClass('is-shown').focus();
-			 	$('.status.message.submission-error .message-copy').html("English Learners is required").stop().css("display", "block");
-				$(".field-error").removeClass('field-error');
-				$("select[name='percent_eng_learner']").addClass('field-error');			 	
-				return false;	
+			if($("#organization_info_org_default_6").find("b").html().indexOf("*") > -1){
+				if($("select[name='percent_eng_learner']").val() == ""){
+					toggleSubmitButton(true);
+					$('.status.message.submission-error').addClass('is-shown').focus();
+					$('.status.message.submission-error .message-copy').html("English Learners is required").stop().css("display", "block");
+					$(".field-error").removeClass('field-error');
+					$("select[name='percent_eng_learner']").addClass('field-error');			 	
+					return false;	
+				}
+			}else{
+				$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
 			}
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
