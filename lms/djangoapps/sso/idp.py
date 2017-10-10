@@ -353,7 +353,7 @@ def slo_request_send_one(request, sp_name):
         binding=binding,
         msg_str=slo_request,
         destination=destination,
-        relay_state=request.build_absolute_uri('/').replace('http:', 'https:'),
+        relay_state='', #request.build_absolute_uri('/').replace('http:', 'https:'),
         response=True)
 
     return saml_django_response(binding, http_args)
