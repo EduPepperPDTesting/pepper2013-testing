@@ -198,9 +198,7 @@ def save_user_password_checkold(request):
 			context['value'] = psw_format_check
 			return HttpResponse(json.dumps(context), content_type="application/json")
 
-		'''
-		verify the old password if old password in request
-		'''
+		# verify old password of the user
 		oldpsw_check = user_authenticate(username=user.username, password=user_psw_old, request=request)
 		if oldpsw_check['type'] != 200:
 			context['value'] = oldpsw_check
