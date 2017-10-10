@@ -383,7 +383,7 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            if oid == "-1":
+            if not oid:
                 dataitems = '['
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
@@ -401,6 +401,10 @@ def organization_add(request):
 
             if copyfromid:
                 organization_old = OrganizationMetadata.objects.get(id=copyfromid)
+
+                organization.DistrictType = organization_old.DistrictType
+                organization.SchoolType = organization_old.SchoolType
+                organization.save()
 
                 path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
                 if not os.path.exists(path):
@@ -496,6 +500,14 @@ def organization_add(request):
                     org_footer.save()
                     break
 
+                # --------------OrganizationDataitems
+                for tmp1 in OrganizationDataitems.objects.filter(organization=organization_old):
+                    org_data = OrganizationDataitems()
+                    org_data.DataItem = tmp1.DataItem
+                    org_data.organization = organization
+                    org_data.save()
+                    break
+
                 # --------------OrganizationMoreText
                 org_announcement_list = OrganizationMoreText.objects.filter(organization=organization_old, itemType="Announcement")
                 for tmp1 in org_announcement_list:
@@ -503,6 +515,33 @@ def organization_add(request):
                     org_announcement.DataItem = tmp1.DataItem
                     org_announcement.organization = organization
                     org_announcement.itemType = "Announcement"
+                    org_announcement.save()
+                    break
+
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=organization_old, itemType="Cms Manage User")
+                for tmp1 in org_announcement_list:
+                    org_announcement = OrganizationMoreText()
+                    org_announcement.DataItem = tmp1.DataItem
+                    org_announcement.organization = organization
+                    org_announcement.itemType = "Cms Manage User"
+                    org_announcement.save()
+                    break
+
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=organization_old, itemType="Course Assignment")
+                for tmp1 in org_announcement_list:
+                    org_announcement = OrganizationMoreText()
+                    org_announcement.DataItem = tmp1.DataItem
+                    org_announcement.organization = organization
+                    org_announcement.itemType = "Course Assignment"
+                    org_announcement.save()
+                    break
+
+                org_announcement_list = OrganizationMoreText.objects.filter(organization=organization_old, itemType="menu_item_permission")
+                for tmp1 in org_announcement_list:
+                    org_announcement = OrganizationMoreText()
+                    org_announcement.DataItem = tmp1.DataItem
+                    org_announcement.organization = organization
+                    org_announcement.itemType = "menu_item_permission"
                     org_announcement.save()
                     break
 
@@ -1099,11 +1138,10 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # -----get_organization_course_assignment_qualifications
-            qualifications = organization_qualifications(specific_items,course_assignment_content)
-            for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                course_assign(qualifications,tmp1.DataItem)
-                        
-
+            if course_assignment_content != "":
+                qualifications = organization_qualifications(specific_items, course_assignment_content)
+                for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+                    course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
@@ -1811,7 +1849,8 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades, mor
                     g_courses[4].append([])
                 g_courses[4][subject_index[4]].append(course)
 
-def organization_qualifications(specific_items,course_assignment_content):
+
+def organization_qualifications(specific_items, course_assignment_content):
     specific_items_list = eval(specific_items)
     if course_assignment_content:
         assignments = course_assignment_content.split(';')
@@ -1831,18 +1870,19 @@ def organization_qualifications(specific_items,course_assignment_content):
                         item['data'] = tmp3[i].replace('(','').replace(')','')
                     if i > 1:
                         item['data'] = item['data'] + ',' +tmp3[i].replace('(','').replace(')','')
-                    if i == len(tmp3)-1:
+                    if i == len(tmp3) - 1:
                         qualification['filters'].append(item)
             qualifications.append(qualification)
         for tmp1 in specific_items_list:
             for i in range(len(qualifications)):
                 for n in range(len(qualifications[i]['filters'])):
                     if qualifications[i]['filters'][n]['_id'] == tmp1['_id']:
-                         qualifications[i]['filters'][n]['name'] = tmp1['name']
+                        qualifications[i]['filters'][n]['name'] = tmp1['name']
 
     return qualifications
 
-def course_assign(qualifications,data):
+
+def course_assign(qualifications, data):
     data = eval(data)
     for tmp2 in qualifications:
         sign = True
