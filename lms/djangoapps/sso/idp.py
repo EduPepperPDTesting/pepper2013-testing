@@ -399,14 +399,14 @@ def slo_response_receive(request):
     IDP = server.Server(config=conf, cache=Cache())
 
     # relay_state = request.REQUEST.get("RelayState")
-    saml_response = request.REQUEST.get("SAMLResponse")
+    saml_request = request.REQUEST.get("SAMLRequest")
 
     if request.method == "POST":
         binding = BINDING_HTTP_POST
     else:
         binding = BINDING_HTTP_REDIRECT
 
-    r = IDP.parse_logout_request_response(saml_response, binding)
+    r = IDP.parse_logout_request_response(saml_request, binding)
     sp_name = r.issuer()
 
     if not r.status_ok():
