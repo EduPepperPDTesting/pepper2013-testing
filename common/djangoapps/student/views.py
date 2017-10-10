@@ -974,11 +974,6 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
-    from sso.idp import slo_request_send
-
-    if request.session.get("sso_participants"):
-        return slo_request_send(request)
-        
     record_logout(request.user.id)
     logout(request)
     
@@ -994,6 +989,12 @@ def logout_user(request):
     response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
                            path='/',
                            domain=settings.SESSION_COOKIE_DOMAIN)
+
+    from sso.idp import slo_request_send
+
+    if request.session.get("sso_participants"):
+        return slo_request_send(request)
+
     return response
 
 @login_required
