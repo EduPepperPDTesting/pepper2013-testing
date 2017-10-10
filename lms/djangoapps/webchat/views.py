@@ -12,7 +12,7 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
-import opentok
+#import opentok
 
 @login_required
 def getvideoframe(request, uname):
