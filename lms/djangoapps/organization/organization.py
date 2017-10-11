@@ -1890,13 +1890,22 @@ def course_assign(qualifications, data):
             if tmp3['data'] != '':
                 tmp4 = tmp3['data'].split(',')
                 if len(tmp4) <= 1:
-                    if data[tmp3['name']] != tmp3['data']:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        if tmp3['data'] not in tmp5:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
                 else:
-                    tmp5 = data[tmp3['name']].split(',')
-                    retA = [i for i in tmp4 if i in tmp5]
-                    if len(retA) == 0:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        retA = [i for i in tmp4 if i in tmp5]
+                        if len(retA) == 0:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
         if sign:
