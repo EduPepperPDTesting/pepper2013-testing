@@ -71,7 +71,7 @@
     $(document).ready(function(){
         console.log("shadow doc ready pep_title_tab=" + $("shadowRoot #pep_title_tab").length);
         var pos='out';
-        document.getElementById("pep_title_tab").addEventListener("click", function(){
+        document.querySelector('#pep_title_tab').addEventListener("click", function(){
             console.log("tab clicked");
         });
         $("#pep_title_tab").click(function(){
