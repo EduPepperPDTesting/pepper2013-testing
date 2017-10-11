@@ -392,7 +392,7 @@ def slo_response_receive(request):
     # sp_name = request.GET.get("sp", "")
     # setting = get_saml_setting("127.0.0.1-local")
 
-    slo_url = get_full_reverse("sso_idp_slo_response_receive", request)
+    slo_url = get_full_reverse("sso_idp_slo_response_receive", request).replace('http:', 'https:')
     setting = {"service": {"idp": {"endpoints": {"single_logout_service": [
         (slo_url, BINDING_HTTP_POST), (slo_url, BINDING_HTTP_REDIRECT)
     ]}}}}
