@@ -1,12 +1,16 @@
+<script>
+
+</script>
+
+<!--link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet"-->
+<div id="pep_shadow"></div>
+<template id="pep_slider_template">
+    <link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 
-
-
-<link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
-
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-<div id="pep_container">
+    <div id="pep_container">
 
     <div id="pep_title_tab">
         <div id="pep_title_text">PepTalk</div>
@@ -69,115 +73,125 @@
     </div>
 
 </div>
-
+</template>
 <script type="text/javascript">
 $(document).ready(function(){
-    var pos='out';
-    $("#pep_title_tab").click(function(){
-        if(pos=='in'){
-            $("#pep_container").animate({right:'-216px'});
-            $("#pep_title_tab").animate({right:'0px'});
-            pos='out';
-        }else{
-            $("#pep_container").animate({right:'0px'});
-            $("#pep_title_tab").animate({right:'211px'});
-            pos='in';
-        }
-    });
 
-    $(".pep_contact_name").tooltip({
-        items: ".pep_contact_name",
-        track: true,
-        open: function (event, ui) {
-            ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
-        },
-        show: {
-            effect: "slideDown",
-            delay: 250
-        },
-        content: function(){
-            var username = $(this).text();
-            return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
-        }
-    });
+    var shadow = document.querySelector('#pep_shadow').createShadowRoot();
+    var template = document.querySelector('#pep_slider_template');
+    var clone = document.importNode(template.content, true);
+    shadow.appendChild(clone);
 
-    $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
-        var $link = $(e.target);
-        e.preventDefault();
-        if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
-            var uname = $(this).text();
-            if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
-                var uname = uname.replace(" ", "_");
+    pepDocReady();
 
-                var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
-                if(elCount <= 19){
-                    var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
-                    if(leftMin < 0){
-                        $(".pep_text_container:has(.pep_text_panel)").each(function(i, el){
-                            if(i > 0){
-                                var pos = $(el).offset();
-                                var leftX = pos.left + (i * 2 * 235) / elCount;
-                                if(leftX + 235 <= window.innerWidth){
-                                    $(el).css({"right": "", "left": leftX + "px"});
+    function pepDocReady(){
+        var pos='out';
+        $("#pep_title_tab").click(function(){
+            if(pos=='in'){
+                $("#pep_container").animate({right:'-216px'});
+                $("#pep_title_tab").animate({right:'0px'});
+                pos='out';
+            }else{
+                $("#pep_container").animate({right:'0px'});
+                $("#pep_title_tab").animate({right:'211px'});
+                pos='in';
+            }
+        });
+
+        $(".pep_contact_name").tooltip({
+            items: ".pep_contact_name",
+            track: true,
+            open: function (event, ui) {
+                ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+            },
+            show: {
+                effect: "slideDown",
+                delay: 250
+            },
+            content: function(){
+                var username = $(this).text();
+                return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+            }
+        });
+
+        $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
+            var $link = $(e.target);
+            e.preventDefault();
+            if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+                var uname = $(this).text();
+                if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
+                    var uname = uname.replace(" ", "_");
+
+                    var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
+                    if(elCount <= 19){
+                        var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
+                        if(leftMin < 0){
+                            $(".pep_text_container:has(.pep_text_panel)").each(function(i, el){
+                                if(i > 0){
+                                    var pos = $(el).offset();
+                                    var leftX = pos.left + (i * 2 * 235) / elCount;
+                                    if(leftX + 235 <= window.innerWidth){
+                                        $(el).css({"right": "", "left": leftX + "px"});
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+                        var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
+                        $(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
+                        leftX-=235;
+                        $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
                     }
-                    var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
-                    $(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
-                    leftX-=235;
-                    $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
                 }
             }
-        }
-        $link.data('lockedAt', +new Date());
-    });
+            $link.data('lockedAt', +new Date());
+        });
 
-    $(".pep_contact_block").on("click", ".pep_start_video", function(e){
-        var $link = $(e.target);
-        e.preventDefault();
-        if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
-            var uname = $(this).prev().text();
-            if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
-                var uname = uname.replace(" ", "_");
+        $(".pep_contact_block").on("click", ".pep_start_video", function(e){
+            var $link = $(e.target);
+            e.preventDefault();
+            if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
+                var uname = $(this).prev().text();
+                if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
+                    var uname = uname.replace(" ", "_");
 
-                var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
-                if(elCountAll <= 9){
-                    elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
-                    var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
-                    if(leftMin < 0){
-                        $(".pep_video_container:not(.moved)").each(function(i, el){
-                            if(i > 0){
-                                var pos = $(el).offset();
-                                var leftX = pos.left + (i * 2 * 450) / elCountStatic;
-                                if(leftX + 450 <= window.innerWidth){
-                                    $(el).css({"right": "", "left": leftX + "px"});
+                    var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
+                    if(elCountAll <= 9){
+                        elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
+                        var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
+                        if(leftMin < 0){
+                            $(".pep_video_container:not(.moved)").each(function(i, el){
+                                if(i > 0){
+                                    var pos = $(el).offset();
+                                    var leftX = pos.left + (i * 2 * 450) / elCountStatic;
+                                    if(leftX + 450 <= window.innerWidth){
+                                        $(el).css({"right": "", "left": leftX + "px"});
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+                        var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
+                        $(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
+                        leftX-=450;
+                        $(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
                     }
-                    var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
-                    $(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
-                    leftX-=450;
-                    $(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
                 }
             }
-        }
-        $link.data('lockedAt', +new Date());
-    });
+            $link.data('lockedAt', +new Date());
+        });
 
-    $("#my_network").on("click", function(e){
-        $("#pep_user_list").load("/getnetwork/");
-    });
+        $("#my_network").on("click", function(e){
+            $("#pep_user_list").load("/getnetwork/");
+        });
 
-    $("#my_communities").on("click", function(e){
-        $("#pep_user_list").load("/getcommunities/");
-    });
-    $(".pep_contact_block").on("click", ".pep_start_video", function(){
-        var uname = $(this).prev().text().replace(" ", "_");
-        $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
-        window.open("/webchat/videopopup",'mypopup', 'postwindow');
-    });
+        $("#my_communities").on("click", function(e){
+            $("#pep_user_list").load("/getcommunities/");
+        });
+        $(".pep_contact_block").on("click", ".pep_start_video", function(){
+            var uname = $(this).prev().text().replace(" ", "_");
+            $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
+            window.open("/webchat/videopopup",'mypopup', 'postwindow');
+        });
+    };
 
    // if ($("#pep_container").length) {
     //    document.write('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">');
