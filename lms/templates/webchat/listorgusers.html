@@ -55,7 +55,7 @@
                             username = userRows[i][0];
                             id = userRows[i][1];
                             console.log(r);
-							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div id='"+id+"' class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
 						$(".pep_contact_name").tooltip({
@@ -93,6 +93,7 @@
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
 			var $link = $(e.target);
 			e.preventDefault();
+            id = $(this).attr("id");
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).text();
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
@@ -120,6 +121,7 @@
 				}
 			}
 			$link.data('lockedAt', +new Date());
+            getMessage(id);
 		});
 
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
@@ -132,7 +134,7 @@
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
                     window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
                     link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
-                    sendMessage(request_user_id, link);
+                    sendVideoRequest(request_user_id, link);
                 });
             });
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
@@ -166,7 +168,49 @@
 		});
 	});
 
-    function sendMessage(send_user, link) {
+
+    function getMessage (id) {
+        $.post("${reverse('get_message')}", {
+            message_people: id,
+            skip: 0,
+            limit: 10
+        }, function(data) {
+            $("#textchat_"+id).html("");
+            $.each(data.results, function(k, v) {
+                $("#textchat_"+id).prepend(v.body + "<hr><br>");
+            });
+            $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+        });
+    }
+
+    function sendChatMessage (send_user, message) {
+        var datainfo = {
+            'info': JSON.stringify({
+            'sender_id': '${user.id}',
+            'recipient_id': send_user,
+            'date': (new Date()).toISOString(),
+            'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){
+            getMessage(send_user);
+        });
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user,
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': '',
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+    }
+
+    function sendVideoRequest(send_user, link) {
         message = "${request.user.username} wants to start a video chat! ";
         message += link;
         var datainfo = {
