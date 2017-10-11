@@ -69,11 +69,18 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-    console.log("shadow dom" + ShadowRoot.supported);
-    var shadow = document.querySelector('#pep_container').createShadowRoot();
-    var template = document.querySelector('#pep_slider_template');
-    var clone = document.importNode(template.content, true);
-    shadow.appendChild(clone);
+    if(ShadowRoot.supported){
+        console.log("shadow dom" + ShadowRoot.supported);
+        var shadow = document.querySelector('#pep_container').createShadowRoot();
+        var template = document.querySelector('#pep_slider_template');
+        var clone = document.importNode(template.content, true);
+        shadow.appendChild(clone);
+    }else{
+        var shadow = document.querySelector('#pep_container').attachShadow({mode: 'open'});;
+        var template = document.querySelector('#pep_slider_template');
+        var clone = template.content.cloneNode(true);
+        shadow.appendChild(clone);
+    }
 
     pepDocReady();
 
