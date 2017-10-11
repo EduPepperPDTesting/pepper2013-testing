@@ -69,7 +69,7 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-    console.log("shadow dom");
+    console.log("shadow dom" + ShadowRoot.supported);
     var shadow = document.querySelector('#pep_container').createShadowRoot();
     var template = document.querySelector('#pep_slider_template');
     var clone = document.importNode(template.content, true);
