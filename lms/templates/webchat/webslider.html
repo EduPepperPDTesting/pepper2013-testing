@@ -72,8 +72,7 @@
         console.log("shadow doc ready pep_title_tab=" + document.querySelector('#pep_container #pep_title_tab'));
         var pos='out';
         $("#pep_container").on("click", "#pep_title_tab", function(){
-            alert("clicked");
-            console.log("tab clicked");
+            $('#pep_container').css("border","1px solid red");
         });
         $("#pep_title_tab").click(function(){
             console.log("tab clicked");
