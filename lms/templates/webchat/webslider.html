@@ -69,7 +69,7 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-    if(ShadowRoot.supported){
+    if(typeof(ShadowRoot)!=='undefined'){
         console.log("shadow dom" + ShadowRoot.supported);
         var shadow = document.querySelector('#pep_container').createShadowRoot();
         var template = document.querySelector('#pep_slider_template');
