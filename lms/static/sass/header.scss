@@ -56,6 +56,11 @@ header.pepper-nav {
 
             #pepper-dropdown {
               outline: none;
+
+              td, tr {
+                border: none;
+                padding: 0;
+              }
             }
 
             .pepper-me-arrow {
