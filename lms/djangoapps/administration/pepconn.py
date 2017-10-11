@@ -1068,6 +1068,10 @@ def do_import_user(task, csv_lines, request):
             elif district.state.name == "Oklahoma":
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
@@ -1210,6 +1214,10 @@ def single_user_submit(request):
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
         elif district.state.name == "Oklahoma":
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
