@@ -90,6 +90,7 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 from student.models import State, District, School, User, UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 from django.http import HttpResponseRedirect
+
 from collections import OrderedDict
 from administration.usage_report import password_format_check
 from django.template.response import TemplateResponse
@@ -977,7 +978,7 @@ def logout_user(request):
 
     if request.session.get("sso_participants"):
         return slo_request_send(request)
-        
+
     record_logout(request.user.id)
     logout(request)
     
