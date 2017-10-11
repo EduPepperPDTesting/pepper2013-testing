@@ -1,9 +1,10 @@
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 
 <!--link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet"-->
 <div id="pep_container"></div>
 
 <template id="pep_slider_template">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
 
      <div id="pep_title_tab">
@@ -65,26 +66,10 @@
             </a>
         </div>
     </div>
-</template>
 
-<script type="text/javascript">
-$(document).ready(function(){
-    if(typeof(ShadowRoot)!=='undefined'){
-        console.log("shadow dom" + ShadowRoot.supported);
-        var shadow = document.querySelector('#pep_container').createShadowRoot();
-        var template = document.querySelector('#pep_slider_template');
-        var clone = document.importNode(template.content, true);
-        shadow.appendChild(clone);
-    }else{
-        var shadow = document.querySelector('#pep_container').attachShadow({mode: 'open'});;
-        var template = document.querySelector('#pep_slider_template');
-        var clone = template.content.cloneNode(true);
-        shadow.appendChild(clone);
-    }
+    <script type="text/javascript">
+    $(document).ready(function(){
 
-    pepDocReady();
-
-    function pepDocReady(){
         var pos='out';
         $("#pep_title_tab").click(function(){
             if(pos=='in'){
@@ -191,11 +176,28 @@ $(document).ready(function(){
             $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
             window.open("/webchat/videopopup",'mypopup', 'postwindow');
         });
-    };
 
-   // if ($("#pep_container").length) {
-    //    document.write('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">');
-   // }
+       // if ($("#pep_container").length) {
+        //    document.write('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet">');
+       // }
+    });
+    </script>
+</template>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    if(typeof(ShadowRoot)!=='undefined'){
+        console.log("shadow dom" + ShadowRoot.supported);
+        var shadow = document.querySelector('#pep_container').createShadowRoot();
+        var template = document.querySelector('#pep_slider_template');
+        var clone = document.importNode(template.content, true);
+        shadow.appendChild(clone);
+    }else{
+        var shadow = document.querySelector('#pep_container').attachShadow({mode: 'open'});;
+        var template = document.querySelector('#pep_slider_template');
+        var clone = template.content.cloneNode(true);
+        shadow.appendChild(clone);
+    }
 });
 
 </script>
