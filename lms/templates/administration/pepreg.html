@@ -206,7 +206,7 @@
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
-                    %for item in PepRegTraining.objects.exclude(subjectother__exact='').filter(~Q(district__name = UserProfile.district__name)).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                    %for item in PepRegTraining.objects.exclude(subjectother__exact='').filter(~Q(district__name = UserProfile.district)).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
                         <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
                     %endfor
                 </select>
