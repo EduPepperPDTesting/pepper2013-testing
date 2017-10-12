@@ -29,7 +29,8 @@ import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
-
+import logging
+log = logging.getLogger("tracking")
 
 # -------------------------------------------------------------------main
 def main(request):
