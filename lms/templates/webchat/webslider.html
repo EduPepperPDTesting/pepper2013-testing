@@ -203,12 +203,9 @@ $(document).ready(function(){
         shadow.appendChild(clone);
     }
 
-    $("#pep_container").on("mousedown", "#pep_title_tab", function(){
-        console.log(e.target.id + ' mousedown');
-    });
     $("#pep_container").on('click', function(e) {
       console.log(e.target.id + ' clicked');
-      $("#pep_title_tab").css("border", "red 1px solid")
+      $("#pep_container #pep_title_tab").css("border", "red 1px solid")
     });
 });
 
