@@ -162,7 +162,7 @@ def header_return(request):
         # Add the template-specific JS
         js.append(request.build_absolute_uri('/static/js/navigation.js').replace('http:', 'https:'))
 
-    data = {'html': html, 'css': css, 'js': js, 'status': user_status}
+    data = {'html': html, 'css': css, 'js': js, 'callback': 'pepper_navigation_func', 'status': user_status}
     return render_jsonp_response(callback, data)
 
 
@@ -194,5 +194,5 @@ def footer_return(request):
             if footer:
                 html = footer.DataItem
 
-    data = {'html': html, 'css': get_css(request, 'footer'), 'js': [], 'status': user_status}
+    data = {'html': html, 'css': get_css(request, 'footer'), 'js': [], 'callback': '', 'status': user_status}
     return render_jsonp_response(callback, data)
