@@ -71,7 +71,7 @@
     $(document).ready(function(){
         console.log("shadow doc ready pep_title_tab=" + document.querySelector('#pep_container #pep_title_tab'));
         var pos='out';
-        $("#pep_container").on("click", "#pep_title_tab", function(){
+        $("#pep_container").on("mouseup", "#pep_title_tab", function(){
             $('#pep_container').css("border","1px solid red");
         });
         $("#pep_title_tab").click(function(){
@@ -203,8 +203,8 @@ $(document).ready(function(){
         shadow.appendChild(clone);
     }
 
-    $("#pep_container").on("click", "#pep_title_tab", function(){
-        console.log(e.target.id + ' clicked');
+    $("#pep_container").on("mousedown", "#pep_title_tab", function(){
+        console.log(e.target.id + ' mousedown');
     });
     $("#pep_container").on('click', function(e) {
       console.log(e.target.id + ' clicked');
