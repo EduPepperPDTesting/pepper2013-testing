@@ -202,6 +202,10 @@ $(document).ready(function(){
         var clone = template.content.cloneNode(true);
         shadow.appendChild(clone);
     }
+
+    document.addEventListener('select', function(e) {
+      console.log(e.target.id + ' clicked');
+    });
 });
 
 </script>
