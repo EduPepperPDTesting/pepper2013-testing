@@ -430,6 +430,34 @@
                     </table>
                 </td>
             </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Trending Topics: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_trending_topics" />
+                    <!-- <input type="text" id="organizational_base_organization_my_trending_topics_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Communities: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_communities" />
+                    <!-- <input type="text" id="organizational_base_organization_my_communities_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Learning Plan: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_learning_plan" />
+                    <!-- <input type="text" id="organizational_base_organization_my_learning_plan_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">Recommended Courses: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_recommended_courses" />
+                    <!-- <input type="text" id="organizational_base_organization_recommended_courses_curr" /> -->
+                </td>
+            </tr>
             <tr class="organization_pd_dashboard_set" id="profile_logo_tr">
                 <td class="org_td1">Profile Logo (270 &times; 200 px): </td>
                 <td id="organizational_base_profile_logo_p"></td>
@@ -1605,6 +1633,14 @@
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
+									// $("#organizational_base_organization_my_trending_topics_curr").val(r["my_trending_topics"]);
+									// $("#organizational_base_organization_my_communities_curr").val(r["my_communities"]);
+									// $("#organizational_base_organization_my_learning_plan_curr").val(r["my_learning_plan"]);
+									// $("#organizational_base_organization_recommended_courses_curr").val(r["recommended_courses"]);
+									$("#organizational_base_organization_my_trending_topics").val(r["my_trending_topics"]);
+									$("#organizational_base_organization_my_communities").val(r["my_communities"]);
+									$("#organizational_base_organization_my_learning_plan").val(r["my_learning_plan"]);
+									$("#organizational_base_organization_recommended_courses").val(r["recommended_courses"]);
 									
 									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
@@ -4004,6 +4040,14 @@
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
 			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
 			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
+			// var my_trending_topics_curr = $("#organizational_base_organization_my_trending_topics_curr").val();
+			// var my_communities_curr = $("#organizational_base_organization_my_communities_curr").val();
+			// var my_learning_plan_curr = $("#organizational_base_organization_my_learning_plan_curr").val();
+			// var recommended_courses_curr = $("#organizational_base_organization_recommended_courses_curr").val();
+			var my_trending_topics = $("#organizational_base_organization_my_trending_topics").val();
+			var my_communities = $("#organizational_base_organization_my_communities").val();
+			var my_learning_plan = $("#organizational_base_organization_my_learning_plan").val();
+			var recommended_courses = $("#organizational_base_organization_recommended_courses").val();
 			var logo_url = $("#organizational_base_logo_url").val();
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData();
@@ -4084,6 +4128,10 @@
 				org_logo_url: org_logo_url,				
 				org_profile_logo_url: org_profile_logo_url,
 				org_profile_logo_curr_url: org_profile_logo_curr_url,
+				my_trending_topics: my_trending_topics,
+				my_communities: my_communities,
+				my_learning_plan: my_learning_plan,
+				recommended_courses: recommended_courses,
 				logo_url: logo_url,
 				footer_flag: footer_flag,
 				footer_content: footer_content,

@@ -40,6 +40,8 @@
     text-decoration:none !important;
     margin-left: 13px;
     margin-top: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .my-courses-cards{
     float: left;
@@ -226,7 +228,13 @@
                         ${data["add_profile"]} 
                     % endif
                 </div>
-                <div class="my-title-green">My Learning Plan</div>
+                <div class="my-title-green">
+                % if data["my_learning_plan"]:
+                        ${data["my_learning_plan"]} 
+                % else:
+                    My Learning Plan
+                % endif
+                </div>
                 <div class="my-courses-cards">
                     %for course in courses_incomplated_top2:
                         <%
@@ -247,7 +255,13 @@
 
                 %if len(allowedcourse) > 0:
                     <!--allowedcourse-->
-                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended Courses!</div>
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">
+                    % if data["recommended_courses"]:
+                        ${data["recommended_courses"]} 
+                    % else:
+                        Recommended Courses!
+                    % endif
+                    </div>
                     <div class="my-courses-cards">
                         %for course in allowedcourse:
                             <div class="course-incomplated">
