@@ -203,8 +203,12 @@ $(document).ready(function(){
         shadow.appendChild(clone);
     }
 
-    document.addEventListener('click', function(e) {
+    $("#pep_container").on("click", "#pep_title_tab", function(){
+        console.log(e.target.id + ' clicked');
+    });
+    $("#pep_container").on('click', function(e) {
       console.log(e.target.id + ' clicked');
+      $("#pep_title_tab").css("border", "red 1px solid")
     });
 });
 
