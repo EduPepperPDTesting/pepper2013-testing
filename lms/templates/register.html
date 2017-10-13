@@ -660,6 +660,12 @@ LoadingWin.prototype.hide = function () {
 };
 
 $(document).ready(function(){	
+  $("#change_photo_button").click(function(){
+    $("#change_photo").show();
+  })
+  $("#change_photo_close").click(function(){
+    $("#change_photo").hide();
+  })
 	//------------------organization_get_info
 	var loadwin = new LoadingWin();		
 	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {

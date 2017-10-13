@@ -577,6 +577,12 @@ from baseinfo.models import Enum
     var district_id=$(this).val();
     dropSchool($form,state_id,district_id);
   });
-  
+  $("#change_photo_button").click(function(){
+    $("#change_photo").show();
+
+  })
+  $("#change_photo_close").click(function(){
+    $("#change_photo").hide();
+  })
 </script>
 <div/>
