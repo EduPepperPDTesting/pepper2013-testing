@@ -201,6 +201,21 @@ import json
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
 		}
+    //----------------About Me
+    if(!$("#organization_info_org_default_7").is(":hidden")){
+      if($("#user_photo").val() == "" || $("#txBio").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_7").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='years_in_education_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
 		//-----------------	
 		var org_content = '"email":"${profile.user.email}"';
 		var is_pass = true;
