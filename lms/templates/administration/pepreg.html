@@ -10,6 +10,9 @@
     from student.models import State,District,School,Cohort,User,UserProfile
     from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
     from permissions.utils import check_access_level, check_user_perms
+    from administration.models import PepRegTraining
+    import datetime
+    from django.db.models import Q
 %>
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -192,8 +195,14 @@
                     <option value="WR">Writing and Poetry</option>
                     <option value="Other">Other</option>
                 </select>
-                <input type="" name="" value="" class="search" data-column="3" autocomplete="off"
-                       style="display:none;"/>
+                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
+                    <option value="">Select</option>
+                    %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                        <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
+                    %endfor
+                </select>
+                <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
+                       style="display:none;"/-->
                 %if check_user_perms(request.user, 'pepreg'):
                     <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
                         <a href="#">
@@ -246,6 +255,7 @@
                                     <label class="columnSelectorButton" for="colSelect1"></label>
                                 </div>
                             </th>
+                            <th>Other Subject</th>
                         </tr>
                     </thead>
                     <tbody id="user_data_tbody"></tbody>
@@ -1629,7 +1639,8 @@
             allow_validation: $form.find("input[name=allow_validation]:checked").val()
         };
         if (json.subject == "Other") {
-            json.subject = $form.find("input[name=subject-other]").val();
+            json.subjectother = $form.find("input[name=subject-other]").val();
+            //json.subject = $form.find("input[name=subject-other]").val();
         }
         if (json.training_time_start) {
             json.training_time_start = toTwentyFour(json.training_time_start);
@@ -2156,14 +2167,15 @@
         });
         $("#filter-suject-drop").change(function () {
             var val = $(this).val();
-            var $input = $(this).next("input");
+            var $input = $(this).next("select"); //("input");
+            $input.val("");
             if (val == "Other") {
-                $input.show().val("");
+                $input.show();
             } else {
                 $input.hide();
-                $input.val(val);
+                //$input.val(val);
             }
-            $input.change();
+            //$input.change();
         });
     };
     PepReg.prototype.showStudents = function (training_id) {

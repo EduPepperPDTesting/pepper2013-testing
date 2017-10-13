@@ -203,6 +203,7 @@ class PepRegTraining(models.Model):
     district = models.ForeignKey(District)
     description = models.TextField(blank=False, null=True)
     subject = models.CharField(blank=False, max_length=50, db_index=False)
+    subjectother = models.CharField(blank=False, max_length=50, db_index=False)
     name = models.CharField(blank=False, max_length=255, db_index=False)
     pepper_course = models.CharField(blank=False, max_length=255, db_index=False)
     training_date = models.DateField(auto_now_add=False, db_index=False)
