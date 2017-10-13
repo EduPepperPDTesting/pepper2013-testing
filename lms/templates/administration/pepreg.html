@@ -12,6 +12,7 @@
     from permissions.utils import check_access_level, check_user_perms
     from administration.models import PepRegTraining
     import datetime
+    from django.db.models import Q
 %>
 <%inherit file="../main.html"/>
     <script src="http://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
@@ -157,9 +158,6 @@
 	.icon-edit:before {font-family:FontAwesome;	}
 	.icon-remove:before {font-family:FontAwesome;	}
 </style>
-<%include file="../webchat/webslider.html" />
-<%include file="../webchat/webvideochat.html" />
-<%include file="../webchat/webchat.html" />
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom" style="padding-bottom: calc(100%/6) !important;">
     <div class="main, data_import_content">
@@ -208,7 +206,7 @@
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
-                    %for item in PepRegTraining.objects.exclude(subjectother__exact='').filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                    %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
                         <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
                     %endfor
                 </select>
@@ -308,7 +306,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="calendar-panel" style="width:1000px;height:600px;margin-left:500px;position: absolute;top:120px;border-radius:0;">
+<div class="modal" id="calendar-panel" style="width:1000px;height:600px;margin-left:-500px;position: absolute;top:120px;border-radius:0;">
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
@@ -398,7 +396,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="dlg-map" style="width:800px;margin-left:400px;height:500px;border-radius:0;">
+<div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
         <div class="content" id="map_show"
@@ -407,7 +405,7 @@
         <a href="#" class="print-map" st1yle="margin-left:30px;">Print</a>
     </div>
 </div>
-<div class="modal" id="dlg-students" style="width:800px;margin-left:400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div class="modal" id="dlg-students" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div  id="dlg-students-info" style="display: block;">
             <div class="titlebar">
@@ -450,7 +448,7 @@
     </div>
 </div>
 
-<div class="modal" id="dlg-add-training" style="width:800px;margin-left:400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div class="modal" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
