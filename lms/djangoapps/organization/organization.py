@@ -1035,10 +1035,10 @@ def organizational_save_base(request):
             org_OrganizationDashboardSave(org_metadata, "Show Right DB", new_show_right)
             org_OrganizationDashboardSave(org_metadata, "Show Left DB Curriculumn", new_show_left_curr)
             org_OrganizationDashboardSave(org_metadata, "Show Right DB Curriculumn", new_show_right_curr)
-            org_Organizationdashboardsave(org_metadata, "my_trending_topics", my_trending_topics)
-            org_Organizationdashboardsave(org_metadata, "my_communities", my_communities)
-            org_Organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
-            org_Organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
+            org_OrganizationDashboardSave(org_metadata, "my_trending_topics", my_trending_topics)
+            org_OrganizationDashboardSave(org_metadata, "my_communities", my_communities)
+            org_OrganizationDashboardSave(org_metadata, "my_learning_plan", my_learning_plan)
+            org_OrganizationDashboardSave(org_metadata, "recommended_courses", recommended_courses)
 
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
