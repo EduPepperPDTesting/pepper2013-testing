@@ -268,8 +268,12 @@
                 <!--width:220px-->
                 <div class="community-trending-topics">
                     <div class="my-title-blue" id="my_trending_topics">
-                    % if data["my_trending_topics"]:
-                        ${data["my_trending_topics"]} 
+                    % if OrganizationOK:
+                        % if data["my_trending_topics"]:
+                            ${data["my_trending_topics"]} 
+                        % else:
+                            My Trending Topics
+                        % endif
                     % else:
                         My Trending Topics
                     % endif
@@ -302,8 +306,12 @@
                 </div>
                 <div class="my-learning-communities">
                     <div class="my-title-blue" id="my_communities">
-                    % if data["my_communities"]:
-                        ${data["my_communities"]} 
+                    % if OrganizationOK:
+                        % if data["my_communities"]:
+                            ${data["my_communities"]} 
+                        % else:
+                            My Communities
+                        % endif
                     % else:
                         My Communities
                     % endif
