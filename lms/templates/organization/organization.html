@@ -1219,7 +1219,7 @@
 		content += '<label>Organization Name:<input type="text" name="organizational_name" placeholder="Name" value="' + name + '"></label>';
 		
 		if(type != "edit"){
-			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Oraganiztion</option>';
+			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Organization</option>';
 			$(".organization_next").each(function(){
 				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
 			});
