@@ -226,7 +226,17 @@
                         ${data["add_profile"]} 
                     % endif
                 </div>
-                <div class="my-title-green">My Learning Plan</div>
+                <div class="my-title-green">
+                % if OrganizationOK:
+                    % if data["my_learning_plan"]:
+                            ${data["my_learning_plan"]} 
+                    % else:
+                        My Learning Plan
+                    % endif
+                % else:
+                    My Learning Plan
+                % endif
+                </div>
                 <div class="my-courses-cards">
                     %for course in courses_incomplated_top2:
                         <%
@@ -247,7 +257,17 @@
 
                 %if len(allowedcourse) > 0:
                     <!--allowedcourse-->
-                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">Recommended Courses!</div>
+                    <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">
+                    % if OrganizationOK:
+                        % if data["recommended_courses"]:
+                            ${data["recommended_courses"]} 
+                        % else:
+                            Recommended Courses!
+                        % endif
+                    % else:
+                        Recommended Courses!
+                    % endif
+                    </div>
                     <div class="my-courses-cards">
                         %for course in allowedcourse:
                             <div class="course-incomplated">

@@ -265,7 +265,17 @@
             <div class="con-my-communities" style="${show_left}">
                 <!--width:220px-->
                 <div class="community-trending-topics">
-                    <div class="my-title-blue">My Trending Topics</div>
+                    <div class="my-title-blue">
+                    % if OrganizationOK:
+                        % if data["my_trending_topics"]:
+                            ${data["my_trending_topics"]} 
+                        % else:
+                            My Trending Topics
+                        % endif
+                    % else:
+                        My Trending Topics
+                    % endif
+                    </div>
                     <div class="trending-topic" style="border:0px solid;">
                         %for k,c in enumerate(community_trending_topics):
                             %if k + 1 == len(community_trending_topics):
@@ -293,7 +303,17 @@
                     </div>
                 </div>
                 <div class="my-learning-communities">
-                    <div class="my-title-blue">My Communities</div>
+                    <div class="my-title-blue">
+                    % if OrganizationOK:
+                        % if data["my_communities"]:
+                            ${data["my_communities"]} 
+                        % else:
+                            My Communities
+                        % endif
+                    % else:
+                        My Communities
+                    % endif
+                    </div>
                     <div class="my-communities-cards">
                         <%
                             community_count = len(communities)

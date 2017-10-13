@@ -768,6 +768,10 @@ def organizational_save_base(request):
         org_logo_url = request.POST.get("org_logo_url", "")
         org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
         org_profile_logo_curr_url = request.POST.get("org_profile_logo_curr_url", "")
+        my_trending_topics = request.POST.get("my_trending_topics", "")
+        my_communities = request.POST.get("my_communities", "")
+        my_learning_plan = request.POST.get("my_learning_plan", "")
+        recommended_courses = request.POST.get("recommended_courses", "")
         logo_url = request.POST.get("logo_url", "")
         footer_flag = request.POST.get("footer_flag", "")
         footer_content = request.POST.get("footer_content", "")
@@ -1031,6 +1035,10 @@ def organizational_save_base(request):
             org_OrganizationDashboardSave(org_metadata, "Show Right DB", new_show_right)
             org_OrganizationDashboardSave(org_metadata, "Show Left DB Curriculumn", new_show_left_curr)
             org_OrganizationDashboardSave(org_metadata, "Show Right DB Curriculumn", new_show_right_curr)
+            org_organizationdashboardsave(org_metadata, "my_trending_topics", my_trending_topics)
+            org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
+            org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
+            org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
 
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
