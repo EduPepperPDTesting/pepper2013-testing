@@ -1344,7 +1344,7 @@ def create_account(request, post_override=None):
         return HttpResponse(json.dumps(js))
 
     if post_vars.get('activation_key'):
-        return activate_imported_account(post_vars, request.FILES.get("photo"))
+        return activate_imported_account(post_vars)
 
     # Ok, looks like everything is legit.  Create the account.
     ret = _do_create_account(post_vars)
@@ -2061,7 +2061,7 @@ def change_percent_eng_learner(request):
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
 # called by create_account()
-def activate_imported_account(post_vars, photo):
+def activate_imported_account(post_vars):
     ret = {'success': False}
     try:
         registration = Registration.objects.get(activation_key=post_vars.get('activation_key', ''))
