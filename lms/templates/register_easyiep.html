@@ -23,6 +23,11 @@ from baseinfo.models import Enum
 <!--@begin:Add page style-->
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" href="/static/css/amazeui.cropper.css">
+<link rel="stylesheet" href="/static/css/custom_up_img.css">
+<script src="/static/js/amazeui.min.js" charset="utf-8"></script>
+<script src="/static/js/cropper.min.js" charset="utf-8"></script>
+<script src="/static/js/custom_up_img3.js" charset="utf-8"></script>
 <style>
   #submit:hover {
   background:#6e8194;
@@ -346,7 +351,12 @@ from baseinfo.models import Enum
             <b style="font-size:15px;color:#333;">About me</b>
           </div>
           <li class="field required text" id="field-name">
-              Please upload a photo to use with your profile. <input type="file" name="photo" value=""/>
+              Please upload a photo to use with your profile.
+              <div style="margin-top: 15px;">
+                  <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
+                  <a id="change_photo_button"> Click Here to Edit Photo</a>
+                  <input type='hidden' name='photo' id='user_photo'>
+              </div>
           </li>
           <li class="field required text" id="field-name">
             Add a bio to your user profile (255 characters max, <span></span> remain) 
@@ -483,7 +493,40 @@ from baseinfo.models import Enum
     </header>
   </aside>
 </section>
-
+<section id="change_photo" class="modal" style='width:620px;display:none;top:1200px'>
+  <div class="inner-wrapper" tabindex="-1" id="doc-modal-1" style='width:600px'>
+  <header>
+      <h2>${_('Add Profile Picture').format()}</h2>
+      <hr/>
+    </header>
+  <div class="am-modal-dialog up-frame-parent up-frame-radius">
+    <div class="am-modal-bd  up-frame-body">
+      <div class="am-g am-fl">
+        <div class="am-form-group am-form-file">
+          <input type="file" id="inputImage">
+        </div>
+      </div>
+      <div class="am-g am-fl" >
+        <div class="up-pre-before up-frame-radius">
+            <img alt="" src="" id="image" >
+        </div>
+        <div class="up-pre-after up-frame-radius">
+        </div>
+      </div>
+    </div>
+    </div>
+        <div class="up-control-btns" style='float:left;margin-left: 20px;'>
+            <button class="am-icon-rotate-left" type='button'  onclick="rotateimgleft()">turnleft</button>
+            <button class="am-icon-rotate-right" type='button' onclick="rotateimgright()">turnright</button>
+            <button class="am-icon-check" id="up-btn-ok" type='button' url="upload.php">confirm</button>
+        </div>
+    <div class="close-modal" id="change_photo_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+    </div>
+</section>
 <script type="text/javascript">
   var $form = $("#register-form");
   function dropDistrict($form,state_id,callback){

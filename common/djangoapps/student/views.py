@@ -2116,7 +2116,19 @@ def activate_imported_account(post_vars, photo):
                 ret['field'] = 'username'
             raise e
 
-        upload_user_photo(profile.user.id, photo)
+        photo_str = post_vars.get('photo','')
+        if photo_str:
+            photo_str = photo_str.split(',')[1]
+            imgData = base64.b64decode(photo_str)
+            img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+            img_file.write(imgData)       
+            img_file.close()
+            im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+            x,y = im.size
+            p = Image.new('RGBA', im.size, (255,255,255))
+            p.paste(im, (0, 0, x, y), im)
+            p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+            upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
 
