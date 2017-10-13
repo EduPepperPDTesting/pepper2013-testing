@@ -112,7 +112,7 @@ def main(request):
 
 
 # -------------------------------------------------------------------organization_register_save
-@login_required
+# @login_required
 def organization_register_save(request):
     try:
         OrganizationId = request.POST.get("OrganizationId", "")

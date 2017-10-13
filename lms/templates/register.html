@@ -233,10 +233,11 @@ import json
 				if(tmp_val == null){
           tmp_val = "";
         }
+        tmp_val = tmp_val.join(", ");
 			}else if(tmp_type == "4"){
 				$(this).find('input[type="checkbox"]').each(function() {
 					if ($(this).attr('checked')) {
-						if(tmp_val != "")	tmp_val += ",";
+						if(tmp_val != "")	tmp_val += ", ";
 						tmp_val += $(this).val();
 					}
 				});
