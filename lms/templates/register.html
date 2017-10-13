@@ -201,6 +201,21 @@ import json
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
 		}
+    //----------------About Me
+    if(!$("#organization_info_org_default_7").is(":hidden")){
+      if($("#user_photo").val() == "" || $("#txBio").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_7").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='years_in_education_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
 		//-----------------	
 		var org_content = '"email":"${profile.user.email}"';
 		var is_pass = true;
@@ -215,11 +230,15 @@ import json
 				
 			}else if(tmp_type == "3"){
 				tmp_val = $(this).val();
+        if(tmp_val == null){
+          tmp_val = "";
+        }
+        tmp_val = tmp_val.join(", ");
 				
 			}else if(tmp_type == "4"){
 				$(this).find('input[type="checkbox"]').each(function() {
 					if ($(this).attr('checked')) {
-						if(tmp_val != "")	tmp_val += ",";
+						if(tmp_val != "")	tmp_val += ", ";
 						tmp_val += $(this).val();
 					}
 				});
@@ -540,7 +559,7 @@ import json
                   Please upload a photo to use with your profile.
                   <div style='margin-top: 15px;'>
                       <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
-                      <a id="change_photo_button"> Click Here to Edit Photo</a>
+                      <a id="change_photo_button" style="cursor: pointer;"> Click Here to Edit Photo</a>
                       <input type='hidden' name='photo' id='user_photo'>
                   </div>
               </li>
@@ -843,7 +862,7 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "4"){
@@ -857,7 +876,7 @@ $(document).ready(function(){
 											tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "5"){

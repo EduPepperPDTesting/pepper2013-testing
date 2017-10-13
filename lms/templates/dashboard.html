@@ -126,7 +126,7 @@
                             organization_default_7_visible = "display:none;"
                     else:
                         organization_default_content += '<div style="line-height:30px;" class="org_field">'
-                        organization_default_content += '<b>' + item["name"] + ':</b>'
+                        organization_default_content += '<b>' + item["name"] + ':</b><br>'
                         tmp_item_value = ""
                         
                         if register_organization_structure != "":
@@ -173,7 +173,10 @@
  header h2 {color: #646464 !important;}
  header.pepper-nav .pepper-nav-global li[id="org_tm_people_obj"] {margin: 0 14px 0 0 !important;}
 /* Anatoliy */
-
+  .org_field{
+    color:#000;
+    font-size:14px;
+  }
  #submit:hover,#submit_email_change:hover,#photo_submit:hover {
    background:#6e8194;
    transition-delay: 0s, 0s, 0s;
