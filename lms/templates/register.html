@@ -230,7 +230,9 @@ import json
 				
 			}else if(tmp_type == "3"){
 				tmp_val = $(this).val();
-				
+				if(tmp_val == null){
+          tmp_val = "";
+        }
 			}else if(tmp_type == "4"){
 				$(this).find('input[type="checkbox"]').each(function() {
 					if ($(this).attr('checked')) {
@@ -843,7 +845,7 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "3"){
@@ -857,7 +859,7 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "4"){
