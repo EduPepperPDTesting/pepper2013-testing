@@ -204,8 +204,7 @@ $(document).ready(function(){
     }
 
     $("#pep_container").on('click', function(e) {
-      console.log(e.target.id + ' clicked');
-      $("#pep_title_tab").css("font-size", "8px")
+      console.log(document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).id);
     });
 });
 
