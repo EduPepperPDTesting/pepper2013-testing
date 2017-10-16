@@ -725,10 +725,17 @@ f.close()
               % endif
               <!-- csv load buttn -->
               % if check_user_perms(request.user, access_level='System'):
-              <div style="reset:all;float:right;">
+              <div style="reset:all;float:right;width:500px;">
                 <input id="btnCoursePermCsvLoad" type="button" name="" value="Bulk CSV Load" style="background:#DFEDD6;"/>
                 <input type="file" name="" value="" style="display:none;"/>
-              </div>
+                <div style="position:relative;margin-top:10px;">
+                  <label style="font-style:normal;color:#555;">
+                    * CSV file seperated by tab should contain the following columns
+                    <br>(Email, course ID in URL, Access/Enrollment)
+                    <br>e.g.: edutest06@edu.com PCG_EDU/SE504/SU2017 Enrollment.
+                  </label>
+                </div>
+              </div>        
               % endif
             </div>
             <ul style="padding:10px;font-size:28px;" class="filters-menu">
@@ -947,9 +954,36 @@ f.close()
    color:#000;
    text-transform:none;
  }
+ .lean-overlay .loading {
+   width: 128px;
+   height: 128px;
+   display: block;
+   border-radius: 100px;
+   position: absolute;
+   left: 50%;
+   top: 300px;
+   margin-left: -64px;
+ }
 </style>
 
 <script type="text/javascript">
+  function LoadingWin(){
+    this.$loader = null;
+    this.show();
+  }
+  LoadingWin.prototype.show = function () {
+    if (!this.$loader) {
+      this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+      this.$loader.appendTo(document.body);
+    }
+    this.$loader.css('display','block');
+  };
+  LoadingWin.prototype.hide = function () {
+    if (this.$loader) {
+      this.$loader.remove();
+      this.$loader = null;
+    }
+  };  
   function CoursePermission(){
     this.selection=[];
     this.initUI();
@@ -1086,7 +1120,14 @@ f.close()
       return;
     }
     $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    var loadwin;
+    $table.bind("movingPage", function(a){
+      loadwin = new LoadingWin();
+      loadwin.show();  
+    });    
     $table.bind("pagerComplete", function (a) {
+      loadwin.hide();
+
       $(this).find("tbody tr").each(function(){
         var id = $(this).find("td:nth-child(5)").text();
         $(this).find("td:nth-child(5)").hide();
@@ -1188,7 +1229,15 @@ f.close()
       }
     };
     $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+    var loadwin;
+    $table.bind("movingPage", function(a){
+      loadwin = new LoadingWin();
+      loadwin.show();  
+    });
+    
     $table.bind("pagerComplete", function (a) {
+      loadwin.hide();
       // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
       // $(this).find("th:nth-child(1)").width(160)
       var this_table=this;
