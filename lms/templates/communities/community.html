@@ -539,6 +539,7 @@ import datetime
                     processData: false,
                     success: function (data) {
                         if (data.Success) {
+                            redirect_id = data.DiscussionID;
                             if ($('#new-discussion-submit .poll-add').is(':checked')) {
                                 var pollData = formSelector.serializeArray();
                                 pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
