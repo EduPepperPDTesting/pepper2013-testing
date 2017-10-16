@@ -71,21 +71,40 @@
     $(document).ready(function(){
         console.log("shadow doc ready pep_title_tab=" + document.querySelector('#pep_container #pep_title_tab'));
         var pos='out';
-        $("#pep_container").on("mouseup", "#pep_title_tab", function(){
-            $('#pep_container').css("border","1px solid red");
+        document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
+           // $("#pep_title_tab").click(function(){
+                console.log("tab clicked");
+                if(pos=='in'){
+                    $("#pep_container").animate({right:'-216px'});
+                    pepTabMove(0);
+                    //$("#pep_title_tab").animate({right:'0px'});
+                    pos='out';
+                }else{
+                    $("#pep_container").animate({right:'0px'});
+                    pepTabMove(211);
+                    //$("#pep_title_tab").animate({right:'211px'});
+                    pos='in';
+                }
+           //});
         });
-        $("#pep_title_tab").click(function(){
-            console.log("tab clicked");
-            if(pos=='in'){
-                $("#pep_container").animate({right:'-216px'});
-                $("#pep_title_tab").animate({right:'0px'});
-                pos='out';
-            }else{
-                $("#pep_container").animate({right:'0px'});
-                $("#pep_title_tab").animate({right:'211px'});
-                pos='in';
-            }
-        });
+
+        function pepTabMove(end_pos) {
+              var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
+              var tab_pos = elem.getBoundingClientRect().right;
+              var thisFrame = setInterval(frame, 1);
+              function frame() {
+                    if ((end_pos == 0 and tab_pos >= window.innerWidth) || tab_pos <= window.innerWidth - end_pos) {
+                        clearInterval(thisFrame);
+                    } else {
+                        if(end_pos == 0){
+                            tab_pos++;
+                        }else{
+                            tab_pos--;
+                        }
+                        elem.style.left = tab_pos + 'px';
+                    }
+              }
+        }
 
         $(".pep_contact_name").tooltip({
             items: ".pep_contact_name",
@@ -206,11 +225,11 @@ $(document).ready(function(){
     //$("#pep_container").on('click', function(e) {
      // console.log(document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).id);
    // });
-    document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
-        $('body').css('font-size', '8px');
-        var leftedge=window.innerWidth-150;
-        document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).setAttribute('style', 'left:'+leftedge+"px");
-    });
+    //document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
+    //    $('body').css('font-size', '8px');
+    //    var leftedge=window.innerWidth-150;
+     //   document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).setAttribute('style', 'left:'+leftedge+"px");
+    //});
 });
 
 </script>
