@@ -93,7 +93,7 @@
               var tab_pos = elem.getBoundingClientRect().right;
               var thisFrame = setInterval(frame, 1);
               function frame() {
-                    if ((end_pos == 0 and tab_pos >= window.innerWidth) || tab_pos <= window.innerWidth - end_pos) {
+                    if ((end_pos == 0 && tab_pos >= window.innerWidth) || tab_pos <= window.innerWidth - end_pos) {
                         clearInterval(thisFrame);
                     } else {
                         if(end_pos == 0){
