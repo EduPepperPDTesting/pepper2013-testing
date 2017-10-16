@@ -91,13 +91,12 @@
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = elem.getBoundingClientRect().right;
-              var thisFrame = setInterval(frame, 1);
+              var thisFrame = setInterval(frame, 1);console.log(tab_pos);
               function frame() {
                     if ((end_pos == 0 && tab_pos <= 0) || tab_pos <= end_pos) {
                         clearInterval(thisFrame);
                         elem.style.right = end_pos + 'px';
                     } else {
-                        console.log(tab_pos);
                         if(end_pos == 0){
                             tab_pos--;
                         }else{
