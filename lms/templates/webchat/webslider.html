@@ -1,7 +1,7 @@
 
 
 <!--link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet"-->
-<div id="pep_container"></div>
+<div id="pep_container" style="width: 211px; float: right; position: relative; top: 32vh; right: 0px;"></div>
 
 <template id="pep_slider_template">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -75,12 +75,12 @@
            // $("#pep_title_tab").click(function(){
                 console.log("tab clicked");
                 if(pos=='in'){
-                    $("#pep_container").animate({right:'-216px'}, 1000);
+                    $("#pep_container").animate({right:'-216px'}, 800);
                     pepTabMove(0);
                     //$("#pep_title_tab").animate({right:'0px'});
                     pos='out';
                 }else{
-                    $("#pep_container").animate({right:'0px'}, 1000);
+                    $("#pep_container").animate({right:'0px'}, 800);
                     pepTabMove(211);
                     //$("#pep_title_tab").animate({right:'211px'});
                     pos='in';
