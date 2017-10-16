@@ -91,7 +91,7 @@
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = elem.getBoundingClientRect().right;
-              var thisFrame = setInterval(frame, 1);console.log(tab_pos);
+              var thisFrame = setInterval(frame, 10);console.log(tab_pos);
               function frame() {
                     if ((end_pos == 0 && window.innerWidth - tab_pos >= window.innerWidth) || window.innerWidth - tab_pos <= window.innerWidth - end_pos) {
                         clearInterval(thisFrame);
