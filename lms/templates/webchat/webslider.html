@@ -75,12 +75,12 @@
            // $("#pep_title_tab").click(function(){
                 console.log("tab clicked");
                 if(pos=='in'){
-                    $("#pep_container").animate({right:'-216px'});
+                    $("#pep_container").animate({right:'-216px'}, 1000);
                     pepTabMove(0);
                     //$("#pep_title_tab").animate({right:'0px'});
                     pos='out';
                 }else{
-                    $("#pep_container").animate({right:'0px'});
+                    $("#pep_container").animate({right:'0px'}, 1000);
                     pepTabMove(211);
                     //$("#pep_title_tab").animate({right:'211px'});
                     pos='in';
