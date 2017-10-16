@@ -203,8 +203,13 @@ $(document).ready(function(){
         shadow.appendChild(clone);
     }
 
-    $("#pep_container").on('click', function(e) {
-      console.log(document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).id);
+    //$("#pep_container").on('click', function(e) {
+     // console.log(document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).id);
+   // });
+    document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
+        $('body').css('font-size', '8px');
+        var leftedge=window.innerWidth-60;
+        document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).setAttribute('style', leftedge+"px");
     });
 });
 
