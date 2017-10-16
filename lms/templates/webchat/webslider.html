@@ -91,8 +91,7 @@
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = window.innerWidth - elem.getBoundingClientRect().right;
-              console.log("init "+tab_pos);
-              var thisFrame = setInterval(frame, 10);console.log(tab_pos);
+              var thisFrame = setInterval(frame, 1);console.log(tab_pos);
               function frame() {
                     if ((end_pos == 0 && window.innerWidth - tab_pos >= window.innerWidth) || (end_pos != 0 && window.innerWidth - tab_pos <= window.innerWidth - end_pos)) {
                         clearInterval(thisFrame);
@@ -103,7 +102,6 @@
                         }else{
                             tab_pos++;
                         }
-                        console.log(tab_pos);
                         elem.style.right = tab_pos + 'px';
                     }
               }
