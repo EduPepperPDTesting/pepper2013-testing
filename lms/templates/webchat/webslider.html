@@ -96,6 +96,7 @@
             if(el.id != "#pep_container"){
                 var pos = $('#pep_container').offset();
                 var leftX = pos.left;
+                console.log(window.innerWidth - leftX);
                 if((window.innerWidth - leftX) == 251){
                     $("#pep_container").animate({right:'-256px'});
                     pepTabMove(0);
