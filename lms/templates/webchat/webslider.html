@@ -91,7 +91,9 @@
 
         $('body').click(function(e){
             var el=e.target;
-            if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
+            //if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
+            console.log(el.id);
+            if(el.id != "#pep_container"){
                 var pos = $('#pep_container').offset();
                 var leftX = pos.left;
                 if((window.innerWidth - leftX) == 251){
