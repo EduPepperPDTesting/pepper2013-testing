@@ -95,8 +95,8 @@
             console.log(el.id);
             if(el.id != "#pep_container"){
                 var rigthX = el.getBoundingClientRect().right;
-                console.log(rigthX);
-                if(rigthX == 0){
+                console.log(rigthX + " " + window.innerWidth);
+                if(rigthX == window.innerWidth){
                     $("#pep_container").animate({right:'-256px'});
                     pepTabMove(0);
                     //$("#pep_title_tab").animate({right:'0px'});
