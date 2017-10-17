@@ -1,5 +1,5 @@
 #pep_panel {
-    height: 100%;
+    height: 406px;
     width: 251px;
     min-width: 251px;
     background-color: #fff;
@@ -76,7 +76,7 @@
 }
 #pep_user_list {
     width: inherit;
-    height: 270px;
+    height: 310px;
     border-bottom: 1px solid;
     position: relative;
     left: -15px;
@@ -85,14 +85,14 @@
 }
 #pep_slider_list {
     position: relative;
-    top: 4px;
-    right: 10px;
+    top: 3px;
     margin-right: -15px;
-    left: -10px;
+    left: -14px;
     min-height: 30px;
     max-height: 57px;
-    width: 145px;
+    width: 190px;
     border: 1px solid;
+    border-bottom-left-radius: 15px;
     display: inline-block;
     font-size: 12px;
     line-height: 1.2em;
@@ -100,15 +100,19 @@
 }
 #pep_slider_icons {
     position: relative;
-    top: 4px;
-    left: 5px;
-    width: 45px;
+    top: -29px;
+    left: 12px !important;
+    width: 50px;
     height: 30px;
     padding-top: 3px;
+    padding-right: 5px;
     display: inline-block;
     float: right;
     border-top: 1px solid;
     border-bottom: 1px solid;
+    -webkit-bottom-border-radius: 15px !important;
+    -moz-bottom-border-radius: 15px !important;
+    border-bottom-right-radius: 15px;
 }
 #pep_slider_icons img {
     width: 20px;
