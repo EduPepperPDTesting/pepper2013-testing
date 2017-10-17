@@ -71,28 +71,42 @@
     <script type="text/javascript">
     $(document).ready(function(){
         console.log("shadow doc ready pep_title_tab=" + document.querySelector('#pep_container #pep_title_tab'));
-        var pos='out';
+        var slPos='out';
         document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
            // $("#pep_title_tab").click(function(){
                 console.log("tab clicked");
-                if(pos=='in'){
+                if(slPos=='in'){
                     $("#pep_container").animate({right:'-256px'}, 800);
                     pepTabMove(0);
                     //$("#pep_title_tab").animate({right:'0px'});
-                    pos='out';
+                    slPos='out';
                 }else{
                     $("#pep_container").animate({right:'0px'}, 800);
                     pepTabMove(251);
                     //$("#pep_title_tab").animate({right:'251px'});
-                    pos='in';
+                    slPos='in';
                 }
            //});
+        });
+
+        $('body').click(function(e){
+            var el=e.target;
+            if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
+                var pos = $('#pep_container').offset();
+                var leftX = pos.left;
+                if((window.innerWidth - leftX) == 251){
+                    $("#pep_container").animate({right:'-256px'});
+                    pepTabMove(0);
+                    //$("#pep_title_tab").animate({right:'0px'});
+                    slPos='out';
+                }
+            }
         });
 
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = window.innerWidth - elem.getBoundingClientRect().right;
-              var thisFrame = setInterval(frame, 1);console.log(tab_pos);
+              var thisFrame = setInterval(frame, 1);
               function frame() {
                     if ((end_pos == 0 && window.innerWidth - tab_pos >= window.innerWidth) || (end_pos != 0 && window.innerWidth - tab_pos <= window.innerWidth - end_pos)) {
                         clearInterval(thisFrame);
