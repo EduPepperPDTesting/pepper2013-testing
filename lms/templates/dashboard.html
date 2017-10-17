@@ -135,6 +135,8 @@
                                 tmp_item_value = register_organization_structure_json[item["name"]]
                                 if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
                                     tmp_item_value = ""
+                                if item["field_type"] == "7":
+                                    tmp_item_value = "<pre>"+ tmp_item_value + "</pre>"
                             except:
                                 pass
                                 
