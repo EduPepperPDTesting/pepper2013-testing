@@ -94,7 +94,7 @@
             //if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             console.log(el.id);
             if(el.id != "#pep_container"){
-                var rigthX = elem.getBoundingClientRect().right;
+                var rigthX = el.getBoundingClientRect().right;
                 console.log(rigthX);
                 if(rigthX == 0){
                     $("#pep_container").animate({right:'-256px'});
