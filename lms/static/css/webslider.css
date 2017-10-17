@@ -28,10 +28,12 @@
     font-size: 2em;
 }
 #pep_container {
+    width: 251px;
+    float: right;
     position: fixed;
-    top: 50%;
+    top: 23vh;
     margin-top: -160px; /*125*/
-    right: -216px;
+    right: -256px;
     height: 400px; /*250*/
     z-index: 20;
 }
