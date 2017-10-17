@@ -280,7 +280,9 @@
  }
 </style>
 <!--@end-->
-
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
 <script src="/static/js/amazeui.min.js" charset="utf-8"></script>
@@ -383,7 +385,12 @@
 			
 		}else if(tmp_span_type == "7"){
 			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
-		}
+		}else if(tmp_span_type == "8"){
+      $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
+      $(".org_assignment_qualifications_datex").datepicker();
+      $("#ui-datepicker-div").css("z-index","11003");
+
+    }
 	}
 	
 	//-----------------------------------------------orgSaveChange
