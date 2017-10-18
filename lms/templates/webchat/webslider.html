@@ -90,7 +90,7 @@
            //});
         });
 
-        if(slPos='in'){
+        if(slPos=='in'){
             $('body').click(function(e){
                 var el=e.target;
                 //if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
@@ -107,7 +107,7 @@
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = window.innerWidth - elem.getBoundingClientRect().right;
-              var thisFrame = setInterval(frame, 1);
+              var thisFrame = setInterval(frame, 10);
               function frame() {
                     if ((end_pos == 0 && window.innerWidth - tab_pos >= window.innerWidth) || (end_pos != 0 && window.innerWidth - tab_pos <= window.innerWidth - end_pos)) {
                         clearInterval(thisFrame);
