@@ -1,5 +1,5 @@
 #pep_panel {
-    height: 406px;
+    height: 100%;
     width: 251px;
     min-width: 251px;
     background-color: #fff;
@@ -31,7 +31,7 @@
     width: 251px;
     float: right;
     position: fixed;
-    top: 32vh;
+    top: 50%;
     margin-top: -160px; /*125*/
     right: -256px;
     height: 400px; /*250*/
