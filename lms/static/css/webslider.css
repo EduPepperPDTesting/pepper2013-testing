@@ -130,6 +130,7 @@
     width: 16px;
     height: 17px;
     cursor: pointer !important;
+    text-align: center;
     border: 1px solid;
     -webkit-border-radius: 35px !important;
     -moz-border-radius: 35px !important;
@@ -152,8 +153,8 @@
 }
 .pep_remove_im {
     position: relative;
-    padding-left: 2px;
-    padding-bottom: 10px;
+    padding-right: 1px;
+    padding-bottom: 0px;
     font-size: 12px;
     color: red;
     border-color: red;
