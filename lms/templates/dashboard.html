@@ -17,6 +17,7 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
   #image_uploading{display:none;}
+  #ui-datepicker-div{z-index: 11003 !important;}
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -145,7 +146,7 @@
                         else:
                             organization_default_content += tmp_item_value
                                         
-                        if curr_user == request.user and item["field_type"] != "1" and item["field_type"] != "8":
+                        if curr_user == request.user and item["field_type"] != "1":
                             organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
                                 
                         organization_default_content += '</div>'
@@ -388,8 +389,6 @@
 		}else if(tmp_span_type == "8"){
       $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
       $(".org_assignment_qualifications_datex").datepicker();
-      $("#ui-datepicker-div").css("z-index","11003");
-
     }
 	}
 	
