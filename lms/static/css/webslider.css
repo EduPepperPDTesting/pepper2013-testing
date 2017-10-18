@@ -72,21 +72,6 @@
     left: -35px;
     font-size: .9em;
 }
-.btn-xs {
-    top: 1px;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important;
-    padding-left: 4px !important;
-    padding-right: 4px !important;
-    font-size: .9em !important;
-    color: black !important;
-    background-color: buttonface;
-}
-.btn-group>.btn:first-child {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-}
 #pep_user_list {
     width: 266px;
 	height: 268px;

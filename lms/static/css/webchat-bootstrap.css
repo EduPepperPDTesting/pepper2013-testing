@@ -65,18 +65,18 @@
 	padding-bottom: 5px;
     padding-top: 5px;
 }
-#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(1) {
+#pep_panel .btn-group-xs>.btn:nth-child(1) {
     border-right: 2px groove;
     margin-top: 5px;
     padding-top: 5px;
 }
-#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(2) {
+#pep_panel .btn-group-xs>.btn:nth-child(2) {
     border-right: 2px groove;
     left: -5px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
-#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(3) {
+#pep_panel .btn-group-xs>.btn:nth-child(3) {
     float: right;
     position: relative;
     left: 60px;
