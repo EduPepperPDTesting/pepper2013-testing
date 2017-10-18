@@ -72,7 +72,8 @@
     $(document).ready(function(){
         console.log("shadow doc ready pep_title_tab=" + document.querySelector('#pep_container #pep_title_tab'));
         var slPos='out';
-        document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(){
+        document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" ).addEventListener("click", function(e){
+           event.stopPropagation();
            // $("#pep_title_tab").click(function(){
                 console.log("tab clicked");
                 if(slPos=='in'){
