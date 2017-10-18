@@ -90,19 +90,17 @@
            //});
         });
 
-        if(slPos=='in'){
-            $('body').click(function(e){
-                var el=e.target;
-                //if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
-                console.log(el.id);
-                if(el.id != "pep_container"){
-                    $("#pep_container").animate({right:'-256px'});
-                    pepTabMove(0);
-                    //$("#pep_title_tab").animate({right:'0px'});
-                    slPos='out';
-                }
-            });
-        }
+        $('body').click(function(e){
+            var el=e.target;
+            //if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
+            console.log(el.id + " " + slPos);
+            if(slPos=='in' && el.id != "pep_container"){
+                $("#pep_container").animate({right:'-256px'});
+                pepTabMove(0);
+                //$("#pep_title_tab").animate({right:'0px'});
+                slPos='out';
+            }
+        });
 
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
