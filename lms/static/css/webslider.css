@@ -78,7 +78,7 @@
 }
 #pep_user_list {
     width: inherit;
-    height: 310px;
+    height: 270px;
     border-bottom: 1px solid;
     position: relative;
     left: -15px;
@@ -87,7 +87,8 @@
 }
 #pep_slider_list {
     position: relative;
-    top: 3px;
+    top: 4px;
+    right: 10px;
     margin-right: -15px;
     left: -14px;
     min-height: 30px;
@@ -102,9 +103,9 @@
 }
 #pep_slider_icons {
     position: relative;
-    top: -29px;
-    left: 12px !important;
-    width: 50px;
+    top: 4px;
+    left: 5px;
+    width: 45px;
     height: 30px;
     padding-top: 3px;
     padding-right: 5px;
