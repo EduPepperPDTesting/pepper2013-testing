@@ -77,12 +77,12 @@
            // $("#pep_title_tab").click(function(){
                 console.log("tab clicked");
                 if(slPos=='in'){
-                    $("#pep_container").animate({right:'-256px'}, 1200);
+                    $("#pep_container").animate({right:'-256px'}, 1000);
                     pepTabMove(0);
                     //$("#pep_title_tab").animate({right:'0px'});
                     slPos='out';
                 }else{
-                    $("#pep_container").animate({right:'0px'}, 1200);
+                    $("#pep_container").animate({right:'0px'}, 1000);
                     pepTabMove(251);
                     //$("#pep_title_tab").animate({right:'251px'});
                     slPos='in';
@@ -105,7 +105,7 @@
         function pepTabMove(end_pos) {
               var elem = document.getElementById('pep_container').shadowRoot.querySelector( "#pep_title_tab" );
               var tab_pos = window.innerWidth - elem.getBoundingClientRect().right;
-              var thisFrame = setInterval(frame, 5);
+              var thisFrame = setInterval(frame, 1);
               function frame() {
                     if ((end_pos == 0 && window.innerWidth - tab_pos >= window.innerWidth) || (end_pos != 0 && window.innerWidth - tab_pos <= window.innerWidth - end_pos)) {
                         clearInterval(thisFrame);
@@ -121,7 +121,8 @@
               }
         }
 
-        $(".pep_contact_name").tooltip({
+        var tooltipelem = document.getElementById('pep_container').shadowRoot.querySelector( ".pep_contact_name" );
+        tooltipelem.tooltip({
             items: ".pep_contact_name",
             track: true,
             open: function (event, ui) {
