@@ -49,7 +49,6 @@
     box-sizing: border-box;
     left: -15px;
     font-size: .9em;
-    margin-bottom: 5px;
 }
 #pep_panel .btn-group>.btn {
     display: inline-block;
@@ -86,8 +85,8 @@
 }
 #pep_panel .btn-group>.btn:nth-child(1) {
     border-right: 2px groove;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 #pep_panel .btn-group>.btn:nth-child(2) {
     border-right: 2px groove;
@@ -95,11 +94,11 @@
     padding-left: 10px;
 }
 #pep_panel .btn-group>.btn:nth-child(3) {
-    float: right;
-    top: -27px;
-    left: 6px;
-    padding-right: 12px;
-    padding-left: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
+    position: relative;
+    left: 5px;
+    top: -15px;
 }
 
 /*--------------------------*/

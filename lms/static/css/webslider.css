@@ -45,6 +45,8 @@
     width: inherit;
     position: relative;
     left: -15px;
+    margin-bottom: -5px;
+
 }
 #pep_search {
     border: 0px;
@@ -65,7 +67,7 @@
 }
 #pep_user_list {
     width: 281px;
-    height: 268px;
+    height: 280px;
     border-bottom: 1px solid;
     position: relative;
     left: -15px;
