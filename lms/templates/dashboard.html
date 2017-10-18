@@ -314,7 +314,7 @@ $(document).ready(function(){
 		$("#change_org_dialog_title").html(tmp_span_name);
 		$("#change_org_dialog_title").attr("field_type", tmp_span_type);
 		if(tmp_span_type == "7"){
-			tmp_span_val = $(el).parent().find("pre").html();
+			tmp_span_val = $(el).parent().find("xmp").html();
 		}
 		var tmp_span_content = "";
 		var tmp_field_content = "";
@@ -429,7 +429,7 @@ $(document).ready(function(){
 					$(this).find("span").html($("#change_org_dialog_field").find("input").val());
 					
 				}else if(tmp_type == "7"){
-					$(this).find("span").html("<pre>" + $("#change_org_dialog_field").find("textarea").val() + "</pre>");
+					$(this).find("span").html("<xmp>" + $("#change_org_dialog_field").find("textarea").val() + "</xmp>");
 					
 				}else if(tmp_type == "8"){
 					var tmp_val = "";
