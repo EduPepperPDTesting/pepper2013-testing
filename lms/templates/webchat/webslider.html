@@ -121,22 +121,24 @@
               }
         }
 
-        var tooltipelem = document.getElementById('pep_container').shadowRoot.querySelector( ".pep_contact_name" );
-        tooltipelem.tooltip({
-            items: ".pep_contact_name",
-            track: true,
-            open: function (event, ui) {
-                ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
-            },
-            show: {
-                effect: "slideDown",
-                delay: 250
-            },
-            content: function(){
-                var username = $(this).text();
-                return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
-            }
-        });
+        var tooltipelems = document.getElementById('pep_container').shadowRoot.getElementsByClassName( "pep_contact_name" );
+        for tooltipelem in tooltipelems{
+            tooltipelem.tooltip({
+                items: ".pep_contact_name",
+                track: true,
+                open: function (event, ui) {
+                    ui.tooltip.css({"position": "absolute", "z-index": "1", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000"});
+                },
+                show: {
+                    effect: "slideDown",
+                    delay: 250
+                },
+                content: function(){
+                    var username = $(this).text();
+                    return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+                }
+            });
+        }
 
         $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
             var $link = $(e.target);
