@@ -1073,6 +1073,7 @@ def do_import_user(task, csv_lines, request):
                 CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
                 CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=True)
                 CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=True)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
@@ -1222,6 +1223,7 @@ def single_user_submit(request):
             CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
             CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=True)
             CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=True)
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
