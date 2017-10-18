@@ -75,7 +75,7 @@
     position: relative;
     float: left;
 }
-#pep_panel .btn-group>.btn, .btn-xs {
+#pep_panel .btn-group>.btn {
     border-radius: 0 !important;
     font-size: .9em;
     color: black !important;
@@ -94,7 +94,7 @@
     padding-right: 15px;
 }
 #pep_panel .btn-group>.btn:nth-child(3) {
-    adding-left: 6px;
+    padding-left: 6px;
     padding-right: 6px;
     position: relative;
     left: 164px;
