@@ -1,10 +1,13 @@
 #pep_panel {
     height: 100%;
     width: 251px;
+    max-width: 251px;
     min-width: 251px;
     background-color: #fff;
     border: 1px solid black;
-    border-radius: 15px
+    border-radius: 15px;
+    padding-left: 15px;
+	padding-right: 15px;
 }
 #pep_title_tab {
     position: fixed;
@@ -38,28 +41,36 @@
     z-index: 20;
 }
 #pep_search_container {
-    height: 34px;
+    height: 25px;
     width: inherit;
     position: relative;
     left: -15px;
 }
 #pep_search {
-    height: 34px;
     border: 0px;
     border-radius: 15px 0 0;
+    width: 225px;
+    height: 25px;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-left: 15px;
 }
 #pep_search_btn {
     width: 45px;
-    height: 34px;
+    height: 25px;
     border: 0px;
     border-radius: 0 15px 0 0;
     position: relative;
-    left: -2px;
+    right: -30px;
+    top: -25px;
+    float: right;
 }
 #pep_groups {
-    width: inherit;
+    width: 265px;
+    height: 30px;
     box-sizing: border-box;
-    left: -15px;
+    left: -35px;
+    font-size: .9em;
 }
 .btn-xs {
     top: 1px;
@@ -77,12 +88,10 @@
     padding-right: 8px !important;
 }
 #pep_user_list {
-    width: inherit;
-    height: 270px;
+    width: 266px;
+	height: 268px;
     border-bottom: 1px solid;
     position: relative;
-    left: -15px;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 #pep_slider_list {
@@ -90,10 +99,10 @@
     top: 4px;
     right: 10px;
     margin-right: -15px;
-    left: -14px;
-    min-height: 30px;
+    left: 2px;
+    min-height: 52px;
     max-height: 57px;
-    width: 190px;
+    width: 200px;
     border: 1px solid;
     border-bottom-left-radius: 15px;
     display: inline-block;
@@ -104,18 +113,15 @@
 #pep_slider_icons {
     position: relative;
     top: 4px;
-    left: 5px;
+    left: 10px;
     width: 45px;
-    height: 30px;
+    height: 27px;
     padding-top: 3px;
     padding-right: 5px;
     display: inline-block;
     float: right;
     border-top: 1px solid;
     border-bottom: 1px solid;
-    -webkit-bottom-border-radius: 15px !important;
-    -moz-bottom-border-radius: 15px !important;
-    border-bottom-right-radius: 15px;
 }
 #pep_slider_icons img {
     width: 20px;

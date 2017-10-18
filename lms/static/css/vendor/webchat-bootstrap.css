@@ -54,10 +54,36 @@
     float: left;
 }
 #pep_panel .btn-group-xs>.btn, .btn-xs {
-    padding: 1px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
+    border-radius: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 1em !important;
+    color: black !important;
+    background-color: buttonface;
+    position: relative;
+    top: 5px;
+	padding-bottom: 5px;
+    padding-top: 5px;
+}
+#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(1) {
+    border-right: 2px groove;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(2) {
+    border-right: 2px groove;
+    left: -5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+#pep_panel .btn-group-xs>.btn, .btn-xs:nth-child(3) {
+    float: right;
+    position: relative;
+    left: 60px;
+    padding-top: 7px;
+    top: -13px;
+    padding-bottom: 6px;
+    padding-right: 7px !important;
 }
 #pep_panel .btn {
     display: inline-block;

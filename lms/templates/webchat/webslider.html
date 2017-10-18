@@ -86,8 +86,8 @@ $(document).ready(function(){
             $("#pep_title_tab").animate({right:'0px'});
             slPos='out';
         }else{
-            $("#pep_container").animate({right:'0px'});
-            $("#pep_title_tab").animate({right:'251px'});
+            $("#pep_container").animate({right:'40px'});
+            $("#pep_title_tab").animate({right:'291px'});
             slPos='in';
         }
     });
@@ -97,7 +97,7 @@ $(document).ready(function(){
         if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
-            if((window.innerWidth - leftX) == 251){
+            if((window.innerWidth - leftX) == 291){
                 $("#pep_container").animate({right:'-256px'});
 				pepTabMove(0);
                 //$("#pep_title_tab").animate({right:'0px'});
