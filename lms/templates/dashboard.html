@@ -137,7 +137,7 @@
                                 if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
                                     tmp_item_value = ""
                                 if item["field_type"] == "7":
-                                    tmp_item_value = "<pre>"+ tmp_item_value + "</pre>"
+                                    tmp_item_value = tmp_item_value
                             except:
                                 pass
                                 
@@ -163,6 +163,19 @@
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".org_field").each(function(){
+      var tmp_type = $(this).find("span").attr("field_type");
+      if(tmp_type == "6"){
+        $(this).find("span").html(unescape($(this).find("span").html()));
+        
+      }else if(tmp_type == "7"){
+        $(this).find("span").html("<xmp>" + unescape($(this).find("span").html()) + "</xmp>");
+      }
+    });
+   });
+  </script>
 <%include file="/webchat/webslider.html" />
 <%include file="/webchat/webchat.html" />
 
@@ -292,18 +305,6 @@
 <%block name="js_extra">
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <script>
-	 $(document).ready(function(){
-	 	$(".org_field").each(function(){
-			var tmp_type = $(this).find("span").attr("field_type");
-			if(tmp_type == "6"){
-				$(this).find("span").html(unescape($(this).find("span").html()));
-				
-			}else if(tmp_type == "7"){
-				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
-			}
-		});
-	 });
-	 
 	//-----------------------------------------------orgFieldEditClick
 	function orgFieldEditClick(el){
 		var tmp_span_name = $(el).parent().find("b").html().replace(":","");
@@ -451,7 +452,7 @@
 			var tmp_type = $(this).find("span").attr("field_type");
 			var tmp_name = $(this).find("b").html().replace(":", "");
 			var tmp_val = $(this).find("span").html();
-			if(tmp_type == "7") 		tmp_val = escape($(this).find("pre").html());
+			if(tmp_type == "7") 		tmp_val = escape($(this).find("xmp").html());
 			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
 			
 			org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
