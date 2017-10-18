@@ -123,6 +123,7 @@
 
         var tooltipelems = document.getElementById('pep_container').shadowRoot.getElementsByClassName( "pep_contact_name" );
         for(tooltipelem in tooltipelems){
+            console.log(tooltipelem);
             tooltipelem.tooltip({
                 items: ".pep_contact_name",
                 track: true,
