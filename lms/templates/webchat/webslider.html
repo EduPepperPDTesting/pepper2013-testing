@@ -210,9 +210,9 @@ $(document).ready(function(){
             var commId="search";
             $.post("${reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
                 if (data.success) {
-                    $.post("${reverse('get_all_ptuser_rows')}", {user_ids: data.users, term: term}, function (data){
+                    /*post("{reverse('get_all_ptuser_rows')}", {user_ids: data.users, term: term}, function (data){
                         var userRows = data.rows;
-                   });
+                   });*/
                 }
             });
         }
