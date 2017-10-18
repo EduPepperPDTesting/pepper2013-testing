@@ -167,12 +167,11 @@
 #pep_list_clear{
     float: right;
     position: relative;
-    top: -30px;
+    top: -20px;
     left: 12px;
 }
 #pep_list_clear button{
     color: #fff !important;
-    border: 1px solid transparent;
     padding-top: 0px;
     padding-left: 0px;
     padding-right: 5px;
@@ -181,6 +180,16 @@
     -webkit-border-bottom-right-radius: 35px !important;
     -moz-border-bottom-right-radius: 35px !important;
     border-bottom-right-radius: 15px !important;
+    display: inline-block;
+    margin-bottom: 0;
+    font-size: .9em;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 .pep_type_icon {
     width: 15px;
