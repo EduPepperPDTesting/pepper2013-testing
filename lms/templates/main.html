@@ -130,12 +130,14 @@
   <%include file="widgets/segment-io.html" />
 
 </head>
-<%include file="webchat/webslider.html" />
-<%include file="webchat/webvideochat.html" />
-<%include file="webchat/webchat.html" />
 
-<%
-    navbar_show_extended=True
+% if request.user.is_authenticated:
+    <%include file="webchat/webslider.html" />
+    <%include file="webchat/webvideochat.html" />
+    <%include file="webchat/webchat.html" />
+% endif
+<%!
+navbar_show_extended=True
 %>
 
 <body class="<%block name='bodyclass'/>">
