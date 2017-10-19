@@ -539,7 +539,6 @@ import datetime
                             if ($('#new-discussion-submit .poll-add').is(':checked')) {
                                 var pollData = formSelector.serializeArray();
                                 pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
-                                redirect_id = data.DiscussionID;
                                 $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
                                     if (data.Success) {
                                         discussion_dialog.hide();

@@ -177,7 +177,7 @@
         }, function(data) {
             $("#textchat_"+id).html("");
             $.each(data.results, function(k, v) {
-                $("#textchat_"+id).prepend(v.body + "<hr><br>");
+                $("#textchat_"+id).prepend(v.body + "<hr>");
             });
             $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
         });
