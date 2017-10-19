@@ -144,7 +144,7 @@
                         else:
                             organization_default_content += tmp_item_value
                                         
-                        if curr_user == request.user and item["field_type"] != "1" and item["field_type"] != "8":
+                        if curr_user == request.user and item["field_type"] != "1":
                             organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
                                 
                         organization_default_content += '</div>'
