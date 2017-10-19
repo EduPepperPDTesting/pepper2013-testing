@@ -22,13 +22,13 @@
 			if(tableData != 'My Network'){
 				tableData = tableData.replace(/~/g, "\'");
 				var idStartIndex = tableData.indexOf(": ") + 2;
-				var idEndIndex = tableData.indexOf(",") - 1;
+				var idEndIndex = tableData.indexOf(",") - 1
 				var nameStartIndex = tableData.indexOf(": u") + 4;
 				var nameEndIndex = tableData.indexOf("}") - 1;
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
 				var rowSource = "${reverse('get_community_user_rows')}";
-			}else{
+			} else {
 				var commId = 'network';
 				var commName = tableData;
 				var rowSource = "${reverse('get_network_user_rows')}";
@@ -75,6 +75,9 @@
 					else{
 						$('#community_'+commId).remove();
 					}
+					$('table[id^="community_"] tbody').css("display", "none");
+					$('table[id^="community_"] th').css("cursor", "pointer");
+					$('table[id^="community_"]:gt(0)').css({"border-top": "1px solid black", "width": "100%"});
 				});
 			}
 
@@ -139,6 +142,9 @@
 		});
 	});
 
+    $('thead').on('click', 'th', function(){
+        $(this).closest('table').find('tbody').toggle();
+    });
 
     function getMessage (id) {
         $.post("${reverse('get_message')}", {
