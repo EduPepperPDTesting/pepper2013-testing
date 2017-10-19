@@ -19,7 +19,6 @@
 	$(document).ready(function(){
 		$(".org-list-table").each(function(){
 			var tableData = $(this).attr("data");
-			console.log(tableData);
 			if(tableData != 'My Network'){
 				tableData = tableData.replace(/~/g, "\'");
 				var idStartIndex = tableData.indexOf(": ") + 2;
@@ -54,7 +53,6 @@
 							var r = userRows[i];
                             username = userRows[i][0];
                             id = userRows[i][1];
-                            console.log(r);
 							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div id='"+id+"' class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
@@ -90,6 +88,7 @@
                 });
             });
         })
+
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
 			var $link = $(e.target);
 			e.preventDefault();
@@ -115,6 +114,7 @@
 						}
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
 						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
+
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
@@ -123,7 +123,6 @@
 			$link.data('lockedAt', +new Date());
             getMessage(id);
 		});
-
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
 			var $link = $(e.target);
 			e.preventDefault();
@@ -137,34 +136,6 @@
                     sendVideoRequest(request_user_id, link);
                 });
             });
-			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
-				var uname = $(this).prev().text();
-				if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
-					var uname = uname.replace(" ", "_");
-
-					var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
-					if(elCountAll <= 9){
-						elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
-						var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
-						if(leftMin < 0){
-							$(".pep_video_container:not(.moved)").each(function(i, el){
-								if(i > 0){
-									var pos = $(el).offset();
-									var leftX = pos.left + (i * 2 * 450) / elCountStatic;
-									if(leftX + 450 <= window.innerWidth){
-										$(el).css({"right": "", "left": leftX + "px"});
-									}
-								}
-							});
-						}
-						var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
-						$(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
-						leftX-=450;
-						$(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
-					}
-				}
-			}
-			$link.data('lockedAt', +new Date());
 		});
 	});
 
@@ -177,10 +148,13 @@
         }, function(data) {
             $("#textchat_"+id).html("");
             $.each(data.results, function(k, v) {
-                $("#textchat_"+id).prepend(v.body + "<hr>");
+                var image = "<table><tr><td><img src='/user_photo/"+id+"' style = 'width:16px; height:16px;'></img></td><td>"
+                $("#textchat_"+id).prepend(image + v.body + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
             });
             $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            tieListener();
         });
+
     }
 
     function sendChatMessage (send_user, message) {
@@ -192,9 +166,7 @@
             'body': message
             })
         };
-        $.post("${reverse('save_message')}", datainfo, function(data){
-            getMessage(send_user);
-        });
+        $.post("${reverse('save_message')}", datainfo, function(data){});
         var messageinfo = {
             'info': JSON.stringify({
                 'user_id': send_user,
@@ -209,7 +181,16 @@
         };
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
     }
-
+    function tieListener() {
+        $(".pep_chat_input").keyup(function (e) {
+            if (e.keyCode == 13) {
+                console.log("Sending...");
+                sendChatMessage($(this).data("to_id"), $(this).val());
+                $(this).val("");
+                getMessage($(this).data("to_id"));
+            }
+        });
+    }
     function sendVideoRequest(send_user, link) {
         message = "${request.user.username} wants to start a video chat! ";
         message += link;

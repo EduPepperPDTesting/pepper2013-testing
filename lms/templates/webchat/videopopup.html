@@ -92,9 +92,9 @@ function initializeSession() {
 function screenshare() {
     OT.checkScreenSharingCapability(function(response) {
         if (!response.supported || response.extensionRegistered === false) {
-            alert('This browser does not support screen sharing.');
+            //alert('This browser does not support screen sharing.');
         } else if (response.extensionInstalled === false) {
-            alert('Please install the screen sharing extension and load your app over https.');
+            //alert('Please install the screen sharing extension and load your app over https.');
         } else {
             // Screen sharing is available. Publish the screen.
             var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
