@@ -114,6 +114,10 @@ urlpatterns = (
     url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
     url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
 
+    url(r'^getusersorg/$', 'webchat.views.get_users_org', name="get_users_org"),
+    url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
+    url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
+
     url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
     url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
     url(r'^getnetworkusers/$', 'webchat.views.get_network_users', name="get_network_users"),
@@ -121,6 +125,8 @@ urlpatterns = (
     url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
+
+    url(r'^pepsearch/$', 'webchat.views.webchat_search', name="webchat_search"),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
