@@ -29,10 +29,14 @@
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
 				var rowSource = "${reverse('get_community_user_rows')}";
-			}else{
+			}else if(tableData == 'My Network'){
 				var commId = 'network';
 				var commName = tableData;
 				var rowSource = "${reverse('get_network_user_rows')}";
+			}else{
+				var commId = 'allptusers';
+				var commName = tableData;
+				var rowSource = "${reverse('get_all_ptuser_rows')}";
 			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
@@ -45,17 +49,20 @@
 							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){
 								var userRows = networkData.rows;
 							});
+						}else if(commId == 'allptusers'){
+							$.post("${reverse('get_all_ptusers')}", function (allData){
+								var userRows = allData.rows;
+							});
 						}else{
 							var userRows = data.rows;
 						}
 						tbodyID = "#users_"+commId;
-						var username;
+						var username, userID;
 						for(i = 0; i < userRows.length; i++){
-							var r = userRows[i];
-                            username = userRows[i][0];
-                            id = userRows[i][1];
-                            console.log(r);
-							$("body").find(tbodyID).append("<tr><td><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div id='"+id+"' class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							username = userRows[i];
+							console.log(username);
+							userID = username[0].replace(" ", "_");
+							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_remove_im' style='display:none;'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
 						$(".pep_contact_name").tooltip({
@@ -77,6 +84,9 @@
 					else{
 						$('#community_'+commId).remove();
 					}
+					$('table[id^="community_"] tbody').css("display", "none");
+					$('table[id^="community_"] th').css("cursor", "pointer");
+					$('table[id^="community_"]:gt(0)').css({"border-top": "1px solid black", "width": "100%"});
 				});
 			}
 
@@ -164,7 +174,62 @@
 			}
 			$link.data('lockedAt', +new Date());
 		});
-	});
+
+		$(".pep_contact_block").on("click", ".pep_add_im", function(e){
+			e.preventDefault();
+			$(this).css("display", "none");
+			$(this).siblings(".pep_remove_im").css("display", "inline-block");
+			var userName = $(this).siblings(".pep_contact_name").text();
+			var idUser = userName.replace(" ", "_");
+			console.log(userName);
+			$("#pep_slider_list").append("<div id='" + idUser + "'><div class='pep_remove_from_list'>x</div><div style='display:inline-block'>"+userName+"</div></div>");
+			$("#pep_list_clear").css("display", "block");
+		});
+
+        $(".pep_contact_block").on("click", ".pep_remove_im", function(e){
+			e.preventDefault();
+			$(this).css("display", "none");
+			$(this).siblings(".pep_add_im").css("display", "inline-block");
+			var idUser = $(this).siblings(".pep_contact_name").text().replace(" ", "_");
+			$("#pep_slider_list").find("#" + idUser).next().remove();
+			$("#pep_slider_list").find("#" + idUser).remove();
+			if($("#pep_slider_list").children()==0){
+				$("#pep_list_clear").css("display", "none");
+			}
+		});
+
+		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
+			e.preventDefault();
+
+			var idUser = $(this).next().text().replace(" ", "_");
+			$(this).parent().remove();
+			$("#pep_user_list").find("td[class='"+idUser+"']").each(function(){
+				$("this").find(".pep_remove_im").css("display", "none");
+				$("this").find(".pep_add_im").css("display", "inline-block");
+			});
+			if($("#pep_slider_list").children().length==0){
+				$("#pep_list_clear").css("display", "none");
+
+			$(this).parent().remove();
+			if($("#pep_slider_list").children().length==0){
+				$("#pep_list_clear").css("display", "none");
+				$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
+				$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
+			}
+		});
+
+		$(".pep_add_im, .pep_remove_im").attr('unselectable','on').on('selectstart', function(){ return false; });
+
+		$("#pep_list_clear").on("click", function(){
+			$("#pep_slider_list").children().remove();
+			$("#pep_list_clear").css("display", "none");
+			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
+			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
+		});
+
+		$('thead').on('click', 'th', function(){
+			$(this).closest('table').find('tbody').toggle();
+		});
 
     function sendMessage(send_user, link) {
         message = "${request.user.username} wants to start a video chat! ";
@@ -192,4 +257,5 @@
         };
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
     }
+});
 </script>
