@@ -64,6 +64,7 @@
     right: -236px;
     top: -25px;
     float: right;
+    padding: 0 5px 0 5px;
 }
 #pep_glass {
     position: relative;
