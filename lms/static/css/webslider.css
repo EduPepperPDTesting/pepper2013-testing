@@ -221,3 +221,6 @@
     border:0;
     cursor: pointer !important;
 }
+org-list-table th{
+    text-align: left;
+}
