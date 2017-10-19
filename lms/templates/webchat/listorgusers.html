@@ -19,9 +19,7 @@
 	$(document).ready(function(){
 		$(".org-list-table").each(function(){
 			var tableData = $(this).attr("data");
-
 			if(tableData != 'My Network' && tableData != 'All Users'){
-				console.log(tableData);
 				tableData = tableData.replace(/~/g, "\'");
 				var idStartIndex = tableData.indexOf(": ") + 2;
 				var idEndIndex = tableData.indexOf(",") - 1;
@@ -31,12 +29,10 @@
 				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
 				var rowSource = "${reverse('get_community_user_rows')}";
 			}else if(tableData == 'My Network'){
-				console.log(tableData);
 				var commId = 'network';
 				var commName = tableData;
 				var rowSource = "${reverse('get_network_user_rows')}";
 			}else{
-				console.log(tableData);
 				var commId = 'allptusers';
 				var commName = tableData;
 				var rowSource = "${reverse('get_all_ptuser_rows')}";
@@ -47,6 +43,7 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				$.post(rowSource, {community_id: commId}, function (data) {
+					console.log("data="+data);
 					if (data.success) {
 						if (commId == 'network'){
 							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){
