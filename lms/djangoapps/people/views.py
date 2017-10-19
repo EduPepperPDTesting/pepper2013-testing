@@ -224,6 +224,7 @@ def people(request,course_id=''):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def my_people(request,course_id=''):
+    raise Exception("my people")
     # check course enrollment, when user visiting course people
     if course_id:
         registered = CourseEnrollment.is_enrolled(request.user, course_id)
@@ -285,7 +286,6 @@ def my_people(request,course_id=''):
 
     community_id = request.GET.get('community_id')
     if community_id is None:
-        raise Exception("no community_id")
 
         # gether pager params
         params=pager_params(request)
