@@ -17,6 +17,7 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
   #image_uploading{display:none;}
+  #ui-datepicker-div{z-index: 11003 !important;}
 </style>
 <!--@end-->
 <%inherit file="main.html" />
@@ -160,6 +161,19 @@
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".org_field").each(function(){
+      var tmp_type = $(this).find("span").attr("field_type");
+      if(tmp_type == "6"){
+        $(this).find("span").html(unescape($(this).find("span").html()));
+        
+      }else if(tmp_type == "7"){
+        $(this).find("span").html("<xmp>" + unescape($(this).find("span").html()) + "</xmp>");
+      }
+    });
+   });
+  </script>
 <%include file="/webchat/webslider.html" />
 <%include file="/webchat/webchat.html" />
 
@@ -294,18 +308,6 @@
 <%block name="js_extra">
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <script>
-	 $(document).ready(function(){
-	 	$(".org_field").each(function(){
-			var tmp_type = $(this).find("span").attr("field_type");
-			if(tmp_type == "6"){
-				$(this).find("span").html(unescape($(this).find("span").html()));
-				
-			}else if(tmp_type == "7"){
-				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
-			}
-		});
-	 });
-	 
 	//-----------------------------------------------orgFieldEditClick
 	function orgFieldEditClick(el){
 		var tmp_span_name = $(el).parent().find("b").html().replace(":","");
@@ -315,7 +317,7 @@
 		$("#change_org_dialog_title").html(tmp_span_name);
 		$("#change_org_dialog_title").attr("field_type", tmp_span_type);
 		if(tmp_span_type == "7"){
-			tmp_span_val = $(el).parent().find("pre").html();
+			tmp_span_val = $(el).parent().find("xmp").html();
 		}
 		var tmp_span_content = "";
 		var tmp_field_content = "";
@@ -388,7 +390,10 @@
 			
 		}else if(tmp_span_type == "7"){
 			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
-		}
+		}else if(tmp_span_type == "8"){
+      $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
+      $(".org_assignment_qualifications_datex").datepicker();
+    }
 	}
 	
 	//-----------------------------------------------orgSaveChange
@@ -427,11 +432,11 @@
 					$(this).find("span").html($("#change_org_dialog_field").find("input").val());
 					
 				}else if(tmp_type == "7"){
-					$(this).find("span").html("<pre>" + $("#change_org_dialog_field").find("textarea").val() + "</pre>");
+					$(this).find("span").html("<xmp>" + $("#change_org_dialog_field").find("textarea").val() + "</xmp>");
 					
 				}else if(tmp_type == "8"){
 					var tmp_val = "";
-					var tmp_date = $(this).datepicker("getDate");
+					var tmp_date = $("#change_org_dialog_field").find("input").datepicker("getDate");
 					var tmp_var1 = "";
 					if(tmp_date){
 						tmp_var1 = tmp_date.getMonth() + 1;
@@ -450,7 +455,7 @@
 			var tmp_type = $(this).find("span").attr("field_type");
 			var tmp_name = $(this).find("b").html().replace(":", "");
 			var tmp_val = $(this).find("span").html();
-			if(tmp_type == "7") 		tmp_val = escape($(this).find("pre").html());
+			if(tmp_type == "7") 		tmp_val = escape($(this).find("xmp").html());
 			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
 			
 			org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
@@ -561,6 +566,7 @@
              {"new_first_name":new_first_name, "new_last_name":new_last_name,"rationale":rationale},
              /*@end*/
              function(data) {
+              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                  // $("#change_name_body").html("<p>Name changed.</p>");
@@ -578,6 +584,7 @@
       $.post('${reverse("change_school")}',
              {"school_id":school_id},
              function(data) {
+              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
@@ -595,6 +602,7 @@
       $.post('${reverse("change_grade_level")}',
              {"grade_level_id":grade_level_id},
              function(data) {
+              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
@@ -610,6 +618,7 @@
         $.post('${reverse("change_percent_lunch")}',
                {"percent_lunch":percent_lunch},
                function(data) {
+                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -625,6 +634,7 @@
         $.post('${reverse("change_percent_iep")}',
                {"percent_iep":percent_iep},
                function(data) {
+                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -640,6 +650,7 @@
         $.post('${reverse("change_percent_eng_learner")}',
                {"percent_eng_learner":percent_eng_learner},
                function(data) {
+                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -654,6 +665,7 @@
         $.post('${reverse("change_major_subject_area")}',
                {"major_subject_area_id":major_subject_area_id},
                function(data) {
+                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -668,6 +680,7 @@
         $.post('${reverse("change_years_in_education")}',
                {"years_in_education_id":years_in_education_id},
                function(data) {
+                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -681,6 +694,7 @@
       $.post('${reverse("change_bio")}',
              {"bio":bio},
              function(data) {
+              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
