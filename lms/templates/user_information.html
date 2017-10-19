@@ -14,6 +14,15 @@
     from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDataitems, OrganizationMoreText
 %>
 <style type="text/css">
+#ui-datepicker-div{z-index: 11003 !important;}
+xmp{
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
+.org_field span{
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
 .user_information{
     margin:0 auto;
     max-width:1180px;
@@ -340,7 +349,7 @@
                             organization_default_7_visible = "display:none;"
                     else:
                         organization_default_content += '<div style="line-height:30px;" class="org_field">'
-                        organization_default_content += '<b>' + item["name"] + ': </b>'
+                        organization_default_content += '<b>' + item["name"] + ':</b>'
                         tmp_item_value = ""
                         
                         if register_organization_structure != "":
@@ -358,7 +367,7 @@
                             organization_default_content += tmp_item_value
                                         
                         if curr_user == request.user and item["field_type"] != "1":
-                            organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
+                            organization_default_content += ' <a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal"><img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/></a>'
                                 
                         organization_default_content += '</div>'
                         
@@ -392,7 +401,7 @@
 				$(this).find("span").html(unescape($(this).find("span").html()));
 				
 			}else if(tmp_type == "7"){
-				$(this).find("span").html("<pre>" + unescape($(this).find("span").html()) + "</pre>");
+				$(this).find("span").html("<xmp>" + unescape($(this).find("span").html()) + "</xmp>");
 			}
 		});
 
@@ -415,7 +424,7 @@
 		$("#change_org_dialog_title").html(tmp_span_name);
 		$("#change_org_dialog_title").attr("field_type", tmp_span_type);
 		if(tmp_span_type == "7"){
-			tmp_span_val = $(el).parent().find("pre").html();
+			tmp_span_val = $(el).parent().find("xmp").html();
 		}
 		var tmp_span_content = "";
 		var tmp_field_content = "";
@@ -488,9 +497,10 @@
 			
 		}else if(tmp_span_type == "7"){
 			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
-		}/*else if(tmp_span_type == "8"){
-			$("#change_org_dialog_field").append('<input type="text" class="change_org_dialog_field_datex" placeholder="Select Date" readonly="true" />');
-		}*/
+		}else if(tmp_span_type == "8"){
+          $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
+          $(".org_assignment_qualifications_datex").datepicker();
+        }
 	}
 	
 	//-----------------------------------------------orgSaveChange
@@ -529,11 +539,11 @@
 					$(this).find("span").html($("#change_org_dialog_field").find("input").val());
 					
 				}else if(tmp_type == "7"){
-					$(this).find("span").html("<pre>" + $("#change_org_dialog_field").find("textarea").val() + "</pre>");
+					$(this).find("span").html("<xmp>" + $("#change_org_dialog_field").find("textarea").val() + "</xmp>");
 					
 				}else if(tmp_type == "8"){
 					var tmp_val = "";
-					var tmp_date = $(this).datepicker("getDate");
+					var tmp_date = $("#change_org_dialog_field").find("input").datepicker("getDate");
 					var tmp_var1 = "";
 					if(tmp_date){
 						tmp_var1 = tmp_date.getMonth() + 1;
@@ -552,7 +562,7 @@
 			var tmp_type = $(this).find("span").attr("field_type");
 			var tmp_name = $(this).find("b").html().replace(":", "");
 			var tmp_val = $(this).find("span").html();
-			if(tmp_type == "7") 		tmp_val = escape($(this).find("pre").html());
+			if(tmp_type == "7") 		tmp_val = escape($(this).find("xmp").html());
 			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
 			
 			org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
