@@ -91,7 +91,7 @@
 			}
 
 		});
-        $("thead").on ("click", function (e){
+        $("thead").on ("click", ".pep_start_video", function (e){
             community_id = $(this).parent().attr("id").replace("community_", '');
             $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
                 var session = data.session;
