@@ -64,10 +64,10 @@
 							console.log(username);
 							userID = username[0].replace(" ", "_")+','+username[1];
 							elExists = !!document.getElementById(userID);
-							if(elExists === false){
+							if(elExists === true){
 								addStyle = 'display:none;';
 								removeStyle = 'display: inline-block;'
-							}else if(elExists === true){
+							}else if(elExists === false){
 								addStyle = 'display: inline-block;';
 								removeStyle = 'display:none;'
 							}
