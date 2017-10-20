@@ -196,6 +196,8 @@
 			console.log(userName);
 			$("#pep_slider_list").append("<div id='" + idUser + "'><div class='pep_remove_from_list'>x</div><div style='display:inline-block'>"+userName+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
+			$("pep_user_list").find("td[class="+ idUser +"]").find(".pep_add_im").css("display", "none");
+			$("pep_user_list").find("td[class="+ idUser +"]").find(".pep_remove_im").css("display", "inline-block");
 		});
 
         $(".pep_contact_block").on("click", ".pep_remove_im", function(e){
