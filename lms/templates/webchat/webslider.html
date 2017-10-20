@@ -234,7 +234,6 @@ $(document).ready(function(){
         $(this).css("display", "none");
         $(this).siblings(".pep_add_im").css("display", "inline-block");
         var idUser = $(this).siblings(".pep_contact_name").text().replace(" ", "_");
-        $("#pep_slider_list").find("#" + idUser).next().remove();
         $("#pep_slider_list").find("#" + idUser).remove();
         if($("#pep_slider_list").children()==0){
             $("#pep_list_clear").css("display", "none");

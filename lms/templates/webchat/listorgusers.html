@@ -58,11 +58,19 @@
 						}
 						tbodyID = "#users_"+commId;
 						var username, userID;
+						var addStyle, removeStyle;
 						for(i = 0; i < userRows.length; i++){
 							username = userRows[i];
 							console.log(username);
 							userID = username[0].replace(" ", "_");
-							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='display: inline-block;'>+</div><div class='pep_remove_im' style='display:none;'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							if($("#pep_slider_list").find("#" + idUser).length == 0){
+								addStyle = 'display: inline-block;';
+								removeStyle = 'display:none;'
+							}else{
+								addStyle = 'display:none;';
+								removeStyle = 'display: inline-block;'
+							}
+							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name' style='display: inline-block;'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
 						$(".pep_contact_name").tooltip({
@@ -192,8 +200,7 @@
 			$(this).siblings(".pep_add_im").css("display", "inline-block");
 			var idUser = $(this).siblings(".pep_contact_name").text().replace(" ", "_");
 			console.log(idUser);
-			$("#pep_slider_list").find("#" + idUser).next().remove();
-			$("#pep_slider_list").find("#" + idUser).remove();
+			$("#pep_slider_list #" + idUser).remove();
 			if($("#pep_slider_list").children()==0){
 				$("#pep_list_clear").css("display", "none");
 			}
