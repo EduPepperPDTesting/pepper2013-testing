@@ -124,7 +124,7 @@
     top: 5px;
     left: 5px;
 }
-.pep_contact_block div {
+.pep_contact_block div:not(".pep_add_im, .pep_remove_im"),  {
     display: inline-block;
     cursor: default;
 }
@@ -150,6 +150,7 @@
     user-select:none
 }
 .pep_add_im {
+    display: none;
     position: relative;
     top: 2px;
     padding-left: 1px;
@@ -158,6 +159,7 @@
     border-color: #1d9dd9;
 }
 .pep_remove_im {
+    display: none;
     position: relative;
     padding-right: 1px;
     padding-bottom: 0px;
