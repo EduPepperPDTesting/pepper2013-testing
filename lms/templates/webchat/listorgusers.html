@@ -198,8 +198,10 @@
 			$("#pep_list_clear").css("display", "block");
 			var elems = document.getElementsByClassName(idUser);
 			for(n = 0; n < elems.length; n++){
-				elems[n].getElementsByClassName("pep_add_im").style.display="none";
-				elems[n].getElementsByClassName("pep_remove_im").style.display="inline-block";
+				addTag = elems[n].getElementsByClassName("pep_add_im");
+				addTag[0].style.display="none";
+				removeTag = elems[n].getElementsByClassName("pep_remove_im");
+				removeTag[0].style.display="inline-block";
 			}
 		});
 
