@@ -63,7 +63,7 @@
 							username = userRows[i];
 							console.log(username);
 							userID = username[0].replace(" ", "_")+','+username[1];
-							elNotExists = !!document.getElementById(userID);
+							elExists = !!document.getElementById(userID);
 							if(elExists === false){
 								addStyle = 'display:none;';
 								removeStyle = 'display: inline-block;'
