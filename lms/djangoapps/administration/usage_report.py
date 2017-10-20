@@ -15,6 +15,7 @@ from student.models import CmsLoginInfo
 from django.contrib.auth import logout, authenticate, login
 
 import re
+import urllib2
 from datetime import timedelta
 from models import UserLoginInfo
 
@@ -34,63 +35,134 @@ def main(request):
 
 @ensure_csrf_cookie
 def get_user_login_info(request):
-	user_log_info = []
-	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
-		data = UserProfile.objects.all()
-		data = filter_user(request.POST, data)
+	columns = {0: ['district__state__name', '__iexact'],
+			   1: ['district__name', '__iexact'],
+			   2: ['school__name', '__iexact'],
+			   3: ['user__email', '__icontains'],
+			   4: ['user__username', '__icontains'],
+			   5: ['user__first_name', '__icontains'],
+			   6: ['user__last_name', '__icontains'],
+			   7: ['loginfo__login_time', ''],
+			   8: ['loginfo__logout_time', ''],
+			   9: ['loginfo__last_session', ''],
+			   10: ['loginfo__total_session', '']}
 
-		user_array = []
-		for user in data:
-			user_array.append(user.user_id)
+	# Parse the sort data passed in.
+	sorts = get_post_array(request.GET, 'col')
+	# Parse the filter data passed in.
+	filters = get_post_array(request.GET, 'fcol', 12)
+	# Get the page number and number of rows per page, and calculate the start and end of the query.
+	page = int(request.GET['page'])
+	size = int(request.GET['size'])
+	start = page * size
+	end = start + size
 
-		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array) # Django model QuerySet array. SQL:in operater
+	log.debug("page===================")
+	log.debug(page)
+	log.debug(size)
+
+
+	log.debug("============sorts")
+	log.debug(sorts)
+	log.debug("============filters")
+	log.debug(filters)
+
+	order = build_sorts(columns, sorts)
+	log.debug("order==============")
+	log.debug(order)
+	if len(filters):
+		kwargs = build_filter(columns, filters)
+		user_data = UserProfile.objects.filter(**kwargs).order_by(*order)
 	else:
-		user_log_info = UserLoginInfo.objects.filter()
+		user_data = UserProfile.objects.all().order_by(*order)
 
-	login_info_list = []
-	for d in user_log_info:
+	total_rows_count = user_data.count()
+	login_info_list = list()
+	for d in user_data[start:end]:
 		dict_tmp = {}
 		try:
-			obj_user = UserProfile.objects.get(user_id=d.user_id)
-		except Exception as e:
-			continue
-
-		try:
-			dict_tmp['district'] = str(obj_user.district.name)
-			dict_tmp['state'] = str(obj_user.district.state.name)
+			dict_tmp['district'] = str(d.district.name)
+			dict_tmp['state'] = str(d.district.state.name)
 		except Exception as e:
 			dict_tmp['district'] = ''
 			dict_tmp['state'] = ''
 
 		try:
-			dict_tmp['school'] = str(obj_user.school.name)
+			dict_tmp['school'] = str(d.school.name)
 		except Exception as e:
 			dict_tmp['school'] = ''
 
 		dict_tmp['id'] = d.user_id
-		dict_tmp['email'] = obj_user.user.email
-		dict_tmp['username'] = obj_user.user.username
-		dict_tmp['first_name'] = obj_user.user.first_name
-		dict_tmp['last_name'] = obj_user.user.last_name
-		dict_tmp['login_time'] = d.login_time
+		dict_tmp['email'] = d.user.email
+		dict_tmp['username'] = d.user.username
+		dict_tmp['first_name'] = d.user.first_name
+		dict_tmp['last_name'] = d.user.last_name
 
-		dict_tmp['is_active'] = obj_user.user.is_active
-		dict_tmp['is_staff'] = obj_user.user.is_staff
-		dict_tmp['is_superuser'] = obj_user.user.is_superuser
+		dict_tmp['is_staff'] = d.user.is_staff
+		dict_tmp['is_active'] = d.user.is_active
+		dict_tmp['is_superuser'] = d.user.is_superuser
 
-		if not active_recent(obj_user) or d.logout_press:
-			dict_tmp['logout_time'] = d.logout_time
-			dict_tmp['last_session'] = study_time_format(d.last_session)
-			dict_tmp['online_state'] = 'Off'
-			dict_tmp['total_session'] = study_time_format(d.total_session)
-		else:
+		try:
+			user_login_data = d.loginfo.all()[0]
+			if not active_recent(d) or user_login_data.logout_press:
+				dict_tmp['logout_time'] = user_login_data.logout_time
+				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
+				dict_tmp['online_state'] = 'Off'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
+			else:
+				dict_tmp['logout_time'] = ''
+				dict_tmp['last_session'] = ''
+				dict_tmp['online_state'] = 'On'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+		except:
+			dict_tmp['login_time'] = ''
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
-			dict_tmp['online_state'] = 'On'
-			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
+			dict_tmp['online_state'] = ''
+			dict_tmp['total_session'] = ''
 
 		login_info_list.append(dict_tmp)
-	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
+	return HttpResponse(json.dumps({'rows': login_info_list, 'rows_count': total_rows_count}), content_type="application/json")
+
+def get_post_array(post, name, max=None):
+    """
+    Gets array values from a POST.
+    """
+    output = dict()
+    for key in post.keys():
+    	log.debug("------")
+    	log.debug(key)
+        value = urllib2.unquote(post.get(key))
+        if key.startswith(name + '[') and not value == 'undefined':
+            start = key.find('[')
+            i = key[start + 1:-1]
+            if max and int(i) > max:
+                i = 'all'
+            output.update({i: value})
+    return output
+
+def build_filter(columns, filters):
+	filter_result = dict()
+	for k in filters:
+		if int(k) > 6:
+			continue
+		else:
+			filter_result[columns[int(k)][0] + columns[int(k)][1]] = filters[k]
+	return filter_result
+
+
+def build_sorts(columns, sorts):
+	order_result = list()
+	for k in sorts:
+		if int(k) > 10:
+			break
+		else:
+			if sorts[k] == '0':
+				order_result.append(columns[int(k)][0])
+			else:
+				order_result.append('-' + columns[int(k)][0])
+	return order_result
+
 
 @login_required
 @ensure_csrf_cookie
