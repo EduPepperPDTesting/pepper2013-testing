@@ -65,9 +65,12 @@
 							userID = username[0].replace(" ", "_")+','+username[1];
 							elExists = !!document.getElementById(userID);
 							if(elExists === false){
+								console.log("elExists === false=" + (elExists === false));
 								addStyle = 'display:none;';
 								removeStyle = 'display: inline-block;'
-							}else if(elExists === true){
+							}
+							if(elExists === true){
+								console.log("elExists === true=" + (elExists === true));
 								addStyle = 'display: inline-block;';
 								removeStyle = 'display:none;'
 							}
