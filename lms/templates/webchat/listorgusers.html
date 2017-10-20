@@ -194,7 +194,8 @@
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = userName.replace(" ", "_");
 			console.log(userName);
-			$("#pep_slider_list").append("<div id='" + idUser + "'><div class='pep_remove_from_list'>x</div><div style='display:inline-block'>"+userName+"</div></div>");
+			userNameShort = (userName.length>20)?userName.substr(0, 20)+'..., '+userName.substr(indexOf(',')+1):userName.substr(0, indexOf(','))+', '+userName.substr(indexOf(',')+1);;
+			$("#pep_slider_list").append("<div id='" + idUser + "' style="padding-left:10px;"><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
 			var elems = document.getElementsByClassName(idUser);
 			for(n = 0; n < elems.length; n++){
@@ -227,12 +228,13 @@
 				removeTag = elems[n].getElementsByClassName("pep_remove_im");
 				removeTag[0].style.display="none";
 			}
+
 		});
 
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 
-			var idUser = $(this).next().text().replace(" ", "_");
+			var idUser = $(this).parent().attr("id");
 			$(this).parent().remove();
 			$("#pep_user_list").find("td[class='"+idUser+"']").each(function(){
 				$("this").find(".pep_remove_im").css("display", "none");
