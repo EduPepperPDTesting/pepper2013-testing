@@ -30,13 +30,16 @@ f.close()
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery.toggle-switch.js"></script>
 <script type="text/javascript" src="/static/js/jquery-blink.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.inview.min.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/toggle-switch.css" type="text/css" media="screen" />
 <link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
@@ -680,6 +683,8 @@ f.close()
     </style>    
     <script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
     <link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
+
+    % if check_user_perms(request.user, 'pepconn', 'edit-course-permissions'):
     <div class="expand_title expand_title_collapse">
       Course Permissions <div class="icon"></div>
     </div>
@@ -814,12 +819,10 @@ f.close()
                     <option value="100">100</option>
                     <option value="200">200</option>
                   </select>
+                  <a href="" id="btnCoursePermDownloadExcel" style="color:#000;margin-left:50px;">Export as: <img src="/static/images/xls-icon.png" class="" alt="" /></a>
                 </form>
               </span>
             </div>
-            <p style="padding:20px;">
-              <input type="button" id="btnCoursePermDownloadExcel" value="Export to Excel" style="background:#2E7D32;color:#fff;"/>
-            </p>
           </div>
         </div>
       </section>
@@ -914,39 +917,21 @@ f.close()
               </span>
             </div>
           </div>
-          <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save" id="btnSave" style="background:#2E7D32;color:#fff;"></p>
-          <p style="text-align:right;margin-right:20px;"><input type="button" name="" value="Save & Send Notification" id="btnSaveSend" style="background:#2E7D32;color:#fff;"></p>
+          <p style="text-align:right;margin-right:20px;">
+            <input type="button" name="" value="Save" id="btnSave" style="background:#2E7D32;color:#fff;">
+            <input type="button" name="" value="Save & Send Notification" id="btnSaveSend" style="background:#2E7D32;color:#fff;">
+          </p>
+          <div id="float-users-win"></div>
+          <div id="float-users-detail"></div>               
         </div>
       </section>
       <!-- end of course permission -->
     </div>
+    % endif
   </div>
 </div>
 
 <style>
- .toggle{
-   width:54px;
-   height:24px;
-   display:inline-block;
-   background:#ED1C24;
-   border-radius:10px;
- }
- .toggle:before{
-   content:"";
-   display:inline-block;
-   height:20px;
-   width:20px;
-   background:#fff;
-   border-radius:10px;
-   margin-top:2px;
-   margin-left:2px;
- }
- .toggle.on{
-   background:#4FBE79;
- }
- .toggle.on:before{
-   margin-left:32px;
- }
  input[type=button]{
    border:1px solid #000;
    box-shadow:none;
@@ -964,7 +949,39 @@ f.close()
    top: 300px;
    margin-left: -64px;
  }
+ #float-users-win{
+   position:fixed;
+   top:15%;
+   left:10px;
+   width:300px;
+   height:60%;
+   background:#99BFE6;
+   overflow:scroll;
+   /* white-space:nowrap; */
+   z-index:999;
+   border:2px solid #999;
+ }
+ #float-users-win div{
+   margin:5px 5px 0 5px;
+ }
+ #float-users-win div.email label{
+   font-style:normal;
+   font-weight:normal;
+   color:#000;
+   cursor:pointer;
+ }
+ #float-users-win div.email label:hover{
+   color:#00f;
+ }
+ #float-users-win div.courses{
+   margin-left:20px;
+   color:#555;
+ }
+ #float-users-win div.courses b{
+   color:#059;
+ }
 </style>
+
 
 <script type="text/javascript">
   function LoadingWin(){
@@ -1022,7 +1039,7 @@ f.close()
           $.get("${reverse('ajax_get_async_task')}", {id: taskId}, function(r){
             check(r);
           });
-        }, 2000);
+        }, 1000);
       }
     }
     check();
@@ -1041,14 +1058,18 @@ f.close()
     var access = [];
     var enroll = [];
     $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
-      courses.push($(this).find("td:nth-child(5)").text())
-      access.push($(this).find("td:nth-child(6) .toggle").hasClass("on")?1:0);
-      enroll.push($(this).find("td:nth-child(7) .toggle").hasClass("on")?1:0);
+      var a = $(this).find("td:nth-child(6) .toggle").toggleSwitch().val();
+      var e = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
+      if(a + e != 0){
+        courses.push($(this).find("td:nth-child(5)").text())
+        access.push(a);
+        enroll.push(e);
+      }
     });
     if(!courses.length){
-      new Dialog($('#dialog')).show("Warn", "No course loaded");
+      new Dialog($('#dialog')).show("Warn", "No course assigned");
       return;
-    }    
+    }
     $.post("${reverse('pepconn_update_course_permission')}", {
       send_notification: send_notification ? "1" : "0",
       users: users.join(","),
@@ -1127,27 +1148,22 @@ f.close()
     });    
     $table.bind("pagerComplete", function (a) {
       loadwin.hide();
-
+      var this_table=this;
+      $(this).find(".check-all").click(function(){
+        $(this_table).find("tbody tr td:nth-child(6) input").prop("checked", this.checked);
+      });
       $(this).find("tbody tr").each(function(){
         var id = $(this).find("td:nth-child(5)").text();
         $(this).find("td:nth-child(5)").hide();
         var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5));
         var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6));
-        toggle1.click(function(){
-          if($(this).hasClass("on")) {
-            $(this).removeClass("on")
-            $(this).parent().next("td").find(".toggle").removeClass("on");
-          }else{
-            $(this).addClass("on");
-          }
+        toggle2.toggleSwitch().change(function(){
+          var v = $(this).toggleSwitch().val();
+          if(v == 1) toggle1.val(1)
         });
-        toggle2.click(function(){
-          if($(this).hasClass("on")) {
-            $(this).removeClass("on");
-          }else{
-            $(this).addClass("on");
-            $(this).parent().prev("td").find(".toggle").addClass("on");
-          }
+        toggle1.toggleSwitch().change(function(){
+          var v = $(this).toggleSwitch().val();
+          if(v == -1) toggle2.val(-1)
         });
       });
     });
@@ -1243,6 +1259,8 @@ f.close()
       var this_table=this;
       $(this).find(".check-all").click(function(){
         $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
+
+        $(this_table).find("tbody tr td:nth-child(1) input").trigger("change");
       });
       var selection = self.selection;
       $(this).find("td:nth-child(1)").each(function(i){
@@ -1267,6 +1285,40 @@ f.close()
       $.each(courses, function(i, c){
         $("<th>" + c.display_name + "</th>").appendTo($tr);         
       });
+
+      /** float user window */
+      var $thead = $(this).find("thead");
+      $("#float-users-win").html("");
+      $(this).find("tbody tr td:nth-child(4)").each(function(){ // each email.
+        var $tr = $(this).parent();
+        // courses assigned
+        var course_assign = "";
+        $tr.find("td:gt(6)").each(function(i){
+          var assign = $(this).html();
+          if(assign == "P" || assign == "E"){
+            var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
+            course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
+          }
+        });
+        var $item = $("<div class='email'><input type='checkbox'> <label>" + $(this).html() + "</label></div>").appendTo($("#float-users-win"));
+        $item.find("input").prop("checked", $tr.find("td:eq(0) input").prop("checked"));
+        var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
+        $detail.hide();
+
+        /** change checked eath other */
+        $item.find("input").on("change", function(){
+          $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+        });
+        $tr.find("td:eq(0) input").on("change", function(){
+          $item.find("input").prop("checked", $(this).prop("checked"))
+        });
+        $item.find("label").click(function(){
+          if($detail.is(":visible"))
+            $detail.hide();
+          else
+            $detail.show();
+        });
+      });      
     });
   }
   CoursePermission.prototype.dropDistrictMu = function(select, state_ids){
@@ -1363,7 +1415,6 @@ f.close()
       }
     });
   }
-
   CoursePermission.prototype.initUI = function(){
     var self = this;
     /** filter subject/author/grade menu */
@@ -1418,7 +1469,8 @@ f.close()
       self.loadCsv();      
     });
     $("#btnCoursePermDownloadExcel").click(function(){
-      self.downloadExcel();      
+      self.downloadExcel();
+      return false;
     });
     $(".course-perm-sub-title").click(function(){
       var $div = $(this).next("div");
@@ -1436,8 +1488,32 @@ f.close()
         $(".filters-submenu li").removeClass("active");
       });
     });
+
+    /** set size of floating user win */
+    var isInView = false;
+    setInterval(function(){
+      var offset = $("#course_permission_user").offset();
+      var width = offset.left - $(window).scrollLeft() - 20;
+      if(!isInView && $("#float-users-win").html()){
+        if(width < 0)
+          $("#float-users-win").hide();
+        else
+          $("#float-users-win").show();
+        $("#float-users-win").width(width);
+      }else{
+        $("#float-users-win").hide();
+      }
+    }, 500);
+    $('#course_permission_user table').on('inview', function(event, v) {
+      isInView = v;
+      if (v) {
+        $("#float-users-win").hide();
+      } else if($("#float-users-win").html()) {
+        $("#float-users-win").show();
+      }
+    });
   }
-  new CoursePermission()
+  new CoursePermission();
 </script>
 
 <!-- dialog -->
