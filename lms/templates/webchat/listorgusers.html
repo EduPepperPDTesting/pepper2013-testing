@@ -219,6 +219,14 @@
 			if($("#pep_slider_list").children()==0){
 				$("#pep_list_clear").css("display", "none");
 			}
+
+			var elems = document.getElementsByClassName(idUser);
+			for(n = 0; n < elems.length; n++){
+				addTag = elems[n].getElementsByClassName("pep_add_im");
+				addTag[0].style.display="inline-block";
+				removeTag = elems[n].getElementsByClassName("pep_remove_im");
+				removeTag[0].style.display="none";
+			}
 		});
 
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
