@@ -63,10 +63,10 @@
 							username = userRows[i];
 							console.log(username);
 							userID = username[0].replace(" ", "_")+','+username[1];
-							if(!document.getElementById(userID)){
+							if(!!document.getElementById(userID)){
 								addStyle = 'display:none;';
 								removeStyle = 'display: inline-block;'
-							}else if(!!document.getElementById(userID)){
+							}else if(!document.getElementById(userID)){
 								addStyle = 'display: inline-block;';
 								removeStyle = 'display:none;'
 							}
