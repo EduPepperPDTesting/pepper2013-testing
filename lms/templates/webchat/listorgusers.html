@@ -204,7 +204,11 @@
 			$(this).siblings(".pep_add_im").css("display", "inline-block");
 			var idUser = $(this).siblings(".pep_contact_name").text().replace(" ", "_");
 			console.log(idUser);
-			$("#pep_slider_list #" + idUser).remove();
+			
+			var parent = document.getElementById("pep_slider_list");
+			var child = document.getElementById("idUser");
+			parent.removeChild(child);
+
 			if($("#pep_slider_list").children()==0){
 				$("#pep_list_clear").css("display", "none");
 			}
