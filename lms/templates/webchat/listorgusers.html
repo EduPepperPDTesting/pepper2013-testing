@@ -194,7 +194,7 @@
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = userName.replace(" ", "_");
 			console.log(userName);
-			userNameShort = (userName.length>20)?userName.substr(0, 20)+'..., '+userName.substr(userName.indexOf(',')+1):userName.substr(0, userName.indexOf(','))+', '+userName.substr(userName.indexOf(',')+1);;
+			userNameShort = (userName.indexOf(',')>15)?trim(userName.substr(0, 15))+'..., '+userName.substr(userName.indexOf(',')+1):trim(userName.substr(0, userName.indexOf(',')))+', '+userName.substr(userName.indexOf(',')+1);;
 			$("#pep_slider_list").append("<div id='" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
 			var elems = document.getElementsByClassName(idUser);
