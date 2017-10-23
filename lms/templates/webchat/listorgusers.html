@@ -128,13 +128,14 @@
 								if(i > 0){
 									var pos = $(el).offset();
 									var leftX = pos.left + (i * 2 * 235) / elCount;
-									if(leftX + 235 <= window.innerWidth){
+									if(leftX + 235 <= window.innerWidth - 40){
 										$(el).css({"right": "", "left": leftX + "px"});
 									}
 								}
 							});
 						}
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
+						consloe.log("leftX="+leftX);
 						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/"+uname+" .pep_text_panel");
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
