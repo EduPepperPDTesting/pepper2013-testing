@@ -567,7 +567,6 @@ $(document).ready(function(){
              {"new_first_name":new_first_name, "new_last_name":new_last_name,"rationale":rationale},
              /*@end*/
              function(data) {
-              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                  // $("#change_name_body").html("<p>Name changed.</p>");
@@ -585,7 +584,6 @@ $(document).ready(function(){
       $.post('${reverse("change_school")}',
              {"school_id":school_id},
              function(data) {
-              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
@@ -603,7 +601,6 @@ $(document).ready(function(){
       $.post('${reverse("change_grade_level")}',
              {"grade_level_id":grade_level_id},
              function(data) {
-              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
@@ -619,7 +616,6 @@ $(document).ready(function(){
         $.post('${reverse("change_percent_lunch")}',
                {"percent_lunch":percent_lunch},
                function(data) {
-                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -635,7 +631,6 @@ $(document).ready(function(){
         $.post('${reverse("change_percent_iep")}',
                {"percent_iep":percent_iep},
                function(data) {
-                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -651,7 +646,6 @@ $(document).ready(function(){
         $.post('${reverse("change_percent_eng_learner")}',
                {"percent_eng_learner":percent_eng_learner},
                function(data) {
-                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -666,7 +660,6 @@ $(document).ready(function(){
         $.post('${reverse("change_major_subject_area")}',
                {"major_subject_area_id":major_subject_area_id},
                function(data) {
-                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -681,7 +674,6 @@ $(document).ready(function(){
         $.post('${reverse("change_years_in_education")}',
                {"years_in_education_id":years_in_education_id},
                function(data) {
-                var data=JSON.parse(data)
                  if(data.success) {
                    location.reload();
                  } else {
@@ -695,7 +687,6 @@ $(document).ready(function(){
       $.post('${reverse("change_bio")}',
              {"bio":bio},
              function(data) {
-              var data=JSON.parse(data)
                if(data.success) {
                  location.reload();
                } else {
