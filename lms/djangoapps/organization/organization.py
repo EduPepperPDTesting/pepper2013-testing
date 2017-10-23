@@ -140,6 +140,18 @@ def organization_register_save(request):
             org_register.itemType = "Register Organization Structure"
             org_register.save()
 
+            # --------------course_enroll
+            for tmp1 in OrganizationMoreText.objects.filter(organization=OrganizationId, itemType="Course Assignment"):
+                course_assignment_content = tmp1.DataItem
+
+            org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
+            for tmp1 in org_data_list:
+                specific_items = tmp1.DataItem
+
+            if specific_items and course_assignment_content:
+                qualifications = organization_qualifications(specific_items, course_assignment_content)
+                course_assign(qualifications, content)
+
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
