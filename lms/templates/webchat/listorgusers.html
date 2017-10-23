@@ -113,6 +113,7 @@
             });
         })
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
+			console.log("name clicked");
 			var $link = $(e.target);
 			e.preventDefault();
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
