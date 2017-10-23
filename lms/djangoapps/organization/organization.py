@@ -384,7 +384,7 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            if oid == "-1":
+            if oid == "-1" and copyfromid == "":
                 dataitems = '['
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'

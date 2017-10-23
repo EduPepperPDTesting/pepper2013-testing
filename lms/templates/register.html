@@ -474,7 +474,7 @@ import json
           </li>
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_1">
-                <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area')}</label>
+                <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area *')}</label>
                 <select autocomplete="off" name="major_subject_area_id">
                   <option value="">--</option>
                   %for item in SubjectArea.objects.all().order_by("so"):
@@ -487,7 +487,7 @@ import json
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_2">
-                <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
+                <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply *')}</label>
                 <div class="level_containter" style="margin-bottom:10px;">
                 <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
                   %for item in GradeLevel.objects.all():
@@ -503,7 +503,7 @@ import json
          </li>          
          <li class="field required text" id="field-name">
              <span id="organization_info_org_default_3">
-                <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education')}</label>
+                <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education *')}</label>
                 <select autocomplete="off" name="years_in_education_id" style="width:100px;">
                   <option value="">--</option>
                   %for item in YearsInEducation.objects.all():
@@ -525,7 +525,7 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor                
                 </select>
-                of my students are eligible for Free/Reduced lunch. <b></b>                
+                of my students are eligible for Free/Reduced lunch. <b>*</b>                
               	<div class="org_description"></div>
               </li>
               <li id="organization_info_org_default_5" class="field required text" id="field-name">
@@ -536,7 +536,7 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor 
                 </select>
-                of my students have an IEP.  <b></b>             
+                of my students have an IEP.  <b>*</b>             
               	<div class="org_description"></div>
               </li>
               <li id="organization_info_org_default_6" class="field required text" id="field-name">
@@ -546,7 +546,7 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor 
                 </select>
-                of my students are English Learners. <b></b>             
+                of my students are English Learners. <b>*</b>             
               	<div class="org_description"></div> 
               </li>
           </span>
