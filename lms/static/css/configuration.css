@@ -60,7 +60,7 @@
            padding: 0 0 8px 0;
            width: 480px;
            display:none;
-            position: fixed;
+           /*position: fixed;*/
         }
 
         .modal .close-modal {

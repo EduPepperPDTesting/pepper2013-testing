@@ -29,8 +29,7 @@ import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
-import logging
-log = logging.getLogger("tracking")
+
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -1144,8 +1143,11 @@ def organizational_save_base(request):
                 OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
 
             # --------------course_assignment_content
+            course_assignment_sign = True
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
+                if tmp1.DataItem == course_assignment_content:
+                    course_assignment_sign = False
                 org_course_assignment = tmp1
                 break
 
@@ -1155,10 +1157,10 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # -----get_organization_course_assignment_qualifications
-            # if course_assignment_content != "":
-            #     qualifications = organization_qualifications(specific_items, course_assignment_content)
-            #     for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-            #         course_assign(qualifications, tmp1.DataItem)
+            if course_assignment_sign:
+               qualifications = organization_qualifications(specific_items, course_assignment_content)
+               for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+                   course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
@@ -1253,7 +1255,6 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
-
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1911,13 +1912,22 @@ def course_assign(qualifications, data):
             if tmp3['data'] != '':
                 tmp4 = tmp3['data'].split(',')
                 if len(tmp4) <= 1:
-                    if data[tmp3['name']] != tmp3['data']:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        if tmp3['data'] not in tmp5:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
                 else:
-                    tmp5 = data[tmp3['name']].split(',')
-                    retA = [i for i in tmp4 if i in tmp5]
-                    if len(retA) == 0:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        retA = [i for i in tmp4 if i in tmp5]
+                        if len(retA) == 0:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
         if sign:
