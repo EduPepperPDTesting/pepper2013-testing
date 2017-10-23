@@ -37,14 +37,14 @@
     z-index: 9999;
 }}
 .pep_text_container {
-    width: 235px;
+    width: 235px !important;
 }
 .pep_video_container {
     width: 450px;
 }
 .pep_text_panel,
 .pep_video_panel {
-    padding-right: 0px;
+    padding: 0px;
     background-color: #fff;
     border: 1px solid black;
     position: relative;
