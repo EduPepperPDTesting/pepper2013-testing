@@ -1143,11 +1143,8 @@ def organizational_save_base(request):
                 OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
 
             # --------------course_assignment_content
-            course_assignment_sign = True
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
-                if tmp1.DataItem == course_assignment_content:
-                    course_assignment_sign = False
                 org_course_assignment = tmp1
                 break
 
@@ -1157,7 +1154,7 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # -----get_organization_course_assignment_qualifications
-            if course_assignment_sign:
+            if course_assignment_content and specific_items:
                qualifications = organization_qualifications(specific_items, course_assignment_content)
                for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
                    course_assign(qualifications, tmp1.DataItem)
