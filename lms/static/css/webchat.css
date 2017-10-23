@@ -32,7 +32,6 @@
 .pep_text_container, .pep_video_container {
     display: none;
     position: fixed;
-    right: 40px;
     height: 250px;
     z-index: 9999;
 }}
@@ -60,7 +59,7 @@
     min-width: 450px;
 }
 .pep_textchatheader_container {
-    width: 233px;
+    width: 235px;
     border-radius: 15px 15px 0 0;
 }
 .pep_videochatheader_container {
