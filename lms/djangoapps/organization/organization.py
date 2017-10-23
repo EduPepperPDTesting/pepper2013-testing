@@ -147,7 +147,7 @@ def organization_register_save(request):
             for tmp1 in org_data_list:
                 specific_items = tmp1.DataItem
 
-            if course_assignment_sign:
+            if specific_items and course_assignment_content:
                 qualifications = organization_qualifications(specific_items, course_assignment_content)
                 course_assign(qualifications, content)
 
