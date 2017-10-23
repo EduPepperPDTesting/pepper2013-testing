@@ -383,7 +383,7 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            if oid == "-1":
+            if oid == "-1" and copyfromid == False:
                 dataitems = '['
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
@@ -1131,8 +1131,11 @@ def organizational_save_base(request):
                 OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
 
             # --------------course_assignment_content
+            course_assignment_sign = True
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
+                if tmp1.DataItem == course_assignment_content:
+                    course_assignment_sign = False
                 org_course_assignment = tmp1
                 break
 
@@ -1142,10 +1145,10 @@ def organizational_save_base(request):
             org_course_assignment.save()
 
             # -----get_organization_course_assignment_qualifications
-            #if course_assignment_content != "":
-            #    qualifications = organization_qualifications(specific_items, course_assignment_content)
-            #    for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-            #        course_assign(qualifications, tmp1.DataItem)
+            if course_assignment_sign:
+               qualifications = organization_qualifications(specific_items, course_assignment_content)
+               for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
+                   course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
