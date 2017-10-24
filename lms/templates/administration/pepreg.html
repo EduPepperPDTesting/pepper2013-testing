@@ -207,7 +207,13 @@
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
                     %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
-                        <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
+                        <script type="text/javascript">
+                            var option = '${item.subjectother}';
+
+                            if($("#subject-other-drop option[value='"+option.toLowerCase()+"']").length==0 && $("#subject-other-drop option[value='"+option+"']").length==0){
+                                $("#subject-other-drop").append('<option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>');
+                            }
+                        </script>
                     %endfor
                 </select>
                 <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
@@ -1984,10 +1990,11 @@
             }
         });
         var $subject = $("#dlg-add-training").find("select[name=subject]");
-        if (data.subject) {
-            var $opts = $subject.find("option[value=" + data.subject + "]");
-            if (!$opts.length) {
-                $subject.next("input[name=subject-other]").show().val(data.subject);
+        if (data.subject) {console.log("data="+data.subjectother);
+            //var $opts = $subject.find("option[value=" + data.subject + "]");
+            //if (!$opts.length) {
+            if (data.subjectother != ""){
+                $subject.next("input[name=subject-other]").show().val(data.subjectother);
                 $subject.val("Other");
             }
         } else {
