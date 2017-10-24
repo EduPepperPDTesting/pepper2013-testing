@@ -1993,7 +1993,7 @@
         if (data.subject) {
             var $opts = $subject.find("option[value=" + data.subject + "]");
             if (!$opts.length) {
-                $subject.next("input[name=subject-other]").show().text(data.subjectother);
+                $subject.next("input[name=subject-other]").show().val(data.subjectother);
                 $subject.val("Other");
             }
         } else {
