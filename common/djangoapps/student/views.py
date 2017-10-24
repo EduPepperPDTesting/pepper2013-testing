@@ -88,7 +88,7 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 # @end
 
 from student.models import State, District, School, User, UserProfile
-from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
@@ -511,8 +511,7 @@ def dashboard(request, user_id=None):
         qualifications = []
         for tmp1 in assignments:
             course_assign = True
-            qualification = {}
-            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            qualification = tmp1.split('<')[0].replace('(','').replace(')','')
             qualifications_items = tmp1.split('<')[1].split(',')
             for tmp2 in qualifications_items:
                 tmp3 = tmp2.split('>')
@@ -523,14 +522,15 @@ def dashboard(request, user_id=None):
                     if i <= 1:
                         item['data'] = tmp3[i].replace('(','').replace(')','')
                     if i > 1:
-                        item['data'] = item['data'] + ',' +tmp3[i].replace('(','').replace(')','')
-                    if i == len(tmp3) - 1:
-                        qualification['filters'].append(item)
+                        item['data'] = item['data'] + tmp3[i].replace('(','').replace(')','')
                 if item['data']:
                     course_assign = False
                     break
             if course_assign:
                 qualifications.append(qualification)
+
+        for tmp2 in qualifications:
+            CourseEnrollment.enroll(user, tmp2)
 
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')
