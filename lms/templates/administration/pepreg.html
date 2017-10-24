@@ -206,8 +206,12 @@
                 </select>
                 <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
                     <option value="">Select</option>
-                    %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).values("subjectother").order_by("subjectother"):
-                        <option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>
+                    %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                        <script type="text/javascript">
+                            if($("#subject-other-drop option[value='${item.subjectother}']")==0){
+                                $("#subject-other-drop").append('<option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>');
+                            }
+                        </script>
                     %endfor
                 </select>
                 <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
