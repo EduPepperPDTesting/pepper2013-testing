@@ -26,7 +26,7 @@ def getvideoframe(request, uname):
 def gettextframe(request, uname):
     user_name = []
     get_name = uname
-    while(getname.find("_")):
+    while(get_name.find("_")):
         space_pos = get_name.find("_")
         add_name = get_name[0:space_pos]
         user_name.extend([add_name])
