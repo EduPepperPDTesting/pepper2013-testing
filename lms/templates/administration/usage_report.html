@@ -21,9 +21,8 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 <script type="text/javascript" src="/static/js/datetime/moment.js"></script>
-
-<!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script type="text/javascript" src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 <style>
@@ -184,12 +183,10 @@
                         </select>
                         <select class="gotoPage" title="Select page number"></select>
                     </span>
-                    <!--
-                    <span class="time_download">
+                    <span class="download">
                       Download <span class="total"></span> User(s) As
                       <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
                     </span>
-                    -->
                 </div>
             </form>
         </div>
@@ -276,16 +273,16 @@ var pagerOptions = {
 var tablesorterOptions = {
         theme: 'blue',
         widthFixed: true,
-        widgets: ["zebra", "filter", "columnSelector"],
-        headers:{12:{sorter:false},13:{sorter:false}},
+        widgets: ["zebra", "filter", "output", "columnSelector"],
+        headers:{11:{sorter:false},12:{sorter:false},13:{sorter:false}},
         widgetOptions: {
-            filter_placeholder: {search: 'Search...'},
             columnSelector_container : $('#columnSelector'),
-            columnSelector_columns : {14: 'disable'},  //columns counter
+            columnSelector_columns : {14: 'disable'},
             columnSelector_mediaqueryName: 'All: ',
 
             filter_external: '',
             filter_columnFilters: false,
+            filter_placeholder: {search: 'Search...'},
             filter_saveFilters: false,
             filter_reset: '.reset',
             filter_serversideFiltering: true,
@@ -304,13 +301,9 @@ $(function() {
 
     //----------- download excel----------//
     $("#btnDownloadUserTimeExcel").click(function () {
-        console.log("1111111111111");
         $("#tblUserTime").data('tablesorter').widgetOptions.output_delivery = "d";
-        console.log( $("#tblUserTime").data('tablesorter'));
         $("#tblUserTime").data('tablesorter').widgetOptions.output_saveFileName = "user.csv";
-        console.log("333");
         $("#tblUserTime").trigger('outputTable');
-        console.log("444");
     });
 
     //----------- column selector event----------//
@@ -374,7 +367,6 @@ function filterUserDropOptions(item, id, select) {
                 $("#User_school_select").html(options_school);
             }
             else if (item == 'school'){
-                console.log("22222");
                 $(select).html(options_school);
             }
         }
@@ -447,7 +439,7 @@ var userTimeReport = {
 
         $(".tblUserTime").trigger("update");
         this.total_num = data.length;
-        $(".time_download .total").html(data.length);
+        $(".download .total").html(data.length);
 
         //----------- click event save user 3 status----------//
         var save_status_press = 0;
@@ -663,29 +655,7 @@ var userTimeReport = {
         form.submit();
         document.body.removeChild(form);
     },
-
-    downloadUserTimeExcel:function(){
-        var filter = $('#fltUserTime')[0].control.getFilter();
-        var local_time =  new Date();
-        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
-        filter['local_utc_diff_m'] = local_utc_diff_m;
-        this.postToNewTab("${reverse('usage_report_download_excel')}",safeJSON(filter));
-    },
-
-    downloadUserTimeExcel_init:function(){
-        var self = this;
-        $("#btnDownloadUserTimeExcel").click(function(){
-            if(self.total_num > 0){
-                self.downloadUserTimeExcel();
-            }
-            else{
-                self.dialog = new Dialog($('#dialog'));
-                self.dialog.show('Download Excel','Data is empty!');
-            }
-        });
-    }
 };
-//userTimeReport.downloadUserTimeExcel_init();
 
 //-------------------------- UI control --------------------------//
 //** init expand title
