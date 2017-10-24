@@ -121,7 +121,7 @@
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).text();
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
-					var uname = uname.replace(/ /g, "_");
+					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
 					console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
 					if(elCount <= 19){
