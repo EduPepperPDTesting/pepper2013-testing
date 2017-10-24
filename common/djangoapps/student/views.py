@@ -503,6 +503,35 @@ def dashboard(request, user_id=None):
         for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
             data[tmp1.itemType] = tmp1.itemValue
 
+    for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
+        course_assignment_content = tmp1.DataItem
+    
+    if course_assignment_content:
+        assignments = course_assignment_content.split(';')
+        qualifications = []
+        for tmp1 in assignments:
+            course_assign = True
+            qualification = {}
+            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            qualifications_items = tmp1.split('<')[1].split(',')
+            for tmp2 in qualifications_items:
+                tmp3 = tmp2.split('>')
+                item = {}
+                item['_id'] = tmp3[0].replace('(','').replace(')','')
+                item['data'] = ''
+                for i in range(len(tmp3)):
+                    if i <= 1:
+                        item['data'] = tmp3[i].replace('(','').replace(')','')
+                    if i > 1:
+                        item['data'] = item['data'] + ',' +tmp3[i].replace('(','').replace(')','')
+                    if i == len(tmp3) - 1:
+                        qualification['filters'].append(item)
+                if item['data']:
+                    course_assign = False
+                    break
+            if course_assign:
+                qualifications.append(qualification)
+
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')
 
