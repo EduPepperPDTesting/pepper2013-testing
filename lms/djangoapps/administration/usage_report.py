@@ -2,6 +2,7 @@ from mitxmako.shortcuts import render_to_response
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 import json
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 from django.contrib.auth.models import User
 from student.models import District, Cohort, School, State
@@ -33,7 +34,8 @@ def main(request):
                                            in error, please contact the site administrator for assistance.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
 
-@ensure_csrf_cookie
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_user_login_info(request):
 	columns = {0: ['district__state__name', '__iexact'],
 			   1: ['district__name', '__iexact'],
@@ -57,19 +59,7 @@ def get_user_login_info(request):
 	start = page * size
 	end = start + size
 
-	log.debug("page===================")
-	log.debug(page)
-	log.debug(size)
-
-
-	log.debug("============sorts")
-	log.debug(sorts)
-	log.debug("============filters")
-	log.debug(filters)
-
 	order = build_sorts(columns, sorts)
-	log.debug("order==============")
-	log.debug(order)
 	if len(filters):
 		kwargs = build_filter(columns, filters)
 		user_data = UserProfile.objects.filter(**kwargs).order_by(*order)
@@ -130,8 +120,6 @@ def get_post_array(post, name, max=None):
     """
     output = dict()
     for key in post.keys():
-    	log.debug("------")
-    	log.debug(key)
         value = urllib2.unquote(post.get(key))
         if key.startswith(name + '[') and not value == 'undefined':
             start = key.find('[')
@@ -230,7 +218,7 @@ def save_user_password(request):
 		# verify whether the new password equals to the old one
 		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
 		if user_newpws:
-			context['value'] = {"grouptype":"error3","type":1,"info":"The password needs to be different from the previous one."}
+			context['value'] = {"grouptype": "error3", "type": 1, "info": "The password needs to be different from the previous one."}
 			return HttpResponse(json.dumps(context), content_type="application/json")
 		
 		# save user password
@@ -402,98 +390,6 @@ def drop_schools(request):
             else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
-
-
-def usage_report_download_excel(request):
-	if request.user.is_authenticated() and request.user.is_superuser:
-		import xlsxwriter
-		output = StringIO()
-		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-		worksheet = workbook.add_worksheet()
-		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time"]
-
-		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session"]
-
-		for i, k in enumerate(TITLES):
-			worksheet.write(0, i, k)
-		row = 1
-		down_result = get_download_info(request)
-		for d in down_result:
-			for k, v in enumerate(FIELDS):
-				worksheet.write(row, k, d[v])
-			row += 1
-		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-		response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=usage-report-%Y-%m-%d-%H-%M-%S.xlsx')
-		workbook.close()
-		response.write(output.getvalue())
-		return response
-	else:
-		raise Http404
-
-def get_download_info(request):
-	user_log_info = []
-	time_diff_m = request.POST.get('local_utc_diff_m')
-	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
-		data = UserProfile.objects.all()
-		data = filter_user(request.POST, data)
-
-		user_array = []
-		for user in data:
-			user_array.append(user.user_id)
-
-		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array)
-	else:
-		user_log_info = UserLoginInfo.objects.filter()
-	
-	login_info_list = []
-	for d in user_log_info:
-		dict_tmp = {}
-		try:
-			obj_user = UserProfile.objects.get(user_id=d.user_id)
-		except Exception as e:
-			continue
-
-		try:
-			dict_tmp['district'] = str(obj_user.district.name)
-			dict_tmp['state'] = str(obj_user.district.state.name)
-		except Exception as e:
-			dict_tmp['district'] = ''
-			dict_tmp['state'] = ''
-
-		try:
-			dict_tmp['school'] = str(obj_user.school.name)
-		except Exception as e:
-			dict_tmp['school'] = ''
-
-		dict_tmp['email'] = obj_user.user.email
-		dict_tmp['username'] = obj_user.user.username
-		dict_tmp['first_name'] = obj_user.user.first_name
-		dict_tmp['last_name'] = obj_user.user.last_name
-		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
-
-		if not active_recent(obj_user) or d.logout_press:
-			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
-			dict_tmp['last_session'] = study_time_format(d.last_session)
-			#dict_tmp['online_state'] = 'Off'
-			dict_tmp['total_session'] = study_time_format(d.total_session)
-		else:
-			dict_tmp['logout_time'] = ''
-			dict_tmp['last_session'] = ''
-			#dict_tmp['online_state'] = 'On'
-			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
-
-		login_info_list.append(dict_tmp)
-	return login_info_list
-
-def filter_user(vars, data):
-	if vars.get('state', None):
-		data = data.filter(Q(district__state_id=vars.get('state')))
-	if vars.get('district', None):
-		data = data.filter(Q(district_id=vars.get('district')))
-	if vars.get('school', None):
-		data = data.filter(Q(school_id=vars.get('school')))
-	data = data.filter(~Q(subscription_status='Imported'))
-	return data
 
 def time_to_local(user_time,time_diff_m):
 	'''
