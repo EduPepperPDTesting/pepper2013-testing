@@ -921,6 +921,7 @@ def organizational_save_base(request):
         activities_txt_curr = request.POST.get("activities_txt_curr", "")
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
+        course_all = request.POST.get("course_all", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
