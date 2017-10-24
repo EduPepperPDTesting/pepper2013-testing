@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
-from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed
+from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
 from pepper_utilities.utils import random_mark
 import json
 import logging
@@ -1051,7 +1051,22 @@ def do_import_user(task, csv_lines, request):
             profile.subscription_status = "Imported"
 
             #** course enroll
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+            if district.code == "3968593":
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
+            elif district.state.name == "Oklahoma":
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
+            else:
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+                CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
@@ -1188,7 +1203,22 @@ def single_user_submit(request):
         profile.subscription_status = "Imported"
 
         #** course enroll
-        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+        if district.code == "3968593":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
+        elif district.state.name == "Oklahoma":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
+        else:
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+            CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()

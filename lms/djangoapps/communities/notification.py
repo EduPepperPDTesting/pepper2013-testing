@@ -292,76 +292,79 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         if not len(list):
             return
 
-        type = CommunityNotificationType.objects.get(name=type_name)
-        
-        for item in list:
-            config = CommunityNotificationConfig.objects.filter(user=user, type=type)
+        try:
+            type = CommunityNotificationType.objects.get(name=type_name)
 
-            if config.exists():
-                config = config[0]
+            for item in list:
+                config = CommunityNotificationConfig.objects.filter(user=user, type=type)
 
-            values = {
-                "Community Name": community.name,
-                "Sender First Name": action_user.first_name,
-                "Sender Last Name": action_user.last_name,
-                "Receiver First Name": user.first_name,
-                "Receiver Last Name": user.last_name}
-            
-            if domain_name:
-                community_url = "https://" + domain_name + "/community/" + str(community.id)
-                values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
+                if config.exists():
+                    config = config[0]
 
-            if type_name == "Delete Course" or type_name == "Add Course":
-                values["Course Name"] = item.display_name
-                values["Course Number"] = item.display_coursenumber
-                
-            if type_name == "Delete Resource" or type_name == "Add Resource":
-                values["Resource Title"] = item.name
-                    
-            if type_name == "Delete Member" or type_name == "Add Member":
-                values["Member List"] = item
-                                        
-            if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
-                values["Subject"] = item.subject
-                values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
+                values = {
+                    "Community Name": community.name,
+                    "Sender First Name": action_user.first_name,
+                    "Sender Last Name": action_user.last_name,
+                    "Receiver First Name": user.first_name,
+                    "Receiver Last Name": user.last_name}
+
                 if domain_name:
-                    if type_name == "New Discussion":
-                        discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.id)
-                        values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
-                    elif type_name in ["Reply Discussion", "Delete Reply"]:
-                        discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
-                        values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+                    community_url = "https://" + domain_name + "/community/" + str(community.id)
+                    values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
 
-            # Send the notification
-            body = replace_values(type.body or "", values)
-            subject = replace_values(type.subject or "", values)
+                if type_name == "Delete Course" or type_name == "Add Course":
+                    values["Course Name"] = item.display_name
+                    values["Course Number"] = item.display_coursenumber
 
-            if config and config.via_pepper:
-                save_interactive_info({
-                    "user_id": str(user.id),
-                    "interviewer_id": action_user.id,
-                    "interviewer_name": action_user.username,
-                    "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
-                    "type": type.name,
-                    "body": body,
-                    "subject": subject,
-                    "location": reverse("community_view", args=[community_id])
-                    })
-                
-            # Save none instant notification to audit
-            if config and config.via_email:
-                days = {"Daily": 0, "Weekly": 7}
-                if config.frequency != 'Instant':
-                    audit = CommunityNotificationAudit()
-                    audit.subject = subject
-                    audit.body = body
-                    audit.receiver = user
-                    audit.creator = action_user
-                    audit.create_date = datetime.utcnow()
-                    audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
-                    audit.save()
-                else:
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+                if type_name == "Delete Resource" or type_name == "Add Resource":
+                    values["Resource Title"] = item.name
+
+                if type_name == "Delete Member" or type_name == "Add Member":
+                    values["Member List"] = item
+
+                if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
+                    values["Subject"] = item.subject
+                    values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
+                    if domain_name:
+                        if type_name == "New Discussion":
+                            discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.id)
+                            values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+                        elif type_name in ["Reply Discussion", "Delete Reply"]:
+                            discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
+                            values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+
+                # Send the notification
+                body = replace_values(type.body or "", values)
+                subject = replace_values(type.subject or "", values)
+
+                if config and config.via_pepper:
+                    save_interactive_info({
+                        "user_id": str(user.id),
+                        "interviewer_id": action_user.id,
+                        "interviewer_name": action_user.username,
+                        "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
+                        "type": type.name,
+                        "body": body,
+                        "subject": subject,
+                        "location": reverse("community_view", args=[community_id])
+                        })
+
+                # Save none instant notification to audit
+                if config and config.via_email:
+                    days = {"Daily": 0, "Weekly": 7}
+                    if config.frequency != 'Instant':
+                        audit = CommunityNotificationAudit()
+                        audit.subject = subject
+                        audit.body = body
+                        audit.receiver = user
+                        audit.creator = action_user
+                        audit.create_date = datetime.utcnow()
+                        audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+                        audit.save()
+                    else:
+                        send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+        except Exception as e:
+            log.error("Send %s notification failed to user %s (%s)" % (type_name, user.id, e))
 
     for member in CommunityUsers.objects.filter(community=community_id):
         if member.user.id != action_user.id:

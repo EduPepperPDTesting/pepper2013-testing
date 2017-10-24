@@ -6,7 +6,11 @@ import datetime
 import json
 import logging
 import re
-
+import base64
+from PIL import Image
+from django.db.models import Q
+import time
+from pepper_utilities.decorator import ajax_login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -22,7 +26,7 @@ from bulk_email.models import Optout
 from courseware.module_render import get_module
 from study_time.models import record_time_store
 from administration.models import site_setting_store, PepRegStudent, PepRegTraining, UserLoginInfo
-from feeding import dashboard_feeding_store
+from feeding import dashboard_feeding_store,dashboard_feeding_user_store,dashboard_announcement_user,dashboard_announcement_store
 from django.db.models import Sum
 from reporting.models import reporting_store
 from bson import json_util
@@ -46,7 +50,6 @@ from django.conf import settings
 from bson import ObjectId
 from collections import OrderedDict
 from courseware import grades
-from pepper_utilities.decorator import ajax_login_required
 
 log = logging.getLogger("tracking")
 
@@ -247,86 +250,6 @@ def newdashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    #@begin:get My Courses
-    #@date:2017-02-19
-    #Just choose the last 2 courses_incomplated of the user.
-    courses_incomplated_list = list()
-    for k, v in enumerate(courses_incomplated):
-        courses_incomplated_list.append(v)
-        if k > 0:
-            break
-    #@end
-
-    #@begin:get My Learning Communities
-    #@date:2017-02-16
-    community_list = list()
-    # Just choose the last 2 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:2]
-    if items:
-        for item in items:
-            community_list.append({'id': item.community.id,
-                                'name': item.community.name,
-                                'logo': item.community.logo.upload.url if item.community.logo else '',
-                                'private': item.community.private})
-        if len(items) < 2:
-            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-            if itmes_all:
-                if itmes_all[0].id != items[0].community.id:
-                    community_list.append({'id': itmes_all[0].id,
-                               'name': itmes_all[0].name,
-                               'logo': itmes_all[0].logo.upload.url if itmes_all[0].logo else '',
-                               'private': itmes_all[0].private})
-                else:
-                    if len(itmes_all) > 1:
-                        community_list.append({'id': itmes_all[1].id,
-                               'name': itmes_all[1].name,
-                               'logo': itmes_all[1].logo.upload.url if itmes_all[1].logo else '',
-                               'private': itmes_all[1].private})
-
-    else:
-         items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-         for item in items:
-            community_list.append({'id': item.id,
-                               'name': item.name,
-                               'logo': item.logo.upload.url if item.logo else '',
-                               'private': item.private})
-    #@end
-
-    #@begin:get Recommended For You
-    #@date:2017-05-1
-    allowedcourses = []
-    for course_id in allowedcourses_id:
-        try:
-            course = course_from_id(course_id)
-            allowedcourses.append(course)
-        except:
-            pass
-    allowedcourse_list = []
-    if allowedcourses:
-        allowedcourse_list.append(allowedcourses[0])
-    #@end
-
-    #@begin:get Community Trending Topics
-    #@date:2017-05-18
-    communit_tt_list = []
-    community_joined_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=1).order_by('community__name')
-    community_joined_p = list(community_joined_p.values_list('community__id', flat=True))
-    communit_tt_list_add(community_joined_p,1,communit_tt_list)
-
-    if len(communit_tt_list) < 3:
-        community_joined_not_p = CommunityUsers.objects.select_related().filter(user=request.user,community__private__exact=0).order_by('community__name')
-        community_joined_not_p = list(community_joined_not_p.values_list('community__id', flat=True))
-        communit_tt_list_add(community_joined_not_p,1,communit_tt_list)
-
-    if len(communit_tt_list) < 3:
-        community_joined = list(CommunityUsers.objects.select_related().filter(user=request.user).values_list('community__id', flat=True))
-        community_all = list(CommunityCommunities.objects.select_related().filter().order_by('name').values_list('id', flat=True))
-        for cid in community_joined:
-            if cid in community_all:
-                community_all.remove(cid)
-        communit_tt_list_add(community_all,0,communit_tt_list)
-    #@end
-
     store = dashboard_feeding_store()
     feeding_year_start, feeding_year_end = store.get_post_year_range(request.user.id)
     #feeding_year_start, feeding_year_end = False, False
@@ -385,7 +308,6 @@ def newdashboard(request, user_id=None):
     context = {
         'courses_complated': courses_complated,
         'courses_complated_all_count':len(courses_complated),
-        'courses_incomplated_top2': courses_incomplated_list,
         'courses_incomplated_all_count':len(courses_incomplated),
         'show_courseware_links_for': show_courseware_links_for,
         'all_course_time': study_time_format(all_course_time),
@@ -394,9 +316,6 @@ def newdashboard(request, user_id=None):
         'pd_time': study_time_format(pd_time),
         'user_last_logged_in': user_last_logged_in,
         'curr_user': user,
-        'communities': community_list,
-        'allowedcourses': allowedcourse_list,
-        'community_trending_topics': communit_tt_list,
         'feeding_year_start': feeding_year_start,
         'feeding_year_end': feeding_year_end,
         'my_activity_year_start': my_activity_year_start,
@@ -1081,6 +1000,17 @@ def attach_post_info(p, time_diff_m, user):
     p["post_date_debug"] = debug
     p["is_owner"] = (author == user)
     p["removable"] = user.id == author.id or user.is_superuser
+
+    if p.has_key("is_people_add"):
+        p["is_people_add"] = "hidden"
+    else:
+        p["is_people_add"] = "visible"
+
+    if user.id == author.id:
+        p["dismissed"] = "hidden"
+    else:
+        p["dismissed"] = "visible"
+
     if p["type"] == "post":
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
@@ -1112,7 +1042,7 @@ def get_post(request):
     post = store.get_feeding(_id)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
     attach_post_info(post, time_diff_m, request.user)
-    post["is_member"] = is_people_of(post["user_id"], request.user.id)
+    post["is_member"] = is_people_of(request.user.id, post["user_id"]) and is_people_of(post["user_id"], request.user.id)
     return HttpResponse(json_util.dumps(post), content_type='application/json')
 
 
@@ -1192,11 +1122,15 @@ def get_posts(request):
 def dismiss_announcement(request):
     _id = request.POST.get("_id")
     try:
-        store = dashboard_feeding_store()
-        store.dismiss(_id, request.user.id)
+        # initial dismiss
+        user_store = dashboard_feeding_user_store()
+        user_store.set_dismiss(request.user.id)
+        # announcement dismiss
+        announcement = dashboard_announcement_user()
+        announcement.dismiss_announcement(_id,request.user.id)
     except Exception as e:
         return HttpResponse(json_util.dumps({"success": False, "error": str(e)}), content_type='application/json')
-    
+
     return HttpResponse(json_util.dumps({"success": True}), content_type='application/json')
 
 
@@ -1211,9 +1145,11 @@ def get_org_announcements(request):
     if int(time_diff_m) != 0:
         now_utc = time_to_local(now_utc, time_diff_m)
 
-    kwargs = {"after": now_utc}
-
-    posts = store.get_announcements(request.user.id, org, **kwargs)
+    posts = announcements(request.user.id, org, now_utc)
+    if org == "Pepper":
+        inital = get_inital(request,now_utc)
+        if len(inital) > 0:
+            posts.insert(0,inital[0])
 
     for a in posts:
         attach_post_info(a, time_diff_m, request.user)
@@ -1223,11 +1159,11 @@ def get_org_announcements(request):
 
 @ajax_login_required()
 def get_announcements(request):
-    filter_year = request.POST.get("filter_year")
-    filter_month = request.POST.get("filter_month")
+    # filter_year = request.POST.get("filter_year")
+    # filter_month = request.POST.get("filter_month")
     # last_id = request.POST.get("last_id")
-    page = request.POST.get("page", 0)
-    page_size = request.POST.get("page_size", 5)
+    # page = request.POST.get("page", 0)
+    # page_size = request.POST.get("page_size", 5)
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
 
     now_utc = datetime.datetime.utcnow()
@@ -1235,17 +1171,20 @@ def get_announcements(request):
         now_utc = time_to_local(now_utc, time_diff_m)
 
     store = dashboard_feeding_store()
-    # posts = store.top_level_for_user(request.user.id, type=filter_group,
-    #                                  year=filter_year, month=filter_month,
-    #                                  page_size=int(page_size), page=int(page), after=now_utc)
-
-    kwargs = {"year": filter_year, "month": filter_month, "after": now_utc}
+    inital = get_inital(request,now_utc)
+    pepper = []
+    if len(inital) > 0:
+        pepper.append(inital[0])
+    
     data = {"orgs": []}
-    data["orgs"].append(store.get_announcements(request.user.id, "Pepper", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "System", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "State", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "District", **kwargs))
-    data["orgs"].append(store.get_announcements(request.user.id, "School", **kwargs))
+
+    pepper_announcments = announcements(request.user.id,"Pepper",now_utc)
+    pepper.extend(pepper_announcments)
+    data["orgs"].append(pepper)
+    data["orgs"].append(announcements(request.user.id,"System",now_utc))
+    data["orgs"].append(announcements(request.user.id,"State",now_utc))
+    data["orgs"].append(announcements(request.user.id,"District",now_utc))
+    data["orgs"].append(announcements(request.user.id,"School",now_utc))
 
     for o in data["orgs"]:
         for a in o:
@@ -1253,6 +1192,69 @@ def get_announcements(request):
 
     return HttpResponse(json_util.dumps(data), content_type='application/json')
 
+def announcements(user_id,organization_type,expiration_date):
+    announcement_user = dashboard_announcement_user()
+    announcement = dashboard_announcement_store()
+    announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
+    announcments = []
+    for tmp in announcment_id:
+        announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    
+    result = [elem for elem in announcments if elem != None]
+    return result
+
+def get_inital(request,now_utc):
+    store = dashboard_feeding_store()
+    user_store = dashboard_feeding_user_store()
+    inital = user_store.get_initial(request.user.id)
+    if inital== None:
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
+        district_id = user_profile.district_id
+        state_id = District.objects.get(id=district_id).state_id
+        school_id = user_profile.school_id
+        organization_id = []
+        organization = OrganizationDistricts.objects.filter(Q(EntityType="State",OrganizationEnity=state_id)|Q(EntityType="District",OrganizationEnity=district_id)|Q(EntityType="School",OrganizationEnity=school_id))
+        for k,v in enumerate(organization):
+            b = eval(v.OtherFields)
+            b["date"] = b["date"][:19]
+            timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
+            organization_createdate = int(time.mktime(timeArray))
+            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+
+            if organization_createdate < date_joined:
+                if v.organization.id not in organization_id:
+                    organization_id.append(v.organization.id)
+
+        kwargs = {"after": now_utc}
+
+        inital = []
+        pepper = []
+        for v2 in organization_id:
+            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+
+        inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
+        
+        if len(inital) > 0:
+            if inital[0].has_key("dismiss"):
+                if long(request.user.id) not in inital[0]["dismiss"]:
+                    pepper.append(inital[0])
+                    del inital[0]["_id"]
+                    inital[0]["show_user_id"] = request.user.id
+                    inital[0]["dismissing"] = 0
+                    user_store.create(inital[0])
+            else:
+                pepper.append(inital[0])
+                del inital[0]["_id"]
+                inital[0]["show_user_id"] = request.user.id
+                inital[0]["dismissing"] = 0
+                user_store.create(inital[0])
+
+        return pepper
+    else:
+        if inital["dismissing"] == 1:
+            return []
+        else:
+            return [inital]
 
 @ajax_login_required()
 def submit_new_like(request):
@@ -1280,9 +1282,11 @@ def submit_new_like(request):
 
 @ajax_login_required()
 def delete_announcement(request):
-    feeding_id = request.POST.get("_id")
-    store = dashboard_feeding_store()
-    store.remove_feeding(feeding_id)
+    announcement_id = request.POST.get("_id")
+    store = dashboard_announcement_store()
+    store.remove_announcement(announcement_id)
+    user = dashboard_announcement_user()
+    user.remove_announcement(announcement_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
@@ -1308,7 +1312,7 @@ def get_receivers(user, post_type):
         up = user.profile
         level = check_access_level(user, "dashboard_announcement", "create")
         if level == "System":
-            receiver_ids = [0]
+            receiver_ids = list(UserProfile.objects.filter().values_list('user_id', flat=True))
         elif level == "State":
             receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
         elif level == "District":
@@ -1316,8 +1320,15 @@ def get_receivers(user, post_type):
         elif level == "School":
             receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
     else:
-        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+        receiver_ids = []
+        if user.profile.people_of:
+            people_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+            own_ids = user.profile.people_of.split(',')
+            for k in own_ids:
+                if long(k) in people_ids:
+                    receiver_ids.append(long(k))
         receiver_ids.append(user.id)
+
     return receiver_ids
 
 
@@ -1365,7 +1376,7 @@ def get_full_likes(request):
 
     store = dashboard_feeding_store()
     likes = store.get_likes(feeding_id)
-    
+
     for like in likes:
         user = User.objects.get(id=like["user_id"])
         html += " <tr><td><img src='"+reverse('user_photo', args=[user.id])+"' width='24px'></img></td><td>"+user.first_name + " " + user.last_name + "</td></tr>"
@@ -1408,9 +1419,18 @@ def submit_new_post(request):
             organization_type = "Pepper"
         else:
             organization_type = check_access_level(request.user, "dashboard_announcement", "create")
-        _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
-                           expiration_date=expiration_date, organization_type=organization_type)
+        # _id = store.create(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
+        #                    receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
+        #                    expiration_date=expiration_date, organization_type=organization_type)
+        # 
+        announcement_store = dashboard_announcement_store()           
+        _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
+                           date=datetime.datetime.utcnow(), expiration_date=expiration_date, organization_type=organization_type)
+
+        announcement_user = dashboard_announcement_user()
+        receivers=get_receivers(request.user, type)
+        for tmp in receivers:
+            announcement_user.create(user_id=tmp, announcement_id=_id, organization_type=organization_type, expiration_date=expiration_date)
 
     if attachment_file:
         upload_attachment(_id, attachment)
@@ -1507,4 +1527,19 @@ def time_to_local(user_time,time_diff_m):
 
 def new_upload_photo(request):
     upload_user_photo(request.user.id,request.FILES.get('photo'))
+    return redirect(reverse('user_information',args=[request.user.id]))
+
+def upload_photo_new(request):
+    photo_str = request.POST.get('photo')
+    photo_str = photo_str.split(',')[1]
+    imgData = base64.b64decode(photo_str)
+    img_file = open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg', 'wb')    
+    img_file.write(imgData)       
+    img_file.close()
+    im = Image.open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    x,y = im.size
+    p = Image.new('RGBA', im.size, (255,255,255))
+    p.paste(im, (0, 0, x, y), im)
+    p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
+    upload_user_photo(request.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
     return redirect(reverse('user_information',args=[request.user.id]))

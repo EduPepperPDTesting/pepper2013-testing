@@ -124,6 +124,15 @@
 	.btn_grade_level_active {-moz-font-feature-settings: normal; -moz-font-language-override: normal;background: none repeat scroll 0 0 #FF9933;border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;color: #FFFFFF !important;float: left;font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;font-size: 10px;font-size-adjust: none;font-stretch: normal;font-style: normal;font-variant: normal;font-weight: bold !important;height: 30px;line-height: 30px !important;text-align: center;text-decoration: none;text-shadow: 0 1px #884A0C;	width: 31px;}
 	
 	#dialog .content input{display:inline !important;}
+	
+	#dialog_manage_user .add_row{float:left; margin:5px 0; width:100%; text-align:left;}
+	#dialog_manage_user .add_txt{float:left; width:200px; text-align:right; padding-right:5px; line-height:35px;}
+	#dialog_manage_user .add_input{float:left; width:280px;}
+	#dialog_manage_user .add_input input[type=text]{width:100%;}
+	#dialog_manage_user .add_input input[type=button]{float:right;}
+	#dialog_manage_user .content{padding:0 20px;}
+	#dialog_manage_user .content select{display:inline !important;}
+	#dialog_manage_user .content input{display:inline !important;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -169,6 +178,7 @@
         </div>        
     </div>
 </div>
+
 
 <div class="organization_main">
 	<div style="width:600px;">
@@ -267,22 +277,11 @@
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="2">Organization Locations<div class="icon"></div></div>
     <div class="expand_div">        
-        <select id="org_state_select" style="width:200px;">
+       <select id="org_state_select" style="width:200px;">
         	<option value="">Select State</option>
-            %for item in State.objects.all().order_by("name"):
-            <option value="${item.id}">${item.name}</option>
-            %endfor
         </select>
-        <select id="org_district_select" style="width:300px;">
-        	%for item in District.objects.all().order_by("name"):
-            <option value="${item.id}" state_id="${item.state.id}">${item.name}</option>
-            %endfor
-        </select>
-        <select id="org_school_select" style="width:300px;">
-        	%for item in School.objects.filter(district__isnull=False).order_by("name"):
-            <option value="${item.id}" district_id="${item.district.id}">${item.name}</option>
-            %endfor
-        </select>
+        <select id="org_district_select" style="width:300px;"></select>
+        <select id="org_school_select" style="width:300px;"></select>
         
         &nbsp;&nbsp;<input type="button" id="org_btn_add_state" value="ADD" class="small_btn" />
         <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" />
@@ -325,6 +324,7 @@
     </div>
 </div>
 
+<!--Menu and Dashboard Configuration -->
 <div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="3">Menu and Dashboard Configuration<div class="icon"></div></div>
     <div class="expand_div">
@@ -360,12 +360,12 @@
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="0" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Report Card</td>
+                        	<td align="center">My Progress</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="2" onclick="selectPDTable()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">Featured Content</td>
+                        	<td align="center">My Resources</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show" class="organizational_dashboard_show" checked="checked" onclick="selectPDTable()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default" value="3" onclick="selectPDTable()" /></td>
                         </tr>
@@ -387,16 +387,44 @@
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="0" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">My Report Card</td>
+                        	<td align="center">My Progress</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_report_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="2" onclick="selectPDTableCurr()" /></td>
                         </tr>
                         <tr>
-                        	<td align="center">Featured Content</td>
+                        	<td align="center">My Resources</td>
                             <td align="center"><input type="checkbox" name="organizational_dashboard_featured_show_curr" class="organizational_dashboard_show_curr" checked="checked" onclick="selectPDTableCurr()" /></td>
                             <td align="center"><input type="radio" name="organizational_dashboard_feed_default_curr" value="3" onclick="selectPDTableCurr()" /></td>
                         </tr>
                     </table>
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Trending Topics: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_trending_topics" />
+                    <!-- <input type="text" id="organizational_base_organization_my_trending_topics_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Communities: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_communities" />
+                    <!-- <input type="text" id="organizational_base_organization_my_communities_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">My Learning Plan: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_my_learning_plan" />
+                    <!-- <input type="text" id="organizational_base_organization_my_learning_plan_curr" /> -->
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1">Recommended Courses: </td>
+                <td colspan="2">
+                	<input type="text" id="organizational_base_organization_recommended_courses" />
+                    <!-- <input type="text" id="organizational_base_organization_recommended_courses_curr" /> -->
                 </td>
             </tr>
             <tr class="organization_pd_dashboard_set" id="profile_logo_tr">
@@ -654,6 +682,9 @@
                                     <span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
                                     %endfor
                                 </span>
+                                <span style="margin-left:30px;">
+	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (0)</a>
+                                </span>
                             </div>
                         </div>                        
                     </div>
@@ -689,6 +720,38 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td colspan="3" class="org_td1" style="padding-top:10px;">
+                	<label><input type="checkbox" name="organizational_is_announcement" onclick="isAnnouncementChange()" />Initial Pepper Announcement</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                    <!-- <input type="checkbox" name="organizational_is_announcement_alert" />Enable Alert</label> -->
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="org_td1">
+                	<div class="certificate_editor_div"> 
+                        <div class="certificate_editor_frame">
+                            <div class="certificate_tabs_div">
+                                <ol class="certificate_tabs">
+                                    <li>
+                                        <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+                                    </li>
+                                    <li>
+                                        <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="editor_view">
+                                <textarea id="certificate_editor_announcement" class="certificate_editor_announcement" cols="10"></textarea>
+                            </div>
+                            <div class="preview_view" style="display: none;">
+                                <iframe class = "preview-frame" id="certificate_preview_announcement" name="certificate_preview_announcement" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+                            </div>
+                            <div style='margin-top:10px;'>Choose a user by email: <span class="add_input" id='initial_user_name_parent'><input type="text" id='initial_user_name'/></span></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         </table>
       	<div style="width:100%; text-align:right; height:30px;">
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
@@ -698,6 +761,7 @@
 
 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
 
+<!--dialog -->
 <div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -708,6 +772,7 @@
     </div>
 </div>
 
+<!--dialogYesNo -->
 <div style="" id="dialogYesNo" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -718,20 +783,170 @@
     </div>
 </div>
 
+<!--dialog_manage_user -->
+<div style="width:850px;" id="dialog_manage_user" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Manage CMS Item Users</h3>
+            <div class="close-modal">✕</div>
+        </div>
+        <div class="content">
+            <div class="add_row">
+            	<span class="add_txt">
+                	<label><input type="radio" name="organization_manage_user_default" value="1" checked="checked" />
+                	Choose a user by email:</label>
+               	</span>
+                <span class="add_input" id="organization_manage_user_email_parent"><input id="organization_manage_user_email" type="text" /></span>
+            </div>
+            <div class="add_row">
+               	<label><input type="radio" name="organization_manage_user_default" value="2" />
+               	<font style="font-weight:bold">Or</font> import a group of users (text file or CSV with one email address per line):</label>
+            </div>
+            <div class="add_row"> 
+            	CSV File: <span id="organization_manage_user_cvs_span"><input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" /></span>
+            </div>
+            <div class="add_row"></div>
+            <div style="width:100%;">
+                <table id="organization-manage-user-table" class="organization-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>State</th>
+                            <th>District</th>
+                            <th>School</th>
+                            <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-manage-user-select-all"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="organization-manage-user-actions">
+                    <div id="organization-manage-user-pager" class="pager" style="margin-right:50px ;">            
+                        <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                        <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                        <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                        <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                        <select class="pagesize">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    
+                </div>
+            </div>            
+            <div class="add_row">
+            	<span class="add_txt">&nbsp;</span>
+            	<span class="add_input" style="width:600px;">
+	                <input type="button" id="organization_manage_user_btn_remove" value="REMOVE SELECTED" class="small_btn" />
+                	<input type="button" id="organization_manage_user_btn_add" value="ADD" class="small_btn" />
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 	var org_current_id = "";
 	var org_current_menu_items = "";
 	var maximum_items = 9;
 	var maximum_sub_items = 20;
 	
+	//--------------------------filterStr
+	function filterStr(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+		}
+		return str;
+	}
+	//--------------------------filterStr2
+	function filterStr2(str){
+		if(str != ""){
+			str = str.replace(new RegExp("<", 'gm'), '');
+			str = str.replace(new RegExp(">", 'gm'), '');
+			str = str.replace(new RegExp("'", 'gm'), "\\'");
+			str = str.replace(new RegExp('"', 'gm'), '\\"');
+		}
+		return str;
+	}
+	
+	//-----------------------------------------------------------------------CurrentDialog
+	function CurrentDialog(el){
+		var self=this;
+		this.$ei=$(el);
+		this.$ei.find('.close-modal').off("click").click(function(){
+			self.hide();
+		});
+	}
+	CurrentDialog.prototype.show=function(title,content){
+		var self=this;
+		this.showOverlay();
+		this.$ei.fadeIn(200);
+		return this;
+	};
+	CurrentDialog.prototype.lift=function(n){
+		this.$overlay.css('z-index',this.$overlay.css('z-index')+n);
+		this.$ei.css('z-index',this.$ei.css('z-index')+n);
+		return this;
+	};
+	CurrentDialog.prototype.showOverlay=function(){
+		if(!this.$overlay){
+			this.$overlay=$("<div class='lean-overlay'></div>");
+			this.$overlay.appendTo(document.body);
+		}
+		this.$overlay.css('display','block');
+		return this;
+	};
+	CurrentDialog.prototype.hideOverlay=function(){
+		if(this.$overlay){
+			this.$overlay.remove();
+			this.$overlay=null;
+		}
+		return this;
+	};
+	CurrentDialog.prototype.hide=function(){
+		this.$ei.css('display','none');
+		this.hideOverlay();
+		this.$ei.trigger("hide");
+		return this;
+	};
+		
 	//-----------------------------------------------------------------------CertificateEditor
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
             if (textarea.className == 'certificate_editor') {
+                // Add token plugin
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
                 config.width = '100%';
-                config.height = 500;
+                config.height = 150;
+                // Configure available tokens
+                config.availableTokens = [
+                    ["", ""],
+                    ["firstname", "firstname"],
+                    ["lastname", "lastname"],
+                    ["coursename", "coursename"],
+                    ["coursenumber", "coursenumber"],
+                    ["date", "date"],
+                    ["hours", "hours"]
+                ];
+                config.tokenStart = '{';
+                config.tokenEnd = '}';
+                config.allowedContent = true;
+                return true;
+				
+            }else if (textarea.className == 'certificate_editor_announcement') {
+                 config.removePlugins = 'elementspath,blockquote,maximize,source';
+				config.removeButtons = 'Source,About,Strike,RemoveFormat,Link,Unlink,Image,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,Anchor,Styles,Format,Font,FontSize,TextColor,BGColor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,SpellChecker,Scayt';
+                config.width = '100%';
+                config.height = 150;
+                // Configure available tokens
                 config.availableTokens = [
                     ["", ""],
                     ["firstname", "firstname"],
@@ -762,9 +977,19 @@
 	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);	
     function addNewCertificate(flag) {
 		if(flag == 1){
-			$(".certificate_editor_div").show();			
+			$(".certificate_editor_div:first").show();			
 		}else{
-			$(".certificate_editor_div").hide();
+			$(".certificate_editor_div:first").hide();
+		}
+    }
+	
+	var ceditor_announcement = new CertificateEditor(CKEDITOR.instances.certificate_editor_announcement);	
+    function isAnnouncementChange() {
+		var flag = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
+		if(flag == 1){
+			$(".certificate_editor_div:last").show();			
+		}else{
+			$(".certificate_editor_div:last").hide();
 		}
     }
 	
@@ -994,7 +1219,7 @@
 		content += '<label>Organization Name:<input type="text" name="organizational_name" placeholder="Name" value="' + name + '"></label>';
 		
 		if(type != "edit"){
-			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Oraganiztion</option>';
+			content += '<label>Copy from:<select name="organizational_copy_from"><option value="">Select Organization</option>';
 			$(".organization_next").each(function(){
 				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
 			});
@@ -1068,6 +1293,12 @@
 						
 						$(".expand_title_next").parent().show();
 						
+						//-----autocomplete
+						$("#organization_manage_user_email").remove();
+						var email_el = $('<input id="organization_manage_user_email" type="text" />');
+						$("#organization_manage_user_email_parent").append(email_el);
+						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
+						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
@@ -1101,7 +1332,7 @@
 										var sid_did_list = r.sid_did.split(":");
 										for(var j in sid_did_list){
 											var tmpsd = sid_did_list[j].split(",");
-											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1]);
+											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3]);
 										}
 									}
 									//----------
@@ -1117,7 +1348,7 @@
 									}
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");									
 									
-									//----------
+									//----------Footer
 									if(r["Footer Selected"] == "1"){
 										$("input[name='organizational_dashboard_footer'][value='1']").attr("checked", "checked");
 										addNewCertificate(1);
@@ -1127,6 +1358,15 @@
 									}
 									ceditor.CKEDITOR.setData(r["Footer Content"]);
 									
+									//----------Initial Pepper Announcement
+									if(r["Initial Pepper Announcement"] == "1"){
+										$("input[name='organizational_is_announcement']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_is_announcement']").prop("checked", false);
+									}
+									// $("input[name='organizational_is_announcement_alert']").prop("checked", false);
+									ceditor_announcement.CKEDITOR.setData(r["Announcement Content"]);
+									$('#initial_user_name').val(r["Announcement user"]);
 									//----------
 									if(r["Is Icon With Text"] == "1"){
 										$("input[name='organizational_dashboard_is_icon_text']").prop("checked", true);										
@@ -1221,6 +1461,10 @@
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
+									$("#organizational_base_organization_my_trending_topics").val(r["my_trending_topics"]);
+									$("#organizational_base_organization_my_communities").val(r["my_communities"]);
+									$("#organizational_base_organization_my_learning_plan").val(r["my_learning_plan"]);
+									$("#organizational_base_organization_recommended_courses").val(r["recommended_courses"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
 			
 									//----------menu item
@@ -1329,6 +1573,8 @@
 											$(this).find(".cms_items_icon").parent().html("").append("<input type='file' class='cms_items_icon' id='cms_items_icon_1' name='cms_items_icon_1'>");
 											$(this).find(".organizational_dashboard_cms_icon_view").html("");
 											$(this).find(".organizational_dashboard_cms_icon_view").removeAttr("icon_name");
+											$(this).find(".organizational_dashboard_cms_manage_user").removeAttr("savex");
+											$(this).find(".organizational_dashboard_cms_manage_user").removeAttr("savex_email");
 											$(this).find(".cms_item_btn").val("+");
 										}
 									});
@@ -1371,6 +1617,21 @@
 												for(var jj in cms_level_tmp1){
 													tmp_el.find(".btn_grade_level[lid='" + cms_level_tmp1[jj] + "']").addClass("btn_grade_level_active");
 												}
+											}
+											if(r.cms_manage_user){
+												var tmp_cmu = eval("(" + r.cms_manage_user + ")");
+												var sizex = 0;
+												for(var i = 0; i < tmp_cmu.length; i++){
+													if(Number(tmp_cmu[i]["rowNum"]) == Number(tmp2[0])){
+														tmp_el.find(".organizational_dashboard_cms_manage_user").attr("savex_email", tmp_cmu[i]["content"]);
+														if(tmp_cmu[i]["content"] != "")
+															sizex = tmp_cmu[i]["content"].split(",").length;
+														break;
+													}
+												}
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (" + sizex + ")");
+											}else{
+												tmp_el.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 											}
 										}
 									}else{
@@ -1434,6 +1695,7 @@
 							
 							organizational_dashboard_demo_div_reload();
 							isIconChange();
+							isAnnouncementChange();
 							
 							var my_feed_show = ($("input[name='organizational_dashboard_feed_show']").attr("checked")) ? "1" : "0";
 							var my_activities_show = ($("input[name='organizational_dashboard_activities_show']").attr("checked")) ? "1" : "0";
@@ -1494,28 +1756,27 @@
 	}
 	
 	//-----------------------------------------------------------------------organizationAddDistricts
-	function organizationAddDistricts(add_type, add_txt, add_id){
+	function organizationAddDistricts(add_type, add_txt, add_id, did){
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
 		row += '<td class="check-column">';
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
-		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
 		
 		//-----------------------------------------edit
-		$(".organization-state-edit").click(function(e){
+		$(".organization-state-edit").unbind("click").click(function(e){
 			e.preventDefault();
-			
 			$(".org_edit_selected").removeClass("org_edit_selected");
 			$(this).parent().addClass("org_edit_selected");
 			$(this).parent().prev().addClass("org_edit_selected");
 			$(this).parent().prev().prev().addClass("org_edit_selected");
 			
 			var stype = $(this).attr("stype");
-			var sid = $(this).attr("sid");
+			var sid = $(this).attr("sid");			
 			if(stype == "State"){
 				$("#org_state_select").val(sid);
 				$("#org_state_select").change();
@@ -1532,23 +1793,60 @@
 				$("#org_district_select").val(sid);
 				$("#org_district_select").change();
 			}else{
+				var isNoAdd = true;
 				for(var i = 0; i < organization_school_list.length; i++){
 					var tmp1 = organization_school_list[i].split(",");
-					if(tmp1[1] == sid){									
-						for(var j = 0; j < organization_district_list.length; j++){
-							var tmp2 = organization_district_list[j].split(",");
-							if(tmp2[1] == tmp1[0]){
-								$("#org_state_select").val(tmp2[0]);
-								$("#org_state_select").change();
-								break;
-							}
-						}
-						$("#org_district_select").val(tmp1[0]);
-						$("#org_district_select").change();
+					if(tmp1[1] == sid){
+						isNoAdd = false;
 						break;
 					}
 				}
-				$("#org_school_select").val(sid);
+				if(isNoAdd){
+					var loadwin = new LoadingWin();
+					$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations", school_id: sid}, function (r) {
+						if (r.Success){
+							for(var i in r.rows_school){
+								organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
+							}
+							for(var i = 0; i < organization_school_list.length; i++){
+								var tmp1 = organization_school_list[i].split(",");
+								if(tmp1[1] == sid){									
+									for(var j = 0; j < organization_district_list.length; j++){
+										var tmp2 = organization_district_list[j].split(",");
+										if(tmp2[1] == tmp1[0]){
+											$("#org_state_select").val(tmp2[0]);
+											$("#org_state_select").change();
+											break;
+										}
+									}
+									$("#org_district_select").val(tmp1[0]);
+									$("#org_district_select").change();
+									break;
+								}
+							}
+							$("#org_school_select").val(sid);
+						}
+						loadwin.hide();
+					});
+				}else{					
+					for(var i = 0; i < organization_school_list.length; i++){
+						var tmp1 = organization_school_list[i].split(",");
+						if(tmp1[1] == sid){									
+							for(var j = 0; j < organization_district_list.length; j++){
+								var tmp2 = organization_district_list[j].split(",");
+								if(tmp2[1] == tmp1[0]){
+									$("#org_state_select").val(tmp2[0]);
+									$("#org_state_select").change();
+									break;
+								}
+							}
+							$("#org_district_select").val(tmp1[0]);
+							$("#org_district_select").change();
+							break;
+						}
+					}
+					$("#org_school_select").val(sid);
+				}
 			}
 			$("#org_btn_fix_state").attr("sid", sid);
 			$("#org_btn_fix_state").attr("stype", stype);
@@ -1560,7 +1858,6 @@
 		
 		$('#organization-state-table').trigger('update');
 	}
-	
 	//-----------------------------------------------------------------------organizationUploadFile
 	function organizationUploadFile(fileElementId, file_type){
 		if($("#" + fileElementId).val() != ""){
@@ -1802,6 +2099,8 @@
 			clonex.find(".cms_items_grade").val("");
 			clonex.find(".organizational_dashboard_cms_icon_view").empty();
 			clonex.find(".organizational_dashboard_cms_icon_view").attr("icon_name", "");
+			clonex.find(".organizational_dashboard_cms_manage_user").attr("savex", "");
+			clonex.find(".organizational_dashboard_cms_manage_user").html("Manage Users (0)");
 			clonex.find(".btn_grade_level_active").removeClass("btn_grade_level_active");
 			$(".organizational_dashboard_cms_div").append(clonex);
 			clonex.find("fieldset").hide();
@@ -1915,14 +2214,6 @@
 	
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
-		$("#org_district_select").find("option").each(function(){
-			organization_district_list.push($(this).attr("state_id") + "," + $(this).attr("value") + "," + $(this).text());	
-		});
-		
-		$("#org_school_select").find("option").each(function(){
-			organization_school_list.push($(this).attr("district_id") + "," + $(this).attr("value") + "," + $(this).text());	
-		});
-		
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		organizationAddFileImgInit("organizational_base_home_logo");
@@ -1931,8 +2222,217 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+			
+		//--------organization_manage_user_default
+		$("input[name='organization_manage_user_default']").change(function () {
+        	if($(this).val() == '1') {
+                $('#organization_manage_user_email').attr("disabled", false);
+                $('#organization_manage_user_cvs').attr("disabled", true);
+            } else if($(this).val() == '2') {
+				$('#organization_manage_user_email').attr("disabled", true);
+                $('#organization_manage_user_cvs').attr("disabled", false);
+            }
+        });
 		
-		$("#press").html("Press ");
+		
+	
+		//--------------------------organizational_dashboard_cms_manage_user
+		var current_link_manage_user = null;
+		$(".organizational_dashboard_cms_manage_user").click(function(){
+			current_link_manage_user = $(this);
+			
+			var dialog = new CurrentDialog('#dialog_manage_user');
+			dialog.show();
+			
+			$('#organization_manage_user_email').val("");
+			$("#organization_manage_user_cvs_span").empty();
+			$("#organization_manage_user_cvs_span").append('<input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" />');
+			
+			$("input[name='organization_manage_user_default'][value='1']").attr("checked", "checked");
+			$('#organization_manage_user_email').attr("disabled", false);
+            $('#organization_manage_user_cvs').attr("disabled", true);
+			
+			$('#organization-manage-user-table').find(".data").remove();
+			$('#organization-manage-user-table').trigger('update');	
+			
+			var content = $(this).attr("savex");
+			var content_email = $(this).attr("savex_email");
+			if(typeof(content) != "undefined" && content != ""){
+				var tmp1 = content.split("_$$$_");
+				for(var i = 0; i < tmp1.length; i++){
+					var tmp2 = tmp1[i].split("_$$_");
+					var r = {"first_name":tmp2[0], "last_name":tmp2[1], "email":tmp2[2], "state":tmp2[3], "district":tmp2[4], "school":tmp2[5]};
+					addManageUserItem(r);
+				}
+			}else if(typeof(content_email) != "undefined" && content_email != ""){
+				var tmp1 = content_email.split(",");
+				$.ajaxSetup({async : false}); 
+				for(var i = 0; i < tmp1.length; i++){
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: tmp1[i]}, function (r) {
+						if (r.Success){
+							if(r.email_error){
+								alert("The Email ddress does not exist.");
+							}else{
+								addManageUserItem(r);
+								saveManageUser(false);
+							}							
+						}
+					});
+				}
+				$.ajaxSetup({async : true}); 
+			}
+		});
+		
+		//-----------------------------------------------------------------------organization_manage_user_btn_add
+		$("#organization_manage_user_btn_add").click(function(){
+			var type_r = $("input[name='organization_manage_user_default']:checked").val();			
+			$('.error-box').removeClass('error-box');
+			var valid = true;
+			var errors = ['The following errors occurred:\n'];
+			
+			if(type_r == "1"){
+				var email = $("#organization_manage_user_email");
+				if (email.val() == "") {
+					valid = false;
+					errors.push('Email is required.');
+					email.addClass('error-box');
+				}
+				$('#organization-manage-user-table').find(".data").each(function(){
+					var tmp1 = $(this).find("td").eq(2).html();
+					if(tmp1 == email.val()){
+						valid = false;
+						errors.push('This item is already part of this group. It can’t be added again.');
+						email.addClass('error-box');
+						return false;
+					}
+				});
+			}else{
+				if($("#organization_manage_user_cvs").val() == ""){
+					valid = false;
+					errors.push('CSV File is required.');
+				}
+			}
+			if (!valid) {
+				var error = errors.join('\n');
+				alert(error);
+			}else{
+				if(type_r == "1"){
+					$.post("${reverse('organizational_configuration')}", {flag:"organization_manage_user_info", oid:org_current_id, email: filterStr2(email.val())}, function (r) {
+						if (r.Success){
+							if(r.email_error){
+								alert("The Email ddress does not exist.");
+							}else if(r.email_error_group){
+								alert("This Email is not part of this group.");
+							}else{
+								addManageUserItem(r);
+								saveManageUser(true);
+								email.val("");
+							}
+						}else{
+							//alert("Error:" + r.Error);
+							alert("The Email ddress does not exist.");
+						}
+					});
+				}else{
+					manageUserCSVUploadFile();
+				}
+			}
+		});
+		
+		//-----------------------------------------------------------------------saveManageUser
+		function saveManageUser(is_savex_email){			
+			var content = "";
+			var content_email = "";
+			$('#organization-manage-user-table').find(".data").each(function(){
+				var tmp1 = $(this).find("td").eq(0).html();
+				var tmp2 = $(this).find("td").eq(1).html();
+				var tmp3 = $(this).find("td").eq(2).html();
+				var tmp4 = $(this).find("td").eq(3).html();
+				var tmp5 = $(this).find("td").eq(4).html();
+				var tmp6 = $(this).find("td").eq(5).html();
+				if(content != "")	content += "_$$$_";
+				content += tmp1 + "_$$_" + tmp2 + "_$$_" + tmp3 + "_$$_" + tmp4 + "_$$_" + tmp5 + "_$$_" + tmp6;
+				
+				if(content_email != "")	content_email += ",";
+				content_email += tmp3;
+			});
+			current_link_manage_user.attr("savex", content);
+			if(is_savex_email)	current_link_manage_user.attr("savex_email", content_email);
+			
+			current_link_manage_user.html("Manage Users (" + $('#organization-manage-user-table').find(".data").length + ")");
+		}
+		
+		//-----------------------------------------------------------------------addManageUserItem
+		function addManageUserItem(jsonx){
+			var row = '<tr class="data">';
+			row += '<td>' + jsonx.first_name + '</td>';
+			row += '<td>' + jsonx.last_name + '</td>';
+			row += '<td>' + jsonx.email + '</td>';
+			row += '<td>' + jsonx.state + '</td>';
+			row += '<td>' + jsonx.district + '</td>';
+			row += '<td>' + jsonx.school + '</td>';
+			row += '<td class="check-column">';
+			row += '<input type="checkbox" value="' + jsonx.email + '" class="organization-manage-user-select">';
+			row += '</td>';
+			row += '</tr> ';
+			$('#organization-manage-user-table tbody').append(row);
+						
+			$('#organization-manage-user-table').trigger('update');	
+		}
+		
+		//-----------------------------------------------------------------------manageUserCSVUploadFile
+		function manageUserCSVUploadFile(){
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				fileElementId: "organization_manage_user_cvs",
+				secureuri: false,
+				dataType: 'JSON',
+				data: {flag: 'org_manage_user_cvs_upload', csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");
+					if(tmp2.Success){
+						var tmp_list, tmp_flag;
+						for(var i = 0; i < tmp2.back_rows.length; i++){
+							tmp_flag = true;
+							$('#organization-manage-user-table').find(".data").each(function(){
+								var tmp_name = $(this).find("td").eq(2).html();
+								if(tmp_name == tmp2.back_rows[i].email){
+									tmp_flag = false;
+									return false;
+								}
+							});
+							if(tmp_flag){
+								addManageUserItem(tmp2.back_rows[i]);
+							}
+						}
+						saveManageUser(true);
+						
+						$('#organization-manage-user-table').trigger('update');	
+						$("#organization_manage_user_cvs_span").empty();
+						$("#organization_manage_user_cvs_span").append('<input type="file" id="organization_manage_user_cvs" name="organization_manage_user_cvs" />');
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+				}
+			})			
+		}
+		
+		//--------------------------organization_manage_user_btn_remove
+		$("#organization_manage_user_btn_remove").click(function(){
+			if($(".organization-manage-user-select:checked").length > 0){
+				if(confirm("Are you sure to delete the item?")){
+					$(".organization-manage-user-select:checked").parent().parent().remove();
+					$('#organization-manage-user-table').trigger('update');
+					saveManageUser(true);
+				}
+			}else{
+				alert("Select the item(s) you want to delete.");
+			}
+		});
+			
 		//--------------------------editor_view_btn preview_view_btn
 		$('.editor_view_btn').click(function(){
 			ceditor.switchView("Editor");
@@ -2028,6 +2528,28 @@
 				} else {
 					$div.slideDown();
 					$(this).addClass("expand_title_expanded");
+					
+					if($(this).text() == "Organization Locations"){
+						if($("#org_state_select").find("option").length < 2){
+							var loadwin = new LoadingWin();
+							$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
+								if (r.Success){
+									for(var i in r.rows_state){
+										$("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
+									}
+									for(var i in r.rows_district){
+										organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
+									}
+									/*for(var i in r.rows_school){
+										organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
+									}*/
+								}else{
+									alert(e.Error);
+								}
+								loadwin.hide();
+							});
+						}
+					}
 				}
 			}
 		});
@@ -2052,10 +2574,8 @@
 		$('#new-organization').click(function () {
 			organizationEdit('add');
 		});
-		
 		//--------------------------
 		organizationEditAttach();
-		
 		//--------------------------del-organization
 		$('#del-organization').click(function () {
 			if($(".organization-select:checked").length > 0){
@@ -2091,6 +2611,7 @@
 		//--------------------------Initialize the select all checkboxes.
 		selectAll('.organization-select-all', '.organization-select');
 		selectAll('.organization-state-select-all', '.organization-state-select');
+		selectAll('.organization-manage-user-select-all', '.organization-manage-user-select');
 		
 		updateOrganizations();
 		
@@ -2108,55 +2629,70 @@
 		});
 		
 		//--------------------------org_school_select_add
-		function checkInList(id, ids){
-			for(var i = 0; i < ids.length; i++){
-				if(ids[i] == id){
-					return true;
-				}
-			}
-			return false;
-		}
-		function org_school_select_add(district_ids){
-			$("#org_school_select option").remove();
+		function org_school_select_add(district_id){
+			$("#org_school_select").empty();
 			$("#org_school_select").append("<option value=''>Select School</option>");
-			for(var i = 0; i < organization_school_list.length; i++){
-				var tmp1 = organization_school_list[i].split(",");
-				if(district_ids == null || (district_ids.length > 0 && checkInList(tmp1[0], district_ids))){
-					$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+			if(district_id != ""){
+				var isNoAdd = true;
+				for(var i = 0; i < organization_school_list.length; i++){
+					var tmp1 = organization_school_list[i].split(",");
+					if(tmp1[0] == district_id){
+						isNoAdd = false;
+						break;
+					}
+				}
+				if(isNoAdd){
+					var loadwin = new LoadingWin();
+					$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations", district_id: district_id}, function (r) {
+						if (r.Success){
+							for(var i in r.rows_school){
+								organization_school_list.push(r.rows_school[i]["district_id"] + "," + r.rows_school[i]["id"] + "," + r.rows_school[i]["name"]);	
+							}
+							for(var i = 0; i < organization_school_list.length; i++){
+								var tmp1 = organization_school_list[i].split(",");
+								if(tmp1[0] == district_id){
+									$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+								}
+							}
+						}else{
+							alert(r.Error);
+						}
+						loadwin.hide();
+					});
+				}else{
+					for(var i = 0; i < organization_school_list.length; i++){
+						var tmp1 = organization_school_list[i].split(",");
+						if(tmp1[0] == district_id){
+							$("#org_school_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+						}
+					}
 				}
 			}
 		}
 		
 		//--------------------------org_district_select_add		
 		function org_district_select_add(state_id){
-			$("#org_district_select option").remove();
+			$("#org_district_select").empty();
 			$("#org_district_select").append("<option value=''>Select District</option>");
-			
-			var district_ids = new Array();
-			for(var i = 0; i < organization_district_list.length; i++){
-				var tmp1 = organization_district_list[i].split(",");
-				if(state_id == "" || (state_id != "" && tmp1[0] == state_id)){
-					$("#org_district_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
-					district_ids.push(tmp1[1]);
+			if(state_id != ""){
+				for(var i = 0; i < organization_district_list.length; i++){
+					var tmp1 = organization_district_list[i].split(",");
+					if(tmp1[0] == state_id){
+						$("#org_district_select").append("<option value='" + tmp1[1] + "'>" + tmp1[2] + "</option>");
+					}
 				}
 			}
-			if(state_id == "")
-				org_school_select_add(null);
-			else
-				org_school_select_add(district_ids);
+			org_school_select_add("");
 		}
-		org_district_select_add("");		
+		org_district_select_add("");
 		
 		//--------------------------org_state_select
         $("#org_state_select").change(function () {
 			org_district_select_add($(this).val());
-        });
-		
-		 $("#org_district_select").change(function () {		 	
-		 	var tmp1 = new Array();
-			tmp1.push($(this).val());
-			org_school_select_add(tmp1);
-        });
+        });		
+		 $("#org_district_select").change(function () {
+		 	org_school_select_add($(this).val());
+        });		
 		
 		//--------------------------org_btn_add_state
 		$("#org_btn_add_state").click(function(){
@@ -2202,13 +2738,13 @@
 											
 										}
 									});
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else if(add_type == "School"){
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else{
-									organizationAddDistricts(add_type, add_txt, add_id);
+									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}
 							}
@@ -2332,8 +2868,9 @@
 			$(".organization-state-edit").each(function(){
 				var sid = $(this).attr("sid");
 				var stype = $(this).attr("stype");
+				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += ":";
-				sid_did += sid + "," + stype;
+				sid_did += sid + "," + stype + "," + did;
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
@@ -2417,8 +2954,11 @@
 					$(this).find(".cms_items_icon").attr("id", "cms_items_icon_" + cms_sn1);
 					$(this).find(".cms_items_icon").attr("name", "cms_items_icon_" + cms_sn1);
 					
+					var cms_manage_user = $(this).find(".organizational_dashboard_cms_manage_user").attr("savex_email");
+					if(typeof(cms_manage_user) == "undefined")	cms_manage_user = "";
+					
 					if(cms_items != "")	cms_items += "=<=";
-					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name;	
+					cms_items += cms_sn1 + "=>=" + cms_item + "=>=" + cms_url + "=>=" + cms_grade + "=>=" + cms_icon_name + "=>=" + cms_manage_user;
 					
 					repeatList.push(cms_item + "__" + cms_grade);
 					
@@ -2485,10 +3025,26 @@
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
 			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
 			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
+			var my_trending_topics = $("#organizational_base_organization_my_trending_topics").val();
+			var my_communities = $("#organizational_base_organization_my_communities").val();
+			var my_learning_plan = $("#organizational_base_organization_my_learning_plan").val();
+			var recommended_courses = $("#organizational_base_organization_recommended_courses").val();
 			var logo_url = $("#organizational_base_logo_url").val();
 			var footer_flag = $("input[name='organizational_dashboard_footer']:checked").val();
 			var footer_content = ceditor.CKEDITOR.getData(); 
-			
+			var is_Announcement = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
+			// var is_Announcement_alert = ($("input[name='organizational_is_announcement_alert']").attr("checked")) ? "1" : "0";
+			var announcement_content = ceditor_announcement.CKEDITOR.getData(); 
+
+			var user_email = $("#initial_user_name").val()
+			if(is_Announcement == 1){
+				if (user_email == ""){
+					alert("Please choose announcement user.")
+					loadwin.hide();
+					return;
+				}
+			}
+
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				sid_did: sid_did,
 				for_district: for_district,
@@ -2530,12 +3086,32 @@
 				org_logo_url: org_logo_url,				
 				org_profile_logo_url: org_profile_logo_url,
 				org_profile_logo_curr_url: org_profile_logo_curr_url,
+				my_trending_topics: my_trending_topics,
+				my_communities: my_communities,
+				my_learning_plan: my_learning_plan,
+				recommended_courses: recommended_courses,
 				logo_url: logo_url,
 				footer_flag: footer_flag,
 				footer_content: footer_content,
+				is_Announcement: is_Announcement,
+				user_email: user_email,				
+				// is_Announcement_alert: is_Announcement_alert,
+				announcement_content: announcement_content,
 				menu_color: menu_color
 			}, function (r) {
+				// $("input[name='organizational_is_announcement_alert']").prop("checked", false);
 				if (r.Success){
+					if(r.back_sid_all){
+						try{
+							var tmp1 = r.back_sid_all.split(",");
+							$(".organization-state-edit").each(function(i){								
+								$(this).attr("did", tmp1[i]);
+							});
+						}catch(e){
+						
+						}
+					}
+					
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}
@@ -2870,15 +3446,6 @@
 			$(".new_menu_tr").hide();
 			$(".old_menu_tr").show();
 		}
-	}
-	
-	//--------------------------filterStr
-	function filterStr(str){
-		if(str != ""){
-			str = str.replace(new RegExp("<", 'gm'), '');
-			str = str.replace(new RegExp(">", 'gm'), '');
-		}
-		return str;
 	}
 	var csrf_token = '${csrf_token}';
 </script>

@@ -310,7 +310,7 @@ class MongoMyActivityStore(object):
         for d2 in my_activity_end:
             year_end = str(d2['ActivityDateTime'])[0:4]
             break
-        return int(year_start), int(year_end)    
+        return int(year_start), int(year_end)
 
 class MongoMyActivityStaticStore(object):
 
@@ -337,8 +337,15 @@ class MongoMyActivityStaticStore(object):
         self.collection.safe = True    
 
     def get_item(self):
-        #results = self.collection.find()
         results = self.collection.find()
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def get_item_by_etype(self,etype):
+        results = self.collection.find({"EventType": etype})
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
@@ -459,7 +466,7 @@ class MongoChunksStore(object):
         if r:
             chunkTitle = r[0]['chunkTitle']
         return chunkTitle
-
+        
 
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
