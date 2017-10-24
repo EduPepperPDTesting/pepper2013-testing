@@ -122,6 +122,8 @@ $(document).ready(function(){
         }
     });
 
+    $("#pep_user_list").load("/getcommunities/");
+
     $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
         var $link = $(e.target);
         e.preventDefault();

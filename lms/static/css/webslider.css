@@ -210,6 +210,9 @@
     left: 35px;
     top: 0px;
 }
+.pep_contact_name{
+    cursor: pointer !important;
+}
 .pep_contact_photo {
     width: 50px;
     height: 50px;
