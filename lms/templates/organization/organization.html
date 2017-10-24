@@ -3970,48 +3970,38 @@
 			
 			//---------------------------------------------------Course Assignment
 			var course_assignment_content = "", tmp_var1;
-			var course_all =  [];
 			$(".org_assignment_course_item").each(function(){
-				var course_id = $(this).find(".org_assignment_course_select").val();
-				if(course_id != ""){
-					var assignment_all = {"course_id":course_id,"all_member":true}
-					var course_assignment_child = "";
-					$(this).find(".org_assignment_qualifications_item").each(function(){
-						var course_assignment_child_1 = "";
-						$(this).find(".oaq_item").each(function(){
-							if($(this).find(".org_assignment_qualifications_datex").length > 0){
-								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
-								var tmp_date = $(this).find(".org_assignment_qualifications_datex").datepicker("getDate");
-								var tmp_date_val = "";
-								if(tmp_date){
-									tmp_var1 = tmp_date.getMonth() + 1;
-									tmp_date_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-									tmp_date_val += "/";
-									tmp_var1 = tmp_date.getDate();
-									tmp_date_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-									tmp_date_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
-								}
-								course_assignment_child_1 += "(" + tmp_date_val + ")";
-							}else if($(this).find(".org_assignment_qualifications_select").length > 0){
-								var tmp_date_val = $(this).find(".org_assignment_qualifications_select").val()
-								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
-								course_assignment_child_1 += "(" + tmp_date_val + ")";
-							}
-							if (tmp_date_val != "") assignment_all['all_member'] = false
-						});
-						if(course_assignment_child != "")	course_assignment_child += ",";
-						course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
-					});					
-					if(course_assignment_content != "")	course_assignment_content += ";";
-					course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
-					course_all.push(assignment_all)
-				}
+		        var course_id = $(this).find(".org_assignment_course_select").val();
+		        if(course_id != ""){
+	                var course_assignment_child = "";
+	                $(this).find(".org_assignment_qualifications_item").each(function(){
+                        var course_assignment_child_1 = "";
+                        $(this).find(".oaq_item").each(function(){
+                            if($(this).find(".org_assignment_qualifications_datex").length > 0){
+                                if(course_assignment_child_1 != "")     course_assignment_child_1 += ">";
+                                var tmp_date = $(this).find(".org_assignment_qualifications_datex").datepicker("getDate");
+                                var tmp_date_val = "";
+                                if(tmp_date){
+                                        tmp_var1 = tmp_date.getMonth() + 1;
+                                        tmp_date_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                                        tmp_date_val += "/";
+                                        tmp_var1 = tmp_date.getDate();
+                                        tmp_date_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                                        tmp_date_val += "/" + tmp_date.getFullYear();   //mm/dd/yy 
+                                }
+                                course_assignment_child_1 += "(" + tmp_date_val + ")";
+                            }else if($(this).find(".org_assignment_qualifications_select").length > 0){
+                                if(course_assignment_child_1 != "")     course_assignment_child_1 += ">";
+                                course_assignment_child_1 += "(" + $(this).find(".org_assignment_qualifications_select").val() + ")";
+                            }
+                        });
+                        if(course_assignment_child != "")       course_assignment_child += ",";
+                        course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
+                	});
+	                if(course_assignment_content != "")     course_assignment_content += ";";
+	                course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
+		        }
 			});
-			var course_all_str = ""
-			for (var a in course_all){
-                course_all_str += course_all[a]["course_id"] + "---"
-                course_all_str += course_all[a]["all_member"] + "+++" 
-            }
 
 			//---------------------------------------------------
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
@@ -4089,7 +4079,6 @@
 			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
-				course_all: course_all_str,
 				sid_did: sid_did,
 				course_assignment_content: course_assignment_content,
 				for_district: for_district,
