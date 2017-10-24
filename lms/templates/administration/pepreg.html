@@ -1808,7 +1808,7 @@
             steps.unlockAll();
         } else {
             self.clearData();
-        }console.log("data="+data.subjectother);
+        }
         self.fillData(data);						
 		
 		// ************* school id
@@ -1992,7 +1992,7 @@
         var $subject = $("#dlg-add-training").find("select[name=subject]");
         if (data.subject) {
             var $opts = $subject.find("option[value=" + data.subject + "]");
-            if (!$opts.length) {
+            if (!$opts.length) {console.log("data="+data.subjectother);
                 $subject.next("input[name=subject-other]").show().val(data.subjectother);
                 $subject.val("Other");
             }
