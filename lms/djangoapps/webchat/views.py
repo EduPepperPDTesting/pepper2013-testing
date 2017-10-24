@@ -32,7 +32,7 @@ def gettextframe(request, uname):
     #     user_name.extend([add_name])
     #     get_name = get_name[space_pos+1:]
 
-    user_name = uname.replace("_", " ")
+    user_name = uname.replace("_", " ").replace("~", ",")
     return render_to_response('webchat/webtextframe.html', {"user_name": user_name})
 
 # @login_required
