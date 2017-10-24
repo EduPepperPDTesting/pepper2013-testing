@@ -24,15 +24,15 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    name_list = []
+    user_name = []
     get_name = uname
     while(getname.find("_")):
         space_pos = get_name.find("_")
         add_name = get_name[0:space_pos]
-        name_list.extend([add_name])
+        user_name.extend([add_name])
         get_name = get_name[space_pos+1:]
 
-    return render_to_response('webchat/webtextframe.html', {"user_name": name_list})
+    return render_to_response('webchat/webtextframe.html', {"user_name": user_name})
 
 # @login_required
 # def get_all_users(request):

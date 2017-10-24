@@ -1,10 +1,11 @@
-<script type="text/javascript">
-    var user_name = ${user_name|safe}.join(" ");
-</script>
 <div class="pep_text_panel"> <!-- container -->
     <div class="pep_textchatheader_container">
         <div class="pep_textchatheader_title">
-            <span class="pep_header_left">user_name</span>
+            <span class="pep_header_left">
+                %for name_part in user_name:
+                    ${name_part}&nbsp;
+                %endfor
+            </span>
         </div>
         <div class="pep_header_right">
             <a href="#">+</a>
