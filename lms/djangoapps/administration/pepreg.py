@@ -167,7 +167,8 @@ def rows(request):
         7: ['training_date', '__iexact', False],
         8: ['training_time_start', '__iexact', 'str'],
         9: ['geo_location', '__iexact', 'str'],
-        10: ['credits', '__iexact', 'int']
+        10: ['credits', '__iexact', 'int'],
+        11: ['subjectother', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
@@ -184,6 +185,11 @@ def rows(request):
 
     if filters.get('7'):
         filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+
+    if filters.get('16'):
+        filters['11'] = filters.get('16')
+        del filters['16']
+
 
     # limit to district trainings for none-system
     is_no_System = False
@@ -289,7 +295,8 @@ def rows(request):
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
                 remain
-            )
+            ),
+            item.subjectother,
         ]
         rows.append(row)
 
@@ -324,6 +331,9 @@ def save_training(request):
             training.attendancel_id = request.POST.get("attendancel_id", "")
 
         training.subject = request.POST.get("subject")
+        if training.subject == "Other":
+            training.subjectother =  request.POST.get("subjectother")
+
         training.training_date = request.POST.get("training_date", "")
         training.training_time_start = request.POST.get("training_time_start", "")
         training.training_time_end = request.POST.get("training_time_end", "")
@@ -416,6 +426,7 @@ def training_json(request):
         "description": item.description,
         "pepper_course": item.pepper_course,
         "subject": item.subject,
+        "subjectother": item.subjectother,
         "training_date": str('{d:%m/%d/%Y}'.format(d=item.training_date)),
         "training_time_start": str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
         "training_time_end": str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
