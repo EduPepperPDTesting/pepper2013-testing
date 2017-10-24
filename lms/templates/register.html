@@ -312,6 +312,7 @@ import json
            }
        } else {
          toggleSubmitButton(true);
+         if (json.field == "school_id") json.value = $("#school_id").parent().find("label").html()
          $('.status.message.submission-error').addClass('is-shown').focus();
          $('.status.message.submission-error .message-copy').html(json.value || json.error ).stop().css("display", "block");
          if(json.field){
