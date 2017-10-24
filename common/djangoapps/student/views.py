@@ -503,6 +503,11 @@ def dashboard(request, user_id=None):
         for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
             data[tmp1.itemType] = tmp1.itemValue
 
+    course_assignment_content =[]   # Error 500:
+                                    # File "/home/tahoe/pepper/edx-platform/common/djangoapps/student/views.py", line 509, in dashboard
+                                    # if course_assignment_content:
+                                    # UnboundLocalError: local variable 'course_assignment_content' referenced before assignment
+
     for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
         course_assignment_content = tmp1.DataItem
     
