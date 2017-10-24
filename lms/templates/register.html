@@ -899,7 +899,7 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									
-									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max)</span>';
 									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
