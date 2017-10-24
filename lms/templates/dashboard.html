@@ -26,144 +26,144 @@
 <!--@end-->
 <%inherit file="main.html" />
 <%
-  OrganizationOK = False
-  organization_structure = ""
-  register_organization_structure = ""
-  organization_default_1_name = "Major Subject Area:"
-  organization_default_2_name = "Grade Level:"
-  organization_default_3_name = "Number of Years in Education:"
-  organization_default_4_name = "Free/Reduced Lunch:"
-  organization_default_5_name = "IEPs:"
-  organization_default_6_name = "English Learners:"
-  organization_default_7_name = "Bio:"
-  organization_default_1_visible = ""
-  organization_default_2_visible = ""
-  organization_default_3_visible = ""
-  organization_default_4_visible = ""
-  organization_default_5_visible = ""
-  organization_default_6_visible = ""
-  organization_default_456_visible = ""
-  organization_default_7_visible = ""
-  
-  organization_default_content = ""
-  organization_default_content_dialog = ""
-  organization_id = ""
-  
-  if request.user.is_authenticated():
-    c_email = request.user.email
-      try:
-          state_id = request.user.profile.district.state.id
-      except:
-          state_id = -1
-      try:
-          district_id = request.user.profile.district.id
-      except:
-          district_id = -1
-      try:
-          school_id = request.user.profile.school.id
-      except:
-          school_id = -1
-          
-      organization_obj = OrganizationMetadata()
-      if (school_id != -1):
-          for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-              organization_obj = tmp1.organization
-              OrganizationOK = True
-              break;
-
-      if (not(OrganizationOK) and district_id != -1):
-          for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-              organization_obj = tmp1.organization
-              OrganizationOK = True
-              break;
-      
-      if (not(OrganizationOK) and state_id != -1):
-          for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-              OrganizationOK = True
-              organization_obj = tmp1.organization
-              break;                
-      
-      if OrganizationOK:
-          organization_id = organization_obj.id
-          
-        # --------------OrganizationDataitems
-          for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
-              organization_structure = tmp1.DataItem
-              break
-
-          # --------------Register Organization Structure
-          # startswith = '{"email":"sjtest43@edu.com'
-          startswith = '{"email":"' + c_email
-          for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
-              register_organization_structure = tmp1.DataItem
-              break
+    OrganizationOK = False
+    organization_structure = ""
+    register_organization_structure = ""
+    organization_default_1_name = "Major Subject Area:"
+    organization_default_2_name = "Grade Level:"
+    organization_default_3_name = "Number of Years in Education:"
+    organization_default_4_name = "Free/Reduced Lunch:"
+    organization_default_5_name = "IEPs:"
+    organization_default_6_name = "English Learners:"
+    organization_default_7_name = "Bio:"
+    organization_default_1_visible = ""
+    organization_default_2_visible = ""
+    organization_default_3_visible = ""
+    organization_default_4_visible = ""
+    organization_default_5_visible = ""
+    organization_default_6_visible = ""
+    organization_default_456_visible = ""
+    organization_default_7_visible = ""
     
-          if organization_structure != "":
-              organization_structure_list = json.loads(organization_structure)
-              for item in organization_structure_list:
-                  if item["default"] == "1":
-                      organization_default_1_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_1_visible = "display:none;"
-                  elif item["default"] == "2":
-                      organization_default_2_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_2_visible = "display:none;"
-                  elif item["default"] == "3":
-                      organization_default_3_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_3_visible = "display:none;"
-                  elif item["default"] == "4":
-                      organization_default_4_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_4_visible = "display:none;"
-                  elif item["default"] == "5":
-                      organization_default_5_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_5_visible = "display:none;"
-                  elif item["default"] == "6":
-                      organization_default_6_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_6_visible = "display:none;"
-                  elif item["default"] == "7":
-                      organization_default_7_name = item["name"] + ":"
-                      if item["default_visible"] == "1":
-                          organization_default_7_visible = "display:none;"
-                  else:
-                      organization_default_content += '<div style="line-height:30px;" class="org_field">'
-                      organization_default_content += '<b>' + item["name"] + ':</b><br>'
-                      tmp_item_value = ""
-                      
-                      if register_organization_structure != "":
-                          register_organization_structure_json = json.loads(register_organization_structure)
-                          try:
-                              tmp_item_value = register_organization_structure_json[item["name"]]
-                              if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
-                                  tmp_item_value = ""
-                              if item["field_type"] == "7":
-                                  tmp_item_value = tmp_item_value
-                          except:
-                              pass
-                              
-                      if curr_user == request.user:
-                          organization_default_content += '<span style="display:inline !important;" field_type="' + item["field_type"] + '" field_type_2="' + item["field_type_2"] + '" field_type_3="' + item["field_type_3"] + '" field_type_4="' + item["field_type_4"] + '" field_type_5="' + item["field_type_5"] + '">' + tmp_item_value + '</span>'
-                      else:
-                          organization_default_content += tmp_item_value
-                                      
-                      if curr_user == request.user and item["field_type"] != "1":
-                          organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
-                              
-                      organization_default_content += '</div>'
-                      
-                      if item["field_type"] == "2" or item["field_type"] == "3" or item["field_type"] == "4" or item["field_type"] == "5":
-                          organization_default_content_dialog += ""
-                      elif item["field_type"] == "6":
-                          pass
-                      elif item["field_type"] == "7":
-                          pass
-                      
-              if organization_default_4_visible != "" and organization_default_5_visible != "" and organization_default_6_visible != "":
-                  organization_default_456_visible = "display:none;"
+    organization_default_content = ""
+    organization_default_content_dialog = ""
+    organization_id = ""
+    
+    if request.user.is_authenticated():
+      c_email = request.user.email
+        try:
+            state_id = request.user.profile.district.state.id
+        except:
+            state_id = -1
+        try:
+            district_id = request.user.profile.district.id
+        except:
+            district_id = -1
+        try:
+            school_id = request.user.profile.school.id
+        except:
+            school_id = -1
+            
+        organization_obj = OrganizationMetadata()
+        if (school_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+        
+        if (not(OrganizationOK) and state_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                OrganizationOK = True
+                organization_obj = tmp1.organization
+                break;                
+        
+        if OrganizationOK:
+            organization_id = organization_obj.id
+            
+          # --------------OrganizationDataitems
+            for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                organization_structure = tmp1.DataItem
+                break
+
+            # --------------Register Organization Structure
+            # startswith = '{"email":"sjtest43@edu.com'
+            startswith = '{"email":"' + c_email
+            for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
+                register_organization_structure = tmp1.DataItem
+                break
+      
+            if organization_structure != "":
+                organization_structure_list = json.loads(organization_structure)
+                for item in organization_structure_list:
+                    if item["default"] == "1":
+                        organization_default_1_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_1_visible = "display:none;"
+                    elif item["default"] == "2":
+                        organization_default_2_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_2_visible = "display:none;"
+                    elif item["default"] == "3":
+                        organization_default_3_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_3_visible = "display:none;"
+                    elif item["default"] == "4":
+                        organization_default_4_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_4_visible = "display:none;"
+                    elif item["default"] == "5":
+                        organization_default_5_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_5_visible = "display:none;"
+                    elif item["default"] == "6":
+                        organization_default_6_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_6_visible = "display:none;"
+                    elif item["default"] == "7":
+                        organization_default_7_name = item["name"] + ":"
+                        if item["default_visible"] == "1":
+                            organization_default_7_visible = "display:none;"
+                    else:
+                        organization_default_content += '<div style="line-height:30px;" class="org_field">'
+                        organization_default_content += '<b>' + item["name"] + ':</b><br>'
+                        tmp_item_value = ""
+                        
+                        if register_organization_structure != "":
+                            register_organization_structure_json = json.loads(register_organization_structure)
+                            try:
+                                tmp_item_value = register_organization_structure_json[item["name"]]
+                                if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
+                                    tmp_item_value = ""
+                                if item["field_type"] == "7":
+                                    tmp_item_value = tmp_item_value
+                            except:
+                                pass
+                                
+                        if curr_user == request.user:
+                            organization_default_content += '<span style="display:inline !important;" field_type="' + item["field_type"] + '" field_type_2="' + item["field_type_2"] + '" field_type_3="' + item["field_type_3"] + '" field_type_4="' + item["field_type_4"] + '" field_type_5="' + item["field_type_5"] + '">' + tmp_item_value + '</span>'
+                        else:
+                            organization_default_content += tmp_item_value
+                                        
+                        if curr_user == request.user and item["field_type"] != "1":
+                            organization_default_content += ' (<a href="#change_org_dialog" onclick="orgFieldEditClick(this)" rel="leanModal">edit</a>)'
+                                
+                        organization_default_content += '</div>'
+                        
+                        if item["field_type"] == "2" or item["field_type"] == "3" or item["field_type"] == "4" or item["field_type"] == "5":
+                            organization_default_content_dialog += ""
+                        elif item["field_type"] == "6":
+                            pass
+                        elif item["field_type"] == "7":
+                            pass
+                        
+                if organization_default_4_visible != "" and organization_default_5_visible != "" and organization_default_6_visible != "":
+                    organization_default_456_visible = "display:none;"
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
