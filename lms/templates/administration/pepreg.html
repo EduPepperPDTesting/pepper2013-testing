@@ -1991,8 +1991,9 @@
         });
         var $subject = $("#dlg-add-training").find("select[name=subject]");
         if (data.subject) {console.log("data="+data.subjectother);
-            var $opts = $subject.find("option[value=" + data.subject + "]");
-            if (!$opts.length) {
+            //var $opts = $subject.find("option[value=" + data.subject + "]");
+            //if (!$opts.length) {
+            if (data.subjectother != "")
                 $subject.next("input[name=subject-other]").show().val(data.subjectother);
                 $subject.val("Other");
             }
