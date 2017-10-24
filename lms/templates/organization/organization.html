@@ -3970,7 +3970,7 @@
 			
 			//---------------------------------------------------Course Assignment
 			var course_assignment_content = "", tmp_var1;
-			var course_all = [];
+			var course_all =  [];
 			$(".org_assignment_course_item").each(function(){
 				var course_id = $(this).find(".org_assignment_course_select").val();
 				if(course_id != ""){
@@ -4004,10 +4004,14 @@
 					});					
 					if(course_assignment_content != "")	course_assignment_content += ";";
 					course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
-					course_all.append(assignment_all)
+					course_all.push(assignment_all)
 				}
 			});
-			
+			for (var a in course_all){
+                course_all_str += course_all[a]["course_id"] + "---"
+                course_all_str += course_all[a]["all_member"] + "+++" 
+            }
+
 			//---------------------------------------------------
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
 			//document.getElementById('organizational_menu_color').jscolor.toHEXString();
@@ -4084,7 +4088,7 @@
 			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
-				course_all: course_all,
+				course_all: course_all_str,
 				sid_did: sid_did,
 				course_assignment_content: course_assignment_content,
 				for_district: for_district,
