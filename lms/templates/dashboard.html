@@ -26,7 +26,6 @@
 <!--@end-->
 <%inherit file="main.html" />
 <%
-
     OrganizationOK = False
     organization_structure = ""
     register_organization_structure = ""
@@ -51,7 +50,7 @@
     organization_id = ""
     
     if request.user.is_authenticated():
-      c_email = request.user.email
+        c_email = request.user.email
         try:
             state_id = request.user.profile.district.state.id
         except:
@@ -87,7 +86,7 @@
         if OrganizationOK:
             organization_id = organization_obj.id
             
-          # --------------OrganizationDataitems
+            # --------------OrganizationDataitems
             for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
                 organization_structure = tmp1.DataItem
                 break
@@ -98,7 +97,7 @@
             for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
                 register_organization_structure = tmp1.DataItem
                 break
-      
+            
             if organization_structure != "":
                 organization_structure_list = json.loads(organization_structure)
                 for item in organization_structure_list:
@@ -165,6 +164,7 @@
                         
                 if organization_default_4_visible != "" and organization_default_5_visible != "" and organization_default_6_visible != "":
                     organization_default_456_visible = "display:none;"
+%>
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
