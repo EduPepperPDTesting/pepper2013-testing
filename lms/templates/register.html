@@ -230,11 +230,6 @@ import json
 				
 			}else if(tmp_type == "3"){
 				tmp_val = $(this).val();
-        if(tmp_val == null){
-          tmp_val = "";
-        }
-        tmp_val = tmp_val.join(", ");
-				
 			}else if(tmp_type == "4"){
 				$(this).find('input[type="checkbox"]').each(function() {
 					if ($(this).attr('checked')) {
@@ -264,7 +259,7 @@ import json
 				}
 			}
 			
-			if(tmp_required == " *" && tmp_val == ""){
+			if(tmp_required == " *" && tmp_val == "" || tmp_val == null){
 				toggleSubmitButton(true);
 				$('.status.message.submission-error').addClass('is-shown').focus();
 				$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
