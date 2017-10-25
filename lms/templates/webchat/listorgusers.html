@@ -123,7 +123,7 @@
 			    id = $(this).attr("id");
 				var uname = $(this).text();
 				var nameLength = uname.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
-				var IdTitle = id //uname.substr(uname.indexOf(',')+1);
+				var IdTitle = str(id) //uname.substr(uname.indexOf(',')+1);
 				var nameTitle = (nameLength>16)?uname.substr(0, nameLength - ((uname.indexOf(',') - 15) + IdTitle.length)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
 					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
