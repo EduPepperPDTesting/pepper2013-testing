@@ -116,10 +116,10 @@
                     window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
                 });
             });
-        })
+        });
         $(".pep_contact_block").on("hover", ".pep_contact_name", function(e){
         	$(this).css("max-width", "");
-		}
+		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
 			console.log("name clicked");
 			var $link = $(e.target);
