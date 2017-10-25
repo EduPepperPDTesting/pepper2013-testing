@@ -23,7 +23,7 @@
 }
 .pep_textchat_block {
     bottom: 0;
-    index: 9999;
+    z-index: 20;
 }
 .pep_videochat_block {
     top: 73px;
@@ -32,26 +32,24 @@
 .pep_text_container, .pep_video_container {
     display: none;
     position: fixed;
-    right: 0px;
     height: 250px;
     z-index: 9999;
 }
 .pep_text_container {
-    width: 235px;
+    width: 235px !important;
 }
 .pep_video_container {
     width: 450px;
 }
 .pep_text_panel,
 .pep_video_panel {
-    padding-right: 0px;
+    padding: 0px;
     background-color: #fff;
     border: 1px solid black;
     position: relative;
     bottom: -4px;
 }
 .pep_text_panel {
-    width: 100%;
     min-width: 235px;
     border-radius: 15px 15px 0 0;
 }
@@ -60,7 +58,7 @@
     min-width: 450px;
 }
 .pep_textchatheader_container {
-    width: 233px;
+    width: 235px;
     border-radius: 15px 15px 0 0;
 }
 .pep_videochatheader_container {
@@ -69,7 +67,7 @@
 .pep_textchatheader_container,
 .pep_videochatheader_container {
     position: relative;
-    left: -15px;
+    /* left: -15px; */
     height: 30px;
     border-bottom: 1px solid;
     background-color: #b2b2b2;
@@ -103,11 +101,11 @@
     display: inline-block;
 }
 .pep_text_chat {
-    width: 232px;
-    height: 180px;
+    width: 235px;
+    height: 170px;
     border-bottom: 1px solid;
     position: relative;
-    left: -15px !important;
+    /* left: -15px !important; */
     overflow-y: auto;
     display: inline-block;
 }
@@ -134,11 +132,14 @@
     height: 23px;
     border: 1px solid;
     margin-right: 0px;
+    display: inline-block;
+    width: 170px;
 }
 .pep_chat_icons {
-    position: relative;
-    top: 0px;
-    left: 0px;
+    /* position: relative; */
+    /* top: 0px; */
+    /* left: 0px; */
+    height: 21px;
     padding-bottom: 1px;
     padding-top: 1px;
     padding-left: 2px;
@@ -171,9 +172,11 @@
 .pep_videochatheader_container a {
     font-size: 32px;
     position: relative;
-    top: 4px;
+    top: -4px;
 }
 
 .close-chat {
     cursor: pointer;
+    position: relative;
+    bottom: 8px;
 }
