@@ -748,9 +748,11 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-
-        discussions = CommunityDiscussions.objects.filter(community=community)
-        ma_db = myactivitystore()                
+        try:
+            discussions = CommunityDiscussions.objects.filter(community=community)
+        except Exception as e:
+            None
+        ma_db = myactivitystore()
         ma_db.set_item_community(cid, cname, discussions)
         
         community.delete()
