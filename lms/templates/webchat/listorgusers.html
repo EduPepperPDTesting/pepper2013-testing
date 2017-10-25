@@ -121,8 +121,10 @@
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).text();
 				var nameLength = uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
+				var nameTitle = (nameLength>16)?uname.substr(0, 16-(nameLength-15)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
+				var IdTitle = uname.substr(uname.indexOf(',')+1);
 				//if($(".pep_textchat_block").find(".pep_header_left:contains('" + ((uname.indexOf(',')>15)?uname.substr(0, 15).trim()+'...':uname.substring(0, uname.indexOf(',')).trim()) + ", " + uname.substr(uname.indexOf(',')+1) + "')").length == 0){
-				if($(".pep_textchat_block").find(".pep_header_left:contains('" + ((nameLength>16)?uname.substr(0, 16-(nameLength-15)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim()) + ", " + uname.substr(uname.indexOf(',')+1) + "')").length == 0){
+				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
 					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
 					console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
@@ -142,7 +144,7 @@
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
 						console.log("leftX="+leftX);
 						//$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/"+((uname.indexOf(',')>15)?uname.substr(0, 15).trim()+'...':uname.substring(0, uname.indexOf(',')).trim()) + "`" + uname.substr(uname.indexOf(',')+1)+" .pep_text_panel");
-						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/"+((nameLength>16)?uname.substr(0, 16-(nameLength-15)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim()) + "`" + uname.substr(uname.indexOf(',')+1)+" .pep_text_panel");
+						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + nameTitle + "`" + IdTitle + " .pep_text_panel");
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
