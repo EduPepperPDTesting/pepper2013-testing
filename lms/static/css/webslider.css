@@ -211,15 +211,19 @@
     top: 0px;
 }
 .pep_contact_name{
-    max-width: 165px;
-    cursor: pointer !important;
+    max-width: 164px;
+    height: 20px;
+    position: relative;
+    top: 10px;
     display: inline-block;
-    overflow-x:hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     white-space: -moz-pre-wrap; /* Firefox */
     white-space: -o-pre-wrap; /* Opera */
     white-space: pre-wrap; /* Chrome */
     word-wrap: break-word; /* IE */
     white-space: pre;
+    cursor: pointer !important;
 }
 .pep_contact_photo {
     width: 50px;
