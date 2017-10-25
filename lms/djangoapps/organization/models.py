@@ -127,7 +127,7 @@ class CourseAssignmentStore(MongoBaseStore):
         return self.insert(data)
 
     def find_record(self, user_id, course_assignment_id):
-        res = self.find({"user_id":user_id,"course_assignment_id":course_assignment_id})
+        res = list(self.find({"user_id":user_id,"course_assignment_id":course_assignment_id}))
         if res:
             return True
         return False

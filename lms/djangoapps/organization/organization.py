@@ -139,18 +139,6 @@ def organization_register_save(request):
             org_register.itemType = "Register Organization Structure"
             org_register.save()
 
-            # --------------course_enroll
-            for tmp1 in OrganizationMoreText.objects.filter(organization=OrganizationId, itemType="Course Assignment"):
-                course_assignment_content = tmp1.DataItem
-
-            org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
-            for tmp1 in org_data_list:
-                specific_items = tmp1.DataItem
-
-            if specific_items and course_assignment_content:
-                qualifications = organization_qualifications(specific_items, course_assignment_content)
-                course_assign(qualifications, content)
-
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1146,19 +1134,16 @@ def organizational_save_base(request):
             # --------------course_assignment_content
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
-                org_course_assignment = tmp1
+                if tmp1.DataItem == course_assignment_content:
+                    org_course_assignment = tmp1
+                else:
+                    tmp1.delete()
                 break
 
             org_course_assignment.DataItem = course_assignment_content
             org_course_assignment.organization = org_metadata
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
-
-            # -----get_organization_course_assignment_qualifications
-            if course_assignment_content and specific_items:
-               qualifications = organization_qualifications(specific_items, course_assignment_content)
-               for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                   course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
@@ -1945,7 +1930,7 @@ def course_assign(qualifications, data):
             user = User.objects.get(email=data['email'])
             CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
-            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
             "URLValues": {"course_id": tmp2['course_id']},    
             "TokenValues": {"course_id": tmp2['course_id']}, 
             "LogoValues": {"course_id": tmp2['course_id']}}

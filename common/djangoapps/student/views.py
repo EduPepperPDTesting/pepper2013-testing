@@ -535,7 +535,7 @@ def dashboard(request, user_id=None):
             if qualifications and user_org_profile:
                 course_assign(qualifications, user_org_profile)
 
-            course_assignment_record.create_course_record(userid, course_assignment_id, datetime.datetime.utcnow())
+            course_assignment_record.create_course_record(user.id, course_assignment_id, datetime.datetime.utcnow())
 
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')
