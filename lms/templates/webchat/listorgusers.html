@@ -48,11 +48,13 @@
 							var userRows = data.rows;
 						}
 						tbodyID = "#users_"+commId;
-						var username;
+						var username, userID;
+						var elExists, addStyle, removeStyle;
 						for(i = 0; i < userRows.length; i++){
-							username = userRows[i];
+							username = userRows[i][0];
+                            id = userRows[i][1];
 							console.log(username);
-							userID = username[0].replace(/ /g, "_")+','+username[1];
+							userID = username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
 								console.log("elExists === false=" + (elExists === false));
@@ -64,7 +66,7 @@
 								addStyle = 'display: inline-block;';
 								removeStyle = 'display:none;'
 							}
-							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div class='pep_contact_name'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div id='"+id+"' class='pep_contact_name'>"+username+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 
 						$(".pep_contact_name").tooltip({
@@ -123,7 +125,7 @@
 			    id = $(this).attr("id");
 				var uname = $(this).text();
 				var nameLength = uname.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
-				var IdTitle = id.toString(); //uname.substr(uname.indexOf(',')+1);
+				var IdTitle = id; //uname.substr(uname.indexOf(',')+1);
 				var nameTitle = (nameLength>16)?uname.substr(0, nameLength - ((uname.indexOf(',') - 15) + IdTitle.length)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
 					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
