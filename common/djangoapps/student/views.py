@@ -509,6 +509,7 @@ def dashboard(request, user_id=None):
         specific_items = ""
         user_org_profile = ""
         course_assignment_id = ""
+        qualifications = ""
         user_profile_str = '"Major Subject Area":"' + str(user.profile.major_subject_area_id) + '","Grade Level-Check all that apply":"' + str(user.profile.grade_level_id) + '","Number of Years in Education":"' + str(user.profile.years_in_education_id) + '","Free/Reduced Lunch":"' + str(user.profile.percent_lunch) + '","IEPs":"' + str(user.profile.percent_iep) + '","English Learners":"' + str(user.profile.percent_eng_learner) + '"'
         for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
             course_assignment_content = tmp1.DataItem
