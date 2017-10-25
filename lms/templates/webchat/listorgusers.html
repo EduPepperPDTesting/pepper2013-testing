@@ -118,7 +118,15 @@
             });
         });
         $(".pep_contact_block").on("mouseover", ".pep_contact_name", function(e){
-        	$(this).css("max-width", "");
+        	if((this).text().length>15){
+        		$(this).css({"max-width": "none", "font-size": ".5em"});
+        	}
+		});
+
+        $(".pep_contact_block").on("mouseout", ".pep_contact_name", function(e){
+        	if((this).text().length>15){
+        		$(this).css({"max-width": "164px", "font-size": "1em"});
+        	}
 		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
 			console.log("name clicked");

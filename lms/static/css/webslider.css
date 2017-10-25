@@ -211,6 +211,7 @@
     top: 0px;
 }
 .pep_contact_name{
+    font-size: 1em;
     max-width: 164px;
     height: 20px;
     position: relative;
