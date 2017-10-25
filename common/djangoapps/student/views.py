@@ -89,6 +89,7 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 
 from student.models import State, District, School, User, UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText
+from organization.organization import organization_qualifications, course_assign
 from django.http import HttpResponseRedirect
 
 from collections import OrderedDict
@@ -502,36 +503,32 @@ def dashboard(request, user_id=None):
         data["org_id"] = organization_obj.id;
         for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
             data[tmp1.itemType] = tmp1.itemValue
-
-    course_assignment_content = ""
-    for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
-        course_assignment_content = tmp1.DataItem
     
-    if course_assignment_content:
-        assignments = course_assignment_content.split(';')
-        qualifications = []
-        for tmp1 in assignments:
-            course_assign = True
-            qualification = tmp1.split('<')[0].replace('(','').replace(')','')
-            qualifications_items = tmp1.split('<')[1].split(',')
-            for tmp2 in qualifications_items:
-                tmp3 = tmp2.split('>')
-                item = {}
-                item['_id'] = tmp3[0].replace('(','').replace(')','')
-                item['data'] = ''
-                for i in range(len(tmp3)):
-                    if i <= 1:
-                        item['data'] = tmp3[i].replace('(','').replace(')','')
-                    if i > 1:
-                        item['data'] = item['data'] + tmp3[i].replace('(','').replace(')','')
-                if item['data']:
-                    course_assign = False
-                    break
-            if course_assign:
-                qualifications.append(qualification)
+    # --------------course_enroll
+        course_assignment_content = ""
+        specific_items = ""
+        user_org_profile = ""
+        user_profile_str = "Major Subject Area:" + user.profile.major_subject_area_id + ",Grade Level-Check all that apply:" + user.profile.grade_level_id + ",Number of Years in Education:" + user.profile.years_in_education_id + ",Free/Reduced Lunch:" + user.profile.percent_lunch + ",IEPs:" + user.profile.percent_iep + ",English Learners" + user.profile.percent_eng_learner
+        for tmp1 in OrganizationMoreText.objects.filter(organization=OrganizationId, itemType="Course Assignment"):
+            course_assignment_content = tmp1.DataItem
 
-        for tmp2 in qualifications:
-            CourseEnrollment.enroll(user, tmp2)
+        org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
+        for tmp1 in org_data_list:
+            specific_items = tmp1.DataItem
+
+        if specific_items and course_assignment_content:
+            qualifications = organization_qualifications(specific_items, course_assignment_content)
+
+        startswith = '{"email":"' + user.email
+        for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure", DataItem__startswith=startswith):
+            user_org_profile = tmp1.DataItem
+
+        if user_org_profile:
+            user_org_profile = user_org_profile[:-1] + user_profile_str + "}"
+        else:
+            user_org_profile = "{email:" + user.email + "," + user_profile_str + "}"
+
+        course_assign(qualifications, user_org_profile)
 
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')

@@ -1897,7 +1897,20 @@ def organization_qualifications(specific_items, course_assignment_content):
             for i in range(len(qualifications)):
                 for n in range(len(qualifications[i]['filters'])):
                     if qualifications[i]['filters'][n]['_id'] == tmp1['_id']:
-                        qualifications[i]['filters'][n]['name'] = tmp1['name']
+                        if tmp1['default'] == "1":
+                            qualifications[i]['filters'][n]['name'] = 'Major Subject Area'
+                        elif tmp1['default'] == "2":
+                            qualifications[i]['filters'][n]['name'] = 'Grade Level-Check all that apply'
+                        elif tmp1['default'] == "3":
+                            qualifications[i]['filters'][n]['name'] = 'Number of Years in Education'
+                        elif tmp1['default'] == "4":
+                            qualifications[i]['filters'][n]['name'] = 'Free/Reduced Lunch'
+                        elif tmp1['default'] == "5":
+                            qualifications[i]['filters'][n]['name'] = 'IEPs'
+                        elif tmp1['default'] == "6":
+                            qualifications[i]['filters'][n]['name'] = 'English Learners'
+                        elif tmp1['default'] == "":
+                            qualifications[i]['filters'][n]['name'] = tmp1['name']
 
     return qualifications
 
