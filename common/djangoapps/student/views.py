@@ -88,7 +88,7 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 # @end
 
 from student.models import State, District, School, User, UserProfile
-from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText, OrganizationDataitems
 from organization.organization import organization_qualifications, course_assign
 from django.http import HttpResponseRedirect
 
@@ -508,11 +508,11 @@ def dashboard(request, user_id=None):
         course_assignment_content = ""
         specific_items = ""
         user_org_profile = ""
-        user_profile_str = "Major Subject Area:" + user.profile.major_subject_area_id + ",Grade Level-Check all that apply:" + user.profile.grade_level_id + ",Number of Years in Education:" + user.profile.years_in_education_id + ",Free/Reduced Lunch:" + user.profile.percent_lunch + ",IEPs:" + user.profile.percent_iep + ",English Learners" + user.profile.percent_eng_learner
-        for tmp1 in OrganizationMoreText.objects.filter(organization=OrganizationId, itemType="Course Assignment"):
+        user_profile_str = '"Major Subject Area":"' + user.profile.major_subject_area_id + '","Grade Level-Check all that apply":"' + user.profile.grade_level_id + '","Number of Years in Education":"' + user.profile.years_in_education_id + '","Free/Reduced Lunch":"' + user.profile.percent_lunch + '","IEPs":"' + user.profile.percent_iep + '","English Learners":"' + user.profile.percent_eng_learner + '"'
+        for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
             course_assignment_content = tmp1.DataItem
 
-        org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
+        org_data_list = OrganizationDataitems.objects.filter(organization=organization_obj)
         for tmp1 in org_data_list:
             specific_items = tmp1.DataItem
 
@@ -520,15 +520,16 @@ def dashboard(request, user_id=None):
             qualifications = organization_qualifications(specific_items, course_assignment_content)
 
         startswith = '{"email":"' + user.email
-        for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure", DataItem__startswith=startswith):
+        for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
             user_org_profile = tmp1.DataItem
 
         if user_org_profile:
             user_org_profile = user_org_profile[:-1] + user_profile_str + "}"
         else:
-            user_org_profile = "{email:" + user.email + "," + user_profile_str + "}"
+            user_org_profile = '{"email":"' + user.email + '",' + user_profile_str + "}"
 
-        course_assign(qualifications, user_org_profile)
+        if qualifications and user_org_profile:
+            course_assign(qualifications, user_org_profile)
 
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')
