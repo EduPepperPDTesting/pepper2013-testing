@@ -83,7 +83,7 @@
 							items: ".pep_contact_name",
 							track: true,
 							open: function (event, ui) {
-								ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF"});
+								ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
 							},
 							show: {
 								effect: "slideDown",
@@ -91,7 +91,7 @@
 							},
 							content: function(){
 								var username = $(this).text();
-								return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+								return "<div>"+((userName.indexOf(',')>15)?userName.substr(0, 15).trim()+'...': username.substring(0, username.indexOf(',')).trim()) + ", " + username.substr(username.indexOf(',')+1)+"</div><img class='pep_contact_photo' alt='" + ((userName.indexOf(',')>15)?userName.substr(0, 15).trim()+'...': username.substring(0, username.indexOf(',')).trim()) + ", " + username.substr(username.indexOf(',')+1) + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
 							}
 						});
 					}
