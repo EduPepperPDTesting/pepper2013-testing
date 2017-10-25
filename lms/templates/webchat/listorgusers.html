@@ -92,8 +92,8 @@
 							content: function(){
 								var username = $(this).text();
 								var nameLength = username.indexOf(',')+username.substr(username.indexOf(',')+1).length;
-								var nameTitle = (nameLength>10)?username.substr(0, 10-(nameLength-9)).trim()+'...':username.substring(0, username.indexOf(',')).trim();
 								var IdTitle = username.substr(username.indexOf(',')+1);
+								var nameTitle = (nameLength>10)?username.substr(0, nameLength-((username.indexOf(',') - 9) + IdTitle.length)).trim()+'...':username.substring(0, username.indexOf(',')).trim();
 								return "<div>" + nameTitle + ", " + IdTitle +"</div><img class='pep_contact_photo' alt='" + nameTitle + ", " + IdTitle + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
 							}
 						});
@@ -124,8 +124,8 @@
 			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 				var uname = $(this).text();
 				var nameLength = uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
-				var nameTitle = (nameLength>16)?uname.substr(0, 16-(nameLength-15)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				var IdTitle = uname.substr(uname.indexOf(',')+1);
+				var nameTitle = (nameLength>16)?uname.substr(0, nameLength - ((username.indexOf(',') - 15) + IdTitle.length)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				//if($(".pep_textchat_block").find(".pep_header_left:contains('" + ((uname.indexOf(',')>15)?uname.substr(0, 15).trim()+'...':uname.substring(0, uname.indexOf(',')).trim()) + ", " + uname.substr(uname.indexOf(',')+1) + "')").length == 0){
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
 					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
