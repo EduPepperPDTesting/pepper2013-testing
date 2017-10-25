@@ -34,7 +34,7 @@
     position: fixed;
     height: 250px;
     z-index: 9999;
-}}
+}
 .pep_text_container {
     width: 235px !important;
 }
@@ -117,7 +117,7 @@
     width: 225px;
 }
 .pep_textchatfooter_container {
-    left: 5px;
+    left: -10px;
 }
 .pep_videochatfooter_container {
     left: -11px;
