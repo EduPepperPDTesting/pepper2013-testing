@@ -23,7 +23,7 @@
 }
 .pep_textchat_block {
     bottom: 0;
-    index: 9999;
+    z-index: 20;
 }
 .pep_videochat_block {
     top: 73px;
