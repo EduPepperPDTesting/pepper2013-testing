@@ -29,7 +29,7 @@ import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
-
+from xmodule.remindstore import myactivitystore
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -1944,3 +1944,9 @@ def course_assign(qualifications, data):
         if sign:
             user = User.objects.get(email=data['email'])
             CourseEnrollment.enroll(user, tmp2['course_id'])
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+            "URLValues": {"course_id": tmp2['course_id']},    
+            "TokenValues": {"course_id": tmp2['course_id']}, 
+            "LogoValues": {"course_id": tmp2['course_id']}}
+            ma_db.insert_item(my_activity)

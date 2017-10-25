@@ -2,6 +2,7 @@ from django.db import models
 from student.models import District, State
 from django.contrib.auth.models import User
 from django.conf import settings
+from student.feeding import MongoBaseStore
 import logging
 
 
@@ -103,3 +104,30 @@ class OrganizationMoreText(models.Model):
     DataItem = models.TextField(blank=False, db_index=False)
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
+
+
+def course_assignment_store():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return CourseAssignmentStore(**options)
+
+class CourseAssignmentStore(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="course_assignment_store", port=port, **kwargs)
+
+    def create_course_record(self, user_id, course_assignment_id, date):
+        data = {
+            "type":"course_record",
+            "user_id":user_id,
+            "course_assignment_id":course_assignment_id,
+            "date":date
+        }
+        return self.insert(data)
+
+    def find_record(self, user_id, course_assignment_id):
+        res = self.find({"user_id":user_id,"course_assignment_id":course_assignment_id})
+        if res:
+            return True
+        return False
