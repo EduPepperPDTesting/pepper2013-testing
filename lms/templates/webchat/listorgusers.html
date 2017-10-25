@@ -127,7 +127,7 @@
 				var nameLength = uname.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
 				var IdTitle = id; //uname.substr(uname.indexOf(',')+1);
 				var nameTitle = (nameLength>16)?uname.substring(0, (uname.indexOf(',') - (nameLength - 15))).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
-				console.log(uname.indexOf(',') - (nameLength - 15)));
+				console.log(uname.indexOf(',') - (nameLength - 15));
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
 					console.log("name clicked="+uname);
