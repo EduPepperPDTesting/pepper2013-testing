@@ -128,7 +128,7 @@
 				var IdTitle = id; //uname.substr(uname.indexOf(',')+1);
 				var nameTitle = (nameLength>16)?uname.substr(0, nameLength - ((uname.indexOf(',') - 15) + IdTitle.length)).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				if($(".pep_textchat_block").find(".pep_header_left:contains('" + nameTitle + ", " + IdTitle + "')").length == 0){
-					var uname = uname.replace(/ /g, "_").replace(/__/g, "_");
+					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
 					console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
 					if(elCount <= 19){
