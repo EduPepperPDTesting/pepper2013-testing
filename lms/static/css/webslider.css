@@ -211,11 +211,21 @@
     top: 0px;
 }
 .pep_contact_name{
+    max-width: 165px;
     cursor: pointer !important;
+    display: inline-block;
+    overflow-x:hidden;
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -o-pre-wrap; /* Opera */
+    white-space: pre-wrap; /* Chrome */
+    word-wrap: break-word; /* IE */
+    white-space: pre;
 }
 .pep_contact_photo {
     width: 50px;
     height: 50px;
+    position: relative;
+    bottom: 0px;
 }
 
 .pep_start_video img {
