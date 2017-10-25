@@ -503,6 +503,7 @@ def dashboard(request, user_id=None):
         for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
             data[tmp1.itemType] = tmp1.itemValue
 
+    course_assignment_content = ""
     for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Course Assignment"):
         course_assignment_content = tmp1.DataItem
     

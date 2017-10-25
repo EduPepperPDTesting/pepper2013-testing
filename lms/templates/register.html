@@ -259,7 +259,7 @@ import json
 				}
 			}
 			
-			if(tmp_required == " *" && tmp_val == "" || tmp_val == null){
+			if(tmp_required == " *" && (tmp_val == "" || tmp_val == null)){
 				toggleSubmitButton(true);
 				$('.status.message.submission-error').addClass('is-shown').focus();
 				$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
@@ -899,8 +899,8 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									
-									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max)</span>';
-									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max, 255 remain)</span>';
+									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field org_textarea" field_type="7" isRequired="' + tmp_required + '"></textarea>';
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
@@ -921,6 +921,10 @@ $(document).ready(function(){
 						$("#organization_info_org_default_456").hide();
 					}
 					$(".org_assignment_qualifications_datex").datepicker();
+          $(".org_textarea").keyup(function(){
+            $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
+          })
+
 				}
 			}
 		}
