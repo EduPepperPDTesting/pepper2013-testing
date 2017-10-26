@@ -115,7 +115,7 @@ urlpatterns = (
     url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
 
     url(r'^getusersorg/$', 'webchat.views.get_users_org', name="get_users_org"),
-    url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
+    #url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
     url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
 
     url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),

@@ -35,7 +35,7 @@
 			}else{
 				var commId = 'allptusers';
 				var commName = tableData;
-				var rowSource = "${reverse('get_all_ptuser_rows')}";
+				var rowSource = "${reverse('people')}"; //"${reverse('get_all_ptuser_rows')}";
 			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
