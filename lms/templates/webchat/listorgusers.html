@@ -123,6 +123,7 @@
 			e.preventDefault();
             if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 			    id = $(this).attr("id");
+			    console.log("id="+id);
 				var uname = $(this).text();
 				var nameLength = uname.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
 				var IdTitle = id; //uname.substr(uname.indexOf(',')+1);
