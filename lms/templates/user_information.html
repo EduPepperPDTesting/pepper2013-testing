@@ -496,7 +496,10 @@ xmp{
 			$("#change_org_dialog_field").append('<input type="text" name="change_org_dialog_field_text" style="width:100%" value="' + tmp_span_val + '">');
 			
 		}else if(tmp_span_type == "7"){
-			$("#change_org_dialog_field").append('<textarea maxlength="255" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea>');
+			$("#change_org_dialog_field").append('<textarea maxlength="255" class="org_textarea" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea><span>Maximum to 255 Characters '+ (255-tmp_span_val.length) +'</span>');
+            $(".org_textarea").keyup(function(){
+                $(this).next("span").html("Maximum to 255 Characters "+ (255 - $(this).val().length))
+            })
 		}else if(tmp_span_type == "8"){
           $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
           $(".org_assignment_qualifications_datex").datepicker();
