@@ -178,7 +178,8 @@ $(document).ready(function(){
         var term = $('#pep_search').val();
         if(term!=''){
             var commId="search";
-            $.post("${reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
+            $.post("${reverse('my_people')}", {community_id: commId}, function (data) {
+            //reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
                 if (data.success) {
 
                 }
