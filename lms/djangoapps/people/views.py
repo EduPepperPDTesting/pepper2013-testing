@@ -312,4 +312,5 @@ def my_people(request,course_id=''):
         return render_to_response('people/my_people.html', context)
 
     else:
+        raise Exception("community_id test fail")
         return HttpResponse(json.dumps({'users': profiles}), content_type="application/json")
