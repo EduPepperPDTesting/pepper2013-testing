@@ -285,7 +285,7 @@ def my_people(request,course_id=''):
 
     community_id = request.GET.get('community_id')
     if community_id is None:
-
+        raise Exception ("community_id test")
         # gether pager params
         params=pager_params(request)
 
