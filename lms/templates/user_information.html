@@ -264,7 +264,7 @@ xmp{
     organization_id = ""
     
     if request.user.is_authenticated():
-    	c_email = request.user.email
+        c_email = request.user.email
         try:
             state_id = request.user.profile.district.state.id
         except:
@@ -303,9 +303,9 @@ xmp{
                 organization_districtType = organization_obj.DistrictType
             
             if organization_obj.SchoolType != "":
-	            organization_schoolType = organization_obj.SchoolType
+                organization_schoolType = organization_obj.SchoolType
     
-        	# --------------OrganizationDataitems
+            # --------------OrganizationDataitems
             for tmp1 in OrganizationDataitems.objects.filter(organization=organization_obj):
                 organization_structure = tmp1.DataItem
                 break
@@ -315,7 +315,7 @@ xmp{
             for tmp1 in OrganizationMoreText.objects.filter(organization=organization_obj, itemType="Register Organization Structure", DataItem__startswith=startswith):
                 register_organization_structure = tmp1.DataItem
                 break
-			
+            
             if organization_structure != "":
                 organization_structure_list = json.loads(organization_structure)
                 for item in organization_structure_list:
@@ -393,192 +393,192 @@ xmp{
 <script src="/static/js/cropper.min.js" charset="utf-8"></script>
 <script src="/static/js/custom_up_img.js" charset="utf-8"></script>
 <script>
-	 $(document).ready(function(){
+     $(document).ready(function(){
 
-	 	$(".org_field").each(function(){
-			var tmp_type = $(this).find("span").attr("field_type");
-			if(tmp_type == "6"){
-				$(this).find("span").html(unescape($(this).find("span").html()));
-				
-			}else if(tmp_type == "7"){
-				$(this).find("span").html("<xmp>" + unescape($(this).find("span").html()) + "</xmp>");
-			}
-		});
+        $(".org_field").each(function(){
+            var tmp_type = $(this).find("span").attr("field_type");
+            if(tmp_type == "6"){
+                $(this).find("span").html(unescape($(this).find("span").html()));
+                
+            }else if(tmp_type == "7"){
+                $(this).find("span").html("<xmp>" + unescape($(this).find("span").html()) + "</xmp>");
+            }
+        });
 
-		window.setTimeout(function(){
-			/*$(".change_org_dialog_field_datex").each(function(){
-				$(this).datepicker();
-			});*/
-			$("#change_org_dialog_field_datex_id").datepicker();
-			$("#pepper-press").attr("abc","OK");
-		},5000);
-		
-		});		
-	 
-	//-----------------------------------------------orgFieldEditClick
-	function orgFieldEditClick(el){
-		var tmp_span_name = $(el).parent().find("b").html().replace(":","");
-		var tmp_span_el = $(el).parent().find("span");
-		var tmp_span_val = $(el).parent().find("span").html();
-		var tmp_span_type = tmp_span_el.attr("field_type");
-		$("#change_org_dialog_title").html(tmp_span_name);
-		$("#change_org_dialog_title").attr("field_type", tmp_span_type);
-		if(tmp_span_type == "7"){
-			tmp_span_val = $(el).parent().find("xmp").html();
-		}
-		var tmp_span_content = "";
-		var tmp_field_content = "";
-		
-		$("#change_org_dialog_field").empty();
-		if(tmp_span_type == "2"){
-			tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off"><option value="">--</option>';
-			tmp_span_content = tmp_span_el.attr("field_type_2");
-			if(tmp_span_content != ""){
-				var list1 = tmp_span_content.split("|-|-|");
-				for(var ii in list1){
-					var list2 = list1[ii].split("|-|");
-					tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
-				}
-			}
-			tmp_field_content += '</select>';
-			$("#change_org_dialog_field").append(tmp_field_content);
-			$("#change_org_dialog_field").find("select").val(tmp_span_val);
-		
-		}else if(tmp_span_type == "3"){
-			tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off" size="5" multiple="multiple"><option value="">--</option>';
-			tmp_span_content = tmp_span_el.attr("field_type_3");
-			if(tmp_span_content != ""){
-				var list1 = tmp_span_content.split("|-|-|");
-				for(var ii in list1){
-					var list2 = list1[ii].split("|-|");
-					tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
-				}
-			}
-			tmp_field_content += '</select>';
-			$("#change_org_dialog_field").append(tmp_field_content);
-			if(tmp_span_val != ""){
-				var tmp_span_val_list = tmp_span_val.split(",");
-				for(var i = 0; i < tmp_span_val_list.length; i++){
-					$("#change_org_dialog_field").find("option[value='" + tmp_span_val_list[i] + "']").attr("selected", "selected");
-				}
-			}
-			
-		}else if(tmp_span_type == "4"){
-			tmp_span_content = tmp_span_el.attr("field_type_4");
-			if(tmp_span_content != ""){
-				var list1 = tmp_span_content.split("|-|-|");
-				for(var ii in list1){
-					var list2 = list1[ii].split("|-|");
-					tmp_field_content += "<div><label><input type='checkbox' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
-				}
-			}
-			$("#change_org_dialog_field").append(tmp_field_content);
-			if(tmp_span_val != ""){
-				var tmp_span_val_list = tmp_span_val.split(",");
-				for(var i = 0; i < tmp_span_val_list.length; i++){
-					$("#change_org_dialog_field").find("input[value='" + tmp_span_val_list[i] + "']").prop("checked", true);	
-				}
-			}			
-		}else if(tmp_span_type == "5"){			
-			tmp_span_content = tmp_span_el.attr("field_type_5");
-			if(tmp_span_content != ""){
-				var list1 = tmp_span_content.split("|-|-|");
-				for(var ii in list1){
-					var list2 = list1[ii].split("|-|");
-					tmp_field_content += "<div><label><input type='radio' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
-				}
-			}
-			
-			$("#change_org_dialog_field").append(tmp_field_content);
-			$("#change_org_dialog_field").find("input[value='" + tmp_span_val + "']").attr("checked", "checked");	
-				
-		}else if(tmp_span_type == "6"){	
-			$("#change_org_dialog_field").append('<input type="text" name="change_org_dialog_field_text" style="width:100%" value="' + tmp_span_val + '">');
-			
-		}else if(tmp_span_type == "7"){
-			$("#change_org_dialog_field").append('<textarea maxlength="255" class="org_textarea" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea><span>Maximum to 255 Characters '+ (255-tmp_span_val.length) +'</span>');
+        window.setTimeout(function(){
+            /*$(".change_org_dialog_field_datex").each(function(){
+                $(this).datepicker();
+            });*/
+            $("#change_org_dialog_field_datex_id").datepicker();
+            $("#pepper-press").attr("abc","OK");
+        },5000);
+        
+        });     
+     
+    //-----------------------------------------------orgFieldEditClick
+    function orgFieldEditClick(el){
+        var tmp_span_name = $(el).parent().find("b").html().replace(":","");
+        var tmp_span_el = $(el).parent().find("span");
+        var tmp_span_val = $(el).parent().find("span").html();
+        var tmp_span_type = tmp_span_el.attr("field_type");
+        $("#change_org_dialog_title").html(tmp_span_name);
+        $("#change_org_dialog_title").attr("field_type", tmp_span_type);
+        if(tmp_span_type == "7"){
+            tmp_span_val = $(el).parent().find("xmp").html();
+        }
+        var tmp_span_content = "";
+        var tmp_field_content = "";
+        
+        $("#change_org_dialog_field").empty();
+        if(tmp_span_type == "2"){
+            tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off"><option value="">--</option>';
+            tmp_span_content = tmp_span_el.attr("field_type_2");
+            if(tmp_span_content != ""){
+                var list1 = tmp_span_content.split("|-|-|");
+                for(var ii in list1){
+                    var list2 = list1[ii].split("|-|");
+                    tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
+                }
+            }
+            tmp_field_content += '</select>';
+            $("#change_org_dialog_field").append(tmp_field_content);
+            $("#change_org_dialog_field").find("select").val(tmp_span_val);
+        
+        }else if(tmp_span_type == "3"){
+            tmp_field_content += '<select name="change_org_dialog_field_select" style="width:100%" autocomplete="off" size="5" multiple="multiple"><option value="">--</option>';
+            tmp_span_content = tmp_span_el.attr("field_type_3");
+            if(tmp_span_content != ""){
+                var list1 = tmp_span_content.split("|-|-|");
+                for(var ii in list1){
+                    var list2 = list1[ii].split("|-|");
+                    tmp_field_content += "<option value='" + list2[0] + "'>" + list2[0] + "</option>";
+                }
+            }
+            tmp_field_content += '</select>';
+            $("#change_org_dialog_field").append(tmp_field_content);
+            if(tmp_span_val != ""){
+                var tmp_span_val_list = tmp_span_val.split(",");
+                for(var i = 0; i < tmp_span_val_list.length; i++){
+                    $("#change_org_dialog_field").find("option[value='" + tmp_span_val_list[i] + "']").attr("selected", "selected");
+                }
+            }
+            
+        }else if(tmp_span_type == "4"){
+            tmp_span_content = tmp_span_el.attr("field_type_4");
+            if(tmp_span_content != ""){
+                var list1 = tmp_span_content.split("|-|-|");
+                for(var ii in list1){
+                    var list2 = list1[ii].split("|-|");
+                    tmp_field_content += "<div><label><input type='checkbox' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
+                }
+            }
+            $("#change_org_dialog_field").append(tmp_field_content);
+            if(tmp_span_val != ""){
+                var tmp_span_val_list = tmp_span_val.split(",");
+                for(var i = 0; i < tmp_span_val_list.length; i++){
+                    $("#change_org_dialog_field").find("input[value='" + tmp_span_val_list[i] + "']").prop("checked", true);    
+                }
+            }           
+        }else if(tmp_span_type == "5"){         
+            tmp_span_content = tmp_span_el.attr("field_type_5");
+            if(tmp_span_content != ""){
+                var list1 = tmp_span_content.split("|-|-|");
+                for(var ii in list1){
+                    var list2 = list1[ii].split("|-|");
+                    tmp_field_content += "<div><label><input type='radio' name='" + tmp_span_name+ "' value='" + list2[0] + "' /> " + list2[0]+ "</label></div>";
+                }
+            }
+            
+            $("#change_org_dialog_field").append(tmp_field_content);
+            $("#change_org_dialog_field").find("input[value='" + tmp_span_val + "']").attr("checked", "checked");   
+                
+        }else if(tmp_span_type == "6"){ 
+            $("#change_org_dialog_field").append('<input type="text" name="change_org_dialog_field_text" style="width:100%" value="' + tmp_span_val + '">');
+            
+        }else if(tmp_span_type == "7"){
+            $("#change_org_dialog_field").append('<textarea maxlength="255" class="org_textarea" name="change_org_dialog_field_textarea" style="width:100%;height:300px;resize:none;">' + tmp_span_val + '</textarea><span>Maximum to 255 Characters '+ (255-tmp_span_val.length) +'</span>');
             $(".org_textarea").keyup(function(){
                 $(this).next("span").html("Maximum to 255 Characters "+ (255 - $(this).val().length))
             })
-		}else if(tmp_span_type == "8"){
+        }else if(tmp_span_type == "8"){
           $("#change_org_dialog_field").append('<input name="change_org_dialog_field_date" class="org_assignment_qualifications_datex" value='+ tmp_span_val+'>');
           $(".org_assignment_qualifications_datex").datepicker();
         }
-	}
-	
-	//-----------------------------------------------orgSaveChange
-	function orgSaveChange(){
-		var org_field_name = $("#change_org_dialog_title").html() + ":";
-		$(".org_field").each(function(){			
-			var tmp_name = $(this).find("b").html();
-			if(org_field_name == tmp_name){
-				var tmp_type = $("#change_org_dialog_title").attr("field_type");
-				if(tmp_type == "2"){
-					$(this).find("span").html($("#change_org_dialog_field").find("select").val());
-					
-				}else if(tmp_type == "3"){
-					var tmp_val = "";
-					$("#change_org_dialog_field").find('option').each(function() {
-						if ($(this).attr('selected')) {
-							if(tmp_val != "")	tmp_val += ",";
-							tmp_val += $(this).val();
-						}
-					});
-					$(this).find("span").html(tmp_val);
-				}else if(tmp_type == "4"){
-					var tmp_val = "";
-					$("#change_org_dialog_field").find('input[type="checkbox"]').each(function() {
-						if ($(this).attr('checked')) {
-							if(tmp_val != "")	tmp_val += ",";
-							tmp_val += $(this).val();
-						}
-					});
-					$(this).find("span").html(tmp_val);
-					
-				}else if(tmp_type == "5"){
-					$(this).find("span").html($("#change_org_dialog_field").find("input[type='radio']:checked").val());
-					
-				}else if(tmp_type == "6"){
-					$(this).find("span").html($("#change_org_dialog_field").find("input").val());
-					
-				}else if(tmp_type == "7"){
-					$(this).find("span").html("<xmp>" + $("#change_org_dialog_field").find("textarea").val() + "</xmp>");
-					
-				}else if(tmp_type == "8"){
-					var tmp_val = "";
-					var tmp_date = $("#change_org_dialog_field").find("input").datepicker("getDate");
-					var tmp_var1 = "";
-					if(tmp_date){
-						tmp_var1 = tmp_date.getMonth() + 1;
-						tmp_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-						tmp_val += "/";
-						tmp_var1 = tmp_date.getDate();
-						tmp_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-						tmp_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
-					}
-					$(this).find("span").html(tmp_val);
-				}
-			}
-		});
-		var org_content = '"email":"${request.user.email}"';
-		$(".org_field").each(function(){
-			var tmp_type = $(this).find("span").attr("field_type");
-			var tmp_name = $(this).find("b").html().replace(":", "");
-			var tmp_val = $(this).find("span").html();
-			if(tmp_type == "7") 		tmp_val = escape($(this).find("xmp").html());
-			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
-			
-			org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
-		});
-		
-		$.ajaxSettings.async = false; 
-		$.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", email:"${request.user.email}", OrganizationId: $("#change_org_dialog").attr("oid"), content: "{" + org_content + "}"}, function (r) {
-			if (r.Success){
-				window.location.reload();
-			}
-		});
-		$.ajaxSettings.async = true;		
-	}
+    }
+    
+    //-----------------------------------------------orgSaveChange
+    function orgSaveChange(){
+        var org_field_name = $("#change_org_dialog_title").html() + ":";
+        $(".org_field").each(function(){            
+            var tmp_name = $(this).find("b").html();
+            if(org_field_name == tmp_name){
+                var tmp_type = $("#change_org_dialog_title").attr("field_type");
+                if(tmp_type == "2"){
+                    $(this).find("span").html($("#change_org_dialog_field").find("select").val());
+                    
+                }else if(tmp_type == "3"){
+                    var tmp_val = "";
+                    $("#change_org_dialog_field").find('option').each(function() {
+                        if ($(this).attr('selected')) {
+                            if(tmp_val != "")   tmp_val += ",";
+                            tmp_val += $(this).val();
+                        }
+                    });
+                    $(this).find("span").html(tmp_val);
+                }else if(tmp_type == "4"){
+                    var tmp_val = "";
+                    $("#change_org_dialog_field").find('input[type="checkbox"]').each(function() {
+                        if ($(this).attr('checked')) {
+                            if(tmp_val != "")   tmp_val += ",";
+                            tmp_val += $(this).val();
+                        }
+                    });
+                    $(this).find("span").html(tmp_val);
+                    
+                }else if(tmp_type == "5"){
+                    $(this).find("span").html($("#change_org_dialog_field").find("input[type='radio']:checked").val());
+                    
+                }else if(tmp_type == "6"){
+                    $(this).find("span").html($("#change_org_dialog_field").find("input").val());
+                    
+                }else if(tmp_type == "7"){
+                    $(this).find("span").html("<xmp>" + $("#change_org_dialog_field").find("textarea").val() + "</xmp>");
+                    
+                }else if(tmp_type == "8"){
+                    var tmp_val = "";
+                    var tmp_date = $("#change_org_dialog_field").find("input").datepicker("getDate");
+                    var tmp_var1 = "";
+                    if(tmp_date){
+                        tmp_var1 = tmp_date.getMonth() + 1;
+                        tmp_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                        tmp_val += "/";
+                        tmp_var1 = tmp_date.getDate();
+                        tmp_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                        tmp_val += "/" + tmp_date.getFullYear();    //mm/dd/yy 
+                    }
+                    $(this).find("span").html(tmp_val);
+                }
+            }
+        });
+        var org_content = '"email":"${request.user.email}"';
+        $(".org_field").each(function(){
+            var tmp_type = $(this).find("span").attr("field_type");
+            var tmp_name = $(this).find("b").html().replace(":", "");
+            var tmp_val = $(this).find("span").html();
+            if(tmp_type == "7")         tmp_val = escape($(this).find("xmp").html());
+            else if(tmp_type == "6")    tmp_val = escape(tmp_val);
+            
+            org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
+        });
+        
+        $.ajaxSettings.async = false; 
+        $.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", email:"${request.user.email}", OrganizationId: $("#change_org_dialog").attr("oid"), content: "{" + org_content + "}"}, function (r) {
+            if (r.Success){
+                window.location.reload();
+            }
+        });
+        $.ajaxSettings.async = true;        
+    }
 </script>
 
 <div class="user_information">
@@ -1118,7 +1118,7 @@ xmp{
       <fieldset>
         <div class="input-group">
           <label style="margin:20px 0;display:block;" id="change_org_dialog_field">
-            	
+                
           </label>
         </div>
       </fieldset>
@@ -1536,39 +1536,39 @@ xmp{
     <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style>
     .disabled_btn{ cursor:default !important; color:#999999 !important; }
-	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
+    .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}  
 </style>
 <script>
-	//--------------------------
-	$.datepicker.setDefaults({
-		showButtonPanel: true, 
-		closeText: 'Clear', 
-		currentText: 'Today',
-		autoSize: true,
-		gotoCurrent: true,
-		firstDay: 0,
-		minDate: new Date("1999-9-9"),
-		hideIfNoPrevNext: false,
-		navigationAsDateFormat: true,
-		showOtherMonths: true,
-		selectOtherMonths: false,
-		stepMonths: 1,
-		changeMonth: true,
-		numberOfMonths: [1, 1],
-		showCurrentAtPos: 0,
-		showAnim: "",
-		showWeek: true,
-		dateFormat: 'mm/dd/yy',
+    //--------------------------
+    $.datepicker.setDefaults({
+        showButtonPanel: true, 
+        closeText: 'Clear', 
+        currentText: 'Today',
+        autoSize: true,
+        gotoCurrent: true,
+        firstDay: 0,
+        minDate: new Date("1999-9-9"),
+        hideIfNoPrevNext: false,
+        navigationAsDateFormat: true,
+        showOtherMonths: true,
+        selectOtherMonths: false,
+        stepMonths: 1,
+        changeMonth: true,
+        numberOfMonths: [1, 1],
+        showCurrentAtPos: 0,
+        showAnim: "",
+        showWeek: true,
+        dateFormat: 'mm/dd/yy',
         beforeShow: function (input, inst) {
             datepicker_CurrentInput = input;
         }
     });
-	$(".ui-datepicker-close").live("click", function () {
+    $(".ui-datepicker-close").live("click", function () {
         $(datepicker_CurrentInput).val("");
         $(datepicker_CurrentInput).change();
     });
-	
-    $(document).ready(function(){		
+    
+    $(document).ready(function(){       
         $(".portfolio-btn").each(function(){
             var user_id = "${curr_user.id}";
             var linkx = $(this).attr("link");
@@ -1583,7 +1583,7 @@ xmp{
                 }           
             });
         });
-		$(".information_left_top_left").css("backgroundColor", $(".nav-fixed").css("backgroundColor"));
+        $(".information_left_top_left").css("backgroundColor", $(".nav-fixed").css("backgroundColor"));
     });
 </script>
 </%block>
