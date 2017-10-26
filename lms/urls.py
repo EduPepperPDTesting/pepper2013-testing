@@ -119,7 +119,7 @@ urlpatterns = (
     url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
 
     url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
-    url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
+    #url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
     url(r'^getnetworkusers/$', 'webchat.views.get_network_users', name="get_network_users"),
 
     url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
