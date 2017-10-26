@@ -161,7 +161,9 @@
 			var $link = $(e.target);
 			e.preventDefault();
             user_id = ${request.user.id};
-            request_user_id = $(this).previousSibling.id;
+            console.log($(this));
+            console.log($(this).previousElementSibling);
+            request_user_id = $(this).previousElementSibling.id;
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
