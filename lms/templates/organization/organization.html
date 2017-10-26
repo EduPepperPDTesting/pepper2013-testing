@@ -2376,8 +2376,12 @@
 					}
 				});
 			});
+			clonex.find(".org_assignment_qualifications_datex").each(function(e){
+				$(this).parent().html('<input type="text" class="org_assignment_qualifications_datex" value="" placeholder="Select Date" readonly="true" />')
+			})
 			$(".org_assignment_course_all").append(clonex);
-			$(el).val("-");			
+			$(el).val("-");
+			$(".org_assignment_qualifications_datex").datepicker()			
 		}
 	}
 	

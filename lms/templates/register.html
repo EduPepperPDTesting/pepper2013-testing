@@ -259,7 +259,7 @@ import json
 				}
 			}
 			
-			if(tmp_required == " *" && tmp_val == "" || tmp_val == null){
+			if(tmp_required == " *" && (tmp_val == "" || tmp_val == null)){
 				toggleSubmitButton(true);
 				$('.status.message.submission-error').addClass('is-shown').focus();
 				$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
@@ -312,6 +312,7 @@ import json
            }
        } else {
          toggleSubmitButton(true);
+         if (json.field == "school_id") json.value = $("#school_id").parent().find("label").html() + " is required"
          $('.status.message.submission-error').addClass('is-shown').focus();
          $('.status.message.submission-error .message-copy').html(json.value || json.error ).stop().css("display", "block");
          if(json.field){
@@ -497,7 +498,7 @@ import json
               </span> 
          </li>          
          <li class="field required text" id="field-name">
-             <span id="organization_info_org_default_3">
+             <span id="organization_info_org_default_3">    
                 <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education *')}</label>
                 <select autocomplete="off" name="years_in_education_id" style="width:100px;">
                   <option value="">--</option>
@@ -547,12 +548,11 @@ import json
           </span>
           <span id="organization_info_org_default_7">
               <div style="padding:10px 0 15px 0;"> 
-              	
                 <b class="org_name" style="font-size:15px;color:#333;">About me</b>
               </div>
               <li class="field required text" id="field-name">
                   Please upload a photo to use with your profile.
-                  <div style='margin-top: 15px;'>
+                  <div style="margin-top: 15px;">
                       <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
                       <a id="change_photo_button" style="cursor: pointer;"> Click Here to Edit Photo</a>
                       <input type='hidden' name='photo' id='user_photo'>
@@ -799,8 +799,8 @@ $(document).ready(function(){
 			if(r.Success){
 				if(r.OrganizationOK){
 					OrganizationId = r.OrganizationId;
-          if (r.DistrictType == "") r.DistrictType="District"
-          if (r.SchoolType == "") r.SchoolType="School"
+          if (r.DistrictType == "") r.DistrictType='District'
+          if (r.SchoolType == "") r.SchoolType='School'
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
 		  			
@@ -871,7 +871,7 @@ $(document).ready(function(){
 											tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
-                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "5"){
@@ -882,7 +882,7 @@ $(document).ready(function(){
 										var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
 										for(var ii in tmp_list1){
 											var tmp_list2 = tmp_list1[ii].split("|-|");
-											tmp_content += '<label class="my_label"><input type="radio" ' + ((ii == 0) ? "checked=checked" : "") + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+											tmp_content += '<label class="my_label"><input type="radio" ' + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
@@ -899,8 +899,8 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									
-									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max, 255 remain)</span>';
+									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field org_textarea" field_type="7" isRequired="' + tmp_required + '"></textarea>';
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
@@ -921,6 +921,10 @@ $(document).ready(function(){
 						$("#organization_info_org_default_456").hide();
 					}
 					$(".org_assignment_qualifications_datex").datepicker();
+          $(".org_textarea").keyup(function(){
+            $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
+          })
+
 				}
 			}
 		}
