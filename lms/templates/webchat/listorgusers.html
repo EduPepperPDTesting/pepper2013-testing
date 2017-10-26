@@ -161,8 +161,6 @@
 			var $link = $(e.target);
 			e.preventDefault();
             user_id = ${request.user.id};
-            console.log($(this));
-            console.log($(this).prev());
             request_user_id = $(this).prev().attr("id");
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
@@ -174,7 +172,7 @@
             });
 		});
 
-				$(".pep_contact_block").on("click", ".pep_add_im", function(e){
+        $(".pep_contact_block").on("click", ".pep_add_im", function(e){
 			e.preventDefault();
 			$(this).css("display", "none");
 			$(this).siblings(".pep_remove_im").css("display", "inline-block");
@@ -260,7 +258,7 @@
                 var image = "<table><tr><td><img src='/user_photo/"+id+"' style = 'width:16px; height:16px;'></img></td><td>"
                 $("#textchat_"+id).prepend(image + v.body + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
             });
-            $("#textchat_"+id).scrollTop(); //$("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
             tieListener();
         });
 
