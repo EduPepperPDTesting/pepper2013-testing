@@ -82,19 +82,11 @@ from reporting.models import reporting_store
 from administration.models import UserLoginInfo
 from datetime import timedelta
 
-# @begin:Add for Dashboard Posts
-# @date:2016-12-29
-from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
-# @end
-
-from student.models import State, District, School, User, UserProfile
+from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText, OrganizationDataitems, course_assignment_store
 from organization.organization import organization_qualifications, course_assign
 from django.http import HttpResponseRedirect
-
 from collections import OrderedDict
-from administration.usage_report import password_format_check
-from django.template.response import TemplateResponse
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
