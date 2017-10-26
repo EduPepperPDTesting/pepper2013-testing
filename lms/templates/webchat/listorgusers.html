@@ -161,7 +161,7 @@
 			var $link = $(e.target);
 			e.preventDefault();
             user_id = ${request.user.id};
-            request_user_id = $(this).attr("id");
+            request_user_id = $(this).previousSibling.id;
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
@@ -317,7 +317,7 @@
                 'interviewer_name': '${request.user.first_name}',
                 'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
                 'type': 'message',
-                'body': '',
+                'body': message,
                 'date': (new Date()).toISOString(),
                 'activate': 'false'
             })
