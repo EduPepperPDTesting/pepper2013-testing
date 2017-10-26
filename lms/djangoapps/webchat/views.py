@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat
+from .models import CommunityWebchat, UserWebchat, MessageAlerts
 from people.views import my_people
 from django.contrib.auth.models import User
 try:
@@ -150,6 +150,28 @@ def get_user_session(request):
         use = UserWebchat.objects.get(user=ref)
         return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
 
+
+def check_alerts(request):
+    user = User.objects.get(id=request.POST.get('id'))
+    try:
+        alert = MessageAlerts.objects.get(to_user=user)
+        from_id = alert.from_user.id
+        alert.delete()
+        return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+    except MessageAlerts.DoesNotExist as e:
+        return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+
+def send_alert (request):
+    try:
+        user = User.objects.get(id=request.POST.get('id'))
+        to_user = User.objects.get(id=request.POST.get('to_id'))
+        alert = MessageAlerts()
+        alert.to_user = to_user
+        alert.from_user = user
+        alert.save()
+        return HttpResponse (json.dumps({'success':'true'}), content_type="application/json")
+    except Exception as e:
+        return HttpResponse (json.dumps({'success': 'false', 'error':e.message}), content_type="application/json")
 
 def get_community_user_rows(request):
     """

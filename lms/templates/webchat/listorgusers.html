@@ -242,6 +242,7 @@
 			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
 			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
 		});
+        setInterval(function(){ checkForAlert() }, 3000);
 	});
 
     $('thead').on('click', 'th', function(){
@@ -304,6 +305,15 @@
             }
         });
     }
+
+    function checkForAlert() {
+        $.post("${reverse('check_webchat_alerts')}", {'id': ${request.user.id}}, function (data){
+            if (data.success='true') {
+                console.log ("Alert for " + data.alert_id);
+            }
+        });
+    }
+
     function sendVideoRequest(send_user, link) {
         message = "${request.user.username} wants to start a video chat! ";
         message += link;
@@ -329,5 +339,6 @@
             })
         };
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
     }
 </script>
