@@ -883,7 +883,7 @@ $(document).ready(function(){
 										var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
 										for(var ii in tmp_list1){
 											var tmp_list2 = tmp_list1[ii].split("|-|");
-											tmp_content += '<label class="my_label"><input type="radio" ' + ((ii == 0) ? "checked=checked" : "") + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+											tmp_content += '<label class="my_label"><input type="radio" ' + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
