@@ -172,6 +172,22 @@
             });
 		});
 
+        $(".pep_header_right").on("click", ".pep_start_video", function(e){
+			var $link = $(e.target);
+			e.preventDefault();
+            user_id = ${request.user.id};
+            request_user_id = $(this).attr("id");
+            $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                    sendVideoRequest(request_user_id, link);
+                });
+            });
+		});
+
+
         $(".pep_contact_block").on("click", ".pep_add_im", function(e){
 			e.preventDefault();
 			$(this).css("display", "none");
@@ -269,6 +285,7 @@
     }
 
     function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
         var datainfo = {
             'info': JSON.stringify({
             'sender_id': '${user.id}',
@@ -285,7 +302,7 @@
                 'interviewer_name': '${request.user.first_name}',
                 'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
                 'type': 'message',
-                'body': '',
+                'body': message,
                 'date': (new Date()).toISOString(),
                 'activate': 'false'
             })
