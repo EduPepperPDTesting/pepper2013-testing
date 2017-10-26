@@ -202,7 +202,7 @@
 			var child = document.getElementById(idUser);
 			parent.removeChild(child);
 
-			if($("#pep_slider_list").children()==0){
+			if($("#pep_slider_list").children().length==0){
 				$("#pep_list_clear").css("display", "none");
 			}
 
