@@ -131,7 +131,7 @@
 
 </head>
 
-% if context.get("curr_user"):
+% if request.user.is_authenticated():
     <%include file="webchat/webslider.html" />
     <%include file="webchat/webvideochat.html" />
     <%include file="webchat/webchat.html" />

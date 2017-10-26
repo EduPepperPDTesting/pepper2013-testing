@@ -17,7 +17,7 @@ from django.core.urlresolvers import reverse
             <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
             <div class="input-group-btn">
                 <button id="pep_search_btn" class="btn btn-default" type="submit">
-                    <div id="pep_glass" style="position:relative;top: -5px;font-size: 1.5em;">&#8981;</div>
+                    <div id="pep_glass" style="position:relative;top: -5px;font-size: 1.5em;">⌕</div>
                 </button>
             </div>
         </div>
@@ -90,6 +90,8 @@ $(document).ready(function(){
         }
     });
 
+    $("#pep_user_list").load("/getcommunities/");
+
     $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
         var $link = $(e.target);
         e.preventDefault();
@@ -106,13 +108,13 @@ $(document).ready(function(){
                             if(i > 0){
                                 var pos = $(el).offset();
                                 var leftX = pos.left + (i * 2 * 235) / elCount;
-                                if(leftX + 235 <= window.innerWidth){
+                                if(leftX + 235 <= window.innerWidth - 40){
                                     $(el).css({"right": "", "left": leftX + "px"});
                                 }
                             }
                         });
                     }
-                    var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - 235;
+                    var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
                      $(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index": elCount + 21}).load("/textchat/"+uname+" .pep_text_panel");
                     leftX-=235;
                     $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :21'></div>");
@@ -200,7 +202,6 @@ $(document).ready(function(){
         $(this).css("display", "none");
         $(this).siblings(".pep_add_im").css("display", "inline-block");
         var idUser = $(this).siblings(".pep_contact_name").text().replace(" ", "_");
-        $("#pep_slider_list").find("#" + idUser).next().remove();
         $("#pep_slider_list").find("#" + idUser).remove();
         if($("#pep_slider_list").children()==0){
             $("#pep_list_clear").css("display", "none");

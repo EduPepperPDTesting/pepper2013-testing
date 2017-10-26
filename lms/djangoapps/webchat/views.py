@@ -12,7 +12,7 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
-#import opentok
+import opentok
 
 @login_required
 def getvideoframe(request, uname):
@@ -24,15 +24,18 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    space_pos = uname.find("_")
-    first_name = uname[0:space_pos]
-    last_name = uname[space_pos+1:]
-    try:
-        user = User.objects.filter(first_name=first_name, last_name=last_name)[0]
-        user_id = user.id
-    except:
-        user_id = -1
-    return render_to_response('webchat/webtextframe.html', {"first_name": first_name, "last_name": last_name, "user_id": user_id})
+    # space_pos = uname.find("_")
+    # first_name = uname[0:space_pos]
+    # last_name = uname[space_pos+1:]
+    # try:
+    #     user = User.objects.filter(first_name=first_name, last_name=last_name)[0]
+    #     user_id = user.id
+    # except:
+    #     user_id = -1
+    user_name = uname.replace("_", " ").replace("`", ", ")
+    id_index = user_name.index(", ")
+    user_id = user_name[id_index:]
+    return render_to_response('webchat/webtextframe.html', {"user_name": user_name, "user_id": user_id})
 
 # @login_required
 # def get_all_users(request):
