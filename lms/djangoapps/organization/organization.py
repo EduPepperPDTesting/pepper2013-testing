@@ -29,7 +29,7 @@ import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
-
+from xmodule.remindstore import myactivitystore
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -138,18 +138,6 @@ def organization_register_save(request):
             org_register.organization = org_metadata
             org_register.itemType = "Register Organization Structure"
             org_register.save()
-
-            # --------------course_enroll
-            for tmp1 in OrganizationMoreText.objects.filter(organization=OrganizationId, itemType="Course Assignment"):
-                course_assignment_content = tmp1.DataItem
-
-            org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
-            for tmp1 in org_data_list:
-                specific_items = tmp1.DataItem
-
-            if specific_items and course_assignment_content:
-                qualifications = organization_qualifications(specific_items, course_assignment_content)
-                course_assign(qualifications, content)
 
         data = {'Success': True}
     except Exception as e:
@@ -1145,19 +1133,16 @@ def organizational_save_base(request):
             # --------------course_assignment_content
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
-                org_course_assignment = tmp1
+                if tmp1.DataItem == course_assignment_content:
+                    org_course_assignment = tmp1
+                else:
+                    tmp1.delete()
                 break
 
             org_course_assignment.DataItem = course_assignment_content
             org_course_assignment.organization = org_metadata
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
-
-            # -----get_organization_course_assignment_qualifications
-            if specific_items and course_assignment_content:
-               qualifications = organization_qualifications(specific_items, course_assignment_content)
-               for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-                   course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
@@ -1896,7 +1881,20 @@ def organization_qualifications(specific_items, course_assignment_content):
             for i in range(len(qualifications)):
                 for n in range(len(qualifications[i]['filters'])):
                     if qualifications[i]['filters'][n]['_id'] == tmp1['_id']:
-                        qualifications[i]['filters'][n]['name'] = tmp1['name']
+                        if tmp1['default'] == "1":
+                            qualifications[i]['filters'][n]['name'] = 'Major Subject Area'
+                        elif tmp1['default'] == "2":
+                            qualifications[i]['filters'][n]['name'] = 'Grade Level-Check all that apply'
+                        elif tmp1['default'] == "3":
+                            qualifications[i]['filters'][n]['name'] = 'Number of Years in Education'
+                        elif tmp1['default'] == "4":
+                            qualifications[i]['filters'][n]['name'] = 'Free/Reduced Lunch'
+                        elif tmp1['default'] == "5":
+                            qualifications[i]['filters'][n]['name'] = 'IEPs'
+                        elif tmp1['default'] == "6":
+                            qualifications[i]['filters'][n]['name'] = 'English Learners'
+                        elif tmp1['default'] == "":
+                            qualifications[i]['filters'][n]['name'] = tmp1['name']
 
     return qualifications
 
@@ -1930,3 +1928,9 @@ def course_assign(qualifications, data):
         if sign:
             user = User.objects.get(email=data['email'])
             CourseEnrollment.enroll(user, tmp2['course_id'])
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
+            "URLValues": {"course_id": tmp2['course_id']},    
+            "TokenValues": {"course_id": tmp2['course_id']}, 
+            "LogoValues": {"course_id": tmp2['course_id']}}
+            ma_db.insert_item(my_activity)
