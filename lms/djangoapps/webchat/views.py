@@ -34,7 +34,7 @@ def gettextframe(request, uname):
     #     user_id = -1
     user_name = uname.replace("_", " ").replace("`", ", ")
     id_index = user_name.index(", ")
-    user_id = user_name[id_index:]
+    user_id = user_name[id_index+2:]
     return render_to_response('webchat/webtextframe.html', {"user_name": user_name, "user_id": user_id})
 
 # @login_required
