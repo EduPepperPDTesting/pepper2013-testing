@@ -258,7 +258,11 @@
                 var image = "<table><tr><td><img src='/user_photo/"+id+"' style = 'width:16px; height:16px;'></img></td><td>"
                 $("#textchat_"+id).prepend(image + v.body + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
             });
-            $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            try {
+                $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            } catch (err) {
+                getMessage(id);
+            }
             tieListener();
         });
 
