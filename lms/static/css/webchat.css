@@ -129,17 +129,17 @@
     padding-left: 15px;
 }
 .pep_chat_input {
-    height: 23px;
+    height: 23px !important;
     border: 1px solid;
-    margin-right: 0px;
-    display: inline-block;
-    width: 170px;
+    margin-right: 0px !important;
+    display: inline-block !important;
+    width: 170px !important;
 }
 .pep_chat_icons {
     /* position: relative; */
     /* top: 0px; */
     /* left: 0px; */
-    height: 21px;
+    /* height: 21px; */
     padding-bottom: 1px;
     padding-top: 1px;
     padding-left: 2px;
