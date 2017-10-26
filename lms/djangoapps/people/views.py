@@ -284,9 +284,7 @@ def my_people(request,course_id=''):
     profiles,total=search_people(cond)
 
     community_id = request.GET.get('community_id')
-    raise Exception("community_id test "+community_id)
     if community_id is None:
-        raise Exception ("community_id test")
         # gether pager params
         params=pager_params(request)
 
@@ -313,5 +311,4 @@ def my_people(request,course_id=''):
         return render_to_response('people/my_people.html', context)
 
     else:
-        raise Exception("community_id test fail")
         return HttpResponse(json.dumps({'users': profiles}), content_type="application/json")
