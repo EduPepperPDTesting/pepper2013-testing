@@ -90,7 +90,7 @@ $(document).ready(function(){
         }
     });
 
-
+    $("#pep_user_list").load("/getcommunities/");
 
     $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
         var $link = $(e.target);
@@ -169,7 +169,7 @@ $(document).ready(function(){
         $("#pep_user_list").load("/getcommunities/");
     });
 
-    $("#my_communities").trigger("click"); // $("#pep_user_list").load("/getcommunities/");
+    $("#my_communities").trigger("click");
 
     $(".pep_contact_block").on("click", ".pep_start_video", function(){
         var uname = $(this).prev().text().replace(" ", "_");
