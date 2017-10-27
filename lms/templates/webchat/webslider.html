@@ -169,7 +169,7 @@ $(document).ready(function(){
         $("#pep_user_list").load("/getcommunities/");
     });
 
-    $("#my_communities").trigger("click");
+    setTimeout(function(){ $("#my_communities").trigger("click") }, 1000);
 
     $(".pep_contact_block").on("click", ".pep_start_video", function(){
         var uname = $(this).prev().text().replace(" ", "_");
