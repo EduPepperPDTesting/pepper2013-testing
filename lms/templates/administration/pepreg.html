@@ -2406,6 +2406,7 @@
         pagerOptions.container = this.$content.find("#user-pager");
         pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
         this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        console.log("tablesorter");
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
