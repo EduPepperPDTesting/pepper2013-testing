@@ -62,7 +62,9 @@
 									networkRows.push(networkData.rows[i]);
 								}
 							});
-							var getUserRows={userRows: networkRows, arrLength: networkRows.length};
+							var arrLength = networkRows.length;
+							console.log(arrLength);
+							var getUserRows={userRows: networkRows, arrLength: arrLength};
 						}else if(commId == 'allptusers'){
 							$.post("${reverse('get_all_ptusers')}", function (allData){
 								var userRows = allData.rows;
@@ -70,7 +72,7 @@
 						}else{
 							var userRows = data.rows;
 						}
-						console.log(userRows);
+						console.log(getUserRows);
 						var tbodyID = "#users_"+commId;
 						var username, userID;
 						var elExists, addStyle, removeStyle;
