@@ -46,7 +46,9 @@
             $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
-				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: false, success: function (data) {
+				var async;
+				if(commId !== 'network' and commId !== 'allptusers') {isasync = true;}else{isasync = false;}
+				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: isasync, success: function (data) {
 					//console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
@@ -60,8 +62,7 @@
 							$.ajax({type: "post", url:"${reverse('get_network_users')}", data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 									for(i=0; i<networkData.rows.length; i++){
 										networkRows.push(networkData.rows[i]);
-										console.log("networkRows="+networkRows);
-									}
+										}
 								}
 							});
 							var arrLength = networkRows.length;
