@@ -47,7 +47,7 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: false, success: function (data) {
-					console.log("data="+data+" data.success="+data.success);
+					//console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
 							var networkRows = [];
@@ -56,7 +56,7 @@
 								console.log(data.users[i].user_id);
 								user_ids.push(data.users[i].user_id);
 							}
-							console.log(user_ids);
+							//console.log(user_ids);
 							$.ajax({type: "post", url:"${reverse('get_network_users')}", data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 									for(i=0; i<networkData.rows.length; i++){
 										networkRows.push(networkData.rows[i]);
@@ -65,7 +65,7 @@
 								}
 							});
 							var arrLength = networkRows.length;
-							console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
+							//console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
 							var getUserRows={userRows: networkRows, arrLength: arrLength};
 						}else if(commId == 'allptusers'){
 							$.post("${reverse('get_all_ptusers')}", function (allData){
@@ -83,7 +83,7 @@
 							var records = getUserRows.arrLength;
 							var userRows = getUserRows.userRows;
 						}
-						console.log(records);
+						//console.log(records);
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
@@ -91,12 +91,12 @@
 							userID = username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
-								console.log("elExists === false=" + (elExists === false));
+								//console.log("elExists === false=" + (elExists === false));
 								addStyle = 'display:none;';
 								removeStyle = 'display: inline-block;'
 							}
 							if(elExists === false){
-								console.log("elExists === true=" + (elExists === true));
+								//console.log("elExists === true=" + (elExists === true));
 								addStyle = 'display: inline-block;';
 								removeStyle = 'display:none;'
 							}
