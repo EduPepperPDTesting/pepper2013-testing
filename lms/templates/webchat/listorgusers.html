@@ -47,7 +47,7 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				var async;
-				if(commId !== 'network' and commId !== 'allptusers') {isasync = true;}else{isasync = false;}
+				if(commId !== 'network' && commId !== 'allptusers') {isasync = true;}else{isasync = false;}
 				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: isasync, success: function (data) {
 					//console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
