@@ -56,6 +56,7 @@
 								console.log(data.users[i].user_id);
 								user_ids.push(data.users[i].user_id);
 							}
+							console.log(user_ids);
 							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
 								for(i=0; i<networkData.rows.length; i++){
 									userRows.push(networkData.rows[i]);
