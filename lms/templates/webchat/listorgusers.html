@@ -84,7 +84,7 @@
 							var userRows = getUserRows.userRows;
 						}
 						//console.log(records);
-						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
+						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");console.log("tbodyID="+tbodyID);}
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
