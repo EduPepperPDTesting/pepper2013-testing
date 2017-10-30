@@ -63,7 +63,7 @@
 								}
 							});
 							var arrLength = networkRows.length;
-							console.log(arrLength);
+							console.log("isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
 							var getUserRows={userRows: networkRows, arrLength: arrLength};
 						}else if(commId == 'allptusers'){
 							$.post("${reverse('get_all_ptusers')}", function (allData){
