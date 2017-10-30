@@ -50,13 +50,17 @@
 					console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
-							var user_ids=[];
+							var user_ids = [];
 							for(i=0; i<data.users.length; i++){
 								console.log(data.users[i].user_id);
 								user_ids.push(data.users[i].user_id);
 							}
 							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
-								var userRows = networkData.rows;
+								var networkUsers = networkData.rows;
+								var userRows = [];
+								for(row in networkUsers){
+									userRows.push(row[0]);
+								}
 								console.log(userRows);
 							});
 						}else if(commId == 'allptusers'){
