@@ -108,31 +108,6 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
 
-    # === webchat begin ==
-    url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
-    url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
-    url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
-    url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
-
-    url(r'^getusersorg/$', 'webchat.views.get_users_org', name="get_users_org"),
-    #url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
-    url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
-
-    url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
-    #url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
-    url(r'^getnetworkusers/$', 'webchat.views.get_network_users', name="get_network_users"),
-
-    url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
-    url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
-    url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
-
-
-    url(r'^pepsearch/$', 'webchat.views.webchat_search', name="webchat_search"),
-
-    url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
-    url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
-
-    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
@@ -181,24 +156,24 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
-    url(r'^reporting/report/get_matrix_rows$', 'reporting.views.report_get_matrix_rows', name='reporting_report_get_matrix_rows'),
-    url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
-    url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
-    url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
-    url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
-    url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
+    #url(r'^reporting/report/get_matrix_rows$', 'reporting.views.report_get_matrix_rows', name='reporting_report_get_matrix_rows'),
+    #url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
+    #url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
+    #url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
+    #url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
+    #url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
+    #url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
+    #url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
+    #url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
     url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
     url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
     url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
-    url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
-    url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
-    url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
+    #url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
+    #url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
+    #url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
     
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
@@ -333,20 +308,7 @@ urlpatterns = (
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
     url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
-    url(r'^pepconn/tables/get_course_permission_user_rows/$', 'administration.pepconn.get_course_permission_user_rows', name="pepconn_get_course_permission_user_rows"),
 
-    url(r'^pepconn/get_course_permission_course_rows/$', 'administration.pepconn.get_course_permission_course_rows', name="pepconn_get_course_permission_course_rows"),
-
-    url(r'^pepconn/update_course_permission/$', 'administration.pepconn.update_course_permission', name="pepconn_update_course_permission"),
-
-    url(r'^pepconn/course_permission_csv_users/$', 'administration.pepconn.course_permission_csv_users', name="pepconn_course_permission_csv_users"),
-
-    url(r'^pepconn/course_permission_load_csv/$', 'administration.pepconn.course_permission_load_csv', name="pepconn_course_permission_load_csv"),
-    
-    url(r'^pepconn/course_permission_download_excel/$', 'administration.pepconn.course_permission_download_excel', name="pepconn_course_permission_download_excel"),
-    
-    url(r'^pepconn/course_permission_tasks/$', 'administration.pepconn.course_permission_tasks', name="pepconn_course_permission_tasks"),
-    url(r'^pepconn/course_permission_task_close/$', 'administration.pepconn.course_permission_task_close', name="pepconn_course_permission_task_close"),
 
     url(r'^pepconn/ajax_get_async_task/$', 'async_task.views.ajax_get_async_task', name="ajax_get_async_task"),    
 
