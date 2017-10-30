@@ -58,9 +58,10 @@
 							}
 							console.log(user_ids);
 							$.ajax({type: "post", url:"${reverse('get_network_users')}", data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
-								for(i=0; i<networkData.rows.length; i++){
-									networkRows.push(networkData.rows[i]);
-									console.log("networkRows="+networkRows);
+									for(i=0; i<networkData.rows.length; i++){
+										networkRows.push(networkData.rows[i]);
+										console.log("networkRows="+networkRows);
+									}
 								}
 							});
 							var arrLength = networkRows.length;
