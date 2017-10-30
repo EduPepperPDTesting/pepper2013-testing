@@ -89,7 +89,7 @@
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
-							console.log(username);
+							console.log(username+" "+id);
 							userID = username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
