@@ -224,7 +224,7 @@ def people(request,course_id=''):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def my_people(request,course_id=''):
-    community_id = request.GET.get('community_id')
+    community_id = request.POST.get('community_id', '')
     raise Exception("my people comm id="+community_id)
     # check course enrollment, when user visiting course people
     if course_id:
@@ -285,7 +285,7 @@ def my_people(request,course_id=''):
 
     profiles,total=search_people(cond)
 
-    community_id = request.GET.get('community_id')
+    community_id = request.POST.get('community_id')
     if community_id is None:
         # gether pager params
         params=pager_params(request)
