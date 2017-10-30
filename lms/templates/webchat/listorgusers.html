@@ -75,7 +75,7 @@
 						var username, userID;
 						var elExists, addStyle, removeStyle;
 						var records = (userRows.userRows === undefined)?userRows.length: Object.keys(userRows.userRows).length;
-						console.log(records);
+						console.log(records+" "+Object.keys(userRows.userRows).length);
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
