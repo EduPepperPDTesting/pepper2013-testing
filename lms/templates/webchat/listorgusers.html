@@ -50,11 +50,11 @@
 					console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
-							var networkUsers = JSON.parse(data.users);
+							var peopleData = JSON.parse(data);
 							var user_ids=[];
-							for(networkUser in networkUsers){
-								console.log(obj.networkUser.user_id);
-								user_ids.push(obj.networkUser.user_id);
+							for(i=0; i<peopleData.users.length; i++){
+								console.log(peopleData.users[i].user_id);
+								user_ids.push(peopleData.users[i].user_id);
 							}
 							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
 								var userRows = networkData.rows;
