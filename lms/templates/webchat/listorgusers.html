@@ -74,7 +74,7 @@
 						var tbodyID = "#users_"+commId;
 						var username, userID;
 						var elExists, addStyle, removeStyle;
-						var records = (userRows.userRows === undefined)?userRows.length: userRows.userRows.length;
+						var records = (userRows.userRows === undefined)?userRows.length: Object.keys(userRows.userRows).length;
 						console.log(records);
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
