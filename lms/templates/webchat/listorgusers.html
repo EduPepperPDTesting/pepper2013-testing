@@ -49,7 +49,6 @@
 				$.post(rowSource, {community_id: commId}, function (data) {
 					console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
-						var userRows = [];
 						if (commId == 'network'){
 							var networkRows = [];
 							var user_ids = [];
@@ -63,7 +62,7 @@
 									networkRows.push(networkData.rows[i]);
 								}
 							});
-							userRows.push(networkRows);
+							userRows={userRows: networkRows};
 						}else if(commId == 'allptusers'){
 							$.post("${reverse('get_all_ptusers')}", function (allData){
 								var userRows = allData.rows;
