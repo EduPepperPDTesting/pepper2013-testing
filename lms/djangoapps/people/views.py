@@ -312,4 +312,5 @@ def my_people(request,course_id=''):
         return render_to_response('people/my_people.html', context)
 
     else:
-        return HttpResponse(json.dumps({'users': profiles}), content_type="application/json")
+
+        return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
