@@ -52,6 +52,7 @@
 						if (commId == 'network'){
 							user_ids=[]
 							for(networkUser in data.users){
+								console.log(networkUser.user_id);
 								user_ids.push(networkUser.user_id);
 							}
 							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
