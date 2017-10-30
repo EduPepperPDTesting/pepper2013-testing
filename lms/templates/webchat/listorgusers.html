@@ -58,7 +58,7 @@
 							}
 							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
 								for(i=0; i<networkData.rows.length; i++){
-									userRows.push(networkData.rows[i][0]);
+									userRows.push(networkData.rows[i]);
 								}
 							});
 						}else if(commId == 'allptusers'){

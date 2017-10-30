@@ -105,6 +105,7 @@ def get_network_users(request):
         user = User.objects.get(id=int(user_id))
         if user:
             row.append(str(user.first_name) + " " + str(user.last_name))
+            row.append(str(user.id))
             rows.append(row)
 
     if not rows:
