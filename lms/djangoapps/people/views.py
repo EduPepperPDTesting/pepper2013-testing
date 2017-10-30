@@ -125,7 +125,7 @@ def get_pager(total,size,page,jumps):
 def people(request,course_id=''):
     total=0
     profiles=[]
-    
+
     # check course enrollment, when user visiting course people
     if course_id:
         registered = CourseEnrollment.is_enrolled(request.user, course_id)
@@ -224,6 +224,8 @@ def people(request,course_id=''):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def my_people(request,course_id=''):
+    community_id = request.GET.get('community_id')
+    raise Exception("my people comm id="+community_id)
     # check course enrollment, when user visiting course people
     if course_id:
         registered = CourseEnrollment.is_enrolled(request.user, course_id)
