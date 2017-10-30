@@ -10,7 +10,7 @@
     from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
     import datetime
-    import json    
+    import json
     from student.models import State,District,School,User,UserProfile
     from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationAttributes, OrganizationCmsitem, OrganizationMoreText
 %>
@@ -523,11 +523,6 @@ a{
     padding-left:2px;
     */
 }
-
-
-
-
-
 .course-in-progress-more{
     text-align:right;
     color: #2CBAEC;
@@ -611,15 +606,6 @@ a{
 .completed-courses-more b{
     cursor: pointer;
 }
-
-
-
-
-
-
-
-
-
 .total-time-title-top{
     font-size: 13px;
     font-weight: bold;
@@ -670,9 +656,13 @@ a{
     add_Report_Show = ""
     add_Featured_Show = ""
     add_Default = "1"
+    feed_txt = "My Feed"
+    activities_txt = "My Activities"
+    progress_txt = "My Progress"
+    resources_txt = "My Resources"
     
-    if request.user.is_authenticated(): 
-    	c_email = request.user.email           
+    if request.user.is_authenticated():
+    	c_email = request.user.email
         try:
             state_id = request.user.profile.district.state.id
         except:
@@ -719,41 +709,53 @@ a{
             tmp_profile_logo = ""
             tmp_profile_logo_url = ""
             if data['Dashboard option etc'] == "1":
-                if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                if 'Profile Logo' in data and data['Profile Logo'] != "":
                     tmp_profile_logo = data['Profile Logo']
-                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                    if 'Profile Logo Url' in data and data['Profile Logo Url'] != "":
                         tmp_profile_logo_url = data['Profile Logo Url']
-                
-                if data.has_key('Show Left DB') and data['Show Left DB'] == "0":
-                    show_left = "display:none;";
-                    
-                if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
-                    show_right = "display:none;";   
-               
-                if data.has_key('My Activities Show'):    
+
+                if 'Show Left DB' in data and data['Show Left DB'] == "0":
+                    show_left = "display:none;"
+
+                if 'Show Right DB' in data and data['Show Right DB'] == "0":
+                    show_right = "display:none;"
+
+                if 'My Activities Show' in data:
                     add_Feed_Show = data['My Feed Show']
                     add_Activities_Show = data['My Activities Show']
                     add_Report_Show = data['My Report Show']
                     add_Featured_Show = data['My Featured Show']
                     add_Default = data['Is My Feed Default']
+
+                if 'Feed Title' in data:
+                    feed_txt = data['Feed Title']
+                    activities_txt = data['Activities Title']
+                    progress_txt = data['Progress Title']
+                    resources_txt = data['Resources Title']
             else:
-                if data.has_key('Profile Logo Curriculumn') and data['Profile Logo Curriculumn'] != "":
+                if 'Profile Logo Curriculumn' in data and data['Profile Logo Curriculumn'] != "":
                     tmp_profile_logo = data['Profile Logo Curriculumn']
-                    if data.has_key('Profile Logo Url Curriculumn') and data['Profile Logo Url Curriculumn'] != "":
+                    if 'Profile Logo Url Curriculumn' in data and data['Profile Logo Url Curriculumn'] != "":
                         tmp_profile_logo_url = data['Profile Logo Url Curriculumn']  
                 
-                if data.has_key('Show Left DB Curriculumn') and data['Show Left DB Curriculumn'] == "0":
-                    show_left = "display:none;";
+                if 'Show Left DB Curriculumn' in data and data['Show Left DB Curriculumn'] == "0":
+                    show_left = "display:none;"
                     
-                if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
-                    show_right = "display:none;";
+                if 'Show Right DB Curriculumn' in data and data['Show Right DB Curriculumn'] == "0":
+                    show_right = "display:none;"
                 
-                if data.has_key('My Activities Show Curriculumn'): 
+                if 'My Activities Show Curriculumn' in data: 
                     add_Feed_Show = data['My Feed Show Curriculumn ']
                     add_Activities_Show = data['My Activities Show Curriculumn']
                     add_Report_Show = data['My Report Show Curriculumn']
                     add_Featured_Show = data['My Featured Show Curriculumn']
                     add_Default = data['Is My Feed Default Curriculumn']
+                
+                if 'Feed Title Curriculumn' in data: 
+                    feed_txt = data['Feed Title Curriculumn']
+                    activities_txt = data['Activities Title Curriculumn']
+                    progress_txt = data['Progress Title Curriculumn']
+                    resources_txt = data['Resources Title Curriculumn']
       
             if tmp_profile_logo != "":
                 if tmp_profile_logo_url != "":
@@ -795,14 +797,11 @@ a{
                             	if tmp_more_1.find(c_email) > -1:
                                 	cms_add = True
                         break
-                        
+                
                 if cms_add:
                     cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
                         
             data["cms_items"] = cms_items
-            
-        #if not data['profile_logo']:
-        #    data['profile_logo'] = "/static/images/newdashboard/profile_logo_default.png"
 %>
 <%namespace name='static' file='static_content.html'/>
 <%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
@@ -823,25 +822,25 @@ a{
             <div class="con-tab-btns">
             % if OrganizationOK and add_Feed_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="my-feed-btn tab-btn-common">My Feed</div>
+                    <div class="my-feed-btn tab-btn-common">${feed_txt}<!--My Feed--></div>
                     <div class="my-feed-btn-line tab-btn-line-common"></div>
                 </div>        
             % endif
             % if OrganizationOK and add_Activities_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="my-activity-btn tab-btn-common">My Activity</div>
+                    <div class="my-activity-btn tab-btn-common">${activities_txt}<!--My Activity--></div>
                     <div class="my-activity-btn-line tab-btn-line-common"></div>
                 </div>         
             % endif
             % if OrganizationOK and add_Report_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="my-report-card-btn tab-btn-common">My Progress</div>
+                    <div class="my-report-card-btn tab-btn-common">${progress_txt}<!--My Progress--></div>
                     <div class="my-report-card-btn-line tab-btn-line-common"></div>
                 </div>
             % endif
             % if OrganizationOK and add_Featured_Show == "1":
                 <div class="tab-btn-common-outer">
-                    <div class="featured-content-btn tab-btn-common">My Resources</div>
+                    <div class="featured-content-btn tab-btn-common">${resources_txt}<!--My Resources--></div>
                     <div class="featured-content-btn-line tab-btn-line-common"></div>
                 </div>          
             % endif
@@ -874,8 +873,8 @@ a{
 
             <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
-              <!--w:660,min-h:800-->
-              <%include file="dashboard_my_feed.html" />
+                <!--w:660,min-h:800-->
+                <%include file="dashboard_my_feed.html" />
             </div>
 
             <!--w:674 = 680-3*2-->
@@ -975,7 +974,7 @@ a{
         
         <!--Courses-My Learning Plan-->
         <%include file="navigation_right_list.html" />
-        
+
         <div style="clear:both;"></div>
     </section>
 </section>
@@ -1237,7 +1236,7 @@ $(document).ready(function(){
     });
 
     $(window).bind("scroll", function(){
-        var scrollTop = $(this).scrollTop();
+        var scrollTop = $(document).scrollTop();
 　　    var windowHeight = $(this).height();
         var scrollHeight = $(document).height();
         var scrollTop_ceil = Math.ceil(scrollTop);

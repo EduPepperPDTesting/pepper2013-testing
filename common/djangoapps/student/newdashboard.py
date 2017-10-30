@@ -1195,10 +1195,28 @@ def get_announcements(request):
 def announcements(user_id,organization_type,expiration_date):
     announcement_user = dashboard_announcement_user()
     announcement = dashboard_announcement_store()
-    announcment_id = announcement_user.get_announcements(user_id,organization_type,expiration_date)
+    announcment_id = list(announcement_user.get_announcements(user_id,organization_type,expiration_date))
     announcments = []
-    for tmp in announcment_id:
-        announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    if len(announcment_id) > 0:
+        for tmp in announcment_id:
+            if not tmp.has_key('dismiss'):
+                announcments.append(announcement.get_announcements(tmp["announcement_id"]))
+    else:
+        user = User.objects.get(id=user_id)
+        if organization_type == "System":
+            organization_id = 0
+        elif organization_type == "State":
+            organization_id = user.profile.district.state.id
+        elif organization_type == "District":
+            organization_id = user.profile.district.id
+        elif organization_type == "School":
+            organization_id = user.profile.school.id
+        elif organization_type == 'Pepper':
+            organization_id = 0
+        announcments = list(announcement.find_announcements(expiration_date,organization_id,organization_type))
+        if announcments:
+            for tmp in announcments:
+                announcement_user.create(user_id=user.id, announcement_id=tmp['_id'], organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
     
     result = [elem for elem in announcments if elem != None]
     return result
@@ -1423,14 +1441,24 @@ def submit_new_post(request):
         #                    receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
         #                    expiration_date=expiration_date, organization_type=organization_type)
         # 
-        announcement_store = dashboard_announcement_store()           
+        announcement_store = dashboard_announcement_store()
+        if organization_type == "System":
+            organization_id = 0
+        elif organization_type == "State":
+            organization_id = request.user.profile.district.state.id
+        elif level == "District":
+            organization_id = request.user.profile.district.id
+        elif organization_type == "School":
+            organization_id = request.user.profile.school.id
+        elif organization_type == 'Pepper':
+            organization_id = 0
         _id = announcement_store.create_announcement(type=type, user_id=request.user.id, content=content, attachment_file=attachment_file,
-                           date=datetime.datetime.utcnow(), expiration_date=expiration_date, organization_type=organization_type)
+                           date=datetime.datetime.utcnow(), expiration_date=expiration_date, organization_type=organization_type, organization_id=organization_id)
 
         announcement_user = dashboard_announcement_user()
         receivers=get_receivers(request.user, type)
         for tmp in receivers:
-            announcement_user.create(user_id=tmp, announcement_id=_id, organization_type=organization_type, expiration_date=expiration_date)
+            announcement_user.create(user_id=tmp, announcement_id=_id, organization_type=organization_type, expiration_date=expiration_date, organization_id=organization_id)
 
     if attachment_file:
         upload_attachment(_id, attachment)

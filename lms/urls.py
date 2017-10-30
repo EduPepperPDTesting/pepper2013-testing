@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from ratelimitbackend import admin
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 import django.contrib.auth.views
 
@@ -11,6 +12,8 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
+
+    # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
 
 ####### Ancestor
     # === shopping begin ===
@@ -23,7 +26,7 @@ urlpatterns = (
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
-
+    
     # === notification config begin ===
     url(r'^confignotification/$', 'communities.notification.configuration', name="communities_notification_index"),
     url(r'^communities/notification/groups$', 'communities.notification.groups', name="communities_notification_groups"),
@@ -43,31 +46,45 @@ urlpatterns = (
     url(r'^communities/notification/configs/save$', 'communities.notification.save_config', name="communities_notification_save_config"),
         url(r'^communities/notification/configs/saveother$', 'communities.notification.save_other_config', name="communities_notification_save_other_config"),
     # === notification config end ===
-
+    
     # === sso begin ===
-    url(r'^genericsso/$', 'sso.sp.genericsso'),
+    # easyiep
+    # url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
+    url(r'^genericsso/$', 'sso.sp.genericsso', name="sso_sp_acs"),
+    
+    url(r'^sso/idp/slo/request/send$', 'sso.idp.slo_request_send', name="sso_idp_slo_request_send"),
+    url(r'^sso/sp/slo/request/receive$', 'sso.sp.slo_request_receive', name="sso_sp_slo_request_receive"),
+    url(r'^sso/idp/slo/response/receive$', 'sso.idp.slo_response_receive', name="sso_idp_slo_response_receive"),
+    
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
+    url(r'^activate_easyiep_account$', 'sso.sp.activate_account', name="activate_easyiep_account"),
+    
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
-
+    
     # edit idp
     url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
     url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
     url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
-
+    
     # edit sp
     url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
     url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
     url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
-
     url(r'^sso/sp_metadata/download/saml_federation_metadata$',
         'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
-
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
+    url(r'^sso/idp/acs/send$', 'sso.idp.send_acs', name="sso_idp_acs_send"),
+    url(r'^sso/idp/logout/$', 'sso.idp.logout'),
 
-    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+    url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
+    url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
+    url(r'^sso/course_assignments/save$', 'sso.idp_metadata.course_assignment_save', name="sso_course_assignment_save"),
+    url(r'^sso/course_assignments/delete$', 'sso.idp_metadata.course_assignment_delete', name="sso_course_assignment_delete"),
     # === sso end ===
 
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
+
     url(r'^pepreg/rows$', 'administration.pepreg.rows', name="pepreg_rows"),
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
@@ -90,6 +107,32 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'training.views.get_add_user_rows', name="training_get_add_user_rows"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
+
+    # === webchat begin ==
+    url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
+    url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
+    url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
+    url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
+
+    url(r'^getusersorg/$', 'webchat.views.get_users_org', name="get_users_org"),
+    #url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
+    url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
+
+    url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
+    #url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
+    url(r'^getnetworkusers/$', 'webchat.views.get_network_users', name="get_network_users"),
+
+    url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
+    url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
+    url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
+
+
+    url(r'^pepsearch/$', 'webchat.views.webchat_search', name="webchat_search"),
+
+    url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
+    url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
+
+    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
@@ -138,17 +181,25 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
+    url(r'^reporting/report/get_matrix_rows$', 'reporting.views.report_get_matrix_rows', name='reporting_report_get_matrix_rows'),
     url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_matrix_excel$', 'reporting.views.report_download_matrix_excel', name="report_download_matrix_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
+    url(r'^reporting/report/get_column_headers$', 'reporting.views.get_column_headers', name='reporting_get_column_headers'),
+    url(r'^reporting/report/reporting_get_graphable$', 'reporting.views.reporting_get_graphable', name='reporting_get_graphable'),
+    url(r'^reporting/report/reporting_get_row_graphable$', 'reporting.views.reporting_get_row_graphable', name='reporting_get_row_graphable'),
+    url(r'^reporting/report/reporting_get_aggregate$', 'reporting.views.reporting_get_aggregate', name='reporting_get_aggregate'),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
     url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
     url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
     url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
-    url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
-
+    url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
+    url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
+    url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
+    
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
     url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
@@ -169,7 +220,6 @@ urlpatterns = (
     url(r'^dashboard/attachment/download$', 'student.newdashboard.download_attachment', name='dashboard_download_attachment'),
     url(r'^dashboard/attachment/image$', 'student.newdashboard.get_attachment_image', name='dashboard_get_attachment_image'),
 
-    
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
@@ -214,6 +264,8 @@ urlpatterns = (
     url(r'^configuration/end_of_year_roll_over/roll_over$', 'administration.configuration.roll_over', name="configuration_roll_over"),
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
 
+    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
+
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
@@ -223,7 +275,9 @@ urlpatterns = (
     url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
-    
+
+    url(r'^header-footer/header$', 'header_footer.service.header_return', name="header_footer_header"),
+    url(r'^header-footer/footer$', 'header_footer.service.footer_return', name="header_footer_footer"),
     url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
@@ -279,6 +333,22 @@ urlpatterns = (
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
     url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
+    url(r'^pepconn/tables/get_course_permission_user_rows/$', 'administration.pepconn.get_course_permission_user_rows', name="pepconn_get_course_permission_user_rows"),
+
+    url(r'^pepconn/get_course_permission_course_rows/$', 'administration.pepconn.get_course_permission_course_rows', name="pepconn_get_course_permission_course_rows"),
+
+    url(r'^pepconn/update_course_permission/$', 'administration.pepconn.update_course_permission', name="pepconn_update_course_permission"),
+
+    url(r'^pepconn/course_permission_csv_users/$', 'administration.pepconn.course_permission_csv_users', name="pepconn_course_permission_csv_users"),
+
+    url(r'^pepconn/course_permission_load_csv/$', 'administration.pepconn.course_permission_load_csv', name="pepconn_course_permission_load_csv"),
+    
+    url(r'^pepconn/course_permission_download_excel/$', 'administration.pepconn.course_permission_download_excel', name="pepconn_course_permission_download_excel"),
+    
+    url(r'^pepconn/course_permission_tasks/$', 'administration.pepconn.course_permission_tasks', name="pepconn_course_permission_tasks"),
+    url(r'^pepconn/course_permission_task_close/$', 'administration.pepconn.course_permission_task_close', name="pepconn_course_permission_task_close"),
+
+    url(r'^pepconn/ajax_get_async_task/$', 'async_task.views.ajax_get_async_task', name="ajax_get_async_task"),    
 
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
@@ -297,9 +367,6 @@ urlpatterns = (
     url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
     url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
 
-    url(r'^sso/$', 'student.views.sso', name="sso"),
-    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
-    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
     url(r'^alert_message/$', 'administration.alert_message.main', name="alert_message"),#20160411 add
     url(r'^alert_message_post/$', 'administration.alert_message.alert_message_post', name="alert_message_post"),#20160411 add
 
@@ -383,6 +450,7 @@ urlpatterns = (
     url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
+    #url(r'^newcommunities/$', 'communities.views.newcommunities', name="newcommunities"),
 
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
@@ -454,7 +522,7 @@ urlpatterns = (
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
     url(r'^upload_photo_new$', 'student.newdashboard.upload_photo_new', name="upload_photo_new"),
-
+    
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
 
@@ -510,6 +578,7 @@ urlpatterns = (
     url(r'^begin_exam_registration/(?P<course_id>[^/]+/[^/]+/[^/]+)$', 'student.views.begin_exam_registration', name="begin_exam_registration"),
     url(r'^create_exam_registration$', 'student.views.create_exam_registration'),
     url(r'^password_reset/$', 'student.views.password_reset', name='password_reset'),
+    url(r'^webchat/videopopup$', TemplateView.as_view(template_name="webchat/videopopup.html"), name="getvideopopup"),
     ## Obsolete Django views for password resets
     ## TODO: Replace with Mako-ized views
     url(r'^password_change/$', django.contrib.auth.views.password_change,
@@ -530,6 +599,7 @@ js_info_dict = {
     'domain': 'djangojs',
     'packages': ('lms',),
 }
+
 urlpatterns += (
     # Serve catalog of localized strings to be rendered by Javascript
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),

@@ -543,7 +543,22 @@ MIDDLEWARE_CLASSES = (
 
     # catches any uncaught RateLimitExceptions and returns a 403 instead of a 500
     'ratelimitbackend.middleware.RateLimitMiddleware',
+    # 'django_force_logout.middleware.ForceLogoutMiddleware',
 )
+
+
+def get_force_logout_time(user):
+    t = user.profile.force_logout
+
+    # todo: may not needed
+    user.profile.force_logout = None
+    user.profile.save()
+
+    if t:
+        return t.replace(tzinfo=None)
+
+
+FORCE_LOGOUT_CALLBACK = get_force_logout_time
 
 ############################### Pipeline #######################################
 
@@ -580,14 +595,26 @@ staff_grading_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/staff
 open_ended_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/open_ended/**/*.js'))
 notes_js = sorted(rooted_glob(PROJECT_ROOT / 'static', 'coffee/src/notes/**/*.coffee'))
 
-
-
-
-
 PIPELINE_CSS = {
     'application': {
-        'source_filenames': ['sass/application.css'],
+        'source_filenames': [
+            'sass/application.css',
+            'sass/header.css',
+            'sass/footer.css',
+        ],
         'output_filename': 'css/lms-application.css',
+    },
+    'header': {
+        'source_filenames': [
+            'sass/header.css',
+        ],
+        'output_filename': 'css/lms-header.css',
+    },
+    'footer': {
+        'source_filenames': [
+            'sass/footer.css',
+        ],
+        'output_filename': 'css/lms-footer.css',
     },
     'course': {
         'source_filenames': [
@@ -606,7 +633,6 @@ PIPELINE_CSS = {
         'output_filename': 'css/lms-ie.css',
     },
 }
-
 
 # test_order: Determines the position of this chunk of javascript on
 # the jasmine test page
@@ -869,10 +895,16 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
-    #organization
+    # web chat
+    'webchat',
+
+    # Organization
     'organization',
 
-    'async_task'
+    'async_task',
+
+    # Header/footer
+    'header_footer'
 )
 
 ######################### MARKETING SITE ###############################
