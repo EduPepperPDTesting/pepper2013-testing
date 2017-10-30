@@ -181,11 +181,7 @@
 }
 #community-content-area span {
     /*font-size: 12px;*/
-<<<<<<< HEAD
     word-break: break-all;
-=======
-    /*word-break: break-all;*/
->>>>>>> 3212ddf997ea770b263a94a36e5f354649584b69
 }
 #community-content {
     width: 220px;
