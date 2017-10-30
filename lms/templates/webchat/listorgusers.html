@@ -46,7 +46,7 @@
             $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
-				$.post(rowSource, {community_id: commId}, function (data) {
+				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: false, success: function (data) {
 					console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
@@ -128,6 +128,7 @@
 					$('table[id^="community_"] tbody').css("display", "none");
 					$('table[id^="community_"] th').css("cursor", "pointer");
 					$('table[id^="community_"]:gt(0)').css({"border-top": "1px solid black", "width": "100%"});
+				}
 				});
 			}
 
