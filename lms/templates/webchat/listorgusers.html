@@ -47,10 +47,14 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				$.post(rowSource, {community_id: commId}, function (data) {
-					console.log("data="+data+" data.success="+data.success+" data.users="+data.users);
+					console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network'){
-							$.post("${reverse('get_network_users')}", {user_ids: data.users}, function (networkData){
+							user_ids=[]
+							for(networkUser in data.users){
+								user_ids.push(networkUser.user_id);
+							}
+							$.post("${reverse('get_network_users')}", {user_ids: user_ids}, function (networkData){
 								var userRows = networkData.rows;
 							});
 						}else if(commId == 'allptusers'){
