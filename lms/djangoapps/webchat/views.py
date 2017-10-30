@@ -98,7 +98,7 @@ def get_network(request):
 def get_network_users(request):
     rows = list()
 
-    user_ids = request.POST.get("user_ids[]")
+    user_ids = request.POST.get("user_ids")
     term = request.POST.get("term")
     for user_id in user_ids:
         row = list()
