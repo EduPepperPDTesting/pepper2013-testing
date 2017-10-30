@@ -74,7 +74,7 @@
 						}else{
 							var userRows = data.rows;
 						}
-						console.log(Object.keys(getUserRows.userRows));
+						console.log(Object.keys(getUserRows).userRows);
 						console.log(getUserRows);
 						var tbodyID = "#users_"+commId;
 						var username, userID;
@@ -82,8 +82,8 @@
 						if(getUserRows === undefined){
 							var records = userRows.length;
 						}else{
-							var records = Object.keys(getUserRows.arrLength);
-							var userRows = Object.keys(getUserRows.userRows);
+							var records = Object.keys(getUserRows).arrLength;
+							var userRows = Object.keys(getUserRows).userRows;
 						}
 						console.log(records);
 						for(i = 0; i < records; i++){
