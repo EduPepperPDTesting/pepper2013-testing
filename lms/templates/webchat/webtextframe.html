@@ -1,11 +1,14 @@
-<div class="pep_text_panel"> <!-- container -->
+<%!
+   from django.core.urlresolvers import reverse
+%>
+<div class="pep_text_panel container">
     <div class="pep_textchatheader_container">
         <div class="pep_textchatheader_title">
             <span class="pep_header_left">${user_name}</span>
         </div>
         <div class="pep_header_right">
             <a href="#">+</a>
-            <a href="#">
+            <a href="#" class="pep_start_video" id="${user_id}">
                 <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"
                      style="width:15px;height:15px;border:0">
             </a>

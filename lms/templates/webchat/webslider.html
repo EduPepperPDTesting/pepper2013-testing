@@ -200,6 +200,9 @@ $(document).ready(function(){
     $("#my_communities").on("click", function(e){
         $("#pep_user_list").load("/getcommunities/");
     });
+
+    setTimeout(function(){ $("#my_communities").trigger("click") }, 1000);
+
     $(".pep_contact_block").on("click", ".pep_start_video", function(){
         var uname = $(this).prev().text().replace(" ", "_");
         $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
@@ -210,7 +213,8 @@ $(document).ready(function(){
         var term = $('#pep_search').val();
         if(term!=''){
             var commId="search";
-            $.post("${reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
+            $.post("${reverse('my_people')}", {community_id: commId}, function (data) {
+            //reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
                 if (data.success) {
                     /*post("{reverse('get_all_ptuser_rows')}", {user_ids: data.users, term: term}, function (data){
                         var userRows = data.rows;

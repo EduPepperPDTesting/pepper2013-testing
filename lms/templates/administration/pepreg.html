@@ -15,8 +15,8 @@
     from django.db.models import Q
 %>
 <%inherit file="../main.html"/>
-    <script src="http://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <!--script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script-->
 
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
@@ -31,7 +31,8 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
+<!-- href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/ -->
+<link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
@@ -159,7 +160,7 @@
 	.icon-remove:before {font-family:FontAwesome;	}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
-<div class="data_import_bottom" style="padding-bottom: calc(100%/6) !important;">
+<div class="data_import_bottom bootstrap-iso" style="padding-bottom: calc(100%/6) !important;">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse expand_title_expanded">
             Pepper PD Planner
@@ -302,7 +303,7 @@
         </div>
     </div>
 </div>
-<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+<div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -312,7 +313,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="calendar-panel" style="width:1000px;height:600px;margin-left:-500px;position: absolute;top:120px;border-radius:0;">
+<div class="modal bootstrap-iso" id="calendar-panel" style="width:1000px;height:600px;margin-left:-500px;position: absolute;top:120px;border-radius:0;">
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
@@ -392,7 +393,7 @@
 
 <div id="calendar_alert_title"></div>
 
-<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+<div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -402,7 +403,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
+<div class="modal bootstrap-iso" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
         <div class="content" id="map_show"
@@ -411,7 +412,7 @@
         <a href="#" class="print-map" st1yle="margin-left:30px;">Print</a>
     </div>
 </div>
-<div class="modal" id="dlg-students" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div class="modal bootstrap-iso" id="dlg-students" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div  id="dlg-students-info" style="display: block;">
             <div class="titlebar">
@@ -454,7 +455,7 @@
     </div>
 </div>
 
-<div class="modal" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div class=" modal bootstrap-iso" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
@@ -2405,6 +2406,7 @@
         pagerOptions.container = this.$content.find("#user-pager");
         pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
         this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        console.log("tablesorter");
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
