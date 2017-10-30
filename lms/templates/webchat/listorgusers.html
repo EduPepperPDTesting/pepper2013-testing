@@ -68,13 +68,14 @@
 								var userRows = allData.rows;
 							});
 						}else{
-							userRows = data.rows;
+							var userRows = data.rows;
 						}
 						console.log(userRows);
 						var tbodyID = "#users_"+commId;
-						console.log("Object.keys(userRows).length="+Object.keys(userRows).length);
+						console.log("userRows.userRows.length="+userRows.userRows.length;);
 						var username, userID;
 						var elExists, addStyle, removeStyle;
+						var records = (userRows.length === undefined)?userRows.userRows.length: userRows.length;
 						for(i = 0; i < Object.keys(userRows).length; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
