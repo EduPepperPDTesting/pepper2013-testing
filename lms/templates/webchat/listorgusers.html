@@ -84,7 +84,6 @@
 							var userRows = getUserRows.userRows;
 						}
 						//console.log(records);
-						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");console.log("tbodyID="+tbodyID);}
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
@@ -103,6 +102,7 @@
 							}
 							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div id='"+id+"' class='pep_contact_name'>"+username+", "+id+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
+						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");console.log("tbodyID="+tbodyID);}
 
 						$(".pep_contact_name").tooltip({
 							items: ".pep_contact_name",
