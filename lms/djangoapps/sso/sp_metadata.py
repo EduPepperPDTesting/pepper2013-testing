@@ -4,30 +4,88 @@ from django.http import HttpResponse
 import json
 from django.conf import settings
 from collections import defaultdict
-from django.contrib.auth.decorators import login_required
-import logging
 import os
-
-BASEDIR = settings.PROJECT_HOME + "/sso/sp"
-PEPPER_ENTITY_ID = "www.pepperpd.com"
-
-
-from OpenSSL import crypto, SSL
-from socket import gethostname
-from pprint import pprint
-from time import gmtime, mktime
-from os.path import exists, join
+from OpenSSL import crypto
 import re
 from path import path
+from permissions.decorators import user_has_perms
+from django.core.urlresolvers import reverse
 
 
-@login_required
+BASEDIR = settings.PROJECT_HOME + "/sso/sp"
+
+
+@user_has_perms('sso', 'administer')
 def edit(request):
-    return render_to_response('sso/manage/sp_metadata.html')
+    context = {
+        "data_items":
+            [
+                {
+                    "field": "email",
+                    "name": "Email"
+                },
+                {
+                    "field": "first_name",
+                    "name": "First Name"
+                },
+                {
+                    "field": "last_name",
+                    "name": "Last Name"
+                },
+                {
+                    "field": "username",
+                    "name": "Username"
+                },
+                {
+                    "field": "state",
+                    "name": "State"
+                },
+                {
+                    "field": "district",
+                    "name": "District"
+                },
+                {
+                    "field": "school",
+                    "name": "School"
+                },
+                {
+                    "field": "state_w_id",
+                    "name": "State with ID"
+                },
+                {
+                    "field": "district_w_id",
+                    "name": "District with ID"
+                },
+                {
+                    "field": "school_w_id",
+                    "name": "School with ID"
+                },
+                {
+                    "field": "grades",
+                    "name": "Grades"
+                },
+                {
+                    "field": "bio",
+                    "name": "Biography"
+                },
+                {
+                    "field": "internal_id",
+                    "name": "Internal Pepper ID"
+                },
+                {
+                    "field": "avatar",
+                    "name": "User Photo"
+                }
+            ]
+    }
+    return render_to_response('sso/manage/sp_metadata.html', context)
 
 
+@user_has_perms('sso', 'administer')
 def save(request):
     data = json.loads(request.POST.get('data'))
+
+    print data
 
     entities = []
     for d in data:
@@ -81,17 +139,9 @@ def save(request):
     return HttpResponse("{}", content_type="application/json")
 
 
+@user_has_perms('sso', 'administer')
 def all_json(request):
-    xmlfile = open(BASEDIR + "/metadata.xml", "r")
-    parsed_data = xmltodict.parse(xmlfile.read(),
-                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
-    entity_list = []
-
-    if 'entity' in parsed_data['entities'][0]:
-        for entity in parsed_data['entities'][0]['entity']:
-            entity_list.append(parse_one_sp(entity))
-
-    return HttpResponse(json.dumps(entity_list), content_type="application/json")
+    return HttpResponse(json.dumps(get_all_sp()), content_type="application/json")
 
 
 def sp_by_name(name):
@@ -103,6 +153,18 @@ def sp_by_name(name):
         for entity in parsed_data['entities'][0]['entity']:
             if entity['@name'] == name:
                 return parse_one_sp(entity)
+
+
+def get_all_sp():
+    xmlfile = open(BASEDIR + "/metadata.xml", "r")
+    parsed_data = xmltodict.parse(xmlfile.read(),
+                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    entity_list = []
+
+    if 'entity' in parsed_data['entities'][0]:
+        for entity in parsed_data['entities'][0]['entity']:
+            entity_list.append(parse_one_sp(entity))
+    return entity_list
 
 
 def parse_one_sp(entity):
@@ -119,7 +181,7 @@ def parse_one_sp(entity):
     typed_setting = {}
     if 'setting' in entity:
         for attribute in entity['setting']:
-            typed_setting[attribute['@name']] = attribute['#text']
+            typed_setting[attribute['@name']] = attribute['#text'] if attribute['#text'] else ""
 
     # path = BASEDIR + "/" + entity['@name'] + "/FederationMetadata.xml"
 
@@ -197,8 +259,7 @@ def create_saml_config_files(name):
                               entityID=name,
                               auth=auth,
                               attr_tags=attr_tags,
-                              slo_post_url="",
-                              slo_redirect_url="",
+                              slo_post_url=ms.get('typed').get('sso_slo_url'),
                               acs_url=ms.get('typed').get('sso_acs_url'))
     
     f = BASEDIR + '/' + name + "/sp.xml"
@@ -206,16 +267,17 @@ def create_saml_config_files(name):
     open(f, "wt").write(content)
 
     template = open(temp_dir + "/metadata_templates/idp.xml", "r").read()
-    content = template.format(cert=cert, entityID=PEPPER_ENTITY_ID, auth=auth)
+    slo_url = "https://" + settings.SAML_ENTITY_ID + reverse("sso_idp_slo_response_receive")
+    content = template.format(cert=cert, entityID=settings.SAML_ENTITY_ID, auth=auth, SingleLogoutService=slo_url, SingleSignOnService="")
     f = BASEDIR + '/' + name + "/idp.xml"
     open(f, "wt").write(content)
 
-    
+
 def download_saml_federation_metadata(request):
     name = request.GET.get("name")
     ms = sp_by_name(name)
     if not ms:
-        return HttpResponse("SP with name '%s' is not exist. Did you have it saved?" % name)
+        return HttpResponse("SP with name '%s' does not exist." % name)
 
     f = BASEDIR + '/' + name + "/idp.xml"
     response = HttpResponse(content_type='application/x-download')

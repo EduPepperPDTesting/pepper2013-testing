@@ -5,7 +5,7 @@
 //Make overlay white because ie doesn't like rgba
 .highlighted-courses .courses .course header.course-preview, .find-courses .courses .course header.course-preview,
 .home .highlighted-courses > h2, .home .highlighted-courses > section.outside-app h1, section.outside-app .home .highlighted-courses > h1,
-header.global {
+header.pepper-nav {
   background: #FFF;
 }
 
@@ -142,7 +142,7 @@ nav.course-material ol.course-tabs li a.active, nav.course-material .xmodule_Seq
 }
 
 // make dropdown user consistent size
-header.global ol.user > li.primary a.dropdown {
+header.pepper-nav ol.user > li.primary a.dropdown {
   padding-top: 6px;
   padding-bottom: 6px;
 }

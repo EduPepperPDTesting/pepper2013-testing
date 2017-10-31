@@ -37,6 +37,8 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 import random
 from .models import CourseAssignmentCourse
 from util import saml_django_response
+import base64
+from PIL import Image
 
 
 # *Guess the xmlsec_path
@@ -88,8 +90,7 @@ def https_redirect(request, url):
 def login_error(message):
     error_context = {'window_title': 'Login Error',
                      'error_title': 'Login Error',
-                     'error_message': message,
-                     'contact_info': ''}
+                     'error_message': message}
     return render_to_response('error.html', error_context)
 
 
@@ -626,7 +627,7 @@ def register_user_easyiep(request, activation_key):
     from django.core.exceptions import ObjectDoesNotExist
     try:
         registration = Registration.objects.get(activation_key=activation_key)
-    except Registration.DoesNotExist:
+    except ObjectDoesNotExist:
         error_context = {'window_title': 'Missing Account',
                          'error_title': 'Missing Account',
                          'error_message': "You do not have access to Pepper, please contact support at <a href='mailto:helpdesk@pepperpd.com'>helpdesk@pepperpd.com</a>.",
