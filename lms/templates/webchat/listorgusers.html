@@ -57,7 +57,7 @@
 							for(i=0; i<data.users.length; i++){
 								user_ids.push(data.users[i].user_id);
 							}
-							//console.log(user_ids);
+							console.log(user_ids);
 							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 									for(i=0; i<networkData.rows.length; i++){
 										networkRows.push(networkData.rows[i]);
