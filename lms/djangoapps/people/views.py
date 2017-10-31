@@ -196,29 +196,34 @@ def people(request,course_id=''):
         context={
             'params':params,
             'people_search_debug':1}
-    
-    courses=list()
-    courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
-    # courses=sorted(courses, key=lambda course: course.number.lower())
-    courses=sorted(courses, key=lambda course: course.display_name.lower())
+    community_id = request.POST.get('community_id')
+    if community_id is None:
+        courses=list()
+        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
-    context['courses']=courses
-    course=None
-    if course_id:
-        course=get_course_with_access(request.user, course_id, 'load')
+        # courses=sorted(courses, key=lambda course: course.number.lower())
+        courses=sorted(courses, key=lambda course: course.display_name.lower())
 
-    # import logging
-    # log = logging.getLogger("tracking")
-    # log.debug("search:%s " % get_pager(total,size,page,5))
+        context['courses']=courses
+        course=None
+        if course_id:
+            course=get_course_with_access(request.user, course_id, 'load')
 
-    context['pager']=get_pager(total,size,page,5)
-    context['course']=course
-    context['course_id'] = course_id
-    context['search_course_id'] = search_course_id
-    context['profiles']=profiles
+        # import logging
+        # log = logging.getLogger("tracking")
+        # log.debug("search:%s " % get_pager(total,size,page,5))
 
-    return render_to_response('people/people.html', context)
+        context['pager']=get_pager(total,size,page,5)
+        context['course']=course
+        context['course_id'] = course_id
+        context['search_course_id'] = search_course_id
+        context['profiles']=profiles
+
+        return render_to_response('people/people.html', context)
+
+    else:
+        return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
 
 @login_required
 @ensure_csrf_cookie
@@ -312,5 +317,4 @@ def my_people(request,course_id=''):
         return render_to_response('people/my_people.html', context)
 
     else:
-
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
