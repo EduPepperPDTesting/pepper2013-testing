@@ -889,8 +889,9 @@ def login_user(request, error=""):
         user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
         if user_log_info:
             if user_log_info[0].password_change_date:
+                expiration_time = 3600 * 24 * 30 * 6 # 3600 * 24 * 30 * 6
                 password_change_time_diff = datetime.datetime.utcnow() - datetime.datetime.strptime(user_log_info[0].password_change_date, '%Y-%m-%d %H:%M:%S')
-                if int(password_change_time_diff.total_seconds()) > 3600 * 24: # 3600 * 24 * 30 * 6
+                if int(password_change_time_diff.total_seconds()) > expiration_time:
                     return HttpResponse(json.dumps({'success': False,
                                                     'value': _('Your password has expired. Please enter a new password.'),
                                                     'user_id': user.id,
