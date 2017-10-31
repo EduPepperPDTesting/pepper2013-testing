@@ -164,7 +164,9 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_lunch']").val() == ""){
+				  $("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
@@ -180,7 +182,9 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_iep']").val() == ""){
+				  $("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
@@ -196,7 +200,9 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_eng_learner']").val() == ""){
+				  $("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
