@@ -245,3 +245,6 @@
 .org-list-table th{
     text-align: left;
 }
+#community_network th, #community_allptusers th{
+    cursor: default;
+}
