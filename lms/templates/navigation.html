@@ -58,7 +58,7 @@
     <header id="pepper-nav" class="pepper-nav" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
 % endif
     <nav id="page-nav">
-        <h1 class="pepper-logo-wrap logo" style="margin:-12px 30px 0 0;">
+        <h1 class="pepper-logo-wrap" style="margin:0px 30px 0 0;border-right: 1px solid rgba(0,0,0,0.1);padding: 0 20px 0 0;">
             <!--@begin:Choose the link of the top logo according user's login status-->
             <!--@date:2013-11-02-->
 
@@ -79,7 +79,7 @@
             <%block name="navigation_logo">
                 <!--@begin:Choose the image of the top logo according to user's login status-->
             % if index != 1:
-                <img src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" style="height:58px" />
+                <img src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" style="height:40px" />
             % endif
                 <!--@end-->
             </%block>
