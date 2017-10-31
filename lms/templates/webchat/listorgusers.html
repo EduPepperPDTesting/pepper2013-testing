@@ -51,7 +51,7 @@
 					//console.log("data="+data+" data.success="+data.success);
 					if (data.success) {
 						if (commId == 'network' || commId == 'allptusers'){
-							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}":
+							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}";
 							var networkRows = [];
 							var user_ids = [];
 							for(i=0; i<data.users.length; i++){
