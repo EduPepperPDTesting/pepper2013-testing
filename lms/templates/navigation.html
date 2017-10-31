@@ -37,7 +37,16 @@
         </div>
     % endif
 </%block>
-
+% if course and not is_external: 
+    <script type="text/javascript">                
+        $(document).ready(function(){
+            var tmp1 = "<h2 style=\"width:605px;margin-top:15px;\"> " ;
+            tmp1 += "<span class='provider'>${course.display_org_with_default | h}: </span>${course.display_number_with_default | h} ${course.display_name_with_default}";
+            tmp1 += "</h2>";
+            $(".pepper-logo-wrap").after(tmp1);
+        });
+    </script>
+% endif
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
@@ -49,7 +58,7 @@
     <header id="pepper-nav" class="pepper-nav" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
 % endif
     <nav id="page-nav">
-        <h1 class="pepper-logo-wrap">
+        <h1 class="pepper-logo-wrap logo" style="margin:-12px 30px 0 0;">
             <!--@begin:Choose the link of the top logo according user's login status-->
             <!--@date:2013-11-02-->
 
@@ -70,7 +79,7 @@
             <%block name="navigation_logo">
                 <!--@begin:Choose the image of the top logo according to user's login status-->
             % if index != 1:
-                <img src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
+                <img src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" style="height:58px" />
             % endif
                 <!--@end-->
             </%block>
