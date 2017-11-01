@@ -248,9 +248,9 @@ def get_community_user_rows(request):
 
     my_network = list()
     getMyPeople = my_people(request, checkInNetwork = 1)
-    raise Exception(getMyPeople)
-    for networkUser in getMyPeople:
-        my_network.append(networkUser)
+
+    for networkUser in getMyPeople.users:
+        my_network.append(networkUser.user_id)
 
     #for item in users[start:end]:
     for item in users:
@@ -258,7 +258,7 @@ def get_community_user_rows(request):
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
         row.append(str(item.user.id))
 
-        if item.user in my_network:
+        if item.user.id in my_network:
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         else:
             row.append('')
