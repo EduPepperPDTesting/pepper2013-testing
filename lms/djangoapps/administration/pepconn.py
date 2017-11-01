@@ -2000,7 +2000,7 @@ def get_course_permission_course_rows(request):
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
+        coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", "", ""])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")
@@ -2008,13 +2008,13 @@ def get_course_permission_course_rows(request):
 
 def _update_user_course_permission(user, course, access, enroll, send_notification=False):
     # ** access
-    if access:
+    if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
         if not cea.is_active:
             cea.is_active = True
             cea.save()
             send_course_notification(user, course, "Add Course Access", user.id)
-    else:
+    elif enroll == -1:
         find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
         if find.exists():
             cea = find[0]
@@ -2024,14 +2024,14 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
                 send_course_notification(user, course, "Remove Course Access", user.id)
 
     # ** enroll
-    if enroll:
+    if enroll == 1:
         enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
         if not enr.is_active:
             enr.is_active = True
             enr.save()
             if send_notification:
                 send_course_notification(user, course, "Add Course Enroll", user.id)
-    else:
+    elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
             enr = find[0]
@@ -2055,15 +2055,17 @@ def update_course_permission(request):
 
         done_count = 0
         total_count = len(course_ids) * len(user_ids)
-        
+
         errors = []
         user = None
-        course = None        
+        course = None
         for i, course_id in enumerate(course_ids):
             try:
                 course = get_course_by_id(course_id)
-                a = access[i] == "1"
-                e = enroll[i] == "1"
+                a = int(access[i])
+                e = int(enroll[i])
+                a = 1 if e == 1 else a
+                e = -1 if a == -1 else e
                 for user_id in user_ids:
                     user = User.objects.get(id=user_id)
                     task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
@@ -2071,7 +2073,7 @@ def update_course_permission(request):
                     task.title = "update user %s" % user.email
                     _update_user_course_permission(user, course, a, e, send_notification)
                     done_count += 1
-                    task.progress = done_count / total_count
+                    task.progress = int(done_count / total_count * 100)
                     task.status = "continue"
             except Exception as e:
                 if user and course:
@@ -2150,8 +2152,8 @@ def course_permission_load_csv(request):
             try:
                 user = User.objects.get(email=email)
                 course = get_course_by_id(course_id)
-                e = (conf == "enrollment")
-                a = e or (conf == "access")
+                e = 1 if (conf == "enrollment") else -1
+                a = 1 if (e == 1 or (conf == "access")) else -1
                 
                 task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                 task.update_time = task.create_time
