@@ -3193,30 +3193,48 @@
 		
 		//--------------------------org_assignment_btn_find
 		$("#org_assignment_btn_find").click(function(){
-			var loadwin = new LoadingWin();
-			
-			$(".org_assignment_course_select").each(function(){
-				$(this).empty();
-				$(this).append('<option value="">Select a Course</option>');
-			});
-			
-			$.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
-				if (r.Success){
-					for(var i in r.courses){
-						$(".org_assignment_course_select").each(function(){
-							$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
-						});
-					}
-					$(".org_assignment_course_select").each(function(){
-						$(this).val($(this).attr("bak_val"));
-					});
-				}else{
-					alert(r.Error);
-				}
-				loadwin.hide();
-			});
-		});
-		$("#org_assignment_btn_find").click();
+            var loadwin = new LoadingWin();
+            $.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
+                if (r.Success){
+                    $(".org_assignment_course_select").each(function(){
+                        if($(this).val() == ""){
+                            $(this).empty();
+                            $(this).append('<option value="">Select a Course</option>');
+                            for(var i in r.courses){
+                                $(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
+                            }
+                        }
+                    });
+                }else{
+                    alert(r.Error);
+                }
+                loadwin.hide();
+            });
+        });
+
+		function course_assign_init(){
+            var loadwin = new LoadingWin();
+            $(".org_assignment_course_select").each(function(){
+                    $(this).empty();
+                    $(this).append('<option value="">Select a Course</option>');
+            }); 
+            $.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id:"all", author_id: "all"}, function (r) {
+                if (r.Success){
+                    for(var i in r.courses){
+                            $(".org_assignment_course_select").each(function(){
+                                    $(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
+                            });
+                    }
+                    $(".org_assignment_course_select").each(function(){
+                            $(this).val($(this).attr("bak_val"));
+                    });
+                }else{
+                    alert(r.Error);
+                }
+                loadwin.hide();
+            });
+        }
+        course_assign_init()
 		
 		//--------------------------organizational_option_btn_add
 		$("#organizational_option_btn_add").click(function(){
