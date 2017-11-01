@@ -1928,6 +1928,10 @@ def course_assign(qualifications, data):
                         break
         if sign:
             user = User.objects.get(email=data['email'])
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
             CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
             my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
