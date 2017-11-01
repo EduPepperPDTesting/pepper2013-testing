@@ -222,6 +222,7 @@ def people(request,course_id=''):
 
         return render_to_response('people/people.html', context)
 
+
     else:
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
 
