@@ -248,8 +248,14 @@ def get_community_user_rows(request):
 
     my_network = list()
     getMyPeople = my_people(request, checkInNetwork = 1)
+    myPeopleList = getMyPeople.replace("[{", "[").replace("}]", "]").split("}, {")
 
-    for networkUser in getMyPeople:
+    myPeopleDict = {}
+    for item in myPeopleList:
+        i = item.split(': ')
+        myPeopleDict[i[0]] = i[1]
+
+    for networkUser in MyPeopleDict:
         my_network.append(networkUser.user_id)
 
     #for item in users[start:end]:
