@@ -247,18 +247,18 @@ def get_community_user_rows(request):
     rows = list()
 
     my_network = list()
-    getMyPeople = my_people(request, checkInNetwork = 1)
-    myPeople = json.loads(getMyPeople.read())
-    raise Exception(myPeople)
-    myPeopleList = getMyPeople.replace("[{", "[").replace("}]", "]").split("}, {")
-
-    myPeopleDict = {}
-    for item in myPeopleList:
-        i = item.split(': ')
-        myPeopleDict[i[0]] = i[1]
-
-    for networkUser in MyPeopleDict:
-        my_network.append(networkUser.user_id)
+    # getMyPeople = my_people(request, checkInNetwork = 1)
+    # myPeople = json.loads(getMyPeople.read())
+    # raise Exception(myPeople)
+    # myPeopleList = getMyPeople.replace("[{", "[").replace("}]", "]").split("}, {")
+    #
+    # myPeopleDict = {}
+    # for item in myPeopleList:
+    #     i = item.split(': ')
+    #     myPeopleDict[i[0]] = i[1]
+    #
+    # for networkUser in MyPeopleDict:
+    #     my_network.append(networkUser.user_id)
 
     #for item in users[start:end]:
     for item in users:
@@ -269,7 +269,7 @@ def get_community_user_rows(request):
         if item.user.id in my_network:
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         else:
-            row.append('')
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
 
         row.append(checkInCommunities(request.user, item.user))
         rows.append(row)
