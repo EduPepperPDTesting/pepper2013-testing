@@ -162,7 +162,7 @@ def header_return(request):
         # Add the template-specific JS
         js.append(request.build_absolute_uri('/static/js/navigation.js').replace('http:', 'https:'))
 
-    data = {'html': html, 'css': css, 'js': js, 'status': user_status}
+    data = {'html': html, 'css': css, 'js': js, 'callback': 'pepper_navigation_func', 'status': user_status}
     return render_jsonp_response(callback, data)
 
 
@@ -183,7 +183,7 @@ def footer_return(request):
     org_enabled, org_object, org_menu = check_org(request.user)
 
     # Default to the normal footer.
-    html = render_to_string('footer.html', {'alt_footer': False, 'is_external': True})
+    html = render_to_string('footer.html', {'alt_footer': False, 'is_external': True}).replace('http:', 'https:')
 
     # If there is a customized org, get the footer layout from the DB.
     if org_enabled:
@@ -192,7 +192,7 @@ def footer_return(request):
         if footer_selected and footer_selected.itemValue == "1":
             footer = OrganizationFooter.objects.get(organization=org_object)
             if footer:
-                html = footer.DataItem
+                html = footer.DataItem.replace('http:', 'https:')
 
-    data = {'html': html, 'css': get_css(request, 'footer'), 'js': [], 'status': user_status}
+    data = {'html': html, 'css': get_css(request, 'footer'), 'js': [], 'callback': '', 'status': user_status}
     return render_jsonp_response(callback, data)

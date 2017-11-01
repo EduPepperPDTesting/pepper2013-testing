@@ -24,15 +24,69 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    space_pos = uname.find("_")
-    first_name = uname[0:space_pos]
-    last_name = uname[space_pos+1:]
+    # user_name = []
+    # get_name = uname
+    # while(get_name.find("_")):
+    #     space_pos = get_name.find("_")
+    #     add_name = get_name[0:space_pos]
+    #     user_name.extend([add_name])
+    #     get_name = get_name[space_pos+1:]
 
-    return render_to_response('webchat/webtextframe.html', {"first_name": first_name, "last_name": last_name})
+    user_name = uname.replace("_", " ").replace("`", ", ")
+    id_index = user_name.index(", ")
+    user_id = user_name[id_index+2:]
+    return render_to_response('webchat/webtextframe.html', {"user_name": user_name, "user_id": user_id})
 
 # @login_required
 # def get_all_users(request):
 #     user = User.objects.get(id=request.user.id)
+@login_required
+def get_users_org(request):
+    orgs_list = list()
+    orgs_list.append('All Users')
+    data = {'orgs_list': orgs_list}
+    return render_to_response('webchat/listorgusers.html', data)
+
+def get_all_ptusers(request):
+    rows = list()
+    user_ids = request.POST.get("user_ids")
+    term = request.POST.get("term")
+    if term:
+        ids = list()
+
+        users_firstname = User.objects.filter(first_name__icontains=term, id__in=user_ids)
+        users_lastname = User.objects.filter(last_name__icontains=term, id__in=user_ids)
+
+        for user_item in users_firstname:
+            row = list()
+            user = User.objects.get(id=int(user_item.id))
+            if user:
+                row.append(str(user.first_name) + " " + str(user.last_name))
+                rows.append(row)
+                ids.append(user_item.id)
+
+        for user_item in users_lastname:
+            row = list()
+            user = User.objects.exclude(id__in=ids).get(id=int(user_item.id))
+            if user:
+                row.append(str(user.first_name) + " " + str(user.last_name))
+                rows.append(row)
+
+    else:
+        users = User.objects.all()
+        row = list()
+        for user in users:
+            row.append(str(user.first_name) + " " + str(user.last_name))
+            rows.append(row)
+
+    if not rows:
+        return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
+    else:
+        user_community = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        commIcon = 'https://image.flaticon.com/icons/svg/33/33965.svg' if user_community else ''
+        return HttpResponse(json.dumps(
+            {'success': 1, 'iconlink': commIcon, 'imagealt': 'im-allusers',
+             'rows': rows}))
 
 @login_required
 def get_network(request):
@@ -44,14 +98,15 @@ def get_network(request):
 def get_network_users(request):
     rows = list()
 
-    user_ids = request.POST.get("user_ids")
-
+    user_ids = request.POST.getlist("user_ids[]")
+    term = request.POST.get("term")
     for user_id in user_ids:
         row = list()
         user = User.objects.get(id=int(user_id))
-        row.append(str(user.first_name) + " " + str(user.last_name))
-
-        rows.append(row)
+        if user:
+            row.append(str(user.first_name) + " " + str(user.last_name))
+            row.append(str(user.id))
+            rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
@@ -172,3 +227,8 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
         return HttpResponse(json.dumps({'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/33/33965.svg', 'imagealt': 'im-community', 'rows': rows}), content_type="application/json")
+
+def webchat_search(request):
+    user = list()
+    user = get_network_users(request, 1)
+
