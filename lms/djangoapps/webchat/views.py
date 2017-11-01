@@ -246,7 +246,7 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
-    my_network = my_people(checkInNetwork = 1)
+    my_network = my_people(request, checkInNetwork = 1)
 
     #for item in users[start:end]:
     for item in users:
