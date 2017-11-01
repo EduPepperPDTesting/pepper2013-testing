@@ -164,7 +164,9 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_lunch']").val() == ""){
+				  $("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
@@ -180,7 +182,9 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_iep']").val() == ""){
+				  $("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
@@ -196,11 +200,28 @@ import json
 					return false;	
 				}
 			}else{
-				$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+        if($("select[name='percent_eng_learner']").val() == ""){
+				  $("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+        }
 			}
 		}else{
 			$("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
 		}
+    //----------------About Me
+    if(!$("#organization_info_org_default_7").is(":hidden")){
+      if($("#user_photo").val() == "" || $("#txBio").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_7").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='years_in_education_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
 		//-----------------	
 		var org_content = '"email":"${profile.user.email}"';
 		var is_pass = true;
@@ -215,7 +236,6 @@ import json
 				
 			}else if(tmp_type == "3"){
 				tmp_val = $(this).val();
-				
 			}else if(tmp_type == "4"){
 				$(this).find('input[type="checkbox"]').each(function() {
 					if ($(this).attr('checked')) {
@@ -245,7 +265,7 @@ import json
 				}
 			}
 			
-			if(tmp_required == " *" && tmp_val == ""){
+			if(tmp_required == " *" && (tmp_val == "" || tmp_val == null)){
 				toggleSubmitButton(true);
 				$('.status.message.submission-error').addClass('is-shown').focus();
 				$('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
@@ -298,6 +318,7 @@ import json
            }
        } else {
          toggleSubmitButton(true);
+         if (json.field == "school_id") json.value = $("#school_id").parent().find("label").html() + " is required"
          $('.status.message.submission-error').addClass('is-shown').focus();
          $('.status.message.submission-error .message-copy').html(json.value || json.error ).stop().css("display", "block");
          if(json.field){
@@ -455,7 +476,7 @@ import json
           </li>
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_1">
-                <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area')}</label>
+                <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area *')}</label>
                 <select autocomplete="off" name="major_subject_area_id">
                   <option value="">--</option>
                   %for item in SubjectArea.objects.all().order_by("so"):
@@ -468,7 +489,7 @@ import json
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
               <span id="organization_info_org_default_2">
-                <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
+                <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply *')}</label>
                 <div class="level_containter" style="margin-bottom:10px;">
                 <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
                   %for item in GradeLevel.objects.all():
@@ -483,8 +504,8 @@ import json
               </span> 
          </li>          
          <li class="field required text" id="field-name">
-             <span id="organization_info_org_default_3">
-                <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education')}</label>
+             <span id="organization_info_org_default_3">    
+                <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education *')}</label>
                 <select autocomplete="off" name="years_in_education_id" style="width:100px;">
                   <option value="">--</option>
                   %for item in YearsInEducation.objects.all():
@@ -506,7 +527,7 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor                
                 </select>
-                of my students are eligible for Free/Reduced lunch. <b></b>                
+                of my students are eligible for Free/Reduced lunch. <b>*</b>                
               	<div class="org_description"></div>
               </li>
               <li id="organization_info_org_default_5" class="field required text" id="field-name">
@@ -517,7 +538,7 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor 
                 </select>
-                of my students have an IEP.  <b></b>             
+                of my students have an IEP.  <b>*</b>             
               	<div class="org_description"></div>
               </li>
               <li id="organization_info_org_default_6" class="field required text" id="field-name">
@@ -527,20 +548,19 @@ import json
                   <option value="${item.value}">${item.content}</option>
                   %endfor 
                 </select>
-                of my students are English Learners. <b></b>             
+                of my students are English Learners. <b>*</b>             
               	<div class="org_description"></div> 
               </li>
           </span>
           <span id="organization_info_org_default_7">
               <div style="padding:10px 0 15px 0;"> 
-              	
                 <b class="org_name" style="font-size:15px;color:#333;">About me</b>
               </div>
               <li class="field required text" id="field-name">
                   Please upload a photo to use with your profile.
-                  <div style='margin-top: 15px;'>
+                  <div style="margin-top: 15px;">
                       <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
-                      <a id="change_photo_button"> Click Here to Edit Photo</a>
+                      <a id="change_photo_button" style="cursor: pointer;"> Click Here to Edit Photo</a>
                       <input type='hidden' name='photo' id='user_photo'>
                   </div>
               </li>
@@ -785,8 +805,8 @@ $(document).ready(function(){
 			if(r.Success){
 				if(r.OrganizationOK){
 					OrganizationId = r.OrganizationId;
-          if (r.DistrictType == "") r.DistrictType="District"
-          if (r.SchoolType == "") r.SchoolType="School"
+          if (r.DistrictType == "") r.DistrictType='District'
+          if (r.SchoolType == "") r.SchoolType='School'
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
 		  			
@@ -829,7 +849,7 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "3"){
@@ -843,7 +863,7 @@ $(document).ready(function(){
 										tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
 									}
 									tmp_content += '</select>';
-                  tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                  tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
 								}else if(tmp_json["field_type"] == "4"){
@@ -868,7 +888,7 @@ $(document).ready(function(){
 										var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
 										for(var ii in tmp_list1){
 											var tmp_list2 = tmp_list1[ii].split("|-|");
-											tmp_content += '<label class="my_label"><input type="radio" ' + ((ii == 0) ? "checked=checked" : "") + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+											tmp_content += '<label class="my_label"><input type="radio" ' + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
 										}
 									}
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
@@ -885,8 +905,8 @@ $(document).ready(function(){
 								}else if(tmp_json["field_type"] == "7"){
 									tmp_content += '<li class="field required text" id="field-name">';
 									
-									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
-									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+									tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max, 255 remain)</span>';
+									tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field org_textarea" field_type="7" isRequired="' + tmp_required + '"></textarea>';
                   tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
 									tmp_content += '</li>';
 									
@@ -907,6 +927,10 @@ $(document).ready(function(){
 						$("#organization_info_org_default_456").hide();
 					}
 					$(".org_assignment_qualifications_datex").datepicker();
+          $(".org_textarea").keyup(function(){
+            $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
+          })
+
 				}
 			}
 		}

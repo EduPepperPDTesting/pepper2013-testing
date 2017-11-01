@@ -429,6 +429,7 @@ def training_json(request):
         "description": item.description,
         "pepper_course": item.pepper_course,
         "subject": item.subject,
+        "subjectother": item.subjectother,
         "training_date": str('{d:%m/%d/%Y}'.format(d=item.training_date)),
         "training_time_start": str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
         "training_time_end": str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),

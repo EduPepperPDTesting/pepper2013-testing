@@ -47,7 +47,8 @@ header.pepper-nav {
 
         & > ol {
           float: right;
-          margin-top: 4px;
+          margin: 4px 0 0 0;
+          padding: 0;
 
           .pepper-user-wrap {
             margin: 6px 0 0 0;
@@ -243,6 +244,11 @@ header.pepper-nav {
         margin-left: 10px;
         float: right;
         width: auto;
+
+        td, tr {
+          border: none;
+          padding: 0;
+        }
       }
 
       .nav-option-ol-li {

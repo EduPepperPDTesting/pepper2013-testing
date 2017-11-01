@@ -110,17 +110,28 @@ urlpatterns = (
 
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
-    url(r'^textchat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.gettextframe', name='textchat_show'),
+    url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
     url(r'^getcommunities/$', 'webchat.views.get_communities', name="get_communities"),
     url(r'^getcommunityusers/$', 'webchat.views.get_community_user_rows', name="get_community_user_rows"),
 
+    url(r'^getusersorg/$', 'webchat.views.get_users_org', name="get_users_org"),
+    #url(r'^getallptuserrows/$', 'people.views.people', name="get_all_ptuser_rows"),
+    url(r'^getallptusers/$', 'webchat.views.get_all_ptusers', name="get_all_ptusers"),
+
     url(r'^getnetwork/$', 'webchat.views.get_network', name="get_network"),
-    url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
-    url(r'^getnetworkusers/$', 'get_network_users', name="get_network_users"),
+    #url(r'^getnetworkuserrows/$', 'people.views.my_people', name="get_network_user_rows"),
+    url(r'^getnetworkusers/$', 'webchat.views.get_network_users', name="get_network_users"),
 
     url(r'^getcommunitysession/$', 'webchat.views.get_community_session', name='get_community_session'),
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
+
+
+    url(r'^pepsearch/$', 'webchat.views.webchat_search', name="webchat_search"),
+
+    url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
+    url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
+
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
@@ -185,7 +196,6 @@ urlpatterns = (
     url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
     url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
     url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
-    url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
     url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
     url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
     url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),

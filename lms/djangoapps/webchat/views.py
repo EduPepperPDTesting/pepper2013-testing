@@ -5,14 +5,14 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat
+from .models import CommunityWebchat, UserWebchat, MessageAlerts
 from people.views import my_people
 from django.contrib.auth.models import User
 try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
-#import opentok
+import opentok
 
 @login_required
 def getvideoframe(request, uname):
@@ -24,15 +24,69 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    space_pos = uname.find("_")
-    first_name = uname[0:space_pos]
-    last_name = uname[space_pos+1:]
-
-    return render_to_response('webchat/webtextframe.html', {"first_name": first_name, "last_name": last_name})
+    # space_pos = uname.find("_")
+    # first_name = uname[0:space_pos]
+    # last_name = uname[space_pos+1:]
+    # try:
+    #     user = User.objects.filter(first_name=first_name, last_name=last_name)[0]
+    #     user_id = user.id
+    # except:
+    #     user_id = -1
+    user_name = uname.replace("_", " ").replace("`", ", ")
+    id_index = user_name.index(", ")
+    user_id = user_name[id_index+2:]
+    return render_to_response('webchat/webtextframe.html', {"user_name": user_name, "user_id": user_id})
 
 # @login_required
 # def get_all_users(request):
 #     user = User.objects.get(id=request.user.id)
+@login_required
+def get_users_org(request):
+    orgs_list = list()
+    orgs_list.append('All Users')
+    data = {'orgs_list': orgs_list}
+    return render_to_response('webchat/listorgusers.html', data)
+
+def get_all_ptusers(request):
+    rows = list()
+    user_ids = request.POST.get("user_ids")
+    term = request.POST.get("term")
+    if term:
+        ids = list()
+
+        users_firstname = User.objects.filter(first_name__icontains=term, id__in=user_ids)
+        users_lastname = User.objects.filter(last_name__icontains=term, id__in=user_ids)
+
+        for user_item in users_firstname:
+            row = list()
+            user = User.objects.get(id=int(user_item.id))
+            if user:
+                row.append(str(user.first_name) + " " + str(user.last_name))
+                rows.append(row)
+                ids.append(user_item.id)
+
+        for user_item in users_lastname:
+            row = list()
+            user = User.objects.exclude(id__in=ids).get(id=int(user_item.id))
+            if user:
+                row.append(str(user.first_name) + " " + str(user.last_name))
+                rows.append(row)
+
+    else:
+        users = User.objects.all()
+        row = list()
+        for user in users:
+            row.append(str(user.first_name) + " " + str(user.last_name))
+            rows.append(row)
+
+    if not rows:
+        return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
+    else:
+        user_community = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        commIcon = 'https://image.flaticon.com/icons/svg/33/33965.svg' if user_community else ''
+        return HttpResponse(json.dumps(
+            {'success': 1, 'iconlink': commIcon, 'imagealt': 'im-allusers',
+             'rows': rows}))
 
 @login_required
 def get_network(request):
@@ -45,13 +99,13 @@ def get_network_users(request):
     rows = list()
 
     user_ids = request.POST.get("user_ids")
-
+    term = request.POST.get("term")
     for user_id in user_ids:
         row = list()
         user = User.objects.get(id=int(user_id))
-        row.append(str(user.first_name) + " " + str(user.last_name))
-
-        rows.append(row)
+        if user:
+            row.append(str(user.first_name) + " " + str(user.last_name))
+            rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
@@ -144,6 +198,28 @@ def get_user_session(request):
         return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
 
 
+def check_alerts(request):
+    user = User.objects.get(id=request.POST.get('id'))
+    try:
+        alert = MessageAlerts.objects.get(to_user=user)
+        from_id = alert.from_user.id
+        alert.delete()
+        return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+    except MessageAlerts.DoesNotExist as e:
+        return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+
+def send_alert (request):
+    try:
+        user = User.objects.get(id=request.POST.get('id'))
+        to_user = User.objects.get(id=request.POST.get('to_id'))
+        alert = MessageAlerts()
+        alert.to_user = to_user
+        alert.from_user = user
+        alert.save()
+        return HttpResponse (json.dumps({'success':'true'}), content_type="application/json")
+    except Exception as e:
+        return HttpResponse (json.dumps({'success': 'false', 'error':e.message}), content_type="application/json")
+
 def get_community_user_rows(request):
     """
     Builds the rows for display in the community members in webchat widget.
@@ -172,3 +248,8 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
         return HttpResponse(json.dumps({'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/33/33965.svg', 'imagealt': 'im-community', 'rows': rows}), content_type="application/json")
+
+def webchat_search(request):
+    user = list()
+    user = get_network_users(request, 1)
+
