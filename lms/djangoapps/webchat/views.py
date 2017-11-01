@@ -248,7 +248,7 @@ def get_community_user_rows(request):
 
     my_network = list()
     getMyPeople = my_people(request, checkInNetwork = 1)
-    myPeople = json.loads(getMyPeople)
+    myPeople = json.loads(getMyPeople.read())
     raise Exception(myPeople)
     myPeopleList = getMyPeople.replace("[{", "[").replace("}]", "]").split("}, {")
 
