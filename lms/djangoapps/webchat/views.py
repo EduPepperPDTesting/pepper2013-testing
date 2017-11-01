@@ -262,7 +262,7 @@ def get_community_user_rows(request):
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         else:
             row.append('')
- 
+
         row.append(checkInCommunities(request.user, item.user))
         rows.append(row)
 
