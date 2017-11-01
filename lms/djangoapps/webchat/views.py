@@ -248,7 +248,7 @@ def get_community_user_rows(request):
 
     my_network = list()
     getMyPeople = my_people(request, checkInNetwork = 1)
-    raise Exception("getMyPeople: "+getMyPeople)
+    raise Exception(getMyPeople)
     myPeopleList = getMyPeople.replace("[{", "[").replace("}]", "]").split("}, {")
 
     myPeopleDict = {}
