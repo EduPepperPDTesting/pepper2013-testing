@@ -72,6 +72,7 @@ def get_all_ptusers(request):
             row = list()
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(str(user_item.id))
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
             row.append(checkInCommunities(request.user, user_item))
 
             rows.append(row)
@@ -83,6 +84,7 @@ def get_all_ptusers(request):
             if user:
                 row.append(str(user.first_name) + " " + str(user.last_name))
                 row.append(str(user.id))
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
                 row.append(checkInCommunities(request.user, user))
 
                 rows.append(row)
@@ -90,8 +92,7 @@ def get_all_ptusers(request):
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps(
-            {'success': 1, 'netIcon': '', 'netimagealt': 'im-network', 'rows': rows}))
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 @login_required
 def get_network(request):
@@ -111,6 +112,7 @@ def get_network_users(request):
         if user:
             row.append(str(user.first_name) + " " + str(user.last_name))
             row.append(str(user.id))
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
             row.append(checkInCommunities(request.user, user))
 
             rows.append(row)
@@ -118,8 +120,7 @@ def get_network_users(request):
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps(
-            {'success': 1, 'netIcon': 'https://image.flaticon.com/icons/svg/125/125702.svg', 'netimagealt': 'im-network', 'rows': rows}))
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 def checkInCommunities(user, otherUser):
     other_community_list = list()
@@ -250,13 +251,14 @@ def get_community_user_rows(request):
         row = list()
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
         row.append(str(item.user.id))
+        row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         row.append('https://image.flaticon.com/icons/svg/33/33965.svg')
         rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps({'success': 1, 'netIcon': '', 'netimagealt': '', 'rows': rows}), content_type="application/json")
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 def webchat_search(request):
     user = list()

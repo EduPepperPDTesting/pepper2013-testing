@@ -84,7 +84,8 @@
 						for(i = 0; i < records; i++){
 							username = userRows[i][0];
                             id = userRows[i][1];
-                            commIcon = userRows[i][2]
+                            netIcon = userRows[i][2];
+                            commIcon = userRows[i][3];
 							console.log(username+" "+id);
 							userID = username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
@@ -99,7 +100,7 @@
 								removeStyle = 'display:none;'
 							}
 							var netIconTag, commIconTag;
-							if(data.netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + data.netIcon + "' alt='" + data.netimagealt+"'></a>"}else{netIconTag = "";}
+							if(data.netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='" + netIcon +"'></a>"}else{netIconTag = "";}
 							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='" + commIcon +"'></a>"}else{otherIconTag = "";}
 							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>"+username+", "+id+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
