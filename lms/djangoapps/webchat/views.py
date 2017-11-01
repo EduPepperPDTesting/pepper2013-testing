@@ -246,11 +246,19 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
+    my_network = my_people(checkInNetwork = 1)
+
     #for item in users[start:end]:
     for item in users:
         row = list()
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
         row.append(str(item.user.id))
+
+        if item.user in my_network:
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+        else:
+            row.append('')
+
         row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         row.append(checkInCommunities(request.user, item.user))
         rows.append(row)
