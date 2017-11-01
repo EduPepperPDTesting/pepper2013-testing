@@ -249,7 +249,7 @@ def get_community_user_rows(request):
     my_network = list()
     getMyPeople = my_people(request, checkInNetwork = 1)
 
-    for networkUser in getMyPeople.users:
+    for networkUser in getMyPeople.hits.hits:
         my_network.append(networkUser.user_id)
 
     #for item in users[start:end]:
