@@ -318,7 +318,7 @@ def my_people(request,course_id='',checkInNetwork=''):
         return render_to_response('people/my_people.html', context)
 
     elif not checkInNetwork == '':
-        return HttpResponse(json.dumps({'users': profiles}))
+        return HttpResponse(json.dumps(profiles))
 
     else:
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")

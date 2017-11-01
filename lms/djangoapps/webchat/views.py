@@ -247,7 +247,7 @@ def get_community_user_rows(request):
     rows = list()
 
     my_network = list()
-    getMyPeople = my_people(request, checkInNetwork = 1).read().decode('utf-8')
+    getMyPeople = my_people(request, checkInNetwork = 1)
     raise Exception(getMyPeople)
     for networkUser in getMyPeople.hits.hits:
         my_network.append(networkUser.user_id)
