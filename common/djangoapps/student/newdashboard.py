@@ -1446,7 +1446,7 @@ def submit_new_post(request):
             organization_id = 0
         elif organization_type == "State":
             organization_id = request.user.profile.district.state.id
-        elif level == "District":
+        elif organization_type == "District":
             organization_id = request.user.profile.district.id
         elif organization_type == "School":
             organization_id = request.user.profile.school.id
