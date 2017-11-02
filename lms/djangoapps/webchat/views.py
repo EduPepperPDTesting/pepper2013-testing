@@ -106,7 +106,7 @@ def get_all_ptusers(request):
                 # if userid in my_network_ids:
                 #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
                 # else:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg'))
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
 
                 row.append(checkInCommunities(request.user, user))
 
