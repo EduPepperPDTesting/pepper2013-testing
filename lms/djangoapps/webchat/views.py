@@ -48,7 +48,6 @@ def get_users_org(request):
     return render_to_response('webchat/listorgusers.html', data)
 
 def get_all_ptusers(request):
-    user_community = CommunityUsers.objects.select_related().filter(user=request.user)
     rows = list()
 
     getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
