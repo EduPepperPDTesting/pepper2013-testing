@@ -225,6 +225,7 @@ def people(request,course_id=''):
 
 
     else:
+        raise Exception(profiles)
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
 
 @login_required
