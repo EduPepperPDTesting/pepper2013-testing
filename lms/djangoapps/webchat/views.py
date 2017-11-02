@@ -201,10 +201,13 @@ def get_user_session(request):
 def check_alerts(request):
     user = User.objects.get(id=request.POST.get('id'))
     try:
-        alert = MessageAlerts.objects.get(to_user=user)
-        from_id = alert.from_user.id
-        alert.delete()
-        return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+        alert = MessageAlerts.objects.filter(to_user=user)
+        if alert:
+            from_id = alert[0].from_user.id
+            alert.delete()
+            return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+        else:
+            return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
     except MessageAlerts.DoesNotExist as e:
         return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
 
