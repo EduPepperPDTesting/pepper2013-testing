@@ -198,7 +198,7 @@ def people(request,course_id=''):
             'params':params,
             'people_search_debug':1}
 
-    community_id = request.POST.get('community_id')
+    community_id = request.GET.get('community_id')
     if community_id is None:
         courses=list()
         courses=get_courses(request.user, request.META.get('HTTP_HOST'))
@@ -225,7 +225,6 @@ def people(request,course_id=''):
 
 
     else:
-        raise Exception(profiles)
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
 
 @login_required

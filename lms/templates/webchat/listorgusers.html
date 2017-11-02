@@ -30,15 +30,18 @@
 				var nameEndIndex = tableData.indexOf("}") - 1;
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				var commName = (nameEndIndex > 0) ? tableData.substring(nameStartIndex, nameEndIndex): "";
+				var ajaxType = "post";
 				var rowSource = "${reverse('get_community_user_rows')}";
 			}else if(tableData == 'My Network'){
 				console.log("tableData =" + tableData);
 				var commId = 'network';
 				var commName = tableData;
+				var ajaxType = "post";
 				var rowSource = "${reverse('my_people')}"; //"reverse('get_network_user_rows')}";
 			}else{
 				var commId = 'allptusers';
 				var commName = tableData;
+				var ajaxType = "get";
 				var rowSource = "${reverse('people')}"; //"reverse('get_all_ptuser_rows';
 			}
 			$(this).attr('id', 'community_'+commId);
@@ -47,7 +50,7 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
-				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: isasync, success: function (data) {
+				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
 					console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
 					if (data.success) {
 						if (commId == 'network' || commId == 'allptusers'){
