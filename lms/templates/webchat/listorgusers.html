@@ -325,8 +325,7 @@
     function checkForAlert() {
         $.post("${reverse('check_webchat_alerts')}", {'id': ${request.user.id}}, function (data){
             if (data.alert=='true') {
-                console.log ("Alert for " + data.alert_id);
-                $(".pep_contact_name#4").click();
+                $(".pep_contact_name#"+data.alert_id).click();
             }
         });
     }
