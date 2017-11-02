@@ -278,6 +278,7 @@
             } catch (err) {
                 getMessage(id);
             }
+            $(".pep_chat_input[data-to_id='"+user_id+"']").unbind();
             tieListener();
         });
 
@@ -309,10 +310,9 @@
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
         getMessage(send_user);
     }
-    function tieListener() {
-        $(".pep_chat_input").keyup(function (e) {
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
             if (e.keyCode == 13) {
-                console.log ("KEYUP");
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
             }
