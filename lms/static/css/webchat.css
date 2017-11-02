@@ -180,3 +180,22 @@
     position: relative;
     bottom: 8px;
 }
+.pepchat_hr{
+    border-top: 1px solid #000;
+    margin:5px 5px 0 0;
+}
+.pepchat_img{
+    width:20px;
+}
+.pepchat_time {
+    padding-top: 4px;
+    float: right;
+    font-size: 10px;
+    color: dodgerblue;
+}
+.pepchat_body {
+    font-weight: bold;
+}
+.pepchat_row {
+    width: 100%;
+}
