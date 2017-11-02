@@ -268,8 +268,8 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
-    getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
-    my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+    #getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
+    my_network_ids = []#[d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     #for item in users[start:end]:
     for item in users:
