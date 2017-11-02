@@ -366,7 +366,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         except Exception as e:
             log.error("Send %s notification failed to user %s (%s)" % (type_name, user.id, e))
 
-    for member in CommunityUsers.objects.filter(community=community_id):
+    for member in CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered'):
         if member.user.id != action_user.id:
             process(member.user, "Delete Course", courses_del)
             process(member.user, "Add Course", courses_add)
