@@ -248,7 +248,9 @@ def get_community_user_rows(request):
 
     my_network = list()
     getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
-    raise Exception(type(getMyPeople))
+    myPeople="".join(getMyPeople)
+
+    raise Exception(type(myPeople))
 
     # myPeople = json.loads(getMyPeople.read())
     # raise Exception(myPeople)
