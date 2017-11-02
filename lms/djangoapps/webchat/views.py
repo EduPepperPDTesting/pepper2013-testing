@@ -246,24 +246,9 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
-    my_network = list()
     getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
 
-    my_network_ids = [d["user_id"] for d in getMyPeople if 'user_id' in d]
-
-    raise Exception(my_network_ids)
-
-    # myPeople = json.loads(getMyPeople.read())
-    # raise Exception(myPeople)
-    #
-    #
-    # myPeopleDict = {}
-    # for item in myPeopleList:
-    #     i = item.split(': ')
-    #     myPeopleDict[i[0]] = i[1]
-    #
-    # for networkUser in MyPeopleDict:
-    #     my_network.append(networkUser.user_id)
+    my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     #for item in users[start:end]:
     for item in users:
@@ -271,10 +256,10 @@ def get_community_user_rows(request):
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
         row.append(str(item.user.id))
 
-        if item.user.id in my_network:
+        if item.user.id in my_network_ids:
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         else:
-            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            row.append('')
 
         row.append(checkInCommunities(request.user, item.user))
         rows.append(row)
