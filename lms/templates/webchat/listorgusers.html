@@ -296,10 +296,10 @@
         $.post("${reverse('save_message')}", datainfo, function(rdata) {
             var messageinfo = {
                 'info': JSON.stringify({
-                    'user_id': '${user.id}',
-                    'interviewer_id': send_user,
-                    'interviewer_name': '',
-                    'interviewer_fullname': '',
+                    'user_id': send_user,
+                    'interviewer_id': '${user.id}',
+                    'interviewer_name': '${user.first_name}',
+                    'interviewer_fullname': '${user.first_name} ${user.last_name}',
                     'type': 'message',
                     'body': message,
                     'date': (new Date()).toISOString(),
@@ -307,6 +307,7 @@
                 })
             };
             $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+            getMessage(send_user);
         });
     }
     function tieListener() {
@@ -318,7 +319,6 @@
                 console.log ("Sending " + send_user_id + " the message '" + message + "'");
                 sendVideoRequest(send_user_id, message);
                 $(this).val("");
-                getMessage($(this).data("to_id"));
             }
         });
     }
