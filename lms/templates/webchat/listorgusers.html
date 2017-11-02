@@ -307,7 +307,7 @@
             })
         };
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
-
+        getMessage(send_user);
     }
     function tieListener() {
         $(".pep_chat_input").keyup(function (e) {
