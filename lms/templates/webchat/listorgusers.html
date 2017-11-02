@@ -312,11 +312,8 @@
     function tieListener() {
         $(".pep_chat_input").keyup(function (e) {
             if (e.keyCode == 13) {
+                console.log ("KEYUP");
                 sendChatMessage($(this).data("to_id"), $(this).val());
-                send_user_id = $(this).data("to_id");
-                message = $(this).val();
-                console.log ("Sending " + send_user_id + " the message '" + message + "'");
-                sendVideoRequest(send_user_id, message);
                 $(this).val("");
             }
         });
