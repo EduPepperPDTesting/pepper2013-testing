@@ -59,7 +59,7 @@ def get_all_ptusers(request):
     if term:
         ids = list()
 
-        users_firstname = User.objects.filter(first_name__icontains=term, id__in=user_ids)
+        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=term, id__in=user_ids)
 
         for user_item in users_firstname:
             row = list()
@@ -67,17 +67,17 @@ def get_all_ptusers(request):
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(userid)
 
-            # if userid in my_network_ids:
-            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            # else:
-            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            if userid in my_network_ids:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            else:
+                row.append('')
 
             row.append(checkInCommunities(request.user, user_item))
 
             rows.append(row)
             ids.append(user_item.id)
 
-        users_lastname = User.objects.exclude(id__in=ids).filter(last_name__icontains=term, id__in=user_ids)
+        users_lastname = User.objects.exclude(id__in=ids, id=request.user.id).filter(last_name__icontains=term, id__in=user_ids)
 
         for user_item in users_lastname:
             row = list()
@@ -85,10 +85,10 @@ def get_all_ptusers(request):
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(userid)
 
-            # if userid in my_network_ids:
-            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            # else:
-            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            if userid in my_network_ids:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            else:
+                row.append('')
 
             row.append(checkInCommunities(request.user, user_item))
 
@@ -97,16 +97,16 @@ def get_all_ptusers(request):
     else:
         for user_id in user_ids:
             row = list()
-            user = User.objects.get(id=int(user_id))
+            user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
             if user:
                 userid = str(user.id)
                 row.append(str(user.first_name) + " " + str(user.last_name))
                 row.append(userid)
 
-                # if userid in my_network_ids:
-                #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-                # else:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                if userid in my_network_ids:
+                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                else:
+                    row.append('')
 
                 row.append(checkInCommunities(request.user, user))
 
@@ -131,7 +131,7 @@ def get_network_users(request):
 
     for user_id in user_ids:
         row = list()
-        user = User.objects.get(id=int(user_id))
+        user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
         if user:
             row.append(str(user.first_name) + " " + str(user.last_name))
             row.append(str(user.id))
@@ -276,16 +276,17 @@ def get_community_user_rows(request):
     for item in users:
         row = list()
         userid = str(item.user.id)
-        row.append(str(item.user.first_name) + " " + str(item.user.last_name))
-        row.append(userid)
+        if not userid == str(request.user.id):
+            row.append(str(item.user.first_name) + " " + str(item.user.last_name))
+            row.append(userid)
 
-        if userid in my_network_ids:
-            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-        else:
-            row.append('')
+            if userid in my_network_ids:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            else:
+                row.append('')
 
-        row.append(checkInCommunities(request.user, item.user))
-        rows.append(row)
+            row.append(checkInCommunities(request.user, item.user))
+            rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
