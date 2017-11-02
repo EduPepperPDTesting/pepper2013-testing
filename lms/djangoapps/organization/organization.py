@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollmentAllowed
 from student.models import District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
