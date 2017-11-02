@@ -51,8 +51,8 @@ def get_all_ptusers(request):
     user_community = CommunityUsers.objects.select_related().filter(user=request.user)
     rows = list()
 
-    getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
-    my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+    # getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
+    # my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     user_ids = request.POST.getlist("user_ids[]")
     term = request.POST.get("term")
@@ -67,10 +67,10 @@ def get_all_ptusers(request):
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(userid)
 
-            if userid in my_network_ids:
+            # if userid in my_network_ids:
+            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            # else:
                 row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            else:
-                row.append('')
 
             row.append(checkInCommunities(request.user, user_item))
 
@@ -85,10 +85,10 @@ def get_all_ptusers(request):
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(userid)
 
-            if userid in my_network_ids:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            else:
-                row.append('')
+            # if userid in my_network_ids:
+            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            # else:
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
 
             row.append(checkInCommunities(request.user, user_item))
 
@@ -103,10 +103,10 @@ def get_all_ptusers(request):
                 row.append(str(user.first_name) + " " + str(user.last_name))
                 row.append(userid)
 
-                if userid in my_network_ids:
-                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-                else:
-                    row.append('')
+                # if userid in my_network_ids:
+                #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                # else:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg'))
 
                 row.append(checkInCommunities(request.user, user))
 
