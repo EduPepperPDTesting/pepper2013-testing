@@ -253,10 +253,11 @@ def get_community_user_rows(request):
     #for item in users[start:end]:
     for item in users:
         row = list()
+        userid = str(item.user.id)
         row.append(str(item.user.first_name) + " " + str(item.user.last_name))
-        row.append(str(item.user.id))
+        row.append(userid)
 
-        if item.user.id in my_network_ids:
+        if str(userid) in my_network_ids:
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
         else:
             row.append('')
