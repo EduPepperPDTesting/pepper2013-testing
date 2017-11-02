@@ -63,24 +63,26 @@
 						tbodyID = "#users_"+commId;
 						var username, userID;
 						var elExists, addStyle, removeStyle;
-						for(i = 0; i < userRows.length; i++){
-							username = userRows[i][0];
+						for(i = 0; i < userRows.length; i++) {
+                            username = userRows[i][0];
                             id = userRows[i][1];
-							console.log(username);
-							userID = username.replace(/ /g, "_")+','+id;
-							elExists = !!document.getElementById(userID);
-							if(elExists === true){
-								console.log("elExists === false=" + (elExists === false));
-								addStyle = 'display:none;';
-								removeStyle = 'display: inline-block;'
-							}
-							if(elExists === false){
-								console.log("elExists === true=" + (elExists === true));
-								addStyle = 'display: inline-block;';
-								removeStyle = 'display:none;'
-							}
-							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt+"'></a></span></div><div id='"+id+"' class='pep_contact_name'>"+username+", "+id+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
-						}
+                            console.log(username);
+                            userID = username.replace(/ /g, "_") + ',' + id;
+                            elExists = !!document.getElementById(userID);
+                            if (elExists === true) {
+                                console.log("elExists === false=" + (elExists === false));
+                                addStyle = 'display:none;';
+                                removeStyle = 'display: inline-block;'
+                            }
+                            if (elExists === false) {
+                                console.log("elExists === true=" + (elExists === true));
+                                addStyle = 'display: inline-block;';
+                                removeStyle = 'display:none;'
+                            }
+                            if (userID != ${request.user.id}) {
+                                $("body").find(tbodyID).append("<tr><td class='" + userID + "'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'><a><img class='pep_type_icon' src='" + data.iconlink + "' alt='" + data.imagealt + "'></a></span></div><div id='" + id + "' class='pep_contact_name'>" + username + ", " + id + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+                            }
+                        }
 
 						$(".pep_contact_name").tooltip({
 							items: ".pep_contact_name",
@@ -270,7 +272,7 @@
         }, function(data) {
             $("#textchat_"+id).html("");
             $.each(data.results, function(k, v) {
-                var image = "<table><tr><td><img src='/user_photo/"+id+"' style = 'width:16px; height:16px;'></img></td><td>"
+                var image = "<table><tr><td><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td>"
                 $("#textchat_"+id).prepend(image + v.body + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
             });
             try {
@@ -278,7 +280,8 @@
             } catch (err) {
                 getMessage(id);
             }
-            tieListener();
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
         });
 
     }
@@ -287,16 +290,16 @@
         console.log(send_user+message);
         var datainfo = {
             'info': JSON.stringify({
-            'sender_id': '${user.id}',
-            'recipient_id': send_user,
-            'date': (new Date()).toISOString(),
-            'body': message
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
             })
         };
         $.post("${reverse('save_message')}", datainfo, function(data){});
         var messageinfo = {
             'info': JSON.stringify({
-                'user_id': send_user,
+                'user_id': send_user.toString(),
                 'interviewer_id': '${request.user.id}',
                 'interviewer_name': '${request.user.first_name}',
                 'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
@@ -307,14 +310,14 @@
             })
         };
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+        getMessage(send_user);
     }
-    function tieListener() {
-        $(".pep_chat_input").keyup(function (e) {
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
             if (e.keyCode == 13) {
-                console.log("Sending...");
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
-                getMessage($(this).data("to_id"));
             }
         });
     }
@@ -322,8 +325,7 @@
     function checkForAlert() {
         $.post("${reverse('check_webchat_alerts')}", {'id': ${request.user.id}}, function (data){
             if (data.alert=='true') {
-                console.log ("Alert for " + data.alert_id);
-                $(".pep_contact_name#4").click();
+                $(".pep_contact_name#"+data.alert_id).click();
             }
         });
     }
@@ -339,7 +341,7 @@
             'body': message
             })
         };
-        $.post("${reverse('save_message')}", datainfo, function(data){});
+        $.post("${reverse('save_message')}", datainfo, function(data){console.log(data)});
         var messageinfo = {
             'info': JSON.stringify({
                 'user_id': send_user,
