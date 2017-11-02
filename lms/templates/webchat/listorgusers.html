@@ -288,27 +288,26 @@
         var datainfo = {
             'info': JSON.stringify({
                 'sender_id': '${user.id}',
-                'recipient_id': send_user,
+                'recipient_id': send_user.toString(),
                 'date': (new Date()).toISOString(),
                 'body': message
             })
         };
-        $.post("${reverse('save_message')}", datainfo, function(rdata) {
-            var messageinfo = {
-                'info': JSON.stringify({
-                    'user_id': send_user,
-                    'interviewer_id': '${user.id}',
-                    'interviewer_name': '${user.first_name}',
-                    'interviewer_fullname': '${user.first_name} ${user.last_name}',
-                    'type': 'message',
-                    'body': message,
-                    'date': (new Date()).toISOString(),
-                    'activate': 'false'
-                })
-            };
-            $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
-            getMessage(send_user);
-        });
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+
     }
     function tieListener() {
         $(".pep_chat_input").keyup(function (e) {
