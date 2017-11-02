@@ -48,7 +48,7 @@
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
 				$.ajax({type: "post", url: rowSource, data: {community_id: commId}, async: isasync, success: function (data) {
-					console.log("data="+data+" data.success="+data.success); //+"data.users.length="+data.users.length);
+					console.log("data="+data.rows+" data.success="+data.success); //+"data.users.length="+data.users.length);
 					if (data.success) {
 						if (commId == 'network' || commId == 'allptusers'){
 							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}";
