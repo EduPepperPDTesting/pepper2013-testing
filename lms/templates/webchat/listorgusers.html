@@ -278,8 +278,8 @@
             } catch (err) {
                 getMessage(id);
             }
-            $(".pep_chat_input[data-to_id='"+user_id+"']").unbind();
-            tieListener();
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
         });
 
     }
