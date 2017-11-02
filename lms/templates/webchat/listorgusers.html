@@ -274,7 +274,7 @@
             $.each(data.results, function(k, v) {
                 var image = "<table><tr><td><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td>";
                 date = new Date(v.date);
-                $("#textchat_"+id).prepend(image + v.body + "<br><strong>" + date.toLocaleString() + "</strong></td></tr></table><hr style='margin:5px 5px 0 0;'>");
+                $("#textchat_"+id).prepend(image + v.body + "<br>" + date.toLocaleString() + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
             });
             try {
                 $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
