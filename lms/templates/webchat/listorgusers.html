@@ -287,32 +287,36 @@
         console.log(send_user+message);
         var datainfo = {
             'info': JSON.stringify({
-            'sender_id': '${user.id}',
-            'recipient_id': send_user,
-            'date': (new Date()).toISOString(),
-            'body': message
-            })
-        };
-        $.post("${reverse('save_message')}", datainfo, function(data){});
-        var messageinfo = {
-            'info': JSON.stringify({
-                'user_id': send_user,
-                'interviewer_id': '${request.user.id}',
-                'interviewer_name': '${request.user.first_name}',
-                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
-                'type': 'message',
-                'body': message,
+                'sender_id': '${user.id}',
+                'recipient_id': send_user,
                 'date': (new Date()).toISOString(),
-                'activate': 'false'
+                'body': message
             })
         };
-        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('save_message')}", datainfo, function(rdata) {
+            var messageinfo = {
+                'info': JSON.stringify({
+                    'user_id': '${user.id}',
+                    'interviewer_id': send_user,
+                    'interviewer_name': '',
+                    'interviewer_fullname': '',
+                    'type': 'message',
+                    'body': message,
+                    'date': (new Date()).toISOString(),
+                    'activate': 'false'
+                })
+            };
+            $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        });
     }
     function tieListener() {
         $(".pep_chat_input").keyup(function (e) {
             if (e.keyCode == 13) {
-                console.log("Sending...");
                 sendChatMessage($(this).data("to_id"), $(this).val());
+                send_user_id = $(this).data("to_id");
+                message = $(this).val();
+                console.log ("Sending " + send_user_id + " the message '" + message + "'");
+                sendVideoRequest(send_user_id, message);
                 $(this).val("");
                 getMessage($(this).data("to_id"));
             }
@@ -339,7 +343,7 @@
             'body': message
             })
         };
-        $.post("${reverse('save_message')}", datainfo, function(data){});
+        $.post("${reverse('save_message')}", datainfo, function(data){console.log(data)});
         var messageinfo = {
             'info': JSON.stringify({
                 'user_id': send_user,
