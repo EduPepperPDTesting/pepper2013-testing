@@ -222,13 +222,14 @@ def people(request,course_id=''):
 
         return render_to_response('people/people.html', context)
 
+
     else:
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
 
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
-def my_people(request,course_id=''):
+def my_people(request,course_id='',checkInNetwork=''):
 
     # check course enrollment, when user visiting course people
     if course_id:
@@ -315,6 +316,9 @@ def my_people(request,course_id=''):
         context['profiles']=profiles
 
         return render_to_response('people/my_people.html', context)
+
+    elif not checkInNetwork == '':
+        return HttpResponse(json.dumps(profiles))
 
     else:
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
