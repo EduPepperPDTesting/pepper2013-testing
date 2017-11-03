@@ -226,6 +226,9 @@ $(document).ready(function(){
                     }
                     console.log(user_ids);
                     $.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids, term: term}, async: false, success: function (networkData){
+                            $(".org-list-table:gt(0)").remove();
+                            $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
                                     networkRows.push(networkData.rows[i]);
@@ -233,9 +236,6 @@ $(document).ready(function(){
 
                                 var arrLength = networkRows.length;
                                 var getUserRows={userRows: networkRows, arrLength: arrLength};
-
-                                $(".org-list-table:gt(0)").remove();
-                                $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                                 var username, userID, records;
                                 var elExists, addStyle, removeStyle;
@@ -267,6 +267,8 @@ $(document).ready(function(){
                                     if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
                                     $("body").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>"+username+", "+id+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
                                 }
+                            }else{
+                                $("body").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
                             }
                         }
                     });
