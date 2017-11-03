@@ -76,7 +76,7 @@ def get_all_ptusers(request):
             rows.append(row)
             ids.append(userid) #str(user_item.id))
 
-        users_lastname = User.objects.exclude(id__in=ids, id=request.user.id).filter(last_name__icontains=term, id__in=user_ids)
+        users_lastname = User.objects.exclude(id=request.user.id).exclude(id__in=ids, flat=True).filter(last_name__icontains=term, id__in=user_ids)
 
         for user_item in users_lastname:
             row = list()
