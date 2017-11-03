@@ -81,7 +81,7 @@ def get_all_ptusers(request):
         for user_item in users_lastname:
             row = list()
             userid = str(user_item.id)
-            row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+            row.append(str(user_item.first_name) + "-" + str(user_item.last_name))
             row.append(userid)
 
             if userid in my_network_ids:
