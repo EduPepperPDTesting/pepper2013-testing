@@ -75,24 +75,25 @@ def get_all_ptusers(request):
 
             rows.append(row)
             ids.append(userid) #str(user_item.id))
-
-        raise Exception(ids)
-        users_lastname = User.objects.exclude(id=request.user.id).exclude(id__in=ids).filter(last_name__icontains=term, id__in=user_ids)
+ 
+        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=term, id__in=user_ids) #.exclude(id__in=ids)
 
         for user_item in users_lastname:
-            row = list()
             userid = str(user_item.id)
-            row.append(str(user_item.first_name) + " " + str(user_item.last_name))
-            row.append(userid)
+            if not userid in ids:
+                row = list()
 
-            if userid in my_network_ids:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            else:
-                row.append('')
+                row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+                row.append(userid)
 
-            row.append(checkInCommunities(request.user, user_item))
+                if userid in my_network_ids:
+                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                else:
+                    row.append('')
 
-            rows.append(row)
+                row.append(checkInCommunities(request.user, user_item))
+
+                rows.append(row)
 
     else:
         for user_id in user_ids:
