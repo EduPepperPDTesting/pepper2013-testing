@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollmentAllowed
 from student.models import District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
@@ -1928,6 +1928,10 @@ def course_assign(qualifications, data):
                         break
         if sign:
             user = User.objects.get(email=data['email'])
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
             CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
             my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 

@@ -190,14 +190,17 @@ $(document).ready(function(){
     });
 
     $("#my_all").on("click", function(e){
+        $('#pep_search').val('');
         $("#pep_user_list").load("/getusersorg/");
     });
 
     $("#my_network").on("click", function(e){
+        $('#pep_search').val('');
         $("#pep_user_list").load("/getnetwork/");
     });
 
     $("#my_communities").on("click", function(e){
+        $('#pep_search').val('');
         $("#pep_user_list").load("/getcommunities/");
     });
 
@@ -211,15 +214,66 @@ $(document).ready(function(){
 
     $("#pep_search").on('keyup', function(){
         var term = $('#pep_search').val();
-        if(term!=''){
+        if(term!==''){
             var commId="search";
-            $.post("${reverse('my_people')}", {community_id: commId}, function (data) {
-            //reverse('get_network_user_rows')}", {community_id: commId}, function (data) {
+            $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
-                    /*post("{reverse('get_all_ptuser_rows')}", {user_ids: data.users, term: term}, function (data){
-                        var userRows = data.rows;
-                   });*/
+                    var allUsersSource = "${reverse('get_all_ptusers')}";
+                    var networkRows = [];
+                    var user_ids = [];
+                    for(i=0; i<data.users.length; i++){
+                        user_ids.push(data.users[i].user_id);
+                    }
+                    console.log(user_ids);
+                    $.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids, term: term}, async: false, success: function (networkData){
+                            $(".org-list-table:gt(0)").remove();
+                            $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+
+                            if(networkData.success){
+                                for(i=0; i<networkData.rows.length; i++){
+                                    networkRows.push(networkData.rows[i]);
+                                }
+
+                                var arrLength = networkRows.length;
+                                var getUserRows={userRows: networkRows, arrLength: arrLength};
+
+                                var username, userID, records;
+                                var elExists, addStyle, removeStyle;
+
+                                records = getUserRows.arrLength;
+                                var userRows = getUserRows.userRows;
+
+                                //console.log(records);
+                                for(i = 0; i < records; i++){
+                                    username = userRows[i][0];
+                                    id = userRows[i][1];
+                                    netIcon = userRows[i][2];
+                                    commIcon = userRows[i][3];
+                                    console.log(username+" "+id);
+                                    userID = username.replace(/ /g, "_")+','+id;
+                                    elExists = !!document.getElementById(userID);
+                                    if(elExists === true){
+                                        //console.log("elExists === false=" + (elExists === false));
+                                        addStyle = 'display:none;';
+                                        removeStyle = 'display: inline-block;';
+                                    }
+                                    if(elExists === false){
+                                        //console.log("elExists === true=" + (elExists === true));
+                                        addStyle = 'display: inline-block;';
+                                        removeStyle = 'display:none;';
+                                    }
+                                    var netIconTag, commIconTag;
+                                    if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "";}
+                                    if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
+                                    $("body").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>"+username+", "+id+"</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+                                }
+                            }else{
+                                $("body").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
+                            }
+                        }
+                    });
                 }
+            }
             });
         }
     });
