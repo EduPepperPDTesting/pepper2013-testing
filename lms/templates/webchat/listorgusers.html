@@ -249,7 +249,7 @@
 			e.preventDefault();
 			$(this).css("display", "none");
 			$(this).siblings(".pep_remove_im").css("display", "inline-block");
-			var uclass = $(this).closest("td").attr(class);
+			var uclass = $(this).closest("td").attr("class");
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
 			console.log(userName);
@@ -280,7 +280,7 @@
 				$("#pep_list_clear").css("display", "none");
 			}
 
-			var uclass = $(this).closest("td").attr(class);
+			var uclass = $(this).closest("td").attr("class");
 
 			var elems = document.getElementsByClassName(uclass);
 			for(n = 0; n < elems.length; n++){
