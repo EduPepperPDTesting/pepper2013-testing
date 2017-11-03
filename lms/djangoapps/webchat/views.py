@@ -34,7 +34,8 @@ def gettextframe(request, uname):
 
     comma_index = uname.index("`")
     name_index = uname.index("`", comma_index+1)
-    user_class = uname[0: name_index].replace["`", ","]
+    user_class = uname[0: name_index]
+    user_class = user_class.replace("`", ",")
     id_index = uname.index("`", name_index+1)
     user_name = uname[name_index+1:id_index].replace("_", " ")
     user_id = uname[id_index+1:]
