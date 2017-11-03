@@ -50,6 +50,8 @@ def get_users_org(request):
 def get_all_ptusers(request):
     rows = list()
 
+    getMyPeople = my_people(request, checkInNetwork=1)
+    raise Exception(getMyPeople)
     getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
     my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
