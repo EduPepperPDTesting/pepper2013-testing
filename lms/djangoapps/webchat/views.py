@@ -74,7 +74,7 @@ def get_all_ptusers(request):
             row.append(checkInCommunities(request.user, user_item))
 
             rows.append(row)
-            ids.append(user_item.id)
+            ids.append(userid) #str(user_item.id))
 
         users_lastname = User.objects.exclude(id__in=ids, id=request.user.id).filter(last_name__icontains=term, id__in=user_ids)
 
