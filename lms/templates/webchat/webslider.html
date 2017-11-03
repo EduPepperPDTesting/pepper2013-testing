@@ -106,7 +106,7 @@ $(document).ready(function(){
         }
     });
 
-    $(".pep_contact_name").tooltip({
+    /*$(".pep_contact_name").tooltip({
         items: ".pep_contact_name",
         track: true,
         open: function (event, ui) {
@@ -120,17 +120,17 @@ $(document).ready(function(){
             var username = $(this).text();
             return "<div>"+username+"</div><img class='pep_contact_photo' alt='" + username + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
         }
-    });
+    });*/
 
     $("#pep_user_list").load("/getcommunities/");
 
-    $(".pep_contact_block").on("click", ".pep_contact_name", function(e){
+    /*$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
         var $link = $(e.target);
         e.preventDefault();
         if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
-            var uname = $(this).text();
-            if($(".pep_textchat_block").find(".pep_header_left:contains('" + uname + "')").length == 0){
-                var uname = uname.replace(" ", "_");
+            var uname = $(this).closest('td').attr('class');
+            if($(".pep_textchat_block").find(".pep_header_left[id='" + uname + "']").length == 0){
+                //var uname = uname.replace(" ", "_");
 
                 var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
                 if(elCount <= 19){
@@ -187,7 +187,7 @@ $(document).ready(function(){
             }
         }
         $link.data('lockedAt', +new Date());
-    });
+    });*/
 
     $("#my_all").on("click", function(e){
         $('#pep_search').val('');
@@ -278,7 +278,7 @@ $(document).ready(function(){
         }
     });
 
-    $(".pep_contact_block").on("click", ".pep_add_im", function(e){
+    /*$(".pep_contact_block").on("click", ".pep_add_im", function(e){
         e.preventDefault();
         $(this).css("display", "none");
         $(this).siblings(".pep_remove_im").css("display", "inline-block");
@@ -318,6 +318,6 @@ $(document).ready(function(){
         $("#pep_list_clear").css("display", "none");
         $(".pep_contact_block").find(".pep_remove_im").css("display", "none");
         $(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
-    });
+    });*/
 });
 </script>

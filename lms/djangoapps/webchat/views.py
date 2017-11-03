@@ -32,10 +32,12 @@ def gettextframe(request, uname):
     #     user_name.extend([add_name])
     #     get_name = get_name[space_pos+1:]
 
-    user_name = uname.replace("_", " ").replace("`", ", ")
-    id_index = user_name.index(", ")
-    user_id = user_name[id_index+2:]
-    return render_to_response('webchat/webtextframe.html', {"user_name": user_name, "user_id": user_id})
+    name_index = uname.index("~")
+    user_class = uname[0: name_index]
+    id_index = uname.index("`")
+    user_name = uname[name_index+1:id_index].replace("_", " ")
+    user_id = uname[id_index+1:]
+    return render_to_response('webchat/webtextframe.html', {"user_class": user_class, "user_name": user_name, "user_id": user_id})
 
 # @login_required
 # def get_all_users(request):
