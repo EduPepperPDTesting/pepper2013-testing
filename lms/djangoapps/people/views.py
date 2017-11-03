@@ -292,8 +292,8 @@ def my_people(request,course_id='',checkInNetwork=''):
     profiles,total=search_people(cond)
 
     community_id = request.POST.get('community_id')
-    if community_id is None or checkInNetwork == '':
-        # gether pager params
+    if community_id is None and checkInNetwork == '':
+        # gather pager params
         params=pager_params(request)
 
         context={
