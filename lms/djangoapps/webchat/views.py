@@ -32,9 +32,9 @@ def gettextframe(request, uname):
     #     user_name.extend([add_name])
     #     get_name = get_name[space_pos+1:]
 
-    name_index = uname.index(";")
+    name_index = uname.index("`")
     user_class = uname[0: name_index]
-    id_index = uname.index("`")
+    id_index = uname.index("`", name_index+1)
     user_name = uname[name_index+1:id_index].replace("_", " ")
     user_id = uname[id_index+1:]
     return render_to_response('webchat/webtextframe.html', {"user_class": user_class, "user_name": user_name, "user_id": user_id})
