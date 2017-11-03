@@ -765,11 +765,9 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
 
 .content-wrapper{
     width: 100%;
-    margin: 0 auto;
+    margin: 20px auto 0 auto;
     display: block;
-    margin-top:-55px;
-
-    border: 0px solid;
+    border: 0 solid;
 }
 .content-wrapper td{
     vertical-align:middle;
