@@ -56,11 +56,11 @@ def get_all_ptusers(request):
     my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     user_ids = request.POST.getlist("user_ids[]")
-    term = request.POST.get("term")
-    if term:
+    searchterm = request.POST.get("searchterm")
+    if searchterm:
         ids = list()
         raise Exception(my_network_ids)
-        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=term, id__in=user_ids)
+        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
 
         for user_item in users_firstname:
             row = list()
@@ -78,7 +78,7 @@ def get_all_ptusers(request):
             rows.append(row)
             ids.append(userid) #str(user_item.id))
 
-        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=term, id__in=user_ids) #.exclude(id__in=ids)
+        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=searchterm, id__in=user_ids) #.exclude(id__in=ids)
 
         for user_item in users_lastname:
             userid = str(user_item.id)
