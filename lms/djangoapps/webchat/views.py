@@ -32,8 +32,9 @@ def gettextframe(request, uname):
     #     user_name.extend([add_name])
     #     get_name = get_name[space_pos+1:]
 
-    name_index = uname.index("`")
-    user_class = uname[0: name_index]
+    comma_index = uname.index("`")
+    name_index = uname.index("`", comma_index+1)
+    user_class = uname[0: name_index].replace["`", ","]
     id_index = uname.index("`", name_index+1)
     user_name = uname[name_index+1:id_index].replace("_", " ")
     user_id = uname[id_index+1:]
@@ -59,7 +60,7 @@ def get_all_ptusers(request):
     searchterm = request.POST.get("searchterm")
     if searchterm:
         ids = list()
-         
+
         users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
 
         for user_item in users_firstname:
