@@ -296,7 +296,7 @@
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 
-			var idUser = $(this).parent().attr("id").substr(indexOf("ul")+2);
+			var idUser = $(this).parent().attr("id").substr($(this).parent().attr("id").indexOf("ul")+2);
 			$(this).parent().remove();
 			$("#pep_user_list").find("td:has(div[id="+idUser+"]").each(function(){
 				$("this").find(".pep_remove_im").css("display", "none");
