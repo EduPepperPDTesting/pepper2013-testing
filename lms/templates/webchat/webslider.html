@@ -213,7 +213,7 @@ $(document).ready(function(){
         var term = $('#pep_search').val();
         if(term!==''){
             var commId="search";
-            $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
+            $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
                     var allUsersSource = "${reverse('get_all_ptusers')}";
                     var networkRows = [];
