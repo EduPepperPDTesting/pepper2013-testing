@@ -59,7 +59,7 @@ def get_all_ptusers(request):
     searchterm = request.POST.get("searchterm")
     if searchterm:
         ids = list()
-        #raise Exception(my_network_ids)
+         
         users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
 
         for user_item in users_firstname:
