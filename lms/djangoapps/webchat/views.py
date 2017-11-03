@@ -51,7 +51,6 @@ def get_all_ptusers(request):
     rows = list()
 
     getMyPeople = my_people(request, checkInNetwork=1).content
-    #getMyPeople = json.loads(getMyPeople)
     my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     user_ids = request.POST.getlist("user_ids[]")
