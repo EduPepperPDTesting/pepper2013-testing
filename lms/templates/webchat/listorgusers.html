@@ -152,13 +152,13 @@
         });
         $(".pep_contact_block").on("mouseover", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "164px", "font-size": ".8em", "white-space": "pre-line"});
+        		$(this).css({"max-width": "164px", "font-size": ".8em", "white-space": "normal"});
         	}
 		});
 
         $(".pep_contact_block").on("mouseout", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "164px", "font-size": "1em"});
+        		$(this).css({"max-width": "164px", "font-size": "1em", "white-space": "nowrap"});
         	}
 		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
