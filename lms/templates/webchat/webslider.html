@@ -228,7 +228,7 @@ $(document).ready(function(){
                     var prevLen;
                     var page = 2;
                     do{
-                        $.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+                        $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
                             prevLen=user_ids.length;
                             if (data.success) {
                                 for(i=0; i<data.users.length; i++){
