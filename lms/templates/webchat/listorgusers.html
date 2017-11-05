@@ -50,7 +50,7 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
-				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: 1}, async: isasync, success: function (data) {
+				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
 					console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
 					if (data.success && (data.rows.length>0 || data.users.length>0)) {
 						if (commId == 'network' || commId == 'allptusers'){
