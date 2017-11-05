@@ -230,7 +230,7 @@ def people(request,course_id=''):
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
-def my_people(request,course_id='',checkInNetwork=''):
+def my_people(request,course_id='',checkInNetwork='',pageAttr=''):
 
     # check course enrollment, when user visiting course people
     if course_id:
@@ -252,7 +252,9 @@ def my_people(request,course_id='',checkInNetwork=''):
     # fetch page
     page=request.GET.get('page','')
     pagePost = request.POST.get('page', '')
-    if page.isdigit() and int(page)>0:
+    if pageAttr.isdigit() and int(pageAttr)>0:
+        page = int(pageAttr)
+    elif page.isdigit() and int(page)>0:
         page=int(page)
     elif pagePost.isdigit() and int(pagePost)>0:
         page=int(pagePost)

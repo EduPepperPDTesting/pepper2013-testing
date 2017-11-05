@@ -225,6 +225,21 @@ $(document).ready(function(){
                         user_ids.push(data.users[i].user_id);
                     }
                     console.log(user_ids);
+                    var prevLen;
+                    var page = 2;
+                    do{
+                        $.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+                            prevLen=user_ids.length;
+                            if (data.success) {
+                                for(i=0; i<data.users.length; i++){
+                                    user_ids.push(data.users[i].user_id);
+                                }
+                                page += 1;
+                            }
+                            console.log(page+" "+user_ids);
+                        }
+                        });
+                    }while(prevLen < user_ids.length);
                     $.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids, searchterm: searchterm}, async: false, success: function (networkData){
                             $(".org-list-table:gt(0)").remove();
                             $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
