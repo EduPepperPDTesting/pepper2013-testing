@@ -53,7 +53,7 @@
 				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
 					console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
 					if (data.success) {
-						if (commId == 'network' || commId == 'allptusers'){
+						if ((commId == 'network' || commId == 'allptusers') && data.users.length>0){
 							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}";
 							var networkRows = [];
 							var user_ids = [];
