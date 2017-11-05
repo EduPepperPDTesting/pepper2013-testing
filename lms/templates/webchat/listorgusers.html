@@ -71,7 +71,7 @@
 									}else{
 										break;
 									}
-								}
+								});
 							}
 							console.log(user_ids);
 							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
