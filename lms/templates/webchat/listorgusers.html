@@ -60,7 +60,7 @@
 							for(i=0; i<data.users.length; i++){
 								user_ids.push(data.users[i].user_id);
 							}
-							var prevLen;
+							/*var prevLen;
 							var page = 2;
 							do{
 								$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
@@ -73,7 +73,7 @@
 									}
 								}
 								});
-							}while(prevLen < user_ids.length);
+							}while(prevLen < user_ids.length);*/
 							console.log(user_ids);
 							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 									if(networkData.success){
