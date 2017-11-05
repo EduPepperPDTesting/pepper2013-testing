@@ -62,6 +62,7 @@ def get_all_ptusers(request):
         prevLen = len(my_network_ids)
         page = page + 1
         getMyPeople = my_people(request, checkInNetwork=1, pageAttr = page).content
+        raise Exception(getMyPeople)
         my_network_ids = my_network_ids + [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     # getMyPeople = my_people(request, checkInNetwork=1).content
