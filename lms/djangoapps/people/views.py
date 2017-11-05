@@ -22,6 +22,8 @@ from django.views.decorators.cache import cache_control
 
 from people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
 
+import warnings
+
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
     Borrowed from Django documentation'''
@@ -252,8 +254,10 @@ def my_people(request,course_id='',checkInNetwork='',pageAttr=''):
     # fetch page
     page=request.GET.get('page','')
     pagePost = request.POST.get('page', '')
-    if pageAttr.isdigit() and int(pageAttr)>0:
-        page = int(pageAttr)
+    if pageAttr:
+        warnings.warn("pageAttr "+pageAttr)
+        if pageAttr.isdigit() and int(pageAttr)>0:
+            page = int(pageAttr)
     elif page.isdigit() and int(page)>0:
         page=int(page)
     elif pagePost.isdigit() and int(pagePost)>0:
