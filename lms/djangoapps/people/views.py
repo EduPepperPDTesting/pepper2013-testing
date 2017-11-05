@@ -255,8 +255,7 @@ def my_people(request,course_id='',checkInNetwork='',pageAttr=''):
     page=request.GET.get('page','')
     pagePost = request.POST.get('page', '')
     if pageAttr:
-        raise Exception("pageAttr "+pageAttr)
-        if pageAttr.isdigit() and int(pageAttr)>0:
+        if int(pageAttr)>0:
             page = int(pageAttr)
     elif page.isdigit() and int(page)>0:
         page=int(page)
