@@ -64,7 +64,7 @@ def get_all_ptusers(request):
     #     getMyPeople = my_people(request, checkInNetwork=1, pageAttr = page).content
     #     my_network_ids = my_network_ids + [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
     page = 1
-    getMyPeople = my_people(request, checkInNetwork=1, pageAttr = 1).content
+    getMyPeople = my_people(request, checkInNetwork=1).content
     my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
 
     user_ids = request.POST.getlist("user_ids[]")
