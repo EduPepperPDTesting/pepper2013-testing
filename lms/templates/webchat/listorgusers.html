@@ -152,13 +152,15 @@
         });
         $(".pep_contact_block").on("mouseover", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "200px", "height": "30px", "font-size": ".8em", "white-space": "normal", "position": "relative", "left": "-25px", "top": "-0px", "right": "0px", "margin-right": "-20px", "opacity": "1"});
+        		$(this).css({"max-width": "200px", "height": "30px", "font-size": ".8em", "white-space": "normal", "position": "relative", "left": "-25px", "top": "5px", "right": "0px", "margin-right": "-20px"});
+        		$(this).prev(".pep_contact_info").css("display", "none");
         	}
 		});
 
         $(".pep_contact_block").on("mouseout", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "164px", "height": "20px", "font-size": "1em", "white-space": "nowrap", "position": "relative", "left": "0px", "top": "10px", "margin-right": "5px", "opacity": "0"});
+        		$(this).css({"max-width": "164px", "height": "20px", "font-size": "1em", "white-space": "nowrap", "position": "relative", "left": "0px", "top": "10px", "margin-right": "5px"});
+        		$(this).prev(".pep_contact_info").css("display", "inline-block");
         	}
 		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
