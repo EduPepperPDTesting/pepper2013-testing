@@ -56,7 +56,7 @@ def get_all_ptusers(request):
 
     getMyPeople = my_people(request, checkInNetwork=1).content
     my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
-
+    raise Exception(",".join(my_network_ids))
     user_ids = request.POST.getlist("user_ids[]")
     searchterm = request.POST.get("searchterm")
     if searchterm:
