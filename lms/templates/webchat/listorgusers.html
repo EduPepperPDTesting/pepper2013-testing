@@ -50,15 +50,28 @@
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
-				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
+				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: 1}, async: isasync, success: function (data) {
 					console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
-					if (data.success) {
+					if (data.success && (data.rows.length>0 || data.users.length>0)) {
 						if (commId == 'network' || commId == 'allptusers'){
 							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}";
 							var networkRows = [];
 							var user_ids = [];
 							for(i=0; i<data.users.length; i++){
 								user_ids.push(data.users[i].user_id);
+							}
+							var page = 2;
+							while(1==1){
+								$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: isasync, success: function (data) {
+									if (data.success && data.users.length>0) {
+										for(i=0; i<data.users.length; i++){
+											user_ids.push(data.users[i].user_id);
+										}
+										page =+ 1;
+									]else{
+										break;
+									}
+								}
 							}
 							console.log(user_ids);
 							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
@@ -152,7 +165,7 @@
         });
         $(".pep_contact_block").on("mouseover", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "200px", "height": "30px", "font-size": ".8em", "white-space": "normal", "position": "relative", "left": "5px", "top": "7px", "right": "0px"});
+        		$(this).css({"width": "200px", "max-width": "200px", "height": "30px", "font-size": ".8em", "white-space": "normal", "position": "relative", "left": "5px", "top": "7px", "right": "0px"});
         		$(this).prev(".pep_contact_info").css("display", "none");
         	}
 		});

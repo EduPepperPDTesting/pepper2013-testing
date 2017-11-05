@@ -251,8 +251,11 @@ def my_people(request,course_id='',checkInNetwork=''):
 
     # fetch page
     page=request.GET.get('page','')
+    pagePost = request.POST.get('page', '')
     if page.isdigit() and int(page)>0:
         page=int(page)
+    elif pagePost.isdigit() and int(pagePost)>0:
+        page=int(pagePost)
     else:
         page=1
 
