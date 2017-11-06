@@ -28,7 +28,7 @@ from view_counter.models import view_counter_store
 from polls.models import poll_store
 from polls.views import poll_data
 from notification import send_notification
-# from student.views import course_from_id
+from student.views import course_from_id
 from courseware.courses import get_course_by_id
 from xmodule.remindstore import myactivitystore
 
@@ -711,16 +711,17 @@ def newcommunities(request):
     :param request: Request object.
     :return: The NewCommunities page.
     """
+    user = request.user
     community_list = list()
     filter_dict = dict()
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
-    if not request.user.is_superuser:
+    if not user.is_superuser:
         # Filter the normal query to only show public communities.
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True)
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
@@ -733,9 +734,38 @@ def newcommunities(request):
                                'name': item.name,
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
+    # For create new community or edit community
+    courses_drop_full = list()
+    courses_drop = list()
+    if not user.is_superuser:
+        # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
+        allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+        for course_id in allowedcourses_id:
+            try:
+                '''
+                Exclude invalid courses.
+                '''
+                c = course_from_id(course_id)
+                courses_drop_full.append(c)
+            except:
+                pass
+    else:
+        courses_drop_full = get_courses(user)
+
+    for course in courses_drop_full:
+        courses_drop.append({'id': course.id,
+                             'number': course.display_number_with_default,
+                             'name': get_course_about_section(course, 'title'),
+                             'logo': course_image_url(course)})
+
+    # edit data----------------
+    courses = ['']
+    # edit data----------------
 
     # Set up the data to send to the communities template, with the communities sorted by name.
-    data = {'communities': sorted(community_list, key=itemgetter('name'))}
+    data = {'communities': sorted(community_list, key=itemgetter('name')),
+            'courses_drop': courses_drop,
+            'courses': courses}
     return render_to_response('communities/communities_new.html', data)
 
 

@@ -14,7 +14,8 @@
     from permissions.utils import check_user_perms
     from django.core.urlresolvers import resolve
     from student.models import State,District,School,User,UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText
+    from permissions.models import PermGroupMember
 %>
 
 <%
@@ -36,9 +37,19 @@
         menu_items = "<ol class='nav-option-ol' style='margin-top:10px !important;'>"
     else:
         menu_items = "<ol class='nav-option-ol' style='margin-top:11px !important;'>"
+    
+    adminonly = '{}'
+    for tmp in OrganizationMoreText.objects.filter(organization=organization_obj,itemType='menu_item_permission'):
+        adminonly = tmp.DataItem
+    adminonly = eval(adminonly)
 
     for tmp1 in OrganizationMenuitem.objects.filter(organization=organization_obj, ParentID=0):
-        if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser):
+        only_flag = False
+        if adminonly.has_key("id_"+str(tmp1.id)):
+            for tmp in PermGroupMember.objects.filter(group=adminonly["id_"+str(tmp1.id)]):
+                if request.user == tmp.user:
+                    only_flag = True
+        if tmp1.isAdmin == 0 or (tmp1.isAdmin == 1 and request.user.is_superuser) or only_flag:
             #---------------Sub Menu
             liClass = ""
             if org_data['Is Icon'] == "1":
@@ -51,7 +62,12 @@
 
             #---------------
             for tmp2 in OrganizationMenuitem.objects.filter(organization=organization_obj, ParentID=tmp1.id):
-                if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser):
+                only_flag2 = False
+                if adminonly.has_key("id_"+str(tmp2.id)):
+                    for tmp in PermGroupMember.objects.filter(group=adminonly["id_"+str(tmp2.id)]):
+                        if request.user == tmp.user:
+                            only_flag2 = True
+                if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser) or only_flag2:
                     if liClass == "":
                         liClass = " class='pepper-menu-holder'"
 

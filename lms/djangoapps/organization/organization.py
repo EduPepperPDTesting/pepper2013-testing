@@ -909,7 +909,6 @@ def organizational_save_base(request):
         activities_txt_curr = request.POST.get("activities_txt_curr", "")
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
-        course_all = request.POST.get("course_all", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
@@ -1083,9 +1082,11 @@ def organizational_save_base(request):
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
 
-                    if permission_content != "":
-                        permission_content += ", "
-                    permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+                    if tmp2[3] == "1":
+                        if permission_content != "":
+                            permission_content += ", "
+                        permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+                    
 
                     if tmp2[4]:
                         sub_items_list = tmp2[4].split("_<_")
@@ -1107,16 +1108,17 @@ def organizational_save_base(request):
                             org_menu_item1.Url = tmp4[2]
                             if tmp4[3] == "1":
                                 org_menu_item1.isAdmin = True
+                                
                             else:
                                 org_menu_item1.isAdmin = False
                             org_menu_item1.rowNum = tmp4[0]
                             org_menu_item1.ParentID = org_menu_item.id
                             org_menu_item1.save()
 
-                            if permission_content != "":
-                                permission_content += ", "
-
-                            permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
+                            if tmp4[3] == "1":
+                                if permission_content != "":
+                                    permission_content += ", "
+                                permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
 
                 # --------------OrganizationMoreText
                 org_permission = OrganizationMoreText()
