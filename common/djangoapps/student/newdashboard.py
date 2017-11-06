@@ -184,9 +184,6 @@ def newdashboard(request, user_id=None):
     external_time = 0
     external_times = {}
     exists = 0
-
-    allowedcourses_id = []
-    allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
     
     # get none enrolled course count for current login user
     rts = record_time_store()
@@ -201,8 +198,6 @@ def newdashboard(request, user_id=None):
                 pass
 
     for enrollment in CourseEnrollment.enrollments_for_user(user):
-        if enrollment.course_id in allowedcourses_id:
-            allowedcourses_id.remove(enrollment.course_id)
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
