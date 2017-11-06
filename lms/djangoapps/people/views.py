@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from student.models import CourseEnrollment,get_user_by_id,People
 from django.contrib.auth.models import User
+from rest_framework.response import Response
 
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -196,9 +197,11 @@ def people(request,course_id=''):
         context={
             'params':params,
             'people_search_debug':1}
-    
-    courses=list()
-    courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+
+    community_id = request.GET.get('community_id')
+    if community_id is None:
+        courses=list()
+        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
     # courses=sorted(courses, key=lambda course: course.number.lower())
     courses=sorted(courses, key=lambda course: course.display_name.lower())
@@ -220,10 +223,15 @@ def people(request,course_id=''):
 
     return render_to_response('people/people.html', context)
 
+
+    else:
+        return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
+
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
-def my_people(request,course_id=''):
+def my_people(request,course_id='',checkInNetwork='',pageAttr=''):
+
     # check course enrollment, when user visiting course people
     if course_id:
         registered = CourseEnrollment.is_enrolled(request.user, course_id)
@@ -243,8 +251,14 @@ def my_people(request,course_id=''):
 
     # fetch page
     page=request.GET.get('page','')
-    if page.isdigit() and int(page)>0:
+    pagePost = request.POST.get('page', '')
+    if pageAttr:
+        if int(pageAttr)>0:
+            page = int(pageAttr)
+    elif page.isdigit() and int(page)>0:
         page=int(page)
+    elif pagePost.isdigit() and int(pagePost)>0:
+        page=int(pagePost)
     else:
         page=1
 
@@ -283,9 +297,9 @@ def my_people(request,course_id=''):
 
     profiles,total=search_people(cond)
 
-    community_id = request.GET.get('community_id')
-    if community_id is None:
-        # gether pager params
+    community_id = request.POST.get('community_id')
+    if community_id is None and checkInNetwork == '':
+        # gather pager params
         params=pager_params(request)
 
         context={
@@ -310,5 +324,8 @@ def my_people(request,course_id=''):
 
         return render_to_response('people/my_people.html', context)
 
+    elif not checkInNetwork == '':
+        return HttpResponse(json.dumps(profiles))
+
     else:
-        return HttpResponse(json.dumps({'users': profiles}), content_type="application/json")
+        return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
