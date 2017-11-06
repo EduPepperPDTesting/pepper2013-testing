@@ -289,11 +289,8 @@
 
 			var idUser = $(this).parent().attr("id").substr(2);
 			$(this).parent().remove();
-			$("#pep_user_list div[id="+idUser+"]").closest("td").each(function(){
-				$("this").find(".pep_remove_im").css("display", "none");
-				$("this").find(".pep_add_im").css("display", "inline-block");
-			});
-
+			$("#pep_user_list div[id="+idUser+"]").closest("td").find(".pep_remove_im").css("display", "none");
+			$("#pep_user_list div[id="+idUser+"]").closest("td").find(".pep_add_im").css("display", "inline-block");
 			if($("#pep_slider_list").children().length==0){
 				$("#pep_list_clear").css("display", "none");
 				$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
