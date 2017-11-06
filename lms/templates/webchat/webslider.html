@@ -184,7 +184,7 @@ $(document).ready(function(){
                                         var IdTitle = $(this).attr("id");
                                         var nameLength = username.length + IdTitle.length;
                                         var nameTitle = (nameLength>10)?username.substr(0, nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
-                                        return "<div>" + nameTitle + ", " + IdTitle +"</div><img class='pep_contact_photo' alt='" + nameTitle + ", " + IdTitle + "' src='${reverse('user_photo',args=[" + IdTitle + "])}'>";
+                                        return "<div>" + nameTitle + ", " + IdTitle +"</div><img class='pep_contact_photo' alt='" + nameTitle + ", " + IdTitle + "' src='${reverse('user_photo',args=[IdTitle])}'>";
                                     }
                                 });
                             }else{
