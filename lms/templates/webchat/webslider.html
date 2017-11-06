@@ -73,7 +73,7 @@ $(document).ready(function(){
         }
     });
 
-    $("#pep_user_list").load("/getcommunities/");
+    $("#pep_user_list").load("/getusersorg/");
 
     $("#my_all").on("click", function(e){
         $('#pep_search').val('');
@@ -90,7 +90,7 @@ $(document).ready(function(){
         $("#pep_user_list").load("/getcommunities/");
     });
 
-    setTimeout(function(){ $("#my_communities").trigger("click") }, 1000);
+    setTimeout(function(){ $("#my_all").trigger("click") }, 1000);
 
     $(".pep_contact_block").on("click", ".pep_start_video", function(){
         var uname = $(this).prev().text().replace(" ", "_");
