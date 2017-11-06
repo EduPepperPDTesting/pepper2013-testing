@@ -218,7 +218,6 @@ $(document).ready(function(){
             var commId="search";
             $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
-                    var allUsersSource = "${reverse('get_all_ptusers')}";
                     var networkRows = [];
                     var user_ids = [];
                     for(i=0; i<data.users.length; i++){
@@ -240,7 +239,7 @@ $(document).ready(function(){
                         }
                         });
                     }while(prevLen < user_ids.length);
-                    $.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids, searchterm: searchterm}, async: false, success: function (networkData){
+                    $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: false, success: function (networkData){
                             $(".org-list-table:gt(0)").remove();
                             $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
