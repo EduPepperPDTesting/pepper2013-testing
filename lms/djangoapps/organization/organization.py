@@ -1077,14 +1077,15 @@ def organizational_save_base(request):
                     org_menu_item.Icon = tmp2[5]
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
-                        if permission_content != "":
-                            permission_content += ", "
-                        permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
                     else:
                         org_menu_item.isAdmin = False
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
 
+                    if tmp2[3] == "1":
+                        if permission_content != "":
+                            permission_content += ", "
+                        permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
                     
 
                     if tmp2[4]:
@@ -1107,16 +1108,17 @@ def organizational_save_base(request):
                             org_menu_item1.Url = tmp4[2]
                             if tmp4[3] == "1":
                                 org_menu_item1.isAdmin = True
-                                if permission_content != "":
-                                    permission_content += ", "
-                                permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
+                                
                             else:
                                 org_menu_item1.isAdmin = False
                             org_menu_item1.rowNum = tmp4[0]
                             org_menu_item1.ParentID = org_menu_item.id
                             org_menu_item1.save()
 
-                            
+                            if tmp4[3] == "1":
+                                if permission_content != "":
+                                    permission_content += ", "
+                                permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
 
                 # --------------OrganizationMoreText
                 org_permission = OrganizationMoreText()
