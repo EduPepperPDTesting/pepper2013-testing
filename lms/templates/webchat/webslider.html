@@ -239,7 +239,7 @@ $(document).ready(function(){
                         }
                         });
                     }while(prevLen < user_ids.length);
-                    $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: false, success: function (networkData){
+                    $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
                             $(".org-list-table:gt(0)").remove();
                             $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
