@@ -203,25 +203,25 @@ def people(request,course_id=''):
         courses=list()
         courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
-    # courses=sorted(courses, key=lambda course: course.number.lower())
-    courses=sorted(courses, key=lambda course: course.display_name.lower())
+        # courses=sorted(courses, key=lambda course: course.number.lower())
+        courses=sorted(courses, key=lambda course: course.display_name.lower())
 
-    context['courses']=courses
-    course=None
-    if course_id:
-        course=get_course_with_access(request.user, course_id, 'load')
+        context['courses']=courses
+        course=None
+        if course_id:
+            course=get_course_with_access(request.user, course_id, 'load')
 
-    # import logging
-    # log = logging.getLogger("tracking")
-    # log.debug("search:%s " % get_pager(total,size,page,5))
+        # import logging
+        # log = logging.getLogger("tracking")
+        # log.debug("search:%s " % get_pager(total,size,page,5))
 
-    context['pager']=get_pager(total,size,page,5)
-    context['course']=course
-    context['course_id'] = course_id
-    context['search_course_id'] = search_course_id
-    context['profiles']=profiles
+        context['pager']=get_pager(total,size,page,5)
+        context['course']=course
+        context['course_id'] = course_id
+        context['search_course_id'] = search_course_id
+        context['profiles']=profiles
 
-    return render_to_response('people/people.html', context)
+        return render_to_response('people/people.html', context)
 
 
     else:
