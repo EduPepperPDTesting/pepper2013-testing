@@ -7,7 +7,7 @@
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State, District, School, User, UserProfile, GradeLevel, SubjectArea, YearsInEducation
-    from permissions.models import PermPermission
+    from permissions.models import PermGroup
     from baseinfo.models import Enum
 %>
 <%inherit file="../main.html"/>
@@ -642,7 +642,7 @@
                             <span class="organizational_dashboard_menu_admin">
                             	<input type="checkbox" class="menu_items_admin" />
                                 <select class="menu_items_permissions">
-	                                %for item in PermPermission.objects.all().order_by("item"):
+	                                %for item in PermGroup.objects.all().order_by("name"):
                                     <option value="${item.id}">${item.name}</option>
                                     %endfor
                                 </select>
