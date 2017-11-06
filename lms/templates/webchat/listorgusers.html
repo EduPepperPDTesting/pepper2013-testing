@@ -191,7 +191,7 @@
 
 				var nameTitle = (nameLength>16)?uname.substring(0, (uname.length - (nameLength - 15))).trim()+'...':uname.trim(); //(uname.indexOf(',') - (nameLength - 15))).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				//console.log(uname.indexOf(',') - (nameLength - 15));
-				if($(".pep_textchat_block").find(".pep_header_left[id=" + uclass + "]").length == 0){
+				if($(".pep_textchat_block").find(".pep_header_left[id='" + uclass + "']").length == 0){
 					uclass=uclass.replace(",", "`");
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
 					console.log("name clicked="+uname);
