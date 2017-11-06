@@ -272,8 +272,12 @@
         }, function(data) {
             $("#textchat_"+id).html("");
             $.each(data.results, function(k, v) {
-                var image = "<table><tr><td><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td>"
-                $("#textchat_"+id).prepend(image + v.body + "</td></tr></table><hr style='margin:5px 5px 0 0;'>");
+                var image = "<table class='pepchat_row'><tr><td class='pepchat_img'><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td><span class='pepchat_body'>";
+                date = new Date(v.date);
+                console.log(date);
+                if (date.getHours() > 11) end = "p"; else end = "a";
+                time =date.toLocaleTimeString().slice(0, -6) + end + ", " +  date.toLocaleDateString().slice(0,-5) ;
+                $("#textchat_"+id).prepend(image + v.body + "</span><br><span class='pepchat_time'>" + time + "<span></td></tr></table><hr class='pepchat_hr'>");
             });
             try {
                 $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
