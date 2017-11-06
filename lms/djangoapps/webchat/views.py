@@ -62,11 +62,11 @@ def get_all_ptusers(request):
         prevLen = len(my_network_ids)
         pageAttr = pageAttr + 1
         getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
 
         # getMyPeople = my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content
         # my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
-        
+
     # pageAttr = 1
     # getMyPeople = my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content
     # my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
