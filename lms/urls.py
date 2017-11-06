@@ -126,9 +126,6 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
-
-    url(r'^pepsearch/$', 'webchat.views.webchat_search', name="webchat_search"),
-
     url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
     url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
 
