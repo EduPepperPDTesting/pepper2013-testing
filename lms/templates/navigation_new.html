@@ -39,7 +39,7 @@
         menu_items = "<ol class='nav-option-ol' style='margin-top:11px !important;'>"
     
     adminonly = '{}'
-    for tmp in OrganizationMoreText.obecjts.filter(organization=organization_obj,itemType='menu_item_permission'):
+    for tmp in OrganizationMoreText.objects.filter(organization=organization_obj,itemType='menu_item_permission'):
         adminonly = tmp.DataItem
     adminonly = eval(adminonly)
 
