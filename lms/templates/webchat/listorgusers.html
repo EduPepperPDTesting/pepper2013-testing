@@ -180,7 +180,7 @@
         	}
 		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
-			//console.log("name clicked");
+			console.log("name clicked");
 			var $link = $(e.target);
 			e.preventDefault();
 			id = $(this).attr("id");
@@ -188,14 +188,13 @@
 			    var uclass = $(this).closest('td').attr('class');
 			    var uname = $(this).text();
 				var IdTitle = $(this).attr("id"); //uname.substr(uname.indexOf(',')+1);
-				var nameLength = uname.length + IdTitle.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
-
-				var nameTitle = (nameLength>16)?uname.substring(0, (uname.length - (nameLength - 15))).trim()+'...':uname.trim(); //(uname.indexOf(',') - (nameLength - 15))).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
-				//console.log(uname.indexOf(',') - (nameLength - 15));
+				//var nameLength = uname.length + IdTitle.length; //uname.indexOf(',')+uname.substr(uname.indexOf(',')+1).length;
+				var nameTitle = (uname.length>15)?uname.substring(0, 15).trim()+'...':uname.trim(); //(uname.indexOf(',') - (nameLength - 15))).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
+				console.log("nameTitle "+nameTitle);
 				if($(".pep_textchat_block").find(".pep_header_left[id='" + uclass + "']").length == 0){
 					uclass=uclass.replace(",", "`");
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
-					//console.log("name clicked="+uname);
+					console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
 					if(elCount <= 19){
 						var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
