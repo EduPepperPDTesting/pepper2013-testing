@@ -324,7 +324,8 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append('https://image.flaticon.com/icons/svg/33/33965.svg')
+            row.append(checkInCommunities(request.user, user_item))
+
             rows.append(row)
 
     if not rows:

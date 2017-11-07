@@ -140,9 +140,9 @@
 							content: function(){
 								var username = $(this).text();
 								var IdTitle = $(this).attr("id");
-								var nameLength = username.length + IdTitle.length;
-								var nameTitle = (nameLength>10)?username.substr(0, nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
-								return "<div>" + nameTitle + ", " + IdTitle +"</div><img class='pep_contact_photo' alt='" + nameTitle + ", " + IdTitle + "' src='/user_photo/" + IdTitle +"'>";
+								//var nameLength = username.length + IdTitle.length;
+								var nameTitle = (nameLength>10)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
+								return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
 							}
 						});
 					}
@@ -245,7 +245,7 @@
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
 			//console.log(userName);
-			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'..., '+idUser:userName.trim()+', '+idUser;
+			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
 			$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
 			var elems = document.getElementsByClassName(uclass);
