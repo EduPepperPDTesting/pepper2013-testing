@@ -292,8 +292,8 @@
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
 			//console.log(idUser);
 
-			var parent = document.getElementById("pep_user_list").getElementById("pep_slider_list");
-			var child = document.getElementById("pep_user_list").getElementById("ul" + idUser);
+			var parent = document.getElementById("pep_slider_list");
+			var child = document.getElementById("ul" + idUser);
 			parent.removeChild(child);
 
 			if($("#pep_slider_list").children().length==0){
@@ -302,7 +302,7 @@
 
 			var uclass = $(this).closest("td").attr("class");
 
-			var elems = document.getElementByID("pep_user_list").getElementsByClassName(uclass);
+			var elems = document.getElementsByClassName(uclass);
 			for(n = 0; n < elems.length; n++){
 				addTag = elems[n].getElementsByClassName("pep_add_im");
 				addTag[0].style.display="inline-block";
