@@ -94,7 +94,6 @@ $(document).ready(function(){
 
     function loadLists(loadData, hiddenDiv){
         var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
-        console.log(listData);
         if(listData=='All Users'){
             if($("#pep_all_ptusers").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_all_ptusers");
         }else if(listData=='My Network'){
