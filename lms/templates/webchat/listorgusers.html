@@ -183,6 +183,7 @@
 			//console.log("name clicked");
 			var $link = $(e.target);
 			e.preventDefault();
+			id = $(this).attr("id");
             if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 			    var uclass = $(this).closest('td').attr('class');
 			    var uname = $(this).text();
