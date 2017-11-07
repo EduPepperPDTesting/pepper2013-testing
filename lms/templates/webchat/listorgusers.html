@@ -107,7 +107,7 @@
                             netIcon = userRows[i][2];
                             commIcon = userRows[i][3];
 							//console.log(username+" "+id);
-							userID = username.replace(/ /g, "_")+','+id;
+							userID = "ul"+id; //1314username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
 								//console.log("elExists === false=" + (elExists === false));
