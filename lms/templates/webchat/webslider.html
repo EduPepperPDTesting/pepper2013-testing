@@ -95,6 +95,7 @@ $(document).ready(function(){
     function loadLists(loadData, hiddenDiv){
         if($(hiddenDiv).is(':empty')){
             $("#pep_user_list").load(loadData);
+            $(hiddenDiv) = $("#pep_user_list").html();
         }else{
             $('#pep_all_lists').innerHTML = $(hiddenDiv).html();
         }
