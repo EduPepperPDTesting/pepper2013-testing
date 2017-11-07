@@ -298,8 +298,18 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
-    getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
-    my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+    # getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
+    # my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+
+    my_network_ids = list()
+    prevLen = -1
+
+    pageAttr = 0
+    while prevLen < len(my_network_ids):
+        prevLen = len(my_network_ids)
+        pageAttr = pageAttr + 1
+        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
 
     #for item in users[start:end]:
     for item in users:
@@ -314,7 +324,7 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, item.user))
+            row.append('https://image.flaticon.com/icons/svg/33/33965.svg')
             rows.append(row)
 
     if not rows:
