@@ -324,7 +324,7 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
+            row.append(checkInCommunities(request.user.id, userid))
 
             rows.append(row)
 

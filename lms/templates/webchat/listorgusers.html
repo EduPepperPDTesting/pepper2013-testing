@@ -194,7 +194,7 @@
 				if($(".pep_textchat_block").find(".pep_header_left[id='" + uclass + "']").length == 0){
 					uclass=uclass.replace(",", "`");
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
-					console.log("name clicked="+uname);
+					//console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
 					if(elCount <= 19){
 						var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
