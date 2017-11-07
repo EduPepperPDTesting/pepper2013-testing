@@ -182,7 +182,7 @@ $(document).ready(function(){
                                     content: function(){
                                         var username = $(this).text();
                                         var IdTitle = $(this).attr("id");
-                                        //var nameLength = username.length + IdTitle.length;
+                                        var nameLength = username.length; // + IdTitle.length;
                                         var nameTitle = (nameLength>15)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
                                         return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
                                     }
