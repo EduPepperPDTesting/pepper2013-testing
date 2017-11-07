@@ -1082,9 +1082,10 @@ def organizational_save_base(request):
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
 
-                    if permission_content != "":
-                        permission_content += ", "
-                    permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+                    if tmp2[3] == "1":
+                        if permission_content != "":
+                            permission_content += ", "
+                        permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
 
                     if tmp2[4]:
                         sub_items_list = tmp2[4].split("_<_")
@@ -1112,10 +1113,10 @@ def organizational_save_base(request):
                             org_menu_item1.ParentID = org_menu_item.id
                             org_menu_item1.save()
 
-                            if permission_content != "":
-                                permission_content += ", "
-
-                            permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
+                            if tmp4[3] == "1":
+                                if permission_content != "":
+                                    permission_content += ", "
+                                permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
 
                 # --------------OrganizationMoreText
                 org_permission = OrganizationMoreText()
