@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-<div>
+<div id="pep_all_lists">
 	%for org in orgs_list:
 	<table class="org-list-table pep_contact_block" data="${org}">
 		<thead>
@@ -17,6 +17,10 @@
 	</table>
 	%endfor
 </div>
+
+<div id="pep_my_community" style="display: none;"></div>
+<div id="pep_my_network" style="display: none;"></div>
+<div id="pep_all_ptusers" style="display: none;"></div>
 
 <script>
 	$(document).ready(function(){
