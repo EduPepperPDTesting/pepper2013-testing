@@ -102,6 +102,10 @@
     padding-bottom: 0;
   }
 
+  .content-wrapper-fixed {
+    margin-top: 77px;
+  }
+
   .container, .introduction {
     @include box-sizing(border-box);
     @include clearfix;

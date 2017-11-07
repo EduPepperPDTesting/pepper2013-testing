@@ -154,7 +154,11 @@ navbar_show_extended=True
   
 <!--@begin:Main module page, change the bottom margin in the body text-->
 <!--@date:2013-11-02-->
-  <section class="content-wrapper" style="padding-bottom:0px;">
+  % if organization_active and org_data["Is New Menu"] == "1":
+    <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
+  % else:
+    <section class="content-wrapper" style="padding-bottom: 0;">
+  % endif
     ${self.body()}
     <%block name="bodyextra"/>
   </section>

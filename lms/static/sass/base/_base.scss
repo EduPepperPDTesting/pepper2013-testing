@@ -103,6 +103,10 @@ a:focus {
   padding-bottom: ($baseline*2);
 }
 
+.content-wrapper-fixed {
+  margin-top: 77px;
+}
+
 .container {
   @include clearfix;
   margin: 0 auto 0;
