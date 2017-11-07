@@ -313,7 +313,52 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 .community-error-box {
     border-color: red !important;
 }
+#community-courses,#community-resources {
+    clear: both;
+    display: block;
+    text-align: left;
+    margin-bottom: 20px;
+}
 
+#community-courses input, #community-resources input {
+    /*display: block;
+    float: left;*/
+    margin: 0 20px 2px 0;
+}
+#community-resources .community-resource{
+    margin-bottom:25px !important;
+    /*border-bottom:1px solid;*/
+}
+#community-courses select {
+    display: block;
+    float: left;
+    margin: 0 20px 20px 0;
+    font-weight:bold;
+    font-style:italic;
+}
+#community-resources .add, #community-courses .add {
+    padding: 0 6px;
+    color:#fff !important;
+}
+#community-resources .minus, #community-courses .minus {
+    padding: 0 8px;
+    color:#fff !important;
+}
+.community-course, .community-resource, #community-state {
+    clear: both;
+}
+.resource-logo-label{
+    font-size:13px;
+    font-weight:bold;
+    font-style:italic;
+}
+.community-logo-thumb {
+    float: left;
+    width: 150px;
+    margin-right: 10px;
+}
+.icon-edit:before {font-family:FontAwesome; }
+.icon-remove:before {font-family:FontAwesome;   }
 /*-----------create community form-----------*/
 #community-name input{
     padding:5px 12px;
@@ -548,7 +593,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     <div class="step-content">
                         <h5>Create Community: Step 2 of 5</h5>
                         <h4>Organization Information</h4>
-                        <div class="form-row" style="font-size:12px;">
+                        <div class="form-row" style="font-size:14px;">
                             %if request.user.is_superuser:
                                 <label id="community-state"><span>Select State:</span></br>
                                     <select id="state-dropdown" name="state-dropdown"></select>
@@ -576,9 +621,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     <div class="step-content">
                         <h5>Create Community: Step 3 of 5</h5>
                         <h4>Add Courses</h4>
-                        <div class="form-row" style="font-size:12px;">
+                        <div class="form-row" style="font-size:14px;">
                             <label><span>courses:</span></label></br>
-                            <div id="community-courses" style="overflow-y:auto;height:320px;border:1px solid #f00;">
+                            <div id="community-courses" style="overflow-y:auto;height:320px;">
                                 %for idx, course in enumerate(courses):
                                     <div class="community-course">
                                         <select name="course[${idx}]">
@@ -602,23 +647,66 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     <div class="step-content">
                         <h5>Create Community: Step 4 of 5</h5>
                         <h4>What type of training would you like to create?</h4>
-                        <div class="form-row" style="font-size:12px;">
-                            444444
-                        </div>
-                        <div class="form-row" style="font-size:12px;">
-                           asdfasdfasdfasdfas
+                        <div class="form-row" style="font-size:14px;">
+                            <label><span>Resources:</span></label></br>
+                            <div id="community-resources" style="overflow-y:auto;height:320px;">
+                                %for idx, resource in enumerate(resources):
+                                    <div class="community-resource">
+                                        <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name"><input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link"><input type="button" class="add operation" value="+" onclick="newResource()"/>
+                                        <div>
+                                            <div class="resource-logo-label">Logo:</div>
+                                            %if resource['logo']:
+                                                <div class="community-resource-logo-wrap">
+                                                    <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
+                                                    <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
+                                                    <a href="#" class="remove"></a>
+                                                </div>
+                                            %else:
+                                                <input class="resource-logo" type="file" name="resource_logo[${idx}]">
+                                            %endif
+                                        </div>
+                                    </div>
+                                %endfor
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="step-page">
                     <div class="step-content">
                         <h5>Create Community: Step 5 of 5</h5>
-                        <h4>What type of training would you like to create?</h4>
-                        <div class="form-row" style="font-size:12px;">
-                            555555
+                        <h4>Add/Remove Facilitators</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
+                                <table width="100%" cellspacing="" cellpadding="" border="0">
+                                    <thead>
+                                        <tr>
+                                            <th width="30" align="center"></th>
+                                            <th width="70">Default</th>
+                                            <th align="center">Email</th>
+                                            <th width="150" align="center">Edit Training</th>
+                                            <th width="150" align="center">Delete Training</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="community_facilitator_list">
+                                        <!--
+                                        <tr>
+                                            <td></td>
+                                            <td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>
+                                            <td>matrixsniper@163.com</td>
+                                            <td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>
+                                            <td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>
+                                        </tr>
+                                        -->
+                                    </tbody>    
+                                </table>
+                            </div>
                         </div>
-                        <div class="form-row" style="font-size:12px;">
-                           asdfasdfasdfasdfas
+                        <div class="form-row" style="font-size:14px;">
+                            <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
+                                <b>Facilitator</b>):</i>
+                            <input type="text" name="member" id="complete-email" autocomplete="off">
+                            <input type="button" name="" value="Add" class="btn-add-instructor" style="color:#fff !important;"/><br>
+                            <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
                         </div>
                     </div>
                 </div>
@@ -657,6 +745,41 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
         $('.community-course .minus').each(function(index) {
             $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+    }
+
+    function newResource() {
+        var resource_num = $('.community-resource').length;
+        $('.community-resource').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
+        var entry = '<div class="community-resource">';
+        entry += '<input class="resource-name" type="text" name="resource_name[' + resource_num + ']" value="" placeholder="Resource name">';
+        entry += '<input class="resource-link" type="text" name="resource_link[' + resource_num + ']" value="" placeholder="Resource link">';
+        entry += '<input type="button" class="add operation" value="+" onclick="newResource()">';
+        entry += '<div><div class="resource-logo-label">Logo:</div><input class="resource-logo" type="file" name="resource_logo[' + resource_num + ']"></div>';
+        $('#community-resources').append(entry);
+    }
+
+    function removeResource(index) {
+        $('.community-resource').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('.resource-link').attr('name', 'resource_link[' + num + ']');
+                $(this).children('.resource-name').attr('name', 'resource_name[' + num + ']');
+                $(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+            }
+        });
+        $('.community-resource .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
         });
     }
 </script>
@@ -821,6 +944,49 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
         }).change();
         return steps;
+    };
+
+    PepReg.prototype.getInstructors = function (emails) {
+        var ar = [];       
+        $("#community_facilitator_list").find("tr").each(function () {
+            var email = $(this).find("td").eq(2).text();
+            var all_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            var all_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + all_edit + "::" + all_delete);
+            //ar.push(email);
+        });
+        return ar;
+    };
+    PepReg.prototype.appendInstructors = function (emails) {
+        if (emails) {
+            var curr = this.getInstructors();
+            console.log(emails.split(","));
+            console.log("curr----: ",curr);
+            $.each(emails.split(","), function (i, email) {
+                console.log(i,email);
+                if (email && curr.indexOf(email) < 0) {
+                    console.log(curr.indexOf(email));
+                    var tmp = email.split("::");
+                    if(tmp[0] != ""){
+                        var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+                        var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>");
+                        var tmp_td2 = $("<td>" + tmp[0] + "</td>");
+                        var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>");
+                        var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>");
+                        tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+                        $("#community_facilitator_list").append(tmp_tr);
+                        
+                        //if(tmp[1] == "1")           tmp_td2.find("input").attr("checked", "checked");
+                        //if(tmp[2] == "1")           tmp_td3.find("input").attr("checked", "checked");
+                        
+                        tmp_tr.find("a").click(function(e){
+                            e.preventDefault();
+                            $(this).parent().parent().remove();
+                        });
+                    }
+                }
+            });
+        }
     };
 
     PepReg.prototype.initContent = function () {
