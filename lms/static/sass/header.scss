@@ -5,7 +5,7 @@
 
 header {
   &.pepper-nav-fixed {
-    //position: fixed !important;
+    position: fixed !important;
     top: 0;
     z-index: 21 !important;
   }
@@ -252,8 +252,8 @@ header {
           float: right;
           width: auto;
 
-          li{
-            float:left;
+          li {
+            float: left;
           }
 
           td, tr {
@@ -806,7 +806,6 @@ header {
 
     .pepper-menu-holder {
       display: block;
-      float: left;
       padding-top: 10px;
       margin-right: 0;
     }
