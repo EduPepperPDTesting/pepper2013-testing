@@ -760,12 +760,14 @@ def newcommunities(request):
 
     # edit data----------------
     courses = ['']
+    resources = [{'name': '', 'link': '', 'logo': ''}]
     # edit data----------------
 
     # Set up the data to send to the communities template, with the communities sorted by name.
     data = {'communities': sorted(community_list, key=itemgetter('name')),
             'courses_drop': courses_drop,
-            'courses': courses}
+            'courses': courses,
+            'resources': resources}
     return render_to_response('communities/communities_new.html', data)
 
 
