@@ -161,3 +161,12 @@ REPORTINGSTORE = {
         'password': MONGO3_PASSWORD,
     }
 }
+FEEDINGSTORE = {
+    'OPTIONS': {
+        'db': MONGO3_DB_FEEDING,
+        'host': MONGO3_HOST,
+        'port': MONGO3_PORT,
+        'user': MONGO3_USER,
+        'password': MONGO3_PASSWORD
+    }
+}
