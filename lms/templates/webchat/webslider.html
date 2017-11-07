@@ -96,11 +96,11 @@ $(document).ready(function(){
         var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
         console.log(listData);
         if(listData=='All Users'){
-            $("#pep_user_list").children().clone().appendTo("pep_all_ptusers");
+            $("#pep_user_list").children().clone().appendTo("#pep_all_ptusers");
         }else if(listData=='My Network'){
-            $("#pep_user_list").children().clone().appendTo("pep_my_network");
+            $("#pep_user_list").children().clone().appendTo("#pep_my_network");
         }else{
-            $("#pep_user_list").children().clone().appendTo("pep_my_community");
+            $("#pep_user_list").children().clone().appendTo("#pep_my_community");
         }
 
         if($(hiddenDiv).is(':empty')){
