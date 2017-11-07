@@ -139,10 +139,10 @@
 							},
 							content: function(){
 								var username = $(this).text();
-								var IdTitle = $(this).attr("id"); //username.substr(username.indexOf(',')+1);
-								var nameLength = username.length + IdTitle.length; //username.indexOf(',') +username.substr(username.indexOf(',')+1).length;
-								var nameTitle = (nameLength>10)?username.substr(0, nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
-								return "<div>" + nameTitle + ", " + IdTitle +"</div><img class='pep_contact_photo' alt='" + nameTitle + ", " + IdTitle + "' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3dKD55CRCD2yeFXsKQUMu3uT315H3DxZnIKf9lw5OGqhy2WuF'>";
+								var IdTitle = $(this).attr("id");
+								var nameLength = username.length; // + IdTitle.length;
+								var nameTitle = (nameLength>10)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
+								return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
 							}
 						});
 					}
@@ -151,7 +151,7 @@
 					}
 					$('table[id^="community_"]:not(#community_network, #community_allptusers) tbody').css("display", "none");
 					$('table[id^="community_"]:not(#community_network, #community_allptusers)  th').css("cursor", "pointer");
-					$('table[id^="community_"]:not(#community_network, #community_allptusers) :gt(0)').css({"border-top": "1px solid black", "width": "100%"});
+					$('table[id^="community_"]:not(#community_network, #community_allptusers):gt(0)').css({"border-top": "1px solid black", "width": "100%"});
 				}
 				});
 			}
@@ -183,6 +183,7 @@
 			//console.log("name clicked");
 			var $link = $(e.target);
 			e.preventDefault();
+			id = $(this).attr("id");
             if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
 			    var uclass = $(this).closest('td').attr('class');
 			    var uname = $(this).text();
@@ -191,7 +192,7 @@
 
 				var nameTitle = (nameLength>16)?uname.substring(0, (uname.length - (nameLength - 15))).trim()+'...':uname.trim(); //(uname.indexOf(',') - (nameLength - 15))).trim()+'...':uname.substring(0, uname.indexOf(',')).trim();
 				//console.log(uname.indexOf(',') - (nameLength - 15));
-				if($(".pep_textchat_block").find(".pep_header_left[id=" + uclass + "]").length == 0){
+				if($(".pep_textchat_block").find(".pep_header_left[id='" + uclass + "']").length == 0){
 					uclass=uclass.replace(",", "`");
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
 					//console.log("name clicked="+uname);
@@ -272,7 +273,7 @@
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
 			//console.log(userName);
-			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'..., '+idUser:userName.trim()+', '+idUser;
+			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
 			$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
 			var elems = document.getElementsByClassName(uclass);
@@ -314,13 +315,10 @@
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 
-			var idUser = $(this).parent().attr("id").substr($(this).parent().attr("id").indexOf("ul")+2);
+			var idUser = $(this).parent().attr("id").substr(2);
 			$(this).parent().remove();
-			$("#pep_user_list").find("td:has(div[id="+idUser+"]").each(function(){
-				$("this").find(".pep_remove_im").css("display", "none");
-				$("this").find(".pep_add_im").css("display", "inline-block");
-			});
-
+			$("#pep_user_list div[id="+idUser+"]").closest("td").find(".pep_remove_im").css("display", "none");
+			$("#pep_user_list div[id="+idUser+"]").closest("td").find(".pep_add_im").css("display", "inline-block");
 			if($("#pep_slider_list").children().length==0){
 				$("#pep_list_clear").css("display", "none");
 				$(".pep_contact_block").find(".pep_remove_im").css("display", "none");

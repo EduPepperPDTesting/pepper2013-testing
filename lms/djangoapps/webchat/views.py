@@ -24,14 +24,6 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    # user_name = []
-    # get_name = uname
-    # while(get_name.find("_")):
-    #     space_pos = get_name.find("_")
-    #     add_name = get_name[0:space_pos]
-    #     user_name.extend([add_name])
-    #     get_name = get_name[space_pos+1:]
-
     comma_index = uname.index("`")
     name_index = uname.index("`", comma_index+1)
     user_class = uname[0: name_index]
@@ -281,8 +273,18 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
-    getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
-    my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+    # getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
+    # my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+
+    my_network_ids = list()
+    prevLen = -1
+
+    pageAttr = 0
+    while prevLen < len(my_network_ids):
+        prevLen = len(my_network_ids)
+        pageAttr = pageAttr + 1
+        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
 
     #for item in users[start:end]:
     for item in users:
@@ -304,8 +306,4 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
-
-def webchat_search(request):
-    user = list()
-    user = get_network_users(request, 1)
 

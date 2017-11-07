@@ -28,7 +28,7 @@
     -o-transform: scale(-1, -1) rotate(90deg);
     -ms-transform: scale(-1, -1) rotate(90deg);
     transform: scale(-1, -1) rotate(90deg);
-    font-size: 2em;
+    font-size: 1.7em;
 }
 #pep_container {
     width: 251px;

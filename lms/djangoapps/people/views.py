@@ -22,8 +22,6 @@ from django.views.decorators.cache import cache_control
 
 from people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
 
-import warnings
-
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
     Borrowed from Django documentation'''
