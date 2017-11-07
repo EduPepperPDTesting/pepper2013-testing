@@ -107,8 +107,8 @@
                             netIcon = userRows[i][2];
                             commIcon = userRows[i][3];
 							//console.log(username+" "+id);
-							userID = "ul"+id; //username.replace(/ /g, "_")+','+id;
-							elExists = !!document.getElementById(userID);
+							userID = username.replace(/ /g, "_")+','+id;
+							elExists = !!document.getElementById('ul'+id);
 							if(elExists === true){
 								//console.log("elExists === false=" + (elExists === false));
 								addStyle = 'display:none;';
@@ -311,7 +311,40 @@
 			}
 		});*/
 
-        $(".pep_contact_block").on("click", ".pep_remove_im", function(e){
+		$(".pep_contact_block .pep_remove_im").each(function(){
+			var $elem = $(this)
+
+			if ($elem.data('click-init')) return true;
+
+			$elem.data('click-init', true);
+
+			$elem.on('click', function (e) {
+				e.preventDefault();
+				$(this).css("display", "none");
+				$(this).siblings(".pep_add_im").css("display", "inline-block");
+				var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
+				//console.log(idUser);
+
+				var parent = document.getElementById("pep_slider_list");
+				var child = document.getElementById("ul" + idUser);
+				parent.removeChild(child);
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_list_clear").css("display", "none");
+				}
+
+				var uclass = $(this).closest("td").attr("class");
+
+				var elems = document.getElementsByClassName(uclass);
+				for(n = 0; n < elems.length; n++){
+					addTag = elems[n].getElementsByClassName("pep_add_im");
+					addTag[0].style.display="inline-block";
+					removeTag = elems[n].getElementsByClassName("pep_remove_im");
+					removeTag[0].style.display="none";
+				}
+			});
+		});
+        /*$(".pep_contact_block").on("click", ".pep_remove_im", function(e){
 			e.preventDefault();
 			$(this).css("display", "none");
 			$(this).siblings(".pep_add_im").css("display", "inline-block");
@@ -336,7 +369,7 @@
 				removeTag[0].style.display="none";
 			}
 
-		});
+		});*/
 
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
