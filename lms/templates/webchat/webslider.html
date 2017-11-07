@@ -96,17 +96,17 @@ $(document).ready(function(){
         var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
         console.log(listData);
         if(listData=='All Users'){
-            if($("#pep_all_ptusers").is(':empty')) $("#pep_user_list").children().clone().appendTo("#pep_all_ptusers");
+            if($("#pep_all_ptusers").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_all_ptusers");
         }else if(listData=='My Network'){
-            if($("#pep_my_network").is(':empty')) $("#pep_user_list").children().clone().appendTo("#pep_my_network");
+            if($("#pep_my_network").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_network");
         }else{
-            if($("#pep_my_community").is(':empty')) $("#pep_user_list").children().clone().appendTo("#pep_my_community");
+            if($("#pep_my_community").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_community");
         }
 
         if($(hiddenDiv).is(':empty')){
             $("#pep_user_list").load(loadData);
         }else{
-            $(hiddenDiv).children().clone().appendTo("#pep_all_lists");
+            $(hiddenDiv).children().clone(true,true).appendTo("#pep_user_list");
         }
     }
 
