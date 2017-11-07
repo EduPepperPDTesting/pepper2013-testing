@@ -107,22 +107,22 @@
                             netIcon = userRows[i][2];
                             commIcon = userRows[i][3];
 							//console.log(username+" "+id);
-							userID = "ul"+id; //1314username.replace(/ /g, "_")+','+id;
+							userID = "ul"+id; //username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
 								//console.log("elExists === false=" + (elExists === false));
 								addStyle = 'display:none;';
-								removeStyle = 'display: inline-block;'
+								removeStyle = 'display: inline-block;';
 							}
 							if(elExists === false){
 								//console.log("elExists === true=" + (elExists === true));
 								addStyle = 'display: inline-block;';
-								removeStyle = 'display:none;'
+								removeStyle = 'display:none;';
 							}
 							var netIconTag, commIconTag;
 							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
 							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
 						//console.log("tbodyID="+tbodyID);
