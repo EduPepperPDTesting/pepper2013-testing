@@ -33,7 +33,7 @@
 				var ajaxType = "post";
 				var rowSource = "${reverse('get_community_user_rows')}";
 			}else if(tableData == 'My Network'){
-				console.log("tableData =" + tableData);
+				//console.log("tableData =" + tableData);
 				var commId = 'network';
 				var commName = tableData;
 				var ajaxType = "post";
@@ -51,7 +51,7 @@
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
 				$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId}, async: isasync, success: function (data) {
-					console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
+					//console.log("data="+data.users+" data.success="+data.success); //+"data.users.length="+data.users.length);
 					if (data.success) {
 						if ((commId == 'network' || commId == 'allptusers') && data.users.length>0){
 							var allUsersSource = (commId == 'network')?"${reverse('get_network_users')}":"${reverse('get_all_ptusers')}";
@@ -60,7 +60,7 @@
 							for(i=0; i<data.users.length; i++){
 								user_ids.push(data.users[i].user_id);
 							}
-							console.log(user_ids);
+							//console.log(user_ids);
 							var prevLen;
 							var page = 2;
 							do{
@@ -72,7 +72,7 @@
 										}
 										page += 1;
 									}
-									console.log(page+" "+user_ids);
+									//console.log(page+" "+user_ids);
 								}
 								});
 							}while(prevLen < user_ids.length);
@@ -106,7 +106,7 @@
                             id = userRows[i][1];
                             netIcon = userRows[i][2];
                             commIcon = userRows[i][3];
-							console.log(username+" "+id);
+							//console.log(username+" "+id);
 							userID = username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
@@ -120,11 +120,12 @@
 								removeStyle = 'display:none;'
 							}
 							var netIconTag, commIconTag;
-							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "";}
+							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
 							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
 							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
-						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");console.log("tbodyID="+tbodyID);}
+						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
+						//console.log("tbodyID="+tbodyID);
 
 						$(".pep_contact_name").tooltip({
 							items: ".pep_contact_name",
@@ -179,7 +180,7 @@
         	}
 		});
 		$(".pep_contact_block").on("click", ".pep_contact_name", function(e){
-			console.log("name clicked");
+			//console.log("name clicked");
 			var $link = $(e.target);
 			e.preventDefault();
             if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
@@ -193,7 +194,7 @@
 				if($(".pep_textchat_block").find(".pep_header_left[id=" + uclass + "]").length == 0){
 					uclass=uclass.replace(",", "`");
 					nameTitle = nameTitle.replace(/ /g, "_").replace(/__/g, "_");
-					console.log("name clicked="+uname);
+					//console.log("name clicked="+uname);
 					var elCount = $(".pep_text_container:has(.pep_text_panel)").length;
 					if(elCount <= 19){
 						var leftMin =  (elCount > 0)? $('.pep_text_container:has(.pep_text_panel):last').offset().left - 235: 0;
@@ -209,8 +210,8 @@
 							});
 						}
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
-						console.log("leftX="+leftX);
-						console.log("nameTitle="+nameTitle);
+						//console.log("leftX="+leftX);
+						//console.log("nameTitle="+nameTitle);
 						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + uclass + "`" + nameTitle + "`" + IdTitle + " .pep_text_panel");
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
@@ -270,7 +271,7 @@
 			var uclass = $(this).closest("td").attr("class");
 			var userName = $(this).siblings(".pep_contact_name").text();
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
-			console.log(userName);
+			//console.log(userName);
 			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'..., '+idUser:userName.trim()+', '+idUser;
 			$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
 			$("#pep_list_clear").css("display", "block");
@@ -288,7 +289,7 @@
 			$(this).css("display", "none");
 			$(this).siblings(".pep_add_im").css("display", "inline-block");
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
-			console.log(idUser);
+			//console.log(idUser);
 
 			var parent = document.getElementById("pep_slider_list");
 			var child = document.getElementById("ul" + idUser);
@@ -384,7 +385,7 @@
     function tieListener() {
         $(".pep_chat_input").keyup(function (e) {
             if (e.keyCode == 13) {
-                console.log("Sending...");
+                //console.log("Sending...");
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
                 getMessage($(this).data("to_id"));
