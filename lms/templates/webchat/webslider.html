@@ -106,6 +106,7 @@ $(document).ready(function(){
         if($(hiddenDiv).is(':empty')){
             $("#pep_user_list").load(loadData);
         }else{
+            $("#pep_user_list").empty();
             $(hiddenDiv).children().clone(true,true).appendTo("#pep_user_list");
         }
     }
