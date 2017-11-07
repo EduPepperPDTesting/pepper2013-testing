@@ -93,13 +93,14 @@ $(document).ready(function(){
     });
 
     function loadLists(loadData, hiddenDiv){
-        var listData = $(".org-list-table:eq(0)").attr("data");
+        var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
+        console.log(listData);
         if(listData=='All Users'){
-            $('#pep_all_ptusers').innerHTML = $("#pep_user_list").html();
+            $("#pep_user_list").children().clone().appendTo("pep_all_ptusers");
         }else if(listData=='My Network'){
-            $('#pep_my_network').innerHTML = $("#pep_user_list").html();
+            $("#pep_user_list").children().clone().appendTo("pep_my_network");
         }else{
-            $('#pep_my_community').innerHTML = $("#pep_user_list").html();
+            $("#pep_user_list").children().clone().appendTo("pep_my_community");
         }
 
         if($(hiddenDiv).is(':empty')){
@@ -145,8 +146,8 @@ $(document).ready(function(){
                         });
                     }while(prevLen < user_ids.length);
                     $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
-                            $(".org-list-table:gt(0)").remove();
-                            $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+                            $("#pep_user_list .org-list-table:gt(0)").remove();
+                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
@@ -169,7 +170,7 @@ $(document).ready(function(){
                                     netIcon = userRows[i][2];
                                     commIcon = userRows[i][3];
                                     //console.log(username+" "+id);
-                                    userID = username.replace(/ /g, "_")+','+id;
+                                    userID = "ul"+id; //username.replace(/ /g, "_")+','+id;
                                     elExists = !!document.getElementById(userID);
                                     if(elExists === true){
                                         //console.log("elExists === false=" + (elExists === false));
@@ -184,7 +185,7 @@ $(document).ready(function(){
                                     var netIconTag, commIconTag;
                                     if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
                                     if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                    $("body").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+                                    $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
                                 }
 
                                 $(".pep_contact_name").tooltip({
@@ -206,7 +207,7 @@ $(document).ready(function(){
                                     }
                                 });
                             }else{
-                                $("body").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
+                                $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
                             }
                         }
                     });

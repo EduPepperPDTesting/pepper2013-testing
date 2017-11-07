@@ -20,7 +20,7 @@
 
 <script>
 	$(document).ready(function(){
-		$(".org-list-table").each(function(){
+		$("#pep_user_list .org-list-table").each(function(){
 			var tableData = $(this).attr("data");
 			if(tableData != 'My Network' && tableData != 'All Users'){
 				tableData = tableData.replace(/~/g, "\'");
@@ -107,7 +107,7 @@
                             netIcon = userRows[i][2];
                             commIcon = userRows[i][3];
 							//console.log(username+" "+id);
-							userID = username.replace(/ /g, "_")+','+id;
+							userID = 'ul'+id; //username.replace(/ /g, "_")+','+id;
 							elExists = !!document.getElementById(userID);
 							if(elExists === true){
 								//console.log("elExists === false=" + (elExists === false));
@@ -122,7 +122,7 @@
 							var netIconTag, commIconTag;
 							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
 							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-							$("body").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						}
 						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
 						//console.log("tbodyID="+tbodyID);
@@ -149,9 +149,9 @@
 					else{
 						$('#community_'+commId).remove();
 					}
-					$('table[id^="community_"]:not(#community_network, #community_allptusers) tbody').css("display", "none");
-					$('table[id^="community_"]:not(#community_network, #community_allptusers)  th').css("cursor", "pointer");
-					$('table[id^="community_"]:not(#community_network, #community_allptusers):gt(0)').css({"border-top": "1px solid black", "width": "100%"});
+					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers) tbody').css("display", "none");
+					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers)  th').css("cursor", "pointer");
+					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers):gt(0)').css({"border-top": "1px solid black", "width": "100%"});
 				}
 				});
 			}
@@ -292,8 +292,8 @@
 			var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
 			//console.log(idUser);
 
-			var parent = document.getElementById("pep_slider_list");
-			var child = document.getElementById("ul" + idUser);
+			var parent = document.getElementById("pep_user_list").getElementById("pep_slider_list");
+			var child = document.getElementById("pep_user_list").getElementById("ul" + idUser);
 			parent.removeChild(child);
 
 			if($("#pep_slider_list").children().length==0){
@@ -302,7 +302,7 @@
 
 			var uclass = $(this).closest("td").attr("class");
 
-			var elems = document.getElementsByClassName(uclass);
+			var elems = document.getElementByID("pep_user_list").getElementsByClassName(uclass);
 			for(n = 0; n < elems.length; n++){
 				addTag = elems[n].getElementsByClassName("pep_add_im");
 				addTag[0].style.display="inline-block";
