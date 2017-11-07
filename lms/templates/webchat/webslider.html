@@ -92,21 +92,22 @@ $(document).ready(function(){
         loadLists('/getcommunities/', '#pep_my_community');
     });
 
-    function loadLists(loadData, hiddenDiv){
+    function loadLists(loadData='', hiddenDiv=''){
         var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
         if(listData=='All Users'){
             if($("#pep_all_ptusers").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_all_ptusers");
         }else if(listData=='My Network'){
             if($("#pep_my_network").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_network");
-        }else{
+        }else if(listData!='User Search'){
             if($("#pep_my_community").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_community");
         }
-
-        if($(hiddenDiv).is(':empty')){
-            $("#pep_user_list").load(loadData);
-        }else{
-            $("#pep_user_list").empty();
-            $(hiddenDiv).children().clone(true,true).appendTo("#pep_user_list");
+        if(loadData!=''){
+            if($(hiddenDiv).is(':empty')){
+                $("#pep_user_list").load(loadData);
+            }else{
+                $("#pep_user_list").empty();
+                $(hiddenDiv).children().clone(true,true).appendTo("#pep_user_list");
+            }
         }
     }
 
@@ -121,6 +122,7 @@ $(document).ready(function(){
     $("#pep_search").on('keyup', function(){
         var searchterm = $('#pep_search').val();
         if(searchterm!==''){
+            loadLists();
             var commId="search";
             $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
@@ -147,7 +149,7 @@ $(document).ready(function(){
                     }while(prevLen < user_ids.length);
                     $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
                             $("#pep_user_list .org-list-table:gt(0)").remove();
-                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
@@ -187,6 +189,66 @@ $(document).ready(function(){
                                     if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
                                     $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
 						        }
+
+						        $("#user_search .pep_contact_block .pep_add_im").each(function(){
+                                    var $elem = $(this)
+
+                                    if ($elem.data('click-init')) return true;
+
+                                    $elem.data('click-init', true);
+
+                                    $elem.on('click', function (e) {
+                                        e.preventDefault();
+                                        $(this).css("display", "none");
+                                        $(this).siblings(".pep_remove_im").css("display", "inline-block");
+                                        var uclass = $(this).closest("td").attr("class");
+                                        var userName = $(this).siblings(".pep_contact_name").text();
+                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                        userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
+                                        $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+                                        $("#pep_list_clear").css("display", "block");
+                                        var elems = document.getElementsByClassName(uclass);
+                                        for(n = 0; n < elems.length; n++){
+                                            addTag = elems[n].getElementsByClassName("pep_add_im");
+                                            addTag[0].style.display="none";
+                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                            removeTag[0].style.display="inline-block";
+                                        }
+                                    });
+                                });
+                                $("#user_search .pep_contact_block .pep_remove_im").each(function(){
+                                    var $elem = $(this)
+
+                                    if ($elem.data('click-init')) return true;
+
+                                    $elem.data('click-init', true);
+
+                                    $elem.on('click', function (e) {
+                                        e.preventDefault();
+                                        $(this).css("display", "none");
+                                        $(this).siblings(".pep_add_im").css("display", "inline-block");
+                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                        var parent = document.getElementById("pep_slider_list");
+                                        var child = document.getElementById("ul" + idUser);
+                                        parent.removeChild(child);
+
+                                        if($("#pep_slider_list").children().length==0){
+                                            $("#pep_list_clear").css("display", "none");
+                                        }
+
+                                        var uclass = $(this).closest("td").attr("class");
+
+                                        var elems = document.getElementsByClassName(uclass);
+                                        for(n = 0; n < elems.length; n++){
+                                            addTag = elems[n].getElementsByClassName("pep_add_im");
+                                            addTag[0].style.display="inline-block";
+                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                            removeTag[0].style.display="none";
+                                        }
+                                    });
+                                });
 
                                 $(".pep_contact_name").tooltip({
                                     items: ".pep_contact_name",
