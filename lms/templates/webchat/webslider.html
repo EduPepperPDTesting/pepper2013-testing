@@ -93,9 +93,17 @@ $(document).ready(function(){
     });
 
     function loadLists(loadData, hiddenDiv){
+        var listData = $(".org-list-table:eq(0)").attr("data");
+        if(listData=='All Users'){
+            $('#pep_all_ptusers') = $("#pep_user_list").html();
+        }else if(listData=='My Network'){
+            $('#pep_my_network') = $("#pep_user_list").html();
+        }else{
+            $('#pep_my_community') = $("#pep_user_list").html();
+        }
+
         if($(hiddenDiv).is(':empty')){
             $("#pep_user_list").load(loadData);
-            $(hiddenDiv) = $("#pep_user_list").html();
         }else{
             $('#pep_all_lists').innerHTML = $(hiddenDiv).html();
         }
