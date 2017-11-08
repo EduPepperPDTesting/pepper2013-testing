@@ -87,7 +87,7 @@ def get_all_ptusers(request):
             if midCurrPos <= lastPos:
                 first_name = users_list[midCurrPos].first_name
                 last_name = users_list[midCurrPos].last_name
-                id = users_list[currPos].id
+                id = users_list[midCurrPos].id
                 if (searchLen <= len(first_name) or searchLen <= len(last_name)):
                     if not searchterm in first_name.lower() and not searchterm in last_name.lower():
                         users_list = users_list.exclude(first_name=first_name, last_name=last_name)
