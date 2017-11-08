@@ -121,7 +121,7 @@ $(document).ready(function(){
 
     $("#pep_search").on('keyup', function(){
         var searchterm = $('#pep_search').val();
-        if(searchterm!==''){
+        if(searchterm !== '' and searchterm.length >= 4){
             loadLists();
             var commId="search";
             $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {

@@ -54,16 +54,38 @@ def get_all_ptusers(request):
         prevLen = len(my_network_ids)
         pageAttr = pageAttr + 1
         getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+
+    if my_network_ids:
+        my_network_ids.sort()
 
     user_ids = request.POST.getlist("user_ids[]")
     searchterm = request.POST.get("searchterm")
     if searchterm:
-        ids = list()
+        users_list = User.objects.exclude(id=request.user.id).filter(id__in=user_ids).order_by('first_name', 'last_name')
 
-        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
+        currPos = 0
+        lastPos = len(users_firstname) - 1
+        midPos = lastPos // 2
+        searchLen = len(searchterm)
 
-        for user_item in users_firstname:
+        while currPos <= midPos:
+
+            if (searchLen <= len(users_list[currPos].first_name) or searchLen <= len(users_list[currPos].last_name)):
+                if not searchterm.lower() in users_list[currPos].first_name.lower():
+                    if not searchterm.lower() in users_list[currPos].last_name.lower():
+                        del users_list[currPos]
+
+            midCurrPos = currPos + midPos
+
+            if midCurrPos <= lastPos and (searchLen <= len(users_list[midCurrPos].first_name) or searchLen <= len(users_list[midCurrPos].last_name)):
+                if not searchterm.lower() in users_list[midCurrPos].first_name.lower():
+                    if not searchterm.lower() in users_list[midCurrPos].last_name.lower():
+                        del users_list[midCurrPos]
+
+            currPos += 1
+
+        for user_item in users_list:
             row = list()
             userid = str(user_item.id)
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
@@ -77,26 +99,6 @@ def get_all_ptusers(request):
             row.append(checkInCommunities(request.user, user_item))
 
             rows.append(row)
-            ids.append(userid) #str(user_item.id))
-
-        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=searchterm, id__in=user_ids) #.exclude(id__in=ids)
-
-        for user_item in users_lastname:
-            userid = str(user_item.id)
-            if not userid in ids:
-                row = list()
-
-                row.append(str(user_item.first_name) + " " + str(user_item.last_name))
-                row.append(userid)
-
-                if userid in my_network_ids:
-                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-                else:
-                    row.append('')
-
-                row.append(checkInCommunities(request.user, user_item))
-
-                rows.append(row)
 
     else:
         for user_id in user_ids:
@@ -284,9 +286,12 @@ def get_community_user_rows(request):
         prevLen = len(my_network_ids)
         pageAttr = pageAttr + 1
         getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     #for item in users[start:end]:
+    if my_network_ids:
+        my_network_ids.sort()
+
     for item in users:
         row = list()
         userid = str(item.user.id)
