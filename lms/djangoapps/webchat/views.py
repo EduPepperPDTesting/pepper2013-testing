@@ -70,18 +70,26 @@ def get_all_ptusers(request):
         searchLen = len(searchterm)
 
         while currPos <= midPos:
-
-            if (searchLen <= len(users_list[currPos].first_name) or searchLen <= len(users_list[currPos].last_name)):
+            first_name = users_list[currPos].first_name
+            last_name = users_list[currPos].last_name
+            if (searchLen <= len(first_name) or searchLen <= len(last_name)):
                 if not searchterm.lower() in users_list[currPos].first_name.lower():
                     if not searchterm.lower() in users_list[currPos].last_name.lower():
-                        users_list.exclude(first_name=users_list[currPos].first_name, last_name=users_list[currPos].last_name)
+                        users_list.exclude(first_name=first_name, last_name=last_name)
+            else:
+                users_list.exclude(first_name=first_name, last_name=last_name)
 
             midCurrPos = currPos + midPos
 
-            if midCurrPos <= lastPos and (searchLen <= len(users_list[midCurrPos].first_name) or searchLen <= len(users_list[midCurrPos].last_name)):
-                if not searchterm.lower() in users_list[midCurrPos].first_name.lower():
-                    if not searchterm.lower() in users_list[midCurrPos].last_name.lower():
-                        users_list.exclude(first_name=users_list[midCurrPos].first_name, last_name= users_list[midCurrPos].last_name)
+            if midCurrPos <= lastPos:
+                first_name = users_list[midCurrPos].first_name
+                last_name = users_list[midCurrPos].last_name
+                if (searchLen <= len(first_name) or searchLen <= len(last_name)):
+                    if not searchterm.lower() in users_list[midCurrPos].first_name.lower():
+                        if not searchterm.lower() in users_list[midCurrPos].last_name.lower():
+                            users_list.exclude(first_name=first_name, last_name=last_name)
+                else:
+                    users_list.exclude(first_name=first_name, last_name=last_name)
 
             currPos += 1
 
