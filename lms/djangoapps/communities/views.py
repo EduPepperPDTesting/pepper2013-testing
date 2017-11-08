@@ -714,6 +714,7 @@ def newcommunities(request):
     user = request.user
     community_list = list()
     filter_dict = dict()
+    community_id = 'new'
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -734,17 +735,18 @@ def newcommunities(request):
                                'name': item.name,
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
-    # For create new community or edit community
+    '''
+    For create new community or edit community
+    '''
+    # Step4:
+    # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
     courses_drop_full = list()
     courses_drop = list()
     if not user.is_superuser:
-        # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
         allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
         for course_id in allowedcourses_id:
             try:
-                '''
-                Exclude invalid courses.
-                '''
+                # Exclude invalid courses.
                 c = course_from_id(course_id)
                 courses_drop_full.append(c)
             except:
@@ -758,16 +760,30 @@ def newcommunities(request):
                              'name': get_course_about_section(course, 'title'),
                              'logo': course_image_url(course)})
 
-    # edit data----------------
-    courses = ['']
-    resources = [{'name': '', 'link': '', 'logo': ''}]
-    # edit data----------------
+    # If we are adding a new community, and the user making the request is a superuser, return a blank form.
+    community_info = dict()
+    if community_id == 'new' and user.is_superuser:
+        community_info = {'community_id': 'new',
+                          'community': '',
+                          'name': '',
+                          'motto': '',
+                          'logo': '',
+                          'facilitator': '',
+                          'state': '',
+                          'district': '',
+                          'hangout': '',
+                          'private': '',
+                          'courses': [''],
+                          'resources': [{'name': '', 'link': '', 'logo': ''}],
+                          'user_type': 'super'}
+    else:
+        pass
 
     # Set up the data to send to the communities template, with the communities sorted by name.
     data = {'communities': sorted(community_list, key=itemgetter('name')),
-            'courses_drop': courses_drop,
-            'courses': courses,
-            'resources': resources}
+            'courses_drop': courses_drop}
+    data.update(community_info)
+    
     return render_to_response('communities/communities_new.html', data)
 
 
@@ -801,6 +817,8 @@ def community_edit(request, community_id='new'):
     :param community_id: Which community to edit, or 'new' if adding one.
     :return: Form page.
     """
+    log.debug("community id======")
+    log.debug(community_id)
     # Get a list of courses for the course drop-down in the form.
     courses_drop = get_courses(request.user)
     data = {'courses_drop': []}
