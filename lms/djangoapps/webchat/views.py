@@ -65,7 +65,7 @@ def get_all_ptusers(request):
         users_list = User.objects.exclude(id=request.user.id).filter(id__in=user_ids).order_by('first_name', 'last_name')
 
         currPos = 0
-        lastPos = len(users_firstname) - 1
+        lastPos = len(users_list) - 1
         midPos = lastPos // 2
         searchLen = len(searchterm)
 
