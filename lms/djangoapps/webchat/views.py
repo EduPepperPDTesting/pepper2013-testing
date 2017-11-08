@@ -60,7 +60,7 @@ def get_all_ptusers(request):
         my_network_ids.sort()
 
     user_ids = request.POST.getlist("user_ids[]")
-    searchterm = request.POST.get("searchterm")
+    searchterm = request.POST.get("searchterm").lower()
     if searchterm:
         users_list = User.objects.exclude(id=request.user.id).filter(id__in=user_ids).order_by('first_name', 'last_name')
 
@@ -73,9 +73,8 @@ def get_all_ptusers(request):
             first_name = users_list[currPos].first_name
             last_name = users_list[currPos].last_name
             if (searchLen <= len(first_name) or searchLen <= len(last_name)):
-                if not searchterm.lower() in users_list[currPos].first_name.lower():
-                    if not searchterm.lower() in users_list[currPos].last_name.lower():
-                        users_list.exclude(first_name=first_name, last_name=last_name)
+                if not searchterm in first_name.lower and not searchterm in last_name.lower():
+                    users_list.exclude(first_name=first_name, last_name=last_name)
             else:
                 users_list.exclude(first_name=first_name, last_name=last_name)
 
@@ -85,9 +84,8 @@ def get_all_ptusers(request):
                 first_name = users_list[midCurrPos].first_name
                 last_name = users_list[midCurrPos].last_name
                 if (searchLen <= len(first_name) or searchLen <= len(last_name)):
-                    if not searchterm.lower() in users_list[midCurrPos].first_name.lower():
-                        if not searchterm.lower() in users_list[midCurrPos].last_name.lower():
-                            users_list.exclude(first_name=first_name, last_name=last_name)
+                    if not searchterm in first_name.lower() and not searchterm in last_name.lower():
+                        users_list.exclude(first_name=first_name, last_name=last_name)
                 else:
                     users_list.exclude(first_name=first_name, last_name=last_name)
 
