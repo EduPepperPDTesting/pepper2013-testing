@@ -74,14 +74,14 @@ def get_all_ptusers(request):
             if (searchLen <= len(users_list[currPos].first_name) or searchLen <= len(users_list[currPos].last_name)):
                 if not searchterm.lower() in users_list[currPos].first_name.lower():
                     if not searchterm.lower() in users_list[currPos].last_name.lower():
-                        del users_list[currPos]
+                        users_list.exclude(first_name=users_list[currPos].first_name, last_name=users_list[currPos].last_name)
 
             midCurrPos = currPos + midPos
 
             if midCurrPos <= lastPos and (searchLen <= len(users_list[midCurrPos].first_name) or searchLen <= len(users_list[midCurrPos].last_name)):
                 if not searchterm.lower() in users_list[midCurrPos].first_name.lower():
                     if not searchterm.lower() in users_list[midCurrPos].last_name.lower():
-                        del users_list[midCurrPos]
+                        users_list.exclude(first_name=users_list[midCurrPos].first_name, last_name= users_list[midCurrPos].last_name)
 
             currPos += 1
 
