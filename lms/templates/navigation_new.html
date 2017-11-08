@@ -69,7 +69,7 @@
                             only_flag2 = True
                 if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser) or only_flag2:
                     if liClass == "":
-                        liClass = " class='pepper-menu-holder'"
+                        liClass = " class='new-pepper-menu-holder'"
 
                     menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
 
