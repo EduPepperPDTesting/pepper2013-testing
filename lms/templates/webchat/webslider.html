@@ -48,6 +48,11 @@ from django.core.urlresolvers import reverse
 
 <script type="text/javascript">
 $(document).ready(function(){
+    /* Check for Video/Chat Alerts */
+    //@Mike Minnick 11/8/17
+    setInterval(function(){ checkForAlert() }, 3000);
+    //@END
+
     var slPos='out';
     $("#pep_title_tab").click(function(){
         if(slPos=='in'){
