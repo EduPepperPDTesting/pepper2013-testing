@@ -226,7 +226,7 @@
 			var $link = $(e.target);
 			e.preventDefault();
             user_id = ${request.user.id};
-            request_user_id = $(this).attr("id");
+            request_user_id = $(this).prevAll("div.pep_contact_name:first").attr("id");
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
@@ -307,7 +307,6 @@
 			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
 			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
 		});
-        setInterval(function(){ checkForAlert() }, 3000);
 	});
 
 		$("table:not(#community_network, #community_allptusers) thead").on('click', 'th', function(){
