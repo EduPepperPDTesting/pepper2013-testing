@@ -67,40 +67,21 @@ def get_all_ptusers(request):
 
         currPos = 0
         lastPos = len(users_list) - 1
-        #midPos = lastPos // 2
         searchLen = len(searchterm)
 
-        while currPos <= lastPos: #midPos:
+        while currPos <= lastPos:
             first_name = users_list[currPos].first_name
             last_name = users_list[currPos].last_name
             id = users_list[currPos].id
             if (searchLen <= len(first_name) or searchLen <= len(last_name)):
                 if not searchterm in first_name.lower() and not searchterm in last_name.lower():
                     users_list = users_list.exclude(id=id)
-                    #currPos -= 1
                     lastPos = len(users_list) - 1
-                    #midPos = lastPos // 2
                 else:
                     currPos += 1
             else:
                 users_list = users_list.exclude(id=id)
-                #currPos -= 1
                 lastPos = len(users_list) - 1
-                #midPos = lastPos // 2
-
-            # midCurrPos = currPos + midPos
-            #
-            # if midCurrPos <= lastPos:
-            #     first_name = users_list[midCurrPos].first_name
-            #     last_name = users_list[midCurrPos].last_name
-            #     id = users_list[midCurrPos].id
-            #     if (searchLen <= len(first_name) or searchLen <= len(last_name)):
-            #         if not searchterm in first_name.lower() and not searchterm in last_name.lower():
-            #             users_list = users_list.exclude(first_name=first_name, last_name=last_name)
-            #     else:
-            #         users_list = users_list.exclude(id=id)
-            #
-            currPos += 1
 
         for user_item in users_list:
             row = list()
