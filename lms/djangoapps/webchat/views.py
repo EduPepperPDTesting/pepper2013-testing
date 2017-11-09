@@ -52,15 +52,20 @@ def get_all_ptusers(request):
         pageAttr = pageAttr + 1
         getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
         my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
-    
+
     rows = list()
 
     user_ids = request.POST.getlist("user_ids[]")
     searchterm = request.POST.get("searchterm")
     if searchterm:
-
-        users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
-        users_listbyln = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, id__in=user_ids).order_by('last_name')
+        if " " in searchterm:
+            searchfirst = searchterm[0: searchterm.index(" ")]
+            searchlast = searchterm[searchterm.index(" ")+1:]
+            users_list = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchfirst, last_name__icontains=searchlast, id__in=user_ids).order_by('first_name', 'last_name')
+            users_listbyln={}
+        else:
+            users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
+            users_listbyln = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, id__in=user_ids).order_by('last_name')
 
         for user_item in users_list:
             row = list()
@@ -78,21 +83,22 @@ def get_all_ptusers(request):
 
             rows.append(row)
 
-        for user_item in users_listbyln:
-            row = list()
-            userid = str(user_item.id)
-            row.append(str(user_item.first_name) + " " + str(user_item.last_name))
-            row.append(userid)
+        if users_listbyln:
+            for user_item in users_listbyln:
+                row = list()
+                userid = str(user_item.id)
+                row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+                row.append(userid)
 
-            if userid in my_network_ids:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            else:
+                if userid in my_network_ids:
+                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                else:
+                    row.append('')
+
+                row.append(checkInCommunities(request.user, user_item))
                 row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
-            row.append('')
-
-            rows.append(row)
+                rows.append(row)
 
     else:
 
