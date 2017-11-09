@@ -123,6 +123,7 @@ $(document).ready(function(){
         var searchterm = $('#pep_search').val();
         if(searchterm !== '' && searchterm.length >= 4){
             loadLists();
+            searchterm = searchterm.trim();
             var commId="search";
             $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
@@ -147,10 +148,11 @@ $(document).ready(function(){
                         }
                         });
                     }while(prevLen < user_ids.length);
+                    $('#pep_search_container').css("cursor": "wait");
                     $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
                             $("#pep_user_list .org-list-table:gt(0)").remove();
                             $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
-
+                            $('#pep_search_container').css("cursor": "text");
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
                                     networkRows.push(networkData.rows[i]);
