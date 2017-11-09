@@ -144,6 +144,9 @@
 								var nameTitle = (nameLength>10)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
 								return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
 							}
+							close: function (event, ui) {
+								$(".ui-helper-hidden-accessible").remove();
+							}
 						});
 					}
 					else{
