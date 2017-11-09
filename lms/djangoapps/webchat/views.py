@@ -63,25 +63,48 @@ def get_all_ptusers(request):
     searchterm = request.POST.get("searchterm")
     if searchterm:
         searchterm=searchterm.lower()
-        users_list = User.objects.exclude(id=request.user.id).filter(id__in=user_ids).order_by('first_name', 'last_name')
+        users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
 
-        currPos = 0
-        lastPos = len(users_list) - 1
-        searchLen = len(searchterm)
+        # currPos = 0
+        # lastPos = len(users_list) - 1
+        # searchLen = len(searchterm)
+        #
+        #
+        # while currPos <= lastPos:
+        #     first_name = users_list[currPos].first_name
+        #     last_name = users_list[currPos].last_name
+        #     id = users_list[currPos].id
+        #     if (searchLen <= len(first_name) or searchLen <= len(last_name)):
+        #         if not searchterm in first_name.lower() and not searchterm in last_name.lower():
+        #             users_list = users_list.exclude(id=id)
+        #             lastPos = len(users_list) - 1
+        #         else:
+        #             currPos += 1
+        #     else:
+        #         users_list = users_list.exclude(id=id)
+        #         lastPos = len(users_list) - 1
 
-        while currPos <= lastPos:
-            first_name = users_list[currPos].first_name
-            last_name = users_list[currPos].last_name
-            id = users_list[currPos].id
-            if (searchLen <= len(first_name) or searchLen <= len(last_name)):
-                if not searchterm in first_name.lower() and not searchterm in last_name.lower():
-                    users_list = users_list.exclude(id=id)
-                    lastPos = len(users_list) - 1
-                else:
-                    currPos += 1
-            else:
-                users_list = users_list.exclude(id=id)
-                lastPos = len(users_list) - 1
+        users_list_byLN = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, d__in=user_ids).order_by('last_name')
+
+        # currPos = 0
+        # lastPos = len(users_list) - 1
+        # searchLen = len(searchterm)
+        #
+        # while currPos <= lastPos:
+        #     first_name = users_list[currPos].first_name
+        #     last_name = users_list[currPos].last_name
+        #     id = users_list[currPos].id
+        #     if (searchLen <= len(first_name) or searchLen <= len(last_name)):
+        #         if not searchterm in first_name.lower() and not searchterm in last_name.lower():
+        #             users_list = users_list.exclude(id=id)
+        #             lastPos = len(users_list) - 1
+        #         else:
+        #             currPos += 1
+        #     else:
+        #         users_list = users_list.exclude(id=id)
+        #         lastPos = len(users_list) - 1
+
+        users_list.update(users_list_byLN)
 
         for user_item in users_list:
             row = list()
