@@ -65,7 +65,7 @@ def get_all_ptusers(request):
         #searchterm=searchterm.lower()
         users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
         users_listbyln = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, id__in=user_ids).order_by('last_name')
- 
+
         # currPos = 0
         # lastPos = len(users_list) - 1
         # searchLen = len(searchterm)
@@ -105,9 +105,23 @@ def get_all_ptusers(request):
         #         users_list = users_list.exclude(id=id)
         #         lastPos = len(users_list) - 1
 
-        users_list.update(users_listbyln)
-
         for user_item in users_list:
+            row = list()
+            userid = str(user_item.id)
+            row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+            row.append(userid)
+
+            # if userid in my_network_ids:
+            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            # else:
+            row.append('')
+
+            #row.append(checkInCommunities(request.user, user_item))
+            row.append('')
+
+            rows.append(row)
+
+        for user_item in users_listbyln:
             row = list()
             userid = str(user_item.id)
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
