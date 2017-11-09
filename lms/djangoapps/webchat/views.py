@@ -63,10 +63,11 @@ def get_all_ptusers(request):
     searchterm = request.POST.get("searchterm")
     if searchterm:
         #searchterm=searchterm.lower()
-
-        users_list_byLN = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, d__in=user_ids).order_by('last_name')
-
         users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
+
+        users_listbyln = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, d__in=user_ids).order_by('last_name')
+
+
 
         # currPos = 0
         # lastPos = len(users_list) - 1
@@ -107,7 +108,7 @@ def get_all_ptusers(request):
         #         users_list = users_list.exclude(id=id)
         #         lastPos = len(users_list) - 1
 
-        users_list.update(users_list_byLN)
+        users_list.update(users_listbyln)
 
         for user_item in users_list:
             row = list()
