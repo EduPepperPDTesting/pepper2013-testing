@@ -46,18 +46,18 @@ def get_users_org(request):
 def get_all_ptusers(request):
     rows = list()
 
-    my_network_ids = list()
-    prevLen = -1
-
-    pageAttr = 0
-    while prevLen<len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
-
-    if my_network_ids:
-        my_network_ids.sort()
+    # my_network_ids = list()
+    # prevLen = -1
+    #
+    # pageAttr = 0
+    # while prevLen<len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+    #
+    # if my_network_ids:
+    #     my_network_ids.sort()
 
     user_ids = request.POST.getlist("user_ids[]")
     searchterm = request.POST.get("searchterm")
@@ -89,16 +89,29 @@ def get_all_ptusers(request):
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
             row.append(userid)
 
-            if userid in my_network_ids:
-                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            else:
-                row.append('')
+            # if userid in my_network_ids:
+            #     row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            # else:
+            row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
+            #row.append(checkInCommunities(request.user, user_item))
+            row.append('')
 
             rows.append(row)
 
     else:
+        my_network_ids = list()
+        prevLen = -1
+        pageAttr = 0
+        while prevLen < len(my_network_ids):
+            prevLen = len(my_network_ids)
+            pageAttr = pageAttr + 1
+            getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+            my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+
+        if my_network_ids:
+            my_network_ids.sort()
+
         for user_id in user_ids:
             row = list()
             user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
