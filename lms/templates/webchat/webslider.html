@@ -148,11 +148,11 @@ $(document).ready(function(){
                         }
                         });
                     }while(prevLen < user_ids.length);
-                    $('#pep_search_container').css("cursor", "wait");
+                    $('#pep_search_container input').css("cursor", "wait");
                     $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
                             $("#pep_user_list .org-list-table:gt(0)").remove();
                             $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
-                            $('#pep_search_container').css("cursor", "text");
+
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
                                     networkRows.push(networkData.rows[i]);
@@ -273,6 +273,7 @@ $(document).ready(function(){
                             }else{
                                 $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
                             }
+                            $('#pep_search_container input').css("cursor", "text");
                         }
                     });
                 }
