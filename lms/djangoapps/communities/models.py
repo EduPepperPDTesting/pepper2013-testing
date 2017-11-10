@@ -23,7 +23,8 @@ class CommunityUsers(models.Model):
     community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     facilitator = models.BooleanField(blank=False, default=0)
-
+    community_edit = models.BooleanField(blank=False, default=0)
+    community_delete = models.BooleanField(blank=False, default=0)
 
 class CommunityCourses(models.Model):
     class Meta:

@@ -736,13 +736,15 @@ def newcommunities(request):
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
     '''
-    For create new community or edit community
+    For create new community
     '''
-    # Step4:
+    # Get necessary info for step4:
     # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
     courses_drop_full = list()
     courses_drop = list()
-    if not user.is_superuser:
+    if user.is_superuser:
+        courses_drop_full = get_courses(user)
+    else:
         allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
         for course_id in allowedcourses_id:
             try:
@@ -751,14 +753,22 @@ def newcommunities(request):
                 courses_drop_full.append(c)
             except:
                 pass
-    else:
-        courses_drop_full = get_courses(user)
 
     for course in courses_drop_full:
         courses_drop.append({'id': course.id,
                              'number': course.display_number_with_default,
                              'name': get_course_about_section(course, 'title'),
                              'logo': course_image_url(course)})
+
+    # Get necessary info for step5:
+    users_drop = list()
+    order = ['user__email']
+    if user.is_superuser:
+        users = UserProfile.objects.prefetch_related().all().order_by(*order)
+        users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
+
+        for d in users:
+            users_drop.append({'email':d.user.email,'user_id':d.user_id})
 
     # If we are adding a new community, and the user making the request is a superuser, return a blank form.
     community_info = dict()
@@ -781,7 +791,8 @@ def newcommunities(request):
 
     # Set up the data to send to the communities template, with the communities sorted by name.
     data = {'communities': sorted(community_list, key=itemgetter('name')),
-            'courses_drop': courses_drop}
+            'courses_drop': courses_drop,
+            'users_drop': users_drop}
     data.update(community_info)
     
     return render_to_response('communities/communities_new.html', data)

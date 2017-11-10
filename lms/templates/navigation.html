@@ -179,7 +179,7 @@
                                 <li id="org_tsm_tnl_configuration_obj"><a href="${absolute_url(reverse('tnl_configuration'))}">TNL Configuration</a></li>
                             % endif
                             % if check_user_perms(request.user, 'studio'):
-                                <li id="org_tsm_studio_obj"><a href="#" target="_blank">Studio</a></li>
+                                <li id="org_tsm_studio_obj"><a id="studio_url" href="#" target="_blank">Studio</a></li>
                             % endif
                             % if check_user_perms(request.user, 'alert_message'):
                                 <li id="org_tsm_alert_obj"><a href="${absolute_url(reverse('alert_message'))}">Alert</a></li>
@@ -190,6 +190,30 @@
                             % endif
                             <li id="org_tsm_portfolio_settings_obj"><a href="${absolute_url(reverse('portfolio_settings'))}">Portfolio Settings</a></li>
                             <!-- endif -->
+                            <script type="text/javascript">
+                                url_split_array = window.location.href.split('/');
+                                split_array_1 = "";
+                                split_keyword = "";
+                                url_using = "#";
+                                str1 = "https://studio";
+                                str2 = ".pepperpd.com";
+
+                                if (url_split_array.length>2){
+                                    split_array_1 = url_split_array[2].split('.');
+                                    split_keyword = split_array_1[0];
+                                }
+                                
+                                if (split_keyword == "www0"){
+                                   url_using = str1 + "0" + str2;
+                                }
+                                else if(split_keyword == "www"){
+                                    url_using = str1 + str2;
+                                }
+                                else{
+                                    url_using = str1 + "-" + split_keyword + str2;
+                                }
+                                $("#studio_url").attr("href",url_using);
+                            </script>
                         </ul>
                     </li>
                 % endif
