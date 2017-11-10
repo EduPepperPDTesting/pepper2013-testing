@@ -510,7 +510,8 @@ var userTimeReport = {
             change_psw_press = 0;
         });
 
-        $("#btn_change_password").click(function(){
+        $("#btn_change_password").unbind("click");
+        $("#btn_change_password").bind("click",function(){
             if(change_psw_press == 0){
                 change_psw_press = 1;
                 $("#btn_change_password").addClass("btn-change-password-lock");
