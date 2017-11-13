@@ -683,11 +683,11 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                             <th width="30" align="center"></th>
                                             <th width="70">Default</th>
                                             <th align="center">Email</th>
-                                            <th width="150" align="center">Edit Training</th>
-                                            <th width="150" align="center">Delete Training</th>
+                                            <th width="150" align="center">Edit Community</th>
+                                            <th width="150" align="center">Delete Community</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="community_facilitator_list">
+                                    <tbody id="community_facilitators_list">
                                         <!--
                                         <tr>
                                             <td></td>
@@ -704,8 +704,19 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                         <div class="form-row" style="font-size:14px;">
                             <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
                                 <b>Facilitator</b>):</i>
-                            <input type="text" name="member" id="complete-email" autocomplete="off">
-                            <input type="button" name="" value="Add" class="btn-add-instructor" style="color:#fff !important;"/><br>
+                            <div style="margin:5px 0 5px 0;">
+                                <select id="complete-email" name="member" style="min-width:100px;margin:5px 5px 0 0;">
+                                    %for user_option in users_drop:
+                                        %if request.user.id == user_option['user_id']:
+                                            <option value="${user_option['user_id']}" selected="selected">${user_option['email']}</option>
+                                        %else:
+                                            <option value="${user_option['user_id']}">${user_option['email']}</option>
+                                        %endif
+                                    %endfor
+                                </select>
+                                <!--<input type="text" name="member" id="complete-email" autocomplete="off">-->
+                                <input type="button" name="" value="Add" class="btn-add-facilitator" style="color:#fff !important;"/>
+                            </div>
                             <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
                         </div>
                     </div>
@@ -791,6 +802,37 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         this.initContent();
     }
 
+    PepReg.prototype.addTraining = function () {
+        var self = this;
+        console.log("this: ",this);
+        /*
+        $('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+        $(".timePickText").attr("disabled", false).css("background-color", "#fff");
+        $(".training_date_icon").show();
+        
+        $("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+        $("#math_credits").removeAttr("checked");
+        */    
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {          
+            // submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            /*
+            $.post("${reverse('pepreg_save_training')}", data, function (r) {
+                if (r.success) {
+                    $("#dlg-add-training").hide();
+                    $(".lean-overlay").hide();
+                    self.reloadTable();
+                }
+            });
+            */
+        });
+        return false;
+    };
+
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -850,6 +892,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         };
         // ************* when finish form
         steps.onFinish = function () {
+            console.log("fin==============");
             finishCallback && finishCallback(self.getInput());
         };
         // ************* unlock all pages when editing
@@ -901,18 +944,22 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                         });
             }
         });
-        // ************* input instructors
-        $(".btn-add-instructor").unbind("click").bind("click", function () {
-            var email = $("#complete-email").val();
+        // ************* input facilitators
+        $(".btn-add-facilitator").unbind("click").bind("click", function () {
+            var email = $("#complete-email").find("option:selected").text();
+            var user_id = $("#complete-email").val();
+            self.add_facilitator(email);
+            /*
             $.get("${reverse('pepper_utilities_user_email_exists')}", {email: email}, function (exists) {
-                var $ta = $("textarea[name=instructor_emails]")
+                var $ta = $("textarea[name=facilitator_emails]")
                 if (exists) {
-                    self.appendInstructors(email);
+                    self.add_facilitator(email);
                     $("#complete-email").val("");
                 } else {
                     self.warning("User not exists.", self.dlgForm);
                 }
             });
+            */
         });
         // ************* change credits after training data arrived
         if (data.arrive == "1") {
@@ -946,20 +993,59 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return steps;
     };
 
-    PepReg.prototype.getInstructors = function (emails) {
+    PepReg.prototype.check_facilitator = function () {
+        console.log("tr------------",$("#community_facilitators_list").find("tr"))
         var ar = [];       
-        $("#community_facilitator_list").find("tr").each(function () {
+        $("#community_facilitators_list").find("tr").each(function () {
+            var email = $(this).find("td").eq(2).text();
+            ar.push(email);
+        });
+        return ar;
+    };
+
+    PepReg.prototype.add_facilitator = function (email) {
+        if(email){
+            var curr = this.check_facilitator();
+            if(curr.indexOf(email) < 0){
+                var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+                var data_have = $("#community_facilitators_list").find("tr").html();
+                if(!data_have){
+                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' checked='checked'/></td>");
+                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' checked='checked'/></td>");
+                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' checked='checked'/></td>");
+                }
+                else{
+                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>");
+                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>");
+                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>");
+                }
+                var tmp_td2 = $("<td>" + email + "</td>");
+                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+                $("#community_facilitators_list").append(tmp_tr);
+
+                tmp_tr.find("a").click(function(e){
+                    e.preventDefault();
+                    $(this).parent().parent().remove();
+                });
+            }
+        }
+    }
+
+    /*
+    PepReg.prototype.getFacilitators = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
             var email = $(this).find("td").eq(2).text();
             var all_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
             var all_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
             ar.push(email + "::" + all_edit + "::" + all_delete);
-            //ar.push(email);
+            ar.push(email);
         });
         return ar;
     };
-    PepReg.prototype.appendInstructors = function (emails) {
+    PepReg.prototype.appendFacilitators = function (emails) {
         if (emails) {
-            var curr = this.getInstructors();
+            var curr = this.getFacilitators();
             console.log(emails.split(","));
             console.log("curr----: ",curr);
             $.each(emails.split(","), function (i, email) {
@@ -974,7 +1060,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                         var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>");
                         var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>");
                         tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
-                        $("#community_facilitator_list").append(tmp_tr);
+                        $("#community_facilitators_list").append(tmp_tr);
                         
                         //if(tmp[1] == "1")           tmp_td2.find("input").attr("checked", "checked");
                         //if(tmp[2] == "1")           tmp_td3.find("input").attr("checked", "checked");
@@ -988,6 +1074,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             });
         }
     };
+    */
 
     PepReg.prototype.initContent = function () {
         //this.initFilter();
@@ -1028,34 +1115,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
     };
 
-    PepReg.prototype.addTraining = function () {
-        var self = this;
-        console.log("this: ",this);
-        $('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
-        $(".timePickText").attr("disabled", false).css("background-color", "#fff");
-        $(".training_date_icon").show();
-        
-        $("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
-        $("#math_credits").removeAttr("checked");
-            
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {          
-            // submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            $.post("${reverse('pepreg_save_training')}", data, function (r) {
-                if (r.success) {
-                    $("#dlg-add-training").hide();
-                    $(".lean-overlay").hide();
-                    self.reloadTable();
-                }
-            });
-        });
-        return false;
-    };
-
     PepReg.prototype.clearData = function () {
         var empty = {};
         $.each(this.getInput(), function (k, v) {
@@ -1087,7 +1146,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             geo_location: $form.find("input[name=geo_location]").val(),
             geo_destination: $form.find("input[name=geo_destination]").val(),
             geo_props: $form.find("input[name=geo_props]").val(),
-            instructor_emails: this.getInstructors().join(","),
+            facilitator_emails: this.getFacilitators().join(","),
             credits: $form.find("input[name=credits]").val() || 0,
             attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
             allow_registration: $form.find("input[name=allow_registration]:checked").val(),
@@ -1157,7 +1216,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 
     PepReg.prototype.validatePage = function (page, data) {
         $('.community-error-box').removeClass('community-error-box');
-        /*
+        
         if (page == 0) {
             if (!data.c_name) {
                 $('#community-name input').addClass('community-error-box');
@@ -1168,50 +1227,26 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 return ["name", "Community Name format wrong."];
             }
         } 
-        
-        else if (page == 1) {
-            if (!data.district_id) {
-                return ["district_id", "Please select district"];
+        else if(page == 4){
+            var facilitator = $("#community_facilitators_list").find("tr").html();
+            if(!facilitator){
+               return ["facilitator", "You must choose a facilitator."];
             }
-            if (!data.name) {
-                return ["name", "Please input name"];
-            }
-            if (data.type == "pepper_course" && !data.pepper_course) {
-                return ["pepper_course", "Please select pepper course"];
-            }
-            if (!data.subject) {
-                return ["subject", "Please select subject"];
-            }
-        } else if (page == 2) {
-            if (!data.training_date) {
-                return ["training_date", "Please select training date"];
-            }
-            if (!data.training_time_start) {
-                return ["training_time_start", "Please select training start time"];
-            }
-            if (!data.training_time_end) {
-                return ["training_time_end", "Please select training end time"];
-            }
-            function todate(d, t) {
-                var d = d.split("-");
-                var t = t.split(":");
-                return new Date(d[0], d[1], d[2], t[0], t[1], 0);
-            }
-
-            if (todate(data.training_date, data.training_time_end) < todate(data.training_date, data.training_time_start)) {
-                return ["training_time_end", "Please select time that after the Start Time."];
-            }
-        } else if (page == 3) {
-        } else if (page == 4) {
-        } else if (page == 5) {
-            if (!/^\d*(\.[05]*)?$/.test(data.credits)) {
-                return ["credits", "Please input a valid credits"];
-            }
-            if (!/^\d*(\.\d*)?$/.test(data.max_registration)) {
-                return ["max_registration", "Please input a valid Maximum Registration Cap"];
+            else{
+                console.log("OK~~~~");
             }
         }
-        */
+    };
+
+    PepReg.prototype.validateAllPage = function (data) {
+        var self = this;
+        var r = null;
+        $("#dlg-add-training").find(".step-page").each(function (i) {
+            if (error = self.validatePage(i, data)) {
+                r = {id: i, error: error};
+            }
+        });
+        return r;
     };
 
     PepReg.prototype.warning = function (s, dlgFlyOn) {
