@@ -25,6 +25,7 @@ class CommunityUsers(models.Model):
     facilitator = models.BooleanField(blank=False, default=0)
     community_edit = models.BooleanField(blank=False, default=0)
     community_delete = models.BooleanField(blank=False, default=0)
+    community_default = models.BooleanField(blank=False, default=0)
 
 class CommunityCourses(models.Model):
     class Meta:
