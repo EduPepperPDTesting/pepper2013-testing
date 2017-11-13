@@ -10,17 +10,17 @@ from django.core.urlresolvers import reverse
 <div id="pep_container">
 
     <div id="pep_title_tab">
-        <div id="pep_title_text">PeppTalk</div>
+        <div id="pep_logo_div"><img id="pep-tab-logo" src="https://image.flaticon.com/icons/svg/345/345686.svg"></div>
+            <div id="pep_title_text">PeppTalk</div>
+        </div>
     </div>
     <div id="pep_panel" class="container">
-        <div id="pep_search_container" class="input-group">
-            <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
-            <div class="input-group-btn">
-                <button id="pep_search_btn" class="btn btn-default" type="submit" style="cursor: default !important;">
-                    <div id="pep_glass" style="position:relative;top: -5px;font-size: 1.5em;">⌕</div>
-                </button>
-            </div>
+        <div id="pep_search_container">
+	        <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
         </div>
+        <div id="pep_search_glass">
+            <img src="https://image.flaticon.com/icons/svg/345/345686.svg"/>
+        <div>
         <div id="pep_groups" class="btn-group">
             <a type="button" class="btn btn-xs" id="my_all">All</a>
             <a type="button" class="btn btn-xs" id="my_network">My Network</a>
@@ -30,19 +30,18 @@ from django.core.urlresolvers import reverse
         <div id="pep_my_network" style="display: none;"></div>
         <div id="pep_all_ptusers" style="display: none;"></div>
         <div id="pep_user_list"></div>
-        <div id="pep_slider_list"></div>
+        <div id="pep_list_clear" style="display: inline-block;">
+            <button type="button" class="btn btn-danger btn-xs">Clear</button>
+        </div>
         <div id="pep_slider_icons">
             <a href="#">
-                <img src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
-                     alt="im-text">
+                <img src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU" alt="im-text">
             </a>
             <a href="#">
                 <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video">
             </a>
         </div>
-        <div id="pep_list_clear" style="display: none;">
-            <button type="button" class="btn btn-danger btn-xs">Clear</button>
-        </div>
+        <div id="pep_slider_list"></div>
     </div>
 
 </div>
