@@ -37,16 +37,6 @@
         </div>
     % endif
 </%block>
-% if course and not is_external: 
-    <script type="text/javascript">
-        $(document).ready(function(){
-            var tmp1 = "<h2 style=\"width:605px;margin-top:15px;\"> " ;
-            tmp1 += "<span class='provider'>${course.display_org_with_default | h}: </span>${course.display_number_with_default | h} ${course.display_name_with_default}";
-            tmp1 += "</h2>";
-            $(".pepper-logo-wrap").after(tmp1);
-        });
-    </script>
-% endif
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
