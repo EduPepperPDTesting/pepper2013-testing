@@ -285,7 +285,7 @@
 				//console.log(userName);
 				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
 				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-				$("#pep_list_clear").css("display", "block");
+				$("#pep_list_clear").css("display", "inline-block");
 				var elems = document.getElementsByClassName(uclass);
 				for(n = 0; n < elems.length; n++){
 					addTag = elems[n].getElementsByClassName("pep_add_im");
