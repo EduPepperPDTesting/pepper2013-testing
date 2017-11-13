@@ -1030,11 +1030,11 @@ f.close()
     var self = this;
     function check(r){
       if(r && r.title == 'all done'){
-        new Dialog($('#dialog')).show("Bulk CSV Load ", "The users are imported successfuly.").onClose(function(){
+        new Dialog($('#dialog')).show("Course Save Success ", "Course permissions have been saved.").onClose(function(){
           self.loadUserTable(true);  
         });
       }else if(r && r.title == 'all done with errors'){
-        new Dialog($('#dialog')).show("Bulk CSV Load", "CSV import finished with errors, Please check your email.").onClose(function(){
+        new Dialog($('#dialog')).show("Course Save Failure", "Course permissions have been saved with errors, please check your email for error log.").onClose(function(){
           self.loadUserTable(true);  
         });
       }else{
