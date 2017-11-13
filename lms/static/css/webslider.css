@@ -278,3 +278,7 @@
 #community_network th, #community_allptusers th{
     cursor: default;
 }
+.pep_offline_icon img, .pep_online_icon img {
+    width: 15px;
+    height: 17px;
+}
