@@ -48,6 +48,10 @@
     right: -256px;
     height: 430px;
     z-index: 20;
+    border-radius: 15px;
+    -webkit-box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
+    -moz-box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
+    box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
 }
 #pep_search_container {
 	display: inline-block;
