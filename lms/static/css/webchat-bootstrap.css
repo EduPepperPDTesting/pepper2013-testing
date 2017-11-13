@@ -53,8 +53,8 @@
 #pep_panel .btn-group>.btn {
     border-radius: 0 !important;
     font-size: .7em;
-    color: black !important;
-    background-color: buttonface;
+    color: white !important;
+    background-color: #3eb4ea;
     position: relative;
     top: 5px;
 }
@@ -64,14 +64,6 @@
 #pep_panel .btn-group-vertical>.btn, .btn-group>.btn {
     position: relative;
     float: left;
-}
-#pep_panel .btn-group>.btn {
-    border-radius: 0 !important;
-    font-size: .7em;
-    color: black !important;
-    background-color: #3eb4ea;
-    position: relative;
-    top: 5px;
 }
 #pep_panel .btn-group>.btn:nth-child(1) {
     border-right: 2px solid white;
