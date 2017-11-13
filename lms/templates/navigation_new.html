@@ -247,9 +247,7 @@
                 <a href="${absolute_url('/dashboard')}">
                 <%block name="navigation_logo">
                     <!--@begin:Choose the image of the top logo according to user login status-->
-                    % if index != 1:
                         <img class="orig-pepper-logo" src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
-                    % endif
                     <!--@end-->
                 </%block>
                 </a>
