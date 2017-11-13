@@ -232,7 +232,7 @@
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
                     window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
                     link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
-                    sendVideoRequest(request_user_id, link);
+                    sendVideoRequest(request_user_id, link, 0);
                 });
             });
 		});
@@ -298,6 +298,26 @@
 				$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
 			}
 		});
+
+        $(".pep_chat_icons").on("click", "#pep_start_group_video", function (e){
+            e.preventDefault();
+            user_id = ${request.user.id};
+            request_user_id = $(this).prevAll("div.pep_contact_name:first").attr("id");
+            $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                var session = data.session;
+                $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow');
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+
+                    $("#pep_slider_list").children().each(function() {
+                        sendVideoRequest ($(this).attr("id").slice(2), link, 1);
+                        console.log($(this).attr("id").slice(2));
+                    });
+
+                });
+            });
+        });
+
 
 		$(".pep_add_im, .pep_remove_im").attr('unselectable','on').on('selectstart', function(){ return false; });
 
@@ -383,8 +403,12 @@
         });
     }
 
-    function sendVideoRequest(send_user, link) {
+    // If group == 1, use group message. Otherwise its a 1 to 1.
+    function sendVideoRequest(send_user, link, group) {
         message = "${request.user.username} wants to start a video chat! ";
+        if (group == 1) {
+            message = "${request.user.username} has started a group video chat!";
+        }
         message += link;
         var datainfo = {
             'info': JSON.stringify({
