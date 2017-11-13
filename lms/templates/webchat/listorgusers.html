@@ -299,7 +299,7 @@
 			}
 		});
 
-        $(".pep_chat_icons").on("click", "#pep_start_group_video", function (e){
+        $("#pep_slider_icons").on("click", "#pep_start_group_video", function (e){
             e.preventDefault();
             user_id = ${request.user.id};
             request_user_id = $(this).prevAll("div.pep_contact_name:first").attr("id");
