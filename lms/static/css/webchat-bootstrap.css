@@ -69,19 +69,19 @@
     border-radius: 0 !important;
     font-size: .7em;
     color: black !important;
-    background-color: buttonface;
+    background-color: #3eb4ea;
     position: relative;
     top: 5px;
 }
 #pep_panel .btn-group>.btn:nth-child(1) {
-    border-right: 2px groove;
+    border-right: 2px solid white;
     padding-bottom: 5px;
     padding-top: 5px;
     padding-left: 30px;
     padding-right: 30px;
 }
 #pep_panel .btn-group>.btn:nth-child(2) {
-    border-right: 2px groove;
+    border-right: 2px solid white;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 21px;

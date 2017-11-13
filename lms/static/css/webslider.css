@@ -4,13 +4,13 @@
     max-width: 251px;
     min-width: 251px;
     background-color: #fff;
-    border: 1px solid black;
     border-radius: 15px;
     padding-left: 15px;
 	padding-right: 15px;
+	background-color: #c0fffb;
 }
 #pep_title_tab {
-        position: fixed;
+    position: fixed;
     top: 52.5%;
     margin-top: -68px;
     right: 0px;
@@ -99,11 +99,11 @@
 #pep_user_list {
     width: 281px;
     height: 280px;
-    border-bottom: 1px solid;
     position: relative;
     top: -20px;
     left: -15px;
     overflow-x: hidden;
+    background-color: white;
 }
 #pep_slider_list {
     position: relative;
@@ -113,13 +113,13 @@
     min-height: 60px;
     max-height: 60px;
     width: 270px;
-    border: 1px solid;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     display: block;
     font-size: 12px;
     line-height: 1.2em;
     overflow-y: scroll;
+    background-color: white;
 }
 #pep_slider_icons {
     position: relative;
