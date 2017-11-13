@@ -10,13 +10,13 @@
 	padding-right: 15px;
 }
 #pep_title_tab {
-    position: fixed;
+        position: fixed;
     top: 52.5%;
     margin-top: -68px;
     right: 0px;
     width: 60px;
     height: 155px;
-    background-color: #22EEFF;
+    background-color: rgb(245, 130, 31);
     border-radius: 30px 0 0 30px;
     cursor: pointer;
 }
@@ -30,7 +30,7 @@
 }
 #pep_title_text {
     position: relative;
-    top: 60px;
+    top: 50px;
     -moz-transform: scale(-1, -1) rotate(90deg);
     -webkit-transform: scale(-1, -1) rotate(90deg);
     -o-transform: scale(-1, -1) rotate(90deg);
@@ -125,7 +125,7 @@
     position: relative;
     top: -20px;
     left: 15px;
-    width: 45px;
+    width: 70px;
     height: 27px;
     padding-top: 3px;
     padding-right: 5px;
@@ -133,7 +133,7 @@
     float: right;
 }
 #pep_slider_icons img {
-    width: 20px;
+    width: 30px;
     height: 20px;
     border: 0
 }
