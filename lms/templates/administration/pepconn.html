@@ -1063,7 +1063,7 @@ f.close()
     $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
       var a = $(this).find("td:nth-child(6) .toggle").toggleSwitch().val();
       var e = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
-      if(a + e != 0){
+      if(a != 0 || e != 0){
         courses.push($(this).find("td:nth-child(5)").text())
         access.push(a);
         enroll.push(e);
