@@ -124,6 +124,7 @@
     line-height: 1.2em;
     overflow-y: scroll;
     background-color: white;
+    text-align: left;
 }
 #pep_slider_icons {
     position: relative;
