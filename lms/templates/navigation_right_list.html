@@ -25,7 +25,7 @@
 }
 .con-my-courses{
     width:250px;
-    height:525px;
+    min-height:525px;
     background-color: #fff;
     position:fixed;
     padding-bottom: 5px;
@@ -229,8 +229,12 @@
                     % endif
                 </div>
                 <div class="my-title-green">
-                % if data["my_learning_plan"]:
-                        ${data["my_learning_plan"]} 
+                % if OrganizationOK:
+                    % if data["my_learning_plan"]:
+                            ${data["my_learning_plan"]} 
+                    % else:
+                        My Learning Plan
+                    % endif
                 % else:
                     My Learning Plan
                 % endif
@@ -256,10 +260,14 @@
                 %if len(allowedcourse) > 0:
                     <!--allowedcourse-->
                     <div class="my-title-green" style="float:left;margin-top:30px;border:0px solid;">
-                    % if data["recommended_courses"]:
-                        ${data["recommended_courses"]} 
+                    % if OrganizationOK:
+                        % if data["recommended_courses"]:
+                            ${data["recommended_courses"]} 
+                        % else:
+                            Recommended Courses
+                        % endif
                     % else:
-                        Recommended Courses!
+                            Recommended Courses
                     % endif
                     </div>
                     <div class="my-courses-cards">

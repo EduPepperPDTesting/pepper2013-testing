@@ -1,14 +1,17 @@
 #pep_panel {
     height: 100%;
-    width: 211px;
-    min-width: 211px;
+    width: 251px;
+    max-width: 251px;
+    min-width: 251px;
     background-color: #fff;
     border: 1px solid black;
-    border-radius: 15px
+    border-radius: 15px;
+    padding-left: 15px;
+	padding-right: 15px;
 }
 #pep_title_tab {
     position: fixed;
-    top: 50%;
+    top: 52.5%;
     margin-top: -68px;
     right: 0px;
     width: 60px;
@@ -25,75 +28,80 @@
     -o-transform: scale(-1, -1) rotate(90deg);
     -ms-transform: scale(-1, -1) rotate(90deg);
     transform: scale(-1, -1) rotate(90deg);
-    font-size: 2em;
+    font-size: 1.7em;
 }
 #pep_container {
+    width: 251px;
+    float: right;
     position: fixed;
     top: 50%;
-    margin-top: -125px;
-    right: -216px;
-    height: 250px;
+    margin-top: -160px; /*125*/
+    right: -256px;
+    height: 400px; /*250*/
+    z-index: 20;
 }
 #pep_search_container {
-    height: 34px;
+    height: 25px;
     width: inherit;
     position: relative;
     left: -15px;
+    margin-bottom: -5px;
+
 }
 #pep_search {
-    height: 34px;
     border: 0px;
     border-radius: 15px 0 0;
+    width: 235px;
+    height: 25px;
+    padding-right: 10px;
+    padding-left: 10px;
 }
 #pep_search_btn {
     width: 45px;
-    height: 34px;
-    border: 0px;
+    height: 25px;
     border-radius: 0 15px 0 0;
     position: relative;
-    left: -2px;
+    right: -236px;
+    top: -25px;
+    float: right;
+    padding: 0 5px 0 5px;
 }
-#pep_groups {
-    width: inherit;
-    box-sizing: border-box;
-    left: -15px;
-}
-.btn-xs {
-    top: 1px;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important;
-    padding-left: 3px !important;
-    padding-right: 3px !important;
-    font-size: .9em !important;
-    color: black !important;
-    background-color: buttonface;
+#pep_glass {
+    position: relative;
+    top: -5px;
+    font-size: 1.5em;
 }
 #pep_user_list {
-    width: inherit;
-    height: 155px;
+    width: 281px;
+    height: 280px;
     border-bottom: 1px solid;
     position: relative;
     left: -15px;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 #pep_slider_list {
     position: relative;
     top: 4px;
-    left: 0px;
-    height: 30px;
-    width: 130px;
+    right: 10px;
+    margin-right: -15px;
+    min-height: 60px;
+    max-height: 60px;
+    width: 210px;
     border: 1px solid;
+    border-bottom-left-radius: 15px;
     display: inline-block;
+    font-size: 12px;
+    line-height: 1.2em;
+    overflow-y: scroll;
 }
 #pep_slider_icons {
     position: relative;
     top: 4px;
-    left: 0px;
+    left: 10px;
     width: 45px;
-    height: 30px;
+    height: 27px;
     padding-top: 3px;
+    padding-right: 5px;
     display: inline-block;
     float: right;
     border-top: 1px solid;
@@ -116,7 +124,7 @@
     top: 5px;
     left: 5px;
 }
-.pep_contact_block div {
+.pep_contact_block div:not(".pep_add_im, .pep_remove_im"),  {
     display: inline-block;
     cursor: default;
 }
@@ -124,12 +132,73 @@
     width: 35px;
     margin-right: -3px;
 }
-.pep_add_im {
-    position: relative;
-    top: 5px;
-    font-size: 24px;
-    color: #1d9dd9;
+.pep_add_im, .pep_remove_im {
+    width: 16px;
+    height: 17px;
     cursor: pointer !important;
+    text-align: center;
+    border: 1px solid;
+    -webkit-border-radius: 35px !important;
+    -moz-border-radius: 35px !important;
+    border-radius: 35px !important;
+    -moz-user-select:-moz-none';
+    -moz-user-select:none;
+    -o-user-select:none;
+    -khtml-user-select:none; /* you could also put this in a class */
+    -webkit-user-select:none;/* and add the CSS class here instead */
+    -ms-user-select:none;
+    user-select:none
+}
+.pep_add_im {
+    display: none;
+    position: relative;
+    top: 2px;
+    padding-left: 1px;
+    font-size: 20px;
+    color: #1d9dd9;
+    border-color: #1d9dd9;
+}
+.pep_remove_im {
+    display: none;
+    position: relative;
+    padding-right: 1px;
+    padding-bottom: 0px;
+    font-size: 12px;
+    color: red;
+    border-color: red;
+}
+.pep_remove_from_list{
+    display:inline-block;
+    margin-right:3px;
+    color: red;
+    cursor: pointer !important;
+}
+#pep_list_clear{
+    float: right;
+    position: relative;
+    top: -20px;
+    left: 12px;
+}
+#pep_list_clear button{
+    color: #fff !important;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 5px;
+    padding-bottom: 1px;
+    border-bottom-width: 0px;
+    -webkit-border-bottom-right-radius: 35px !important;
+    -moz-border-bottom-right-radius: 35px !important;
+    border-bottom-right-radius: 15px !important;
+    display: inline-block;
+    margin-bottom: 0;
+    font-size: .9em;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 .pep_type_icon {
     width: 15px;
@@ -141,9 +210,28 @@
     left: 35px;
     top: 0px;
 }
+.pep_contact_name{
+    font-size: 1em;
+    max-width: 164px;
+    height: 20px;
+    position: relative;
+    top: 10px;
+    display: inline-block;
+    margin-right: 5px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -o-pre-wrap; /* Opera */
+    white-space: pre-wrap; /* Chrome */
+    word-wrap: break-word; /* IE */
+    white-space: pre;
+    cursor: pointer !important;
+}
 .pep_contact_photo {
     width: 50px;
     height: 50px;
+    position: relative;
+    bottom: 0px;
 }
 
 .pep_start_video img {
@@ -153,4 +241,10 @@
     height:13px;
     border:0;
     cursor: pointer !important;
+}
+.org-list-table th{
+    text-align: left;
+}
+#community_network th, #community_allptusers th{
+    cursor: default;
 }

@@ -390,7 +390,10 @@ def get_trending(community_id):
     c = CommunityCommunities.objects.get(id=community_id)
     posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:5]
     for tv in trending_views:
-        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+        try:
+            trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+        except Exception as e:
+            None
     for post in posts:
         #@begin:Add special text if post has no text
         #@date:2017-06-16
@@ -745,10 +748,12 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-
-        discussions = CommunityDiscussions.objects.filter(community=community)
-        ma_db = myactivitystore()                
-        ma_db.set_item_community(cid, cname, discussions)
+        try:
+            discussions = CommunityDiscussions.objects.filter(community=community)
+            ma_db = myactivitystore()
+            ma_db.set_item_community(cid, cname, discussions)
+        except Exception as e:
+            None
         
         community.delete()
 

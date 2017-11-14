@@ -43,13 +43,18 @@
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <script type="text/javascript" src="/static/js/navigation.js"></script>
 <script type="text/javascript" src="/static/js/string_utils.js"></script>
+<style>
+    #page-nav{
+        box-sizing:content-box;
+    }
+</style>
 % if course:
     <header id="pepper-nav" class="pepper-nav pepper-slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
 % else:
     <header id="pepper-nav" class="pepper-nav" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
 % endif
     <nav id="page-nav">
-        <h1 class="pepper-logo-wrap">
+        <h1 class="pepper-logo-wrap logo">
             <!--@begin:Choose the link of the top logo according user's login status-->
             <!--@date:2013-11-02-->
 
@@ -77,8 +82,8 @@
             </a>
         </h1>
 
-        % if course:
-            <!--<h2 class="pepper-course-label"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>-->
+        % if (course and not course_target):
+            <h2 class="pepper-course-label"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
         % endif
         
         % if not curr_user.is_authenticated():
@@ -165,7 +170,7 @@
                                 <li id="org_tsm_tnl_configuration_obj"><a href="${absolute_url(reverse('tnl_configuration'))}">TNL Configuration</a></li>
                             % endif
                             % if check_user_perms(request.user, 'studio'):
-                                <li id="org_tsm_studio_obj"><a href="#" target="_blank">Studio</a></li>
+                                <li id="org_tsm_studio_obj"><a id="studio_url" href="#" target="_blank">Studio</a></li>
                             % endif
                             % if check_user_perms(request.user, 'alert_message'):
                                 <li id="org_tsm_alert_obj"><a href="${absolute_url(reverse('alert_message'))}">Alert</a></li>
@@ -176,6 +181,30 @@
                             % endif
                             <li id="org_tsm_portfolio_settings_obj"><a href="${absolute_url(reverse('portfolio_settings'))}">Portfolio Settings</a></li>
                             <!-- endif -->
+                            <script type="text/javascript">
+                                url_split_array = window.location.href.split('/');
+                                split_array_1 = "";
+                                split_keyword = "";
+                                url_using = "#";
+                                str1 = "https://studio";
+                                str2 = ".pepperpd.com";
+
+                                if (url_split_array.length>2){
+                                    split_array_1 = url_split_array[2].split('.');
+                                    split_keyword = split_array_1[0];
+                                }
+                                
+                                if (split_keyword == "www0"){
+                                   url_using = str1 + "0" + str2;
+                                }
+                                else if(split_keyword == "www"){
+                                    url_using = str1 + str2;
+                                }
+                                else{
+                                    url_using = str1 + "-" + split_keyword + str2;
+                                }
+                                $("#studio_url").attr("href",url_using);
+                            </script>
                         </ul>
                     </li>
                 % endif

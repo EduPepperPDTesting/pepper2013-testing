@@ -767,12 +767,10 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     width: 100%;
     margin: 0 auto;
     display: block;
-    margin-top:-55px;
-
-    border: 0px solid;
+    border: 0 solid;
 }
 .content-wrapper td{
-    vertical-align:middle;
+    vertical-align: middle;
 }
 
 .container{
@@ -780,8 +778,7 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     max-width: 1180px;
     min-width: 760px;
     width: 100%;
-
-    border:0px solid;
+    border: 0 solid;
 }
 
 .dashboard{
@@ -797,20 +794,12 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     text-align: left;
 }
 
-
-
-
-
 /*------------dashboard post--------------*/
-
-
-
 #new_post_textarea:focus{
   border:0;
   outline: none;
   box-shadow:0 0 0 0;
 }
-
 
 .comment_info{
     width: 100%;

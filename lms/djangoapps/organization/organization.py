@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollmentAllowed
 from student.models import District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
@@ -29,8 +29,7 @@ import csv
 from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
-import logging
-log = logging.getLogger("tracking")
+from xmodule.remindstore import myactivitystore
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -113,7 +112,7 @@ def main(request):
 
 
 # -------------------------------------------------------------------organization_register_save
-@login_required
+# @login_required
 def organization_register_save(request):
     try:
         OrganizationId = request.POST.get("OrganizationId", "")
@@ -384,7 +383,7 @@ def organization_add(request):
             organization.save()
 
             # --------------OrganizationDataitems
-            if oid == "-1":
+            if oid == "-1" and copyfromid == "":
                 dataitems = '['
                 dataitems = dataitems + '{"name":"Major Subject Area","required":"1","default":"1"},'
                 dataitems = dataitems + '{"name":"Grade Level-Check all that apply","required":"1","default":"2"},'
@@ -1083,9 +1082,10 @@ def organizational_save_base(request):
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
 
-                    if permission_content != "":
-                        permission_content += ", "
-                    permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+                    if tmp2[3] == "1":
+                        if permission_content != "":
+                            permission_content += ", "
+                        permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
 
                     if tmp2[4]:
                         sub_items_list = tmp2[4].split("_<_")
@@ -1113,10 +1113,10 @@ def organizational_save_base(request):
                             org_menu_item1.ParentID = org_menu_item.id
                             org_menu_item1.save()
 
-                            if permission_content != "":
-                                permission_content += ", "
-
-                            permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
+                            if tmp4[3] == "1":
+                                if permission_content != "":
+                                    permission_content += ", "
+                                permission_content += "'id_" + str(org_menu_item1.id) + "':'" + tmp4[4] + "'"
 
                 # --------------OrganizationMoreText
                 org_permission = OrganizationMoreText()
@@ -1134,19 +1134,16 @@ def organizational_save_base(request):
             # --------------course_assignment_content
             org_course_assignment = OrganizationMoreText()
             for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Course Assignment"):
-                org_course_assignment = tmp1
+                if tmp1.DataItem == course_assignment_content:
+                    org_course_assignment = tmp1
+                else:
+                    tmp1.delete()
                 break
 
             org_course_assignment.DataItem = course_assignment_content
             org_course_assignment.organization = org_metadata
             org_course_assignment.itemType = "Course Assignment"
             org_course_assignment.save()
-
-            # -----get_organization_course_assignment_qualifications
-            # if course_assignment_content != "":
-            #     qualifications = organization_qualifications(specific_items, course_assignment_content)
-            #     for tmp1 in OrganizationMoreText.objects.filter(organization=org_metadata, itemType="Register Organization Structure"):
-            #         course_assign(qualifications, tmp1.DataItem)
 
             # --------------OrganizationCmsitem
             if cms_items:
@@ -1241,7 +1238,6 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
-
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1886,7 +1882,20 @@ def organization_qualifications(specific_items, course_assignment_content):
             for i in range(len(qualifications)):
                 for n in range(len(qualifications[i]['filters'])):
                     if qualifications[i]['filters'][n]['_id'] == tmp1['_id']:
-                        qualifications[i]['filters'][n]['name'] = tmp1['name']
+                        if tmp1['default'] == "1":
+                            qualifications[i]['filters'][n]['name'] = 'Major Subject Area'
+                        elif tmp1['default'] == "2":
+                            qualifications[i]['filters'][n]['name'] = 'Grade Level-Check all that apply'
+                        elif tmp1['default'] == "3":
+                            qualifications[i]['filters'][n]['name'] = 'Number of Years in Education'
+                        elif tmp1['default'] == "4":
+                            qualifications[i]['filters'][n]['name'] = 'Free/Reduced Lunch'
+                        elif tmp1['default'] == "5":
+                            qualifications[i]['filters'][n]['name'] = 'IEPs'
+                        elif tmp1['default'] == "6":
+                            qualifications[i]['filters'][n]['name'] = 'English Learners'
+                        elif tmp1['default'] == "":
+                            qualifications[i]['filters'][n]['name'] = tmp1['name']
 
     return qualifications
 
@@ -1899,15 +1908,34 @@ def course_assign(qualifications, data):
             if tmp3['data'] != '':
                 tmp4 = tmp3['data'].split(',')
                 if len(tmp4) <= 1:
-                    if data[tmp3['name']] != tmp3['data']:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        if tmp3['data'] not in tmp5:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
                 else:
-                    tmp5 = data[tmp3['name']].split(',')
-                    retA = [i for i in tmp4 if i in tmp5]
-                    if len(retA) == 0:
+                    if data.has_key(tmp3['name']):
+                        tmp5 = data[tmp3['name']].split(',')
+                        retA = [i for i in tmp4 if i in tmp5]
+                        if len(retA) == 0:
+                            sign = None
+                            break
+                    else:
                         sign = None
                         break
         if sign:
             user = User.objects.get(email=data['email'])
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
             CourseEnrollment.enroll(user, tmp2['course_id'])
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
+            "URLValues": {"course_id": tmp2['course_id']},    
+            "TokenValues": {"course_id": tmp2['course_id']}, 
+            "LogoValues": {"course_id": tmp2['course_id']}}
+            ma_db.insert_item(my_activity)

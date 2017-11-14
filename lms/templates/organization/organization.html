@@ -7,7 +7,7 @@
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State, District, School, User, UserProfile, GradeLevel, SubjectArea, YearsInEducation
-    from permissions.models import PermPermission
+    from permissions.models import PermGroup
     from baseinfo.models import Enum
 %>
 <%inherit file="../main.html"/>
@@ -642,7 +642,7 @@
                             <span class="organizational_dashboard_menu_admin">
                             	<input type="checkbox" class="menu_items_admin" />
                                 <select class="menu_items_permissions">
-	                                %for item in PermPermission.objects.all().order_by("item"):
+	                                %for item in PermGroup.objects.all().order_by("name"):
                                     <option value="${item.id}">${item.name}</option>
                                     %endfor
                                 </select>
@@ -2376,8 +2376,12 @@
 					}
 				});
 			});
+			clonex.find(".org_assignment_qualifications_datex").each(function(e){
+				$(this).parent().html('<input type="text" class="org_assignment_qualifications_datex" value="" placeholder="Select Date" readonly="true" />')
+			})
 			$(".org_assignment_course_all").append(clonex);
-			$(el).val("-");			
+			$(el).val("-");
+			$(".org_assignment_qualifications_datex").datepicker()			
 		}
 	}
 	
@@ -2865,6 +2869,7 @@
 					else if(tmp_profileFieldType_val == 2)		tmp_profileFieldType_content = $(this).attr("field_type_2");
 					else if(tmp_profileFieldType_val == 3)		tmp_profileFieldType_content = $(this).attr("field_type_3");
 					else if(tmp_profileFieldType_val == 4)		tmp_profileFieldType_content = $(this).attr("field_type_4");
+					else if(tmp_profileFieldType_val == 5)		tmp_profileFieldType_content = $(this).attr("field_type_5");
 					else if(tmp_profileFieldType_val == 8)		tmp_profileFieldType_content = "Date Field";
 				}
 				if(tmp_profileFieldType_content != ""){
@@ -3188,30 +3193,48 @@
 		
 		//--------------------------org_assignment_btn_find
 		$("#org_assignment_btn_find").click(function(){
-			var loadwin = new LoadingWin();
-			
-			$(".org_assignment_course_select").each(function(){
-				$(this).empty();
-				$(this).append('<option value="">Select a Course</option>');
-			});
-			
-			$.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
-				if (r.Success){
-					for(var i in r.courses){
-						$(".org_assignment_course_select").each(function(){
-							$(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
-						});
-					}
-					$(".org_assignment_course_select").each(function(){
-						$(this).val($(this).attr("bak_val"));
-					});
-				}else{
-					alert(r.Error);
-				}
-				loadwin.hide();
-			});
-		});
-		$("#org_assignment_btn_find").click();
+            var loadwin = new LoadingWin();
+            $.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id: $("#org_assignment_subject_id").val(), author_id: $("#org_assignment_author_id").val()}, function (r) {
+                if (r.Success){
+                    $(".org_assignment_course_select").each(function(){
+                        if($(this).val() == ""){
+                            $(this).empty();
+                            $(this).append('<option value="">Select a Course</option>');
+                            for(var i in r.courses){
+                                $(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
+                            }
+                        }
+                    });
+                }else{
+                    alert(r.Error);
+                }
+                loadwin.hide();
+            });
+        });
+
+		function course_assign_init(){
+            var loadwin = new LoadingWin();
+            $(".org_assignment_course_select").each(function(){
+                    $(this).empty();
+                    $(this).append('<option value="">Select a Course</option>');
+            }); 
+            $.post("${reverse('organizational_configuration')}", {flag:"organization_course_list", subject_id:"all", author_id: "all"}, function (r) {
+                if (r.Success){
+                    for(var i in r.courses){
+                            $(".org_assignment_course_select").each(function(){
+                                    $(this).append('<option value="' + r.courses[i].id + '">' + r.courses[i].course_number + " | " + r.courses[i].title + '</option>');
+                            });
+                    }
+                    $(".org_assignment_course_select").each(function(){
+                            $(this).val($(this).attr("bak_val"));
+                    });
+                }else{
+                    alert(r.Error);
+                }
+                loadwin.hide();
+            });
+        }
+        course_assign_init()
 		
 		//--------------------------organizational_option_btn_add
 		$("#organizational_option_btn_add").click(function(){

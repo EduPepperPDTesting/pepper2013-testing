@@ -5,14 +5,14 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat
+from .models import CommunityWebchat, UserWebchat, MessageAlerts
 from people.views import my_people
 from django.contrib.auth.models import User
 try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
-#import opentok
+import opentok
 
 @login_required
 def getvideoframe(request, uname):
@@ -24,15 +24,102 @@ def getvideoframe(request, uname):
 
 @login_required
 def gettextframe(request, uname):
-    space_pos = uname.find("_")
-    first_name = uname[0:space_pos]
-    last_name = uname[space_pos+1:]
-
-    return render_to_response('webchat/webtextframe.html', {"first_name": first_name, "last_name": last_name})
+    comma_index = uname.index("`")
+    name_index = uname.index("`", comma_index+1)
+    user_class = uname[0: name_index]
+    user_class = user_class.replace("`", ",")
+    id_index = uname.index("`", name_index+1)
+    user_name = uname[name_index+1:id_index].replace("_", " ")
+    user_id = uname[id_index+1:]
+    return render_to_response('webchat/webtextframe.html', {"user_class": user_class, "user_name": user_name, "user_id": user_id})
 
 # @login_required
 # def get_all_users(request):
 #     user = User.objects.get(id=request.user.id)
+@login_required
+def get_users_org(request):
+    orgs_list = list()
+    orgs_list.append('All Users')
+    data = {'orgs_list': orgs_list}
+    return render_to_response('webchat/listorgusers.html', data)
+
+def get_all_ptusers(request):
+    rows = list()
+
+    my_network_ids = list()
+    prevLen = -1
+
+    pageAttr = 0
+    while prevLen<len(my_network_ids):
+        prevLen = len(my_network_ids)
+        pageAttr = pageAttr + 1
+        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+
+    user_ids = request.POST.getlist("user_ids[]")
+    searchterm = request.POST.get("searchterm")
+    if searchterm:
+        ids = list()
+
+        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
+
+        for user_item in users_firstname:
+            row = list()
+            userid = str(user_item.id)
+            row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+            row.append(userid)
+
+            if userid in my_network_ids:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            else:
+                row.append('')
+
+            row.append(checkInCommunities(request.user, user_item))
+
+            rows.append(row)
+            ids.append(userid) #str(user_item.id))
+
+        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=searchterm, id__in=user_ids) #.exclude(id__in=ids)
+
+        for user_item in users_lastname:
+            userid = str(user_item.id)
+            if not userid in ids:
+                row = list()
+
+                row.append(str(user_item.first_name) + " " + str(user_item.last_name))
+                row.append(userid)
+
+                if userid in my_network_ids:
+                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                else:
+                    row.append('')
+
+                row.append(checkInCommunities(request.user, user_item))
+
+                rows.append(row)
+
+    else:
+        for user_id in user_ids:
+            row = list()
+            user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
+            if user:
+                userid = str(user.id)
+                row.append(str(user.first_name) + " " + str(user.last_name))
+                row.append(userid)
+
+                if userid in my_network_ids:
+                    row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+                else:
+                    row.append('')
+
+                row.append(checkInCommunities(request.user, user))
+
+                rows.append(row)
+
+    if not rows:
+        return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 @login_required
 def get_network(request):
@@ -44,22 +131,47 @@ def get_network(request):
 def get_network_users(request):
     rows = list()
 
-    user_ids = request.POST.get("user_ids")
+    user_ids = request.POST.getlist("user_ids[]")
 
     for user_id in user_ids:
         row = list()
-        user = User.objects.get(id=int(user_id))
-        row.append(str(user.first_name) + " " + str(user.last_name))
+        user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
+        if user:
+            row.append(str(user.first_name) + " " + str(user.last_name))
+            row.append(str(user.id))
+            row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            row.append(checkInCommunities(request.user, user))
 
-        rows.append(row)
+            rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps(
-            {'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/125/125702.svg', 'imagealt': 'im-network',
-             'rows': rows}))
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
+def checkInCommunities(user, otherUser):
+    other_community_list = list()
+    commIcon = ''
+
+    if not otherUser.is_superuser:
+        items = CommunityUsers.objects.select_related().filter(user=otherUser, community__private=True)
+        for item in items:
+            other_community_list.append(item.community.id)
+
+    if other_community_list:
+        community_list = list()
+
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True)
+        for item in items:
+            community_list.append(item.community.id)
+
+        if community_list:
+            for other_community in other_community_list:
+                if other_community in community_list:
+                    commIcon = 'https://image.flaticon.com/icons/svg/33/33965.svg'
+                    break
+
+    return commIcon
 
 @login_required
 def get_communities(request):
@@ -144,6 +256,31 @@ def get_user_session(request):
         return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
 
 
+def check_alerts(request):
+    user = User.objects.get(id=request.POST.get('id'))
+    try:
+        alert = MessageAlerts.objects.filter(to_user=user)
+        if alert:
+            from_id = alert[0].from_user.id
+            alert.delete()
+            return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+        else:
+            return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+    except MessageAlerts.DoesNotExist as e:
+        return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+
+def send_alert (request):
+    try:
+        user = User.objects.get(id=request.POST.get('id'))
+        to_user = User.objects.get(id=request.POST.get('to_id'))
+        alert = MessageAlerts()
+        alert.to_user = to_user
+        alert.from_user = user
+        alert.save()
+        return HttpResponse (json.dumps({'success':'true'}), content_type="application/json")
+    except Exception as e:
+        return HttpResponse (json.dumps({'success': 'false', 'error':e.message}), content_type="application/json")
+
 def get_community_user_rows(request):
     """
     Builds the rows for display in the community members in webchat widget.
@@ -161,14 +298,37 @@ def get_community_user_rows(request):
     # # Add the row data to the list of rows.
     rows = list()
 
+    # getMyPeople = json.loads(my_people(request, checkInNetwork = 1).content)
+    # my_network_ids = [d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]
+
+    my_network_ids = list()
+    prevLen = -1
+
+    pageAttr = 0
+    while prevLen < len(my_network_ids):
+        prevLen = len(my_network_ids)
+        pageAttr = pageAttr + 1
+        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+
     #for item in users[start:end]:
     for item in users:
         row = list()
-        row.append(str(item.user.first_name) + " " + str(item.user.last_name))
-        row.append(str(item.user.id))
-        rows.append(row)
+        userid = str(item.user.id)
+        if not userid == str(request.user.id):
+            row.append(str(item.user.first_name) + " " + str(item.user.last_name))
+            row.append(userid)
+
+            if userid in my_network_ids:
+                row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
+            else:
+                row.append('')
+
+            row.append(checkInCommunities(request.user, item.user))
+            rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps({'success': 1, 'iconlink': 'https://image.flaticon.com/icons/svg/33/33965.svg', 'imagealt': 'im-community', 'rows': rows}), content_type="application/json")
+        return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
+

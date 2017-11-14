@@ -2,6 +2,7 @@ from mitxmako.shortcuts import render_to_response
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 import json
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 from django.contrib.auth.models import User
 from student.models import District, Cohort, School, State
@@ -15,6 +16,7 @@ from student.models import CmsLoginInfo
 from django.contrib.auth import logout, authenticate, login
 
 import re
+import urllib2
 from datetime import timedelta
 from models import UserLoginInfo
 
@@ -32,65 +34,123 @@ def main(request):
                                            in error, please contact the site administrator for assistance.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
 
-@ensure_csrf_cookie
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_user_login_info(request):
-	user_log_info = []
-	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
-		data = UserProfile.objects.all()
-		data = filter_user(request.POST, data)
+	columns = {0: ['district__state__name', '__iexact'],
+			   1: ['district__name', '__iexact'],
+			   2: ['school__name', '__iexact'],
+			   3: ['user__email', '__icontains'],
+			   4: ['user__username', '__icontains'],
+			   5: ['user__first_name', '__icontains'],
+			   6: ['user__last_name', '__icontains'],
+			   7: ['loginfo__login_time', ''],
+			   8: ['loginfo__logout_time', ''],
+			   9: ['loginfo__last_session', ''],
+			   10: ['loginfo__total_session', '']}
 
-		user_array = []
-		for user in data:
-			user_array.append(user.user_id)
+	# Parse the sort data passed in.
+	sorts = get_post_array(request.GET, 'col')
+	# Parse the filter data passed in.
+	filters = get_post_array(request.GET, 'fcol', 12)
+	# Get the page number and number of rows per page, and calculate the start and end of the query.
+	page = int(request.GET['page'])
+	size = int(request.GET['size'])
+	start = page * size
+	end = start + size
 
-		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array) # Django model QuerySet array. SQL:in operater
+	order = build_sorts(columns, sorts)
+	if len(filters):
+		kwargs = build_filter(columns, filters)
+		user_data = UserProfile.objects.filter(**kwargs).order_by(*order)
 	else:
-		user_log_info = UserLoginInfo.objects.filter()
+		user_data = UserProfile.objects.all().order_by(*order)
 
-	login_info_list = []
-	for d in user_log_info:
+	total_rows_count = user_data.count()
+	login_info_list = list()
+	for d in user_data[start:end]:
 		dict_tmp = {}
 		try:
-			obj_user = UserProfile.objects.get(user_id=d.user_id)
-		except Exception as e:
-			continue
-
-		try:
-			dict_tmp['district'] = str(obj_user.district.name)
-			dict_tmp['state'] = str(obj_user.district.state.name)
+			dict_tmp['district'] = str(d.district.name)
+			dict_tmp['state'] = str(d.district.state.name)
 		except Exception as e:
 			dict_tmp['district'] = ''
 			dict_tmp['state'] = ''
 
 		try:
-			dict_tmp['school'] = str(obj_user.school.name)
+			dict_tmp['school'] = str(d.school.name)
 		except Exception as e:
 			dict_tmp['school'] = ''
 
 		dict_tmp['id'] = d.user_id
-		dict_tmp['email'] = obj_user.user.email
-		dict_tmp['username'] = obj_user.user.username
-		dict_tmp['first_name'] = obj_user.user.first_name
-		dict_tmp['last_name'] = obj_user.user.last_name
-		dict_tmp['login_time'] = d.login_time
+		dict_tmp['email'] = d.user.email
+		dict_tmp['username'] = d.user.username
+		dict_tmp['first_name'] = d.user.first_name
+		dict_tmp['last_name'] = d.user.last_name
 
-		dict_tmp['is_active'] = obj_user.user.is_active
-		dict_tmp['is_staff'] = obj_user.user.is_staff
-		dict_tmp['is_superuser'] = obj_user.user.is_superuser
+		dict_tmp['is_staff'] = d.user.is_staff
+		dict_tmp['is_active'] = d.user.is_active
+		dict_tmp['is_superuser'] = d.user.is_superuser
 
-		if not active_recent(obj_user) or d.logout_press:
-			dict_tmp['logout_time'] = d.logout_time
-			dict_tmp['last_session'] = study_time_format(d.last_session)
-			dict_tmp['online_state'] = 'Off'
-			dict_tmp['total_session'] = study_time_format(d.total_session)
-		else:
+		try:
+			user_login_data = d.loginfo.all()[0]
+			if not active_recent(d) or user_login_data.logout_press:
+				dict_tmp['logout_time'] = user_login_data.logout_time
+				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
+				dict_tmp['online_state'] = 'Off'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
+			else:
+				dict_tmp['logout_time'] = ''
+				dict_tmp['last_session'] = ''
+				dict_tmp['online_state'] = 'On'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+		except:
+			dict_tmp['login_time'] = ''
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
-			dict_tmp['online_state'] = 'On'
-			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
+			dict_tmp['online_state'] = ''
+			dict_tmp['total_session'] = ''
 
 		login_info_list.append(dict_tmp)
-	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
+	return HttpResponse(json.dumps({'rows': login_info_list, 'rows_count': total_rows_count}), content_type="application/json")
+
+def get_post_array(post, name, max=None):
+    """
+    Gets array values from a POST.
+    """
+    output = dict()
+    for key in post.keys():
+        value = urllib2.unquote(post.get(key))
+        if key.startswith(name + '[') and not value == 'undefined':
+            start = key.find('[')
+            i = key[start + 1:-1]
+            if max and int(i) > max:
+                i = 'all'
+            output.update({i: value})
+    return output
+
+def build_filter(columns, filters):
+	filter_result = dict()
+	for k in filters:
+		if int(k) > 6:
+			continue
+		else:
+			filter_result[columns[int(k)][0] + columns[int(k)][1]] = filters[k]
+	return filter_result
+
+
+def build_sorts(columns, sorts):
+	order_result = list()
+	for k in sorts:
+		if int(k) > 10:
+			break
+		else:
+			if sorts[k] == '0':
+				order_result.append(columns[int(k)][0])
+			else:
+				order_result.append('-' + columns[int(k)][0])
+	return order_result
+
 
 @login_required
 @ensure_csrf_cookie
@@ -158,7 +218,7 @@ def save_user_password(request):
 		# verify whether the new password equals to the old one
 		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
 		if user_newpws:
-			context['value'] = {"grouptype":"error3","type":1,"info":"The password needs to be different from the previous one."}
+			context['value'] = {"grouptype": "error3", "type": 1, "info": "The password needs to be different from the previous one."}
 			return HttpResponse(json.dumps(context), content_type="application/json")
 		
 		# save user password
@@ -330,98 +390,6 @@ def drop_schools(request):
             else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
-
-
-def usage_report_download_excel(request):
-	if request.user.is_authenticated() and request.user.is_superuser:
-		import xlsxwriter
-		output = StringIO()
-		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-		worksheet = workbook.add_worksheet()
-		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time"]
-
-		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session"]
-
-		for i, k in enumerate(TITLES):
-			worksheet.write(0, i, k)
-		row = 1
-		down_result = get_download_info(request)
-		for d in down_result:
-			for k, v in enumerate(FIELDS):
-				worksheet.write(row, k, d[v])
-			row += 1
-		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-		response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=usage-report-%Y-%m-%d-%H-%M-%S.xlsx')
-		workbook.close()
-		response.write(output.getvalue())
-		return response
-	else:
-		raise Http404
-
-def get_download_info(request):
-	user_log_info = []
-	time_diff_m = request.POST.get('local_utc_diff_m')
-	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
-		data = UserProfile.objects.all()
-		data = filter_user(request.POST, data)
-
-		user_array = []
-		for user in data:
-			user_array.append(user.user_id)
-
-		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array)
-	else:
-		user_log_info = UserLoginInfo.objects.filter()
-	
-	login_info_list = []
-	for d in user_log_info:
-		dict_tmp = {}
-		try:
-			obj_user = UserProfile.objects.get(user_id=d.user_id)
-		except Exception as e:
-			continue
-
-		try:
-			dict_tmp['district'] = str(obj_user.district.name)
-			dict_tmp['state'] = str(obj_user.district.state.name)
-		except Exception as e:
-			dict_tmp['district'] = ''
-			dict_tmp['state'] = ''
-
-		try:
-			dict_tmp['school'] = str(obj_user.school.name)
-		except Exception as e:
-			dict_tmp['school'] = ''
-
-		dict_tmp['email'] = obj_user.user.email
-		dict_tmp['username'] = obj_user.user.username
-		dict_tmp['first_name'] = obj_user.user.first_name
-		dict_tmp['last_name'] = obj_user.user.last_name
-		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
-
-		if not active_recent(obj_user) or d.logout_press:
-			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
-			dict_tmp['last_session'] = study_time_format(d.last_session)
-			#dict_tmp['online_state'] = 'Off'
-			dict_tmp['total_session'] = study_time_format(d.total_session)
-		else:
-			dict_tmp['logout_time'] = ''
-			dict_tmp['last_session'] = ''
-			#dict_tmp['online_state'] = 'On'
-			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
-
-		login_info_list.append(dict_tmp)
-	return login_info_list
-
-def filter_user(vars, data):
-	if vars.get('state', None):
-		data = data.filter(Q(district__state_id=vars.get('state')))
-	if vars.get('district', None):
-		data = data.filter(Q(district_id=vars.get('district')))
-	if vars.get('school', None):
-		data = data.filter(Q(school_id=vars.get('school')))
-	data = data.filter(~Q(subscription_status='Imported'))
-	return data
 
 def time_to_local(user_time,time_diff_m):
 	'''
