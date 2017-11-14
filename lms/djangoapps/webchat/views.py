@@ -324,7 +324,7 @@ def chat_attachment(request, userFromID, userToID):
     success = False
 
     fileObj.user_from = userFromID
-    fileObj.user_to = userToID.encode('utf8')
+    fileObj.user_to = userToID
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
@@ -344,4 +344,4 @@ def chat_attachment(request, userFromID, userToID):
         fileObj.attachment = attachment
     fileObj.save()
 
-    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID.encode('utf8'), 'fileObj': fileObj})
+    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})
