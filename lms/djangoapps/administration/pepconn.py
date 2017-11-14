@@ -2010,12 +2010,12 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
     # ** access
     if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
-        if not cea.is_active:
+        if created or not cea.is_active:
             cea.is_active = True
             cea.save()
             if send_notification:
                 send_course_notification(user, course, "Add Course Access", user.id)
-    elif enroll == -1:
+    elif access == -1:
         find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
         if find.exists():
             cea = find[0]
@@ -2027,7 +2027,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
     # ** enroll
     if enroll == 1:
         enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-        if not enr.is_active:
+        if created or not enr.is_active:
             enr.is_active = True
             enr.save()
             if send_notification:
