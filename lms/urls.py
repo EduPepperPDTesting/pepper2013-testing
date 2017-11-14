@@ -127,6 +127,8 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
+    url(r'^chatattachment/(?P<userFromID>[a-zA-Z0-9_]+)/(?P<userToID>[a-zA-Z0-9_]+)/$', 'webchat.views.chat_attachment', 'chat_attachment'),
+
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==

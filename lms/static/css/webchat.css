@@ -181,3 +181,9 @@
     position: relative;
     bottom: 8px;
 }
+.pep_file_download{
+    border-top: 2px solid grey;
+    border-bottom: 2px solid grey;
+    padding-top: 5ps;
+    padding-bottom: 5ps;
+}

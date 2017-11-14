@@ -8,6 +8,7 @@ from communities.models import CommunityUsers, CommunityCommunities
 from .models import CommunityWebchat, UserWebchat
 from people.views import my_people
 from django.contrib.auth.models import User
+from file_uploader.models import FileUploads
 try:
     from urllib import urlencode
 except ImportError:
@@ -316,3 +317,31 @@ def get_community_user_rows(request):
     else:
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
+
+def chat_attachment(request, userFromID, userToID):
+    fileObj = ChatAttachment()
+    error = ''
+    success = False
+
+    fileObj.user_from = userFromID
+    fileObj.user_to = userToID
+
+    if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+        try:
+            attachment = FileUploads()
+            attachment.type = 'chat_attachment'
+            attachment.sub_type = 'textchat_' + str(userToID)
+            attachment.upload = request.FILES.get('attachment')
+            attachment.save()
+            success = True
+        except Exception as e:
+            attachment = None
+            error = e
+    else:
+        attachment = None
+
+    if attachment:
+        fileObj.attachment = attachment
+    fileObj.save()
+
+    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})

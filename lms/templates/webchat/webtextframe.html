@@ -22,10 +22,13 @@
             <div class="pep_chat_icons col-sm-3">
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
-                    <label for="pep-file-input">
-                        <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
-                    </label>
-                    <input id="pep-file-input" type="file" style="display: none;"/>
+                    <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
+                        <label for="pep_file_input">
+                            <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
+                        </label>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                    </form>
                 </div>
             </div>
         </div>
