@@ -892,7 +892,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         };
         // ************* when finish form
         steps.onFinish = function () {
-            console.log("fin==============");
+            console.log("finish==============");
             finishCallback && finishCallback(self.getInput());
         };
         // ************* unlock all pages when editing
@@ -948,12 +948,12 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").find("option:selected").text();
             var user_id = $("#complete-email").val();
-            self.add_facilitator(email);
+            self.addFacilitator(email);
             /*
             $.get("${reverse('pepper_utilities_user_email_exists')}", {email: email}, function (exists) {
                 var $ta = $("textarea[name=facilitator_emails]")
                 if (exists) {
-                    self.add_facilitator(email);
+                    self.addFacilitator(email);
                     $("#complete-email").val("");
                 } else {
                     self.warning("User not exists.", self.dlgForm);
@@ -993,8 +993,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return steps;
     };
 
-    PepReg.prototype.check_facilitator = function () {
-        console.log("tr------------",$("#community_facilitators_list").find("tr"))
+    PepReg.prototype.repeatFacilitator = function () {
         var ar = [];       
         $("#community_facilitators_list").find("tr").each(function () {
             var email = $(this).find("td").eq(2).text();
@@ -1003,9 +1002,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return ar;
     };
 
-    PepReg.prototype.add_facilitator = function (email) {
+    PepReg.prototype.addFacilitator = function (email) {
         if(email){
-            var curr = this.check_facilitator();
+            var curr = this.repeatFacilitator();
             if(curr.indexOf(email) < 0){
                 var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
                 var data_have = $("#community_facilitators_list").find("tr").html();
@@ -1030,7 +1029,39 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
         }
     }
+    PepReg.prototype.getFacilitators = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
+            var defalut = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+            var email = $(this).find("td").eq(2).text();
+            var can_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            var can_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete);
+        });
+        return ar;
+    };
 
+    PepReg.prototype.getCourses = function () {
+        //get courses exclude repeat
+        var courses = [];       
+        $("#community-courses").find("select").each(function () {
+            var course_id = $(this).val();
+            if(course_id){
+                courses.push(course_id); 
+            }
+        });
+        if(courses){
+            var result = [], hash = {};
+            for (var i = 0, elem; (elem = courses[i]) != null; i++){
+                if (!hash[elem]){
+                    result.push(elem);
+                    hash[elem] = true;
+                }
+            }
+            courses = result;
+        }
+        return courses;
+    };
     /*
     PepReg.prototype.getFacilitators = function () {
         var ar = [];       
@@ -1126,10 +1157,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            temp1: "111111",
             c_name: $form.find("input[name=name]").val(),
             c_motto: $form.find("input[name=motto]").val(),
+            c_logo: "",
             c_private: $form.find("input[name=private]").val(),
+            c_state: $form.find("select[name=state-dropdown]").val(),
+            c_district: $form.find("select[name=district-dropdown]").val(),
+            c_courses: this.getCourses(),
+            c_facilitator_emails: this.getFacilitators().join(",")
             /*
             c_logo: $form.find("input[name=logo]").val(),
             type: "aaaaaa",//$form.find("input[name=type]:checked").val(),
@@ -1173,6 +1208,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             json.training_date = [apart[2], apart[0], apart[1]].join("-");
         }
         */
+        console.log("data: ",json);
         return json;
     };
 
@@ -1230,10 +1266,18 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         else if(page == 4){
             var facilitator = $("#community_facilitators_list").find("tr").html();
             if(!facilitator){
-               return ["facilitator", "You must choose a facilitator."];
+               return ["facilitator", "You must add at least one facilitator."];
             }
             else{
-                console.log("OK~~~~");
+                var facilitators_info = this.getFacilitators();
+                var edit_sum = 0;
+                for(var i=0;i<facilitators_info.length;i++){
+                    var can_edit = parseInt(facilitators_info[i].split("::")[2]);
+                    edit_sum += can_edit;
+                }
+                if(edit_sum == 0){
+                    return ["facilitator", "At least one facilitator need edit privilege."];
+                }
             }
         }
     };

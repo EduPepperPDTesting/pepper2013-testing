@@ -46,7 +46,7 @@
 			}
 			$(this).attr('id', 'community_'+commId);
 			$(this).find('th').text(commName);
-            $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div>");
+            $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div>");
 			$(this).find('tbody').attr('id', 'users_'+commId);
 			if (commId != ""){
 				var isasync=(commId !== 'network' && commId !== 'allptusers')?true:false;
@@ -122,7 +122,7 @@
 							var netIconTag, commIconTag;
 							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
 							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
+							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
 						}
 						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
 						//console.log("tbodyID="+tbodyID);
@@ -155,7 +155,7 @@
 					}
 					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers) tbody').css("display", "none");
 					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers)  th').css("cursor", "pointer");
-					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers):gt(0)').css({"border-top": "1px solid black", "width": "100%"});
+					$('#pep_user_list table[id^="community_"]:not(#community_network, #community_allptusers):gt(0)').css({"border-top": "1px solid black", "margin-top": "5px", "width": "100%"});
 				}
 				});
 			}
@@ -285,7 +285,7 @@
 				//console.log(userName);
 				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
 				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-				$("#pep_list_clear").css("display", "block");
+				$("#pep_list_clear").css("display", "inline-block");
 				var elems = document.getElementsByClassName(uclass);
 				for(n = 0; n < elems.length; n++){
 					addTag = elems[n].getElementsByClassName("pep_add_im");
