@@ -40,13 +40,14 @@
 </div>
 <script>
     $(document).ready(function() {
+         console.log("show "+${user_id});
         $("#input_label_"+${user_id}).next("input").on("change", function(){
-            console.log("showSubmit "+userId);
+            console.log("showSubmit "+${user_id});
             $("#input_label_"+${user_id}).css("display", "none");
             $("#submit_label_"+${user_id}).css("display", "inline-block");
         }
         $("#submit_label_"+${user_id}).on("click", "img", function(){
-            console.log("hideSubmit "+userId);
+            console.log("hideSubmit "+${user_id});
             $("#submit_label_"+${user_id}).css("display", "none");
             $("#input_label_"+${user_id}).css("display", "inline-block");
         }
