@@ -44,7 +44,7 @@
 <script>
     $(document).ready(function() {
          console.log("show "+${user_id});
-        $("#input_label_"+${user_id}).next("input").on("change", function(){
+        $("#input_label_"+${user_id}).siblings("#pep_file_input").on("change", function(){
             console.log("showSubmit "+${user_id});
             $("#input_label_"+${user_id}).css("display", "none");
             $("#submit_label_"+${user_id}).css("display", "inline-block");
