@@ -40,10 +40,12 @@
 </div>
 <script>
      function showSubmit(userId){
+        console.log("showSubmit "+userId);
         document.getElementById("input_label_"+userId).style.display = "none";
         document.getElementById("submit_label_"+userId).style.display = "inline-block";
      }
      function hideSubmit(userId){
+        console.log("hideSubmit "+userId);
         document.getElementById("submit_label_"+userId).style.display = "none";
         document.getElementById("input_label_"+userId).style.display = "inline-block";
      }
