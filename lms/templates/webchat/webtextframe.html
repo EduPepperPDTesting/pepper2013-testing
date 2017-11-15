@@ -23,14 +23,28 @@
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
-                        <label for="pep_file_input">
+                        <label id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
+                        <input id="pep_file_input" type="file" name='attachment' style="display: none;" oninput="showSubmit(${user_id})"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                        <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
+                            <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video" onclick="hideSubmit(${user_id})">
+                        </label>
+                        <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+     function showSubmit(userId){
+        document.getElementById("input_label_"+userId).style.display = "none";
+        document.getElementById("submit_label_"+userId).style.display = "inline-block";
+     }
+     function hideSubmit(userId){
+        document.getElementById("submit_label_"+userId).style.display = "none";
+        document.getElementById("input_label_"+userId).style.display = "inline-block";
+     }
+</script>
