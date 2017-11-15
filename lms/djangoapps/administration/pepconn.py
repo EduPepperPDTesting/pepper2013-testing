@@ -1067,13 +1067,10 @@ def do_import_user(task, csv_lines, request):
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
             elif district.state.name == "Oklahoma":
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
+                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
@@ -1217,13 +1214,10 @@ def single_user_submit(request):
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
         elif district.state.name == "Oklahoma":
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
@@ -2010,10 +2004,11 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
     # ** access
     if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
-        if not cea.is_active:
+        if created or not cea.is_active:
             cea.is_active = True
             cea.save()
-            send_course_notification(user, course, "Add Course Access", user.id)
+            if send_notification:
+                send_course_notification(user, course, "Add Course Access", user.id)
     elif access == -1:
         find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
         if find.exists():
@@ -2024,9 +2019,9 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
                 send_course_notification(user, course, "Remove Course Access", user.id)
 
     # ** enroll
-    if enroll:
+    if enroll == 1:
         enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-        if not enr.is_active:
+        if created or not enr.is_active:
             enr.is_active = True
             enr.save()
             if send_notification:
@@ -2055,7 +2050,7 @@ def update_course_permission(request):
 
         done_count = 0
         total_count = len(course_ids) * len(user_ids)
-        
+
         errors = []
         user = None
         course = None
@@ -2152,7 +2147,6 @@ def course_permission_load_csv(request):
             try:
                 user = User.objects.get(email=email)
                 course = get_course_by_id(course_id)
-                
                 e = 1 if (conf == "enrollment") else -1
                 a = 1 if (e == 1 or (conf == "access")) else -1
                 
