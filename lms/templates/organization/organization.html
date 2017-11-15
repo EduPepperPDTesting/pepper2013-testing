@@ -494,6 +494,11 @@
                         <input type="checkbox" name="organizational_dashboard_show_right_curr" checked="checked" />
                         <span style="margin-left:10px;">Show Right Dashboard Banner</span>
                     </div>
+                    <div>
+                        <input type="checkbox" name="organizational_dashboard_PeppTalk" checked="checked" />
+                        <input type="checkbox" name="organizational_dashboard_PeppTalk_curr" checked="checked" />
+                        <span style="margin-left:10px;">Turn On PeppTalk</span>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -1592,6 +1597,11 @@
 									}else{
 										$("input[name='organizational_dashboard_show_right']").prop("checked", false);
 									}
+									if(r["PeppTalk"] == "1"){
+										$("input[name='organizational_dashboard_PeppTalk']").prop("checked", true);										
+									}else{
+										$("input[name='organizational_dashboard_PeppTalk']").prop("checked", false);
+									}
 									
 									//--------------
 									if(r["My Feed Show Curriculumn"] == "1"){
@@ -1623,6 +1633,11 @@
 										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", true);											
 									}else{
 										$("input[name='organizational_dashboard_show_right_curr']").prop("checked", false);
+									}
+									if(r["PeppTalk Curriculumn"] == "1"){
+										$("input[name='organizational_dashboard_PeppTalk_curr']").prop("checked", true);											
+									}else{
+										$("input[name='organizational_dashboard_PeppTalk_curr']").prop("checked", false);
 									}
 									if(r["Remove All Menu"] == "1"){
 										$("input[name='organizational_dashboard_remove_all_menu']").prop("checked", true);											
@@ -4034,9 +4049,11 @@
 			var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
 			
 			var new_show_left = ($("input[name='organizational_dashboard_show_left']").attr("checked")) ? "1" : "0";
-			var new_show_right = ($("input[name='organizational_dashboard_show_right']").attr("checked")) ? "1" : "0";			
+			var new_show_right = ($("input[name='organizational_dashboard_show_right']").attr("checked")) ? "1" : "0";
+			var new_PeppTalk = ($("input[name='organizational_dashboard_PeppTalk']").attr("checked")) ? "1" : "0";			
 			var new_show_left_curr = ($("input[name='organizational_dashboard_show_left_curr']").attr("checked")) ? "1" : "0";
-			var new_show_right_curr = ($("input[name='organizational_dashboard_show_right_curr']").attr("checked")) ? "1" : "0";			
+			var new_show_right_curr = ($("input[name='organizational_dashboard_show_right_curr']").attr("checked")) ? "1" : "0";
+			var new_PeppTalk_curr = ($("input[name='organizational_dashboard_PeppTalk_curr']").attr("checked")) ? "1" : "0";			
 			
 			var menu_text_color = $("#organizational_dashboard_menu_text_color").val();
 			var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
@@ -4481,6 +4498,8 @@
 				$("input[name='organizational_dashboard_show_left_curr']").hide();
 				$("input[name='organizational_dashboard_show_right']").show();
 				$("input[name='organizational_dashboard_show_right_curr']").hide();
+				$("input[name='organizational_dashboard_PeppTalk']").show();
+				$("input[name='organizational_dashboard_PeppTalk_curr']").hide();
 			}else if(pd_val == "2"){
 				$("#organizational_dashboard_feed_table").hide();
 				$("#organizational_dashboard_feed_curr_table").show();				
@@ -4494,6 +4513,8 @@
 				$("input[name='organizational_dashboard_show_left_curr']").show();
 				$("input[name='organizational_dashboard_show_right']").hide();
 				$("input[name='organizational_dashboard_show_right_curr']").show();
+				$("input[name='organizational_dashboard_PeppTalk']").hide();
+				$("input[name='organizational_dashboard_PeppTalk_curr']").show();
 			}
 		}else{
 			$(".organization_pd_dashboard_set").hide();
