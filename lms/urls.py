@@ -127,7 +127,7 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
-    url(r'^chatattachment/(?P<userFromID>\w+)/(?P<userToID>\w+)/$', 'webchat.views.chat_attachment', 'chat_attachment'),
+    url(r'^chatattachment/(?P<userFromID>[\'\w+])/(?P<userToID>[\'\w+])/$', 'webchat.views.chat_attachment', 'chat_attachment'),
 
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
