@@ -26,7 +26,7 @@
                         <label id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
-                        <input id="pep_file_input" type="file" name='attachment' style="display: none;" oninput="showSubmit(${user_id})"/>
+                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                         <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video" onclick="hideSubmit(${user_id})">
@@ -39,14 +39,16 @@
     </div>
 </div>
 <script>
-     function showSubmit(userId){
-        console.log("showSubmit "+userId);
-        document.getElementById("input_label_"+userId).style.display = "none";
-        document.getElementById("submit_label_"+userId).style.display = "inline-block";
-     }
-     function hideSubmit(userId){
-        console.log("hideSubmit "+userId);
-        document.getElementById("submit_label_"+userId).style.display = "none";
-        document.getElementById("input_label_"+userId).style.display = "inline-block";
-     }
+    $(document).ready(function() {
+        $("#input_label_"+${user_id}).next("input").on("change", function(){
+            console.log("showSubmit "+userId);
+            $("#input_label_"+${user_id}).css("display", "none");
+            $("#submit_label_"+${user_id}).css("display", "inline-block");
+        }
+        $("#submit_label_"+${user_id}).on("click", "img", function(){
+            console.log("hideSubmit "+userId);
+            $("#submit_label_"+${user_id}).css("display", "none");
+            $("#input_label_"+${user_id}).css("display", "inline-block");
+        }
+    });
 </script>
