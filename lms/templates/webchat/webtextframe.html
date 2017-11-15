@@ -32,7 +32,7 @@
                         <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                         <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
-                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video" onclick="hideSubmit(${user_id})">
+                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
                         <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
                     </form>
@@ -42,8 +42,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function() {
-         console.log("show "+${user_id});
         $("#input_label_"+${user_id}).siblings("#pep_file_input").on("change", function(){
             console.log("showSubmit "+${user_id});
             $("#input_label_"+${user_id}).css("display", "none");
@@ -54,5 +52,4 @@
             $("#submit_label_"+${user_id}).css("display", "none");
             $("#input_label_"+${user_id}).css("display", "inline-block");
         });
-    });
 </script>
