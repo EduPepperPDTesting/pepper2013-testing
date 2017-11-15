@@ -4,10 +4,10 @@
     max-width: 251px;
     min-width: 251px;
     background-color: #fff;
-    border: 1px solid black;
     border-radius: 15px;
     padding-left: 15px;
 	padding-right: 15px;
+	background-color: #c0fffb;
 }
 #pep_title_tab {
     position: fixed;
@@ -16,37 +16,66 @@
     right: 0px;
     width: 60px;
     height: 155px;
-    background-color: #22EEFF;
+    background-color: rgb(245, 130, 31);
     border-radius: 30px 0 0 30px;
     cursor: pointer;
 }
+#pep-tab-logo {
+    width: 25px;
+}
+
+#pep_logo_div {
+	text-align: center;
+	padding-top: 15px;
+}
 #pep_title_text {
     position: relative;
-    top: 90px;
+    top: 50px;
     -moz-transform: scale(-1, -1) rotate(90deg);
     -webkit-transform: scale(-1, -1) rotate(90deg);
     -o-transform: scale(-1, -1) rotate(90deg);
     -ms-transform: scale(-1, -1) rotate(90deg);
     transform: scale(-1, -1) rotate(90deg);
-    font-size: 1.7em;
+    font-size: 1.4em;
+	color: #fff;
 }
 #pep_container {
     width: 251px;
     float: right;
     position: fixed;
     top: 50%;
-    margin-top: -160px; /*125*/
+    margin-top: -160px;
     right: -256px;
-    height: 400px; /*250*/
+    height: 430px;
     z-index: 20;
+    border-radius: 15px;
+    -webkit-box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
+    -moz-box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
+    box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
 }
 #pep_search_container {
+	display: inline-block;
     height: 25px;
-    width: inherit;
     position: relative;
     left: -15px;
     margin-bottom: -5px;
-
+}
+#pep_search_div {
+    display: inline-block;
+    float: right;
+    height: 25px;
+    position: relative;
+    top: -20px;
+    left: 5px;
+}
+#pep_search_glass {
+	display: inline-block;
+	float: right;
+	height: 25px;
+	width: 25px;
+	position: relative;
+	top: -20px;
+	left: 5px;
 }
 #pep_search {
     border: 0px;
@@ -74,31 +103,34 @@
 #pep_user_list {
     width: 281px;
     height: 280px;
-    border-bottom: 1px solid;
     position: relative;
+    top: -20px;
     left: -15px;
     overflow-x: hidden;
+    background-color: white;
 }
 #pep_slider_list {
     position: relative;
-    top: 4px;
+    top: -22px;
     right: 10px;
     margin-right: -15px;
     min-height: 60px;
     max-height: 60px;
-    width: 210px;
-    border: 1px solid;
+    width: 270px;
     border-bottom-left-radius: 15px;
-    display: inline-block;
+    border-bottom-right-radius: 15px;
+    display: block;
     font-size: 12px;
     line-height: 1.2em;
     overflow-y: scroll;
+    background-color: white;
+    text-align: left;
 }
 #pep_slider_icons {
     position: relative;
-    top: 4px;
-    left: 10px;
-    width: 45px;
+    top: -22px;
+    left: 15px;
+    width: 70px;
     height: 27px;
     padding-top: 3px;
     padding-right: 5px;
@@ -108,7 +140,7 @@
     border-bottom: 1px solid;
 }
 #pep_slider_icons img {
-    width: 20px;
+    width: 30px;
     height: 20px;
     border: 0
 }
@@ -127,6 +159,9 @@
 .pep_contact_block div:not(".pep_add_im, .pep_remove_im"),  {
     display: inline-block;
     cursor: default;
+}
+.pep_contact_block tbody {
+	text-align: left;
 }
 .pep_contact_info {
     width: 35px;
@@ -174,21 +209,19 @@
     cursor: pointer !important;
 }
 #pep_list_clear{
-    float: right;
     position: relative;
     top: -20px;
-    left: 12px;
+    left: -10px;
+    display: inline-block;
 }
 #pep_list_clear button{
     color: #fff !important;
     padding-top: 0px;
-    padding-left: 0px;
+    padding-left: 5px;
     padding-right: 5px;
     padding-bottom: 1px;
+	margin-top: 2px;
     border-bottom-width: 0px;
-    -webkit-border-bottom-right-radius: 35px !important;
-    -moz-border-bottom-right-radius: 35px !important;
-    border-bottom-right-radius: 15px !important;
     display: inline-block;
     margin-bottom: 0;
     font-size: .9em;
@@ -217,6 +250,7 @@
     position: relative;
     top: 10px;
     display: inline-block;
+    margin-left: 5px;
     margin-right: 5px;
     overflow-x: hidden;
     overflow-y: hidden;
@@ -235,10 +269,11 @@
 }
 
 .pep_start_video img {
+    margin-right: 5px;
     position: relative;
     bottom: 3px;
-    width:13px;
-    height:13px;
+    width:18px;
+    height:18px;
     border:0;
     cursor: pointer !important;
 }
@@ -247,4 +282,8 @@
 }
 #community_network th, #community_allptusers th{
     cursor: default;
+}
+.pep_offline_icon img, .pep_online_icon img {
+    width: 15px;
+    height: 17px;
 }

@@ -20,10 +20,20 @@
         <div class="row">
             <input type="text" class="pep_chat_input col-sm-8" data-to_id="${user_id}" data-from_id="${request.user.id}"></input>
             <div class="pep_chat_icons col-sm-3">
-                <a href="#"><img
-                        src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
-                        alt="im-text"></a>
-                <a href="#"><img src="https://image.flaticon.com/icons/svg/149/149284.svg" alt="im-video"></a>
+                <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
+                <div class="pep-image-upload" style="display: inline-block;">
+                    <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
+                        <label id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;">
+                            <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
+                        </label>
+                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                        <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
+                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                        </label>
+                        <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -43,4 +53,15 @@
             });
         });
     });
+
+    $("#input_label_"+${user_id}).siblings("#pep_file_input").on("change", function(){
+            console.log("showSubmit "+${user_id});
+            $("#input_label_"+${user_id}).css("display", "none");
+            $("#submit_label_"+${user_id}).css("display", "inline-block");
+        });
+        $("#submit_label_"+${user_id}).on("click", function(){
+            console.log("hideSubmit "+${user_id});
+            $("#submit_label_"+${user_id}).css("display", "none");
+            $("#input_label_"+${user_id}).css("display", "inline-block");
+        });
 </script>

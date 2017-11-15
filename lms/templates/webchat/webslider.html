@@ -10,38 +10,37 @@ from django.core.urlresolvers import reverse
 <div id="pep_container">
 
     <div id="pep_title_tab">
-        <div id="pep_title_text">PeppTalk</div>
+        <div id="pep_logo_div"><img id="pep-tab-logo" src="/static/images/Pepptalk/PeppLogo.png" alt="PeppTalk Logo"></div>
+            <div id="pep_title_text">PeppTalk</div>
     </div>
     <div id="pep_panel" class="container">
-        <div id="pep_search_container" class="input-group">
-            <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
-            <div class="input-group-btn">
-                <button id="pep_search_btn" class="btn btn-default" type="submit" style="cursor: default !important;">
-                    <div id="pep_glass" style="position:relative;top: -5px;font-size: 1.5em;">⌕</div>
-                </button>
-            </div>
+        <div id="pep_search_container">
+	        <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
+        </div>
+        <div id="pep_search_glass">
+            <img src="/static/images/Pepptalk/PeppSearch.png" alt="glass"/>
         </div>
         <div id="pep_groups" class="btn-group">
             <a type="button" class="btn btn-xs" id="my_all">All</a>
             <a type="button" class="btn btn-xs" id="my_network">My Network</a>
             <a type="button" class="btn btn-xs" id="my_communities">My Communities</a>
         </div>
-        <div id="pep_user_list">
-
-        </div>
-        <div id="pep_slider_list"></div>
-        <div id="pep_slider_icons">
-            <a href="#">
-                <img src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
-                     alt="im-text">
-            </a>
-            <a href="#" id = "pep_start_group_video">
-                <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video">
-            </a>
-        </div>
-        <div id="pep_list_clear" style="display: none;">
+        <div id="pep_my_community" style="display: none;"></div>
+        <div id="pep_my_network" style="display: none;"></div>
+        <div id="pep_all_ptusers" style="display: none;"></div>
+        <div id="pep_user_list"></div>
+        <div id="pep_list_clear" style="display: inline-block;">
             <button type="button" class="btn btn-danger btn-xs">Clear</button>
         </div>
+        <div id="pep_slider_icons">
+            <a href="#">
+                <img src="/static/images/Pepptalk/PeppGroupText.png" alt="im-text">
+            </a>
+            <a href="#">
+                <img src="/static/images/Pepptalk/PeppGroupCam.png" alt="im-video">
+            </a>
+        </div>
+        <div id="pep_slider_list"></div>
     </div>
 
 </div>
@@ -63,6 +62,29 @@ $(document).ready(function(){
             $("#pep_container").animate({right:'40px'});
             $("#pep_title_tab").animate({right:'291px'});
             slPos='in';
+
+            $(".pep_contact_name").tooltip({
+                items: ".pep_contact_name",
+                track: true,
+                open: function (event, ui) {
+                    ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border": "1px solid black", "-webkit-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "-moz-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
+                    $(".ui-helper-hidden-accessible").remove();
+                },
+                show: {
+                    effect: "slideDown",
+                    delay: 250
+                },
+                content: function(){
+                    var username = $(this).text();
+                    var IdTitle = $(this).attr("id");
+                    var nameLength = username.length; // + IdTitle.length;
+                    var nameTitle = (nameLength>10)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
+                    return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
+                },
+                close: function (event, ui) {
+                    $(".ui-helper-hidden-accessible").remove();
+                }
+            });
         }
     });
 
@@ -83,18 +105,37 @@ $(document).ready(function(){
 
     $("#my_all").on("click", function(e){
         $('#pep_search').val('');
-        $("#pep_user_list").load("/getusersorg/");
+        loadLists('/getusersorg/', '#pep_all_ptusers');
     });
 
     $("#my_network").on("click", function(e){
         $('#pep_search').val('');
-        $("#pep_user_list").load("/getnetwork/");
+        loadLists('/getnetwork/', '#pep_my_network');
     });
 
     $("#my_communities").on("click", function(e){
         $('#pep_search').val('');
-        $("#pep_user_list").load("/getcommunities/");
+        loadLists('/getcommunities/', '#pep_my_community');
     });
+
+    function loadLists(loadData='', hiddenDiv=''){
+        var listData = $("#pep_user_list .org-list-table:eq(0)").attr("data");
+        if(listData=='All Users'){
+            if($("#pep_all_ptusers").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_all_ptusers");
+        }else if(listData=='My Network'){
+            if($("#pep_my_network").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_network");
+        }else if(listData!='User Search'){
+            if($("#pep_my_community").is(':empty')) $("#pep_user_list").children().clone(true,true).appendTo("#pep_my_community");
+        }
+        if(loadData!=''){
+            if($(hiddenDiv).is(':empty')){
+                $("#pep_user_list").load(loadData);
+            }else{
+                $("#pep_user_list").empty();
+                $(hiddenDiv).children().clone(true,true).appendTo("#pep_user_list");
+            }
+        }
+    }
 
     //setTimeout(function(){ $("#my_all").trigger("click") }, 1000);
 
@@ -106,7 +147,10 @@ $(document).ready(function(){
 
     $("#pep_search").on('keyup', function(){
         var searchterm = $('#pep_search').val();
-        if(searchterm!==''){
+        if(searchterm !== '' && searchterm.length >= 4){
+            $('#pep_search_container input').css("cursor", "progress");
+            loadLists();
+            searchterm = searchterm.trim();
             var commId="search";
             $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId}, async: false, success: function (data) {
                 if (data.success) {
@@ -132,8 +176,8 @@ $(document).ready(function(){
                         });
                     }while(prevLen < user_ids.length);
                     $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
-                            $(".org-list-table:gt(0)").remove();
-                            $(".org-list-table:eq(0)").css("display","block").attr("id", "user_search").empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+                            $("#pep_user_list .org-list-table:gt(0)").remove();
+                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                             if(networkData.success){
                                 for(i=0; i<networkData.rows.length; i++){
@@ -157,7 +201,7 @@ $(document).ready(function(){
                                     commIcon = userRows[i][3];
                                     //console.log(username+" "+id);
                                     userID = username.replace(/ /g, "_")+','+id;
-                                    elExists = !!document.getElementById(userID);
+							        elExists = !!document.getElementById('ul'+id);
                                     if(elExists === true){
                                         //console.log("elExists === false=" + (elExists === false));
                                         addStyle = 'display:none;';
@@ -171,8 +215,68 @@ $(document).ready(function(){
                                     var netIconTag, commIconTag;
                                     if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
                                     if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                    $("body").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style=' + removeStyle + '>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='https://image.flaticon.com/icons/svg/345/345686.svg' alt='im-video'></a></div></td><tr>");
-                                }
+                                    $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+						        }
+
+						        $("#user_search .pep_add_im").each(function(){
+                                    var $elem = $(this)
+
+                                    if ($elem.data('click-init')) return true;
+
+                                    $elem.data('click-init', true);
+
+                                    $elem.on('click', function (e) {
+                                        e.preventDefault();
+                                        $(this).css("display", "none");
+                                        $(this).siblings(".pep_remove_im").css("display", "inline-block");
+                                        var uclass = $(this).closest("td").attr("class");
+                                        var userName = $(this).siblings(".pep_contact_name").text();
+                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                        userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
+                                        $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+                                        $("#pep_list_clear").css("display", "block");
+                                        var elems = document.getElementsByClassName(uclass);
+                                        for(n = 0; n < elems.length; n++){
+                                            addTag = elems[n].getElementsByClassName("pep_add_im");
+                                            addTag[0].style.display="none";
+                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                            removeTag[0].style.display="inline-block";
+                                        }
+                                    });
+                                });
+                                $("#user_search .pep_remove_im").each(function(){
+                                    var $elem = $(this)
+
+                                    if ($elem.data('click-init')) return true;
+
+                                    $elem.data('click-init', true);
+
+                                    $elem.on('click', function (e) {
+                                        e.preventDefault();
+                                        $(this).css("display", "none");
+                                        $(this).siblings(".pep_add_im").css("display", "inline-block");
+                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                        var parent = document.getElementById("pep_slider_list");
+                                        var child = document.getElementById("ul" + idUser);
+                                        parent.removeChild(child);
+
+                                        if($("#pep_slider_list").children().length==0){
+                                            $("#pep_list_clear").css("display", "none");
+                                        }
+
+                                        var uclass = $(this).closest("td").attr("class");
+
+                                        var elems = document.getElementsByClassName(uclass);
+                                        for(n = 0; n < elems.length; n++){
+                                            addTag = elems[n].getElementsByClassName("pep_add_im");
+                                            addTag[0].style.display="inline-block";
+                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                            removeTag[0].style.display="none";
+                                        }
+                                    });
+                                });
 
                                 $(".pep_contact_name").tooltip({
                                     items: ".pep_contact_name",
@@ -193,13 +297,14 @@ $(document).ready(function(){
                                     }
                                 });
                             }else{
-                                $("body").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
+                                $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
                             }
                         }
                     });
                 }
             }
             });
+            $('#pep_search_container input').css("cursor", "text");
         }
     });
 });
