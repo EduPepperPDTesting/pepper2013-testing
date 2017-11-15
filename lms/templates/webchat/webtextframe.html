@@ -22,7 +22,7 @@
             <div class="pep_chat_icons col-sm-3">
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
-                    <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
+                    <form action="${reverse('chat_attachment', args=[request.user.id, request.user.id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
                         <label for="pep_file_input">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
