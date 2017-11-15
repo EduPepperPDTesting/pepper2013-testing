@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat
+from .models import CommunityWebchat, UserWebchat, ChatAttachment
 from people.views import my_people
 from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
