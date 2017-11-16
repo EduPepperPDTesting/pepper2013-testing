@@ -22,13 +22,13 @@
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
-                        <label class="pep_attach_label" id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;cursor: pointer !important;">
+                        <label class="pep_attach_label" id="input_label_${user_id}" for="pep_file_input_${user_id}" style="display: inline-block;cursor: pointer !important;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
-                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                        <input id="pep_file_input_${user_id}" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                         <label class="pep_attach_label" id="submit_label_${user_id}" for="pep_file_submit" style="display: none;cursor: pointer !important;">
-                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                            <img id="send_image_${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
                         <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
                     </form>
@@ -53,13 +53,13 @@
         });
     });
 
-    $("#input_label_"+${user_id}).siblings("#pep_file_input").on("change", function(){
-            console.log("showSubmit "+${user_id});
+    $("#pep_file_input_"+${user_id}).on("change", function(){
+            console.log("pep_file_input_"+${user_id});
             $("#input_label_"+${user_id}).css("display", "none");
             $("#submit_label_"+${user_id}).css("display", "inline-block");
         });
-        $("#submit_label_"+${user_id}).on("click", function(){
-            console.log("hideSubmit "+${user_id});
+        $("#send_image_"+${user_id}).on("click", function(){
+            console.log("send_image_"+${user_id});
             $("#submit_label_"+${user_id}).css("display", "none");
             $("#input_label_"+${user_id}).css("display", "inline-block");
         });
