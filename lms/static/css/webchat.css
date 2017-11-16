@@ -213,6 +213,6 @@
 .pepchat_row {
     width: 100%;
 }
-.pep-image-upload img {
+label img {
     cursor: pointer;
 }
