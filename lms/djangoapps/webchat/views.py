@@ -48,12 +48,12 @@ def get_all_ptusers(request):
     my_network_ids = list()
     prevLen = -1
 
-    pageAttr = 0
-    while prevLen < len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     rows = list()
 
@@ -80,7 +80,7 @@ def get_all_ptusers(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
+            #row.append(checkInCommunities(request.user, user_item))
             row.append('')
 
             rows.append(row)
@@ -97,7 +97,7 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user_item))
+                #row.append(checkInCommunities(request.user, user_item))
                 row.append('')
 
                 rows.append(row)
@@ -120,8 +120,8 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user))
-
+                #row.append(checkInCommunities(request.user, user))
+                row.append('')
                 rows.append(row)
 
     if not rows:
@@ -148,8 +148,8 @@ def get_network_users(request):
             row.append(str(user.first_name) + " " + str(user.last_name))
             row.append(str(user.id))
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            row.append(checkInCommunities(request.user, user))
-
+            #row.append(checkInCommunities(request.user, user))
+            row.append('')
             rows.append(row)
 
     if not rows:
@@ -312,16 +312,16 @@ def get_community_user_rows(request):
     my_network_ids = list()
     prevLen = -1
 
-    pageAttr = 0
-    while prevLen < len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     #for item in users[start:end]:
-    if my_network_ids:
-        my_network_ids.sort()
+    # if my_network_ids:
+    #     my_network_ids.sort()
 
     for item in users:
         row = list()
@@ -335,7 +335,8 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, item.user))
+            #row.append(checkInCommunities(request.user, item.user))
+            row.append('')
             rows.append(row)
 
     if not rows:
