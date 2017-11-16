@@ -213,6 +213,6 @@
 .pepchat_row {
     width: 100%;
 }
-label img {
-    cursor: pointer;
+.pep_attach_label{
+    cursor: pointer !important;
 }
