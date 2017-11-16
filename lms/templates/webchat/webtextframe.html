@@ -25,10 +25,10 @@
                         <label class="pep_attach_label" id="input_label_${user_id}" for="pep_file_input_${user_id}" style="display: inline-block;cursor: pointer !important;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
-                        <input id="pep_file_input_${user_id}" type="file" name='attachment' style="display: none;"/>
+                        <input id="pep_file_input" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                         <label class="pep_attach_label" id="submit_label_${user_id}" for="pep_file_submit" style="display: none;cursor: pointer !important;">
-                            <img id="send_image_${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                            <img id="pep_send_image" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
                         <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
                     </form>
@@ -53,14 +53,18 @@
         });
     });
 
-    $("#pep_attachment_form").on("change", "#pep_file_input_"+${user_id}, function(){
-            console.log("pep_file_input_"+${user_id});
+    $("#pep_attachment_form").on("change", "#pep_file_input", function(){
+        console.log("pep_file_input_"+${user_id});
+        if($(this).data("user_id")==${user_id}){
             $("#input_label_"+${user_id}).css("display", "none");
             $("#submit_label_"+${user_id}).css("display", "inline-block");
+        }
     });
-     $("#pep_attachment_form").on("click", "#send_image_"+${user_id}, function(){
+     $("#pep_attachment_form").on("click", "#pep_send_image", function(){
         console.log("send_image_"+${user_id});
-        $("#submit_label_"+${user_id}).css("display", "none");
-        $("#input_label_"+${user_id}).css("display", "inline-block");
+        if($(this).data("user_id")==${user_id}){
+            $("#submit_label_"+${user_id}).css("display", "none");
+            $("#input_label_"+${user_id}).css("display", "inline-block");
+        }
     });
 </script>
