@@ -49,8 +49,8 @@ urlpatterns = (
     
     # === sso begin ===
     # easyiep
-    # url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
-    url(r'^sso/$', 'student.views.sso', name="sso"),
+    url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
+    #url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^genericsso/$', 'sso.sp.genericsso', name="sso_sp_acs"),
     
     url(r'^sso/idp/slo/request/send$', 'sso.idp.slo_request_send', name="sso_idp_slo_request_send"),
