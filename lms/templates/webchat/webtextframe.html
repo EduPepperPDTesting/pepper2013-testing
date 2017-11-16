@@ -53,14 +53,14 @@
         });
     });
 
-    $("#pep_file_input_"+${user_id}).on("change", function(){
+    $("body").on("change", "#pep_file_input_"+${user_id}, function(){
             console.log("pep_file_input_"+${user_id});
             $("#input_label_"+${user_id}).css("display", "none");
             $("#submit_label_"+${user_id}).css("display", "inline-block");
-        });
-        $("#send_image_"+${user_id}).on("click", function(){
-            console.log("send_image_"+${user_id});
-            $("#submit_label_"+${user_id}).css("display", "none");
-            $("#input_label_"+${user_id}).css("display", "inline-block");
-        });
+    });
+     $("body").on("click", "#send_image_"+${user_id}, function(){
+        console.log("send_image_"+${user_id});
+        $("#submit_label_"+${user_id}).css("display", "none");
+        $("#input_label_"+${user_id}).css("display", "inline-block");
+    });
 </script>
