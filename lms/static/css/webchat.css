@@ -171,10 +171,22 @@
     top: -4px;
 }
 
+.pep_add_users {
+    color: rgb(245, 130, 31);
+    font-size: 2em;
+}
+
+.pep_start_video {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    bottom: 5px;
+}
+
 .close-chat {
     cursor: pointer;
     position: relative;
-    bottom: 8px;
+    bottom: 5px;
 }
 .pep_file_download{
     border-top: 2px solid grey;
@@ -200,4 +212,7 @@
 }
 .pepchat_row {
     width: 100%;
+}
+.pep-image-upload img {
+    cursor: pointer;
 }
