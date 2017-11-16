@@ -902,6 +902,231 @@ def community_edit(request, community_id='new'):
     # If neither of the other tests worked, the user isn't allowed to do this.
     return HttpResponseForbidden()
 
+@login_required
+@ensure_csrf_cookie
+def community_edit_process_new(request):
+    """
+    Processes the form data from the community add/edit form.
+    :param request: Request object.
+    :return: JSON response.
+    """
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('c_id', '')
+    name = request.POST.get('c_name', '')
+    motto = request.POST.get('c_motto', '')
+    # logo = ''
+    c_private = request.POST.get('c_private', '')
+    c_state = request.POST.get('c_state', '')
+    c_district = request.POST.get('c_district', '')
+    courses = request.POST.get('c_courses', '')
+    c_facilitator_emails = request.POST.get('c_facilitator_emails', '')
+    log.debug("=====================")
+    log.debug(name)
+    log.debug(c_facilitator_emails)
+    log.debug(courses)
+    return HttpResponse(json.dumps({'Success': 'True', 'content': ''}), content_type='application/json')
+    '''
+    try:
+        # Get all of the form data.
+        domain_name = request.META['HTTP_HOST']
+        community_id = request.POST.get('community_id', '')
+        name = request.POST.get('name', '')
+        motto = request.POST.get('motto', '')
+        #hangout = request.POST.get('hangout', '')
+        try:
+            district_id = request.POST.get('district-dropdown', False)
+            if district_id:
+                district = District.objects.get(id=int(district_id))
+            else:
+                district = None
+        except:
+            district = None
+        try:
+            state_id = request.POST.get('state-dropdown', False)
+            if state_id:
+                state = State.objects.get(id=int(state_id))
+            else:
+                state = None
+        except:
+            state = None
+        # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
+            try:
+                logo = FileUploads()
+                logo.type = 'community_logos'
+                logo.sub_type = community_id
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
+                img_file.close()
+                im = Image.open(path)
+                x,y = im.size
+                p = Image.new('RGBA', im.size, (255,255,255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(path)
+                location_path = '/static/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                logo.upload = str(location_path)
+                logo.save()
+            except Exception as e:
+                logo = None
+                log.warning('Error uploading logo: {0}'.format(e))
+            
+        facilitator = request.POST.get('facilitator', '')
+        private = request.POST.get('private', 0)
+        priority_id = request.POST.get('priority_id',0)
+        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
+        courses = get_post_array(request.POST, 'course')
+        resource_names = get_post_array(request.POST, 'resource_name')
+        resource_links = get_post_array(request.POST, 'resource_link')
+
+        # If this is a new community, create a new entry, otherwise, load from the DB.
+        if community_id == 'new':
+            community_object = CommunityCommunities()
+        else:
+            community_object = CommunityCommunities.objects.get(id=community_id)
+
+        # Set all the community values and save to the DB.
+        community_object.name = name
+        community_object.motto = motto
+        if logo:
+            community_object.logo = logo
+        community_object.hangout = hangout
+        community_object.private = int(private)
+        community_object.district = district
+        community_object.state = state
+        community_object.discussion_priority = int(priority_id)
+        community_object.save()
+
+        # Load the main user object for the facilitator user.
+        user_object = False
+        try:
+            user_object = User.objects.get(email=facilitator)
+        except Exception as e:
+            log.warning('Invalid email for facilitator: {0}'.format(e))
+
+        # As long as the object loaded correctly, make sure this user is set as the facilitator.
+        if user_object:
+            # First we need to make sure if there is already a facilitator set, we unset them.
+            try:
+                old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+                for f in old_facilitator:
+                    f.facilitator = False
+                    f.save()
+            except:
+                pass
+            # Now we try to load the new user in case they are already a member.
+            try:
+                community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+            # If they aren't a member already, create a new entry.
+            except:
+                community_user = CommunityUsers()
+                community_user.community = community_object
+                community_user.user = user_object
+            # Set the facilitator flag to true.
+            community_user.facilitator = True
+            community_user.save()
+            if old_facilitator:
+                if old_facilitator[0].user_id != community_user.user_id:
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                    "URLValues": {"community_id": community_object.id},
+                    "TokenValues": {"community_id":community_object.id}, 
+                    "LogoValues": {"community_id": community_object.id}}    
+                    ma_db.insert_item(my_activity)
+            else:
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                "URLValues": {"community_id": community_object.id},
+                "TokenValues": {"community_id":community_object.id}, 
+                "LogoValues": {"community_id": community_object.id}}    
+                ma_db.insert_item(my_activity)
+        else:
+            raise Exception('A valid facilitator is required to create a community.')
+
+        # Init lists for notification
+        courses_add = []
+        courses_cur = dict((x.course, get_course_by_id(x.course)) for x in CommunityCourses.objects.filter(community=community_object))
+        resources_add = []
+        resources_cur = dict((x.link, x) for x in CommunityResources.objects.filter(community=community_object))
+
+        # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
+        CommunityCourses.objects.filter(community=community_object).delete()
+        # Go through the courses and add them to the DB.
+        for key, course in courses.iteritems():
+            # We only want to save an entry if there's something in it.
+            if course:
+
+                # Assign properties
+                course_object = CommunityCourses()
+                course_object.community = community_object
+                course_object.course = course
+                course_object.save()
+
+                # Record notification about modify courses
+                if courses_cur.get(course):
+                    del courses_cur[course]
+                else:
+                    courses_add.append(get_course_by_id(course_object.course))
+
+        # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
+        CommunityResources.objects.filter(community=community_object).delete()
+        # Go through the resource links, with the index so we can directly access the names and logos.
+        for key, resource_link in resource_links.iteritems():
+            # We only want to save an entry if there's something in it.
+            if resource_link:
+
+                # Assign properties
+                resource_object = CommunityResources()
+                resource_object.community = community_object
+                resource_object.link = resource_link
+                resource_object.name = resource_names[key]
+                # The logo needs special handling since we might need to upload the file. First we try the entry in the
+                # FILES and try to upload it.
+                if request.POST.get('resource_logo[{0}]'.format(key)):
+                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                    logo = FileUploads.objects.get(id=file_id)
+                else:
+                    try:
+                        logo = FileUploads()
+                        logo.type = 'community_resource_logos'
+                        logo.sub_type = community_id
+                        logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                        logo.save()
+                    except Exception as e:
+                        logo = None
+                        log.warning('Error uploading logo: {0}'.format(e))
+
+                if logo:
+                    resource_object.logo = logo
+                resource_object.save()
+
+                # Record notification about modify resources
+                if resources_cur.get(resource_link):
+                    del resources_cur[resource_link]
+                else:
+                    resources_add.append(resource_object)
+
+        send_notification(request.user,
+                          community_object.id,
+                          courses_add=courses_add,
+                          courses_del=courses_cur.values(),
+                          resources_add=resources_add,
+                          resources_del=resources_cur.values(),
+                          domain_name=domain_name)
+
+        return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
+    except Exception as e:
+        data = {'error_title': 'Problem Saving Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Saving Community'}
+        return render_to_response('error.html', data)
+    '''
 
 @login_required
 @ensure_csrf_cookie

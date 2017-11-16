@@ -820,15 +820,15 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 self.steps.switchTo(einfo.id);
                 return;
             }
-            /*
-            $.post("${reverse('pepreg_save_training')}", data, function (r) {
+
+            $.post("${reverse('community_edit_process_new')}", data, function (r) {
                 if (r.success) {
                     $("#dlg-add-training").hide();
                     $(".lean-overlay").hide();
-                    self.reloadTable();
+                    //self.reloadTable();
+                    console.log("return ok");
                 }
             });
-            */
         });
         return false;
     };
@@ -1157,13 +1157,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
+            c_id: "",
             c_name: $form.find("input[name=name]").val(),
             c_motto: $form.find("input[name=motto]").val(),
             c_logo: "",
             c_private: $form.find("input[name=private]").val(),
             c_state: $form.find("select[name=state-dropdown]").val(),
             c_district: $form.find("select[name=district-dropdown]").val(),
-            c_courses: this.getCourses(),
+            c_courses: this.getCourses().join(","),
             c_facilitator_emails: this.getFacilitators().join(",")
             /*
             c_logo: $form.find("input[name=logo]").val(),
@@ -1208,7 +1209,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             json.training_date = [apart[2], apart[0], apart[1]].join("-");
         }
         */
-        console.log("data: ",json);
+        console.log("data1111111: ",json);
         return json;
     };
 
@@ -1270,12 +1271,19 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
             else{
                 var facilitators_info = this.getFacilitators();
+                var default_sum = 0;
                 var edit_sum = 0;
                 for(var i=0;i<facilitators_info.length;i++){
-                    var can_edit = parseInt(facilitators_info[i].split("::")[2]);
+                    var check_info = facilitators_info[i].split("::");
+                    var default_f = parseInt(check_info[1]);
+                    var can_edit = parseInt(check_info[2]);
+                    default_sum += default_f;
                     edit_sum += can_edit;
                 }
-                if(edit_sum == 0){
+                if(default_sum == 0){
+                    return ["facilitator", "Community need a default facilitator."];
+                }
+                else if(edit_sum == 0){
                     return ["facilitator", "At least one facilitator need edit privilege."];
                 }
             }
