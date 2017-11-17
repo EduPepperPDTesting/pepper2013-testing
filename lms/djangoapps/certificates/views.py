@@ -185,6 +185,24 @@ def course_credits_tcsj(request):
 def course_credits_baker_univesity(request):
      return render_to_response('course_credits_baker_univesity.html', {})
 
+def calculators(request):
+    return render_to_response('calculators.html',{})
+
+def calculators_1(request):
+    return render_to_response('calculators1.html',{})
+
+def calculators_2(request):
+    return render_to_response('calculators2.html',{})
+
+def calculators_3(request):
+    return render_to_response('calculators3.html',{})
+
+def calculators_4(request):
+    return render_to_response('calculators4.html',{})
+
+def calculators_5(request):
+    return render_to_response('calculators5.html',{})
+
 @ensure_csrf_cookie
 @cache_if_anonymous
 def download_certificate_demo(request):

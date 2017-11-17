@@ -16,6 +16,13 @@ urlpatterns = (
     # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
 
 ####### Ancestor
+    # === calculators === 
+    url(r'^calculators/$', 'certificates.views.calculators', name='calculators'),
+    url(r'^calculators1/$', 'certificates.views.calculators_1', name='calculators_1'),
+    url(r'^calculators2/$', 'certificates.views.calculators_2', name='calculators_2'),
+    url(r'^calculators3/$', 'certificates.views.calculators_3', name='calculators_3'),
+    url(r'^calculators4/$', 'certificates.views.calculators_4', name='calculators_4'),
+    url(r'^calculators5/$', 'certificates.views.calculators_5', name='calculators_5'),
     # === shopping begin ===
     url(r'^shopping/$', 'shopping.views.course_list', name="shopping_course_list"),
     url(r'^shopping/enroll/post$', 'shopping.views.enroll_post', name="shopping_enroll_post"),
