@@ -90,6 +90,7 @@
     display: inline-block;
     margin-right: 10px;
     float: right;
+    padding-top: 5px;
 }
 .pep_user_photo {
     border: 1px solid #000;

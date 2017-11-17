@@ -219,7 +219,7 @@ border-top-right-radius: 15px;
     padding-bottom: 1px;
 	margin-top: 2px;
     border-bottom-width: 0px;
-    display: none;
+    display: block;
     margin-bottom: 0;
     font-size: .9em;
     line-height: 1.42857143;
@@ -242,7 +242,7 @@ border-top-right-radius: 15px;
 }
 .pep_contact_name{
     font-size: 1em;
-    max-width: 200px;
+    max-width: 190px;
     height: 20px;
     position: relative;
     top: 10px;
