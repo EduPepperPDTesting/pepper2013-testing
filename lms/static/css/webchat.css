@@ -172,7 +172,7 @@
 }
 
 .pep_add_users {
-    color: rgb(245, 130, 31);
+    color: #3eb4ea; /* rgb(245, 130, 31);*/
     font-size: 2em;
 }
 
