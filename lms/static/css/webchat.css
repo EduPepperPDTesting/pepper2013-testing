@@ -90,6 +90,7 @@
     display: inline-block;
     margin-right: 10px;
     float: right;
+    padding-top: 5px;
 }
 .pep_user_photo {
     border: 1px solid #000;
@@ -172,7 +173,7 @@
 }
 
 .pep_add_users {
-    color: #3eb4ea; /* rgb(245, 130, 31);*/
+    color: rgb(245, 130, 31);
     font-size: 2em;
 }
 
