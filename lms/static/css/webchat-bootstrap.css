@@ -57,7 +57,7 @@
     background-color: #3eb4ea;
     position: relative;
     top: 5px;
-    cursor: default;
+    cursor: pointer;
 }
 #pep_panel .btn-group>.btn:first-child {
     margin-left: 0;
