@@ -45,7 +45,7 @@
 .pep_video_panel {
     padding: 0px;
     position: relative;
-    bottom: -4px;
+    bottom: -10px;
 }
 .pep_text_panel {
     min-width: 235px;
