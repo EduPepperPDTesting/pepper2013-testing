@@ -559,8 +559,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         <div class="close-modal" id="dialog_close">✕</div>
         </div> -->
         <input type="hidden" name="id" value=""/>
-        <div class="content"
-             style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
+        <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
             <div class="" style="width:100%;height:100%;overflow:hidden;">
                 <div class="step-page">
                     <div class="step-content">
@@ -585,7 +584,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             <input type='hidden' name='logo' id="logo">
                         </div>
                         <div class="form-row" style="font-size:12px;margin-top:100px;">
-                            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
+                            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value=""></label>
                         </div>
                     </div>
                 </div>
@@ -623,22 +622,24 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                         <h4>Add Courses</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>courses:</span></label></br>
-                            <div id="community-courses" style="overflow-y:auto;height:320px;">
-                                %for idx, course in enumerate(courses):
-                                    <div class="community-course">
-                                        <select name="course[${idx}]">
-                                            <option value="">Select a Course</option>
-                                            %for course_option in courses_drop:
-                                                %if course == course_option['id']:
-                                                    <option value="${course_option['id']}" selected="selected">${course_option['number']} | ${course_option['name']}</option>
-                                                %else:
-                                                    <option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>
-                                                %endif
-                                            %endfor
-                                        </select>
-                                        <input type="button" class="add operation" value="+" onclick="newCourse()">
-                                    </div>
-                                %endfor
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-courses">
+                                    %for idx, course in enumerate(courses):
+                                        <div class="community-course">
+                                            <select name="course[${idx}]">
+                                                <option value="">Select a Course</option>
+                                                %for course_option in courses_drop:
+                                                    %if course == course_option['id']:
+                                                        <option value="${course_option['id']}" selected="selected">${course_option['number']} | ${course_option['name']}</option>
+                                                    %else:
+                                                        <option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>
+                                                    %endif
+                                                %endfor
+                                            </select>
+                                            <input type="button" class="add operation" value="+" onclick="newCourse()">
+                                        </div>
+                                    %endfor
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -646,27 +647,29 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 <div class="step-page">
                     <div class="step-content">
                         <h5>Create Community: Step 4 of 5</h5>
-                        <h4>What type of training would you like to create?</h4>
+                        <h4>Add resources</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>Resources:</span></label></br>
-                            <div id="community-resources" style="overflow-y:auto;height:320px;">
-                                %for idx, resource in enumerate(resources):
-                                    <div class="community-resource">
-                                        <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name"><input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link"><input type="button" class="add operation" value="+" onclick="newResource()"/>
-                                        <div>
-                                            <div class="resource-logo-label">Logo:</div>
-                                            %if resource['logo']:
-                                                <div class="community-resource-logo-wrap">
-                                                    <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
-                                                    <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
-                                                    <a href="#" class="remove"></a>
-                                                </div>
-                                            %else:
-                                                <input class="resource-logo" type="file" name="resource_logo[${idx}]">
-                                            %endif
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-resources">
+                                    %for idx, resource in enumerate(resources):
+                                        <div class="community-resource">
+                                            <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name"><input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link"><input type="button" class="add operation" value="+" onclick="newResource()"/>
+                                            <div>
+                                                <div class="resource-logo-label">Logo:</div>
+                                                %if resource['logo']:
+                                                    <div class="community-resource-logo-wrap">
+                                                        <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
+                                                        <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
+                                                        <a href="#" class="remove"></a>
+                                                    </div>
+                                                %else:
+                                                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
+                                                %endif
+                                            </div>
                                         </div>
-                                    </div>
-                                %endfor
+                                    %endfor
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -804,7 +807,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 
     PepReg.prototype.addTraining = function () {
         var self = this;
-        console.log("this: ",this);
         /*
         $('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
         $(".timePickText").attr("disabled", false).css("background-color", "#fff");
@@ -814,21 +816,22 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         $("#math_credits").removeAttr("checked");
         */    
         var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {          
-            // submit
+            //submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
                 self.steps.switchTo(einfo.id);
                 return;
             }
-            /*
-            $.post("${reverse('pepreg_save_training')}", data, function (r) {
+            
+            $.post("${reverse('community_edit_process_new')}", data, function (r) {
                 if (r.success) {
                     $("#dlg-add-training").hide();
                     $(".lean-overlay").hide();
-                    self.reloadTable();
+                    //self.reloadTable();
+                    console.log("return ok");
                 }
             });
-            */
+            
         });
         return false;
     };
@@ -838,7 +841,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
         dlg.show();
         var steps = this.steps = new StepsForm($("#dlg-add-training"),
-                ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
+                ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262"]); //"#F18200"
         // ************* add dlg close button to each step
         $("#dlg-add-training").find(".close-modal").remove();
         $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(0)")).click(function () {//style='right:-50px;'
@@ -852,31 +855,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             
             var data = self.getInput();
             console.log("initForm getInput: ", data);
-            if ((error = self.validatePage(curr, data)) && (dest > curr)){
-                console.log("eeeerror!");
-                return self.warning(error[1], self.dlgForm);
-            }
-            /*
             if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
                 console.log("eeeerror!");
                 return self.warning(error[1], self.dlgForm);
             }
-            */
             /*
-            if (curr == 0) {
-                if (data.type == "pepper_course") {
-                    $("select[name=pepper_course]").parents(".form-row").show();
-                    $("input[name=attendancel_id]").parents(".form-row").hide();
-                    $("input[name=credits]").parents(".form-row").hide();
-                } else {
-                    $("select[name=pepper_course]").parents(".form-row").hide();
-                    $("input[name=attendancel_id]").parents(".form-row").show();
-                    $("input[name=credits]").parents(".form-row").show();
-                }
-            }else if(curr == 2){
-                if($("#math_credits").attr("checked") == "checked"){
-                    mathCreditsChecked();
-                }
+            if ((error = self.validatePage(curr, data)) && (dest > curr)){
+                console.log("eeeerror!");
+                return self.warning(error[1], self.dlgForm);
             }
             */
             //akogan
@@ -887,8 +873,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 });
             }
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
-            
-            //return true;
         };
         // ************* when finish form
         steps.onFinish = function () {
@@ -901,7 +885,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         } else {
             self.clearData();
         }
-        self.fillData(data); 
+        //self.fillData(data); 
 
         // ************* btn upload Picture
         $("#edit_photo").click(function(){
@@ -922,74 +906,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 }
             });
         }
-        // ************* input map
-        var hits = {};
-        $('input[name=geo_location]').autocomplete({
-            select: function (e, item) {
-                var hit = hits[item.item.value];
-                if (hit) {
-                    self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
-                }
-            },
-            source: function (request, response) {
-                $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
-                        {q: $('input[name=geo_location]').val()}, function (r) {
-                            var data = [];
-                            hits = r;
-                            $.each(r, function (i, v) {
-                                data.push(v.display_name);
-                                hits[v.display_name] = v;
-                            });
-                            response(data);
-                        });
-            }
-        });
+
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").find("option:selected").text();
             var user_id = $("#complete-email").val();
             self.addFacilitator(email);
-            /*
-            $.get("${reverse('pepper_utilities_user_email_exists')}", {email: email}, function (exists) {
-                var $ta = $("textarea[name=facilitator_emails]")
-                if (exists) {
-                    self.addFacilitator(email);
-                    $("#complete-email").val("");
-                } else {
-                    self.warning("User not exists.", self.dlgForm);
-                }
-            });
-            */
         });
-        // ************* change credits after training data arrived
-        if (data.arrive == "1") {
-            var warn = true;
-            $("input[name=credits]").off("focusin").on("focusin", function () {
-                $(this).data('val', this.value);
-            }).off("keyup").on("keyup", function () {
-                var me = this;
-                var message = "Please note that you have edited Credit Hours to a training that is past. \
-                      This change is not retroactive for users who have already received credit. \
-                      Please refer to the user guide for more information.<br>Continue?";
-                $(this).blur();
-                warn && self.confirm(message, self.dlgForm, function (r) {
-                    if (!r) {
-                        $(me).val($(me).data('val'));
-                    } else {
-                        $(me).off("keyup");
-                    }
-                    $(me).focus();
-                });
-            });
-        }
-        // ************* change subject
-        $("#dlg-add-training").find("select[name=subject]").off('change').change(function () {
-            if ($(this).val() == "Other") {
-                $(this).next("input").show();
-            } else {
-                $(this).next("input").hide();
-            }
-        }).change();
+
         return steps;
     };
 
@@ -1061,6 +985,22 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             courses = result;
         }
         return courses;
+    };
+    PepReg.prototype.getResource_names = function () {
+        var resource_names = [];       
+        $("#community-resources").find(".resource-name").each(function () {
+            var name = $(this).val();
+            resource_names.push(name); 
+        });
+        return resource_names;
+    };
+    PepReg.prototype.getResource_links = function () {
+        var getResource_links = [];       
+        $("#community-resources").find(".resource-link").each(function () {
+            var link = $(this).val();
+            getResource_links.push(link); 
+        });
+        return getResource_links;
     };
     /*
     PepReg.prototype.getFacilitators = function () {
@@ -1157,40 +1097,17 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            c_name: $form.find("input[name=name]").val(),
-            c_motto: $form.find("input[name=motto]").val(),
-            c_logo: "",
-            c_private: $form.find("input[name=private]").val(),
-            c_state: $form.find("select[name=state-dropdown]").val(),
-            c_district: $form.find("select[name=district-dropdown]").val(),
-            c_courses: this.getCourses(),
-            c_facilitator_emails: this.getFacilitators().join(",")
-            /*
-            c_logo: $form.find("input[name=logo]").val(),
-            type: "aaaaaa",//$form.find("input[name=type]:checked").val(),
-            district_id: $form.find("select[name=district_id]").val(),
-            school_id: $form.find("select[name=school_id]").val(),
-            name: $.trim($form.find("input[name=name]").val()),
-            description: $form.find("textarea[name=description]").val(),
-            pepper_course: $form.find("select[name=pepper_course]").val(),
-            subject: $form.find("select[name=subject]").val(),
-            training_date: $form.find("input[name=training_date]").val(),
-            training_time_start: ($form.find("input[name=training_time_start]").val()),
-            training_time_end: ($form.find("input[name=training_time_end]").val()),
-            classroom: $.trim($form.find("input[name=classroom]").val()),
-            geo_location: $form.find("input[name=geo_location]").val(),
-            geo_destination: $form.find("input[name=geo_destination]").val(),
-            geo_props: $form.find("input[name=geo_props]").val(),
-            facilitator_emails: this.getFacilitators().join(","),
-            credits: $form.find("input[name=credits]").val() || 0,
-            attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
-            allow_registration: $form.find("input[name=allow_registration]:checked").val(),
-            max_registration: $form.find("input[name=allow_registration]:checked").val()=='true' ?
-                                $form.find("input[name=max_registration]").val() || 0 : 0,
-            allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
-            allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
-            allow_validation: $form.find("input[name=allow_validation]:checked").val()
-            */
+            community_id: "new",
+            name: $form.find("input[name=name]").val(),
+            motto: $form.find("input[name=motto]").val(),
+            logo: $form.find("input[name=logo]").val(),
+            private: ($form.find("input[name=private]").is(":checked")) ? "1" : "0",
+            state: $form.find("select[name=state-dropdown]").val(),
+            district: $form.find("select[name=district-dropdown]").val(),
+            courses: this.getCourses().join(","),
+            resource_names: this.getResource_names().join(","),
+            resource_links: this.getResource_links().join(","),
+            facilitators: this.getFacilitators().join(",")
         };
         /*
         if (json.subject == "Other") {
@@ -1208,7 +1125,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             json.training_date = [apart[2], apart[0], apart[1]].join("-");
         }
         */
-        console.log("data: ",json);
+        console.log("data1111111: ",json);
         return json;
     };
 
@@ -1254,15 +1171,21 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         $('.community-error-box').removeClass('community-error-box');
         
         if (page == 0) {
-            if (!data.c_name) {
+            if (!data.name) {
                 $('#community-name input').addClass('community-error-box');
                 return ["name", "Community Name is required."];
             }
-            else if(!/[A-Za-z]/.test(data.c_name)){
+            else if(!/[A-Za-z]/.test(data.name)){
                 $('#community-name input').addClass('community-error-box');
                 return ["name", "Community Name format wrong."];
             }
+        }
+        else if (page == 1) {
         } 
+        else if (page == 2) {
+        } 
+        else if (page == 3) {
+        }  
         else if(page == 4){
             var facilitator = $("#community_facilitators_list").find("tr").html();
             if(!facilitator){
@@ -1270,12 +1193,19 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
             else{
                 var facilitators_info = this.getFacilitators();
+                var default_sum = 0;
                 var edit_sum = 0;
                 for(var i=0;i<facilitators_info.length;i++){
-                    var can_edit = parseInt(facilitators_info[i].split("::")[2]);
+                    var check_info = facilitators_info[i].split("::");
+                    var default_f = parseInt(check_info[1]);
+                    var can_edit = parseInt(check_info[2]);
+                    default_sum += default_f;
                     edit_sum += can_edit;
                 }
-                if(edit_sum == 0){
+                if(default_sum == 0){
+                    return ["facilitator", "Community need a default facilitator."];
+                }
+                else if(edit_sum == 0){
                     return ["facilitator", "At least one facilitator need edit privilege."];
                 }
             }

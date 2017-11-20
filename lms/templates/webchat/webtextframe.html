@@ -1,6 +1,9 @@
 <%!
    from django.core.urlresolvers import reverse
 %>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 <div class="pep_text_panel container">
     <div class="pep_textchatheader_container">
         <div class="pep_textchatheader_title">
@@ -22,12 +25,31 @@
             <div class="pep_chat_icons col-sm-3">
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
-                    <label for="pep-file-input">
-                        <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
-                    </label>
-                    <input id="pep-file-input" type="file" style="display: none;"/>
+                    <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
+                        <label id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;">
+                            <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
+                        </label>
+                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                        <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
+                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                        </label>
+                        <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script type="text/javascript">
+        $("#input_label_"+${user_id}).siblings("#pep_file_input").on("change", function(){
+            console.log("showSubmit "+${user_id});
+            $("#input_label_"+${user_id}).css("display", "none");
+            $("#submit_label_"+${user_id}).css("display", "inline-block");
+        });
+        $("#submit_label_"+${user_id}).on("click", function(){
+            console.log("hideSubmit "+${user_id});
+            $("#submit_label_"+${user_id}).css("display", "none");
+            $("#input_label_"+${user_id}).css("display", "inline-block");
+        });
+</script>

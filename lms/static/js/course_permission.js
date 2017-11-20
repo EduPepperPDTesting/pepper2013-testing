@@ -87,11 +87,11 @@ CoursePermission.prototype.loadCourseTable = function(){
     var self = this;
     var url = this.sys.url.get_course_permission_course_rows + "?page={page}&size={size}&{filterList:fcol}&{sortList:col}";
     var data = {
-        subjects: $("#lst-course-filter-subject").get_selection().join(","),
-        authors: $("#lst-course-filter-author").get_selection().join(","),
-        grade_levels: $("#lst-course-filter-grade-level").get_selection().join(","),
-        states: $("#lst-course-filter-state").get_selection().join(","),
-        districts: $("#lst-course-filter-district").get_selection().join(",")
+        subjects: $("#lst-course-filter-subject").get_selection().join(",") || "",
+        authors: $("#lst-course-filter-author").get_selection().join(",") || "",
+        grade_levels: $("#lst-course-filter-grade-level").get_selection().join(",") || "",
+        states: $("#lst-course-filter-state").get_selection().join(",") || "",
+        districts: $("#lst-course-filter-district").get_selection().join(",") || ""
     };
     var pagerOptions = {
         container: '',
@@ -178,19 +178,19 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     });
     if(hidden['csv_users']){
         var data = {
-            subject: ($("#filters-subject-submenu li.active").attr("data-value")),
-            author: ($("#filters-author-submenu li.active").attr("data-value")),
-            grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
+            subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
+            author: ($("#filters-author-submenu li.active").attr("data-value")) || "",
+            grade_level: ($("#filters-grade-submenu li.active").attr("data-value")) || "",
             csv_users: hidden['csv_users']
         };
     }else{
         var data = {
-            subject: ($("#filters-subject-submenu li.active").attr("data-value")),
-            author: ($("#filters-author-submenu li.active").attr("data-value")),
-            grade_level: ($("#filters-grade-submenu li.active").attr("data-value")),
-            states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(","),
-            districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(","),
-            schools: $("#lst-user-filter-school").get_selection().join(",")
+            subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
+            author: ($("#filters-author-submenu li.active").attr("data-value"))  || "",
+            grade_level: ($("#filters-grade-submenu li.active").attr("data-value"))  || "",
+            states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(",")  || "",
+            districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(",")  || "",
+            schools: $("#lst-user-filter-school").get_selection().join(",") || ""
         };
     }
     var url = this.sys.url.get_course_permission_user_rows + "?page={page}&size={size}&{sortList:col}";
@@ -394,8 +394,8 @@ CoursePermission.prototype.initUI = function(){
             $(this).click(function(){
                 var on = $(this).hasClass("active");
                 $(this).parent().find("li").removeClass("active");
-                $(this).addClass("active");
-                var act = [];
+                if(!on)
+                    $(this).addClass("active");
                 $("#filters-menu-selection").html("");
                 $(".filters-submenu li.active").each(function(){
                     var self = this;
@@ -429,6 +429,15 @@ CoursePermission.prototype.initUI = function(){
             self.dropDistrictMu(sele, $(this).get_selection());
         }
     });
+
+    $(document).click(function(e){
+        if(!$(e.target).parent().hasClass("filters-menu") &&
+           !$(e.target).parent().hasClass("filters-submenu")) {
+            $(".filters-menu li").removeClass("active");
+            $(".filters-submenu").hide();
+        }
+    })
+    
     /** btns load table */
     $("#btnUserLoad").click(function(){
         $("input[name=csv_users]").val("");

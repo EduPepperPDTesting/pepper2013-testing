@@ -108,7 +108,6 @@
     width:194px;
 }
 </style>
-
 <div class="data_import_top data_import_bottom">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse expand_title_expanded">
@@ -153,8 +152,10 @@
                                 <th>Last Session Time</th>
                                 <th>Total Session Time</th>
                                 <th>Online State</th>
-                                <th>3 Status</th>
-                                <th>Password Reset</th>
+                                %if user_right['edit']:
+                                    <th>3 Status</th>
+                                    <th>Password Reset</th>
+                                %endif
                                 <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
                             </thead>
                             <tbody>
@@ -269,6 +270,13 @@ var pagerOptions = {
     page: 0,
     size: 10
 };
+
+var columnSelector_columns = 12;
+var show_columns = [[3,7,8,9,10,11]];//begin from 0
+%if user_right['edit']:
+    columnSelector_columns = 14;
+    show_columns = [[3,7,8,9,10,11,12,13]];
+%endif
 
 var tablesorterOptions = {
         theme: 'blue',
@@ -412,26 +420,27 @@ var userTimeReport = {
                 table_con += '<td align=center style="vertical-align: middle;"><span style="opacity:0;">Off</span></td>';
             }
 
-            is_active = "";
-            if(data[d].is_active){
-                is_active = "checked";
-            }
-            table_con += '<td class="three-status"><input name="is_active" class="is_active" type="checkbox" value=""' + is_active + '/> Active<br/>';
+            %if user_right['edit']:
+                var is_active = "";
+                if(data[d].is_active){
+                    is_active = "checked";
+                }
+                table_con += '<td class="three-status"><input name="is_active" class="is_active" type="checkbox" value=""' + is_active + '/> Active<br/>';
 
-            is_staff = "";
-            if(data[d].is_staff){
-                is_staff = "checked";
-            }
-            table_con += '<input name="is_staff" class="is_staff" type="checkbox" value="" ' + is_staff + ' /> Staff<br/>';
+                var is_staff = "";
+                if(data[d].is_staff){
+                    is_staff = "checked";
+                }
+                table_con += '<input name="is_staff" class="is_staff" type="checkbox" value="" ' + is_staff + ' /> Staff<br/>';
 
-            is_superuser = "";
-            if(data[d].is_superuser){
-                is_superuser = "checked";
-            }
-            table_con += '<input name="is_superuser" class="is_superuser" type="checkbox" value="" ' + is_superuser + ' /> Superuser<br/>';
-            table_con += '<div style="padding:5px 5px 5px 30px;"><span class="save-status">SAVE</span></div></td>';
-
-            table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">Change Password</span></td>';
+                var is_superuser = "";
+                if(data[d].is_superuser){
+                    is_superuser = "checked";
+                }
+                table_con += '<input name="is_superuser" class="is_superuser" type="checkbox" value="" ' + is_superuser + ' /> Superuser<br/>';
+                table_con += '<div style="padding:5px 5px 5px 30px;"><span class="save-status">SAVE</span></div></td>';
+                table_con += '<td align="center" style="vertical-align:middle;"><span class="change-password">Change Password</span></td>';
+            %endif
             table_con += '<td></td></tr>';
         }
         $(".tblUserTime tbody").append(table_con);

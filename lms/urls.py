@@ -127,6 +127,8 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
+    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/(?P<userToID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
     # === Portfolio Settings begin ==
@@ -482,6 +484,7 @@ urlpatterns = (
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'communities.views.get_add_user_rows', name="community_get_add_user_rows"),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'communities.views.get_remove_user_rows', name="community_get_remove_user_rows"),
+    url(r'^communities/process_new$', 'communities.views.community_edit_process_new', name='community_edit_process_new'),
 
     url(r'^polls/(?P<poll_type>[a-zA-Z0-9_]+)/(?P<poll_id>[0-9]+)$', 'polls.views.poll_view', name='poll_view'),
     url(r'^polls/form/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_view', name='poll_form_view'),

@@ -54,6 +54,9 @@
                 org_data[tmp1.itemType] = tmp1.itemValue
             if org_data["Footer Selected"] == "1":
                 footer = OrganizationFooter.objects.get(organization=org_data['org_id']).DataItem
+            org_data["PeppTalk"] = ""
+            for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='PeppTalk'):
+                org_data["PeppTalk"] = tmp2.itemValue
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
@@ -131,10 +134,12 @@
 
 </head>
 
-% if request.user.is_authenticated():
-    <%include file="webchat/webslider.html" />
-    <%include file="webchat/webvideochat.html" />
-    <%include file="webchat/webchat.html" />
+% if organization_active:
+    % if org_data["PeppTalk"] == "1":
+        <%include file="webchat/webslider.html" />
+        <%include file="webchat/webvideochat.html" />
+        <%include file="webchat/webchat.html" />
+    % endif
 % endif
 <%!
 navbar_show_extended=True
