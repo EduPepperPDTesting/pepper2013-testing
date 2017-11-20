@@ -14,7 +14,9 @@
             <a href="#" class="pep_start_video" id="${user_id}">
                 <img src="/static/images/Pepptalk/PeppSingleCam.png" alt="im-video" style="width:15px;height:15px;border:0;position: relative;bottom: 5px;">
             </a>
-            <span class="close-chat" style="position: relative;bottom: 5px;cursor: pointer;"> &#10005;</span>
+            <div class="hide-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"> &#8211;</div>
+            <div class="open-chat" style="position: relative;bottom: 5px;cursor: pointer;display: none;"> &#9633;</div>
+            <div class="close-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"> &#10005;</div>
         </div>
     </div>
     <div class="pep_text_chat" id="textchat_${user_id}"></div>
@@ -25,12 +27,12 @@
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
-                        <label class="pep_attach_label" id="input_label_${user_id}" for="pep_file_input_${user_id}" style="display: inline-block;cursor: pointer !important;">
+                        <label class="pep_attach_label" id="input_label" for="pep_file_input" style="display: inline-block;cursor: pointer !important;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
                         <input id="pep_file_input" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                        <label class="pep_attach_label" id="submit_label_${user_id}" for="pep_file_submit" style="display: none;cursor: pointer !important;">
+                        <label class="pep_attach_label" id="submit_label" for="pep_file_submit" style="display: none;cursor: pointer !important;">
                             <img id="pep_send_image" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
                         <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
@@ -56,7 +58,7 @@
         });
     });
 
-    $("#pep_attachment_form").on("change", "#pep_file_input", function(){
+   /*$("#pep_attachment_form").on("change", "#pep_file_input", function(){
         console.log("pep_file_input_"+${user_id});
         if($(this).data("user_id")==${user_id}){
             $("#input_label_"+${user_id}).css("display", "none");
@@ -69,5 +71,5 @@
             $("#submit_label_"+${user_id}).css("display", "none");
             $("#input_label_"+${user_id}).css("display", "inline-block");
         }
-    });
+    });*/
 </script>

@@ -6,6 +6,22 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
+    $(".pep_textchat_block").on("click", ".hide-chat", function(){
+        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
+        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
+        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
+        $(this).siblings(".open-chat").css("display","inline-block");
+        $(this).css("display", "none");
+    });
+
+    $(".pep_textchat_block").on("click", ".open-chat", function(){
+        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
+        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
+        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-4px");
+        $(this).siblings(".hide-chat").css("display","inline-block");
+        $(this).css("display", "none");
+    });
+
     $(".pep_textchat_block").on("click", ".close-chat", function(){
         var textcont = $(this).parents(".pep_text_container");
         var ind = textcont.index();
@@ -19,6 +35,18 @@ $(document).ready(function(){
             }
         });
         $(this).parents(".pep_text_container").remove();
+    });
+
+
+    $("#pep_textchat_block").on("change", "#pep_file_input", function(){
+        console.log("pep_file_input");
+        $(this).parents("#pep_attachment_form").find("#input_label").css("display", "none");
+        $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "inline-block");
+    });
+     $("#pep_textchat_block").on("click", "#pep_send_image", function(){
+        console.log("send_image");
+        $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
+        $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
 
 });
