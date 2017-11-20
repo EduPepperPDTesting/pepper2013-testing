@@ -910,31 +910,16 @@ def community_edit_process_new(request):
     :param request: Request object.
     :return: JSON response.
     """
-    domain_name = request.META['HTTP_HOST']
-    community_id = request.POST.get('c_id', '')
-    name = request.POST.get('c_name', '')
-    motto = request.POST.get('c_motto', '')
-    # logo = ''
-    c_private = request.POST.get('c_private', '')
-    c_state = request.POST.get('c_state', '')
-    c_district = request.POST.get('c_district', '')
-    courses = request.POST.get('c_courses', '')
-    c_facilitator_emails = request.POST.get('c_facilitator_emails', '')
-    log.debug("=====================")
-    log.debug(name)
-    log.debug(c_facilitator_emails)
-    log.debug(courses)
-    return HttpResponse(json.dumps({'Success': 'True', 'content': ''}), content_type='application/json')
-    '''
     try:
         # Get all of the form data.
         domain_name = request.META['HTTP_HOST']
         community_id = request.POST.get('community_id', '')
+        #community_id = '13'
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
-        #hangout = request.POST.get('hangout', '')
+        # hangout = request.POST.get('hangout', '')
         try:
-            district_id = request.POST.get('district-dropdown', False)
+            district_id = request.POST.get('district', False)
             if district_id:
                 district = District.objects.get(id=int(district_id))
             else:
@@ -942,13 +927,14 @@ def community_edit_process_new(request):
         except:
             district = None
         try:
-            state_id = request.POST.get('state-dropdown', False)
+            state_id = request.POST.get('state', False)
             if state_id:
                 state = State.objects.get(id=int(state_id))
             else:
                 state = None
         except:
             state = None
+        log.debug("111111111111111111")
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
         logo_img = request.POST.get('logo', '')
         if logo_img[:-3] == 'jpg':
@@ -976,15 +962,20 @@ def community_edit_process_new(request):
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-            
-        facilitator = request.POST.get('facilitator', '')
-        private = request.POST.get('private', 0)
-        priority_id = request.POST.get('priority_id',0)
-        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
-        courses = get_post_array(request.POST, 'course')
-        resource_names = get_post_array(request.POST, 'resource_name')
-        resource_links = get_post_array(request.POST, 'resource_link')
 
+        log.debug("222222222222")    
+        facilitator_list = get_post_facilitators(request)
+        log.debug(facilitator_list)
+        
+        private = request.POST.get('private', 0)
+        priority_id = 0
+        log.debug("3333333")
+        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
+        courses = get_post_dict(request, 'courses')
+        resource_names = get_post_dict(request, 'resource_names')
+        resource_links = get_post_dict(request, 'resource_links')
+        log.debug("community_id==========")
+        log.debug(community_id)
         # If this is a new community, create a new entry, otherwise, load from the DB.
         if community_id == 'new':
             community_object = CommunityCommunities()
@@ -996,41 +987,42 @@ def community_edit_process_new(request):
         community_object.motto = motto
         if logo:
             community_object.logo = logo
-        community_object.hangout = hangout
+        community_object.hangout = ""
         community_object.private = int(private)
         community_object.district = district
         community_object.state = state
         community_object.discussion_priority = int(priority_id)
         community_object.save()
 
-        # Load the main user object for the facilitator user.
-        user_object = False
-        try:
-            user_object = User.objects.get(email=facilitator)
-        except Exception as e:
-            log.warning('Invalid email for facilitator: {0}'.format(e))
+        # facilitators
+        old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+        for f in old_facilitators:
+            f.facilitator = False
+            f.save()
 
-        # As long as the object loaded correctly, make sure this user is set as the facilitator.
-        if user_object:
-            # First we need to make sure if there is already a facilitator set, we unset them.
+        # Load the main user object for the facilitator user.
+        for f in facilitator_list:
+            user_object = False
             try:
-                old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
-                for f in old_facilitator:
-                    f.facilitator = False
-                    f.save()
-            except:
-                pass
-            # Now we try to load the new user in case they are already a member.
-            try:
-                community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
-            # If they aren't a member already, create a new entry.
-            except:
-                community_user = CommunityUsers()
-                community_user.community = community_object
-                community_user.user = user_object
-            # Set the facilitator flag to true.
-            community_user.facilitator = True
-            community_user.save()
+                user_object = User.objects.get(email=f['email'])
+                f_default = f['default']
+                f_edit = f['edit']
+                f_delete = f['delete']
+                try:
+                    community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+                except:
+                    community_user = CommunityUsers()
+                    community_user.community = community_object
+                    community_user.user = user_object
+                # Set the facilitator flag to true.
+                community_user.facilitator = True
+                community_user.community_default = f_default
+                community_user.community_edit = f_edit
+                community_user.community_delete = f_delete
+                community_user.save()
+            except Exception as e:
+                log.warning('Invalid email for facilitator: {0}'.format(e))
+            '''
             if old_facilitator:
                 if old_facilitator[0].user_id != community_user.user_id:
                     ma_db = myactivitystore()
@@ -1046,8 +1038,7 @@ def community_edit_process_new(request):
                 "TokenValues": {"community_id":community_object.id}, 
                 "LogoValues": {"community_id": community_object.id}}    
                 ma_db.insert_item(my_activity)
-        else:
-            raise Exception('A valid facilitator is required to create a community.')
+            '''
 
         # Init lists for notification
         courses_add = []
@@ -1086,6 +1077,7 @@ def community_edit_process_new(request):
                 resource_object.community = community_object
                 resource_object.link = resource_link
                 resource_object.name = resource_names[key]
+                '''
                 # The logo needs special handling since we might need to upload the file. First we try the entry in the
                 # FILES and try to upload it.
                 if request.POST.get('resource_logo[{0}]'.format(key)):
@@ -1104,6 +1096,7 @@ def community_edit_process_new(request):
 
                 if logo:
                     resource_object.logo = logo
+                '''
                 resource_object.save()
 
                 # Record notification about modify resources
@@ -1119,14 +1112,51 @@ def community_edit_process_new(request):
                           resources_add=resources_add,
                           resources_del=resources_cur.values(),
                           domain_name=domain_name)
-
-        return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
+        
+        log.debug("fin=======================")
+        return HttpResponse(json.dumps({'Success': 'True', 'community_id': '111'}), content_type='application/json')
+        #return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
         data = {'error_title': 'Problem Saving Community',
                 'error_message': 'Error: {0}'.format(e),
                 'window_title': 'Problem Saving Community'}
         return render_to_response('error.html', data)
-    '''
+    
+def get_post_dict(request, name):
+    output = dict()
+    value_str = request.POST.get(name, '')
+    if value_str:
+        value_list = value_str.split(',')
+        for k, v in enumerate(value_list):
+            output.update({str(k): v})
+    return output          
+
+def get_post_facilitators(request):
+    output = list()
+    facilitators = request.POST.get('facilitators', '')
+    if facilitators:
+        facilitators_list = facilitators.split(',')
+        for f in facilitators_list:
+            f_info_list = f.split('::')
+            f_info = dict()
+            f_info['email'] = f_info_list[0]
+            if f_info_list[1] == '1':
+                f_info['default'] = True
+            else:
+                f_info['default'] = False
+
+            if f_info_list[2] == '1':
+                f_info['edit'] = True
+            else:
+                f_info['edit'] = False
+
+            if f_info_list[3] == '1':
+                f_info['delete'] = True
+            else:
+                f_info['delete'] = False
+            output.append(f_info)
+    return output
+
 
 @login_required
 @ensure_csrf_cookie
@@ -1192,6 +1222,8 @@ def community_edit_process(request):
         priority_id = request.POST.get('priority_id',0)
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_array(request.POST, 'course')
+        log.debug("courses------------")
+        log.debug(courses)
         resource_names = get_post_array(request.POST, 'resource_name')
         resource_links = get_post_array(request.POST, 'resource_link')
 
@@ -1269,6 +1301,8 @@ def community_edit_process(request):
         CommunityCourses.objects.filter(community=community_object).delete()
         # Go through the courses and add them to the DB.
         for key, course in courses.iteritems():
+            log.debug(key)
+            log.debug(course)
             # We only want to save an entry if there's something in it.
             if course:
 
