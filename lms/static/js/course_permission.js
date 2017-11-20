@@ -66,7 +66,7 @@ CoursePermission.prototype.save = function(send_notification){
         new Dialog($('#dialog')).show("Warn", "No course assigned");
         return;
     }
-    $.post(self.url.update_course_permission, {
+    $.post(self.sys.url.update_course_permission, {
         send_notification: send_notification ? "1" : "0",
         users: users.join(","),
         courses: courses.join(","),
@@ -156,14 +156,14 @@ CoursePermission.prototype.loadCourseTable = function(){
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
             $(this).find("td:nth-child(5)").hide();
-            var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5));
-            var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6));
-            toggle2.toggleSwitch().change(function(){
-                var v = $(this).toggleSwitch().val();
+            var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5)).toggleSwitch();
+            var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
+            toggle2.change(function(){
+                var v = this.val();
                 if(v == 1) toggle1.val(1)
             });
-            toggle1.toggleSwitch().change(function(){
-                var v = $(this).toggleSwitch().val();
+            toggle1.change(function(){
+                var v = this.val();
                 if(v == -1) toggle2.val(-1)
             });
         });
@@ -394,10 +394,20 @@ CoursePermission.prototype.initUI = function(){
             $(this).click(function(){
                 var on = $(this).hasClass("active");
                 $(this).parent().find("li").removeClass("active");
-                if(!on)
-                    $(this).addClass("active");
+                $(this).addClass("active");
+                var act = [];
+                $("#filters-menu-selection").html("");
+                $(".filters-submenu li.active").each(function(){
+                    var self = this;
+                    var a = $("<span>" + $(this).html() + "<b class='close'>x</b></span>").appendTo($("#filters-menu-selection"));
+                    a.find("b").click(function(){
+                        $(this).closest("ul").find("li").removeClass("active");
+                        $(self).removeClass("active");
+                        a.remove();
+                    });
+                });
             });
-        })
+        });
     });
     $(".filters-menu li").click(function(){
         $(this).parent().find("li").removeClass("active");

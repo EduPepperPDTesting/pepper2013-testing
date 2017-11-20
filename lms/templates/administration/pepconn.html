@@ -745,6 +745,19 @@ f.close()
      #course_permission_user .tablesorter-blue thead *{
        /* white-space:nowrap; */
      }
+     #filters-menu-selection span{
+       border:1px solid;
+       padding:5px 5px 5px 5px;
+       margin:10px 10px 10px 0;
+       display:inline-block;
+     }
+     #filters-menu-selection span b{
+       display:inline;
+       color:#f00f;
+     }
+     #filters-menu-selection{
+       padding:10px 10px 20px 40px;
+     }
     </style>    
     <script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
     <link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
@@ -807,11 +820,13 @@ f.close()
               </div>        
               % endif
             </div>
-            <ul style="padding:10px;font-size:28px;" class="filters-menu">
+            <span style="padding:10px;font-size:20px;">Course Filters </span>
+            <ul style="padding:10px;font-size:28px;display:inline-block;" class="filters-menu">
               <li id="filters-subject" class="active">Subject</li> |
               <li id="filters-author">Author</li> |
               <li id="filters-grade">Grade Level</li>
             </ul>
+            <div id="filters-menu-selection"></div>
             <ul class="filters-submenu" id="filters-subject-submenu">
               <li data-value="AR">Assessments and Reporting</li>
               <li data-value="DC">Digital Citizenship</li>
@@ -860,7 +875,7 @@ f.close()
                 <thead>
                   <tr class="tablesorter-headerRow">
                     <th data-sorter="false" class="id sorter-false">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
-                    <th class="first_name sorter-false">First Name</th>
+                    <th class="first_name ">First Name</th>
                     <th class="last_name sorter-false">Last Name</th>
                     <th class="email">Email</th>
                   </tr>

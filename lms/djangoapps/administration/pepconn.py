@@ -1851,27 +1851,54 @@ def to_list(s, default=None):
 
 
 def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, districts=None, limit=None,
-                   subject_fuzzy=None, author_fuzzy=None, grade_level_fuzzy=None, course_name_fuzzy=None):
+                   subject_fuzzy="", author_fuzzy="", grade_level_fuzzy="", course_name_fuzzy=""):
     from xmodule.modulestore.django import modulestore
     import pymongo
 
-    filterDic = {'_id.category': 'course'}
+    # filterDic = {'_id.category': 'course'}
+    # if subjects is not None:  # array field
+    #     filterDic['metadata.display_subject'] = {"$in": subjects}
+    # if authors is not None:  # none array field
+    #     filterDic['metadata.display_organization'] = {"$in": authors}
+    # if grade_levels is not None:  # none array field
+    #     filterDic['metadata.display_grades'] = {"$in": grade_levels}
+    # if states is not None:  # array field
+    #     filterDic['metadata.display_state'] = {"$in": states}
+    # if districts is not None:  # array field
+    #     filterDic['metadata.display_district'] = {"$in": districts}
+
+    filters = []
+    filters.append({'_id.category': 'course'})
+    
+    if subjects is not None:
+        filters.append({'metadata.display_subject': {"$in": subjects}})
+
+    if subject_fuzzy:    
+        filters.append({'metadata.display_subject': {"$regex": subject_fuzzy, "$options": "-i"}})
+    
+    if authors is not None:
+        filters.append({'metadata.display_organization': {"$in": authors}})
+
+    if author_fuzzy:
+        filters.append({'metadata.display_organization': {"$regex": author_fuzzy, "$options": "-i"}})
+
+    if grade_levels is not None:
+        filters.append({'metadata.display_grades': {"$in": grade_levels}})
         
-    if subjects is not None:  # array field
-        filterDic['metadata.display_subject'] = {"$in": subjects}
+    if grade_level_fuzzy:
+        filters.append({'metadata.display_grades': {"$regex": grade_level_fuzzy, "$options": "-i"}})
 
-    if authors is not None:  # none array field
-        filterDic['metadata.display_organization'] = {"$in": authors}
+    if states is not None:
+        filters.append({'metadata.display_state': {"$in": states}})
 
-    if grade_levels is not None:  # none array field
-        filterDic['metadata.display_grades'] = {"$in": grade_levels}
+    if districts is not None:
+        filters.append({'metadata.display_district': {"$in": districts}})
 
-    if states is not None:  # array field
-        filterDic['metadata.display_state'] = {"$in": states}
-
-    if districts is not None:  # array field
-        filterDic['metadata.display_district'] = {"$in": districts}
-
+    if course_name_fuzzy:
+        filters.append({'metadata.display_name': {"$regex": course_name_fuzzy, "$options": "-i"}})
+        
+    filterDic = {"$and": filters} 
+        
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
 
@@ -1898,13 +1925,14 @@ def get_course_permission_user_rows(request):
     }
 
     sorts = get_post_array(request.GET, 'col')
-
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size
 
     order = build_sorts(columns, sorts)
+    if len(order) == 0:
+        order = ['user__id']
 
     users = UserProfile.objects.all()
 
