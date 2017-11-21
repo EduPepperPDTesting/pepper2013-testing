@@ -217,3 +217,8 @@
 .pep_attach_label{
     cursor: pointer !important;
 }
+pep_org_header{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
