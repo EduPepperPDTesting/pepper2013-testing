@@ -115,7 +115,6 @@ def postpone(function):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def main(request):
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
@@ -1067,11 +1066,14 @@ def do_import_user(task, csv_lines, request):
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
             elif district.state.name == "Oklahoma":
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
-                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
-                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
+                CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
             else:
                 cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
                 CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
@@ -1214,10 +1216,13 @@ def single_user_submit(request):
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
         elif district.state.name == "Oklahoma":
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=True)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=True)
-            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=True)
-            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=True)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE508/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE511/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE512/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='OKSDE/OKSE115/F2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE514/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE509/S2017', email=email, is_active=True, auto_enroll=False)
+            CourseEnrollmentAllowed.objects.create(course_id='PCG_Edu/SE510/S2017', email=email, is_active=True, auto_enroll=False)
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.3/F2017')
         else:
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
@@ -2035,14 +2040,19 @@ def get_course_permission_course_rows(request):
         "authors": to_list(request.REQUEST.get("authors")),
         "grade_levels": to_list(request.REQUEST.get("grade_levels")),
         "states": states,
-        "districts": districts
+        "districts": districts,
+        "subject_fuzzy": request.REQUEST.get("subject_fuzzy"),
+        "author_fuzzy": request.REQUEST.get("author_fuzzy"),
+        "grade_level_fuzzy": request.REQUEST.get("grade_level_fuzzy"),
+        "course_name_fuzzy": request.REQUEST.get("course_name_fuzzy"),
+        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     coursenames = []
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", "", ""])
+        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")
@@ -2272,7 +2282,8 @@ def course_permission_download_excel(request):
     course_filters = {
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
-        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
+        "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
+        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     courses = filter_courses(**course_filters)
