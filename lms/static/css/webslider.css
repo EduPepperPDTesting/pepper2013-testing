@@ -30,7 +30,7 @@
 }
 #pep_title_text {
     position: relative;
-    top: 50px;
+    top: 65px;
     -moz-transform: scale(-1, -1) rotate(90deg);
     -webkit-transform: scale(-1, -1) rotate(90deg);
     -o-transform: scale(-1, -1) rotate(90deg);
@@ -54,7 +54,8 @@
     box-shadow: -4px 4px 16px -1px rgba(0,0,0,0.75);
 }
 #pep_search_container {
-	display: inline-block;
+display: inline-block;
+    width: 281px;
     height: 25px;
     position: relative;
     left: -15px;
@@ -69,18 +70,19 @@
     left: 5px;
 }
 #pep_search_glass {
-	display: inline-block;
-	float: right;
-	height: 25px;
-	width: 25px;
-	position: relative;
-	top: -20px;
-	left: 5px;
+border-top-right-radius: 15px;
+    display: inline-block;
+    position: relative;
+    float: right;
+}
+#pep_search_glass img{
+    height: 25px;
+    width: 28px;
 }
 #pep_search {
     border: 0px;
     border-radius: 15px 0 0;
-    width: 235px;
+    width: 253px;
     height: 25px;
     padding-right: 10px;
     padding-left: 10px;
@@ -104,14 +106,12 @@
     width: 281px;
     height: 280px;
     position: relative;
-    top: -20px;
     left: -15px;
     overflow-x: hidden;
     background-color: white;
 }
 #pep_slider_list {
     position: relative;
-    top: -22px;
     right: 10px;
     margin-right: -15px;
     min-height: 60px;
@@ -128,11 +128,10 @@
 }
 #pep_slider_icons {
     position: relative;
-    top: -22px;
     left: 15px;
     width: 70px;
     height: 27px;
-    padding-top: 3px;
+    padding-top: 7px;
     padding-right: 5px;
     display: inline-block;
     float: right;
@@ -208,7 +207,7 @@
 }
 #pep_list_clear{
     position: relative;
-    top: -20px;
+    top: 2px;
     left: -10px;
     display: inline-block;
 }
@@ -220,7 +219,7 @@
     padding-bottom: 1px;
 	margin-top: 2px;
     border-bottom-width: 0px;
-    display: inline-block;
+    display: block;
     margin-bottom: 0;
     font-size: .9em;
     line-height: 1.42857143;
@@ -243,7 +242,7 @@
 }
 .pep_contact_name{
     font-size: 1em;
-    max-width: 164px;
+    max-width: 190px;
     height: 20px;
     position: relative;
     top: 10px;

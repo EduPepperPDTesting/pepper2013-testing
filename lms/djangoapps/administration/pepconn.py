@@ -115,7 +115,6 @@ def postpone(function):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def main(request):
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
@@ -1851,29 +1850,65 @@ def to_list(s, default=None):
     return s.split(',') if s else default
 
 
-def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, districts=None):
+def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, districts=None, limit=None,
+                   subject_fuzzy="", author_fuzzy="", grade_level_fuzzy="", course_name_fuzzy=""):
     from xmodule.modulestore.django import modulestore
     import pymongo
 
-    filterDic = {'_id.category': 'course'}
+    # filterDic = {'_id.category': 'course'}
+    # if subjects is not None:  # array field
+    #     filterDic['metadata.display_subject'] = {"$in": subjects}
+    # if authors is not None:  # none array field
+    #     filterDic['metadata.display_organization'] = {"$in": authors}
+    # if grade_levels is not None:  # none array field
+    #     filterDic['metadata.display_grades'] = {"$in": grade_levels}
+    # if states is not None:  # array field
+    #     filterDic['metadata.display_state'] = {"$in": states}
+    # if districts is not None:  # array field
+    #     filterDic['metadata.display_district'] = {"$in": districts}
 
-    if subjects is not None:  # array field
-        filterDic['metadata.display_subject'] = {"$in": subjects}
+    filters = []
+    filters.append({'_id.category': 'course'})
+    
+    if subjects is not None:
+        filters.append({'metadata.display_subject': {"$in": subjects}})
 
-    if authors is not None:  # none array field
-        filterDic['metadata.display_organization'] = {"$in": authors}
+    if subject_fuzzy:    
+        filters.append({'metadata.display_subject': {"$regex": subject_fuzzy, "$options": "-i"}})
+    
+    if authors is not None:
+        filters.append({'metadata.display_organization': {"$in": authors}})
 
-    if grade_levels is not None:  # none array field
-        filterDic['metadata.display_grades'] = {"$in": grade_levels}
+    if author_fuzzy:
+        filters.append({'metadata.display_organization': {"$regex": author_fuzzy, "$options": "-i"}})
 
-    if states is not None:  # array field
-        filterDic['metadata.display_state'] = {"$in": states}
+    if grade_levels is not None:
+        filters.append({'metadata.display_grades': {"$in": grade_levels}})
+        
+    if grade_level_fuzzy:
+        filters.append({'metadata.display_grades': {"$regex": grade_level_fuzzy, "$options": "-i"}})
 
-    if districts is not None:  # array field
-        filterDic['metadata.display_district'] = {"$in": districts}
+    if states is not None:
+        filters.append({'metadata.display_state': {"$in": states}})
 
+    if districts is not None:
+        filters.append({'metadata.display_district': {"$in": districts}})
+
+    if course_name_fuzzy:
+        filters.append({'metadata.display_name': {"$regex": course_name_fuzzy, "$options": "-i"}})
+        
+    filterDic = {"$and": filters} 
+        
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
+
+    if limit:
+        filtered = []
+        for c in courses:
+            if c.id in limit:
+                filtered.append(c)
+        return filtered
+    
     return courses
 
 
@@ -1890,13 +1925,14 @@ def get_course_permission_user_rows(request):
     }
 
     sorts = get_post_array(request.GET, 'col')
-
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size
 
     order = build_sorts(columns, sorts)
+    if len(order) == 0:
+        order = ['user__id']
 
     users = UserProfile.objects.all()
 
@@ -1912,6 +1948,16 @@ def get_course_permission_user_rows(request):
     if request.REQUEST.get("csv_users", "") != "":
         users = users.filter(user_id__in=request.REQUEST.get("csv_users").split(","))
 
+    if request.REQUEST.get("first_name_fuzzy", "") != "":
+        users = users.filter(user__first_name__icontains=request.REQUEST.get("first_name_fuzzy"))
+
+    if request.REQUEST.get("last_name_fuzzy", "") != "":
+        users = users.filter(user__last_name__icontains=request.REQUEST.get("last_name_fuzzy"))
+
+    if request.REQUEST.get("email_fuzzy", "") != "":
+        users = users.filter(user__email__icontains=request.REQUEST.get("email_fuzzy"))
+            
+
     users = users.order_by(*order)
 
     count = users.count()
@@ -1920,7 +1966,8 @@ def get_course_permission_user_rows(request):
     course_filters = {
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
-        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
+        "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
+        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
 
     coursenames = []
@@ -1933,8 +1980,8 @@ def get_course_permission_user_rows(request):
     for item in users[start:end]:
         row = list()
         row.append(int(item.user.id))
-        row.append(str(item.user.last_name))
         row.append(str(item.user.first_name))
+        row.append(str(item.user.last_name))
         row.append(str(item.user.email))
 
         try:
@@ -1993,14 +2040,19 @@ def get_course_permission_course_rows(request):
         "authors": to_list(request.REQUEST.get("authors")),
         "grade_levels": to_list(request.REQUEST.get("grade_levels")),
         "states": states,
-        "districts": districts
+        "districts": districts,
+        "subject_fuzzy": request.REQUEST.get("subject_fuzzy"),
+        "author_fuzzy": request.REQUEST.get("author_fuzzy"),
+        "grade_level_fuzzy": request.REQUEST.get("grade_level_fuzzy"),
+        "course_name_fuzzy": request.REQUEST.get("course_name_fuzzy"),
+        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     coursenames = []
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_name, c.display_organization, c.display_grades, c.display_name, c.id, "", "", ""])
+        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")
@@ -2230,7 +2282,8 @@ def course_permission_download_excel(request):
     course_filters = {
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
-        "grade_levels": to_list(request.REQUEST.get("grade_level", ""))
+        "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
+        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     courses = filter_courses(**course_filters)
