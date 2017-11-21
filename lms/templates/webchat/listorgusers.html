@@ -29,7 +29,7 @@
 				var nameStartIndex = tableData.indexOf(": u") + 4;
 				var nameEndIndex = tableData.indexOf("}") - 1;
 				var commId = tableData.substring(idStartIndex, idEndIndex);
-				var commName = (nameEndIndex > 0) ? "<div class="pep_org_header">"+tableData.substring(nameStartIndex, nameEndIndex)+</div>: "";
+				var commName = (nameEndIndex > 0) ? "<div class='pep_org_header'>"+tableData.substring(nameStartIndex, nameEndIndex)+</div>: "";
 				var ajaxType = "post";
 				var rowSource = "${reverse('get_community_user_rows')}";
 			}else if(tableData == 'My Network'){
