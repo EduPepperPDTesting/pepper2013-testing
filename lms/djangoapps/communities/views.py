@@ -917,7 +917,9 @@ def community_edit_process_new(request):
         #community_id = '13'
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
-        # hangout = request.POST.get('hangout', '')
+        log.debug("community_id==========")
+        log.debug(community_id)
+
         try:
             district_id = request.POST.get('district', False)
             if district_id:
@@ -934,7 +936,7 @@ def community_edit_process_new(request):
                 state = None
         except:
             state = None
-        log.debug("111111111111111111")
+
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
         logo_img = request.POST.get('logo', '')
         if logo_img[:-3] == 'jpg':
@@ -963,19 +965,16 @@ def community_edit_process_new(request):
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
 
-        log.debug("222222222222")    
         facilitator_list = get_post_facilitators(request)
-        log.debug(facilitator_list)
-        
+
         private = request.POST.get('private', 0)
         priority_id = 0
-        log.debug("3333333")
+
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_dict(request, 'courses')
         resource_names = get_post_dict(request, 'resource_names')
         resource_links = get_post_dict(request, 'resource_links')
-        log.debug("community_id==========")
-        log.debug(community_id)
+
         # If this is a new community, create a new entry, otherwise, load from the DB.
         if community_id == 'new':
             community_object = CommunityCommunities()
@@ -1068,37 +1067,42 @@ def community_edit_process_new(request):
         # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
         CommunityResources.objects.filter(community=community_object).delete()
         # Go through the resource links, with the index so we can directly access the names and logos.
+        log.debug("1=============")
+        log.debug(resource_links)
         for key, resource_link in resource_links.iteritems():
             # We only want to save an entry if there's something in it.
             if resource_link:
-
+                log.debug(resource_link)
                 # Assign properties
                 resource_object = CommunityResources()
                 resource_object.community = community_object
                 resource_object.link = resource_link
                 resource_object.name = resource_names[key]
-                '''
+
                 # The logo needs special handling since we might need to upload the file. First we try the entry in the
                 # FILES and try to upload it.
-                if request.POST.get('resource_logo[{0}]'.format(key)):
+                postget = request.POST.get('resource_logo[{0}]'.format(key))
+                logo = None
+                if postget:
                     file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
                     logo = FileUploads.objects.get(id=file_id)
                 else:
-                    try:
-                        logo = FileUploads()
-                        logo.type = 'community_resource_logos'
-                        logo.sub_type = community_id
-                        logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                        logo.save()
-                    except Exception as e:
-                        logo = None
-                        log.warning('Error uploading logo: {0}'.format(e))
+                    if postget == None:
+                        log.debug("---logo")
+                        try:
+                            logo = FileUploads()
+                            logo.type = 'community_resource_logos'
+                            logo.sub_type = community_id
+                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                            logo.save()
+                        except Exception as e:
+                            logo = None
+                            log.warning('Error uploading resource_logo: {0}'.format(e))
 
                 if logo:
                     resource_object.logo = logo
-                '''
-                resource_object.save()
 
+                resource_object.save()
                 # Record notification about modify resources
                 if resources_cur.get(resource_link):
                     del resources_cur[resource_link]
@@ -1112,7 +1116,7 @@ def community_edit_process_new(request):
                           resources_add=resources_add,
                           resources_del=resources_cur.values(),
                           domain_name=domain_name)
-        
+
         log.debug("fin=======================")
         return HttpResponse(json.dumps({'Success': 'True', 'community_id': '111'}), content_type='application/json')
         #return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))

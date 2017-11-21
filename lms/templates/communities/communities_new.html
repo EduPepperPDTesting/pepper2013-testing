@@ -660,11 +660,11 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                                 %if resource['logo']:
                                                     <div class="community-resource-logo-wrap">
                                                         <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
-                                                        <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
+                                                        <input class="community-resource-logo typelogo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}" id="resource_logo[${idx}]">
                                                         <a href="#" class="remove"></a>
                                                     </div>
                                                 %else:
-                                                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
+                                                    <input class="resource-logo typelogo" type="file" name="resource_logo[${idx}]" id="resource_logo[${idx}]">
                                                 %endif
                                             </div>
                                         </div>
@@ -771,7 +771,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         entry += '<input class="resource-name" type="text" name="resource_name[' + resource_num + ']" value="" placeholder="Resource name">';
         entry += '<input class="resource-link" type="text" name="resource_link[' + resource_num + ']" value="" placeholder="Resource link">';
         entry += '<input type="button" class="add operation" value="+" onclick="newResource()">';
-        entry += '<div><div class="resource-logo-label">Logo:</div><input class="resource-logo" type="file" name="resource_logo[' + resource_num + ']"></div>';
+        entry += '<div><div class="resource-logo-label">Logo:</div><input class="resource-logo typelogo" type="file" name="resource_logo[' + resource_num + ']" id="resource_logo[' + resource_num + ']"></div>';
         $('#community-resources').append(entry);
     }
 
@@ -789,7 +789,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 }
                 $(this).children('.resource-link').attr('name', 'resource_link[' + num + ']');
                 $(this).children('.resource-name').attr('name', 'resource_name[' + num + ']');
-                $(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                //$(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('id', 'resource_logo[' + num + ']');
             }
         });
         $('.community-resource .minus').each(function(index) {
@@ -803,18 +805,11 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         var self = this;
         this.$content = $content;
         this.initContent();
+        this.formdata = '';
     }
 
     PepReg.prototype.addTraining = function () {
         var self = this;
-        /*
-        $('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
-        $(".timePickText").attr("disabled", false).css("background-color", "#fff");
-        $(".training_date_icon").show();
-        
-        $("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
-        $("#math_credits").removeAttr("checked");
-        */    
         var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {          
             //submit
             if (einfo = self.validateAllPage(data)) {
@@ -822,7 +817,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 self.steps.switchTo(einfo.id);
                 return;
             }
-            
+            console.log("jsondata: ",data);
+            self.createFormdata(data);
+            /*
             $.post("${reverse('community_edit_process_new')}", data, function (r) {
                 if (r.success) {
                     $("#dlg-add-training").hide();
@@ -831,7 +828,26 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     console.log("return ok");
                 }
             });
+            */
             
+            $.ajax({
+                url: "${reverse('community_edit_process_new')}",  //server script to process data
+                type: 'POST',
+                //Ajax事件
+                success: function(r){
+                    console.log(r);
+                    console.log("ok");
+                },
+                error: function(r){},
+                // Form数据
+                data: self.formdata,
+                //Options to tell JQuery not to process data or worry about content-type
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            
+            console.log("ajax end");
         });
         return false;
     };
@@ -856,15 +872,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             var data = self.getInput();
             console.log("initForm getInput: ", data);
             if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
-                console.log("eeeerror!");
                 return self.warning(error[1], self.dlgForm);
             }
-            /*
-            if ((error = self.validatePage(curr, data)) && (dest > curr)){
-                console.log("eeeerror!");
-                return self.warning(error[1], self.dlgForm);
-            }
-            */
             //akogan
             if ( dest > -1 ){
                 $(".step-page .close-modal").remove();
@@ -892,20 +901,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             self.upload_picture("", self.dlgForm);
         });
         
-        // ************* school id
-        if($("#school_id").attr("flag_system") == "1"){
-            var school_id = data.school_id;
-            $("#school_id").empty();    
-            $.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {             
-                $("#school_id").append('<option value="-1"></option>');        
-                if(data.length > 0){
-                    for(var i in data){
-                        $("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
-                    }
-                    if(school_id)       $("#school_id").val(school_id);
-                }
-            });
-        }
 
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
@@ -1109,24 +1104,36 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             resource_links: this.getResource_links().join(","),
             facilitators: this.getFacilitators().join(",")
         };
-        /*
-        if (json.subject == "Other") {
-            json.subjectother = $form.find("input[name=subject-other]").val();
-            //json.subject = $form.find("input[name=subject-other]").val();
-        }
-        if (json.training_time_start) {
-            json.training_time_start = toTwentyFour(json.training_time_start);
-        }
-        if (json.training_time_end) {
-            json.training_time_end = toTwentyFour(json.training_time_end);
-        }
-        if (json.training_date) {
-            var apart = json.training_date.split("/");
-            json.training_date = [apart[2], apart[0], apart[1]].join("-");
-        }
-        */
-        console.log("data1111111: ",json);
         return json;
+    };
+    
+    PepReg.prototype.createFormdata = function (data) {
+        var self = this;
+        var jsondata = data;
+        self.formdata = null;
+        self.formdata = new FormData();
+        for(var k in jsondata){
+            self.formdata.append(k, jsondata[k]);
+        }
+        
+        $("#community-resources").find(".typelogo").each(function (i) {
+            var id = $(this).attr("id");
+            var name = $(this).attr("name");
+            var type = $(this).attr("type");
+            
+            if(type == 'file'){
+                var fileObj = document.getElementById(id).files[0];
+                if(fileObj){
+                    self.formdata.append(name, fileObj);
+                } 
+                else{
+                    self.formdata.append(name, '');
+                }
+            }
+            else{
+                self.formdata.append(name, $(this).val());
+            }
+        });
     };
 
     PepReg.prototype.fillData = function (data) {
