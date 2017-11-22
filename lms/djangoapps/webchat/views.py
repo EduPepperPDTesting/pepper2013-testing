@@ -224,7 +224,7 @@ def get_session_token(request):
     sdk = opentok.OpenTok (api_key, api_secret)
     connectionMetadata = "userName="+request.user.username+",userLevel=4"
     role_constants = opentok.Roles
-    token = sdk.generate_token (session_id, role_constants.PUBLISHER, None, connectionMetadata)
+    token = sdk.generate_token (session_id, role_constants.publisher, None, connectionMetadata)
     return HttpResponse (json.dumps({'token':token}), content_type="application/json")
 
 def get_community_session(request):
