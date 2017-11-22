@@ -50,9 +50,9 @@
 				var rowSource = "${reverse('people')}"; //"reverse('get_all_ptuser_rows';
 			}
 			$(this).attr('id', 'community_'+commId);
-			if($(this).children(".pep_org_header").length>0){
+			if($(this).find('.pep_org_header').length>0){
 				$(this).find('.pep_org_header').text(commName);
-			}else{
+			}else{console.log('not a comm name');
 				$(this).find('th').text(commName);
             }
             $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div>");
