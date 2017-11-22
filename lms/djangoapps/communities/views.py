@@ -715,6 +715,7 @@ def newcommunities(request):
     community_list = list()
     filter_dict = dict()
     community_id = 'new'
+    #community_id = 21
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -736,9 +737,9 @@ def newcommunities(request):
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
     '''
-    For create new community
+    Get necessary info for create or edit community
     '''
-    # Get necessary info for step4:
+    # Step4, get courses list.
     # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
     courses_drop_full = list()
     courses_drop = list()
@@ -760,7 +761,7 @@ def newcommunities(request):
                              'name': get_course_about_section(course, 'title'),
                              'logo': course_image_url(course)})
 
-    # Get necessary info for step5:
+    # Step5, get facilitators list.
     users_drop = list()
     order = ['user__email']
     if user.is_superuser:
@@ -778,25 +779,76 @@ def newcommunities(request):
                           'name': '',
                           'motto': '',
                           'logo': '',
-                          'facilitator': '',
+                          'facilitators': [],
                           'state': '',
                           'district': '',
-                          'hangout': '',
                           'private': '',
                           'courses': [''],
                           'resources': [{'name': '', 'link': '', 'logo': ''}],
                           'user_type': 'super'}
-    else:
-        pass
+    elif community_id != 'new' and is_facilitator_edit(request.user, community_id):
+        if request.user.is_superuser:
+            user_type = 'super'
+        elif is_facilitator_edit(request.user, community_id):
+            user_type = 'facilitator'
 
+        # Grab the data from the DB.
+        community_object = CommunityCommunities.objects.get(id=community_id)
+        courses = CommunityCourses.objects.filter(community=community_object)
+        resources = CommunityResources.objects.filter(community=community_object)
+        facilitators = CommunityUsers.objects.filter(community=community_object, facilitator=True)
+
+        # Build the lists of facilitators.
+        facilitator_list = list()
+        for f in facilitators:
+            facilitator_list.append({'email': f.user.email,
+                                     'default': f.community_default,
+                                     'edit': f.community_edit,
+                                     'delete': f.community_delete})
+
+        # Build the lists of courses.
+        course_list = list()
+        for course in courses:
+            course_list.append(course.course)
+        if not len(course_list):
+            course_list.append('')
+
+        # Build the lists of resources.
+        resource_list = list()
+        for resource in resources:
+            resource_list.append({'name': resource.name,
+                                  'link': resource.link,
+                                  'logo': resource.logo})
+        if not len(resource_list):
+            resource_list.append({'name': '', 'link': '', 'logo': ''})
+
+        # Put together the data to send to the template.
+        community_info = {'community_id': community_object.id,
+                          'community': community_object.id,
+                          'name': community_object.name,
+                          'motto': community_object.motto,
+                          'logo': community_object.logo.upload.url if community_object.logo else '',
+                          #'logo': '',
+                          'facilitators': facilitator_list,
+                          'state': community_object.state.id if community_object.state else '',
+                          'district': community_object.district.id if community_object.district else '',
+                          'private': community_object.private,
+                          'courses': course_list,
+                          'resources': resource_list,
+                          'user_type': user_type}
+
+    log.debug("edit community==============================")
+    log.debug(community_info)
     # Set up the data to send to the communities template, with the communities sorted by name.
-    data = {'communities': sorted(community_list, key=itemgetter('name')),
+    data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
             'courses_drop': courses_drop,
             'users_drop': users_drop}
     data.update(community_info)
     
     return render_to_response('communities/communities_new.html', data)
 
+def is_facilitator_edit(user, community_id):
+    return True
 
 @login_required
 def community_delete(request, community_id):
@@ -1118,7 +1170,7 @@ def community_edit_process_new(request):
                           domain_name=domain_name)
 
         log.debug("fin=======================")
-        return HttpResponse(json.dumps({'Success': 'True', 'community_id': '111'}), content_type='application/json')
+        return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
         #return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
         data = {'error_title': 'Problem Saving Community',

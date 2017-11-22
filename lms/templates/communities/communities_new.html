@@ -10,7 +10,7 @@
     from baseinfo.models import Enum
     from communities.models import CommunityCommunities, CommunityUsers
     from communities.views import user_in_community, community_in_state, community_in_district
-
+    from file_uploader.utils import get_file_url
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -353,12 +353,48 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     font-style:italic;
 }
 .community-logo-thumb {
-    float: left;
-    width: 150px;
+    /*float: left;*/
+    width: 120px;
     margin-right: 10px;
+}
+.community-resource-logo-thumb {
+    width: 120px;
 }
 .icon-edit:before {font-family:FontAwesome; }
 .icon-remove:before {font-family:FontAwesome;   }
+.icon-remove{
+    cursor:pointer;
+}
+#community-logo .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: 1.25em;
+        left: 115px;
+    }
+.community-resource-logo-wrap .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: -4px;
+        left: 115px;
+    }
+
+#community-logo {
+        display: block;
+        /*float: left;*/
+        margin: 0 0px 12px 0;
+        text-align: left;
+        /*position: relative;*/
+    }
 /*-----------create community form-----------*/
 #community-name input{
     padding:5px 12px;
@@ -403,16 +439,18 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     }
 </script>
 <%
-    district_id = ''
-    if request.user.profile.district_id:
-        district_id = request.user.profile.district_id
+    district_id = district
+    if district_id == '':
+        if request.user.profile.district_id:
+            district_id = request.user.profile.district_id
 
-    state_id = ''
-    for item in State.objects.all().order_by('name'):
-        if district_id:
-            if item.name == request.user.profile.district.state.name:
-                state_id = item.id
-                break
+    state_id = state
+    if state_id == '':
+        for item in State.objects.all().order_by('name'):
+            if district_id:
+                if item.name == request.user.profile.district.state.name:
+                    state_id = item.id
+                    break
 %>
 <span id="organization_obj" o_name="communities"></span>
 <section class="content-wide" style="margin-top:0px;background-color:#e7e7e8;">
@@ -565,26 +603,39 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     <div class="step-content">
                         <h5>Create Community: Step 1 of 5</h5>
                         <h4>General Information</h4>
-                        <div class="form-row" style="font-size:12px;">
+                        <div class="form-row">
                             <label id="community-name">
                                 <span>Community Name:</span></br>
-                                <input type="text" name="name" value="" placeholder="The name of the community">
+                                <input type="text" name="name" value="${name}" placeholder="The name of the community">
                             </label>
                         </div>
-                        <div class="form-row" style="font-size:12px;">
+                        <div class="form-row">
                             <label id="community-motto">
                                 <span>Description (Motto):</span></br>
-                                <input type="text" name="motto" value="" placeholder="A description or motto for this community">
+                                <input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community">
                             </label>
                         </div>
-                        <div class="form-row" style="font-size:12px;">
-                            <label id="community-logo"><span>Logo </span>
-                            <span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br>
-                            <span class="edit-name" id='edit_photo' style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span></label>
-                            <input type='hidden' name='logo' id="logo">
+                        <div class="form-row">
+                            %if logo != '':
+                                <label id="community-logo">
+                                    <span style="display:block;margin-bottom:2px;">Logo: </span>
+                                    <img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}">
+                                    <a href="#" class="remove"></a>
+                                </label>
+                            %else:
+                                <label id="community-logo"><span>Logo </span>
+                                <span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br>
+                                <span class="edit-name" id='edit_photo' style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span>
+                                <input type='hidden' name='logo' id="logo">
+                                </label>
+                            %endif
                         </div>
-                        <div class="form-row" style="font-size:12px;margin-top:100px;">
-                            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value=""></label>
+                        <div class="form-row">
+                            %if private:
+                                <div id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="" checked="checked"></div>
+                            %else:
+                                <div id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value=""></div>
+                            %endif
                         </div>
                     </div>
                 </div>
@@ -658,8 +709,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                             <div>
                                                 <div class="resource-logo-label">Logo:</div>
                                                 %if resource['logo']:
-                                                    <div class="community-resource-logo-wrap">
-                                                        <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
+                                                    <div class="community-resource-logo-wrap" style="position:relative;">
+                                                        <img src="${get_file_url(resource['logo'])}" class="community-resource-logo-thumb">
                                                         <input class="community-resource-logo typelogo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}" id="resource_logo[${idx}]">
                                                         <a href="#" class="remove"></a>
                                                     </div>
@@ -694,12 +745,33 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                         <!--
                                         <tr>
                                             <td></td>
-                                            <td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>
-                                            <td>matrixsniper@163.com</td>
-                                            <td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>
-                                            <td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>
+                                            <td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>
+                                            <td>edutest@163.com</td>
+                                            <td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>
+                                            <td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>
                                         </tr>
                                         -->
+                                        %for facilitator in facilitators:
+                                            <tr>
+                                                <td><a class='icon icon-remove'></a></td>
+                                                %if facilitator['default']:
+                                                    <td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>
+                                                %else:
+                                                    <td style='padding-left:15px;'><input name='default' type='radio' value=''/></td>
+                                                %endif
+                                                <td>${facilitator['email']}</td>
+                                                %if facilitator['edit']:
+                                                    <td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>
+                                                %else:
+                                                    <td style='padding-left:30px;'><input name='edit' type='checkbox' value=''/></td>
+                                                %endif
+                                                %if facilitator['delete']:
+                                                    <td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>
+                                                %else:
+                                                    <td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>
+                                                %endif
+                                            </tr>
+                                        %endfor
                                     </tbody>    
                                 </table>
                             </div>
@@ -833,13 +905,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             $.ajax({
                 url: "${reverse('community_edit_process_new')}",  //server script to process data
                 type: 'POST',
-                //Ajax事件
+                //Ajax event
                 success: function(r){
                     console.log(r);
                     console.log("ok");
+                    window.location.href = "/newcommunities";
                 },
                 error: function(r){},
-                // Form数据
+                // Form data
                 data: self.formdata,
                 //Options to tell JQuery not to process data or worry about content-type
                 cache: false,
@@ -909,6 +982,26 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             self.addFacilitator(email);
         });
 
+        // ************* remove loaded facilitators
+        $(".icon-remove").unbind("click").bind("click", function (e) {
+            e.preventDefault();
+            $(this).parent().parent().remove();
+        });
+
+        $('#community-logo .remove').click(function() {
+            var content = '<span>Logo </span><span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br><span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span><input type="hidden" name="logo" id="logo">';
+            $('#community-logo').replaceWith(content);
+
+            $("#edit_photo").click(function(){
+                self.upload_picture("", self.dlgForm);
+            });
+        });
+
+        $('.community-resource .remove').click(function() {
+            var name = $(this).siblings('.community-resource-logo').attr('name');
+            var content = '<input class="resource-logo typelogo" type="file" name="' + name + '" id="' + name + '">';
+            $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+        });
         return steps;
     };
 
@@ -925,17 +1018,17 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         if(email){
             var curr = this.repeatFacilitator();
             if(curr.indexOf(email) < 0){
-                var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+                var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
                 var data_have = $("#community_facilitators_list").find("tr").html();
                 if(!data_have){
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' checked='checked'/></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' checked='checked'/></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' checked='checked'/></td>");
+                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>");
+                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>");
+                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>");
                 }
                 else{
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>");
+                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>");
+                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>");
+                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>");
                 }
                 var tmp_td2 = $("<td>" + email + "</td>");
                 tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
@@ -989,6 +1082,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
         return resource_names;
     };
+
     PepReg.prototype.getResource_links = function () {
         var getResource_links = [];       
         $("#community-resources").find(".resource-link").each(function () {
@@ -997,50 +1091,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
         return getResource_links;
     };
-    /*
-    PepReg.prototype.getFacilitators = function () {
-        var ar = [];       
-        $("#community_facilitators_list").find("tr").each(function () {
-            var email = $(this).find("td").eq(2).text();
-            var all_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
-            var all_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
-            ar.push(email + "::" + all_edit + "::" + all_delete);
-            ar.push(email);
-        });
-        return ar;
-    };
-    PepReg.prototype.appendFacilitators = function (emails) {
-        if (emails) {
-            var curr = this.getFacilitators();
-            console.log(emails.split(","));
-            console.log("curr----: ",curr);
-            $.each(emails.split(","), function (i, email) {
-                console.log(i,email);
-                if (email && curr.indexOf(email) < 0) {
-                    console.log(curr.indexOf(email));
-                    var tmp = email.split("::");
-                    if(tmp[0] != ""){
-                        var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
-                        var tmp_td1 = $("<td style='padding-left:15px;'><input name='showinui' type='radio' value='' /></td>");
-                        var tmp_td2 = $("<td>" + tmp[0] + "</td>");
-                        var tmp_td3 = $("<td style='padding-left:30px;'><input name='aa1' type='checkbox' value='' /></td>");
-                        var tmp_td4 = $("<td style='padding-left:40px;'><input name='aa2' type='checkbox' value='' /></td>");
-                        tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
-                        $("#community_facilitators_list").append(tmp_tr);
-                        
-                        //if(tmp[1] == "1")           tmp_td2.find("input").attr("checked", "checked");
-                        //if(tmp[2] == "1")           tmp_td3.find("input").attr("checked", "checked");
-                        
-                        tmp_tr.find("a").click(function(e){
-                            e.preventDefault();
-                            $(this).parent().parent().remove();
-                        });
-                    }
-                }
-            });
-        }
-    };
-    */
 
     PepReg.prototype.initContent = function () {
         //this.initFilter();
@@ -1092,7 +1142,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            community_id: "new",
+            community_id: 'New',//21
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),
@@ -1120,6 +1170,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             var id = $(this).attr("id");
             var name = $(this).attr("name");
             var type = $(this).attr("type");
+            console.log("id:",id,"  name:",name,"  type:",type);
             
             if(type == 'file'){
                 var fileObj = document.getElementById(id).files[0];
