@@ -31,7 +31,9 @@
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				if(nameEndIndex > 0){
 					$(this).find("th").innerHTML("<div class='pep_org_header'></div>");
-					var commName = "+tableData.substring(nameStartIndex, nameEndIndex)+"</div>": "";
+					var commName = tableData.substring(nameStartIndex, nameEndIndex);
+				}else{
+					var commName = '';
 				}
 				var ajaxType = "post";
 				var rowSource = "${reverse('get_community_user_rows')}";
