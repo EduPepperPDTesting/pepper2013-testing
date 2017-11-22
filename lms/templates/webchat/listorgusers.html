@@ -30,7 +30,7 @@
 				var nameEndIndex = tableData.indexOf("}") - 1;
 				var commId = tableData.substring(idStartIndex, idEndIndex);
 				if(nameEndIndex > 0){
-					$(this).find("th").innerHTML("<div class='pep_org_header'></div>");
+					$(this).find("th").html("<div class='pep_org_header'></div>");
 					var commName = tableData.substring(nameStartIndex, nameEndIndex);
 				}else{
 					var commName = '';
