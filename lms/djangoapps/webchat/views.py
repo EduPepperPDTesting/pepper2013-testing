@@ -222,8 +222,9 @@ def get_session_token(request):
     api_key = "45939862"        # Replace with your OpenTok API key.
     api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"  # Replace with your OpenTok API secret.
     sdk = opentok.OpenTok (api_key, api_secret)
-    connectionMetadata = "username="+request.user.username+",userLevel=4"
-    token = sdk.generate_token (session_id)
+    connectionMetadata = "userName="+request.user.username+",userLevel=4"
+    role_constants = opentok.RoleConstants
+    token = sdk.generate_token (session_id, role_constants.PUBLISHER, None, connectionMetadata)
     return HttpResponse (json.dumps({'token':token}), content_type="application/json")
 
 def get_community_session(request):
