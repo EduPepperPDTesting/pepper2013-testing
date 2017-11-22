@@ -26,7 +26,8 @@ function initializeSession() {
         session.subscribe(event.stream, 'subscriber', {
             insertMode: 'append',
             width: '100%',
-            height: '100%'
+            height: '100%',
+            style: { nameDisplayMode: "auto" }
         }, handleError);
     });
 
