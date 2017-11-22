@@ -217,9 +217,3 @@
 .pep_attach_label{
     cursor: pointer !important;
 }
-.pep_org_header{
-    max-width: 235px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
