@@ -52,7 +52,7 @@
 			$(this).attr('id', 'community_'+commId);
 			if($(this).find('.pep_org_header').length>0){
 				$(this).find('.pep_org_header').text(commName);
-			}else{console.log('not a comm name');
+			}else{
 				$(this).find('th').text(commName);
             }
             $(this).find('th').append(" <div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div>");
