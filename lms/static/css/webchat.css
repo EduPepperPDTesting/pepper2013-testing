@@ -1,10 +1,10 @@
 #webchat {
     height: 280px !important;
 }
-#publisher {
+#subscriber {
     height: 100%;
 }
-#subscriber {
+#publisher {
     position: absolute;
     top: 72%;
     right: 0;
