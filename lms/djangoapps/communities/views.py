@@ -452,6 +452,9 @@ def community(request, community_id):
     
     return render_to_response('communities/community.html', data)
 
+@login_required
+def maincommunity(request, community_id):
+    return render_to_response('communities/community_new.html')
 
 @login_required
 def discussion_list(request, community_id):

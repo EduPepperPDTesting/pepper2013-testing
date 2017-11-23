@@ -963,8 +963,10 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         };
         // ************* unlock all pages when editing
         if (data && data.id) {
+            console.log("uuuuuuuuuuu");
             steps.unlockAll();
         } else {
+            console.log("eeeeee");
             self.clearData();
         }
         //self.fillData(data); 
