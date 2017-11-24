@@ -102,9 +102,11 @@ $(document).ready(function(){
     });
 
     $("#pep_groups").on("click", ".btn", function(){
-        $(this).siblings(".pep_btn_active").removeClass("pep_btn_active");
+        $(this).siblings(".pep_btn_active").css("background-color", "#3eb4ea").removeClass("pep_btn_active");
         $(this).addClass("pep_btn_active");
     });
+
+    $(".pep_btn_active").css("background-color", "rgb(245, 130, 31)");
 
     $("#pep_user_list").load("/getusersorg/");
 
