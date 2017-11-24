@@ -4,18 +4,19 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-<div class="pep_text_panel container">
+<div class="pep_text_panel"><!--container-->
     <div class="pep_textchatheader_container">
         <div class="pep_textchatheader_title">
             <span class="pep_header_left" id="${user_class}">${user_name}</span>
         </div>
         <div class="pep_header_right">
-            <a href="#">+</a>
+            <!--a href="#" class="pep_add_users" style="color: rgb(245, 130, 31);font-size: 2em;position: relative;">+</a-->
             <a href="#" class="pep_start_video" id="${user_id}">
-                <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"
-                     style="width:15px;height:15px;border:0">
+                <img src="/static/images/Pepptalk/PeppSingleCam.png" alt="im-video" style="width:15px;height:15px;border:0;position: relative;bottom: 5px;">
             </a>
-            <span class="close-chat"> &#10005;</span>
+            <div class="hide-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"> &#8211;</div>
+            <div class="open-chat" style="position: relative;bottom: 5px;cursor: pointer;display: none;"> &#9633;</div>
+            <div class="close-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"> &#10005;</div>
         </div>
     </div>
     <div class="pep_text_chat" id="textchat_${user_id}"></div>
@@ -26,13 +27,13 @@
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
-                        <label id="input_label_${user_id}" for="pep_file_input" style="display: inline-block;">
+                        <label class="pep_attach_label" id="input_label" for="pep_file_input" style="display: inline-block;cursor: pointer !important;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
-                        <input id="pep_file_input" type="file" name='attachment' style="display: none;"/>
+                        <input id="pep_file_input" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                        <label id="submit_label_${user_id}" for="pep_file_submit" style="display: none;">
-                            <img src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                        <label class="pep_attach_label" id="submit_label" for="pep_file_submit" style="display: none;cursor: pointer !important;">
+                            <img id="pep_send_image" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
                         <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
                     </form>

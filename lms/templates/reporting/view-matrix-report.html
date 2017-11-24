@@ -216,7 +216,9 @@ $.extend($.tablesorter.themes.jui, {
         cssGoto: '.gotoPage',
         ajaxUrl: '',
         ajaxProcessing: function(data){
-            return [data.total, data.rows]
+            report_view.createTimeTable(data.rows)
+            $("#table_data").show()
+            return [data.total]
         },
         processAjaxOnInit: true,
         page: 0,
@@ -277,6 +279,32 @@ var report_view = {
                 self.downloadReportExcel();
             });
             self.selectSchoolYear();
+        },
+        createTimeTable: function(data){
+            $('#table_data').empty()
+            var tablestr = ''
+            for (d in data){
+                tablestr += '<tr>';
+                for (dd in data[d]){
+                    if (dd == 0){
+                        tablestr += '<td><img class="row_aggregate_img" src="/static/images/icon_reporting.png" onclick="row_graphable(this)">' + data[d][dd] + "</td>";
+                    }else{
+                        if (data[d][dd] != 0){
+                           tablestr += '<td><img class="aggregate_img" style="width:16px;height:16px" src="/static/images/table-icon.jpg" column="'+ dd + '"><span style="margin-left:14px">' + data[d][dd] + "</span></td>";
+                       }else{
+                           tablestr += '<td><span style="margin-left:30px;">0</span>';
+                       }
+                    }
+                }
+                tablestr += '</tr>'
+            }
+            $('#table_data').append(tablestr)
+            $(".aggregate_img").click(function(){
+                var x = $(this).attr('column')
+                var y = $(this).parent().parent().find('td:first').text();
+                get_ajax_get_aggregate(x,y)
+                popWin("detail");
+            })
         },
         show_progress: function(obj){
             var self = this;

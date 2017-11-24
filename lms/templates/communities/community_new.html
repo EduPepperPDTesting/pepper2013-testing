@@ -1,0 +1,91 @@
+<%!
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member, is_private
+from file_uploader.utils import get_file_url
+from django.utils import timezone
+import datetime
+%>
+<style type="text/css" media="screen">
+a{
+    text-decoration:none !important;
+}
+.content-wrapper-community{
+    margin-top:0px;
+    background-color:#e7e7e8;
+    padding-bottom: 40px;
+}
+.community-left{
+    width: 250px;
+    float:left;
+    background-color: #fff;
+    padding-bottom: 40px;
+}
+.con-maincontent-all{
+    width:680px;
+    margin-left:27px;
+    float:left;
+    position: relative;
+    
+    height:500px;
+    border: 1px solid;
+}
+.community-right{
+    width: 250px;
+    margin-left:27px;
+    float:left;
+
+    height:500px;
+    border: 1px solid;
+}
+
+</style>
+
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%block name="title"><title>community</title></%block>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
+<section class="content-wrapper-community">
+    <div class="dashboard" style="margin:0 auto;width:1240px;padding-top:30px;">
+        <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
+        <!--Communities-My Trending Topics-->
+        <div class="community-left">
+            <div class="sub-community-info"></div>
+            <div class="facilitator-info" style="width:226px;margin-left:13px;margin-top:20px;border:1px solid #f00;">
+                <div class="user-photo" style="width:60px;height:60px;float:left;margin-right:10px;border:0px solid;">
+                    <img src="/static/images/profile.jpg" style="width:60px;height:60px;border-radius:50px;"/>
+                </div>
+                <div class="user-info" style="width:90px;margin-top:15px;float:left;border:0px solid;">
+                    <div class="user-name" style="font-size:14px;font-weight:bold;">Jane Doe</div>
+                    <div class="btn-facilitator" style="cursor:pointer;float:left;">
+                        <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
+                        <div style="float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;"></div>
+                    </div>
+                </div>
+                <div class="user-email" style="float:left;margin-top:15px;border:0px solid;">
+                    <img src="/static/images/personalmsg_link.jpg"/>
+                </div>
+                <div style="clear:both;"></div>
+            </div>
+        </div>
+
+        <!--Main content-->
+        <div class="con-maincontent-all">
+            main
+        </div>
+        
+        <!--Courses-My Learning Plan-->
+        <div class="community-right">
+            right
+        </div>
+
+        <div style="clear:both;"></div>
+    </div>
+</section>
+
+
+

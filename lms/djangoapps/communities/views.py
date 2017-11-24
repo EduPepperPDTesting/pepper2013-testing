@@ -452,6 +452,9 @@ def community(request, community_id):
     
     return render_to_response('communities/community.html', data)
 
+@login_required
+def maincommunity(request, community_id):
+    return render_to_response('communities/community_new.html')
 
 @login_required
 def discussion_list(request, community_id):
@@ -715,6 +718,7 @@ def newcommunities(request):
     community_list = list()
     filter_dict = dict()
     community_id = 'new'
+    #community_id = 21
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -736,9 +740,9 @@ def newcommunities(request):
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
     '''
-    For create new community
+    Get necessary info for create or edit community
     '''
-    # Get necessary info for step4:
+    # Step4, get courses list.
     # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
     courses_drop_full = list()
     courses_drop = list()
@@ -760,7 +764,7 @@ def newcommunities(request):
                              'name': get_course_about_section(course, 'title'),
                              'logo': course_image_url(course)})
 
-    # Get necessary info for step5:
+    # Step5, get facilitators list.
     users_drop = list()
     order = ['user__email']
     if user.is_superuser:
@@ -778,25 +782,76 @@ def newcommunities(request):
                           'name': '',
                           'motto': '',
                           'logo': '',
-                          'facilitator': '',
+                          'facilitators': [],
                           'state': '',
                           'district': '',
-                          'hangout': '',
                           'private': '',
                           'courses': [''],
                           'resources': [{'name': '', 'link': '', 'logo': ''}],
                           'user_type': 'super'}
-    else:
-        pass
+    elif community_id != 'new' and is_facilitator_edit(request.user, community_id):
+        if request.user.is_superuser:
+            user_type = 'super'
+        elif is_facilitator_edit(request.user, community_id):
+            user_type = 'facilitator'
 
+        # Grab the data from the DB.
+        community_object = CommunityCommunities.objects.get(id=community_id)
+        courses = CommunityCourses.objects.filter(community=community_object)
+        resources = CommunityResources.objects.filter(community=community_object)
+        facilitators = CommunityUsers.objects.filter(community=community_object, facilitator=True)
+
+        # Build the lists of facilitators.
+        facilitator_list = list()
+        for f in facilitators:
+            facilitator_list.append({'email': f.user.email,
+                                     'default': f.community_default,
+                                     'edit': f.community_edit,
+                                     'delete': f.community_delete})
+
+        # Build the lists of courses.
+        course_list = list()
+        for course in courses:
+            course_list.append(course.course)
+        if not len(course_list):
+            course_list.append('')
+
+        # Build the lists of resources.
+        resource_list = list()
+        for resource in resources:
+            resource_list.append({'name': resource.name,
+                                  'link': resource.link,
+                                  'logo': resource.logo})
+        if not len(resource_list):
+            resource_list.append({'name': '', 'link': '', 'logo': ''})
+
+        # Put together the data to send to the template.
+        community_info = {'community_id': community_object.id,
+                          'community': community_object.id,
+                          'name': community_object.name,
+                          'motto': community_object.motto,
+                          'logo': community_object.logo.upload.url if community_object.logo else '',
+                          #'logo': '',
+                          'facilitators': facilitator_list,
+                          'state': community_object.state.id if community_object.state else '',
+                          'district': community_object.district.id if community_object.district else '',
+                          'private': community_object.private,
+                          'courses': course_list,
+                          'resources': resource_list,
+                          'user_type': user_type}
+
+    log.debug("edit community==============================")
+    log.debug(community_info)
     # Set up the data to send to the communities template, with the communities sorted by name.
-    data = {'communities': sorted(community_list, key=itemgetter('name')),
+    data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
             'courses_drop': courses_drop,
             'users_drop': users_drop}
     data.update(community_info)
     
     return render_to_response('communities/communities_new.html', data)
 
+def is_facilitator_edit(user, community_id):
+    return True
 
 @login_required
 def community_delete(request, community_id):
@@ -917,7 +972,9 @@ def community_edit_process_new(request):
         #community_id = '13'
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
-        # hangout = request.POST.get('hangout', '')
+        log.debug("community_id==========")
+        log.debug(community_id)
+
         try:
             district_id = request.POST.get('district', False)
             if district_id:
@@ -934,7 +991,7 @@ def community_edit_process_new(request):
                 state = None
         except:
             state = None
-        log.debug("111111111111111111")
+
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
         logo_img = request.POST.get('logo', '')
         if logo_img[:-3] == 'jpg':
@@ -963,19 +1020,16 @@ def community_edit_process_new(request):
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
 
-        log.debug("222222222222")    
         facilitator_list = get_post_facilitators(request)
-        log.debug(facilitator_list)
-        
+
         private = request.POST.get('private', 0)
         priority_id = 0
-        log.debug("3333333")
+
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_dict(request, 'courses')
         resource_names = get_post_dict(request, 'resource_names')
         resource_links = get_post_dict(request, 'resource_links')
-        log.debug("community_id==========")
-        log.debug(community_id)
+
         # If this is a new community, create a new entry, otherwise, load from the DB.
         if community_id == 'new':
             community_object = CommunityCommunities()
@@ -1068,37 +1122,42 @@ def community_edit_process_new(request):
         # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
         CommunityResources.objects.filter(community=community_object).delete()
         # Go through the resource links, with the index so we can directly access the names and logos.
+        log.debug("1=============")
+        log.debug(resource_links)
         for key, resource_link in resource_links.iteritems():
             # We only want to save an entry if there's something in it.
             if resource_link:
-
+                log.debug(resource_link)
                 # Assign properties
                 resource_object = CommunityResources()
                 resource_object.community = community_object
                 resource_object.link = resource_link
                 resource_object.name = resource_names[key]
-                '''
+
                 # The logo needs special handling since we might need to upload the file. First we try the entry in the
                 # FILES and try to upload it.
-                if request.POST.get('resource_logo[{0}]'.format(key)):
+                postget = request.POST.get('resource_logo[{0}]'.format(key))
+                logo = None
+                if postget:
                     file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
                     logo = FileUploads.objects.get(id=file_id)
                 else:
-                    try:
-                        logo = FileUploads()
-                        logo.type = 'community_resource_logos'
-                        logo.sub_type = community_id
-                        logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                        logo.save()
-                    except Exception as e:
-                        logo = None
-                        log.warning('Error uploading logo: {0}'.format(e))
+                    if postget == None:
+                        log.debug("---logo")
+                        try:
+                            logo = FileUploads()
+                            logo.type = 'community_resource_logos'
+                            logo.sub_type = community_id
+                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                            logo.save()
+                        except Exception as e:
+                            logo = None
+                            log.warning('Error uploading resource_logo: {0}'.format(e))
 
                 if logo:
                     resource_object.logo = logo
-                '''
-                resource_object.save()
 
+                resource_object.save()
                 # Record notification about modify resources
                 if resources_cur.get(resource_link):
                     del resources_cur[resource_link]
@@ -1112,9 +1171,9 @@ def community_edit_process_new(request):
                           resources_add=resources_add,
                           resources_del=resources_cur.values(),
                           domain_name=domain_name)
-        
+
         log.debug("fin=======================")
-        return HttpResponse(json.dumps({'Success': 'True', 'community_id': '111'}), content_type='application/json')
+        return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
         #return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
         data = {'error_title': 'Problem Saving Community',
