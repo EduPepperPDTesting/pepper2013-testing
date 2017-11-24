@@ -565,7 +565,8 @@ def report_view(request, report_id):
                 for f in report_filters:
                     filters.append(f)
 
-                create_report_collection(request, report, selected_view, columns, filters, report_id)
+                # create_report_collection(request, report, selected_view, columns, filters, report_id)
+                create_report_collection2(request, report, selected_view, columns, filters, report_id)
 
             view_id = ReportViews.objects.filter(report=report)[0].view_id;
             pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;
@@ -698,6 +699,34 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
+def create_report_collection2(request, report, selected_view, columns, filters, report_id):
+    year = request.GET.get('school_year', '')
+    school_year = ''
+    if year:
+        school_year = str(school_year).replace("-","_")
+    aggregate_collection = get_aggregate_collection(selected_view, year)
+    query = get_query_display(columns)
+    query = query.replace('\n', '').replace('\r', '')
+    filters = get_query_filters(filters)[1:]
+    if filters != '':
+       query = filters + ',' + query
+    distinct = get_query_distinct(report.distinct, columns)
+    if distinct != '':
+        query += distinct
+    query += ',{"$out":"' + get_cache_collection(request, report_id, school_year) + '"}'
+    aggregate_query = eval(query)
+    rs = reporting_store()
+    rs.get_aggregate(aggregate_collection, aggregate_query, report.distinct)
+
+def get_query_display(columns):
+    query_str = '{ "$project": { '
+    for col in columns:
+        query_str += '"' + col.column.column + '":1,'
+    query_str =  query_str[:-1] + '}}'
+    return query_str
+
+def get_aggregate_collection(selected_view, year):
+    return 'tmp_' + selected_view.view.collection + year
 
 def aggregate_query_format(request, query, report, columns, filters, report_id, out=True):
     """
