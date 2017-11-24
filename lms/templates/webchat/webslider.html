@@ -21,7 +21,7 @@ from django.core.urlresolvers import reverse
         	</div>
         </div>
         <div id="pep_groups" class="btn-group">
-            <a type="button" class="btn btn-xs pep_btn_active" id="my_all">All</a>
+            <a type="button" class="btn btn-xs pep_btn_active" id="my_all" style="background-color: rgb(245, 130, 31);">All</a>
             <a type="button" class="btn btn-xs" id="my_network">My Network</a>
             <a type="button" class="btn btn-xs" id="my_communities">My Communities</a>
         </div>
@@ -103,7 +103,7 @@ $(document).ready(function(){
 
     $("#pep_groups").on("click", ".btn", function(){
         $(this).siblings(".pep_btn_active").css("background-color", "#3eb4ea").removeClass("pep_btn_active");
-        $(this).addClass("pep_btn_active");
+        $(this).css("background-color", "rgb(245, 130, 31)").addClass("pep_btn_active");
     });
 
     $(".pep_btn_active").css("background-color", "rgb(245, 130, 31)");
