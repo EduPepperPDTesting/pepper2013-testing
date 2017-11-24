@@ -39,7 +39,7 @@ def main(request):
 		return render_to_response('administration/usage_report.html', {'user_right': user_right})
 	else:
 		error_context = {'window_title': '403 Error - Access Denied',
-		 				 'error_title': '403 Error - Access Denied',
+		 				 'error_title': '',
 		 				 'error_message': 'You do not have access to this view in Pepper,\
 		 				  please contact support for any questions at <a href="mailto:pepperphelpdesk@pcgus.com">pepperphelpdesk@pcgus.com</a>.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
