@@ -104,7 +104,7 @@ $(document).ready(function(){
     $("#pep_groups").on("click", ".btn", function(){
         $(this).siblings(":has(.active)").removeClass("pep_btn_active");
         $(this).addClass("pep_btn_active");
-    }
+    });
 
     $("#pep_user_list").load("/getusersorg/");
 
