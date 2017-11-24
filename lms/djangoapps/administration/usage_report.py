@@ -41,7 +41,7 @@ def main(request):
 		error_context = {'window_title': '403 Error - Access Denied',
 		 				 'error_title': '',
 		 				 'error_message': 'You do not have access to this view in Pepper,\
-		 				  please contact support for any questions at <a href="mailto:pepperphelpdesk@pcgus.com">pepperphelpdesk@pcgus.com</a>.'}
+		 				  please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 @login_required
