@@ -291,3 +291,7 @@ border-top-right-radius: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.pep_btn_active{
+    rgb(245, 130, 31) !important;
+    color: black;
+}
