@@ -147,7 +147,7 @@ CoursePermission.prototype.loadCourseTable = function(){
         this.config.pager.data.course_name_fuzzy = f[3];
     });
     $table.bind("pagerComplete", function (a) {
-        loadwin.hide();
+        if(loadwin)loadwin.hide();
         var this_table=this;
         $(this).find(".check-all").click(function(){
             $(this_table).find("tbody tr td:nth-child(6) input").prop("checked", this.checked);
@@ -257,7 +257,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     });
     $table.bind("pagerComplete", function (a) {
         $('#course_permission_user table.tablesorter-blue thead').off("click");
-        loadwin.hide();
+        if(loadwin)loadwin.hide();
         // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
         // $(this).find("th:nth-child(1)").width(160)
         var this_table=this;
