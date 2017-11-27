@@ -505,7 +505,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             %for community in communities:
                                 %if user_in_community(community['id'], request.user.id):
                                     <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
                                     </div>
                                 %endif
                             %endfor
@@ -710,7 +710,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                                 <div class="resource-logo-label">Logo:</div>
                                                 %if resource['logo']:
                                                     <div class="community-resource-logo-wrap" style="position:relative;">
-                                                        <img src="${get_file_url(resource['logo'])}" class="community-resource-logo-thumb">
+                                                        <img src="${resource['logo']}" class="community-resource-logo-thumb">
                                                         <input class="community-resource-logo typelogo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}" id="resource_logo[${idx}]">
                                                         <a href="#" class="remove"></a>
                                                     </div>
@@ -876,7 +876,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     function PepReg($content) {
         var self = this;
         this.$content = $content;
-        this.initContent();
+        //this.initContent();
         this.formdata = '';
     }
 
@@ -1094,57 +1094,10 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return getResource_links;
     };
 
-    PepReg.prototype.initContent = function () {
-        //this.initFilter();
-        //this.initTable();
-    };
-
-    PepReg.prototype.initFilter = function () {
-        var self = this;
-
-        function filterOptions(item, id) {
-            if ($(item).attr("class") != id) {
-                $(item).css("display", "none");
-            } else {
-                $(item).css("display", "");
-            }
-            if (id == "null_case" || $(item).attr("class") == "null_case") {
-                $(this).css("display", "");
-            }
-        }
-
-        $("#state_select").change(function () {
-            var id = $(this).children(":selected").attr("class");
-            $("#district_select > option").each(function () {
-                filterOptions(this, id)
-            });
-        });
-        $("#filter-suject-drop").change(function () {
-            var val = $(this).val();
-            var $input = $(this).next("select"); //("input");
-            $input.val("");
-            if (val == "Other") {
-                $input.show();
-            } else {
-                $input.hide();
-                //$input.val(val);
-            }
-            //$input.change();
-        });
-    };
-
-    PepReg.prototype.clearData = function () {
-        var empty = {};
-        $.each(this.getInput(), function (k, v) {
-            empty[k] = "";
-        });
-        this.fillData(empty);
-    };
-
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            community_id: 'New',//21
+            community_id: 'new',
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),
@@ -1192,27 +1145,38 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.fillData = function (data) {
         var self = this;
         data = data || {};
-        /*
-        var state = '${request.user.profile.district.state.name} United States';
-        if (data.geo_props) {
-            var props = JSON.parse(data.geo_props);
-            this.markPlace(this.map_edit, props.lat, props.lon, 15);
-        } else {
-            this.showPlace(this.map_edit, state);
-        }
         $.each(data, function (k, v) {
             var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
             if ($entry.prop("tagName") == "INPUT" && ($entry.attr("type") == "radio" || $entry.attr("type") == "checkbox")) {
                 $entry.prop('checked', false);
-                $entry.filter("*[value=" + v + "]").prop('checked', true);
-            } else if (k == "instructor_emails") {
-                //$("#instructor_emails").html("");
-                $("#training_instructors_list").html("");
-                self.appendInstructors(v);
-            } else {
+            } 
+            else if(k == 'state'){
+                //$("#state-dropdown option[value='']").attr("selected" ,true);
+            }
+            else if(k == 'district'){
+                //$("#district-dropdown option[value='']").attr("selected" ,true);
+            }
+            else {
                 $entry.val(v);
             }
         });
+
+        var logo = '${logo}';
+        if(!logo){
+            console.log('logo--',logo);
+            var data = '<span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br>';
+            data += '<span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span>';
+            data += '<input type="hidden" name="logo" id="logo">';
+            $("#community-logo").html('');
+            $("#community-logo").html(data);
+        }
+
+
+
+
+
+
+        /*
         var $subject = $("#dlg-add-training").find("select[name=subject]");
         if (data.subject) {console.log("data="+data.subjectother);
             //var $opts = $subject.find("option[value=" + data.subject + "]");
@@ -1225,6 +1189,15 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             $subject.next("input[name=subject-other]").val("");
         }
         */
+    };
+
+    PepReg.prototype.clearData = function () {
+        //var empty = {};
+        //$.each(this.getInput(), function (k, v) {
+        //    empty[k] = "";
+        //});
+        var empty = {'name': '', 'motto': '', 'private': '', 'state': '', 'district': ''};
+        this.fillData(empty);
     };
 
     PepReg.prototype.validatePage = function (page, data) {
