@@ -112,12 +112,16 @@ from permissions.utils import check_access_level, check_user_perms
         %endif
       </div>
       %endif
-      <div class="table-box" id="config-table-box">
+      %for group in groups:
+      <div class="table-box config-table-box">
         <table role="grid" class="data-table"
-               ajaxUrl="${reverse('communities_notification_config')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+               ajaxUrl="${reverse('communities_notification_config')}?group_id=${group.id}&page={page}&size={size}&{filterList:fcol}&{sortList:col}">
           <thead>
             <tr>
-              <th>Communities</th><th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Frequency</th>
+              <th>${group.name}</th>
+              <th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th>
+              <th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th>
+              <th>Frequency</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -140,43 +144,51 @@ from permissions.utils import check_access_level, check_user_perms
             </form>
             <span style="float:right;"></span>
           </span>
-          <input type="button" name="" value="Save" id="btnSaveConfig"/> <span class="">You MUST click save to keep these changes.</span>
+          <input type="button" name="" value="Save" class="btnSaveConfig"/> <span class="">You MUST click save to keep these changes.</span>
         </div>
       </div>
+      %endfor
+      
       %if check_access_level(request.user, 'notification', 'admin') == "System":
-      <div class="table-box" id="config-other-table-box">
-        <div style="margin-bottom:10px;">
-          <select id="state_select" autocomplate="off" class="search" data-column="1">
-            <option value="">Select State</option>
-            %for item in State.objects.all().order_by("name"):
-            <option value="${item.id}">${item.name}</option>
-            %endfor
-          </select>
-          <select id="district_select" autocomplate="off" class="search" data-column="2">
-            <option value="">Select District</option>
-            %for item in District.objects.all().order_by("name"):
-            <option value="${item.id}" class="${item.state_id}">${item.name}</option>
-            %endfor
-          </select>
-          %if request.user.is_superuser:
-          <select id="cohort_select" autocomplate="off" class="search" data-column="2">
-            <option value="">Select Cohort</option>
-            %for item in Cohort.objects.all().order_by("code"):
-            <option value="${item.id}" class="${item.district_id}">${item.code}</option>
-            %endfor
-          </select>
-          %endif
-          <select id="community_select" autocomplate="off" class="search" data-column="2">
-            <option value="">Select Community</option>
-            %for item in facilitators:
-            <option value="${item.community.id}">${item.community.name}</option>
-            %endfor
-          </select>
-        </div>
-        <table role="grid" class="data-table" ajaxUrl="${reverse('communities_notification_config_other')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+      <div style="margin-bottom:10px;" class="config-other-filter">
+        <select id="state_select" autocomplate="off" class="search" data-column="1">
+          <option value="">Select State</option>
+          %for item in State.objects.all().order_by("name"):
+          <option value="${item.id}">${item.name}</option>
+          %endfor
+        </select>
+        <select id="district_select" autocomplate="off" class="search" data-column="2">
+          <option value="">Select District</option>
+          %for item in District.objects.all().order_by("name"):
+          <option value="${item.id}" class="${item.state_id}">${item.name}</option>
+          %endfor
+        </select>
+        %if request.user.is_superuser:
+        <select id="cohort_select" autocomplate="off" class="search" data-column="2">
+          <option value="">Select Cohort</option>
+          %for item in Cohort.objects.all().order_by("code"):
+          <option value="${item.id}" class="${item.district_id}">${item.code}</option>
+          %endfor
+        </select>
+        %endif
+        <select id="community_select" autocomplate="off" class="search" data-column="2">
+          <option value="">Select Community</option>
+          %for item in facilitators:
+          <option value="${item.community.id}">${item.community.name}</option>
+          %endfor
+        </select>
+      </div>
+      %for group in groups:
+      <div class="table-box config-other-table-box">
+
+        <table role="grid" class="data-table"
+               ajaxUrl="${reverse('communities_notification_config_other')}?group_id=${group.id}&page={page}&size={size}&{filterList:fcol}&{sortList:col}">
           <thead>
             <tr>
-              <th>Communities</th><th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Frequency</th>
+              <th>${group.name}</th>
+              <th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th>
+              <th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th>
+              <th>Frequency</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -199,9 +211,11 @@ from permissions.utils import check_access_level, check_user_perms
             </form>
             <span style="float:right;"></span>
           </span>
-          <input type="button" name="" value="Save" id="btnSaveOtherConfig"/> <span class="">You MUST click save to keep these changes.</span>
+          <input type="button" name="" value="Save" class="btnSaveOtherConfig"/> <span class="">You MUST click save to keep these changes.</span>
         </div>        
       </div>
+      %endfor
+
       %endif
     </div>
   </div>
@@ -396,11 +410,11 @@ from permissions.utils import check_access_level, check_user_perms
   $("#new-type").click(function(){
     showTypeForm();
   });
-  $("#btnSaveConfig").click(function(e){
+  $(".btnSaveConfig").click(function(e){
     var self = this;
     e.preventDefault();
     var data=[];
-    $("#config-table-box table tbody tr").each(function(){
+    $(this).closest(".config-table-box").find("table tbody tr").each(function(){
       data.push({
         type_id: $(this).find("input[name=type_id]").val(),
         via_pepper: $(this).find("td:nth-child(2) input").prop("checked"),
@@ -412,7 +426,7 @@ from permissions.utils import check_access_level, check_user_perms
       $(self).next("span").html("Saved successfully.");
     });
   });
-  $("#btnSaveOtherConfig").click(function(e){
+  $(".btnSaveOtherConfig").click(function(e){
     var self = this;
     e.preventDefault();
     var data=[];
@@ -427,7 +441,7 @@ from permissions.utils import check_access_level, check_user_perms
       dlgWarn.show("Warning", "Please make filter selection.");
       return;
     }
-    $("#config-other-table-box table tbody tr").each(function(){
+    $(this).closest(".config-other-table-box").find("table tbody tr").each(function(){
       data.push({
         type_id: $(this).find("input[name=type_id]").val(),
         via_pepper: $(this).find("td:nth-child(2) input").prop("checked"),
@@ -456,6 +470,7 @@ from permissions.utils import check_access_level, check_user_perms
     $(".expand_title").click();
     ///////////////////////////
     $(".table-box").each(function(){
+      var box = this;
       var id = this.id;
       var pagerOptions = {
         container: '',
@@ -496,9 +511,9 @@ from permissions.utils import check_access_level, check_user_perms
           postInitGroupTable(this);
         else if(id == "type-table-box")
           postInitTypeTable(this);
-        else if(id == "config-table-box")
+        else if($(box).hasClass("config-table-box"))
           postInitConfigTable(this);
-        else if(id == "config-other-table-box")
+        else if($(box).hasClass("config-other-table-box"))
           postInitConfigOtherTable(this);
       });
     });
@@ -558,14 +573,16 @@ from permissions.utils import check_access_level, check_user_perms
       return a;
     }
     $("#btnMyNotifications").click(function(){
-      $("#config-table-box").show();
-      $("#config-other-table-box").hide();
+      $(".config-table-box").show();
+      $(".config-other-table-box").hide();
+      $(".config-other-filter").hide();
       $(".section-tab").removeClass("active");
       $(".section-tab.my").addClass("active");
     });
     $("#btnOtherNotifications").click(function(){                      
-      $("#config-table-box").hide();
-      $("#config-other-table-box").show();
+      $(".config-table-box").hide();
+      $(".config-other-table-box").show();
+      $(".config-other-filter").show();
       $(".section-tab").removeClass("active");
       $(".section-tab.other").addClass("active");
     });

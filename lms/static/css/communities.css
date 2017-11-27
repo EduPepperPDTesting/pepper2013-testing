@@ -155,7 +155,11 @@
 /* #btnOtherNotifications{ */
 /*     background: #22B14C; */
 /* } */
-#config-other-table-box{
+
+.config-other-filter{
+    display:none;
+}
+.config-other-table-box{
     display:none;
 }
 .modal input[type=button]{
