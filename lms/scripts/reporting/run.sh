@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+# set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
@@ -524,7 +524,7 @@ echo '-----------------------------------------------'
 source /usr/local/bin/virtualenvwrapper.sh
 source ~/.rvm/scripts/rvm
 workon edx-platform
-python ~/pepper/edx-platform/lms/scripts/reporting/createallfield.py
+python $DIR/createallfield.py
 echo '-------------------------------------------'
 echo 'Create allfield complete!'
 echo '-----------------------------------------------'

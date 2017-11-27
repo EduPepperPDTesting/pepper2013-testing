@@ -36,7 +36,7 @@ reporting = MongoReportingStore()
 for tmp in AggregationConfig:
     for tmp2 in school_year_list:
         collection = 'tmp_' + tmp + tmp2
-        if tmp2 == '' || tmp2 == 'current':
+        if tmp2 == '' or tmp2 == 'current':
             school_year = str({"$match":{"school_year":'current'}}) + ','
             if tmp in school_year_collection:
                school_year = str(['$$item.school_year', u'current'])
