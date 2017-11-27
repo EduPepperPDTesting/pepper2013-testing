@@ -53,7 +53,6 @@ def main(request):
             return organization_get_locations(request)
 
         elif get_flag == "organization_user_email_completion":
-            raise Exception("request")
             return organization_user_email_completion(request)
 
         elif get_flag == "organization_initial_superuser_eamil":
