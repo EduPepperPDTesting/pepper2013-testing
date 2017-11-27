@@ -21,8 +21,8 @@ log = logging.getLogger("tracking")
 @login_required
 def configuration(request):
     facilitators = CommunityUsers.objects.select_related().filter(facilitator=True, user=request.user)
-    
-    return render_to_response('communities/notification.html', {'facilitators': facilitators})
+    groups = CommunityNotificationGroup.objects.all()
+    return render_to_response('communities/notification.html', {'facilitators': facilitators, 'groups': groups})
 
 
 def groups(request):
@@ -144,8 +144,9 @@ def edit_type(request):
 
 
 def config(request):
-    al = CommunityNotificationType.objects.all()
-    json_out = [al.count()]
+    group_id = request.GET.get("group_id")
+    groups = CommunityNotificationType.objects.filter(group_id=group_id)
+    json_out = [groups.count()]
     rows = list()
 
     page = int(request.GET.get('page'))
@@ -153,7 +154,7 @@ def config(request):
     start = page * size
     end = start + size
     
-    for item in al[start:end]:
+    for item in groups[start:end]:
         try:
             config = CommunityNotificationConfig.objects.get(type=item, user=request.user)
         except:
@@ -172,8 +173,10 @@ def config(request):
 
 
 def config_other(request):
-    al = CommunityNotificationType.objects.all()
-    json_out = [al.count()]
+    group_id = request.GET.get("group_id")
+    groups = CommunityNotificationType.objects.filter(group_id=group_id)
+    
+    json_out = [groups.count()]
     rows = list()
 
     page = int(request.GET.get('page'))
@@ -181,7 +184,7 @@ def config_other(request):
     start = page * size
     end = start + size
     
-    for item in al[start:end]:
+    for item in groups[start:end]:
         row = [
             "<input type=hidden name=type_id value=%s>%s" % (item.id, item.name),
             False,
