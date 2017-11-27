@@ -48,7 +48,7 @@ from django.core.urlresolvers import reverse
 <script type="text/javascript">
 $(document).ready(function(){
     var slPos='out';
-    $("#pep_title_tab").click(function(){
+    /*$("#pep_title_tab").click(function(){
         if(slPos=='in'){
             $("#pep_container").animate({right:'-256px'});
             $("#pep_title_tab").animate({right:'0px'});
@@ -81,9 +81,9 @@ $(document).ready(function(){
                 }
             });
         }
-    });
+    });*/
 
-    /*$('body').click(function(e){
+    $('body').click(function(e){
         var el=e.target;
         if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             var pos = $('#pep_container').offset();
@@ -94,7 +94,7 @@ $(document).ready(function(){
                 slPos='out';
             }
         }
-    });*/
+    });
 
     $("#pep_user_list").load("/getusersorg/");
 
