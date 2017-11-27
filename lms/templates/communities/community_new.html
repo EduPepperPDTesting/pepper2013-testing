@@ -12,18 +12,29 @@ import datetime
 <style type="text/css" media="screen">
 a{
     text-decoration:none !important;
+    cursor: pointer;
 }
+.overflow-text{
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+/*--------------community all--------------*/
 .content-wrapper-community{
     margin-top:0px;
     background-color:#e7e7e8;
     padding-bottom: 40px;
 }
-.community-left{
-    width: 250px;
-    float:left;
-    background-color: #fff;
-    padding-bottom: 40px;
+.sub-title{
+    background-color: #2CBAEC;
+    color:#fff;
+    font-size: 15px;
+    width: 100%;
+    padding:10px 0 10px 0;
+    text-align: center;
+    position: relative;
 }
+
 .con-maincontent-all{
     width:680px;
     margin-left:27px;
@@ -33,43 +44,264 @@ a{
     height:500px;
     border: 1px solid;
 }
+/*--------------community left--------------*/
+.community-left{
+    width: 250px;
+    float:left;
+    background-color: #fff;
+    padding-bottom: 50px;
+}
+.facilitator-info,.subcommunities, .trending{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.sub-title .btn-addsub{
+    color:#fff;
+    font-size: 28px;
+    position: absolute;
+    cursor: pointer;
+    top:-4px;
+    left:171px;
+}
+.community-left .user-photo{
+    width:60px;height:60px;float:left;margin-right:10px;border:0px solid;
+}
+.community-left .user-photo img{
+    width:60px;height:60px;border-radius:50px;
+}
+.community-left .user-info{
+    width:90px;margin-top:15px;float:left;border:0px solid;
+}
+.community-left .user-name{
+    font-size:14px;font-weight:bold;
+}
+.community-left .btn-facilitator{
+    cursor:pointer;float:left;border:0px solid #f00;
+}
+.community-left .facilitator-triangle{
+    float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;
+}
+.community-left .facilitator-menu{
+    float:left;width:175px;margin-top:0px;display:none;
+}
+.community-left .f-menu-triangle{
+    float:left;
+    margin:2px 0 0 13px;
+    width:0;
+    height:0;
+    border-bottom:6px solid #535456;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+}
+.community-left .f-lines{
+    width:175px;background-color:#535456;margin-top:8px;
+}
+.community-left .f-rights-line{
+    margin-left:15px;margin-right:15px;color:#a4a4a5;padding:10px 0 10px 0;border-bottom:1px solid #a4a4a5;font-size:13px;cursor:pointer;
+}
+.community-left .f-rights-line:hover{
+   color:#e2e2e2;
+}
+.community-left .f-rights-line a{
+    color:#a4a4a5;font-size:13px
+}
+.community-left .f-rights-line a:hover{
+    color:#e2e2e2;
+}
+.community-left .user-email{
+    float:left;margin-top:15px;border:0px solid;cursor:pointer;
+}
+.community-left .sub-community-titles{
+    width:224px;border:1px solid #ccc;height:163px;overflow-y:auto;
+}
+.community-left .unjoined{
+    width:85%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
+}
+.community-left .unjoined a{
+    color: #000;font-size:13px;cursor: pointer;
+}
+.community-left .joined{
+    width:90%;font-size:13px;margin:10px;border:0px solid;
+}
+.community-left .joined a{
+    color: #000;font-size:13px;cursor: pointer;font-weight: bold;
+}
+.community-left .joined-title{
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;
+}
+.community-left .discussion-count{
+    padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+}
+.community-left .seemore-sc{
+    width:212px;padding:10px 10px 0 0;text-align:right;border:0px solid;
+}
+.community-left .btn-seemore-sc,.community-left .btn-seemore-t{
+   font-size:13px;color:#999;cursor: pointer; 
+}
+.community-left .trendings{
+    width:224px;border:1px solid #ccc;height:145px;overflow-y:auto;
+}
+.community-left .every-discussion{
+    width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
+}
+.community-left .discussion-subject{
+    font-weight: bold;font-size: 13px;
+}
+.community-left .discussion-date .posted{
+    font-size: 13px;color:#F58221;
+}
+.community-left .discussion-date .date{
+    font-size: 13px;
+}
+.community-left .seemore-t{
+    width:212px;padding:0px 10px 0 0;text-align:right;border:0px solid;
+}
+/*--------------community right--------------*/
 .community-right{
     width: 250px;
     margin-left:27px;
     float:left;
-
-    height:500px;
-    border: 1px solid;
+    background-color: #fff;
+    padding-bottom: 50px;
+    
+    border: 0px solid;
 }
-
+.communitystatus,.resources{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.community-right .community-status{
+    width:224px;border:0px solid #ccc;height:180px;overflow-y:auto;
+}
+.community-right .dis-count{
+    width:85%;font-size:14px;margin:15px 10px 2px 15px;border:0px solid;
+}
+.community-right .members{
+    width:85%;font-size:14px;margin:2px 10px 2px 15px;border:0px solid;
+}
+.community-right .dis-count span{
+    font-size:14px;color:#F58221;font-weight:bold;
+}
+.community-right .members span{
+    font-size:14px;color:#F58221;font-weight:bold;
+}
+.community-right .members a{
+    font-size:14px;color:#89C153;
+}
+.community-right .my-communities{
+    width:85%;font-size:14px;margin:4px 10px 2px 15px;border:0px solid;
+}
+.community-right .my-communities-triangle{
+    float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #000;border-right: 5px solid transparent;border-left: 5px solid transparent;
+}
+.community-right .my-community{
+    width:155px;margin-left:18px;border:0px solid #ccc;
+}
+.community-right .my-community .subject{
+    padding:10px 0 10px 0;border-bottom:1px solid #ccc;
+}
+.community-right .my-community a{
+    color: #000;cursor: pointer;
+}
+.community-right .my-community .btn-seemore-cs{
+    padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
+}
+.community-right .community-resources{
+    width:224px;border:0px solid #ccc;height:320px;overflow-y:auto;
+}
+.community-right .every-resource{
+    width:80%;;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
+}
+.community-right .community-resources a{
+    font-size:13px;color:#000;
+}
+.community-right .resources-seemore{
+    width:80%;margin-left:20px;padding:0px 0 5px 0;
+}
+.community-right .resources-seemore .btn-seemore-r{
+    font-size:13px;color:#999;cursor: pointer;
+}
 </style>
 
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title"><title>community</title></%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <section class="content-wrapper-community">
-    <div class="dashboard" style="margin:0 auto;width:1240px;padding-top:30px;">
+    <div class="" style="margin:0 auto;width:1240px;padding-top:30px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
             <div class="sub-community-info"></div>
-            <div class="facilitator-info" style="width:226px;margin-left:13px;margin-top:20px;border:1px solid #f00;">
-                <div class="user-photo" style="width:60px;height:60px;float:left;margin-right:10px;border:0px solid;">
-                    <img src="/static/images/profile.jpg" style="width:60px;height:60px;border-radius:50px;"/>
+            <div class="facilitator-info">
+                <div class="user-photo">
+                    <img src="/static/images/profile.jpg"/>
                 </div>
-                <div class="user-info" style="width:90px;margin-top:15px;float:left;border:0px solid;">
-                    <div class="user-name" style="font-size:14px;font-weight:bold;">Jane Doe</div>
-                    <div class="btn-facilitator" style="cursor:pointer;float:left;">
+                <div class="user-info">
+                    <div class="user-name">Jane Doe</div>
+                    <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
-                        <div style="float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;"></div>
+                        <div class="facilitator-triangle"></div>
+                    </div> 
+                    <div class="facilitator-menu">
+                        <div class="f-menu-triangle"></div>
+                        <div class="f-lines">
+                            <div class="f-rights-line">Edit Community</div>
+                            <div class="f-rights-line">Delete Community</div>
+                            <div class="f-rights-line" style="border:0;padding-bottom:15px;"><a>Manage Users</a></div>
+                        </div>
                     </div>
                 </div>
-                <div class="user-email" style="float:left;margin-top:15px;border:0px solid;">
-                    <img src="/static/images/personalmsg_link.jpg"/>
+                <div class="user-email">
+                    <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
                 </div>
                 <div style="clear:both;"></div>
+            </div>
+            <div class="subcommunities">
+                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub">+</span></div>
+                <div class="sub-community-titles">
+                    <div class="joined">
+                        <div class="overflow-text joined-title">
+                            <a>Community Chat</a>
+                        </div>
+                        <div style="display:table-cell">
+                            <div class="discussion-count overflow-text">8</div>
+                        </div>
+                    </div>
+                    <div class="unjoined overflow-text"><a>Februay Workshop Februay Workshop</a></div>
+                    <div class="unjoined overflow-text"><a>General</a></div>
+                    <div class="joined">
+                        <div class="overflow-text joined-title">
+                            <a>Random affdf sadfa asdfaasdfa sdfa</a>
+                        </div>
+                        <div style="display:table-cell">
+                            <div class="discussion-count overflow-text">3</div>
+                        </div>
+                    </div>
+                    <div class="seemore-sc">
+                        <span class="btn-seemore-sc">See More</span>
+                    </div>
+                </div>
+            </div>
+            <div class="trending">
+                <div class="sub-title">Trending</div>
+                <div class="trendings">
+                    <div class="every-discussion">
+                        <div class="discussion-subject overflow-text">Welcome to the O Nieill sdfsdfa sadf</div>
+                        <div class="discussion-date">
+                            <span class="posted">Posted:</span>
+                            <span class="date">Sep 7,2016</span>
+                        </div>
+                    </div>
+                    <div class="every-discussion" style="border-bottom:0;padding-bottom:0">
+                        <div class="discussion-subject overflow-text">Test post</div>
+                        <div class="discussion-date">
+                            <span class="posted">Posted:</span>
+                            <span class="date">Aug 7,2016</span>
+                        </div>
+                    </div>
+                    <div class="seemore-t">
+                        <span class="btn-seemore-t">See More</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -80,12 +312,59 @@ a{
         
         <!--Courses-My Learning Plan-->
         <div class="community-right">
-            right
+            <div class="communitystatus">
+                <div class="sub-title">Community Status</div>
+                <div class="community-status">
+                    <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
+                    <div class="members">Members:&nbsp;<span>17</span>&nbsp;<a>[view]</a></div>
+                    <div class="my-communities">
+                        <div style="font-size:14px;float:left;">My Communities</div>
+                        <div class="my-communities-triangle"></div>
+                        <div style="clear:both;"></div>
+                        <div class="my-community">
+                            <div class="subject overflow-text"><a>Oklahoma SPED</a></div>
+                        </div>
+                        <div class="my-community">
+                            <div class="subject overflow-text" style="border-bottom:0"><a>ESPN Ninjas sadf fsadf asdf</a></div>
+                        </div>
+                        <div class="my-community">
+                            <span class="btn-seemore-cs">See More</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="resources">
+                <div class="sub-title">Resources</div>
+                <div class="community-resources">
+                    <div class="every-resource">
+                        <a>O Niell Sea Odyssey Website</a>
+                    </div>
+                    <div class="every-resource">
+                        <a>O Niell Sea Odyssey Website sf asdf gagadfsa fa</a>
+                    </div>
+                    <div class="every-resource">
+                        <a>Those were such happy times Those were such</a>
+                    </div>
+                    <div class="every-resource">
+                        <a>And not so long ago dfa</a>
+                    </div>
+                    <div class="every-resource" style="border-bottom:0;">
+                        <a>How I wondered where they d gone</a>
+                    </div>
+                    <div class="resources-seemore">
+                        <span class="btn-seemore-r">See More</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div style="clear:both;"></div>
     </div>
 </section>
-
+<script>
+$(".btn-facilitator").click(function(){
+    $(".facilitator-menu").toggle("slow");
+});
+</script>
 
 

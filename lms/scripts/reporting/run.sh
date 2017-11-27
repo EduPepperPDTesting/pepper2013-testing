@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+# set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
@@ -518,5 +518,15 @@ echo '-----------------------------------------------'
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
+echo '-------------------------------------------'
+echo 'Create allfield views!'
+echo '-----------------------------------------------'
+source /usr/local/bin/virtualenvwrapper.sh
+source ~/.rvm/scripts/rvm
+workon edx-platform
+python $DIR/createallfield.py
+echo '-------------------------------------------'
+echo 'Create allfield complete!'
+echo '-----------------------------------------------'
 exit 0;
 
