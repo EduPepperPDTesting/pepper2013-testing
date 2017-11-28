@@ -81,6 +81,7 @@
 										$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
 											prevLen=user_ids.length;
 											if (data.success) {
+											user_ids = [];
 												for(i=0; i<data.users.length; i++){
 													user_ids.push(data.users[i].user_id);
 												}
@@ -89,61 +90,69 @@
 											console.log(page+" "+user_ids);
 										}
 										});
+										getRowsData(allUsersSource, user_ids)
 									}
 								}else{
 									$("#pep_user_list").off("scroll");
 								}
 							});
-							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
-									if(networkData.success){
-										for(i=0; i<networkData.rows.length; i++){
-											networkRows.push(networkData.rows[i]);
+							getRowsData(allUsersSource, user_ids);
+							function getRowsData(allUsersSource, user_ids){
+								$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
+										if(networkData.success){
+											for(i=0; i<networkData.rows.length; i++){
+												networkRows.push(networkData.rows[i]);
+											}
 										}
 									}
-								}
-							});
-							var arrLength = networkRows.length;
-							//console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
-							var getUserRows={userRows: networkRows, arrLength: arrLength};
+								});
+								var arrLength = networkRows.length;
+								//console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
+								var getUserRows={userRows: networkRows, arrLength: arrLength};
+								addRowsData(getUserRows);
+							}
 						}else{
 							var userRows = data.rows;
+							addRowsData({userRows: userRows});
 						}
 
-						var tbodyID = "#users_"+commId;
-						var username, userID;
-						var elExists, addStyle, removeStyle;
-						if(getUserRows === undefined){
-							var records = userRows.length;
-						}else{
-							var records = getUserRows.arrLength;
-							var userRows = getUserRows.userRows;
-						}
-						//console.log(records);
-						for(i = 0; i < records; i++){
-							username = userRows[i][0];
-                            id = userRows[i][1];
-                            netIcon = userRows[i][2];
-                            commIcon = userRows[i][3];
-							//console.log(username+" "+id);
-							userID = username.replace(/ /g, "_")+','+id;
-							elExists = !!document.getElementById('ul'+id);
-							if(elExists === true){
-								//console.log("elExists === false=" + (elExists === false));
-								addStyle = 'display:none;';
-								removeStyle = 'display: inline-block;';
+						function addRowsData(RowsData){
+							var tbodyID = "#users_"+commId;
+							var username, userID;
+							var elExists, addStyle, removeStyle;
+							var userRows = RowsData.userRows;
+							if(RowsData.arrLength === undefined){
+								var records = userRows.length;
+							}else{
+								var records = RowsData.arrLength;
 							}
-							if(elExists === false){
-								//console.log("elExists === true=" + (elExists === true));
-								addStyle = 'display: inline-block;';
-								removeStyle = 'display:none;'
+							//console.log(records);
+							for(i = 0; i < records; i++){
+								username = userRows[i][0];
+								id = userRows[i][1];
+								netIcon = userRows[i][2];
+								commIcon = userRows[i][3];
+								//console.log(username+" "+id);
+								userID = username.replace(/ /g, "_")+','+id;
+								elExists = !!document.getElementById('ul'+id);
+								if(elExists === true){
+									//console.log("elExists === false=" + (elExists === false));
+									addStyle = 'display:none;';
+									removeStyle = 'display: inline-block;';
+								}
+								if(elExists === false){
+									//console.log("elExists === true=" + (elExists === true));
+									addStyle = 'display: inline-block;';
+									removeStyle = 'display:none;'
+								}
+								var netIconTag, commIconTag;
+								if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
+								if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
+								$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
 							}
-							var netIconTag, commIconTag;
-							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
-							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+							if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
+							//console.log("tbodyID="+tbodyID);
 						}
-						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
-						//console.log("tbodyID="+tbodyID);
 
 						$(".pep_contact_name").tooltip({
 							items: ".pep_contact_name",
