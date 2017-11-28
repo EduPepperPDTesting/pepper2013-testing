@@ -471,7 +471,7 @@ def maincommunity(request, community_id):
     if facilitator_default:
         facilitator = facilitator_default[0]
 
-    user_request_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=215)
+    user_request_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=request.user)
     user_request_info = ""
     if user_request_commumity:
         user_request_info = user_request_commumity[0]
