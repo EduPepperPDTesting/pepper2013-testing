@@ -95,7 +95,7 @@ CoursePermission.prototype.loadCourseTable = function(){
     };
     var pagerOptions = {
         container: '',
-        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',6
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
         fixedHeight: false,
         removeRows: false,
         cssGoto: '.gotoPage',
