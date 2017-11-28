@@ -2266,7 +2266,7 @@ def course_permission_download_excel(request):
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
         "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     courses = filter_courses(**course_filters)
