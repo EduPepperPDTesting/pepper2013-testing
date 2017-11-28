@@ -1950,7 +1950,7 @@ def get_course_permission_user_rows(request):
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
         "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
 
     coursenames = []
@@ -2028,7 +2028,7 @@ def get_course_permission_course_rows(request):
         "author_fuzzy": request.REQUEST.get("author_fuzzy"),
         "grade_level_fuzzy": request.REQUEST.get("grade_level_fuzzy"),
         "course_name_fuzzy": request.REQUEST.get("course_name_fuzzy"),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     coursenames = []
