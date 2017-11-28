@@ -518,7 +518,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             %for community in communities:
                                 %if community['private'] == 0:
                                     <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
                                     </div>
                                 %endif
                             %endfor
@@ -531,7 +531,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             %for community in communities:
                                 %if community_in_district(community['id'], request.user.id):
                                     <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
                                     </div>
                                 %endif
                             %endfor
