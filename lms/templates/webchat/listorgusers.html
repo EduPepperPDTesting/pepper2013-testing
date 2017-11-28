@@ -76,7 +76,7 @@
 							var boxBottom = $("#pep_user_list").offset().top + 280;
 							$("#pep_user_list").on("scroll", function(){
 								if(prevLen < user_ids.length){
-									nthRow=(page*10)+1;
+									nthRow=((page-1)*10)+1;
 									var nextTop = $("#pep_user_list tr:eq("+nthRow+")").offset().top;
 									console.log(nextTop);
 									if( (nextTop + 26) < boxBottom ){
