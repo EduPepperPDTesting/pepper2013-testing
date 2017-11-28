@@ -5,9 +5,10 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat, MessageAlerts
+from .models import CommunityWebchat, UserWebchat, MessageAlerts, ChatAttachment
 from people.views import my_people
 from django.contrib.auth.models import User
+from file_uploader.models import FileUploads
 try:
     from urllib import urlencode
 except ImportError:
@@ -44,26 +45,31 @@ def get_users_org(request):
     return render_to_response('webchat/listorgusers.html', data)
 
 def get_all_ptusers(request):
-    rows = list()
-
     my_network_ids = list()
     prevLen = -1
 
-    pageAttr = 0
-    while prevLen<len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+
+    rows = list()
 
     user_ids = request.POST.getlist("user_ids[]")
     searchterm = request.POST.get("searchterm")
     if searchterm:
-        ids = list()
+        if " " in searchterm:
+            searchfirst = searchterm[0: searchterm.index(" ")]
+            searchlast = searchterm[searchterm.index(" ")+1:]
+            users_list = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchfirst, last_name__icontains=searchlast, id__in=user_ids).order_by('first_name', 'last_name')
+            users_listbyln={}
+        else:
+            users_list = User.objects.exclude(id=request.user.id, last_name__icontains=searchterm).filter(first_name__icontains=searchterm, id__in=user_ids).order_by('first_name')
+            users_listbyln = User.objects.exclude(id=request.user.id, first_name__icontains=searchterm).filter(last_name__icontains=searchterm, id__in=user_ids).order_by('last_name')
 
-        users_firstname = User.objects.exclude(id=request.user.id).filter(first_name__icontains=searchterm, id__in=user_ids)
-
-        for user_item in users_firstname:
+        for user_item in users_list:
             row = list()
             userid = str(user_item.id)
             row.append(str(user_item.first_name) + " " + str(user_item.last_name))
@@ -74,18 +80,15 @@ def get_all_ptusers(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
+            #row.append(checkInCommunities(request.user, user_item))
+            row.append('')
 
             rows.append(row)
-            ids.append(userid) #str(user_item.id))
 
-        users_lastname = User.objects.exclude(id=request.user.id).filter(last_name__icontains=searchterm, id__in=user_ids) #.exclude(id__in=ids)
-
-        for user_item in users_lastname:
-            userid = str(user_item.id)
-            if not userid in ids:
+        if users_listbyln:
+            for user_item in users_listbyln:
                 row = list()
-
+                userid = str(user_item.id)
                 row.append(str(user_item.first_name) + " " + str(user_item.last_name))
                 row.append(userid)
 
@@ -94,11 +97,16 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user_item))
+                #row.append(checkInCommunities(request.user, user_item))
+                row.append('')
 
                 rows.append(row)
 
     else:
+
+        if my_network_ids:
+            my_network_ids.sort()
+
         for user_id in user_ids:
             row = list()
             user = User.objects.exclude(id=request.user.id).get(id=int(user_id))
@@ -112,8 +120,8 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user))
-
+                #row.append(checkInCommunities(request.user, user))
+                row.append('')
                 rows.append(row)
 
     if not rows:
@@ -140,8 +148,8 @@ def get_network_users(request):
             row.append(str(user.first_name) + " " + str(user.last_name))
             row.append(str(user.id))
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            row.append(checkInCommunities(request.user, user))
-
+            #row.append(checkInCommunities(request.user, user))
+            row.append('')
             rows.append(row)
 
     if not rows:
@@ -214,8 +222,9 @@ def get_session_token(request):
     api_key = "45939862"        # Replace with your OpenTok API key.
     api_secret = "d69400f3e386d0fc35ebd51cf0aaefd6aa973214"  # Replace with your OpenTok API secret.
     sdk = opentok.OpenTok (api_key, api_secret)
-    connectionMetadata = "username="+request.user.username+",userLevel=4"
-    token = sdk.generate_token (session_id)
+    connectionMetadata = "userName="+request.user.username+",userLevel=4"
+    role_constants = opentok.Roles
+    token = sdk.generate_token (session_id, role_constants.publisher, None, connectionMetadata)
     return HttpResponse (json.dumps({'token':token}), content_type="application/json")
 
 def get_community_session(request):
@@ -304,14 +313,17 @@ def get_community_user_rows(request):
     my_network_ids = list()
     prevLen = -1
 
-    pageAttr = 0
-    while prevLen < len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d])
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     #for item in users[start:end]:
+    # if my_network_ids:
+    #     my_network_ids.sort()
+
     for item in users:
         row = list()
         userid = str(item.user.id)
@@ -324,7 +336,8 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, item.user))
+            #row.append(checkInCommunities(request.user, item.user))
+            row.append('')
             rows.append(row)
 
     if not rows:
@@ -332,3 +345,31 @@ def get_community_user_rows(request):
     else:
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
+
+def chat_attachment(request, userFromID, userToID):
+    fileObj = ChatAttachment()
+    error = ''
+    success = False
+
+    fileObj.user_from = userFromID
+    fileObj.user_to = userToID
+
+    if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+        try:
+            attachment = FileUploads()
+            attachment.type = 'chat_attachment'
+            attachment.sub_type = userToID
+            attachment.upload = request.FILES.get('attachment')
+            attachment.save()
+            success = True
+        except Exception as e:
+            attachment = None
+            error = e
+    else:
+        attachment = None
+
+    if attachment:
+        fileObj.attachment = attachment
+    fileObj.save()
+
+    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})

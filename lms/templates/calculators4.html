@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+</head>
+<style>
+#calculator_parent{  
+    width:32px;  
+    height:400px;
+    position:fixed;  
+    right:0;  
+    top:100px;  
+} 
+#calculator_bar{position:absolute; left:0; top:100px; width:32px; height:32px; background-image:url('/static/images/calculators/calculator.png'); cursor:pointer;} 
+#calculator{position:absolute;left:32px;}
+.cal_0 div{font-size:18px;}
+.cal_1{ margin-top:20px;}
+.cal_2{ text-indent:18px; margin:5px 0;}
+.cal_3{ text-indent:18px;}
+</style>
+<script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script src="https://apps.bdimg.com/libs/jquery/1.6.4/jquery.min.js"></script>
+<body>
+<div id="calculator_txt">
+</div>
+<table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="cal_0">      
+		
+          <p style="font-size:20px;">Sine (abbr. sin) </p>
+          <p>The sine of an angle in a right triangle is defined as the ratio of the length of the side opposite the angle to that of the hypotenuse. Sine is usually abbreviated as sin. <br clear="all" />
+As shown by the properties of similar triangles, the sine of an angle depends only upon the measure of the angle, not upon the size of the right triangles. The value of the ratio changes as the angle changes. For this reason, this ratio is called a function of the angle A. This ratio has a fixed value for any specific angle. For example, the ratio of the length of the side opposite the 30o angle to that of the hypotenuse in a right triangle is always 0.5. </p>
+    <p><img src="/static/images/calculators/sin1.gif" width="460" height="134" /></p>
+    <p align="left">What benefits do we gain by introducing this new concept of sine function? Since the ratio is a fixed value for any specific angle, we can construct a table showing the values of the ratios for the values of a range of angles such as 0° through 90°. Then this trigonometric table can be used to facilitate computation. A measuring tape or similar tool can now be used to measure one side and a transit can be used to measure one of the acute angles in a right triangle. With the help of the trigonometric table, the other unknown sides can be determined. <br />
+      Without introducing the sine function, we can still calculate the unknowns using similar triangles. However, we have to construct similar triangles every time. This is both a time-consuming and error-prone process, resulting in less accurate calculations.</p>
+    <p align="left">Values of the sine function of some special angles:</p>    <p><img src="/static/images/calculators/sinvalue.gif" width="150" height="230" /></p></td>
+  </tr>
+</table>
+<div id="calculator_parent">
+	<span id="calculator_bar"></span>
+	<span id="calculator" style="width: 600px; height: 400px;"></span>
+</div>
+<script>
+  	var elt = document.getElementById('calculator');
+  	//var calculator = Desmos.GraphingCalculator(elt);
+	var calculator = Desmos.ScientificCalculator(elt);
+  	/*calculator.setExpression({
+  		id:'graph1', 
+		keypad: false,
+		trace: false,
+		latex:'y=x^2'
+	});*/
+	var calculator_bar_flag = 0;
+	$("#calculator_bar").click(function(){
+		if(calculator_bar_flag == 0){
+			calculator_bar_flag = 2;
+			$("#calculator_parent").animate({ 
+				width: "632px"
+			}, 500, function(){
+				calculator_bar_flag = 1;
+			});			
+			
+		}else if(calculator_bar_flag == 1){
+			calculator_bar_flag = 2;
+			$("#calculator_parent").animate({ 
+				width: "32px"
+			}, 500, function(){
+				calculator_bar_flag = 0;
+			});		
+			calculator_bar_flag = 0;
+		}
+	});
+</script>
+</body>
+</html>

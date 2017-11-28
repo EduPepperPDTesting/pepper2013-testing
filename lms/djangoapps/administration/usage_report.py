@@ -14,6 +14,7 @@ import datetime
 from ratelimitbackend.exceptions import RateLimitException
 from student.models import CmsLoginInfo
 from django.contrib.auth import logout, authenticate, login
+from permissions.utils import check_user_perms
 
 import re
 import urllib2
@@ -25,18 +26,33 @@ log = logging.getLogger("tracking")
 
 @login_required
 def main(request):
-	if request.user.is_superuser:
-		return render_to_response('administration/usage_report.html', {})
+	user = request.user
+	view_right = check_user_perms(user, 'usage_report', 'view', exclude_superuser=True)
+	edit_right = check_user_perms(user, 'usage_report', 'edit', exclude_superuser=True)
+
+	user_right = {'view': 0, 'edit': 0}
+	if view_right:
+		user_right['view'] = 1
+	if edit_right:
+		user_right['edit'] = 1
+	if view_right or edit_right:
+		return render_to_response('administration/usage_report.html', {'user_right': user_right})
 	else:
 		error_context = {'window_title': '403 Error - Access Denied',
-		 				 'error_title': '403 Error - Access Denied',
-		 				 'error_message': 'You do not have access to this are of the site. If you feel this is\
-                                           in error, please contact the site administrator for assistance.'}
+		 				 'error_title': '',
+		 				 'error_message': 'You do not have access to this view in Pepper,\
+		 				  please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+# @user_passes_test(lambda u: u.is_superuser)
 def get_user_login_info(request):
+	user = request.user
+	view_right = check_user_perms(user, 'usage_report', 'view', exclude_superuser=True)
+	edit_right = check_user_perms(user, 'usage_report', 'edit', exclude_superuser=True)
+	if not view_right and not edit_right:
+		return HttpResponse(json.dumps({'success': False}), content_type="application/json")
+
 	columns = {0: ['district__state__name', '__iexact'],
 			   1: ['district__name', '__iexact'],
 			   2: ['school__name', '__iexact'],
@@ -112,7 +128,7 @@ def get_user_login_info(request):
 			dict_tmp['total_session'] = ''
 
 		login_info_list.append(dict_tmp)
-	return HttpResponse(json.dumps({'rows': login_info_list, 'rows_count': total_rows_count}), content_type="application/json")
+	return HttpResponse(json.dumps({'rows': login_info_list, 'rows_count': total_rows_count, 'success': True}), content_type="application/json")
 
 def get_post_array(post, name, max=None):
     """
@@ -160,8 +176,10 @@ def save_user_status(request):
 	'''
 	user_request = User.objects.filter(id=request.user.id)
 	if user_request:
-		if not user_request[0].is_superuser:
-			return
+		edit_right = check_user_perms(user_request[0], 'usage_report', 'edit', exclude_superuser=True)
+
+		if not edit_right:
+			return HttpResponse(json.dumps({'success': False}), content_type="application/json")
 	else:
 		return
 
@@ -195,8 +213,9 @@ def save_user_password(request):
 	'''
 	user_request = User.objects.filter(id=request.user.id)
 	if user_request:
-		if not user_request[0].is_superuser:
-			return
+		edit_right = check_user_perms(user_request[0], 'usage_report', 'edit', exclude_superuser=True)
+		if not edit_right:
+			return HttpResponse(json.dumps({'success': False, 'value': {'grouptype':'error0'}}), content_type="application/json")
 	else:
 		return
 

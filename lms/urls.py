@@ -16,6 +16,13 @@ urlpatterns = (
     # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
 
 ####### Ancestor
+    # === calculators === 
+    url(r'^calculators/$', 'certificates.views.calculators', name='calculators'),
+    url(r'^calculators1/$', 'certificates.views.calculators_1', name='calculators_1'),
+    url(r'^calculators2/$', 'certificates.views.calculators_2', name='calculators_2'),
+    url(r'^calculators3/$', 'certificates.views.calculators_3', name='calculators_3'),
+    url(r'^calculators4/$', 'certificates.views.calculators_4', name='calculators_4'),
+    url(r'^calculators5/$', 'certificates.views.calculators_5', name='calculators_5'),
     # === shopping begin ===
     url(r'^shopping/$', 'shopping.views.course_list', name="shopping_course_list"),
     url(r'^shopping/enroll/post$', 'shopping.views.enroll_post', name="shopping_enroll_post"),
@@ -49,8 +56,8 @@ urlpatterns = (
     
     # === sso begin ===
     # easyiep
-    # url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
-    url(r'^sso/$', 'student.views.sso', name="sso"),
+    url(r'^sso/$', 'sso.sp.genericsso', name="sso_signon"),
+    #url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^genericsso/$', 'sso.sp.genericsso', name="sso_sp_acs"),
     
     url(r'^sso/idp/slo/request/send$', 'sso.idp.slo_request_send', name="sso_idp_slo_request_send"),
@@ -129,6 +136,8 @@ urlpatterns = (
 
     url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
     url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
+
+    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/(?P<userToID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
 
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 

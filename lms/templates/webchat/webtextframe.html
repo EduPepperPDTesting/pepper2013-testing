@@ -1,18 +1,22 @@
 <%!
    from django.core.urlresolvers import reverse
 %>
-<div class="pep_text_panel container">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<div class="pep_text_panel"><!--container-->
     <div class="pep_textchatheader_container">
         <div class="pep_textchatheader_title">
             <span class="pep_header_left" id="${user_class}">${user_name}</span>
         </div>
         <div class="pep_header_right">
-            <a href="#">+</a>
+            <!--a href="#" class="pep_add_users" style="color: rgb(245, 130, 31);font-size: 2em;position: relative;">+</a-->
             <a href="#" class="pep_start_video" id="${user_id}">
-                <img src="https://image.flaticon.com/icons/svg/345/345686.svg" alt="im-video"
-                     style="width:15px;height:15px;border:0">
+                <img src="/static/images/Pepptalk/PeppSingleCam.png" alt="im-video" style="width:15px;height:15px;border:0;position: relative;bottom: 5px;">
             </a>
-            <span class="close-chat"> &#10005;</span>
+            <div class="hide-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"><img src="/static/images/Pepptalk/minimizeChat.png" alt="Minimize"></div>
+            <div class="open-chat" style="position: relative;bottom: 5px;cursor: pointer;display: none;"> <img src="/static/images/Pepptalk/maximizeChat.png" alt="Maximize"></div>
+            <div class="close-chat" style="position: relative;bottom: 5px;cursor: pointer;display: inline-block;"> <img src="/static/images/Pepptalk/closeChat.png" alt="Close"></div>
         </div>
     </div>
     <div class="pep_text_chat" id="textchat_${user_id}"></div>
@@ -20,10 +24,20 @@
         <div class="row">
             <input type="text" class="pep_chat_input col-sm-8" data-to_id="${user_id}" data-from_id="${request.user.id}"></input>
             <div class="pep_chat_icons col-sm-3">
-                <a href="#"><img
-                        src="https://lh3.googleusercontent.com/en66hh5SgQ_y4mo7jolnASBgPO8_-eFD2taceqeO2lf7uhs0Pr6LHe7zvt7M8_rObDU"
-                        alt="im-text"></a>
-                <a href="#"><img src="https://image.flaticon.com/icons/svg/149/149284.svg" alt="im-video"></a>
+                <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
+                <div class="pep-image-upload" style="display: inline-block;">
+                    <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
+                        <label class="pep_attach_label" id="input_label" for="pep_file_input" style="display: inline-block;cursor: pointer !important;">
+                            <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
+                        </label>
+                        <input id="pep_file_input" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                        <label class="pep_attach_label" id="submit_label" for="pep_file_submit" style="display: none;cursor: pointer !important;">
+                            <img id="pep_send_image" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                        </label>
+                        <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -43,4 +57,19 @@
             });
         });
     });
+
+   /*$("#pep_attachment_form").on("change", "#pep_file_input", function(){
+        console.log("pep_file_input_"+${user_id});
+        if($(this).data("user_id")==${user_id}){
+            $("#input_label_"+${user_id}).css("display", "none");
+            $("#submit_label_"+${user_id}).css("display", "inline-block");
+        }
+    });
+     $("#pep_attachment_form").on("click", "#pep_send_image", function(){
+        console.log("send_image_"+${user_id});
+        if($(this).data("user_id")==${user_id}){
+            $("#submit_label_"+${user_id}).css("display", "none");
+            $("#input_label_"+${user_id}).css("display", "inline-block");
+        }
+    });*/
 </script>

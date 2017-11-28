@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+</head>
+<style>
+#calculator_parent{  
+    width:32px;  
+    height:400px;
+    position:fixed;  
+    right:0;  
+    top:100px;  
+} 
+#calculator_bar{position:absolute; left:0; top:100px; width:32px; height:32px; background-image:url('/static/images/calculators/calculator.png'); cursor:pointer;} 
+#calculator{position:absolute;left:32px;}
+.cal_0 div{font-size:18px;}
+.cal_1{ margin-top:20px;}
+.cal_2{ text-indent:18px; margin:5px 0;}
+.cal_3{ text-indent:18px;}
+</style>
+<script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script src="https://apps.bdimg.com/libs/jquery/1.6.4/jquery.min.js"></script>
+<body>
+<div id="calculator_txt">
+</div>
+<table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="cal_0">
+    	<p>Graphing Quadratic Equations      </p>
+    	<p align="center">Graphs of y = ax<sup>2</sup>   	    </p>
+    	<p>It is understood that a cannot be zero. Hence, there are only two possibilities: a > 0 and a < 0. Because a represents unlimited numerical values, the equation y = ax2 represents a different graph for each numerical value.   	    </p>
+    	<p>Case 1: a > 0   	    </p>
+    	<p>To find out how the coefficient a affects the graphs, let´s begin by selecting a series of different a values. Following is a table showing the ordered pairs (x,y) for different a: </p>
+    	<table border="1">
+          <tr>
+            <td width="100"> &nbsp;&nbsp;x</td>
+            <td width="60"><div align="center">-3</div></td>
+            <td width="60"><div align="center">-2</div></td>
+            <td width="60"><div align="center">-1</div></td>
+            <td width="60"><div align="center">0</div></td>
+            <td width="60"><div align="center">1</div></td>
+            <td width="60"><div align="center">2</div></td>
+            <td width="60"><div align="center">3</div></td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;y = x<sup>2</sup></td>
+            <td><div align="center">9</div></td>
+            <td><div align="center">4</div></td>
+            <td><div align="center">1</div></td>
+            <td><div align="center">0</div></td>
+            <td><div align="center">1</div></td>
+            <td><div align="center">4</div></td>
+            <td><div align="center">9</div></td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;y = 2x<sup>2</sup></td>
+            <td><div align="center">18</div></td>
+            <td><div align="center">8</div></td>
+            <td><div align="center">2</div></td>
+            <td><div align="center">0</div></td>
+            <td><div align="center">2</div></td>
+            <td><div align="center">8</div></td>
+            <td><div align="center">18</div></td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;y = 2x<sup>3</sup></td>
+            <td><div align="center">27</div></td>
+            <td><div align="center">12</div></td>
+            <td><div align="center">3</div></td>
+            <td><div align="center">0</div></td>
+            <td><div align="center">3</div></td>
+            <td><div align="center">12</div></td>
+            <td><div align="center">27</div></td>
+          </tr>
+        </table>    	
+    	<p>&nbsp;</p>
+    	<table width="100%" border="0" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="54%" height="259"><div align="center"><img src="/static/images/calculators/graphqe1.jpg" width="180" height="240" /></div></td>
+            <td width="46%" valign="top"><p align="left"><strong>Note:</strong> </p>
+              <ol>
+                <li>All graphs are symmetrical to y-axis. </li>
+                <li>They all have the same vertex, (0,0). </li>
+                <li>They all open upward. </li>
+              </ol>
+            Only the &quot;steepness&quot; or &quot;flatness&quot; of the curve indicates different values for a. </td>
+          </tr>
+          <tr>
+            <td valign="top"><p align="left"><strong>Case 2: a &lt; 0</strong></p>
+            The shape is the same as in Case 1. The only difference is that the graph of y = ax2 opens downward when a &lt; 0, whereas the graph of y = ax2 opens upward when a &gt; 0. The two graphs are symmetrical with respect to the x-axis. </td>
+            <td><div align="center"><img src="/static/images/calculators/graphqe2.jpg" width="180" height="240" /></div></td>
+          </tr>
+        </table>    	<p>&nbsp;</p></td>
+  </tr>
+</table>
+<div id="calculator_parent">
+	<span id="calculator_bar"></span>
+	<span id="calculator" style="width: 600px; height: 400px;"></span>
+</div>
+<script>
+  	var elt = document.getElementById('calculator');
+  	var calculator = Desmos.GraphingCalculator(elt);
+  	calculator.setExpression({
+  		id:'graph1'
+	});
+	var calculator_bar_flag = 0;
+	$("#calculator_bar").click(function(){
+		if(calculator_bar_flag == 0){
+			calculator_bar_flag = 2;
+			$("#calculator_parent").animate({ 
+				width: "632px"
+			}, 500, function(){
+				calculator_bar_flag = 1;
+			});			
+			
+		}else if(calculator_bar_flag == 1){
+			calculator_bar_flag = 2;
+			$("#calculator_parent").animate({ 
+				width: "32px"
+			}, 500, function(){
+				calculator_bar_flag = 0;
+			});		
+			calculator_bar_flag = 0;
+		}
+	});
+</script>
+</body>
+</html>

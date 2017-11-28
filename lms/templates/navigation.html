@@ -176,7 +176,7 @@
                                 <li id="org_tsm_alert_obj"><a href="${absolute_url(reverse('alert_message'))}">Alert</a></li>
                             % endif
                             <li id="org_tsm_notifications_obj"><a href="${absolute_url(reverse('communities_notification_index'))}">Notifications</a></li>
-                            % if request.user.is_superuser:
+                            %if check_user_perms(request.user, 'usage_report', exclude_superuser=True):
                                 <li id="org_tsm_usage_report_obj"><a href="${absolute_url(reverse('usage_report'))}">Usage Report</a></li>
                             % endif
                             <li id="org_tsm_portfolio_settings_obj"><a href="${absolute_url(reverse('portfolio_settings'))}">Portfolio Settings</a></li>

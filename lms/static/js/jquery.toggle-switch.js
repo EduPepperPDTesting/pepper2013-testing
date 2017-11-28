@@ -8,7 +8,6 @@ $.fn.toggleSwitch = function() {
         var x = 0;
         var y = 0;
         var current = 0;
-        var old = 0;
         $switch.on("mousedown", function(e){
             e.preventDefault();
             x = e.clientX;
@@ -17,7 +16,6 @@ $.fn.toggleSwitch = function() {
             current = parseInt($(this).css("margin-left")) || 0;
         });
         $(document).on("mouseup", function(){
-            drag = false;
             if($(self).hasClass("left")){
                 value = -1;
             }else if($(self).hasClass("right")){
@@ -25,13 +23,22 @@ $.fn.toggleSwitch = function() {
             }else{
                 value = 0;
             }
-            if(value != old){
-                $(self).trigger("change", [value]);
-            }
-            $switch.css("margin-left", '');
-            old = value;
+            
+
+            if(drag)self.val(value);
+            // if(value != $(self).data("old")){
+            //     $(self).trigger("change", [value]);
+            // }
+            // $switch.css("margin-left", '');
+
+            // $(self).data("old", value);
+
+            drag = false;
+
+   
         });
         $(document).on("mousemove", function(e){
+    
             function between(a, b, c){
                 if(a < b) return b;
                 if(a > c) return c;
@@ -49,28 +56,38 @@ $.fn.toggleSwitch = function() {
                 }
             }
         });
-    });
-    var self = this;
-    ret.val = function(v){
-        if(typeof(v) == "undefined"){
-            if(self.length){
-                if(self.eq(0).hasClass("left")){
-                    return -1;
-                }else if(self.eq(0).hasClass("right")){
-                    return 1;
+
+        this.val = function (v){
+            var old = $(self).data("old");
+            $(self).data("old", v);
+            if(typeof(v) == "undefined"){
+                var V;
+                if($(self).hasClass("left")){
+                    V = -1;
+                }else if($(self).hasClass("right")){
+                    V = 1;
                 }else{
-                    return 0;
+                    V = 0;
                 }
-            }           
-        }else{
-            self.removeClass("left");
-            self.removeClass("right");
-            if(v == -1){
-                self.addClass("left")
-            }else if(v == 1){
-                self.addClass("right")
+                return V;
+            }else{
+                if(v != old){
+                    ret.trigger("change", [v]);
+                }
+                $(self).removeClass("left");
+                $(self).removeClass("right");
+                if(v == -1){
+                    $(self).addClass("left")
+                }else if(v == 1){
+                    $(self).addClass("right")
+                }
+                $switch.css("margin-left", '');
             }
         }
+    });
+    ret.val = function(v) {
+        if(ret.length)
+            return ret[0].val(v);
     }
     return ret;
 }
