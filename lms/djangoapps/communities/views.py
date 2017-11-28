@@ -422,7 +422,7 @@ def community(request, community_id):
     start = (page - 1) * 5
 
     community = CommunityCommunities.objects.get(id=community_id)
-    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
+    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community, community_default=True)
     users = CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered')
     discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
@@ -456,27 +456,38 @@ def community(request, community_id):
 @login_required
 def maincommunity(request, community_id):
     user = request.user
-
     data = dict()
+
     # Get dropdown data for create and edit community
     courses_drop = list()
     users_drop = list()
     courses_drop, users_drop = get_dropdown_data(user)
-
     data = {'courses_drop': courses_drop, 'users_drop': users_drop}
 
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+    facilitator = ""
+    if facilitator_default:
+        facilitator = facilitator_default[0]
+
+    user_request_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=215)
+    user_request_info = ""
+    if user_request_commumity:
+        user_request_info = user_request_commumity[0]
+
+
+    log.debug("=======================")
+    log.debug(community.name)
+    log.debug(facilitator_default[0].community_default)
     community_info = {'community_id': community_id,
-                      'community': '',
-                      'name': '',
-                      'motto': '',
-                      'logo': '',
-                      'facilitators': [],
                       'state': '',
                       'district': '',
-                      'private': '',
-                      'courses': [''],
-                      'resources': [{'name': '', 'link': '', 'logo': ''}],
-                      'user_type': 'super'}
+                      'user_type': 'super',
+                      'community': community,
+                      'facilitator': facilitator,
+                      'user_request_info': user_request_info}
+
     data.update(community_info)
     return render_to_response('communities/community_new.html', data)
 
@@ -1319,8 +1330,6 @@ def community_edit_process(request):
         priority_id = request.POST.get('priority_id',0)
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_array(request.POST, 'course')
-        log.debug("courses------------")
-        log.debug(courses)
         resource_names = get_post_array(request.POST, 'resource_name')
         resource_links = get_post_array(request.POST, 'resource_link')
 
@@ -1398,8 +1407,6 @@ def community_edit_process(request):
         CommunityCourses.objects.filter(community=community_object).delete()
         # Go through the courses and add them to the DB.
         for key, course in courses.iteritems():
-            log.debug(key)
-            log.debug(course)
             # We only want to save an entry if there's something in it.
             if course:
 
