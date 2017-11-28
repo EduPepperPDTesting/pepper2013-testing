@@ -278,7 +278,7 @@
                                     <th><!--<input type="checkbox" value="" id="organization-table2_all">--></th>
                                 </tr>
                             </thead>
-                            <tbody>                      
+                            <tbody>
                                 <tr>
                                     <td><span class="org_table_menu1 org_icon_up" id="org_dataitems_profile">Profile</span></td>
                                     <td></td>
@@ -292,11 +292,11 @@
                     </td>
                 </tr>
             </table>
-            <div style="width:90%; text-align:right; height:30px;">	
+            <div style="width:90%; text-align:right; height:30px;">
 				<input type="button" value="REMOVE SELECTED" class="small_btn" id="btn_profile_remove" />
                 <input type="button" value="ADD" class="small_btn" id="btn_profile_add" />
             </div>
-            <div style="width:100%; text-align:right; height:30px;">	
+            <div style="width:100%; text-align:right; height:30px;">
 				<input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
                 <input type="button" value="Save" class="small_btn org_btn_last_save" />
             </div>
@@ -313,12 +313,12 @@
         </select>
         <select id="org_district_select" style="width:300px;"></select>
         <select id="org_school_select" style="width:300px;"></select>
-        
+
         <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
         <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
-        
+
         <div style="width:500px; margin-top:10px;">
             <table id="organization-state-table" class="organization-table">
                 <thead>
@@ -331,7 +331,7 @@
                 <tbody></tbody>
             </table>
             <div id="organization-state-actions" style="height:30px;">
-                <div id="organization-state-pager" class="pager" style="margin-right:100px;">            
+                <div id="organization-state-pager" class="pager" style="margin-right:100px;">
                     <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
                     <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
                     <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
@@ -608,7 +608,7 @@
             </tr>
             <tr class="new_menu_tr">
                 <td class="org_td1">Space Between Items (0 ~ 100 px): </td>
-                <td>                   
+                <td>
                     <input type="button" id="organizational_dashboard_space_between_less" value="&ndash;" class="small_btn" />
                     <input type="text" id="organizational_dashboard_space_between" name="organizational_dashboard_space_between" value="0" maxlength="3" />
                     <input type="button" id="organizational_dashboard_space_between_plus" value="+" class="small_btn" />
@@ -683,8 +683,8 @@
                                     </span>
                                     <span class="organizational_dashboard_menu_btn"><input type="button" onclick="org_menu_item_clone(this,true)" value="+" class="sub_menu_btn small_btn" /></span>
                                 </div>
-                            </fieldset>                            
-                        </div>                        
+                            </fieldset>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -720,10 +720,10 @@
                                 <span class="cms_btn_up"></span>
                                 <span class="cms_btn_dn"></span>
                             </span>
-                            <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>                      
+                            <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>
                             <div class="organizational_dashboard_cms_row1">
                             	<span class="organizational_dashboard_cms_item">Select User Grade</span>
-                                <span> 
+                                <span>
                                     %for item in GradeLevel.objects.all():
                                     <span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
                                     %endfor
@@ -732,7 +732,7 @@
 	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (0)</a>
                                 </span>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -744,7 +744,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
-                	<div class="certificate_editor_div"> 
+                	<div class="certificate_editor_div">
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
@@ -773,7 +773,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
-                	<div class="certificate_editor_div"> 
+                	<div class="certificate_editor_div">
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
@@ -835,7 +835,7 @@
             <option value="SEADAE">SEADAE</option>
             <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
             <option value="WestEd">WestEd</option>
-        </select>        
+        </select>
         <input type="button" id="org_assignment_btn_find" value="FIND" class="small_btn" style="margin:0 0 0 20px !important;" />
         <div class="org_assignment_course_all">
             <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
@@ -846,7 +846,7 @@
                     </select>
                     <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
                 </div>
-                <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>                
+                <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>
                 <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;"></td></tr></table>
             </div>
         </div>
