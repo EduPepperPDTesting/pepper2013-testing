@@ -70,21 +70,30 @@
 								user_ids.push(data.users[i].user_id);
 							}
 							//console.log(user_ids);
-							var prevLen;
+							var prevLen = 0;
 							var page = 2;
-							do{
-								$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
-									prevLen=user_ids.length;
-									if (data.success) {
-										for(i=0; i<data.users.length; i++){
-											user_ids.push(data.users[i].user_id);
+							var nthRow;
+							$("#pep_user_list").on("scroll", function(){
+								if(prevLen < user_ids.length){
+									nthRow=(page*10)+1;
+									var nextTop = $("#pep_user_list tr:eq(nthRow)").offset().top;
+									if(nextTop < 417){
+										$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+											prevLen=user_ids.length;
+											if (data.success) {
+												for(i=0; i<data.users.length; i++){
+													user_ids.push(data.users[i].user_id);
+												}
+												page += 1;
+											}
+											console.log(page+" "+user_ids);
 										}
-										page += 1;
+										});
 									}
-									//console.log(page+" "+user_ids);
+								}else{
+									$("#pep_user_list").off("scroll");
 								}
-								});
-							}while(prevLen < user_ids.length);
+							});
 							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 									if(networkData.success){
 										for(i=0; i<networkData.rows.length; i++){
