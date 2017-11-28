@@ -76,7 +76,7 @@
 							$("#pep_user_list").on("scroll", function(){
 								if(prevLen < user_ids.length){
 									nthRow=(page*10)+1;
-									var nextTop = $("#pep_user_list tr:eq(nthRow)").offset().top;
+									var nextTop = $("#pep_user_list tr:eq("+nthRow+")").offset().top;
 									if(nextTop < 417){
 										$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
 											prevLen=user_ids.length;
