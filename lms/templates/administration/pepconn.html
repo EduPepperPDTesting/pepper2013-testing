@@ -98,7 +98,7 @@ f.close()
  }
 </style>
 
-% if request.user.is_superuser:
+% if check_user_perms(request.user, 'pepconn', 'data-import'):
 <!-- User Data Import -->
 <div class="data_import_top">
   <div class="main, data_import_content">
@@ -353,13 +353,11 @@ f.close()
             </div>
         </form>
     </div>
-
   </div>
   </div>
+%endif
 
-  %endif
-
-  % if request.user.is_superuser:
+% if check_user_perms(request.user, 'pepconn', 'management-and-reporting'):
 <span id="organization_obj" o_name="pepconn"></span>
 <div class="data_import_bottom">
   <div class="main, data_import_content">
@@ -878,7 +876,7 @@ f.close()
                   <tr class="tablesorter-headerRow">
                     <th data-sorter="false" class="id sorter-false">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
                     <th class="first_name ">First Name</th>
-                    <th class="last_name sorter-false">Last Name</th>
+                    <th class="last_name ">Last Name</th>
                     <th class="email">Email</th>
                   </tr>
                 </thead>

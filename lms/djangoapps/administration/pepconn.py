@@ -42,6 +42,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models import F
 from communities.notification import send_course_notification 
 from async_task.models import AsyncTask
+from permissions.decorators import user_has_perms
 
 
 log = logging.getLogger("tracking")
@@ -135,7 +136,6 @@ def main(request):
     return render_to_response('administration/pepconn.html', data)
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def cohort_submit(request):
     if not request.user.is_authenticated:
         raise Http404
@@ -222,7 +222,6 @@ def build_sorts(columns, sorts):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_user_rows(request):
     """
     Builds the rows for display in the PepConn Users report.
@@ -318,7 +317,6 @@ def get_user_rows(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_school_rows(request):
     """
     Builds the rows for display in the PepConn Schools report.
@@ -391,7 +389,6 @@ def get_school_rows(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_district_rows(request):
     """
     Builds the rows for display in the PepConn Districts report.
@@ -599,7 +596,6 @@ def district_edit_info(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_cohort_rows(request):
     """
     Builds the rows for display in the PepConn Cohorts report.
@@ -680,7 +676,6 @@ def get_cohort_rows(request):
 ###############################################
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def import_district_submit(request):
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -816,7 +811,6 @@ def single_district_submit(request):
 ##############################################
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def import_school_submit(request):
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -955,7 +949,6 @@ def single_school_submit(request):
 #* -------------- User Data Import -------------
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
     # monkey.patch_all(socket=False)
     
@@ -1410,7 +1403,6 @@ def registration_table(request):
 #* -------------- Favorite Filter -------------
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)    
 def favorite_filter_load(request):
     favs = []
     
@@ -1426,7 +1418,6 @@ def favorite_filter_load(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_save(request):
     name = request.GET.get('name')
     FilterFavorite.objects.filter(name=name).delete()
@@ -1439,7 +1430,6 @@ def favorite_filter_save(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_delete(request):
     FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
@@ -1458,7 +1448,6 @@ def registration_filter_user(vars, data):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
     message = ""
     message = str(request.POST.get('ids'))
@@ -1564,7 +1553,6 @@ def do_send_registration_email(task, user_ids, request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_custom_email(request):
     try:
         email = CustomEmail.objects.get(id=request.POST.get("id"))
@@ -1575,7 +1563,6 @@ def get_custom_email(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
 def save_custom_email(request):
     op = request.POST.get('op')
@@ -1630,7 +1617,6 @@ def save_custom_email(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
 def delete_custom_email(request):
     try:
@@ -1647,7 +1633,6 @@ def delete_custom_email(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def get_custom_email_list(request):
     data = list()
 
@@ -1728,7 +1713,6 @@ def registration_delete_users(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def registration_download_csv(request):
     FIELDS = ['user_id', "activate_link", "first_name", "last_name", "username", "email",
               "district", "cohort", "school", "invite_date", "activate_date", "subscription_status"]
@@ -1778,7 +1762,6 @@ def registration_download_csv(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def registration_download_excel(request):
     import xlsxwriter
     output = StringIO()
@@ -1967,7 +1950,7 @@ def get_course_permission_user_rows(request):
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
         "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
 
     coursenames = []
@@ -2045,7 +2028,7 @@ def get_course_permission_course_rows(request):
         "author_fuzzy": request.REQUEST.get("author_fuzzy"),
         "grade_level_fuzzy": request.REQUEST.get("grade_level_fuzzy"),
         "course_name_fuzzy": request.REQUEST.get("course_name_fuzzy"),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     coursenames = []
@@ -2283,7 +2266,7 @@ def course_permission_download_excel(request):
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
         "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     courses = filter_courses(**course_filters)
