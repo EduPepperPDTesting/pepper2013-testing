@@ -43,6 +43,8 @@ from django.db.models import F
 from communities.notification import send_course_notification 
 from async_task.models import AsyncTask
 from permissions.decorators import user_has_perms
+from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
+from permissions.utils import check_user_perms
 
 
 log = logging.getLogger("tracking")
@@ -117,6 +119,14 @@ def postpone(function):
 
 @login_required
 def main(request):
+    user = request.user
+    pepconn_right = check_user_perms(user, 'pepconn')
+    if not pepconn_right:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper,\
+                          please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
+        return HttpResponseForbidden(render_to_response('error.html', error_context))           
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
     districts = District.objects.all().order_by('name')
@@ -2266,7 +2276,7 @@ def course_permission_download_excel(request):
         "subjects": to_list(request.REQUEST.get("subject", "")),
         "authors": to_list(request.REQUEST.get("author", "")),
         "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
-        "limit": CourseEnrollment.enrollments_for_user(request.user).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
     courses = filter_courses(**course_filters)
