@@ -259,13 +259,14 @@
 						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
 
 						var headsList = [];
-						var chatHeads = localStorage.getItem(chatHeads);
+						var chatHeads = localStorage.getItem('chatHeads');
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
 						headsList.push(headAttr);
-    					localStorage.setItem(chatHeads, headsList);
-
+    					localStorage.setItem('chatHeads', headsList);
+						chatHeads = localStorage.getItem('chatHeads');
+						console.log(chatHeads);
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
