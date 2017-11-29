@@ -35,6 +35,14 @@ $(document).ready(function(){
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
+        var chatHeads = localStorage.getItem('chatHeads');
+        console.log(chatHeads);
+        for (var chatHead in chatHeads){
+            headData = chatHead.substr(chatHead.indexOf("`")+1).raplace("`", ",");
+            if(headData == getId){
+                chatHeads.splice(chatHeads.indexOx(chatHead), 1)
+            }
+        }
         $(this).parents(".pep_text_container").remove();
     });
 
