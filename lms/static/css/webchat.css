@@ -171,7 +171,9 @@
     position: relative;
     top: -4px;
 }
-
+.pep_header_right img {
+    background-color: white;
+}
 .pep_add_users {
     color: rgb(245, 130, 31);
     font-size: 2em;
