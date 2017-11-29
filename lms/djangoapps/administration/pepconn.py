@@ -2254,7 +2254,7 @@ def course_permission_download_excel(request):
 
     # ** io
     output = StringIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})  # {'in_memory': True}
     worksheet = workbook.add_worksheet()
 
     row = 0
