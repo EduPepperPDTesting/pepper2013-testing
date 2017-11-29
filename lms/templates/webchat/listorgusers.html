@@ -193,6 +193,7 @@
 
 		var getChatHeads = JSON.parse(localStorage.getItem('chatHeads'));
 		for (var getChatHead in getChatHeads){
+			getChatHead = getChatHead.substring(0, chatHead.indexOf("|"));
 			var leftX = getChatHead.substring(getChatHead.indexOf("|")+1, getChatHead.indexOf("||"));
 			var zInd = parseInt(getChatHead.substring(getChatHead.indexOf("||")+1));
 			$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");

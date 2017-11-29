@@ -39,6 +39,7 @@ $(document).ready(function(){
         console.log(chatHeads);
         for (var chatHead in chatHeads){
             headData = chatHead.substring(chatHead.indexOf("`")+1, chatHead.indexOf("|")).raplace("`", ",");
+            headData = headData.substring(chatHead.indexOf("`")+1);
             if(headData == getId){
                 chatHeads.splice(chatHeads.indexOx(chatHead), 1)
             }
