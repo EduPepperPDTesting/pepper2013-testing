@@ -192,8 +192,8 @@
 		});
 
 		var getChatHeads = JSON.parse(localStorage.getItem('chatHeads'));
-		for (var getChatHead in getChatHeads){
-			getChatHead = getChatHead.substring(0, getChatHead.indexOf("|"));
+		for (var arrInd in getChatHeads){
+			getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
 			console.log(getChatHead);
 			var leftX = getChatHead.substring(getChatHead.indexOf("|")+1, getChatHead.indexOf("||"));
 			var zInd = parseInt(getChatHead.substring(getChatHead.indexOf("||")+1));
