@@ -193,7 +193,7 @@
 
 		var getChatHeads = localStorage.getItem('chatHeads');
 		for (var getChatHead in getChatHeads){
-			var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
+			var leftX = substr(getChatHead.indexOf("|")+1);
 			$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + getChatHead + " .pep_text_panel");
 			leftX-=235;
 			$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
@@ -263,7 +263,7 @@
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
-						headsList.push(headAttr);
+						headsList.push(headAttr +"|"+ leftX);
     					localStorage.setItem('chatHeads', headsList);
 						chatHeads = localStorage.getItem('chatHeads');
 						console.log(chatHeads);
