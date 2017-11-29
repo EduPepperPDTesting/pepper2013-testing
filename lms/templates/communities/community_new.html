@@ -183,11 +183,10 @@ a{
     position: relative;
 }
 
-.con-maincontent-all{
+.con-main-all{
     width:680px;
     margin-left:27px;
     float:left;
-    position: relative;
     
     height:500px;
     border: 1px solid;
@@ -217,7 +216,7 @@ a{
     width:60px;height:60px;border-radius:50px;
 }
 .community-left .user-info{
-    width:90px;margin-top:15px;float:left;border:0px solid;
+    width:100px;margin-top:15px;float:left;border:0px solid;
 }
 .community-left .user-name{
     font-size:14px;font-weight:bold;
@@ -246,6 +245,9 @@ a{
 .community-left .f-rights-line{
     margin-left:15px;margin-right:15px;color:#a4a4a5;padding:10px 0 10px 0;border-bottom:1px solid #a4a4a5;font-size:13px;cursor:pointer;
 }
+.community-left .f-rights-line:last-child{
+    border:0;padding-bottom:12px;
+}
 .community-left .f-rights-line:hover{
    color:#e2e2e2;
 }
@@ -256,7 +258,7 @@ a{
     color:#e2e2e2;
 }
 .community-left .user-email{
-    float:left;margin-top:15px;border:0px solid;cursor:pointer;
+    float:left;margin:15px 0 0 5px;border:0px solid;cursor:pointer;
 }
 .community-left .sub-community-titles{
     width:224px;border:1px solid #ccc;height:163px;overflow-y:auto;
@@ -367,6 +369,11 @@ a{
 .community-right .resources-seemore .btn-seemore-r{
     font-size:13px;color:#999;cursor: pointer;
 }
+/*--------------community middle top--------------*/
+.con-main-all .main-logo img{
+    width:100px;
+    height:100px;
+}
 </style>
 
 <%
@@ -383,18 +390,23 @@ a{
                     state_id = item.id
                     break
 %>
+%for course_option in courses_drop:
+    <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
+%endfor
 <section class="content-wrapper-community">
     <div class="" style="margin:0 auto;width:1240px;padding-top:30px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
             <div class="sub-community-info"></div>
+            %if facilitator:
             <div class="facilitator-info">
                 <div class="user-photo">
-                    <img src="/static/images/profile.jpg"/>
+                    <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
                 </div>
                 <div class="user-info">
-                    <div class="user-name">Jane Doe</div>
+                    %if user_request_info:
+                    <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
                         <div class="facilitator-triangle"></div>
@@ -402,17 +414,25 @@ a{
                     <div class="facilitator-menu">
                         <div class="f-menu-triangle"></div>
                         <div class="f-lines">
+                            %if user_request_info.community_edit:
                             <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
+                            %endif
+                            %if user_request_info.community_delete:
                             <div class="f-rights-line">Delete Community</div>
-                            <div class="f-rights-line" style="border:0;padding-bottom:15px;"><a>Manage Users</a></div>
+                            %endif
+                            <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community.id])}">Manage Users</a></div>
                         </div>
                     </div>
+                    %else:
+                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
+                    %endif
                 </div>
                 <div class="user-email">
-                    <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
+                    <a href="mailto:${facilitator.user.email}"><img src="/static/images/community_new/facilitator-mail-50.png" width="30"/></a>
                 </div>
                 <div style="clear:both;"></div>
             </div>
+            %endif
             <div class="subcommunities">
                 <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub">+</span></div>
                 <div class="sub-community-titles">
@@ -464,8 +484,8 @@ a{
         </div>
 
         <!--Main content-->
-        <div class="con-maincontent-all">
-            main
+        <div class="con-main-all" style="background-color:#fff;">
+            
         </div>
         
         <!--Courses-My Learning Plan-->
@@ -788,11 +808,10 @@ $(".btn-facilitator").click(function(){
         //this.initContent();
         this.formdata = '';
         this.courses_drop = new Array();
-        //this.users_drop = new Array();
-        %for course_option in courses_drop:
-            var course_option = {"id": "${course_option['id']}", "number": "${course_option['number']}", "name": "${course_option['name']}"};
-            this.courses_drop.push(course_option);
-        %endfor
+        $('.coursesdropdata').each(function(){
+            var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
+            self.courses_drop.push(course_option);
+        });
     }
 
     PepReg.prototype.addTraining = function () {
@@ -817,14 +836,14 @@ $(".btn-facilitator").click(function(){
                 }
             });
             */
-            
             $.ajax({
                 url: "${reverse('community_edit_process_new')}",  //server script to process data
                 type: 'POST',
                 //Ajax event
                 success: function(r){
-                    console.log(r);
                     console.log("ok");
+                    //$("#dlg-add-training").hide();
+                    //$(".lean-overlay").hide();
                     window.location.href = "/newcommunities";
                 },
                 error: function(r){},
@@ -835,7 +854,6 @@ $(".btn-facilitator").click(function(){
                 contentType: false,
                 processData: false
             });
-            
             console.log("ajax end");
         });
         return false;
@@ -851,16 +869,28 @@ $(".btn-facilitator").click(function(){
                     self.steps.switchTo(einfo.id);
                     return;
                 } 
-                console.log("edit submit");
-                /*              
-                $.post("${reverse('pepreg_save_training')}", data, function (r) {
-                    if (r.success) {
-                        $("#dlg-add-training").hide();
-                        $(".lean-overlay").hide();
-                        self.reloadTable();
-                    }
+                console.log("jsondata: ",data);
+                self.createFormdata(data);
+                
+                $.ajax({
+                    url: "${reverse('community_edit_process_new')}",  //server script to process data
+                    type: 'POST',
+                    //Ajax event
+                    success: function(r){
+                        console.log("ok");
+                        //$("#dlg-add-training").hide();
+                        //$(".lean-overlay").hide();
+                        window.location.href = "${reverse('maincommunity', args=[community_id])}";
+                    },
+                    error: function(r){},
+                    // Form data
+                    data: self.formdata,
+                    //Options to tell JQuery not to process data or worry about content-type
+                    cache: false,
+                    contentType: false,
+                    processData: false
                 });
-                */
+                console.log("ajax end");
             });
         });
     };
@@ -905,11 +935,12 @@ $(".btn-facilitator").click(function(){
         if (data) {
             console.log("edit--");
             steps.unlockAll();
+            self.fillData(data);
         } else {
             console.log("new--");
             self.clearData();
         }
-        self.fillData(data); 
+         
 
         // ************* btn upload Picture
         $("#edit_photo").click(function(){
@@ -1038,7 +1069,7 @@ $(".btn-facilitator").click(function(){
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            community_id: 'new',
+            community_id: '${community_id}',
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),
@@ -1086,7 +1117,6 @@ $(".btn-facilitator").click(function(){
     PepReg.prototype.fillData = function (data) {
         var self = this;
         data = data || {};
-        console.log("data: ",data)
         var $form = $("#dlg-add-training");
         //------------step1------------
         //name
@@ -1177,6 +1207,7 @@ $(".btn-facilitator").click(function(){
         
         //------------step5------------
         //facilitators
+        $("#community_facilitators_list").html("");
         for(var i=0;i<data.facilitators.length;i++){
             var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
             var tmp_td1, tmp_td3, tmp_td4 = '';
@@ -1212,11 +1243,15 @@ $(".btn-facilitator").click(function(){
     };
 
     PepReg.prototype.clearData = function () {
-        //var empty = {};
-        //$.each(this.getInput(), function (k, v) {
-        //    empty[k] = "";
-        //});
-        var empty = {'name': '', 'motto': '', 'private': '', 'state': '', 'district': ''};
+        var empty = {'name': '', 
+                     'motto': '', 
+                     'logo': '', 
+                     'private': false, 
+                     'state': '', 
+                     'district': '',
+                     'courses': [''],
+                     'resources': [{'name': '', 'link': '', 'logo': ''}],
+                     'facilitators': []};
         this.fillData(empty);
     };
 
