@@ -34,6 +34,7 @@ $(document).ready(function(){
                 $(el).css({"right": "", "left": leftX + "px"});
             }
         });
+        var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         $(this).parents(".pep_text_container").remove();
     });
 
