@@ -193,8 +193,9 @@
 
 		var getChatHeads = localStorage.getItem('chatHeads');
 		for (var getChatHead in getChatHeads){
-			var leftX = getChatHead.substr(getChatHead.indexOf("|")+1);
-			$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + getChatHead + " .pep_text_panel");
+			var leftX = getChatHead.substring(getChatHead.indexOf("|")+1, getChatHead.indexOf("||"));
+			var zInd = parseInt(getChatHead.substring(getChatHead.indexOf("||")+1));
+			$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
 			leftX-=235;
 			$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 		}
@@ -263,7 +264,7 @@
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
-						headsList.push(headAttr +"|"+ leftX);
+						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1));
     					localStorage.setItem('chatHeads', headsList);
 						chatHeads = localStorage.getItem('chatHeads');
 						console.log(chatHeads);
