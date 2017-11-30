@@ -53,11 +53,11 @@ $(document).ready(function(){
         console.log(chatHeads);
         var movedHeads=[];
         var itemStart, itemEnd;
-        for(var i=0; i<arrInd - 1; i++){
+        for(var i=0; i<arrInd; i++){
             movedHeads[i]=chatHeads[i];
             console.log(movedHeads[i]);
         }
-        for(var i=arrInd+1; i<chatHeads.length; i++){
+        for(i - 1; i<chatHeads.length; i++){
             itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
             movedHeads[i] = itemStart + leftX + itemEnd;
