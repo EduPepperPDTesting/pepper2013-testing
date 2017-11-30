@@ -13,6 +13,7 @@ $(document).ready(function(){
         $(this).siblings(".open-chat").css("display","inline-block");
         $(this).css("display", "none");
 
+        var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
@@ -32,6 +33,7 @@ $(document).ready(function(){
         $(this).siblings(".hide-chat").css("display","inline-block");
         $(this).css("display", "none");
 
+        var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
