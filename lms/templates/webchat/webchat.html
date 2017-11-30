@@ -41,6 +41,7 @@ $(document).ready(function(){
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(headData.indexOf("`")+1);
+            console.log(headData+" "+getId);
             if(headData == getId){
                 chatHeads.splice(arrInd, 1)
             }
