@@ -167,6 +167,10 @@ a{
     overflow:hidden;
     white-space:nowrap;
 }
+.overflow-text-wrap{
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
 /*--------------community all--------------*/
 .content-wrapper-community{
     margin-top:0px;
@@ -189,7 +193,7 @@ a{
     float:left;
     
     height:500px;
-    border: 1px solid;
+    border: 0px solid;
 }
 /*--------------community left--------------*/
 .community-left{
@@ -370,9 +374,41 @@ a{
     font-size:13px;color:#999;cursor: pointer;
 }
 /*--------------community middle top--------------*/
-.con-main-all .main-logo img{
-    width:100px;
-    height:100px;
+.con-main-all .con-main-info-outer{
+    width:630px;margin:auto;margin-top:25px;border-bottom:1px solid #ccc;padding-bottom:20px;
+}
+.con-main-all .con-main-info-subject{
+    width:340px;font-size:19px;font-weight:bold;color:#2CBAEC;padding:5px 0 5px 0;
+}
+.con-main-all .con-main-info-motto{
+    width:340px;font-size:13px;line-height:18px;height:92px;
+}
+.con-main-all #btn-join{
+    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+}
+.con-main-all #btn-join:hover{
+    background-color:#76ba35;
+}
+.con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
+    padding-right:2px;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-chat-count,.top-like-count{
+    padding-right:8px;
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
+}
+
+.con-main-all .top-other-count{
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
 }
 </style>
 
@@ -487,7 +523,40 @@ a{
 
         <!--Main content-->
         <div class="con-main-all" style="background-color:#fff;">
-            
+            <div class="con-main-all-top" style="border:0px solid;">
+                <div class="con-main-info-outer">
+                    <table class="con-main-info" width="100%" height="130" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                            <td width="115" style="vertical-align:middle;">
+                                <img src="${get_file_url(community.logo)}" alt="Community Logo" width="100" />
+                            </td>
+                            <td width="340" style="vertical-align:middle;">
+                                <div class="con-main-info-subject overflow-text">${community.name}</div>
+                                <div class="con-main-info-motto overflow-text-wrap">${community.motto}</div>
+                            </td>
+                            <td>
+                                <div style="height:102px;">
+                                    <div class="top-other-count">82</div>
+                                    <div class="top-other-ico">
+                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                    </div>
+                                    <div class="top-like-count">83</div>
+                                    <div class="top-like-ico">
+                                        <img src="/static/images/community_new/newcommunity-like.png" height="20">
+                                    </div>
+                                    <div class="top-chat-count">88</div>
+                                    <div class="top-chat-ico">
+                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                    </div>  
+                                </div>
+                                <div style="text-align:right;">
+                                    <span id="btn-join">Join</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
         
         <!--Courses-My Learning Plan-->
