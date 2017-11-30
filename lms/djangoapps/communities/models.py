@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from student.models import District, State
 from file_uploader.models import FileUploads
+from django.conf import settings
+import pymongo
+from collections import OrderedDict
 
 
 class CommunityCommunities(models.Model):
