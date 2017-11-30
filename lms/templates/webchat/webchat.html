@@ -35,16 +35,17 @@ $(document).ready(function(){
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
-        var chatHeads = localStorage.getItem('chatHeads');
+        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         console.log(chatHeads);
         var headData;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(headData.indexOf("`")+1);
             if(headData == getId){
-                chatHeads.splice(headData.indexOf(chatHeads), 1)
+                chatHeads.splice(arrInd, 1)
             }
         }
+        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         $(this).parents(".pep_text_container").remove();
     });
 
