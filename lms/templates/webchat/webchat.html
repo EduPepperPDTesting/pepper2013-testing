@@ -39,9 +39,9 @@ $(document).ready(function(){
         console.log(chatHeads);
         var headData;
         for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
             console.log(headData);
-            headData = headData.substring(headData.indexOf("`")+1);
+            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
             console.log(headData+" "+getId);
             if(headData == getId){
                 chatHeads.splice(arrInd, 1)
