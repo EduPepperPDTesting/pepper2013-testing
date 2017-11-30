@@ -54,11 +54,13 @@ $(document).ready(function(){
         var itemStart, itemEnd;
         for(var i=0; i<arrInd; i++){
             movedHeads[i]=chatHeads[i];
+            console.log(movedHeads[i]);
         }
         for(var i=arrInd; i<chatHeads.length; i++){
             itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
             movedHeads[i] = itemStart + leftX + itemEnd;
+            console.log(movedHeads[i]);
             leftX = parseInt(leftX) - 235;
         }
         console.log(movedHeads);
