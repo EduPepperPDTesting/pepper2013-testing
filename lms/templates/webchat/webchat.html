@@ -16,8 +16,8 @@ $(document).ready(function(){
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
-            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
+            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            headData = headData.substring(0, headData.indexOf("`"));
             console.log("headData="+headData+" getId="+getId+" " +headData == getId);
             if(headData == getId){
                 chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
@@ -37,8 +37,8 @@ $(document).ready(function(){
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
-            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
+            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            headData = headData.substring(0, headData.indexOf("`"));
             if(headData == getId){
                 chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
                 break;
@@ -64,8 +64,8 @@ $(document).ready(function(){
         var headData;
         var leftX;
         for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
-            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
+            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            headData = headData.substring(0, headData.indexOf("`"));
             if(headData == getId){
                 leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
                 chatHeads.splice(arrInd, 1);
