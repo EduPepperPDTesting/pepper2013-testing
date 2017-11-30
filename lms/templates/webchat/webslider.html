@@ -59,7 +59,7 @@ $(document).ready(function(){
             getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
             var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
             var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
-            var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2);
+            var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
             $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
 
             leftX-=235;
