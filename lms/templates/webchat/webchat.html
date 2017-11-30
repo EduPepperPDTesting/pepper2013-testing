@@ -12,6 +12,17 @@ $(document).ready(function(){
         $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
         $(this).siblings(".open-chat").css("display","inline-block");
         $(this).css("display", "none");
+
+        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+        for (var arrInd in chatHeads){
+            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
+            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
+            if(headData == getId){
+                chatHeads[arrInd] = chatHeads.substring(0, chatHeads.indexOf("``")) + "``1";
+                break;
+            }
+        }
+        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
     $(".pep_textchat_block").on("click", ".open-chat", function(){
@@ -20,6 +31,17 @@ $(document).ready(function(){
         $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-10px");
         $(this).siblings(".hide-chat").css("display","inline-block");
         $(this).css("display", "none");
+
+        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+        for (var arrInd in chatHeads){
+            headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
+            headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
+            if(headData == getId){
+                chatHeads[arrInd] = chatHeads.substring(0, chatHeads.indexOf("``")) + "``0";
+                break;
+            }
+        }
+        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
     $(".pep_textchat_block").on("click", ".close-chat", function(){
@@ -36,35 +58,28 @@ $(document).ready(function(){
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
-        console.log(chatHeads);
         var headData;
         var leftX;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
-            console.log(headData);
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
-            console.log(headData+" "+getId);
             if(headData == getId){
                 leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
                 chatHeads.splice(arrInd, 1);
                 break;
             }
         }
-        console.log(chatHeads);
         var movedHeads=[];
         var itemStart, itemEnd;
         for(var i=0; i<arrInd; i++){
             movedHeads[i]=chatHeads[i];
-            console.log(movedHeads[i]);
         }
         for(i - 1; i<chatHeads.length; i++){
             itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
             movedHeads[i] = itemStart + leftX + itemEnd;
-            console.log(movedHeads[i]);
             leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
         }
-        console.log(movedHeads);
         localStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
     });

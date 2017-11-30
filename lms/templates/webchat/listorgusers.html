@@ -255,10 +255,8 @@
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
-						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1));
+						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
     					localStorage.setItem('chatHeads', JSON.stringify(headsList));
-						chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
-						console.log(chatHeads);
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
