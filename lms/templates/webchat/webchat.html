@@ -62,7 +62,7 @@ $(document).ready(function(){
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
             movedHeads[i] = itemStart + leftX + itemEnd;
             console.log(movedHeads[i]);
-            leftX = parseInt(leftX) - 235;
+            leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
         }
         console.log(movedHeads);
         localStorage.setItem('chatHeads', JSON.stringify(movedHeads));
