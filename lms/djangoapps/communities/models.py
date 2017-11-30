@@ -31,6 +31,7 @@ class CommunityUsers(models.Model):
     community_default = models.BooleanField(blank=False, default=0)
     receive_email = models.BooleanField(blank=False, default=0)
 
+
 class CommunityCourses(models.Model):
     class Meta:
         db_table = 'community_courses'
@@ -124,6 +125,7 @@ class CommunityPosts(models.Model):
     top = models.BooleanField(blank=False, default=0)
     # @end
 
+
 class CommunityPostsImages(models.Model):
     class Meta:
         db_table = 'community_posts_images'
@@ -149,6 +151,7 @@ class CommunityLikes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey(CommunityComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
 
 class MongoBaseStore(object):
     def __init__(self, host, db, port, collection="",
@@ -186,6 +189,9 @@ class MongoBaseStore(object):
 
     def remove(self, cond):
         self.collection.remove(cond)
+    
+    def del_collection(self):
+        self.collection.drop()
 
 
 class CommunityDiscussionsStore(MongoBaseStore):
