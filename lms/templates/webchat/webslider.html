@@ -62,6 +62,7 @@ $(document).ready(function(){
 
         var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2);
         if(chatMini == "1") {
+            console.log(arrInd + " chatMini == "+ chatMini);
             $(".pep_text_container:last").find(".pep_text_chat").css("display","none");
             $(".pep_text_container:last").find(".pep_textchatfooter_container").css("display","none");
             $(".pep_text_container:last").find(".pep_text_panel").css("bottom","-220px");
