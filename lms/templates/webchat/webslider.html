@@ -63,11 +63,11 @@ $(document).ready(function(){
         var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2);
         if(chatMini == "1") {
             console.log(arrInd + " chatMini == "+ chatMini);
-            $(".pep_text_container:has(.pep_text_panel):last").find(".pep_text_chat").css("display","none");
-            $(".pep_text_container:has(.pep_text_panel):last").find(".pep_textchatfooter_container").css("display","none");
-            $(".pep_text_container:has(.pep_text_panel):last").find(".pep_text_panel").css("bottom","-220px");
-            $(".pep_text_container:has(.pep_text_panel):last").find(".hide-chat").css("display","none");
-            $(".pep_text_container:has(.pep_text_panel):last").find(".open-chat").css("display","inline-block");
+            $(".pep_text_container:eq(" + arrInd + ")").find(".pep_text_chat").css("display","none");
+            $(".pep_text_container:eq(" + arrInd + ")").find(".pep_textchatfooter_container").css("display","none");
+            $(".pep_text_container:eq(" + arrInd + ")").find(".pep_text_panel").css("bottom","-220px");
+            $(".pep_text_container:eq(" + arrInd + ")").find(".hide-chat").css("display","none");
+            $(".pep_text_container:eq(" + arrInd + ")").find(".open-chat").css("display","inline-block");
         }
 
         leftX-=235;
