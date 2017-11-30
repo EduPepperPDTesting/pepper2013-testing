@@ -52,6 +52,17 @@ $(document).ready(function(){
     setInterval(function(){ checkForAlert() }, 3000);
     //@END
 
+    //show open text chats - Anatoliy
+    var getChatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+    for (var arrInd in getChatHeads){
+        getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
+        var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
+        var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2));
+        $(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
+        leftX-=235;
+        $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+    }
+
     var slPos='out';
     $("#pep_title_tab").click(function(){
         if(slPos=='in'){
