@@ -38,6 +38,21 @@
 .pep_text_container {
     width: 235px !important;
 }
+.pep_text_container[data-chat_mini='1'] .pep_text_chat{
+    display: none;
+}
+.pep_text_container[data-chat_mini='1'] .pep_textchatfooter_container{
+    display: none;
+}
+.pep_text_container[data-chat_mini='1'] .pep_text_panel{
+    bottom: -220px;
+}
+.pep_text_container[data-chat_mini='1'] .hide-chat{
+    display: none;
+}
+.pep_text_container[data-chat_mini='1'] .open-chat{
+    display: inline-block;
+}
 .pep_video_container {
     width: 450px;
 }
