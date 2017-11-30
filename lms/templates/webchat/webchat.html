@@ -38,16 +38,30 @@ $(document).ready(function(){
         var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
         console.log(chatHeads);
         var headData;
+        var leftX;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
             console.log(headData);
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
             console.log(headData+" "+getId);
             if(headData == getId){
-                chatHeads.splice(arrInd, 1)
+                leftX = hatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
+                chatHeads.splice(arrInd, 1);
+                break;
             }
         }
-        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+        var movedHeads=[];
+        var itemStart, itemEnd;
+        for(var i=0; i<arrInd; i++){
+            movedHeads[i]=chatHeads[i];
+        }
+        for(var i=arrInd; i<chatHeads.length; i++){
+            itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
+            itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
+            movedHeads[i] = itemStart + leftX + itemEnd;
+            leftX = parseInt(leftX) - 235;
+        }
+        localStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
     });
 
