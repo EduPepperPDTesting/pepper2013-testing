@@ -19,7 +19,7 @@ $(document).ready(function(){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
             if(headData == getId){
-                chatHeads[arrInd] = chatHeads.substring(0, chatHeads.indexOf("``")) + "``1";
+                chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
                 break;
             }
         }
@@ -39,7 +39,7 @@ $(document).ready(function(){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
             if(headData == getId){
-                chatHeads[arrInd] = chatHeads.substring(0, chatHeads.indexOf("``")) + "``0";
+                chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
                 break;
             }
         }
