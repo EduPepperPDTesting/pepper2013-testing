@@ -45,7 +45,7 @@ $(document).ready(function(){
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
             console.log(headData+" "+getId);
             if(headData == getId){
-                leftX = hatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
+                leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
                 chatHeads.splice(arrInd, 1);
                 break;
             }
