@@ -40,6 +40,7 @@ $(document).ready(function(){
         var headData;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            console.log(headData);
             headData = headData.substring(headData.indexOf("`")+1);
             console.log(headData+" "+getId);
             if(headData == getId){
