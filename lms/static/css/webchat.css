@@ -89,6 +89,7 @@
 .pep_header_right {
     display: inline-block;
     margin-right: 10px;
+    margin-top: 5px;
     float: right;
     padding-top: 5px;
 }
@@ -179,7 +180,7 @@
     font-size: 2em;
 }
 
-.pep_start_video img {
+.pep_chat_video img {
     width: 15px;
     height: 15px;
     position: relative;
