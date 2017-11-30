@@ -195,8 +195,8 @@
 		for (var arrInd in getChatHeads){
 			getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
 			console.log(getChatHead);
-			var leftX = getChatHead.substring(getChatHead.indexOf("|")+1, getChatHead.indexOf("||"));
-			var zInd = parseInt(getChatHead.substring(getChatHead.indexOf("||")+1));
+			var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
+			var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+1));
 			$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
 			leftX-=235;
 			$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
