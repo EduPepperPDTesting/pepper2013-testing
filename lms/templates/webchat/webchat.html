@@ -18,7 +18,7 @@ $(document).ready(function(){
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("`")+1, chatHeads[arrInd].indexOf("|"));
             headData = headData.substring(headData.indexOf("`")+1).replace("`", ",");
-            console.log(headData == getId);
+            console.log("headData="+headData+" getId="+getId+" " +headData == getId);
             if(headData == getId){
                 chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
                 break;
