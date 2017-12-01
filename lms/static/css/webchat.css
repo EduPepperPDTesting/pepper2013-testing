@@ -99,6 +99,7 @@
 .pep_textchatheader_container {
     width: 235px;
     border-radius: 15px 15px 0 0;
+    cursor:s-resize;
 }
 .pep_videochatheader_container {
     width: 448px;

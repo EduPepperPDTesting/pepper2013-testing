@@ -6,43 +6,39 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-    $(".pep_textchat_block").on("click", ".hide-chat", function(){
-        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
-        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
-        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
-        $(this).siblings(".open-chat").css("display","inline-block");
-        $(this).css("display", "none");
+    $(".pep_textchat_block").on("click", ".pep_textchatheader_container", function(){
 
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
-        for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
-            headData = headData.substring(0, headData.indexOf("`"));
-            console.log("headData="+headData+" getId="+getId+" " +headData == getId);
-            if(headData == getId){
-                chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
-                break;
-            }
-        }
-        sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
-    });
 
-    $(".pep_textchat_block").on("click", ".open-chat", function(){
-        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
-        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
-        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-10px");
-        $(this).siblings(".hide-chat").css("display","inline-block");
-        $(this).css("display", "none");
+        if($(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom") !== "-220px"){
+            $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
+            $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
+            $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
 
-        var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
-        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
-        for (var arrInd in chatHeads){
-            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
-            headData = headData.substring(0, headData.indexOf("`"));
-            if(headData == getId){
-                chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
-                break;
+            for (var arrInd in chatHeads){
+                headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                headData = headData.substring(0, headData.indexOf("`"));
+                console.log("headData="+headData+" getId="+getId+" " +headData == getId);
+                if(headData == getId){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
+                    break;
+                }
             }
+        }else{
+            $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
+            $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
+            $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-10px");
+
+            for (var arrInd in chatHeads){
+                headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                headData = headData.substring(0, headData.indexOf("`"));
+                if(headData == getId){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
+                    break;
+                }
+            }
+
         }
         sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
