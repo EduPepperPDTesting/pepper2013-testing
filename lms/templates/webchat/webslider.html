@@ -70,6 +70,68 @@ $(document).ready(function(){
         }
     }
 
+    function getMessage (id) {
+        $.post("${reverse('get_message')}", {
+            message_people: id,
+            skip: 0,
+            limit: 10
+        }, function(data) {
+            $("#textchat_"+id).html("");
+            $.each(data.results, function(k, v) {
+                var image = "<table class='pepchat_row'><tr><td class='pepchat_img'><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td><span class='pepchat_body'>";
+                date = new Date(v.date);
+                console.log(date);
+                if (date.getHours() > 11) end = "p"; else end = "a";
+                time =date.toLocaleTimeString().slice(0, -6) + end + ", " +  date.toLocaleDateString().slice(0,-5) ;
+                $("#textchat_"+id).prepend(image + v.body + "</span><br><span class='pepchat_time'>" + time + "<span></td></tr></table><hr class='pepchat_hr'>");
+            });
+            try {
+                $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            } catch (err) {
+                getMessage(id);
+            }
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
+        });
+    }
+
+    function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+        getMessage(send_user);
+    }
+
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
+            if (e.keyCode == 13) {
+                sendChatMessage($(this).data("to_id"), $(this).val());
+                $(this).val("");
+            }
+        });
+    }
+
     var slPos='out';
     $("#pep_title_tab").click(function(){
         if(slPos=='in'){
