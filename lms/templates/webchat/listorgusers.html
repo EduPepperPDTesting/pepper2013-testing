@@ -251,12 +251,12 @@
 						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
 
 						var headsList = [];
-						var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
 						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
-    					localStorage.setItem('chatHeads', JSON.stringify(headsList));
+    					sessionStorage.setItem('chatHeads', JSON.stringify(headsList));
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}

@@ -53,7 +53,7 @@ $(document).ready(function(){
     //@END
 
     //show open text chats - Anatoliy
-    var getChatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+    var getChatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
     if(getChatHeads) {
         for (var arrInd in getChatHeads){
             getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));

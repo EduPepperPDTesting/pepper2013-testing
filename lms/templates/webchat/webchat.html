@@ -14,7 +14,7 @@ $(document).ready(function(){
         $(this).css("display", "none");
 
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
-        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(0, headData.indexOf("`"));
@@ -24,7 +24,7 @@ $(document).ready(function(){
                 break;
             }
         }
-        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+        sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
     $(".pep_textchat_block").on("click", ".open-chat", function(){
@@ -35,7 +35,7 @@ $(document).ready(function(){
         $(this).css("display", "none");
 
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
-        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(0, headData.indexOf("`"));
@@ -44,7 +44,7 @@ $(document).ready(function(){
                 break;
             }
         }
-        localStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+        sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
     $(".pep_textchat_block").on("click", ".close-chat", function(){
@@ -60,7 +60,7 @@ $(document).ready(function(){
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
-        var chatHeads = JSON.parse(localStorage.getItem('chatHeads'));
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
         var headData;
         var leftX;
         for (var arrInd in chatHeads){
@@ -83,7 +83,7 @@ $(document).ready(function(){
             movedHeads[i] = itemStart + leftX + itemEnd;
             leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
         }
-        localStorage.setItem('chatHeads', JSON.stringify(movedHeads));
+        sessionStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
     });
 
