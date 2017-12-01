@@ -690,24 +690,26 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                 <table width="100%" cellspacing="" cellpadding="" border="0">
                                     <thead>
                                         <tr>
-                                            <th width="30" align="center"></th>
-                                            <th width="70">Default</th>
+                                            <th width="30"></th>
+                                            <th width="70" style="text-align:center;">Default</th>
                                             <th align="center">Email</th>
-                                            <th width="150" align="center">Edit Community</th>
-                                            <th width="150" align="center">Delete Community</th>
+                                            <th width="90" style="text-align:center;">Edit</th>
+                                            <th width="90" style="text-align:center;">Delete</th>
+                                            <th width="130" style="text-align:center;">Receive Email</th>
                                         </tr>
                                     </thead>
                                     <tbody id="community_facilitators_list">
                                         <!--
                                         <tr>
                                             <td></td>
-                                            <td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>
-                                            <td>edutest@163.com</td>
-                                            <td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>
-                                            <td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='default' type='radio' value='' /></td>
+                                            <td>edutest11@hotmail.com</td>
+                                            <td style='text-align:center;'><input name='edit' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='receive' type='checkbox' value='' /></td>
                                         </tr>
                                         -->
-                                    </tbody>    
+                                    </tbody> 
                                 </table>
                             </div>
                         </div>
@@ -832,11 +834,19 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
             console.log("jsondata: ",data);
             self.createFormdata(data);
-            
+            /*
+            $.post("${reverse('community_edit_process_new')}", data, function (r) {
+                if (r.success) {
+                    $("#dlg-add-training").hide();
+                    $(".lean-overlay").hide();
+                    //self.reloadTable();
+                    console.log("return ok");
+                }
+            });
+            */
             $.ajax({
-                url: "${reverse('community_edit_process_new')}",  //server script to process data
+                url: "${reverse('community_edit_process_new')}",
                 type: 'POST',
-                //Ajax event
                 success: function(r){
                     console.log("ok");
                     //$("#dlg-add-training").hide();
@@ -854,6 +864,40 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             console.log("ajax end");
         });
         return false;
+    };
+
+    PepReg.prototype.editTraining = function (id) {
+        var self = this;
+        $.post("${reverse('get_edit_community')}", {id: id}, function (d) {
+            
+            self.initForm(d, function (data) {
+                if (einfo = self.validateAllPage(data)) {
+                    self.warning(einfo.error[1], self.dlgForm);
+                    self.steps.switchTo(einfo.id);
+                    return;
+                } 
+                console.log("jsondata: ",data);
+                self.createFormdata(data);
+                
+                $.ajax({
+                    url: "${reverse('community_edit_process_new')}",
+                    type: 'POST',
+                    success: function(r){
+                        console.log("ajax ok");
+                        //$("#dlg-add-training").hide();
+                        //$(".lean-overlay").hide();
+                        window.location.href = "${reverse('maincommunity', args=[community_id])}";
+                    },
+                    error: function(r){},
+                    // Form data
+                    data: self.formdata,
+                    //Options to tell JQuery not to process data or worry about content-type
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        });
     };
 
     PepReg.prototype.initForm = function (data, finishCallback) {
@@ -894,11 +938,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         };
         // ************* unlock all pages when editing
         if (data) {
-            console.log("edit--");
             steps.unlockAll();
             self.fillData(data);
         } else {
-            console.log("new--");
             self.clearData();
         }
          
@@ -956,22 +998,33 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
                 var data_have = $("#community_facilitators_list").find("tr").html();
                 if(!data_have){
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>");
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value='0' checked='checked' /></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
                 }
                 else{
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>");
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value=''/></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value=''/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value=''/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value=''/></td>");
                 }
                 var tmp_td2 = $("<td>" + email + "</td>");
-                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
                 $("#community_facilitators_list").append(tmp_tr);
 
                 tmp_tr.find("a").click(function(e){
                     e.preventDefault();
                     $(this).parent().parent().remove();
+                });
+
+                tmp_tr.find("input[name=default]").click(function(){
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                    $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                    $(this).attr("value","0");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
                 });
             }
         }
@@ -983,7 +1036,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             var email = $(this).find("td").eq(2).text();
             var can_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
             var can_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
-            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete);
+            var can_receive = ($(this).find("input").eq(3).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete + "::" + can_receive);
         });
         return ar;
     };
@@ -1030,7 +1084,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            community_id: 'new',
+            community_id: '${community_id}',
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),
@@ -1171,34 +1225,53 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         $("#community_facilitators_list").html("");
         for(var i=0;i<data.facilitators.length;i++){
             var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
-            var tmp_td1, tmp_td3, tmp_td4 = '';
+            var tmp_td1, tmp_td3, tmp_td4, tmp_td5 = '';
+            var input_lock = '';
             if(data.facilitators[i].default){
-                tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>");
+                input_lock = 'disabled';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value='0' checked='checked'/></td>");
             }
             else{
-                tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value=''/></td>");
+                input_lock = '';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value=''/></td>");
             }
 
             if(data.facilitators[i].edit){
-                tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>");
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
             }
             else{
-                tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value=''/></td>");
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' "+ input_lock +"/></td>");
             }
 
             if(data.facilitators[i].delete){
-                tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>");
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
             }
             else{
-                tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value=''/></td>");
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].receive){
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
             }
             var tmp_td2 = $("<td>" + data.facilitators[i].email + "</td>");
-            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
             $("#community_facilitators_list").append(tmp_tr);
 
             tmp_tr.find("a").click(function(e){
                 e.preventDefault();
                 $(this).parent().parent().remove();
+            });
+
+            tmp_tr.find("input[name=default]").click(function(){
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                $(this).attr("value","0");
+                $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
             });
         }
     };
@@ -1370,6 +1443,29 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 $("#state-dropdown").trigger('change');
             }
         });
+
+
+        //** init expand title
+        /*
+        $(".expand_title").next("div.expand_div").slideDown(); //akogan
+        //$(".expand_title").off("click").bind("click", function () {
+        $(".expand_title").on("click", function () {
+            if ($(".expand_div").is(':visible')) {
+                $(".expand_div").slideUp();
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $(".expand_div").slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+        */
+        // $(".expand_title").click();
+        /*
+        $(".print-map").click(function (e) {
+            e.preventDefault();
+            return false;
+        });
+        */
     });
 </script>
 

@@ -167,6 +167,10 @@ a{
     overflow:hidden;
     white-space:nowrap;
 }
+.overflow-text-wrap{
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
 /*--------------community all--------------*/
 .content-wrapper-community{
     margin-top:0px;
@@ -189,7 +193,7 @@ a{
     float:left;
     
     height:500px;
-    border: 1px solid;
+    border: 0px solid;
 }
 /*--------------community left--------------*/
 .community-left{
@@ -370,9 +374,41 @@ a{
     font-size:13px;color:#999;cursor: pointer;
 }
 /*--------------community middle top--------------*/
-.con-main-all .main-logo img{
-    width:100px;
-    height:100px;
+.con-main-all .con-main-info-outer{
+    width:630px;margin:auto;margin-top:25px;border-bottom:1px solid #ccc;padding-bottom:20px;
+}
+.con-main-all .con-main-info-subject{
+    width:340px;font-size:19px;font-weight:bold;color:#2CBAEC;padding:5px 0 5px 0;
+}
+.con-main-all .con-main-info-motto{
+    width:340px;font-size:13px;line-height:18px;height:92px;
+}
+.con-main-all #btn-join{
+    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+}
+.con-main-all #btn-join:hover{
+    background-color:#76ba35;
+}
+.con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
+    padding-right:2px;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-chat-count,.top-like-count{
+    padding-right:8px;
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
+}
+
+.con-main-all .top-other-count{
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
 }
 </style>
 
@@ -405,7 +441,7 @@ a{
                     <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
                 </div>
                 <div class="user-info">
-                    %if user_request_info:
+                    %if user_super or user_request_info.community_edit or user_request_info.community_delete:
                     <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
@@ -414,13 +450,15 @@ a{
                     <div class="facilitator-menu">
                         <div class="f-menu-triangle"></div>
                         <div class="f-lines">
-                            %if user_request_info.community_edit:
+                            %if user_request_info.community_edit or user_super:
                             <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
                             %endif
-                            %if user_request_info.community_delete:
+                            %if user_request_info.community_delete or user_super:
                             <div class="f-rights-line">Delete Community</div>
                             %endif
+                            %if user_request_info.community_default or user_super:
                             <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community.id])}">Manage Users</a></div>
+                            %endif
                         </div>
                     </div>
                     %else:
@@ -485,7 +523,40 @@ a{
 
         <!--Main content-->
         <div class="con-main-all" style="background-color:#fff;">
-            
+            <div class="con-main-all-top" style="border:0px solid;">
+                <div class="con-main-info-outer">
+                    <table class="con-main-info" width="100%" height="130" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                            <td width="115" style="vertical-align:middle;">
+                                <img src="${get_file_url(community.logo)}" alt="Community Logo" width="100" />
+                            </td>
+                            <td width="340" style="vertical-align:middle;">
+                                <div class="con-main-info-subject overflow-text">${community.name}</div>
+                                <div class="con-main-info-motto overflow-text-wrap">${community.motto}</div>
+                            </td>
+                            <td>
+                                <div style="height:102px;">
+                                    <div class="top-other-count">82</div>
+                                    <div class="top-other-ico">
+                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                    </div>
+                                    <div class="top-like-count">83</div>
+                                    <div class="top-like-ico">
+                                        <img src="/static/images/community_new/newcommunity-like.png" height="20">
+                                    </div>
+                                    <div class="top-chat-count">88</div>
+                                    <div class="top-chat-ico">
+                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                    </div>  
+                                </div>
+                                <div style="text-align:right;">
+                                    <span id="btn-join">Join</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
         
         <!--Courses-My Learning Plan-->
@@ -674,24 +745,26 @@ a{
                         <h4>Add/Remove Facilitators</h4>
                         <div class="form-row" style="font-size:14px;">
                             <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
-                                <table width="100%" cellspacing="" cellpadding="" border="0">
+                                <table width="100%" cellspacing="0" cellpadding="0" border="0">
                                     <thead>
                                         <tr>
-                                            <th width="30" align="center"></th>
-                                            <th width="70">Default</th>
+                                            <th width="30"></th>
+                                            <th width="70" style="text-align:center;">Default</th>
                                             <th align="center">Email</th>
-                                            <th width="150" align="center">Edit Community</th>
-                                            <th width="150" align="center">Delete Community</th>
+                                            <th width="90" style="text-align:center;">Edit</th>
+                                            <th width="90" style="text-align:center;">Delete</th>
+                                            <th width="130" style="text-align:center;">Receive Email</th>
                                         </tr>
                                     </thead>
                                     <tbody id="community_facilitators_list">
                                         <!--
                                         <tr>
                                             <td></td>
-                                            <td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>
-                                            <td>edutest@163.com</td>
-                                            <td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>
-                                            <td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='default' type='radio' value='' /></td>
+                                            <td>edutest11@hotmail.com</td>
+                                            <td style='text-align:center;'><input name='edit' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='receive' type='checkbox' value='' /></td>
                                         </tr>
                                         -->
                                     </tbody>    
@@ -725,10 +798,9 @@ a{
 
 
 <script type="text/javascript">
-$(".btn-facilitator").click(function(){
-    $(".facilitator-menu").toggle("slow");
-});
-
+    $(".btn-facilitator").click(function(){
+        $(".facilitator-menu").toggle("slow");
+    });
 
     function newCourse() {
         var course_num = $('.community-course').length;
@@ -837,9 +909,8 @@ $(".btn-facilitator").click(function(){
             });
             */
             $.ajax({
-                url: "${reverse('community_edit_process_new')}",  //server script to process data
+                url: "${reverse('community_edit_process_new')}",
                 type: 'POST',
-                //Ajax event
                 success: function(r){
                     console.log("ok");
                     //$("#dlg-add-training").hide();
@@ -873,11 +944,10 @@ $(".btn-facilitator").click(function(){
                 self.createFormdata(data);
                 
                 $.ajax({
-                    url: "${reverse('community_edit_process_new')}",  //server script to process data
+                    url: "${reverse('community_edit_process_new')}",
                     type: 'POST',
-                    //Ajax event
                     success: function(r){
-                        console.log("ok");
+                        console.log("ajax ok");
                         //$("#dlg-add-training").hide();
                         //$(".lean-overlay").hide();
                         window.location.href = "${reverse('maincommunity', args=[community_id])}";
@@ -890,7 +960,6 @@ $(".btn-facilitator").click(function(){
                     contentType: false,
                     processData: false
                 });
-                console.log("ajax end");
             });
         });
     };
@@ -933,11 +1002,9 @@ $(".btn-facilitator").click(function(){
         };
         // ************* unlock all pages when editing
         if (data) {
-            console.log("edit--");
             steps.unlockAll();
             self.fillData(data);
         } else {
-            console.log("new--");
             self.clearData();
         }
          
@@ -995,22 +1062,33 @@ $(".btn-facilitator").click(function(){
                 var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
                 var data_have = $("#community_facilitators_list").find("tr").html();
                 if(!data_have){
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>");
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value='0' checked='checked' /></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
                 }
                 else{
-                    var tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' /></td>");
-                    var tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' /></td>");
-                    var tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' /></td>");
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value=''/></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value=''/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value=''/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value=''/></td>");
                 }
                 var tmp_td2 = $("<td>" + email + "</td>");
-                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
                 $("#community_facilitators_list").append(tmp_tr);
 
                 tmp_tr.find("a").click(function(e){
                     e.preventDefault();
                     $(this).parent().parent().remove();
+                });
+
+                tmp_tr.find("input[name=default]").click(function(){
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                    $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                    $(this).attr("value","0");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
                 });
             }
         }
@@ -1022,7 +1100,8 @@ $(".btn-facilitator").click(function(){
             var email = $(this).find("td").eq(2).text();
             var can_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
             var can_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
-            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete);
+            var can_receive = ($(this).find("input").eq(3).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete + "::" + can_receive);
         });
         return ar;
     };
@@ -1210,34 +1289,53 @@ $(".btn-facilitator").click(function(){
         $("#community_facilitators_list").html("");
         for(var i=0;i<data.facilitators.length;i++){
             var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
-            var tmp_td1, tmp_td3, tmp_td4 = '';
+            var tmp_td1, tmp_td3, tmp_td4, tmp_td5 = '';
+            var input_lock = '';
             if(data.facilitators[i].default){
-                tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value='' checked='checked'/></td>");
+                input_lock = 'disabled';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value='0' checked='checked'/></td>");
             }
             else{
-                tmp_td1 = $("<td style='padding-left:15px;'><input name='default' type='radio' value=''/></td>");
+                input_lock = '';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value=''/></td>");
             }
 
             if(data.facilitators[i].edit){
-                tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value='' checked='checked'/></td>");
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
             }
             else{
-                tmp_td3 = $("<td style='padding-left:30px;'><input name='edit' type='checkbox' value=''/></td>");
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' "+ input_lock +"/></td>");
             }
 
             if(data.facilitators[i].delete){
-                tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value='' checked='checked'/></td>");
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
             }
             else{
-                tmp_td4 = $("<td style='padding-left:40px;'><input name='delete' type='checkbox' value=''/></td>");
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].receive){
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
             }
             var tmp_td2 = $("<td>" + data.facilitators[i].email + "</td>");
-            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4);
+            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
             $("#community_facilitators_list").append(tmp_tr);
 
             tmp_tr.find("a").click(function(e){
                 e.preventDefault();
                 $(this).parent().parent().remove();
+            });
+
+            tmp_tr.find("input[name=default]").click(function(){
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                $(this).attr("value","0");
+                $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
             });
         }
     };
