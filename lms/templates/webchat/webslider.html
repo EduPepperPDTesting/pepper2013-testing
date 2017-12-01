@@ -61,10 +61,10 @@ $(document).ready(function(){
             var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
             var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
             var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
-            var getChatString = getChatHead.substring(getChatHead.indexOf("`"), getChatHead.indexOf("|"));
+            var getChatString = getChatHead.substring(getChatHead.indexOf("`"));
             var chat_id = getChatString.substring(0, getChatString.indexOf("`"));
             $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
-            console.log(getChatHead);
+            console.log(chat_id);
             getMessage(chat_id);
             leftX-=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
