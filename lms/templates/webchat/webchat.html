@@ -43,7 +43,8 @@ $(document).ready(function(){
         sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
-    $(".pep_textchat_block").on("click", ".close-chat", function(){
+    $(".pep_textchat_block").on("click", ".close-chat", function(e){
+        e.stopPropagation();
         var textcont = $(this).parents(".pep_text_container");
         var ind = textcont.index();
         var elCount = $(".pep_text_container:has(.pep_text_panel)").length - 1;
