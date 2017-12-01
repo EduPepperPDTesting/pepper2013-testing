@@ -71,6 +71,7 @@ $(document).ready(function(){
     }
 
     function getMessage (id) {
+        console.log("id="+id);
         $.post("${reverse('get_message')}", {
             message_people: id,
             skip: 0,
