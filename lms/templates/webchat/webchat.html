@@ -10,7 +10,7 @@ $(document).ready(function(){
 
         if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
 
-            var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
+            var getId = $(this).find(".pep_header_left").attr("id");
             var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
             if($(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom") !== "-220px"){
