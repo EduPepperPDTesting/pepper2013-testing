@@ -36,6 +36,15 @@ class MongoPollStore(object):
         self.collection_poll.safe = True
         self.collection_answers.safe = True
 
+
+    def find_poll(self, cond):
+        return self.collection_poll.find()
+
+
+    def find_poll_answers(self, cond):
+        return self.collection_answers.find()
+
+
     def get_poll(self, type, identifier):
         return self.collection_poll.find_one(
                 {
