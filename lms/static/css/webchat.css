@@ -38,6 +38,28 @@
 .pep_text_container {
     width: 235px !important;
 }
+.pep_text_container .hide-chat{
+    position: relative;
+    bottom: 5px;
+    cursor: pointer;
+}
+.pep_text_container .open-chat{
+    position: relative;
+    bottom: 5px;
+    cursor: pointer;
+}
+.pep_text_container .close-chat{
+    position: relative;
+    bottom: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+.pep_text_container[data-chat_mini='0'] .hide-chat{
+    display: inline-block;
+}
+.pep_text_container[data-chat_mini='0'] .open-chat{
+    display: none;
+}
 .pep_text_container[data-chat_mini='1'] .pep_text_chat{
     display: none;
 }
