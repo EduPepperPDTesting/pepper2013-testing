@@ -48,7 +48,6 @@
     $(".pep_header_right").on("click", ".pep_chat_video", function(e){
         var $link = $(e.target);
         e.preventDefault();
-        e.stopPropagation();
         user_id = ${request.user.id};
         request_user_id = $(this).attr("id");
         $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
@@ -59,6 +58,7 @@
                 sendVideoRequest(request_user_id, link);
             });
         });
+        return false
     });
 
    /*$("#pep_attachment_form").on("change", "#pep_file_input", function(){

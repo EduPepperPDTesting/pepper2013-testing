@@ -43,8 +43,7 @@ $(document).ready(function(){
         sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
     });
 
-    $(".pep_textchat_block").on("click", ".close-chat", function(e){
-        e.stopPropagation();
+    $(".pep_textchat_block").on("click", ".close-chat", function(){
         var textcont = $(this).parents(".pep_text_container");
         var ind = textcont.index();
         var elCount = $(".pep_text_container:has(.pep_text_panel)").length - 1;
@@ -82,6 +81,7 @@ $(document).ready(function(){
         }
         sessionStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
+        return false
     });
 
 
