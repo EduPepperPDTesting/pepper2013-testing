@@ -101,9 +101,7 @@ function initializeSession() {
         if (error) {
           handleError(error);
         } else {
-          session.publish(publisher, function(){
-              screenshare();
-          });
+          session.publish(publisher, function(){});
         }
     });
     $(document).keypress(function(e) {
@@ -120,15 +118,7 @@ function initializeSession() {
 function screenshare() {
     OT.checkScreenSharingCapability(function(response) {
         console.log (response.supported);
-        if (response.supported) {
-            alert ("Screenshare Test Enabled");
-            var screenSharingPublisher = OT.initPublisher('subscriber', {videoSource: 'screen'});
-            session.publish(screenSharingPublisher, function(error) {
-                if (error) {
-                    alert('Could not share the screen: ' + error.message);
-                }
-            });
-        }
+
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
         } else if (response.extensionInstalled === false) {
