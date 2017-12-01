@@ -66,11 +66,11 @@ $(document).ready(function(){
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
         }
 
-        $(".pep_text_container[data-chat_mini='1']").find(".pep_text_chat").css("display","none");
+        /*$(".pep_text_container[data-chat_mini='1']").find(".pep_text_chat").css("display","none");
         $(".pep_text_container[data-chat_mini='1']").find(".pep_textchatfooter_container").css("display","none");
         $(".pep_text_container[data-chat_mini='1']").find(".pep_text_panel").css("bottom","-220px");
         $(".pep_text_container[data-chat_mini='1']").find(".hide-chat").css("display","none");
-        $(".pep_text_container[data-chat_mini='1']").find(".open-chat").css("display","inline-block");
+        $(".pep_text_container[data-chat_mini='1']").find(".open-chat").css("display","inline-block");*/
     }
 
     var slPos='out';
@@ -188,147 +188,164 @@ $(document).ready(function(){
                         user_ids.push(data.users[i].user_id);
                     }
                     //console.log(user_ids);
-                    var prevLen;
+                    //get all users to search from - Anatoliy
+                    var prevLen = 0;
                     var page = 2;
-                    do{
-                        $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
-                            prevLen=user_ids.length;
-                            if (data.success) {
-                                for(i=0; i<data.users.length; i++){
-                                    user_ids.push(data.users[i].user_id);
+                    var nthRow;
+                    var boxBottom = $("#pep_user_list").offset().top + 280;
+                    $("#pep_user_list").on("scroll", function(){
+                        if(prevLen < user_ids.length){
+                            nthRow=((page-1)*10)+1;
+                            var nextTop = $("#pep_user_list tr:eq("+nthRow+")").offset().top;
+                            console.log(nextTop);
+                            if( (nextTop + 26) < boxBottom ){
+                                $.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+                                    prevLen=user_ids.length;
+                                    if (data.success) {
+                                    user_ids = [];
+                                        for(i=0; i<data.users.length; i++){
+                                            user_ids.push(data.users[i].user_id);
+                                        }
+                                        page += 1;
+                                    }
+                                    console.log(page+" "+user_ids);
                                 }
-                                page += 1;
+                                });
+                                searchRowsData(user_ids, searchterm);
                             }
-                            //console.log(page+" "+user_ids);
-                        }
-                        });
-                    }while(prevLen < user_ids.length);
-                    $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
-                            $("#pep_user_list .org-list-table:gt(0)").remove();
-                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
-
-                            if(networkData.success){
-                                for(i=0; i<networkData.rows.length; i++){
-                                    networkRows.push(networkData.rows[i]);
-                                }
-
-                                var arrLength = networkRows.length;
-                                var getUserRows={userRows: networkRows, arrLength: arrLength};
-
-                                var username, userID, records;
-                                var elExists, addStyle, removeStyle;
-
-                                records = getUserRows.arrLength;
-                                var userRows = getUserRows.userRows;
-
-                                //console.log(records);
-                                for(i = 0; i < records; i++){
-                                    username = userRows[i][0];
-                                    id = userRows[i][1];
-                                    netIcon = userRows[i][2];
-                                    commIcon = userRows[i][3];
-                                    //console.log(username+" "+id);
-                                    userID = username.replace(/ /g, "_")+','+id;
-							        elExists = !!document.getElementById('ul'+id);
-                                    if(elExists === true){
-                                        //console.log("elExists === false=" + (elExists === false));
-                                        addStyle = 'display:none;';
-                                        removeStyle = 'display: inline-block;';
-                                    }
-                                    if(elExists === false){
-                                        //console.log("elExists === true=" + (elExists === true));
-                                        addStyle = 'display: inline-block;';
-                                        removeStyle = 'display:none;';
-                                    }
-                                    var netIconTag, commIconTag;
-                                    if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
-                                    if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                    $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
-						        }
-
-						        $("#user_search .pep_add_im").each(function(){
-                                    var $elem = $(this)
-
-                                    if ($elem.data('click-init')) return true;
-
-                                    $elem.data('click-init', true);
-
-                                    $elem.on('click', function (e) {
-                                        e.preventDefault();
-                                        $(this).css("display", "none");
-                                        $(this).siblings(".pep_remove_im").css("display", "inline-block");
-                                        var uclass = $(this).closest("td").attr("class");
-                                        var userName = $(this).siblings(".pep_contact_name").text();
-                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
-
-                                        userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
-                                        $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-                                        $("#pep_list_clear").css("display", "block");
-                                        var elems = document.getElementsByClassName(uclass);
-                                        for(n = 0; n < elems.length; n++){
-                                            addTag = elems[n].getElementsByClassName("pep_add_im");
-                                            addTag[0].style.display="none";
-                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
-                                            removeTag[0].style.display="inline-block";
-                                        }
-                                    });
-                                });
-                                $("#user_search .pep_remove_im").each(function(){
-                                    var $elem = $(this)
-
-                                    if ($elem.data('click-init')) return true;
-
-                                    $elem.data('click-init', true);
-
-                                    $elem.on('click', function (e) {
-                                        e.preventDefault();
-                                        $(this).css("display", "none");
-                                        $(this).siblings(".pep_add_im").css("display", "inline-block");
-                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
-
-                                        var parent = document.getElementById("pep_slider_list");
-                                        var child = document.getElementById("ul" + idUser);
-                                        parent.removeChild(child);
-
-                                        if($("#pep_slider_list").children().length==0){
-                                            $("#pep_list_clear").css("display", "none");
-                                        }
-
-                                        var uclass = $(this).closest("td").attr("class");
-
-                                        var elems = document.getElementsByClassName(uclass);
-                                        for(n = 0; n < elems.length; n++){
-                                            addTag = elems[n].getElementsByClassName("pep_add_im");
-                                            addTag[0].style.display="inline-block";
-                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
-                                            removeTag[0].style.display="none";
-                                        }
-                                    });
-                                });
-
-                                $(".pep_contact_name").tooltip({
-                                    items: ".pep_contact_name",
-                                    track: true,
-                                    open: function (event, ui) {
-                                        ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border": "1px solid black", "-webkit-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "-moz-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
-                                    },
-                                    show: {
-                                        effect: "slideDown",
-                                        delay: 250
-                                    },
-                                    content: function(){
-                                        var username = $(this).text();
-                                        var IdTitle = $(this).attr("id");
-                                        var nameLength = username.length; // + IdTitle.length;
-                                        var nameTitle = (nameLength>15)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
-                                        return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
-                                    }
-                                });
-                            }else{
-                                $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
-                            }
+                        }else{
+                            $("#pep_user_list").off("scroll");
                         }
                     });
+                    searchRowsData(user_ids, searchterm);
+                    function searchRowsData(user_ids, searchterm){
+                        $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
+                                $("#pep_user_list .org-list-table:gt(0)").remove();
+                                $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+
+                                if(networkData.success){
+                                    for(i=0; i<networkData.rows.length; i++){
+                                        networkRows.push(networkData.rows[i]);
+                                    }
+
+                                    var arrLength = networkRows.length;
+                                    var getUserRows={userRows: networkRows, arrLength: arrLength};
+
+                                    var username, userID, records;
+                                    var elExists, addStyle, removeStyle;
+
+                                    records = getUserRows.arrLength;
+                                    var userRows = getUserRows.userRows;
+
+                                    //console.log(records);
+                                    for(i = 0; i < records; i++){
+                                        username = userRows[i][0];
+                                        id = userRows[i][1];
+                                        netIcon = userRows[i][2];
+                                        commIcon = userRows[i][3];
+                                        //console.log(username+" "+id);
+                                        userID = username.replace(/ /g, "_")+','+id;
+                                        elExists = !!document.getElementById('ul'+id);
+                                        if(elExists === true){
+                                            //console.log("elExists === false=" + (elExists === false));
+                                            addStyle = 'display:none;';
+                                            removeStyle = 'display: inline-block;';
+                                        }
+                                        if(elExists === false){
+                                            //console.log("elExists === true=" + (elExists === true));
+                                            addStyle = 'display: inline-block;';
+                                            removeStyle = 'display:none;';
+                                        }
+                                        var netIconTag, commIconTag;
+                                        if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
+                                        if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
+                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+                                    }
+
+                                    $("#user_search .pep_add_im").each(function(){
+                                        var $elem = $(this)
+
+                                        if ($elem.data('click-init')) return true;
+
+                                        $elem.data('click-init', true);
+
+                                        $elem.on('click', function (e) {
+                                            e.preventDefault();
+                                            $(this).css("display", "none");
+                                            $(this).siblings(".pep_remove_im").css("display", "inline-block");
+                                            var uclass = $(this).closest("td").attr("class");
+                                            var userName = $(this).siblings(".pep_contact_name").text();
+                                            var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                            userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
+                                            $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+                                            $("#pep_list_clear").css("display", "block");
+                                            var elems = document.getElementsByClassName(uclass);
+                                            for(n = 0; n < elems.length; n++){
+                                                addTag = elems[n].getElementsByClassName("pep_add_im");
+                                                addTag[0].style.display="none";
+                                                removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                                removeTag[0].style.display="inline-block";
+                                            }
+                                        });
+                                    });
+                                    $("#user_search .pep_remove_im").each(function(){
+                                        var $elem = $(this)
+
+                                        if ($elem.data('click-init')) return true;
+
+                                        $elem.data('click-init', true);
+
+                                        $elem.on('click', function (e) {
+                                            e.preventDefault();
+                                            $(this).css("display", "none");
+                                            $(this).siblings(".pep_add_im").css("display", "inline-block");
+                                            var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                            var parent = document.getElementById("pep_slider_list");
+                                            var child = document.getElementById("ul" + idUser);
+                                            parent.removeChild(child);
+
+                                            if($("#pep_slider_list").children().length==0){
+                                                $("#pep_list_clear").css("display", "none");
+                                            }
+
+                                            var uclass = $(this).closest("td").attr("class");
+
+                                            var elems = document.getElementsByClassName(uclass);
+                                            for(n = 0; n < elems.length; n++){
+                                                addTag = elems[n].getElementsByClassName("pep_add_im");
+                                                addTag[0].style.display="inline-block";
+                                                removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                                removeTag[0].style.display="none";
+                                            }
+                                        });
+                                    });
+
+                                    $(".pep_contact_name").tooltip({
+                                        items: ".pep_contact_name",
+                                        track: true,
+                                        open: function (event, ui) {
+                                            ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border": "1px solid black", "-webkit-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "-moz-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
+                                        },
+                                        show: {
+                                            effect: "slideDown",
+                                            delay: 250
+                                        },
+                                        content: function(){
+                                            var username = $(this).text();
+                                            var IdTitle = $(this).attr("id");
+                                            var nameLength = username.length; // + IdTitle.length;
+                                            var nameTitle = (nameLength>15)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
+                                            return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
+                                        }
+                                    });
+                                }else{
+                                    $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
+                                }
+                            }
+                        });
+                    }
                 }
             }
             });
