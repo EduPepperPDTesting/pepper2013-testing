@@ -39,6 +39,7 @@ from django.views.decorators.csrf import csrf_exempt
 from util import saml_django_response
 from django.contrib.auth import login, logout
 from student.views import logout_user
+from pepper_utilities.utils import full_reverse
 
 # *Guess the xmlsec_path
 try:
@@ -54,11 +55,6 @@ else:
 SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
 
 log = logging.getLogger("tracking")
-
-
-def get_full_reverse(name, request, **kwargs):
-    p = "https" if request.is_secure() else "http"
-    return "%s://%s%s" % (p, request.get_host(), reverse(name, args=kwargs))
 
 
 class Cache(object):
@@ -392,7 +388,7 @@ def slo_response_receive(request):
     # sp_name = request.GET.get("sp", "")
     # setting = get_saml_setting("127.0.0.1-local")
 
-    slo_url = get_full_reverse("sso_idp_slo_response_receive", request)
+    slo_url = full_reverse("sso_idp_slo_response_receive", request)
     setting = {"service": {"idp": {"endpoints": {"single_logout_service": [
         (slo_url, BINDING_HTTP_POST), (slo_url, BINDING_HTTP_REDIRECT)
     ]}}}}

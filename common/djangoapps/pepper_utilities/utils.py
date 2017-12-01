@@ -2,6 +2,7 @@ import urllib2
 from django.http import HttpResponse
 import json
 import random
+from django.core.urlresolvers import reverse
 
 
 def get_request_array(params, name, max=None):
@@ -50,3 +51,8 @@ def random_mark(length):
     """
     return "".join(
         random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
+
+
+def full_reverse(name, request, *args, **kwargs):
+    p = "https" if request.is_secure() else "http"
+    return "%s://%s%s" % (p, request.get_host(), reverse(name, args=args, kwargs=kwargs))

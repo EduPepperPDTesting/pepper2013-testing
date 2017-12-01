@@ -1,5 +1,5 @@
 function CoursePermission(sys){
-    this.selection=[];
+    this.user_selection={};
     this.initUI();
     this.sys = sys;
 }
@@ -156,6 +156,7 @@ CoursePermission.prototype.loadCourseTable = function(){
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
             $(this).find("td:nth-child(5)").hide();
+            $(this).find("td:nth-child(4)").prop("title", id);
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             toggle2.change(function(){
@@ -201,13 +202,13 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         p = $.extend(p, p.last);
         p.data = $.extend(p.data, data);
         if(use_old_filter){
-            p.ajaxUrl = this.addTimeStamp(p.ajaxUrl);
-            $table.find("td:nth-child(1) input").each(function(){
-                self.selection.push(this.checked);
-            });
+            p.ajaxUrl = this.addTimeStamp(p.ajaxUrl.replace(/page=\d+/, 'page={page}'));
         }else{
             p.ajaxUrl = this.addTimeStamp(url);
         }
+        // $table.find("td:nth-child(1) input").each(function(){
+        //     self.user_selection[this.value] = (this.checked);
+        // });
         p.reload();
         return;
     }
@@ -261,20 +262,36 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
         // $(this).find("th:nth-child(1)").width(160)
         var this_table=this;
-        $(this).find(".check-all").click(function(){
+        var $check_all = $(this).find(".check-all");
+        $check_all.click(function(){
             $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
             $(this_table).find("tbody tr td:nth-child(1) input").trigger("change");
         });
-        var selection = self.selection;
-        $(this).find("td:nth-child(1)").each(function(i){
+        
+        var user_selection = self.user_selection;
+
+        $(this).find("td:nth-child(1):gt(0)").each(function(i){
             var v = $(this).text();
             $(this).html("");
-            var check = $("<input type='checkbox'>").appendTo(this).val(v);
-            if(selection[i]){
-                check.prop('checked', true);
+            var $check = $("<input type='checkbox'>").appendTo(this).val(v);
+            if(user_selection[v]){
+                $check.prop('checked', true);
             }
+            $check.change(function(){
+                self.user_selection[this.value] = (this.checked);
+                //console.log(self.user_selection)
+                var all_checked = $(this_table).find("tbody tr td:nth-child(1) input:checked").length == $(this_table).find("tbody tr td:nth-child(1) input").length;
+                //console.log(all_checked)
+                $check_all.attr("checked", all_checked);
+            })
+            $check.click(function(){
+    
+            });
+            $check.trigger("change");
         });
-        self.selection = [];
+        
+        // self.user_selection = {};
+
         /** hide headers only for filter  */
         $(this).find("th:nth-child(5)").hide();
         $(this).find("td:nth-child(5)").hide();
@@ -289,7 +306,8 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         $tr1.find("td:gt(6)").remove();
         $tr1.find("td:eq(0)").html("");
         $.each(courses, function(i, c){
-            $("<th>" + c.display_name + "</th>").appendTo($tr0);
+            $("<th title=" + c.id + ">" + c.display_name + "</th>").appendTo($tr0).hover(function(){
+            });
             $("<td></td>").appendTo($tr1);
         });
         /** float user window */
@@ -479,9 +497,15 @@ CoursePermission.prototype.initUI = function(){
     /** set size of floating user win */
     var isInView = false;
     setInterval(function(){
+        if(isInView)
+            return $("#float-users-win").hide();
+        
+        if($("#float-users-win").find("input:checked").length < 1)
+            return $("#float-users-win").hide();
+        
         var offset = $("#course_permission_user").offset();
         var width = offset.left - $(window).scrollLeft() - 20;
-        if(!isInView && $("#float-users-win").html()){
+        if($("#float-users-win").html()){
             if(width < 0)
                 $("#float-users-win").hide();
             else
@@ -490,14 +514,9 @@ CoursePermission.prototype.initUI = function(){
         }else{
             $("#float-users-win").hide();
         }
-    }, 500);
+    }, 100);
     $('#course_permission_user table').on('inview', function(event, v) {
         isInView = v;
-        if (v) {
-            $("#float-users-win").hide();
-        } else if($("#float-users-win").html()) {
-            $("#float-users-win").show();
-        }
     });
 }
 

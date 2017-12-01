@@ -1966,7 +1966,7 @@ def get_course_permission_user_rows(request):
     coursenames = []
     courses = filter_courses(**course_filters)
     for c in courses:
-        coursenames.append({"display_name": c.display_name})
+        coursenames.append({"display_name": c.display_name, "id": c.id})
 
     # Add the row data to the list of rows.
     rows = list()
@@ -2051,7 +2051,7 @@ def get_course_permission_course_rows(request):
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def _update_user_course_permission(user, course, access, enroll, send_notification=False):
+def _update_user_course_permission(request, user, course, access, enroll, send_notification=False):
     # ** access
     if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
@@ -2059,7 +2059,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             cea.is_active = True
             cea.save()
             if send_notification:
-                send_course_notification(user, course, "Add Course Access", user.id)
+                send_course_notification(request, user, course, "Add Course Access", user.id)
     elif access == -1:
         find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
         if find.exists():
@@ -2067,7 +2067,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             cea.is_active = False
             cea.save()
             if send_notification:
-                send_course_notification(user, course, "Remove Course Access", user.id)
+                send_course_notification(request, user, course, "Remove Course Access", user.id)
 
     # ** enroll
     if enroll == 1:
@@ -2076,7 +2076,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             enr.is_active = True
             enr.save()
             if send_notification:
-                send_course_notification(user, course, "Add Course Enroll", user.id)
+                send_course_notification(request, user, course, "Add Course Enroll", user.id)
     elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
@@ -2084,7 +2084,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             enr.is_active = False
             enr.save()
             if send_notification:
-                send_course_notification(user, course, "Remove Course Enroll", user.id)
+                send_course_notification(request, user, course, "Remove Course Enroll", user.id)
 
 
 @login_required
@@ -2117,7 +2117,7 @@ def update_course_permission(request):
                     task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                     task.update_time = task.create_time
                     task.title = "update user %s" % user.email
-                    _update_user_course_permission(user, course, a, e, send_notification)
+                    _update_user_course_permission(request, user, course, a, e, send_notification)
                     done_count += 1
                     task.progress = int(done_count / total_count * 100)
                     task.status = "continue"
@@ -2205,7 +2205,7 @@ def course_permission_load_csv(request):
                 task.update_time = task.create_time
                 task.title = "update user %s" % user.email
 
-                _update_user_course_permission(user, course, a, e)
+                _update_user_course_permission(request, user, course, a, e)
                 
                 done_count += 1
                 task.status = "continue"
