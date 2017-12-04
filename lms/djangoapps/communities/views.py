@@ -456,12 +456,12 @@ def community(request, community_id):
 @login_required
 def maincommunity(request, community_id):
     user = request.user
-    data = dict() 
+    data = dict()
 
     # Get dropdown data for create and edit community
     courses_drop = list()
     users_drop = list()
-    courses_drop, users_drop = get_dropdown_data(request.user)
+    courses_drop, users_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop, 'users_drop': users_drop}
 
     # Get community info
@@ -480,13 +480,12 @@ def maincommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
-    community_info = {'community_id': community_id,
-                      'community': community,
+    community_info = {'community': community,
                       'facilitator': facilitator,
                       'user_request_info': user_request_info}
 
-    community_other_info = {'state': '',
-                            'district': '',
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
                             'user_super': user_super}
    
     data.update(community_info)
@@ -795,10 +794,10 @@ def newcommunities(request):
             'courses_drop': courses_drop,
             'users_drop': users_drop}
     data.update(community_other_info)
-    
+
     return render_to_response('communities/communities_new.html', data)
 
-def get_dropdown_data(user):
+def get_dropdown_data(user, community_id=''):
     # Step4, get courses list.
     # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
     courses_drop_full = list()
@@ -807,6 +806,16 @@ def get_dropdown_data(user):
         courses_drop_full = get_courses(user)
     else:
         allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+        communitycourses_id = ''
+        if community_id:
+            communitycourses_id = list(CommunityCourses.objects.filter(community=community_id).values_list('course', flat=True))
+        if communitycourses_id:
+            for cid in allowedcourses_id:
+                if cid in communitycourses_id:
+                    communitycourses_id.remove(cid)
+                    break
+            allowedcourses_id.extend(communitycourses_id)
+
         for course_id in allowedcourses_id:
             try:
                 # Exclude invalid courses.
@@ -826,10 +835,10 @@ def get_dropdown_data(user):
     order = ['user__email']
     if user.is_superuser:
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
-        users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
+        users = users.filter(Q(subscription_status='registered') | Q(subscription_status='imported'))
 
         for d in users:
-            users_drop.append({'email':d.user.email,'user_id':d.user_id})
+            users_drop.append({'email': d.user.email, 'user_id': d.user_id})
     return courses_drop, users_drop
 
 @login_required
@@ -1222,7 +1231,6 @@ def community_edit_process_new(request):
 
         log.debug("fin=======================")
         return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
-        #return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
         data = {'error_title': 'Problem Saving Community',
                 'error_message': 'Error: {0}'.format(e),

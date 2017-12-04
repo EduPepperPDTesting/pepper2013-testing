@@ -440,17 +440,17 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 </script>
 <%
     district_id = district
-    if district_id == '':
-        if request.user.profile.district_id:
-            district_id = request.user.profile.district_id
+    # if district_id == '':
+    #    if request.user.profile.district_id:
+    #        district_id = request.user.profile.district_id
 
     state_id = state
-    if state_id == '':
-        for item in State.objects.all().order_by('name'):
-            if district_id:
-                if item.name == request.user.profile.district.state.name:
-                    state_id = item.id
-                    break
+    # if state_id == '':
+    #    for item in State.objects.all().order_by('name'):
+    #        if district_id:
+    #            if item.name == request.user.profile.district.state.name:
+    #                state_id = item.id
+    #                break
 %>
 <span id="organization_obj" o_name="communities"></span>
 <section class="content-wide" style="margin-top:0px;background-color:#e7e7e8;">
@@ -861,7 +861,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 contentType: false,
                 processData: false
             });
-            console.log("ajax end");
         });
         return false;
     };
@@ -876,7 +875,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     self.steps.switchTo(einfo.id);
                     return;
                 } 
-                console.log("jsondata: ",data);
                 self.createFormdata(data);
                 
                 $.ajax({
@@ -918,7 +916,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             var $content = this.getContent(curr);
             
             var data = self.getInput();
-            console.log("initForm getInput: ", data);
             if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
                 return self.warning(error[1], self.dlgForm);
             }
@@ -1112,7 +1109,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             var id = $(this).attr("id");
             var name = $(this).attr("name");
             var type = $(this).attr("type");
-            console.log("id:",id,"  name:",name,"  type:",type);
             
             if(type == 'file'){
                 var fileObj = document.getElementById(id).files[0];
@@ -1394,8 +1390,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
 
-        var state_id = ${state_id};
-        var district_id = ${district_id};
+        var state_id = "${state_id}";
+        var district_id = "${district_id}";
         $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
             // Build the options.
             var options = '<option value=""></option>';
