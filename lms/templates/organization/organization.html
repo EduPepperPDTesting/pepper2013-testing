@@ -20,7 +20,8 @@
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/static/js/certificate-editor.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
-<script type="text/javascript" src="/static/js/configuration.js"></script>
+<script type="text/javascript" src="/static/js/configuration.js">
+<script src="https://code.jquery.com/jquery-migrate-3.0.1.min.js"></script><!--for autocomplete - Anatoliy-->
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
@@ -1454,8 +1455,7 @@
 						$("#organization_manage_user_email").remove();
 						var email_el = $('<input id="organization_manage_user_email" type="text" />');
 						$("#organization_manage_user_email_parent").append(email_el);
-						//email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
-						//$("#organization_manage_user_email_parent").find('input').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
+						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
