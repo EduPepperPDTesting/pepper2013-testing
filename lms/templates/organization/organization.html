@@ -1455,7 +1455,7 @@
 						var email_el = $('<input id="organization_manage_user_email" type="text" />');
 						$("#organization_manage_user_email_parent").append(email_el);
 						//email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
-						$("#organization_manage_user_email_parent").find('input').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
+						//$("#organization_manage_user_email_parent").find('input').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
