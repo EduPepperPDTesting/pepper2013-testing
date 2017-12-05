@@ -450,6 +450,8 @@ urlpatterns = (
     url(r'^newcommunities/$', 'communities.views.newcommunities', name="newcommunities"),
     url(r'^maincommunity/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.maincommunity', name='maincommunity'),
     url(r'^community/get_edit_community$', 'communities.views.get_edit_community', name='get_edit_community'),
+    url(r'^community/user/email-completion', 'communities.views.community_user_email_completion', name='community_user_email_completion'),
+    url(r'^community/user/email-valid', 'communities.views.community_user_email_valid', name='community_user_email_valid'),
 
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),

@@ -18,6 +18,10 @@ import datetime
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+<!--autocomplete-->
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+
+
 <!--cropper-->
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -27,6 +31,15 @@ import datetime
 
 <style type="text/css" media="screen">
 /*-----------create or edit community window-----------*/
+/*-----------autocomplete-----------*/
+.ui-autocomplete .ui-state-focus,
+.acSelect {
+    padding:0;
+    background: #0000d4;
+    color: white;
+    font-weight:normal;
+}
+.ui-autocomplete {z-index: 100000 !important;}
 /*-----------akogan-----------*/
 .label{color: #000000 !important;}
 .switch i{ bottom: 15px !important;}
@@ -780,16 +793,7 @@ a{
                             <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
                                 <b>Facilitator</b>):</i>
                             <div style="margin:5px 0 5px 0;">
-                                <select id="complete-email" name="member" style="min-width:100px;margin:5px 5px 0 0;">
-                                    %for user_option in users_drop:
-                                        %if request.user.id == user_option['user_id']:
-                                            <option value="${user_option['user_id']}" selected="selected">${user_option['email']}</option>
-                                        %else:
-                                            <option value="${user_option['user_id']}">${user_option['email']}</option>
-                                        %endif
-                                    %endfor
-                                </select>
-                                <!--<input type="text" name="member" id="complete-email" autocomplete="off">-->
+                                <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
                                 <input type="button" name="" value="Add" class="btn-add-facilitator" style="color:#fff !important;"/>
                             </div>
                             <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
@@ -1022,19 +1026,23 @@ a{
 
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
-            var email = $("#complete-email").find("option:selected").text();
-            var user_id = $("#complete-email").val();
-            self.addFacilitator(email);
+            var email = $("#complete-email").val();
+            $.get("${reverse('community_user_email_valid')}", {email: email}, function (result) {
+                if (result == "1"){
+                    self.addFacilitator(email);
+                    $("#complete-email").val("");
+                } 
+                else if(result == "2"){
+                    self.warning("User not exists.", self.dlgForm);
+                }
+                else{
+                    self.warning("The user you are trying to add is not in your district.", self.dlgForm);
+                }
+            });
         });
 
-        // ************* remove loaded facilitators
-        /*
-        $(".icon-remove").unbind("click").bind("click", function (e) {
+        $('#community-logo .remove').unbind("click").bind("click", function (e) {
             e.preventDefault();
-            $(this).parent().parent().remove();
-        });
-        */
-        $('#community-logo .remove').click(function() {
             var content = '<span>Logo </span><span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br><span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span><input type="hidden" name="logo" id="logo">';
             //$('#community-logo').replaceWith(content);
             $('#community-logo').html(content);
@@ -1043,7 +1051,8 @@ a{
             });
         });
 
-        $('.community-resource .remove').click(function() {
+        $('.community-resource .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
             var name = $(this).siblings('.community-resource-logo').attr('name');
             var content = '<input class="resource-logo typelogo" type="file" name="' + name + '" id="' + name + '">';
             $(this).parent('.community-resource-logo-wrap').replaceWith(content);
@@ -1524,7 +1533,11 @@ a{
             }
         });
 
-
+        $('#complete-email').autocomplete({
+            source: function (request, response) {
+                $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
+            }
+        });
         //** init expand title
         /*
         $(".expand_title").next("div.expand_div").slideDown(); //akogan

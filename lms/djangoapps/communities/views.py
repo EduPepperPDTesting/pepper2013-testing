@@ -32,6 +32,7 @@ from student.views import course_from_id
 from courseware.courses import get_course_by_id
 from xmodule.remindstore import myactivitystore
 from file_uploader.utils import get_file_url
+from pepper_utilities.utils import render_json_response
 
 log = logging.getLogger("tracking")
 
@@ -1971,3 +1972,38 @@ def top_post(request):
     post.save()
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 #@end
+
+def community_user_email_completion(request):
+    r = list()
+    user_district = request.user.profile.district
+    lookup = request.GET.get('q', False)
+    if lookup:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        if not request.user.is_superuser:
+            kwargs.update({'profile__district': user_district})
+
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
+    return render_json_response(r)
+
+def community_user_email_valid(request):
+    exists = False
+    email_can_input = False
+    lookup = request.GET.get('email', False)
+    if lookup:
+        user_add = User.objects.filter(email=lookup)
+        exists = user_add.exists()
+        if exists:
+            if request.user.is_superuser:
+                email_can_input = True
+            elif user_add[0].profile.district == request.user.profile.district:
+                email_can_input = True
+
+    check_result = "1"
+    if not exists:
+        check_result = "2"
+    elif not email_can_input:
+        check_result = "3"
+
+    return render_json_response(check_result)
