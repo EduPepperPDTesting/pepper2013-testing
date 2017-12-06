@@ -461,9 +461,8 @@ def maincommunity(request, community_id):
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    users_drop = list()
-    courses_drop, users_drop = get_dropdown_data(request.user, community_id)
-    data = {'courses_drop': courses_drop, 'users_drop': users_drop}
+    courses_drop = get_dropdown_data(request.user, community_id)
+    data = {'courses_drop': courses_drop}
 
     # Get community info
     community = CommunityCommunities.objects.get(id=community_id)
@@ -755,7 +754,6 @@ def newcommunities(request):
     user = request.user
     community_list = list()
     filter_dict = dict()
-    community_id = 'new'
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -779,21 +777,16 @@ def newcommunities(request):
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    users_drop = list()
-    courses_drop, users_drop = get_dropdown_data(user)
+    courses_drop = get_dropdown_data(user)
 
-    # If we are adding a new community, and the user making the request is a superuser, return a blank form.
-    community_info = dict()
-    if community_id == 'new': #and user.is_superuser:
-        community_other_info = {'community_id': 'new',
-                                'state': '',
-                                'district': '',
-                                'user_type': 'super'}
+    user_super = ''
+    if request.user.is_superuser:
+        user_super = "super"
+    community_other_info = {'user_super': user_super}
 
     # Set up the data to send to the communities template, with the communities sorted by id.
     data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
-            'courses_drop': courses_drop,
-            'users_drop': users_drop}
+            'courses_drop': courses_drop}
     data.update(community_other_info)
 
     return render_to_response('communities/communities_new.html', data)
@@ -830,28 +823,13 @@ def get_dropdown_data(user, community_id=''):
                              'number': course.display_number_with_default,
                              'name': get_course_about_section(course, 'title'),
                              'logo': course_image_url(course)})
-
-    # Step5, get facilitators list.
-    users_drop = list()
-    order = ['user__email']
-    if user.is_superuser:
-        users = UserProfile.objects.prefetch_related().all().order_by(*order)
-        users = users.filter(Q(subscription_status='registered') | Q(subscription_status='imported'))
-
-        for d in users:
-            users_drop.append({'email': d.user.email, 'user_id': d.user_id})
-    return courses_drop, users_drop
+    return courses_drop
 
 @login_required
 def get_edit_community(request):
     data = dict()
     community_id = request.POST.get("id")
     if community_id != 'new' and is_facilitator_edit(request.user, community_id):
-        if request.user.is_superuser:
-            user_type = 'super'
-        elif is_facilitator_edit(request.user, community_id):
-            user_type = 'facilitator'
-
         # Grab the data from the DB.
         community_object = CommunityCommunities.objects.get(id=community_id)
         courses = CommunityCourses.objects.filter(community=community_object)
@@ -897,12 +875,7 @@ def get_edit_community(request):
                           'district': community_object.district.id if community_object.district else '',
                           'private': community_object.private,
                           'courses': course_list,
-                          'resources': resource_list,
-                          'user_type': user_type}
-        
-        #courses_drop, users_drop = get_dropdown_data(request.user)
-        #community_info['courses_drop'] = courses_drop
-        #community_info['users_drop'] = users_drop
+                          'resources': resource_list}
     return HttpResponse(json.dumps(community_info), content_type="application/json")
 
 def is_facilitator_edit(user, community_id):
@@ -916,9 +889,9 @@ def community_delete(request, community_id):
         cname = community.name
 
         discussions = CommunityDiscussions.objects.filter(community=community)
-        ma_db = myactivitystore()                
+        ma_db = myactivitystore()
         ma_db.set_item_community(cid, cname, discussions)
-        
+
         community.delete()
 
         return redirect(reverse('communities'))

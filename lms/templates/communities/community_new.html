@@ -21,7 +21,6 @@ import datetime
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
-
 <!--cropper-->
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -427,22 +426,13 @@ a{
 
 <%
     district_id = district
-    # if district_id == '':
-    #    if request.user.profile.district_id:
-    #        district_id = request.user.profile.district_id
-
     state_id = state
-    state_name = ""
+    state_name = ''
     if state_id:
         for item in State.objects.filter(id=state_id):
             state_name = item.name
             break
-    # if state_id == '':
-    #    for item in State.objects.all().order_by('name'):
-    #        if district_id:
-    #            if item.name == request.user.profile.district.state.name:
-    #                state_id = item.id
-    #                break
+    community_id = community.id
 %>
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
@@ -468,13 +458,13 @@ a{
                         <div class="f-menu-triangle"></div>
                             <div class="f-lines">
                                 %if user_request_info.community_edit or user_super:
-                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community.id});">Edit Community</div>
+                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if user_request_info.community_delete or user_super:
                                 <div class="f-rights-line">Delete Community</div>
                                 %endif
                                 %if user_request_info.community_default or user_super:
-                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community.id])}">Manage Users</a></div>
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
                                 %endif
                             </div>
                         </div>
@@ -516,7 +506,7 @@ a{
                 </div>
             </div>
             <div class="trending">
-                <div class="sub-title">Trending ${community.id}</div>
+                <div class="sub-title">Trending</div>
                 <div class="trendings">
                     <div class="every-discussion">
                         <div class="discussion-subject overflow-text">Welcome to the O Nieill sdfsdfa sadf</div>
@@ -1162,7 +1152,7 @@ a{
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var json = {
-            community_id: '${community.id}',
+            community_id: '${community_id}',
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),
@@ -1538,26 +1528,5 @@ a{
                 $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
         });
-        //** init expand title
-        /*
-        $(".expand_title").next("div.expand_div").slideDown(); //akogan
-        //$(".expand_title").off("click").bind("click", function () {
-        $(".expand_title").on("click", function () {
-            if ($(".expand_div").is(':visible')) {
-                $(".expand_div").slideUp();
-                $(this).removeClass("expand_title_expanded");
-            } else {
-                $(".expand_div").slideDown();
-                $(this).addClass("expand_title_expanded");
-            }
-        });
-        */
-        // $(".expand_title").click();
-        /*
-        $(".print-map").click(function (e) {
-            e.preventDefault();
-            return false;
-        });
-        */
     });
 </script>
