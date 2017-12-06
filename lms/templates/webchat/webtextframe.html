@@ -29,15 +29,15 @@
                 <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="${reverse('chat_attachment', args=[request.user.id, user_id])}" method="post" enctype="multipart/form-data" id="pep_attachment_form">
-                        <label class="pep_attach_label" id="input_label" for="pep_file_input" style="display: inline-block;cursor: pointer !important;">
+                        <label class="pep_attach_label" id="input_label" for="pep_file_input_${user_id}" style="display: inline-block;cursor: pointer !important;">
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
-                        <input id="pep_file_input" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
+                        <input class="pep_file_input" id="pep_file_input_${user_id}" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                        <label class="pep_attach_label" id="submit_label" for="pep_file_submit" style="display: none;cursor: pointer !important;">
-                            <img id="pep_send_image" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
+                        <label class="pep_attach_label" id="submit_label" for="pep_file_submit_${user_id}" style="display: none;cursor: pointer !important;">
+                            <img class="pep_send_image" id="pep_send_image_${user_id}" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
                         </label>
-                        <input  id="pep_file_submit" type="submit" name="submit" style="display: none;">
+                        <input class="pep_file_submit" id="pep_file_submit_${user_id}" type="submit" name="submit" style="display: none;">
                     </form>
                 </div>
             </div>

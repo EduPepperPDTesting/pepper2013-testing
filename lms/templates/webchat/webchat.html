@@ -88,12 +88,12 @@ $(document).ready(function(){
     });
 
 
-    $("#pep_textchat_block").on("change", "#pep_file_input", function(){
+    $("#pep_textchat_block").on("change", ".pep_file_input", function(){
         console.log("pep_file_input");
         $(this).parents("#pep_attachment_form").find("#input_label").css("display", "none");
         $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "inline-block");
     });
-     $("#pep_textchat_block").on("click", "#pep_send_image", function(){
+     $("#pep_textchat_block").on("click", ".pep_send_image", function(){
         console.log("send_image");
         $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
         $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
