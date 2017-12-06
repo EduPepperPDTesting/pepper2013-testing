@@ -262,10 +262,11 @@
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
 				}
-                $(".pep_textchatheader_container").on("click", ".pep_chat_video", function(e) {
+                $(".pep_chat_video").on("click", function(e) {
                     e.preventDefault();
                     user_id = ${request.user.id};
-                    request_user_id = $(this).next(".pep_text_chat").attr("id").replace("textchat_", "");
+                    request_user_id = $(this).attr("id");
+                    console.log(request_user_id);
                     $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                         var session = data.session;
                         $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
@@ -275,7 +276,7 @@
                         });
                     });
                 });
-                
+
 				getMessage(id);
 			}
 			$link.data('lockedAt', +new Date());
