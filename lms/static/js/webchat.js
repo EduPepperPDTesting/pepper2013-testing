@@ -58,7 +58,7 @@ var SpeakerDetection = function(subscriber, startTalking, stopTalking) {
   var activity = null;
   subscriber.on('audioLevelUpdated', function(event) {
     var now = Date.now();
-    console.log ("Audio Levels: " + event.audioLevel);
+    //console.log ("Audio Levels: " + event.audioLevel);
     if (event.audioLevel > 0.2) {
       if (!activity) {
         activity = {timestamp: now, talking: false};

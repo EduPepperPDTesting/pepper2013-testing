@@ -262,6 +262,20 @@
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
 				}
+                $(".pep_textchatheader_container").on("click", ".pep_chat_video", function(e) {
+                    e.preventDefault();
+                    user_id = ${request.user.id};
+                    request_user_id = $(this).next(".pep_text_chat").attr("id").replace("textchat_", "");
+                    $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                        var session = data.session;
+                        $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                            window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                            link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                            sendVideoRequest(request_user_id, link, 0);
+                        });
+                    });
+                });
+                
 				getMessage(id);
 			}
 			$link.data('lockedAt', +new Date());
