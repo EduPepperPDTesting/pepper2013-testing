@@ -25,6 +25,6 @@ class ChatAttachment(models.Model):
     class Meta:
         db_table = 'pepptalk_attachments'
     user_from = models.CharField(blank=False, max_length=255)
-    user_to = models.CharField(blank=False, max_length=255) #models.ForeignKey(User, on_delete=models.PROTECT)
+    user_to = models.ForeignKey(User, on_delete=models.PROTECT)
     attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
