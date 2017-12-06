@@ -66,8 +66,8 @@
 .pep_text_container[data-chat_mini='1'] .pep_textchatfooter_container{
     display: none;
 }
-.pep_text_container[data-chat_mini='1'] .pep_text_panel{
-    bottom: -220px;
+.pep_text_container[data-chat_mini='1']{
+    bottom: -210px;
 }
 .pep_text_container[data-chat_mini='1'] .hide-chat{
     display: none;

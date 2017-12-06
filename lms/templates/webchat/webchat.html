@@ -13,10 +13,10 @@ $(document).ready(function(){
             var getId = $(this).find(".pep_header_left").attr("id");
             var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
-            if($(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom") !== "-220px"){
+            if($(this).parents(".pep_text_container").css("bottom") !== "-210px"){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
-                $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
+                $(this).parents(".pep_text_container").css("bottom","-210px");
 
                 for (var arrInd in chatHeads){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
@@ -30,7 +30,7 @@ $(document).ready(function(){
             }else{
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
-                $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-10px");
+                $(this).parents(".pep_text_container").css("bottom","0px");
 
                 for (var arrInd in chatHeads){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
