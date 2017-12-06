@@ -262,7 +262,10 @@
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
 				}
-                $(".pep_chat_video").on("click", function(e) {
+				getMessage(id);
+			}
+			$link.data('lockedAt', +new Date());
+            $(".pep_chat_video").on("click", function(e) {
                     e.preventDefault();
                     user_id = ${request.user.id};
                     request_user_id = $(this).attr("id");
@@ -276,10 +279,6 @@
                         });
                     });
                 });
-
-				getMessage(id);
-			}
-			$link.data('lockedAt', +new Date());
         });
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
 			var $link = $(e.target);
