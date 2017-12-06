@@ -352,7 +352,7 @@ def chat_attachment(request, userFromID, userToID):
     success = False
 
     fileObj.user_from = userFromID
-    fileObj.user_to = userToID
+    fileObj.user_to = userToID.encode("utf-8")
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
