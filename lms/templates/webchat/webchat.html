@@ -16,7 +16,7 @@ $(document).ready(function(){
             if($(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom") !== "-220px"){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
-                $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
+                $(this).parents(".pep_text_container").css("bottom","-210px");
 
                 for (var arrInd in chatHeads){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
