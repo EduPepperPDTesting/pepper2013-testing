@@ -42,42 +42,65 @@ CoursePermission.prototype.checkTaskProgress = function(taskId){
 }
 CoursePermission.prototype.save = function(send_notification){
     var self = this;
-    var users = []
-    $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input:checked").each(function(){
-        users.push(this.value);
+    // make filter
+    var users = [], courses = [], access = [], enroll = [];
+    var global_all_user = $('#course_permission_user .tablesorter-blue .check-all').is(":checked");
+    var select_user_manual = $('#course_permission_user .tablesorter-blue .check-manual').is(":checked");
+    var select_user_current_page = $('#course_permission_user .tablesorter-blue .check-current-page').is(":checked");
+    $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input").each(function(){
+        if(select_user_manual){
+            if($(this).is(":checked"))users.push(this.value);
+        }else if(select_user_current_page){
+            users.push(this.value);
+        }
     });
-    if(!users.length){
+    if(!users.length && !global_all_user){
         new Dialog($('#dialog')).show("Warn", "No user selected");
         return;
     }
-    var courses = [];
-    var access = [];
-    var enroll = [];
+    var $filter_row = $('#course_permission_course .tablesorter-blue .tablesorter-filter-row');
+    var global_course_access = $filter_row.find(".toggle.access").toggleSwitch().val();
+    var global_course_enroll = $filter_row.find(".toggle.enroll").toggleSwitch().val();
+    var global_all_course = global_course_access != 0 || global_course_enroll != 0;
     $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
-        var a = $(this).find("td:nth-child(6) .toggle").toggleSwitch().val();
-        var e = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
+        var a = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
+        var e = $(this).find("td:nth-child(8) .toggle").toggleSwitch().val();
         if(a != 0 || e != 0){
-            courses.push($(this).find("td:nth-child(5)").text())
+            if(!global_all_course)
+                courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
             enroll.push(e);
         }
     });
-    if(!courses.length){
+    if(!courses.length && !global_all_course){
         new Dialog($('#dialog')).show("Warn", "No course assigned");
         return;
     }
-    $.post(self.sys.url.update_course_permission, {
-        send_notification: send_notification ? "1" : "0",
+    var $user_table = $('#course_permission_user .tablesorter-blue');
+    var $course_table = $('#course_permission_course .tablesorter-blue');
+    var course_filter  = $course_table[0].config.pager.data;
+    var user_filter  = $user_table[0].config.pager.data;
+    var filter = {
+        global_all_user: global_all_user,
+        global_all_course: global_all_course,
+        global_course_access: global_course_access,
+        global_course_enroll: global_course_enroll,
+        send_notification: send_notification,
         users: users.join(","),
         courses: courses.join(","),
         access: access.join(","),
-        enroll: enroll.join(",")}, function(r){
-            if(r.success){
-                self.checkTaskProgress(r.taskId);
-            }else{
-                new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
-            }
-        });
+        enroll: enroll.join(",")
+    }
+    filter = $.extend(filter, user_filter);
+    filter = $.extend(filter, course_filter);
+    // submit
+    $.post(self.sys.url.update_course_permission, filter, function(r){
+        if(r.success){
+            self.checkTaskProgress(r.taskId);
+        }else{
+            new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
+        }
+    });
 }
 CoursePermission.prototype.addTimeStamp = function(url){
     var r = url.replace(/&timestamp=\d*/, "") + "&timestamp=" + new Date().getTime();
@@ -87,11 +110,11 @@ CoursePermission.prototype.loadCourseTable = function(){
     var self = this;
     var url = this.sys.url.get_course_permission_course_rows + "?page={page}&size={size}&{filterList:fcol}&{sortList:col}";
     var data = {
-        subjects: $("#lst-course-filter-subject").get_selection().join(",") || "",
-        authors: $("#lst-course-filter-author").get_selection().join(",") || "",
-        grade_levels: $("#lst-course-filter-grade-level").get_selection().join(",") || "",
-        states: $("#lst-course-filter-state").get_selection().join(",") || "",
-        districts: $("#lst-course-filter-district").get_selection().join(",") || ""
+        course_filter_subjects: $("#lst-course-filter-subject").get_selection().join(",") || "",
+        course_filter_authors: $("#lst-course-filter-author").get_selection().join(",") || "",
+        course_filter_grade_levels: $("#lst-course-filter-grade-level").get_selection().join(",") || "",
+        course_filter_states: $("#lst-course-filter-state").get_selection().join(",") || "",
+        course_filter_districts: $("#lst-course-filter-district").get_selection().join(",") || ""
     };
     var pagerOptions = {
         container: '',
@@ -141,29 +164,48 @@ CoursePermission.prototype.loadCourseTable = function(){
         loadwin.show();  
     });
     $table.bind('filterStart', function(e, f) {
-        this.config.pager.data.subject_fuzzy = f[0];
-        this.config.pager.data.author_fuzzy = f[1];
-        this.config.pager.data.grade_level_fuzzy = f[2];
-        this.config.pager.data.course_name_fuzzy = f[3];
+        this.config.pager.data.course_filter_subject_fuzzy = f[0];
+        this.config.pager.data.course_filter_author_fuzzy = f[1];
+        this.config.pager.data.course_filter_grade_level_fuzzy = f[2];
+        this.config.pager.data.course_filter_course_name_fuzzy = f[3];
     });
     $table.bind("pagerComplete", function (a) {
         if(loadwin)loadwin.hide();
         var this_table=this;
-        $(this).find(".check-all").click(function(){
-            $(this_table).find("tbody tr td:nth-child(6) input").prop("checked", this.checked);
+        // $(this).find(".check-current-page").click(function(){
+        //     $(this_table).find("tbody tr td:nth-child(6) input").prop("checked", this.checked);
+        // });
+        // clean contents inside cells
+        $(this).find("thead tr td:eq(4)").html("").css("text-align", "left");
+        $(this).find("thead tr td:eq(5)").html("").css("text-align", "left");
+        // place toggles into cells
+         var g_toggle1 = $("<div class='toggle access'/>").appendTo( $(this).find("thead tr td:eq(4)")).toggleSwitch();
+         var g_toggle2 = $("<div class='toggle enroll'/>").appendTo( $(this).find("thead tr td:eq(5)")).toggleSwitch();
+        g_toggle2.change(function(){
+            var v = this.val();
+            if(v == 1) g_toggle1.val(1, true)
+            $(this_table).find("tbody tr td:nth-child(8) .toggle").toggleSwitch().val(v, false);
         });
-        $(this).find("thead tr td:gt(3)").html("")
+        g_toggle1.change(function(){
+            var v = this.val();
+            if(v == -1) g_toggle2.val(-1, true)
+            $(this_table).find("tbody tr td:nth-child(7) .toggle").toggleSwitch().val(v, false);
+        });
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
+            var displaynumber = $(this).find("td:nth-child(6)").text();
             $(this).find("td:nth-child(5)").hide();
-            $(this).find("td:nth-child(4)").prop("title", id);
-            var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(5)).toggleSwitch();
-            var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
+            $(this).find("td:nth-child(6)").hide();
+            $(this).find("td:nth-child(4)").prop("title", displaynumber);
+            var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
+            var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
             toggle2.change(function(){
+                g_toggle2.val(0, false);
                 var v = this.val();
                 if(v == 1) toggle1.val(1)
             });
             toggle1.change(function(){
+                g_toggle1.val(0, false);
                 var v = this.val();
                 if(v == -1) toggle2.val(-1)
             });
@@ -179,19 +221,19 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     });
     if(hidden['csv_users']){
         var data = {
-            subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
-            author: ($("#filters-author-submenu li.active").attr("data-value")) || "",
-            grade_level: ($("#filters-grade-submenu li.active").attr("data-value")) || "",
-            csv_users: hidden['csv_users']
+            user_course_filter_subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
+            user_course_filter_author: ($("#filters-author-submenu li.active").attr("data-value")) || "",
+            user_course_filter_grade_level: ($("#filters-grade-submenu li.active").attr("data-value")) || "",
+            user_filter_csv_users: hidden['csv_users']
         };
     }else{
         var data = {
-            subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
-            author: ($("#filters-author-submenu li.active").attr("data-value"))  || "",
-            grade_level: ($("#filters-grade-submenu li.active").attr("data-value"))  || "",
-            states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(",")  || "",
-            districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(",")  || "",
-            schools: $("#lst-user-filter-school").get_selection().join(",") || ""
+            user_course_filter_subject: ($("#filters-subject-submenu li.active").attr("data-value")) || "",
+            user_course_filter_author: ($("#filters-author-submenu li.active").attr("data-value"))  || "",
+            user_course_filter_grade_level: ($("#filters-grade-submenu li.active").attr("data-value"))  || "",
+            user_filter_states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(",")  || "",
+            user_filter_districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(",")  || "",
+            user_filter_schools: $("#lst-user-filter-school").get_selection().join(",") || ""
         };
     }
     var url = this.sys.url.get_course_permission_user_rows + "?page={page}&size={size}&{sortList:col}";
@@ -214,6 +256,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     }
     /** init */
     var courses;
+    var all_user_on = false;
     var pagerOptions = {
         container: $("#course_permission_user .pager"),
         output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
@@ -222,6 +265,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         cssGoto: '.gotoPage',
         ajaxUrl: url,
         ajaxProcessing: function(data){
+            all_user_on = $("input[name=user-select].check-all").is(":checked");
             if(data && data.length)courses = data[2];
             return data;
         },
@@ -247,9 +291,9 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     };
     $table.tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $table.bind('filterStart', function(e, f) {
-        this.config.pager.data.first_name_fuzzy=f[1];
-        this.config.pager.data.last_name_fuzzy=f[2];
-        this.config.pager.data.email_fuzzy=f[3];
+        this.config.pager.data.user_filter_first_name_fuzzy=f[1];
+        this.config.pager.data.user_filter_last_name_fuzzy=f[2];
+        this.config.pager.data.user_filter_email_fuzzy=f[3];
     });
     var loadwin;
     $table.bind("movingPage", function(a){
@@ -262,14 +306,12 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         // $(this).trigger('refreshColumnSelector', [[0, 1, 2]]);
         // $(this).find("th:nth-child(1)").width(160)
         var this_table=this;
-        var $check_all = $(this).find(".check-all");
-        $check_all.click(function(){
-            $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
-            $(this_table).find("tbody tr td:nth-child(1) input").trigger("change");
-        });
-        
+        // var $check_all = $(this).find(".check-current-page");
+        // $check_all.click(function(){
+        //     $(this_table).find("tbody tr td:nth-child(1) input").prop("checked", this.checked);
+        //     $(this_table).find("tbody tr td:nth-child(1) input").trigger("change");
+        // });
         var user_selection = self.user_selection;
-
         $(this).find("td:nth-child(1):gt(0)").each(function(i){
             var v = $(this).text();
             $(this).html("");
@@ -280,18 +322,15 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             $check.change(function(){
                 self.user_selection[this.value] = (this.checked);
                 //console.log(self.user_selection)
-                var all_checked = $(this_table).find("tbody tr td:nth-child(1) input:checked").length == $(this_table).find("tbody tr td:nth-child(1) input").length;
-                //console.log(all_checked)
-                $check_all.attr("checked", all_checked);
+                // var all_checked = $(this_table).find("tbody tr td:nth-child(1) input:checked").length == $(this_table).find("tbody tr td:nth-child(1) input").length;
+                // //console.log(all_checked)
+                // $check_all.attr("checked", all_checked);
             })
             $check.click(function(){
-    
             });
             $check.trigger("change");
         });
-        
         // self.user_selection = {};
-
         /** hide headers only for filter  */
         $(this).find("th:nth-child(5)").hide();
         $(this).find("td:nth-child(5)").hide();
@@ -306,7 +345,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         $tr1.find("td:gt(6)").remove();
         $tr1.find("td:eq(0)").html("");
         $.each(courses, function(i, c){
-            $("<th title=" + c.id + ">" + c.display_name + "</th>").appendTo($tr0).hover(function(){
+            $("<th title=" + c.display_coursenumber + ">" + c.display_name + "</th>").appendTo($tr0).hover(function(){
             });
             $("<td></td>").appendTo($tr1);
         });
@@ -341,7 +380,28 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                 else
                     $detail.show();
             });
-        });      
+        });
+        // begin ------- end checks control
+        var $checks = $(this).find("tbody tr td:nth-child(1) input");
+        $("input[name=user-select]").change(function(e){
+            var v = $(this).val(); 
+            if(v == "manual"){
+                $checks.prop("checked", false);
+            }else if(v == "current-page"){
+                $checks.prop("checked", true);
+            }else if(v == "all"){
+                $checks.prop("checked", true);
+            }
+        });
+        if(all_user_on){
+            $checks.prop("checked", true);
+        }else{
+            $("input[name=user-select].check-manual").prop("checked", true);
+        }
+        // end ------- checks control
+        $checks.change(function(){
+            $("input[name=user-select].check-manual").prop("checked", true);
+        });
     });
 }
 CoursePermission.prototype.dropDistrictMu = function(select, state_ids){
@@ -447,7 +507,6 @@ CoursePermission.prototype.initUI = function(){
             self.dropDistrictMu(sele, $(this).get_selection());
         }
     });
-
     $(document).click(function(e){
         if(!$(e.target).parent().hasClass("filters-menu") &&
            !$(e.target).parent().hasClass("filters-submenu")) {
@@ -455,7 +514,6 @@ CoursePermission.prototype.initUI = function(){
             $(".filters-submenu").hide();
         }
     })
-    
     /** btns load table */
     $("#btnUserLoad").click(function(){
         $("input[name=csv_users]").val("");
@@ -499,10 +557,8 @@ CoursePermission.prototype.initUI = function(){
     setInterval(function(){
         if(isInView)
             return $("#float-users-win").hide();
-        
         if($("#float-users-win").find("input:checked").length < 1)
             return $("#float-users-win").hide();
-        
         var offset = $("#course_permission_user").offset();
         var width = offset.left - $(window).scrollLeft() - 20;
         if($("#float-users-win").html()){
@@ -519,4 +575,3 @@ CoursePermission.prototype.initUI = function(){
         isInView = v;
     });
 }
-
