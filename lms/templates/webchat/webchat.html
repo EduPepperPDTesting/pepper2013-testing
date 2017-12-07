@@ -103,7 +103,11 @@ $(document).ready(function(){
         console.log("send_image");
         var attachSource = "${reverse('chat_attachment', args=[request.user.id])}?user_id="+getId;
         $.ajax({type: "GET", url: attachSource, success: function (data) {
-            console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
+            console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
+            setTimeout(function() {
+                    alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
+                }
+              }, 5000);
             if(data.Success){
                 alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
                 $("textchat_"+data.textchatID).append(
