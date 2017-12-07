@@ -812,7 +812,7 @@ a{
 <script src="/static/js/datetime/moment.js"></script>
 
 <section class="content-wrapper1" style="margin-top:0px;background-color:#e7e7e8;">
-    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:20px;">
+    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:97px;">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Communities-My Trending Topics-->
         <%include file="navigation_left_list.html" />
@@ -1262,7 +1262,7 @@ $(document).ready(function(){
         var page_leftnav = 530;
         var page_bottom = 107;
         var show_page_height = page_top + page_leftnav + page_bottom;
-        if($(this).height() <= show_page_height){
+        //if($(this).height() <= show_page_height){
             var a1 = page_top + page_leftnav;
             var a2 = $(this).height() - a1;
             var a3 = page_bottom - a2;
@@ -1275,7 +1275,7 @@ $(document).ready(function(){
                 $(".con-my-communities").css({'margin-top':'0px'});
                 $(".con-my-courses").css({'margin-top':'0px'});
             }
-        }
+        //}
     });
     
     $(document).on('click', ".ma_mf_btn", function() {  
