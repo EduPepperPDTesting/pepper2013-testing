@@ -573,7 +573,7 @@ def organization_add(request):
 # -------------------------------------------------------------------design_add
 @login_required
 def design_add(request):
-    name = request.POST.get('design_name', False)
+    name = request.POST.get('Design_name', False)
     copyfromid = request.POST.get('design_copy_from', False)
     oid = request.POST.get('oid', False)
     data = {'Success': False}
@@ -586,7 +586,7 @@ def design_add(request):
         try:
             design.DesignName = name
             design.save()
-            
+
             data = {'Success': True}
         except Exception as e:
             data = {'Success': False, 'Error': '{0}'.format(e)}

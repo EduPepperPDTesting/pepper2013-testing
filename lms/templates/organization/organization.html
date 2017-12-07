@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
+	.design-permission-edit img{height:16px;width:16px;}
 	div.expand_title_expanded .icon {background: url("/static/images/arrows.png")no-repeat 0 -23px !important;}
 	input[type=button].small_btn{font-size:12px;height:2em;line-height:2em;padding:0 10px;}
 	.organization_main{margin: 0 auto 30px auto; width: 1180px; padding: 10px;}
@@ -1466,6 +1467,9 @@
 	}
 	//----------------------------------------------------------------------------------------------------------updatedesign
 	function updateDesigns(){
+		$(".expand_title_parent").hide();
+		$('#design-table tbody .data').remove();
+		$('.design-select-all:checked').prop({checked: false});	
 		$.getJSON("${reverse('organizational_configuration')}", {flag:"design_list"}, function (r) {
 			if(r.success){
 				if(r.rows.length > 0){
@@ -1474,7 +1478,7 @@
 						var row = '<tr class="data">';
 						row += '<td><a href="#' + r.rows[i].id + '" class="design_next">' + r.rows[i].DesignName + '</a></td>';
 						row += '<td class="check-column">';
-						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
+						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="design-select">&nbsp;';
 						row += '<a href="#' + r.rows[i].id + '" class="design-permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 						row += '</td>';
 						if (r.rows[i].is_selected == 1){

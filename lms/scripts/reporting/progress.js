@@ -98,6 +98,9 @@ db.modulestore.find({
     print('--------------------------------------------------------------------', course_num);
 })
 
+db.modulestore.createIndex({
+    'q_course_id': 1
+})
 
 var student_course_num = 1;
 //db.student_courseenrollment.find({'is_active':1,'user_id':125,'course_id':'MPY/DC102/S2016'}).noCursorTimeout().forEach(function(sc){
