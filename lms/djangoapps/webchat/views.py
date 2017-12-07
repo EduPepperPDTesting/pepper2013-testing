@@ -350,7 +350,7 @@ def get_community_user_rows(request):
 def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
-    success = False
+    success = 0
     userToID = request.GET.get("user_id")
 
     fileObj.user_from = userFromID
@@ -363,7 +363,7 @@ def chat_attachment(request, userFromID):
             attachment.sub_type = userToID
             attachment.upload = request.FILES.get('attachment')
             attachment.save()
-            success = True
+            success = 1
         except Exception as e:
             attachment = None
             error = e
@@ -372,7 +372,7 @@ def chat_attachment(request, userFromID):
 
     if attachment:
         fileObj.attachment = attachment
-        
+
     fileObj.save()
     fileObj_dict = model_to_dict(fileObj)
 
