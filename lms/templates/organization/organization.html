@@ -204,6 +204,39 @@
                     <td colspan="2"><input type="text" id="organizational_base_main_page_button_link" ></td>
                 </tr>
             </table>
+            <div class="design_main">
+				<div style="width:600px;">
+			        <table id="design-table" class="design-table">
+			            <thead>
+			                <tr>
+			                    <th>Organization</th>
+			                    <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="design-select-all"></th>
+			                </tr>
+			            </thead>
+			            <tbody></tbody>
+			        </table>
+			        <div id="design-actions">
+			            <div id="design-pager" class="pager">            
+			                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+			                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+			                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+			                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+			                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+			                <select class="pagesize">
+			                	<option value="1">1</option>
+			                	<option value="5">5</option>
+			                    <option value="10">10</option>
+			                    <option value="25">25</option>
+			                    <option value="50">50</option>
+			                    <option value="100">100</option>
+			                    <option value="200">200</option>
+			                </select>
+			            </div>
+			            <input type="button" name="submit" id="del-design" value="REMOVE SELECTED" class="small_btn" />
+			            <input type="button" name="submit" value="ADD" class="small_btn" onclick="designEdit('add','','')" />
+			        </div>
+			    </div>
+			</div>
 			<div style="width:100%; text-align:right; height:30px;">
                 <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
             </div>
@@ -1410,7 +1443,25 @@
 			});
 		});
 	}
-	
+	//----------------------------------------------------------------------------------------------------------updatedesign
+	function updateDesigns(){
+		$.getJSON("${reverse('organizational_configuration')}", {flag:"design_list"}, function (r) {
+			if(r.success){
+				if(r.rows.length > 0){
+					for(var i in r.rows){
+						var row = '<tr class="data">';
+						row += '<td><a href="#' + r.rows[i].id + '" class="organization_next">' + r.rows[i].DesignName + '</a></td>';
+						row += '<td class="check-column">';
+						row += '<input type="radio" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
+						row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+						row += '</td>';
+						row += '</tr> ';
+						$('#organization-table tbody').append(row);
+					}
+				}
+			}
+		}
+	}
 	//----------------------------------------------------------------------------------------------------------updateOrganizations
 	function updateOrganizations() {
 		$(".expand_title_parent").hide();
@@ -3527,6 +3578,9 @@
 		
 		pagerOptions.container = $("#organization-manage-user-pager");
 		$('#organization-manage-user-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+		pagerOptions.container = $("#design-pager");
+		$('#design-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 
 		//--------------------------del-organization
 		$('#del-organization').click(function () {

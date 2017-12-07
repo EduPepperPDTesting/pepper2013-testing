@@ -40,6 +40,9 @@ def main(request):
         if get_flag == "organization_list":
             return organization_list(request)
 
+        if get_flat == "design_list":
+            return design_list(request)
+
         elif get_flag == "checkPost":
             return organization_check(request)
 
@@ -344,6 +347,20 @@ def organization_list(request):
 
     return render_json_response({'success': True, 'rows': rows})
 
+#----------------------------------------------------------------------design_list
+@login_required
+def design_list(request):
+    oid = request.GET.get("oid", False)
+    if oid:
+        design_list = Nologindesign.objects.filter(id=oid)
+    else:
+        design_list = Nologindesign.objects.prefetch_related().all()
+
+    rows = []
+    for design in design_list:
+        rows.append({'id': design.id, 'OrganizationName': design.DesignName})
+
+    return render_json_response({'success': True, 'rows': rows})
 
 # -------------------------------------------------------------------organization_check
 @login_required

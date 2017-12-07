@@ -56,7 +56,7 @@ class MainPageConfiguration(models.Model):
     MainPageBottomImage = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonText = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonLink = models.CharField(blank=False, max_length=255, db_index=False)
-    SelectDesign = models.ForeignKey(Nologindesign)
+    SelectDesign = models.IntegerField(blank=False, default=0)
 
 class OrganizationMenuitem(models.Model):
     class Meta:
