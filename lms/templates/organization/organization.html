@@ -228,9 +228,6 @@
 			                	<option value="5">5</option>
 			                    <option value="10">10</option>
 			                    <option value="25">25</option>
-			                    <option value="50">50</option>
-			                    <option value="100">100</option>
-			                    <option value="200">200</option>
 			                </select>
 			            </div>
 			            <input type="button" name="submit" id="del-design" value="REMOVE SELECTED" class="small_btn" />
@@ -1457,7 +1454,11 @@
 						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
 						row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 						row += '</td>';
-						row += "<td><input type='radio' name='selectdesign'></td>"
+						if (r.rows[i].is_selected == 1){
+							row += "<td><input type='radio' checked name='selectdesign' value='"+r.rows[i].id+"'></td>";
+						}else{
+							row += "<td><input type='radio' name='selectdesign' value='"+r.rows[i].id+"'></td>";
+						}
 						row += '</tr> ';
 						$('#design-table tbody').append(row);
 					}
@@ -3624,6 +3625,7 @@
 		selectAll('.organization-manage-user-select-all', '.organization-manage-user-select');
 		
 		updateOrganizations();
+		updateDesigns();
 		
 		//--------------------------expand_title_next
 		$(".expand_title_next").click(function(){
@@ -4308,14 +4310,15 @@
 			var logo_text = $("#organizational_base_main_logo_text").val();
 			var button_text = $("#organizational_base_main_page_button_text").val();
 			var button_link = $("#organizational_base_main_page_button_link").val();			
-			
+			var selectdesign = $("input[name='selectdesign']:checked").val();
 			var mid = $(this).attr("mid");
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_main_base", 
 				mid: mid,
 				site_url: site_url,
 				logo_text: logo_text,
 				button_text: button_text,
-				button_link: button_link
+				button_link: button_link,
+				selectdesign: selectdesign
 			}, function (r) {
 				if (r.Success){
 					if($("#organizational_base_top_main_logo").val() != ""){

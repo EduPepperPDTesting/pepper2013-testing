@@ -358,7 +358,7 @@ def design_list(request):
 
     rows = []
     for design in design_list:
-        rows.append({'id': design.id, 'DesignName': design.DesignName})
+        rows.append({'id': design.id, 'DesignName': design.DesignName, 'is_selected': design.is_selected})
 
     return render_json_response({'success': True, 'rows': rows})
 
@@ -1400,7 +1400,6 @@ def organization_main_page_configuration_get(request):
             data['MainPageButtonText'] = org_main.MainPageButtonText
             data['MainPageButtonLink'] = org_main.MainPageButtonLink
             data['mid'] = org_main.id
-            data['SelectDesign'] = org_main.SelectDesign
             break
 
         data['flag_new'] = flag_new
@@ -1420,6 +1419,7 @@ def organizational_save_main_base(request):
         logo_text = request.POST.get("logo_text", "")
         button_text = request.POST.get("button_text", "")
         button_link = request.POST.get("button_link", "")
+        selectdesign = request.POST.get("selectdesign", "")
 
         org_main = MainPageConfiguration()
         for tmp1 in MainPageConfiguration.objects.prefetch_related().all():
@@ -1431,6 +1431,17 @@ def organizational_save_main_base(request):
         org_main.MainPageButtonText = button_text
         org_main.MainPageButtonLink = button_link
         org_main.save()
+
+        for tmp1 in Nologindesign.objects.filter(is_selected=1):
+            tmp1.is_selected = 0
+            tmp1.save()
+            break
+
+        for tmp1 in Nologindesign.objects.filter(pk=selectdesign):
+            tmp1.is_selected = 1
+            tmp1.save()
+            break
+
         data = {'Success': True}
 
     except Exception as e:
