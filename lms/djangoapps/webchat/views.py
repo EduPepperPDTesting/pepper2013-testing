@@ -350,7 +350,7 @@ def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
     success = False
-    userToID = int(request.POST.get("user_id"))
+    userToID = request.POST.get("user_id")
 
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=userToID)
