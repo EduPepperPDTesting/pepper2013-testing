@@ -1379,23 +1379,9 @@
 	function organizationEdit(type, id, name) {
 		var button_name = 'Add';
 		var dialog_title = 'New Organization';
-		//var name = '';
-		//var url = '';
 		if (type == 'edit') {
 			button_name = 'Save';
 			dialog_title = 'Edit Organization';
-			/*$.ajaxSettings.async = false; 
-			$.getJSON("${reverse('organizational_configuration')}", {flag:"organization_list", oid: id}, function (r) {
-				if (r.success) {
-					if(r.rows.length > 0){
-						for(var i in r.rows){
-							name = r.rows[i].OrganizationName;
-							url = r.rows[i].url;
-						}
-					}
-				}
-			});
-			$.ajaxSettings.async = true;*/
 		}
 		
 		var content = '<form action="${reverse('organizational_configuration')}" method="post" id="new-organizational-submit">';
@@ -1428,6 +1414,43 @@
 			}
 		});
 	}
+
+	function designEdit(type, id, name){
+		var button_name = 'Add';
+		var dialog_title = 'New Design';
+		if (type == 'edit') {
+			button_name = 'Save';
+			dialog_title = 'Edit Design';
+		}
+		
+		var content = '<form action="${reverse('organizational_configuration')}" method="post" id="new-design-submit">';
+		content += '<label>Design Name:<input type="text" name="Design_name" placeholder="Name" value="' + name + '"></label>';
+		
+		if(type != "edit"){
+			content += '<label>Copy from:<select name="design_copy_from"><option value="">Select Design</option>';
+			$(".design_next").each(function(){
+				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
+			});
+			content += "</select></label>";
+		}
+		
+		if (type == 'edit') {
+			content += '<input type="hidden" name="oid" value="' + id + '"/>';
+		}else{
+			content += '<input type="hidden" name="oid" value="-1"/>';
+		}
+		content += '<input type="hidden" name="flag" value="design_add"/>';
+		content += '<input type="submit" name="submit" value="' + button_name + '"></label>';
+		content += '</form>';
+		
+		var dialog = new Dialog('#dialog');
+		dialog.show(dialog_title, content);
+		
+		$('#new-design-submit').submit(function (event) {
+			event.preventDefault();
+			postForm(this, dialog, updateDesigns);
+		});
+	}
 	
 	//-----------------------------------------------------------------------selectAll
 	function selectAll(trigger_selector, target_selector) {
@@ -1449,10 +1472,10 @@
 					var option = "";
 					for(var i in r.rows){
 						var row = '<tr class="data">';
-						row += '<td><a href="#' + r.rows[i].id + '" class="organization_next">' + r.rows[i].DesignName + '</a></td>';
+						row += '<td><a href="#' + r.rows[i].id + '" class="design_next">' + r.rows[i].DesignName + '</a></td>';
 						row += '<td class="check-column">';
 						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
-						row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+						row += '<a href="#' + r.rows[i].id + '" class="design-permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 						row += '</td>';
 						if (r.rows[i].is_selected == 1){
 							row += "<td><input type='radio' checked name='selectdesign' value='"+r.rows[i].id+"'></td>";
@@ -1463,6 +1486,13 @@
 						$('#design-table tbody').append(row);
 					}
 				}
+				
+				$('.design-permission-edit').click(function (e) {
+						e.preventDefault();
+						designEdit('edit', $(this).attr('href').substr(1), $(this).parent().prev().find("a").html());
+					});
+
+				$('#design-table').trigger('update');
 			}
 		})
 	}

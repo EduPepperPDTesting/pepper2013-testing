@@ -65,6 +65,9 @@ def main(request):
         if post_flag == "organization_add":
             return organization_add(request)
 
+        elif post_flag == "design_add":
+            return design_add(request)
+
         elif post_flag == "organization_delete":
             return organization_delete(request)
 
@@ -567,7 +570,28 @@ def organization_add(request):
             data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return render_json_response(data)
+# -------------------------------------------------------------------design_add
+@login_required
+def design_add(request):
+    name = request.POST.get('design_name', False)
+    copyfromid = request.POST.get('design_copy_from', False)
+    oid = request.POST.get('oid', False)
+    data = {'Success': False}
+    if name:
+        if oid != "-1":
+            design = Nologindesign.objects.get(id=oid)
+        else:
+            design = Nologindesign()
 
+        try:
+            design.DesignName = name
+            design.save()
+            
+            data = {'Success': True}
+        except Exception as e:
+            data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 
 # -------------------------------------------------------------------organization_add
 @login_required
