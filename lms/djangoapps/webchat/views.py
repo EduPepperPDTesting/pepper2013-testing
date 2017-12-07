@@ -357,6 +357,7 @@ def chat_attachment(request, userFromID):
     fileObj.user_to = User.objects.get(id=int(userToID))
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+        raise Exception("Have file")
         try:
             attachment = FileUploads()
             attachment.type = 'chat_attachment'
