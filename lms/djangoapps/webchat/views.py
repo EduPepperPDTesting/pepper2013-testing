@@ -353,7 +353,7 @@ def chat_attachment(request, userFromID):
     userToID = request.POST.get("user_id")
 
     fileObj.user_from = userFromID
-    fileObj.user_to = User.objects.get(id=userToID)
+    fileObj.user_to = User.objects.get(id=int(userToID))
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
