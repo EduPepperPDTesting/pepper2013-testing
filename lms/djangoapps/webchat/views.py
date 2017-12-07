@@ -371,11 +371,11 @@ def chat_attachment(request, userFromID):
         attachment = None
 
     if attachment:
-        attachment_dict = model_to_dict(attachment)
-        fileObj.attachment = attachment_dict
+        fileObj.attachment = attachment
         
     fileObj.save()
+    fileObj_dict = model_to_dict(fileObj)
 
-    data = {'textchatID': userToID, 'fileObj': fileObj, 'Success': success, 'Error': 'Error: {0}'.format(error)}
+    data = {'textchatID': userToID, 'fileObj': fileObj_dict, 'Success': success, 'Error': 'Error: {0}'.format(error)}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
