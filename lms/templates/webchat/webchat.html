@@ -99,16 +99,17 @@ $(document).ready(function(){
         $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "inline-block");
     });
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
+        var user_id = $(this).find(".pep_header_left").attr("id");
         console.log("send_image");
-        $.ajax({type: "post", url: "${reverse('chat_attachment', args=[request.user.id, user_id])}", success: function (data) {
+        $.ajax({type: "post", url: "${reverse('chat_attachment', args=[request.user.id, " + user_id + "])}", success: function (data) {
             console.log("Success=${Success}");
-            if("${Success}" == "True"){
-                $("textchat_"+${textchatID}).append(
-                    '<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url(fileObj.attachment)}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name(fileObj.attachment)}</a></div>'
+            if(data.Success == "True"){
+                $("textchat_"+data.textchatID}).append(
+                    '<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url(data.fileObj.attachment)}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name(data.fileObj.attachment)}</a></div>'
                 );
             }else{
-                $("textchat_"+${textchatID}).append(
-                    '<div class="pep_file_download"><span>Error. </span><span>${Error}</span> </div>'
+                $("textchat_"+${data.textchatID}).append(
+                    '<div class="pep_file_download"><span>Error. </span><span>${data.Error}</span> </div>'
                 );
             }
         }
