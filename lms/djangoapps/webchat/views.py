@@ -346,11 +346,11 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 
-def chat_attachment(request, userFromID, userToID):
+def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
     success = False
-    userToID = int(userToID.encode("utf-8"))
+    userToID = int(request.POST.user_id)
 
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=userToID)
