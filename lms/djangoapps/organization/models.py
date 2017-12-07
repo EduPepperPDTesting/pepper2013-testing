@@ -7,11 +7,11 @@ import logging
 
 class Nologindesign(models.Model):
     class Meta:
-        db_table = 'Nologindesign'
+        db_table = 'nologindesign'
     DesignName = models.CharField(blank=False, max_length=255, db_index=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    
+
 class OrganizationMetadata(models.Model):
     class Meta:
         db_table = 'organization_metadata'
