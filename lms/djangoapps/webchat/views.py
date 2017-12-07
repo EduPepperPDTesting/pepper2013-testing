@@ -9,6 +9,7 @@ from .models import CommunityWebchat, UserWebchat, MessageAlerts, ChatAttachment
 from people.views import my_people
 from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
+from django.forms.models import model_to_dict
 try:
     from urllib import urlencode
 except ImportError:
@@ -351,7 +352,7 @@ def chat_attachment(request, userFromID):
     error = ''
     success = False
     userToID = request.GET.get("user_id")
-    
+
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=int(userToID))
 
@@ -370,7 +371,9 @@ def chat_attachment(request, userFromID):
         attachment = None
 
     if attachment:
-        fileObj.attachment = attachment
+        attachment_dict = model_to_dict(attachment)
+        fileObj.attachment = attachment_dict
+        
     fileObj.save()
 
     data = {'textchatID': userToID, 'fileObj': fileObj, 'Success': success, 'Error': 'Error: {0}'.format(error)}
