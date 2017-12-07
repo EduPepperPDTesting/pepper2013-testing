@@ -3,21 +3,21 @@
 <script>
 $(document).ready(function(){
     alert("Success="+${Success});
-    alert("Error="+${Error});
-    /*if(${Success}){
+    console.log("Error="+${Error});
+    if(${Success}){
         $("textchat_"+${textchatID}).append(
-            "<div class="pep_file_download"><span>Attachment: </span>
+            '<div class="pep_file_download"><span>Attachment: </span>
                 <a href="${get_file_url(fileObj.attachment)}" target="_blank">
                     <img src="/static/images/document-download.png"> ${get_file_name(fileObj.attachment)}
                 </a>
-            </div>"
-        )
+            </div>'
+        );
     }else{
         $("textchat_"+${textchatID}).append(
-            "<div class="pep_file_download"><span>Error. </span>
+            '<div class="pep_file_download"><span>Error. </span>
                 <span>${Error}</span>
-            </div>"
-        )
-    }*/
+            </div>'
+        );
+    }
 });
 </script>
