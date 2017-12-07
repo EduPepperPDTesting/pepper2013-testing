@@ -5,7 +5,13 @@ from django.conf import settings
 from student.feeding import MongoBaseStore
 import logging
 
-
+class Nologindesign(models.Model):
+    class Meta:
+        db_table = 'Nologindesign'
+    DesignName = models.CharField(blank=False, max_length=255, db_index=False)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    
 class OrganizationMetadata(models.Model):
     class Meta:
         db_table = 'organization_metadata'
@@ -105,12 +111,6 @@ class OrganizationMoreText(models.Model):
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
-class Nologindesign(models.Model):
-    class Meta:
-        db_table = 'Nologindesign'
-    DesignName = models.CharField(blank=False, max_length=255, db_index=False)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
 
 def course_assignment_store():
     options = {}
