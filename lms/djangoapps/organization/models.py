@@ -50,7 +50,7 @@ class MainPageConfiguration(models.Model):
     MainPageBottomImage = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonText = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonLink = models.CharField(blank=False, max_length=255, db_index=False)
-
+    SelectDesign = models.ForeignKey(Nologindesign)
 
 class OrganizationMenuitem(models.Model):
     class Meta:
@@ -105,6 +105,12 @@ class OrganizationMoreText(models.Model):
     itemType = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+class Nologindesign(models.Model):
+    class Meta:
+        db_table = 'Nologindesign'
+    DesignName = models.CharField(blank=False, max_length=255, db_index=False)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
 def course_assignment_store():
     options = {}
