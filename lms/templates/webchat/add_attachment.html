@@ -3,11 +3,12 @@
 <script>
 $(document).ready(function(){
     console.log("Success="+${Success});
-    if(${Success}){
+    console.log("Error="+${error});
+    /*if(${Success}){
         $("textchat_"+${textchatID}).append(
             "<div class="pep_file_download"><span>Attachment: </span>
-                <a href="${get_file_url(fileObj.user_from)}" target="_blank">
-                    <img src="/static/images/document-download.png"> ${get_file_name(fileObj.user_from)}
+                <a href="${get_file_url(fileObj.attachment)}" target="_blank">
+                    <img src="/static/images/document-download.png"> ${get_file_name(fileObj.attachment)}
                 </a>
             </div>"
         )
@@ -17,6 +18,6 @@ $(document).ready(function(){
                 <span>${Error}</span>
             </div>"
         )
-    }
+    }*/
 });
 </script>
