@@ -812,7 +812,7 @@ a{
 <script src="/static/js/datetime/moment.js"></script>
 
 <section class="content-wrapper1" style="margin-top:0px;background-color:#e7e7e8;">
-    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:97px;">
+    <section class="dashboard" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Communities-My Trending Topics-->
         <%include file="navigation_left_list.html" />
@@ -1240,18 +1240,10 @@ $(document).ready(function(){
     $(window).bind("scroll", function(){
         var scrollTop = $(document).scrollTop();
 　　    var windowHeight = $(this).height();
-        var scrollHeight = $(document).height();
+        var documentHeight = $(document).height();
         var scrollTop_ceil = Math.ceil(scrollTop);
 
-        console.log("scrollTop:",scrollTop);
-        console.log("---------");
-        console.log("scrollTop_ceil:",scrollTop_ceil);
-        console.log("windowHeight:",windowHeight);
-        console.log(">=");
-        console.log("scrollHeight:",scrollHeight);
-        console.log("============================");
-
-        if(scrollTop_ceil + windowHeight >= scrollHeight)
+        if(scrollTop_ceil + windowHeight >= documentHeight)
         {
             if(skip_rows_scroll >= data_all){
                 //$(".info_div").hide();
@@ -1263,6 +1255,25 @@ $(document).ready(function(){
                     get_my_activites(get_rows_scroll,skip_rows_scroll)
                     skip_rows_scroll += get_rows_scroll; 
                 } 
+            }
+        }
+
+        var page_top = 77 + 20;
+        var page_leftnav = 530;
+        var page_bottom = 107;
+        var show_page_height = page_top + page_leftnav + page_bottom;
+        if($(this).height() <= show_page_height){
+            var a1 = page_top + page_leftnav;
+            var a2 = $(this).height() - a1;
+            var a3 = page_bottom - a2;
+            var top_offset = $(this).height() - show_page_height -3;
+            if(scrollTop + windowHeight >= documentHeight - a3){
+                $(".con-my-communities").css({'margin-top':top_offset});
+                $(".con-my-courses").css({'margin-top':top_offset});
+            } 
+            if(scrollTop + windowHeight < documentHeight - a3){
+                $(".con-my-communities").css({'margin-top':'0px'});
+                $(".con-my-courses").css({'margin-top':'0px'});
             }
         }
     });
