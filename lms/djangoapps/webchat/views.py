@@ -373,4 +373,6 @@ def chat_attachment(request, userFromID, userToID):
         fileObj.attachment = attachment
     fileObj.save()
 
-    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})
+    data = {'textchatID': userToID, 'fileObj': fileObj, 'Success': success, 'Error': 'Error: {0}'.format(error)}
+
+    return render_to_response('webchat/add_attachment.html', data)
