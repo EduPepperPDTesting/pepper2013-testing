@@ -101,7 +101,7 @@ $(document).ready(function(){
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
         console.log("send_image");
-        console.log("getId="+getId);
+        alert("getId="+getId);
         $.ajax({type: "post", url: "${reverse('chat_attachment', args=[request.user.id])}?user_id="+getId, success: function (data) {
             if(data.Success == "True"){
                 $("textchat_"+data.textchatID).append(
