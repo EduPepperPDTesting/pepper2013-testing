@@ -209,8 +209,9 @@
 			        <table id="design-table" class="design-table">
 			            <thead>
 			                <tr>
-			                    <th>Organization</th>
+			                    <th>design</th>
 			                    <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="design-select-all"></th>
+			                    <th class="check-column sorter-false filter-false">show</th>
 			                </tr>
 			            </thead>
 			            <tbody></tbody>
@@ -1448,19 +1449,21 @@
 		$.getJSON("${reverse('organizational_configuration')}", {flag:"design_list"}, function (r) {
 			if(r.success){
 				if(r.rows.length > 0){
+					var option = "";
 					for(var i in r.rows){
 						var row = '<tr class="data">';
 						row += '<td><a href="#' + r.rows[i].id + '" class="organization_next">' + r.rows[i].DesignName + '</a></td>';
 						row += '<td class="check-column">';
-						row += '<input type="radio" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
+						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
 						row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 						row += '</td>';
+						row += "<td><input type='radio' name='selectdesign'></td>"
 						row += '</tr> ';
-						$('#organization-table tbody').append(row);
+						$('#design-table tbody').append(row);
 					}
 				}
 			}
-		}
+		})
 	}
 	//----------------------------------------------------------------------------------------------------------updateOrganizations
 	function updateOrganizations() {

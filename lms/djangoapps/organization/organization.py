@@ -40,7 +40,7 @@ def main(request):
         if get_flag == "organization_list":
             return organization_list(request)
 
-        if get_flat == "design_list":
+        elif get_flag == "design_list":
             return design_list(request)
 
         elif get_flag == "checkPost":
@@ -358,7 +358,7 @@ def design_list(request):
 
     rows = []
     for design in design_list:
-        rows.append({'id': design.id, 'OrganizationName': design.DesignName})
+        rows.append({'id': design.id, 'DesignName': design.DesignName})
 
     return render_json_response({'success': True, 'rows': rows})
 
@@ -1400,6 +1400,7 @@ def organization_main_page_configuration_get(request):
             data['MainPageButtonText'] = org_main.MainPageButtonText
             data['MainPageButtonLink'] = org_main.MainPageButtonLink
             data['mid'] = org_main.id
+            data['SelectDesign'] = org_main.SelectDesign
             break
 
         data['flag_new'] = flag_new
