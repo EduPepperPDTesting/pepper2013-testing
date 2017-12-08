@@ -29,6 +29,11 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
+	.editor_view1{width:900px;}
+	.deisgn_dashboard_menu_div{width:900px;}
+	.design_dashboard_menu_body1 span{float: left;height: 40px;line-height: 40px;}
+	.design_dashboard_menu_item{width: 150px;}
+	.design_main1{width: 1000px;margin: 0;padding: 10px;border: 1px solid #999;}
 	.design-permission-edit img{height:16px;width:16px;}
 	div.expand_title_expanded .icon {background: url("/static/images/arrows.png")no-repeat 0 -23px !important;}
 	input[type=button].small_btn{font-size:12px;height:2em;line-height:2em;padding:0 10px;}
@@ -50,7 +55,7 @@
 	.org_table1 .org_table_menu_child1{float:left; text-indent:20px; font-size:12px}	
 	.org_table1_selected,.org_edit_selected{ background-color:#56a033 !important;}	
 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
-	.design_next .organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
+	.design_next,.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
 	.expand_title_parent{ display:none}
 	.org_logo_remmove {float:left; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
 	
@@ -236,8 +241,8 @@
 			        </div>
 			    </div>
 			</div>
-			<div class='organization_main1 design_expand_title_parent' style="display: none">
-				<div class="expand_title expand_title_collapse" next_sn="3">Menu Configuration<div class="icon"></div></div>
+			<div class='design_main1 design_expand_title_parent' style="display: none">
+				<div class="expand_title expand_title_collapse" always_on="1">Menu Configuration<div class="icon"></div></div>
 			    <div class="expand_div">
 			       	<table border="0" class="org_table1">
 			        	<tr>
@@ -351,8 +356,8 @@
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td colspan="3">
-			                	<div id="design_dashboard_demo_div" style="float:left; width:1070px; height:76px; border: 1px solid #c0c0c0; margin-right:100px; "></div>
-			                    <div style="float:left; width:1072px;"><input type="button" onclick="design_dashboard_demo_div_reload()" value="Reload" class="small_btn" style="float:right; margin:5px 0 0 0;" /></div>
+			                	<div id="design_dashboard_demo_div" style="float:left; width:900px; height:76px; border: 1px solid #c0c0c0; margin-right:100px; "></div>
+			                    <div style="float:left; width:902px;"><input type="button" onclick="design_dashboard_demo_div_reload()" value="Reload" class="small_btn" style="float:right; margin:5px 0 0 0;" /></div>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -362,7 +367,7 @@
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td colspan="3" class="org_td1">
-			                	<div class="organizational_dashboard_menu_div">
+			                	<div class="deisgn_dashboard_menu_div">
 			                    	<div class="organizational_dashboard_menu_head1">
 			                        	<span class="organizational_dashboard_menu_item">Menu Item</span>
 			                            <span class="organizational_dashboard_menu_url">URL</span>
@@ -421,7 +426,7 @@
 			            </tr>
 			            <tr>
 			                <td colspan="3" class="org_td1">
-			                	<div class="certificate_editor_div">
+			                	<div class="certificate_editor_div1">
 			                        <div class="certificate_editor_frame">
 			                            <div class="certificate_tabs_div">
 			                                <ol class="certificate_tabs">
@@ -433,7 +438,7 @@
 			                                    </li>
 			                                </ol>
 			                            </div>
-			                            <div class="editor_view">
+			                            <div class="editor_view1">
 			                                <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
 			                            </div>
 			                            <div class="preview_view" style="display: none;">
@@ -1721,7 +1726,7 @@
 					$(this).parent().next().addClass("org_table1_selected");
 					$(this).parent().next().next().addClass("org_table1_selected");
 					$(".expand_title_parent").hide();
-					$(".design_expand_title_parent").parent().show();
+					$(".design_expand_title_parent").show();
 					// $.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: org_current_id}, function (r) {	
 					// 	if (r.Success){
 
@@ -1729,7 +1734,7 @@
 					// 		alert("error: " + r.Error);
 					// 	}
 					// });
-				}
+				})
 				$('#design-table').trigger('update');
 			}
 		})
