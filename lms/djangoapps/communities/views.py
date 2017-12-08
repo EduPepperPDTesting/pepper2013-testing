@@ -1348,6 +1348,10 @@ def community_edit_process(request):
                 old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
                 for f in old_facilitator:
                     f.facilitator = False
+                    f.community_default = False
+                    f.community_edit = False
+                    f.community_delete = False
+                    f.receive_email = False
                     f.save()
             except:
                 pass
@@ -1361,6 +1365,10 @@ def community_edit_process(request):
                 community_user.user = user_object
             # Set the facilitator flag to true.
             community_user.facilitator = True
+            community_user.community_default = True
+            community_user.community_edit = True
+            community_user.community_delete = True
+            community_user.receive_email = True
             community_user.save()
             if old_facilitator:
                 if old_facilitator[0].user_id != community_user.user_id:

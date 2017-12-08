@@ -401,6 +401,12 @@ a{
 .con-main-all #btn-join:hover{
     background-color:#76ba35;
 }
+.con-main-all #btn-leave{
+    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+}
+.con-main-all #btn-leave:hover{
+    background-color:#76ba35;
+}
 .con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
 }
@@ -558,7 +564,11 @@ a{
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
-                                    <span id="btn-join">Join</span>
+                                    %if ruser_info['is_member']:
+                                        <span id="btn-join">Leave</span>
+                                    %else:
+                                        <span id="btn-leave">Join</span>
+                                    %endif
                                 </div>
                             </td>
                         </tr>
