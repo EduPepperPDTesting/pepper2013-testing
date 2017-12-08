@@ -137,7 +137,7 @@ urlpatterns = (
     url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
     url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
 
-    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/(?P<fileSrc>[\/\:\.\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
 
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
 
