@@ -100,7 +100,7 @@ $(document).ready(function(){
     });
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
-        var filePath = ($(this).$("#input_label").siblings(".pep_file_input").val() !== undefined)? $(this).parents().siblings(".pep_file_input").val():"";
+        var filePath = ($(this).$("#input_label").siblings(".pep_file_input").val().indexOf("Undefined") < 0)? $(this).parents().siblings(".pep_file_input").val():"";
         var attachSource = "${reverse('chat_attachment', args=[request.user.id, filePath])}?user_id=".replace("filePath", filePath)+getId;
         $.ajax({type: "GET", url: attachSource, success: function (data) {
             console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
