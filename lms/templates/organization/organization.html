@@ -50,7 +50,7 @@
 	.org_table1 .org_table_menu_child1{float:left; text-indent:20px; font-size:12px}	
 	.org_table1_selected,.org_edit_selected{ background-color:#56a033 !important;}	
 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
-	.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
+	.design_next .organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
 	.expand_title_parent{ display:none}
 	.org_logo_remmove {float:left; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
 	
@@ -235,6 +235,221 @@
 			            <input type="button" name="submit" value="ADD" class="small_btn" onclick="designEdit('add','','')" />
 			        </div>
 			    </div>
+			</div>
+			<div class='organization_main1 design_expand_title_parent' style="display: none">
+				<div class="expand_title expand_title_collapse" next_sn="3">Menu Configuration<div class="icon"></div></div>
+			    <div class="expand_div">
+			       	<table border="0" class="org_table1">
+			        	<tr>
+			                <td width="280"></td>
+			                <td width="280"></td>
+			                <td></td>
+			            </tr>
+			            <tr>
+			                <td colspan="3" class="org_td1">
+			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="1" />New Menu</label>
+			                </td>
+			            </tr>
+			            <tr class="old_menu_tr">
+			                <td colspan="3" class="org_td1">
+			                    <label>
+				                    <input type="checkbox" name="organizational_dashboard_remove_all_menu" />
+			    	                <span style="margin-left:10px;">Remove all the menu items.</span>
+			                    </label>
+			                </td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1">Top Menu Color: </td>
+			                <td><input id="organizational_menu_color" type="color" /> </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1">Logo: </td>
+			                <td id="organizational_base_home_logo_p"></td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1">Logo URL: </td>
+			                <td><input type="text" id="organizational_base_logo_url" /> </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td colspan="3" class="org_td1">
+			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" onclick="isIconChange()" />All Words</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" onclick="isIconChange()" />All Icons</label>
+			                    <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" onclick="isIconChange()" />Text Below Icons</label>
+			                </td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1 org_td1_demo">Menu Text Settings: </td>
+			                <td></td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Color: </td>
+			                <td>
+			                	<input id="organizational_dashboard_menu_text_color" type="color" />
+			                    <input id="organizational_dashboard_menu_text_color_icons" type="color" />
+			                    <input id="organizational_dashboard_menu_text_color_me" type="color" />
+			                </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Font: </td>
+			                <td>
+			                	<select id="organizational_dashboard_menu_text_font">
+			                        <option value="Arial">Arial</option>
+			                        <option value="Helvetica">Helvetica</option>
+			                        <option value="Lucida Family">Lucida Family</option>
+			                        <option value="Tahoma">Tahoma</option>
+			                        <option value="Trebuchet MS">Trebuchet MS</option>
+			                        <option value="Verdana">Verdana</option>
+			                        <option value="Georgia">Georgia</option>
+			                        <option value="Times">Times</option>
+			                    </select>
+			                    <select id="organizational_dashboard_menu_text_font_icons">
+			                        <option value="Arial">Arial</option>
+			                        <option value="Helvetica">Helvetica</option>
+			                        <option value="Lucida Family">Lucida Family</option>
+			                        <option value="Tahoma">Tahoma</option>
+			                        <option value="Trebuchet MS">Trebuchet MS</option>
+			                        <option value="Verdana">Verdana</option>
+			                        <option value="Georgia">Georgia</option>
+			                        <option value="Times">Times</option>
+			                    </select>
+			                    <select id="organizational_dashboard_menu_text_font_me">
+			                        <option value="Arial">Arial</option>
+			                        <option value="Helvetica">Helvetica</option>
+			                        <option value="Lucida Family">Lucida Family</option>
+			                        <option value="Tahoma">Tahoma</option>
+			                        <option value="Trebuchet MS">Trebuchet MS</option>
+			                        <option value="Verdana">Verdana</option>
+			                        <option value="Georgia">Georgia</option>
+			                        <option value="Times">Times</option>
+			                    </select>
+			                </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Size: </td>
+			                <td>
+			                	<select id="organizational_dashboard_menu_text_size"></select>
+			                    <select id="organizational_dashboard_menu_text_size_icons"></select>
+			                    <select id="organizational_dashboard_menu_text_size_me"></select>
+			                </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1">Space Between Items (0 ~ 100 px): </td>
+			                <td>
+			                    <input type="button" id="organizational_dashboard_space_between_less" value="&ndash;" class="small_btn" />
+			                    <input type="text" id="organizational_dashboard_space_between" name="organizational_dashboard_space_between" value="0" maxlength="3" />
+			                    <input type="button" id="organizational_dashboard_space_between_plus" value="+" class="small_btn" />
+			                </td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td colspan="3">
+			                	<div id="design_dashboard_demo_div" style="float:left; width:1070px; height:76px; border: 1px solid #c0c0c0; margin-right:100px; "></div>
+			                    <div style="float:left; width:1072px;"><input type="button" onclick="design_dashboard_demo_div_reload()" value="Reload" class="small_btn" style="float:right; margin:5px 0 0 0;" /></div>
+			                </td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1">Menu Items (Maximum 9 items): </td>
+			                <td></td>
+			                <td></td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td colspan="3" class="org_td1">
+			                	<div class="organizational_dashboard_menu_div">
+			                    	<div class="organizational_dashboard_menu_head1">
+			                        	<span class="organizational_dashboard_menu_item">Menu Item</span>
+			                            <span class="organizational_dashboard_menu_url">URL</span>
+			                            <span class="organizational_dashboard_menu_icon">Icon</span>
+			                            <span class="organizational_dashboard_menu_icon_view"></span>
+			                            <span class="organizational_dashboard_menu_sub">Sub Menu</span>
+			                            <span class="organizational_dashboard_menu_sort"></span>
+			                            <span class="organizational_dashboard_menu_btn"></span>
+			                        </div>
+			                        <div class="design_dashboard_menu_body1">
+			                            <span class="design_dashboard_menu_item"><input type="text" class="menu_items_menu_item" /></span>
+			                            <span class="design_dashboard_menu_url"><input type="text" class="menu_items_url" /></span>
+			                            <span class="design_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
+			                            <span class="design_dashboard_menu_icon_view"></span>
+			                            <span class="design_dashboard_menu_sub">
+			                                <div class="design_dashboard_menu_sub_btn">
+			                                    <span class="btn_txt">Sub Menu</span>
+			                                    <span class="btn_icon"></span>
+			                                </div>
+			                            </span>
+			                            <span class="design_dashboard_menu_sort">
+			                                <span class="btn_up"></span>
+			                                <span class="btn_dn"></span>
+			                            </span>
+			                            <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
+			                            <fieldset>
+			                                <legend>Sub Menu (Maximum 20 items)</legend>
+			                                <div class="organizational_dashboard_menu_head1">
+			                                    <span class="organizational_dashboard_menu_item">Menu Item</span>
+			                                    <span class="organizational_dashboard_menu_url">URL</span>
+			                                </div>
+			                                <div class="design_dashboard_menu_body2">
+			                                    <span class="design_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
+			                                    <span class="design_dashboard_menu_url"><input type="text" class="sub_menu_url" /></span>
+			                                    <span class="design_dashboard_menu_sort">
+			                                        <span class="btn_up"></span>
+			                                        <span class="btn_dn"></span>
+			                                    </span>
+			                                    <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,true)" value="+" class="sub_menu_btn small_btn" /></span>
+			                                </div>
+			                            </fieldset>
+			                        </div>
+			                    </div>
+			                </td>
+			            </tr>
+			            <tr class="new_menu_tr">
+			                <td class="org_td1"></td>
+			                <td></td>
+			                <td></td>
+			            </tr>
+			            <tr>
+			                <td colspan="3" class="org_td1" style="padding-top:10px;">
+			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(0)" value="0" />Default Footer</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(1)" value="1" />Modified Footer</label>
+			                </td>
+			            </tr>
+			            <tr>
+			                <td colspan="3" class="org_td1">
+			                	<div class="certificate_editor_div">
+			                        <div class="certificate_editor_frame">
+			                            <div class="certificate_tabs_div">
+			                                <ol class="certificate_tabs">
+			                                    <li>
+			                                        <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+			                                    </li>
+			                                    <li>
+			                                        <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+			                                    </li>
+			                                </ol>
+			                            </div>
+			                            <div class="editor_view">
+			                                <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
+			                            </div>
+			                            <div class="preview_view" style="display: none;">
+			                                <iframe class = "preview-frame" id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+			                            </div>
+			                        </div>
+			                    </div>
+			                </td>
+			            </tr>
+			        </table>
+			      	<div style="width:100%; text-align:right; height:30px;">
+			            <input type="button" next_sn="4" value="Next" class="small_btn expand_title_next" />
+			            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+			      	</div>
+			    </div>
+			</div>
 			</div>
 			<div style="width:100%; text-align:right; height:30px;">
                 <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
@@ -1490,12 +1705,31 @@
 						$('#design-table tbody').append(row);
 					}
 				}
-				
 				$('.design-permission-edit').click(function (e) {
-						e.preventDefault();
-						designEdit('edit', $(this).attr('href').substr(1), $(this).parent().prev().find("a").html());
-					});
+					e.preventDefault();
+					designEdit('edit', $(this).attr('href').substr(1), $(this).parent().prev().find("a").html());
+				});
+				$(".design_next").click(function(e){
+					e.preventDefault();
+					var loadwin = new LoadingWin();
+					
+					design_current_id = $(this).attr('href').substr(1);
+					var design_current_name = $(this).text();
+					
+					$(".org_table1_selected").removeClass("org_table1_selected");
+					$(this).parent().addClass("org_table1_selected");
+					$(this).parent().next().addClass("org_table1_selected");
+					$(this).parent().next().next().addClass("org_table1_selected");
+					$(".expand_title_parent").hide();
+					$(".design_expand_title_parent").parent().show();
+					// $.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: org_current_id}, function (r) {	
+					// 	if (r.Success){
 
+					// 	}else{
+					// 		alert("error: " + r.Error);
+					// 	}
+					// });
+				}
 				$('#design-table').trigger('update');
 			}
 		})
