@@ -29,9 +29,12 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
+	.org_td2 {padding-top:10px;}
+    .org_td2 input[type='text']{width:150px !important;padding: 5px 12px 12px 5px}
+	.design_dashboard_menu_icon_view{width:70px;overflow: hidden;}
 	.editor_view1{width:900px;}
 	.deisgn_dashboard_menu_div{width:900px;}
-	.design_dashboard_menu_body1 span{float: left;height: 40px;line-height: 40px;}
+	.design_dashboard_menu_body1 span{float: left;height: 40px;line-height: 40px;margin-left: 5px;}
 	.design_dashboard_menu_item{width: 150px;}
 	.design_main1{width: 1000px;margin: 0;padding: 10px;border: 1px solid #999;}
 	.design-permission-edit img{height:16px;width:16px;}
@@ -366,7 +369,7 @@
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
-			                <td colspan="3" class="org_td1">
+			                <td colspan="3" class="org_td2">
 			                	<div class="deisgn_dashboard_menu_div">
 			                    	<div class="organizational_dashboard_menu_head1">
 			                        	<span class="organizational_dashboard_menu_item">Menu Item</span>
@@ -383,21 +386,21 @@
 			                            <span class="design_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
 			                            <span class="design_dashboard_menu_icon_view"></span>
 			                            <span class="design_dashboard_menu_sub">
-			                                <div class="design_dashboard_menu_sub_btn">
+			                                <div class="organizational_dashboard_menu_sub_btn">
 			                                    <span class="btn_txt">Sub Menu</span>
 			                                    <span class="btn_icon"></span>
 			                                </div>
 			                            </span>
-			                            <span class="design_dashboard_menu_sort">
+			                            <span class="organizational_dashboard_menu_sort">
 			                                <span class="btn_up"></span>
 			                                <span class="btn_dn"></span>
 			                            </span>
-			                            <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
+			                            <			                                    <span class="organizational_dashboard_menu_url">URL</span>
+span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
 			                            <fieldset>
 			                                <legend>Sub Menu (Maximum 20 items)</legend>
 			                                <div class="organizational_dashboard_menu_head1">
 			                                    <span class="organizational_dashboard_menu_item">Menu Item</span>
-			                                    <span class="organizational_dashboard_menu_url">URL</span>
 			                                </div>
 			                                <div class="design_dashboard_menu_body2">
 			                                    <span class="design_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
@@ -420,8 +423,8 @@
 			            </tr>
 			            <tr>
 			                <td colspan="3" class="org_td1" style="padding-top:10px;">
-			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(0)" value="0" />Default Footer</label>
-			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(1)" value="1" />Modified Footer</label>
+			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(0,'deisgn')" value="0" />Default Footer</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(1,'design')" value="1" />Modified Footer</label>
 			                </td>
 			            </tr>
 			            <tr>
@@ -1387,14 +1390,22 @@
     }
 	
 	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);	
-    function addNewCertificate(flag) {
+    function addNewCertificate(flag,type="org") {
 		if(flag == 1){
-			$(".certificate_editor_div:first").show();			
+			if(type == "org"){
+				$(".certificate_editor_div:first").show();	
+			}else{
+				
+			}		
 		}else{
-			$(".certificate_editor_div:first").hide();
+			if(type == "org"){
+				$(".certificate_editor_div:first").hide();
+			}else{
+				$(".certificate_editor_div1").hide();
+			}
 		}
     }
-	
+
 	var ceditor_announcement = new CertificateEditor(CKEDITOR.instances.certificate_editor_announcement);	
     function isAnnouncementChange() {
 		var flag = ($("input[name='organizational_is_announcement']").attr("checked")) ? "1" : "0";
