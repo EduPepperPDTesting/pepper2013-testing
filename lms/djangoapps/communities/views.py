@@ -471,10 +471,15 @@ def maincommunity(request, community_id):
     if facilitator_default:
         facilitator = facilitator_default[0]
 
-    user_request_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=request.user)
-    user_request_info = ""
-    if user_request_commumity:
-        user_request_info = user_request_commumity[0]
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
 
     user_super = ""
     if request.user.is_superuser:
@@ -482,7 +487,7 @@ def maincommunity(request, community_id):
 
     community_info = {'community': community,
                       'facilitator': facilitator,
-                      'user_request_info': user_request_info}
+                      'ruser_info': ruser_info}
 
     community_other_info = {'state': community.state.id if community.state else '',
                             'district': community.district.id if community.district else '',
@@ -1035,10 +1040,10 @@ def community_edit_process_new(request):
                 img_file.close()
                 im = Image.open(path)
                 x,y = im.size
-                p = Image.new('RGBA', im.size, (255,255,255))
+                p = Image.new('RGBA', im.size, (255, 255, 255))
                 p.paste(im, (0, 0, x, y), im)
                 p.save(path)
-                location_path = '/static/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                location_path = '/static/uploads/img_out_community' + community_id + str(now) +'.jpg'
                 logo.upload = str(location_path)
                 logo.save()
             except Exception as e:
@@ -1083,6 +1088,7 @@ def community_edit_process_new(request):
             f.receive_email = False
             f.save()
 
+        new_facilitators_list = list() # facilitator not in this community
         # Load the main user object for the facilitator user.
         for f in facilitator_list:
             user_object = False
@@ -1098,6 +1104,7 @@ def community_edit_process_new(request):
                     community_user = CommunityUsers()
                     community_user.community = community_object
                     community_user.user = user_object
+                    new_facilitators_list.append(community_user.user.id)
                 # Set the facilitator flag to true.
                 community_user.facilitator = True
                 community_user.community_default = f_default
@@ -1107,23 +1114,15 @@ def community_edit_process_new(request):
                 community_user.save()
             except Exception as e:
                 log.warning('Invalid email for facilitator: {0}'.format(e))
-            '''
-            if old_facilitator:
-                if old_facilitator[0].user_id != community_user.user_id:
-                    ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
-                    "URLValues": {"community_id": community_object.id},
-                    "TokenValues": {"community_id":community_object.id}, 
-                    "LogoValues": {"community_id": community_object.id}}    
-                    ma_db.insert_item(my_activity)
-            else:
-                ma_db = myactivitystore()
-                my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
-                "URLValues": {"community_id": community_object.id},
-                "TokenValues": {"community_id":community_object.id}, 
-                "LogoValues": {"community_id": community_object.id}}    
-                ma_db.insert_item(my_activity)
-            '''
+
+        # My activity of add new facilitator(user not in this community) to this community
+        ma_db = myactivitystore()
+        for userid in new_facilitators_list:
+            my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": userid, 
+                           "URLValues": {"community_id": community_object.id},
+                           "TokenValues": {"community_id": community_object.id},
+                           "LogoValues": {"community_id": community_object.id}}
+            ma_db.insert_item(my_activity)
 
         # Init lists for notification
         courses_add = []
@@ -1153,8 +1152,6 @@ def community_edit_process_new(request):
         # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
         CommunityResources.objects.filter(community=community_object).delete()
         # Go through the resource links, with the index so we can directly access the names and logos.
-        log.debug("1=============")
-        log.debug(resource_links)
         for key, resource_link in resource_links.iteritems():
             # We only want to save an entry if there's something in it.
             if resource_link:
@@ -1218,7 +1215,7 @@ def get_post_dict(request, name):
         value_list = value_str.split(',')
         for k, v in enumerate(value_list):
             output.update({str(k): v})
-    return output          
+    return output
 
 def get_post_facilitators(request):
     output = list()
@@ -1310,7 +1307,7 @@ def community_edit_process(request):
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-            
+
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
         priority_id = request.POST.get('priority_id',0)

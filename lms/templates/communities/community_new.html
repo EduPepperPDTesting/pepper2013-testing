@@ -449,7 +449,7 @@ a{
                     <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
                 </div>
                 <div class="user-info">
-                    %if user_super or user_request_info.community_edit or user_request_info.community_delete:
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
                     <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
@@ -457,13 +457,13 @@ a{
                         <div class="facilitator-menu">
                         <div class="f-menu-triangle"></div>
                             <div class="f-lines">
-                                %if user_request_info.community_edit or user_super:
+                                %if ruser_info['edit'] or user_super:
                                 <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
                                 %endif
-                                %if user_request_info.community_delete or user_super:
+                                %if ruser_info['delete'] or user_super:
                                 <div class="f-rights-line">Delete Community</div>
                                 %endif
-                                %if user_request_info.community_default or user_super:
+                                %if ruser_info['default'] or user_super:
                                 <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
                                 %endif
                             </div>
