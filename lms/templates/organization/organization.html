@@ -1458,11 +1458,11 @@
 						//$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 
 						email_el.autocomplete({
-                            serviceUrl: "${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, dataType: "jsonp",
+                            service: "${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, dataType: "jsonp",
                         });
 
 						$("#initial_user_name").autocomplete({
-						    serviceUrl: "${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, dataType: "jsonp",
+						    service: "${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, dataType: "jsonp",
                         });
 
 						//-----
