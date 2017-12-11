@@ -1395,7 +1395,7 @@ def design_save_base(request):
 
             des_footer = DesignFooter()
             des_data_list = DesignFooter.objects.filter(design=design_metadata)
-            for tmp1 in org_data_list:
+            for tmp1 in des_data_list:
                 des_footer = tmp1
                 break
 
@@ -1615,7 +1615,7 @@ def design_upload(request):
             design = Nologindesign.objects.get(id=oid)
 
             if file_type == "home_logo":
-                imgx = request.FILES.get("design_base_home_logo", None)
+                imgx = request.FILES.get("design_menu_logo", None)
 
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + '/'
             if not os.path.exists(path):
