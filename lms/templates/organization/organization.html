@@ -453,7 +453,7 @@
 			            </tr>
 			        </table>
 			      	<div style="width:100%; text-align:right; height:30px;">
-			            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+			            <input type="button" value="Save" class="small_btn design_save" />
 			      	</div>
 			    </div>
 			</div>
@@ -1264,6 +1264,7 @@
 
 <script type="text/javascript">
 	var org_current_id = "";
+	var design_current_id = ""
 	var org_current_menu_items = "";
 	var maximum_items = 9;
 	var maximum_sub_items = 20;
@@ -1828,7 +1829,7 @@
 									tmp_el.find(".menu_items_url").val(tmp2[2]);
 									
 									if(tmp2[5] != ""){
-										var src = "/static/uploads/organization/" + design_current_id + "/" + tmp2[5];
+										var src = "/static/uploads/design/" + design_current_id + "/" + tmp2[5];
 										tmp_el.find(".design_dashboard_menu_icon_view").attr("icon_name", tmp2[5]);
 										tmp_el.find(".design_dashboard_menu_icon_view").append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
 									}else{
@@ -1916,7 +1917,7 @@
 						e.preventDefault();
 						var loadwin = new LoadingWin();
 						
-						org_current_id = $(this).attr('href').substr(1);
+						design_current_id = $(this).attr('href').substr(1);
 						var org_current_name = $(this).text();
 						
 						$(".org_table1_selected").removeClass("org_table1_selected");
@@ -1932,7 +1933,7 @@
 						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
-						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
+						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: design_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
 									$("#org_btn_reset_state").click();
@@ -2628,6 +2629,33 @@
 			})
 		}
 	}
+
+	function designUploadFile(fileElementId, file_type){
+		if($("#" + fileElementId).val() != ""){
+			var loadwin = new LoadingWin();
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				secureuri: false,
+				fileElementId: fileElementId,
+				dataType: 'JSON',
+				data: {flag: 'design_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: design_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");
+					if(tmp2.Success){
+						organizationAddFileImgInit(fileElementId);
+						organizationAddFileImg(fileElementId, tmp2.name);
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+					loadwin.hide();
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+					loadwin.hide();
+				}
+			})
+		}
+	}
 	
 	//-----------------------------------------------------------------------organizationMainUploadFile
 	function organizationMainUploadFile(fileElementId, file_type, mid){
@@ -2696,6 +2724,43 @@
 		}
 	}
 	
+	//-----------------------------------------------------------------------organizationDashboardUploadFile
+	function designDashboardUploadFile(fileElementId){
+		if($("#" + fileElementId).val() != ""){
+			var loadwin = new LoadingWin();			
+			var rowNum = fileElementId.replace("menu_items_icon_", "");			
+			
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				secureuri: false,
+				fileElementId: fileElementId,
+				dataType: 'JSON',
+				data: {flag: 'design_dashboard_upload', rowNum: rowNum, csrfmiddlewaretoken: '${csrf_token}', oid: design_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");					
+					if(tmp2.Success){						
+						var el_parent = $("#" + fileElementId).parent();
+						el_parent.empty();
+						el_parent.append('<input type="file" class="menu_items_icon" id="' + fileElementId + '" name="' + fileElementId + '">');
+						var el_view = el_parent.next();
+						el_parent.next().empty();
+						if(tmp2.name){
+							var src = "/static/uploads/design/" + design_current_id + "/" + tmp2.name;				
+							el_parent.next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
+							el_parent.next().attr("icon_name", tmp2.name);
+						}
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+					loadwin.hide();
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+					loadwin.hide();
+				}
+			})
+		}
+	}
 	//-----------------------------------------------------------------------organizationDashboardUploadFileCms
 	function organizationDashboardUploadFileCms(fileElementId){
 		if($("#" + fileElementId).val() != ""){
@@ -3030,6 +3095,103 @@
 					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
 				}
 				$("#organizational_dashboard_demo_div").prepend(tmp_item);
+			}
+		});
+	}
+
+	//-----------------------------------------------------------------------organizational_dashboard_demo_div_reload
+	function design_dashboard_demo_div_reload(){
+		$("#design_dashboard_demo_div").empty();
+		var menu_color = $("#design_menu_color").val();
+		$("#design_dashboard_demo_div").css("backgroundColor", menu_color);
+		var logo = $("#design_base_home_logo_p").next().find("img").clone(true);
+		if(logo.length > 0){
+			logo.removeAttr("width");
+			logo.attr("height", 58);
+			logo.css({"float": "left", "margin": "8px 0 0 5px"});
+			$("#design_dashboard_demo_div").append(logo);
+		}
+		var is_icon = $("input[name='design_dashboard_is_icon']:checked").val();
+		var is_icon_width_text = ($("input[name='design_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+		var space = $("#design_dashboard_space_between").val();
+		var menu_text_color = $("#design_dashboard_menu_text_color").val();
+		var menu_text_font = $("#design_dashboard_menu_text_font").val();
+		var menu_text_size = $("#design_dashboard_menu_text_size").val();
+		
+		var menu_text_color_icons = $("#design_dashboard_menu_text_color_icons").val();
+		var menu_text_font_icons = $("#design_dashboard_menu_text_font_icons").val();
+		var menu_text_size_icons = $("#design_dashboard_menu_text_size_icons").val();
+		
+		$(".menu_items_menu_item").each(function(){
+			if($(this).val() != ""){
+				var tmp_item;
+				var tmp_name = $(this).val();
+				
+				//------------------all icons
+				if(is_icon == "1"){
+					var img_src = "";
+					var el_tmp1 = $(this).parent().parent().find(".design_dashboard_menu_icon_view");
+					if(el_tmp1.html() != ""){
+						var el_tmp2 = el_tmp1.find("img");
+						if(el_tmp2.length > 0){
+							img_src = el_tmp2.attr("src");
+						}
+					}
+					if(tmp_name == "#Messenger"){
+						img_src = "/static/images/ppd-iMessage-default.png";
+					}
+
+					tmp_item = $("<span></span>");
+					if(is_icon_width_text == "0"){
+						tmp_item.css({"float": "right", "margin": "15px " + space + "px 0 0", "width": "45px", "height": "45px", "overflow": "hidden"});
+						tmp_item.append("<img src='" + img_src + "' title='" + tmp_name + "' width='45' height='45' />");
+					}else{
+						if(tmp_name == "#Messenger"){
+							tmp_item_txt = '<table border="0" cellpadding="0" cellspacing="0" style="float:right; margin: 5px ' + space + 'px 0 0">';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="45" align="center"><img src="' + img_src + '" title="' + tmp_name + '" width="45" height="45" /></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="20"><span style="float:left; height:20px; line-height:20px; margin-top:-5px; font-family:' + menu_text_font_icons + '; color:' + menu_text_color_icons + '; font-size:' + menu_text_size_icons + 'px;">Messenger</span></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '</table>';
+							tmp_item.append(tmp_item_txt);
+						}else{
+							tmp_item.css({"float": "right", "margin": "5px " + space + "px 0 0", "width": "45px", "height": "65px", "overflow": "hidden", "text-align": "center"});
+														
+							tmp_item_img = $("<img src='" + img_src + "' title='" + tmp_name + "' width='45' height='45' />");
+							tmp_item_img.css({"float": "left"});
+							
+							tmp_item_txt = $("<span>" + tmp_name + "</span>");
+							tmp_item_txt.css({
+								"float": "left", 
+								"width": "45px",
+								"height": "20px", 
+								"line-height": "20px", 
+								"font-size": "10px", 
+								"text-align": "center",
+								"overflow": "hidden",
+								"text-overflow": "ellipsis",
+								"white-space": "nowrap",
+								"font-family": menu_text_font_icons,
+								"color": menu_text_color_icons,
+								"font-size": menu_text_size_icons + "px"
+							});
+							tmp_item.append(tmp_item_img);
+							tmp_item.append(tmp_item_txt);
+						}
+					}
+				}
+				    
+				//------------------all words
+				else{
+					if(tmp_name == "#Messenger"){
+						tmp_name = "Messenger";
+					}
+					tmp_item = $("<span>" + tmp_name + "</span>");
+					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
+				}
+				$("#design_dashboard_demo_div").prepend(tmp_item);
 			}
 		});
 	}
@@ -3934,7 +4096,7 @@
 			$('.editor_view1').hide();
 			
 			var data = ceditor_design.replacePlaceholder(ceditor_design.CKEDITOR.getData());
-			$("#certificate_preview_announcement").contents().find("#content").html(data);
+			$("#design_certificate_preview").contents().find("#content").html(data);
 			var frame = document.getElementById('design_certificate_preview');
 			if(frame) {
 				frame.height = "";
@@ -4105,7 +4267,7 @@
 			}
 		});
 		//--------------------------del-design
-		$('#design-organization').click(function () {
+		$('#del-design').click(function () {
 			if($(".design-select:checked").length > 0){
 				var dialog = new Dialog('#dialogYesNo');
 				dialog.showYesNo('Delete design(s)', 'Are you sure you want to delete this design(s)? This action cannot be undone.', function(answer) {
@@ -4804,6 +4966,120 @@
 			});
 		});
 		
+
+		//------------------------------------------------------------------------------org_btn_last_save 
+		$(".org_btn_last_save").click(function(){
+			var loadwin = new LoadingWin();
+						
+			if($("#design_base_home_logo").val() != "" && !organizationCheckUploadFile($("#design_base_home_logo").val())){
+				alert("Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
+			
+			//---------------------------------------------------menu_items
+			var menu_items = "", flag_icon_error = false;			
+			var sn1 = 1; 
+			$(".design_dashboard_menu_body1").each(function(){
+				var menu_item = filterStr($(this).find(".menu_items_menu_item").val());
+				if(menu_item != ""){					
+					var menu_url = filterStr($(this).find(".menu_items_url").val());
+					var menu_icon = $(this).find(".menu_items_icon").val();
+					var menu_icon_name = $(this).find(".design_dashboard_menu_icon_view").attr("icon_name");
+					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
+					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
+					
+					if(menu_icon != "" && !organizationCheckUploadFile(menu_icon)){
+						flag_icon_error = true;
+						return false;
+					}					
+					$(this).find(".menu_items_icon").attr("id", "menu_items_icon_" + sn1);
+					$(this).find(".menu_items_icon").attr("name", "menu_items_icon_" + sn1);
+					var menu_admin = ($(this).find(".menu_items_admin").attr('checked')) ? "1" : "0";
+					var menu_permission = $(this).find(".menu_items_permissions").val();
+					
+					var menu_items_child = "";				
+					var sn2 = 1;
+					$(this).find(".design_dashboard_menu_body2").each(function(){
+						var menu_item1 = filterStr($(this).find(".sub_menu_item").val());
+						if(menu_item1 != ""){
+							var menu_url1 = filterStr($(this).find(".sub_menu_url").val());
+							var menu_admin1 = ($(this).find(".sub_menu_admin").attr('checked')) ? "1" : "0";
+							var menu_permission1 = $(this).find(".sub_menu_permissions").val();
+							if(menu_items_child != "")	menu_items_child += "_<_";
+							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1;
+							sn2++;
+						}
+					});
+					if(menu_items != "")	menu_items += "=<=";
+					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name + "=>=" + menu_permission;	
+					
+					sn1++;
+				}
+			});	
+	
+			var menu_color = $("#design_menu_color").val();
+			var is_icon = $("input[name='design_dashboard_is_icon']:checked").val();
+			var is_icon_width_text = ($("input[name='design_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+
+			var menu_text_color = $("#design_dashboard_menu_text_color").val();
+			var menu_text_font = $("#design_dashboard_menu_text_font").val();
+			var menu_text_size = $("#design_dashboard_menu_text_size").val();
+			var menu_text_color_icons = $("#design_dashboard_menu_text_color_icons").val();
+			var menu_text_font_icons = $("#design_dashboard_menu_text_font_icons").val();
+			var menu_text_size_icons = $("#design_dashboard_menu_text_size_icons").val();
+			var menu_text_color_me = $("#design_dashboard_menu_text_color_me").val();
+			var menu_text_font_me = $("#design_dashboard_menu_text_font_me").val();
+			var menu_text_size_me = $("#design_dashboard_menu_text_size_me").val();
+			var space_between_items = $("#design_dashboard_space_between").val();
+			var is_new_menu = $("input[name='design_dashboard_on_menu']:checked").val();
+			
+			var remove_all_menu = ($("input[name='deisgn_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
+			var logo_url = $("#design_base_logo_url").val();
+			var footer_flag = $("input[name='design_dashboard_footer']:checked").val();
+			var footer_content = ceditor_design.CKEDITOR.getData();
+
+			$.post("${reverse('organizational_configuration')}", {flag: "design_save_base", oid: design_current_id, 
+				menu_items: menu_items,
+				is_icon: is_icon,
+				is_icon_width_text: is_icon_width_text,
+				is_new_menu: is_new_menu,
+				remove_all_menu: remove_all_menu,
+				menu_text_color: menu_text_color,
+				menu_text_font: menu_text_font,
+				menu_text_size: menu_text_size,
+				menu_text_color_icons: menu_text_color_icons,
+				menu_text_font_icons: menu_text_font_icons,
+				menu_text_size_icons: menu_text_size_icons,
+				menu_text_color_me: menu_text_color_me,
+				menu_text_font_me: menu_text_font_me,
+				menu_text_size_me: menu_text_size_me,
+				space_between_items: space_between_items,
+				logo_url: logo_url,
+				footer_flag: footer_flag,
+				footer_content: footer_content,
+				menu_color: menu_color
+			}, function (r) {
+				if (r.Success){
+					if($("#design_base_home_logo").val() != ""){
+						designUploadFile("design_base_home_logo", "home_logo");
+					}
+					$(".design_dashboard_menu_body1").each(function(){
+						var menu_item = filterStr($(this).find(".menu_items_menu_item").val());
+						var menu_icon = $(this).find(".menu_items_icon").val();
+						if(menu_item != "" && menu_icon != ""){
+							designDashboardUploadFile($(this).find(".menu_items_icon").attr("id"));
+						}
+					});	
+				}else{
+					alert(r.Error);
+				}
+				loadwin.hide();
+				
+				if(r.Success)	$(".org_table1_selected").find(".design_next").click();
+			});
+		});
+
 		//--------------------------org_btn_main_save 
 		$("#org_btn_main_save").click(function(){
 			var loadwin = new LoadingWin();	
