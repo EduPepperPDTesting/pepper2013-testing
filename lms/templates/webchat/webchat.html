@@ -100,26 +100,29 @@ $(document).ready(function(){
     });
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
-        var filePath = ($(this).$("#input_label").siblings(".pep_file_input").val().indexOf("Undefined") < 0)? $(this).parents().siblings(".pep_file_input").val():"";
-        //var attachSource = "reverse('chat_attachment', args=[request.user.id, filePath])?user_id=".replace("filePath", "")+getId;
-        var attachSource = "${reverse('chat_attachment', args=[request.user.id])}?user_id="+getId;
-        $.ajax({type: "GET", url: attachSource, success: function (data) {
-            console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
-            setTimeout(function() {
+        var filePath = $(this).parents().siblings(".pep_file_input").val() || ""; //($(this).parents().siblings(".pep_file_input").val() !== "undefined")?
+        alert("filePath="+filePath);
+        if(filePath !== ""){
+            var attachSource = "reverse('chat_attachment', args=[request.user.id, filePath])?user_id=".replace("filePath", "")+getId;
+            //var attachSource = "${reverse('chat_attachment', args=[request.user.id])}?user_id="+getId;
+            $.ajax({type: "GET", url: attachSource, success: function (data) {
+                console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
+                setTimeout(function() {
+                        alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
+                  }, 5000);
+                if(data.Success){
                     alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
-              }, 5000);
-            if(data.Success){
-                alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
-                $("textchat_"+data.textchatID).append(
-                    '<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url('+data.fileObj.attachment+')}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name('+data.fileObj.attachment+')}</a></div>'
-                );
-            }else{
-                $("textchat_"+data.textchatID).append(
-                    '<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>'
-                );
+                    $("textchat_"+data.textchatID).append(
+                        '<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url('+data.fileObj.attachment+')}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name('+data.fileObj.attachment+')}</a></div>'
+                    );
+                }else{
+                    $("textchat_"+data.textchatID).append(
+                        '<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>'
+                    );
+                }
             }
+            });
         }
-        });
         $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
         $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
