@@ -71,7 +71,7 @@
 	/*menu items*/
 	.organizational_dashboard_menu_div{float:left; width:1100px; margin-left:50px;}	
 	
-	.organizational_dashboard_menu_head1,.organizational_dashboard_menu_body1{float:left; clear:both;}
+	.design_dashboard_menu_body1,.organizational_dashboard_menu_head1,.organizational_dashboard_menu_body1{float:left; clear:both;}
 	.organizational_dashboard_menu_head1,.organizational_dashboard_menu_body2{float:left; clear:both;}
 	.organizational_dashboard_menu_head1 span{float:left; height:45px !important; line-height:45px !important; font-weight:bold; }
 	.organizational_dashboard_menu_head1 .organizational_dashboard_menu_row{float:left; width:100%; clear:both}
@@ -101,7 +101,7 @@
 	
 	.organizational_dashboard_menu_btn input{margin-top:7px;}
 	
-	.organizational_dashboard_menu_body1 fieldset {float:left; border: 1px solid #c0c0c0 !important; margin: 10px 2px !important; padding: 10px 0 10px 40px !important; display:none;}
+	.organizational_dashboard_menu_body1 fieldset,.organizational_dashboard_menu_body1 fieldset {float:left; border: 1px solid #c0c0c0 !important; margin: 10px 2px !important; padding: 10px 0 10px 40px !important; display:none;}
 	
 	.organizational_dashboard_demo1{color:#ccc !important;}
 	
@@ -255,8 +255,8 @@
 			            </tr>
 			            <tr>
 			                <td colspan="3" class="org_td1">
-			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
-			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="1" />New Menu</label>
+			                	<label style="margin-right:20px;"><input type="radio" name="design_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_on_menu" value="1" />New Menu</label>
 			                </td>
 			            </tr>
 			            <tr class="old_menu_tr">
@@ -274,7 +274,7 @@
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td class="org_td1">Logo: </td>
-			                <td id="organizational_base_home_logo_p"></td>
+			                <td id="design_menu_logo_p"></td>
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -286,7 +286,7 @@
 			                <td colspan="3" class="org_td1">
 			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" onclick="isIconChange()" />All Words</label>
 			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" onclick="isIconChange()" />All Icons</label>
-			                    <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" onclick="isIconChange()" />Text Below Icons</label>
+			                    <label class="org_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange()" />Text Below Icons</label>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -297,16 +297,16 @@
 			            <tr class="new_menu_tr">
 			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Color: </td>
 			                <td>
-			                	<input id="organizational_dashboard_menu_text_color" type="color" />
-			                    <input id="organizational_dashboard_menu_text_color_icons" type="color" />
-			                    <input id="organizational_dashboard_menu_text_color_me" type="color" />
+			                	<input id="design_dashboard_menu_text_color" type="color" />
+			                    <input id="design_dashboard_menu_text_color_icons" type="color" />
+			                    <input id="design_dashboard_menu_text_color_me" type="color" />
 			                </td>
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Font: </td>
 			                <td>
-			                	<select id="organizational_dashboard_menu_text_font">
+			                	<select id="design_dashboard_menu_text_font">
 			                        <option value="Arial">Arial</option>
 			                        <option value="Helvetica">Helvetica</option>
 			                        <option value="Lucida Family">Lucida Family</option>
@@ -316,7 +316,7 @@
 			                        <option value="Georgia">Georgia</option>
 			                        <option value="Times">Times</option>
 			                    </select>
-			                    <select id="organizational_dashboard_menu_text_font_icons">
+			                    <select id="design_dashboard_menu_text_font_icons">
 			                        <option value="Arial">Arial</option>
 			                        <option value="Helvetica">Helvetica</option>
 			                        <option value="Lucida Family">Lucida Family</option>
@@ -326,7 +326,7 @@
 			                        <option value="Georgia">Georgia</option>
 			                        <option value="Times">Times</option>
 			                    </select>
-			                    <select id="organizational_dashboard_menu_text_font_me">
+			                    <select id="design_dashboard_menu_text_font_me">
 			                        <option value="Arial">Arial</option>
 			                        <option value="Helvetica">Helvetica</option>
 			                        <option value="Lucida Family">Lucida Family</option>
@@ -342,18 +342,18 @@
 			            <tr class="new_menu_tr">
 			                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Size: </td>
 			                <td>
-			                	<select id="organizational_dashboard_menu_text_size"></select>
-			                    <select id="organizational_dashboard_menu_text_size_icons"></select>
-			                    <select id="organizational_dashboard_menu_text_size_me"></select>
+			                	<select id="design_dashboard_menu_text_size"></select>
+			                    <select id="design_dashboard_menu_text_size_icons"></select>
+			                    <select id="design_dashboard_menu_text_size_me"></select>
 			                </td>
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td class="org_td1">Space Between Items (0 ~ 100 px): </td>
 			                <td>
-			                    <input type="button" id="organizational_dashboard_space_between_less" value="&ndash;" class="small_btn" />
-			                    <input type="text" id="organizational_dashboard_space_between" name="organizational_dashboard_space_between" value="0" maxlength="3" />
-			                    <input type="button" id="organizational_dashboard_space_between_plus" value="+" class="small_btn" />
+			                    <input type="button" id="design_dashboard_space_between_less" value="&ndash;" class="small_btn" />
+			                    <input type="text" id="design_dashboard_space_between" name="design_dashboard_space_between" value="0" maxlength="3" />
+			                    <input type="button" id="design_dashboard_space_between_plus" value="+" class="small_btn" />
 			                </td>
 			                <td></td>
 			            </tr>
@@ -395,12 +395,12 @@
 			                                <span class="btn_up"></span>
 			                                <span class="btn_dn"></span>
 			                            </span>
-			                            <			                                    <span class="organizational_dashboard_menu_url">URL</span>
-span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
+			                            <span class="organizational_dashboard_menu_btn"><input type="button" onclick="org_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
 			                            <fieldset>
 			                                <legend>Sub Menu (Maximum 20 items)</legend>
 			                                <div class="organizational_dashboard_menu_head1">
 			                                    <span class="organizational_dashboard_menu_item">Menu Item</span>
+			                                    <span class="organizational_dashboard_menu_url">URL</span>
 			                                </div>
 			                                <div class="design_dashboard_menu_body2">
 			                                    <span class="design_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
@@ -423,8 +423,8 @@ span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu
 			            </tr>
 			            <tr>
 			                <td colspan="3" class="org_td1" style="padding-top:10px;">
-			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(0,'deisgn')" value="0" />Default Footer</label>
-			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_footer" onclick="addNewCertificate(1,'design')" value="1" />Modified Footer</label>
+			                	<label style="margin-right:20px;"><input type="radio" name="design_dashboard_footer" onclick="addNewCertificate(0,'deisgn')" value="0" />Default Footer</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_footer" onclick="addNewCertificate(1,'design')" value="1" />Modified Footer</label>
 			                </td>
 			            </tr>
 			            <tr>
@@ -1395,7 +1395,7 @@ span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu
 			if(type == "org"){
 				$(".certificate_editor_div:first").show();	
 			}else{
-				
+				$(".certificate_editor_div1").show();
 			}		
 		}else{
 			if(type == "org"){
@@ -1738,9 +1738,129 @@ span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu
 					$(this).parent().next().next().addClass("org_table1_selected");
 					$(".expand_title_parent").hide();
 					$(".design_expand_title_parent").show();
-					// $.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: org_current_id}, function (r) {	
+					// $.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: design_current_id}, function (r) {	
 					// 	if (r.Success){
+					//		 organizationAddFileImg("design_menu_logo", r.logo);
+					//		 organizationAddFileImgInit("design_menu_logo");
+							if(r["Footer Selected"] == "1"){
+								$("input[name='design_dashboard_footer'][value='1']").attr("checked", "checked");
+								addNewCertificate(1,'design');
+							}else{
+								$("input[name='design_dashboard_footer'][value='0']").attr("checked", "checked");
+								addNewCertificate(0,'design');
+							}
+							ceditor.CKEDITOR.setData(r["Footer Content"]);
+							if(r["Is Icon With Text"] == "1"){
+								$("input[name='design_dashboard_is_icon_text']").prop("checked", true);										
+							}else{
+								$("input[name='design_dashboard_is_icon_text']").prop("checked", false);
+							}
+							if(r["Text Color"])		$("#design_dashboard_menu_text_color").val(r["Text Color"]);
 
+							$("#design_dashboard_menu_text_font").val(r["Text Font"]);
+							$("#design_dashboard_menu_text_size").val(r["Text Size"]);
+
+							if(r["Text Color Icons"])		$("#design_dashboard_menu_text_color_icons").val(r["Text Color Icons"]);
+							$("#design_dashboard_menu_text_font_icons").val(r["Text Font Icons"]);
+							$("#design_dashboard_menu_text_size_icons").val(r["Text Size Icons"]);
+
+							if(r["Text Color Me"])		$("#design_dashboard_menu_text_color_me").val(r["Text Color Me"]);
+							$("#design_dashboard_menu_text_font_me").val(r["Text Font Me"]);
+							$("#design_dashboard_menu_text_size_me").val(r["Text Size Me"]);
+							$("#design_dashboard_space_between").val(r["Space Betwwen Items"]);
+							$("input[name='design_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
+							$(".design_dashboard_menu_body1").each(function(i){
+								if(i > 0){
+									$(this).remove();
+								}else{											
+									$(this).find(".menu_items_menu_item").val("");
+									$(this).find(".menu_items_url").val("");
+									$(this).find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' id='menu_items_icon_1' name='menu_items_icon_1'>");
+									$(this).find(".design_dashboard_menu_icon_view").html("");
+									$(this).find(".design_dashboard_menu_icon_view").removeAttr("icon_name");
+									
+									$(this).find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
+									$(this).find("fieldset .design_dashboard_menu_body2").each(function(j){
+										if(j > 0){
+											$(this).remove();
+										}else{
+											$(this).find(".sub_menu_item").val("");
+											$(this).find(".sub_menu_url").val("");
+											$(this).find(".sub_menu_admin").prop("checked", false);
+											$(this).find(".sub_menu_permissions").hide();
+											$(this).find(".sub_menu_btn").val("+");
+										}
+									});
+									$(this).find(".menu_item_btn").val("+");
+									$(this).find("fieldset").hide();
+								}
+							});
+
+							if(r.menu_items != ""){
+								var tmp_clonex = $(".design_dashboard_menu_body1:first").clone(true);
+								var tmp_sub_clonex = $(".design_dashboard_menu_body2:first").clone(true);
+								org_current_menu_items = r.menu_items;
+								var flag_first = true;
+								var tmp1 = org_current_menu_items.split("=<=");
+								for(var i in tmp1){
+									var tmp2 = tmp1[i].split("=>=");
+									var tmp_el;
+									if(flag_first){
+										flag_first = false;
+										tmp_el = $(".organizational_dashboard_menu_body1:first");
+									}else{
+										tmp_el = tmp_clonex.clone(true);
+										$(".organizational_dashboard_menu_div").append(tmp_el);
+									}
+									tmp_el.find(".menu_items_menu_item").val(tmp2[1]);
+									tmp_el.find(".menu_items_url").val(tmp2[2]);
+									
+									if(tmp2[5] != ""){
+										var src = "/static/uploads/organization/" + design_current_id + "/" + tmp2[5];
+										tmp_el.find(".design_dashboard_menu_icon_view").attr("icon_name", tmp2[5]);
+										tmp_el.find(".design_dashboard_menu_icon_view").append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_menu_logo_remmove(this)"></a>');
+									}else{
+										tmp_el.find(".design_dashboard_menu_icon_view").html();
+									}
+									
+									var flag_sub_first = true;
+									var tmp3 = tmp2[4].split("_<_");
+									for(var j in tmp3){
+										var tmp4 = tmp3[j].split("_>_");
+										var tmp_sub_el;
+										if(flag_sub_first){
+											flag_sub_first = false;
+											tmp_sub_el = tmp_el.find(".design_dashboard_menu_body2:first");
+										}else{
+											tmp_sub_el = tmp_sub_clonex.clone(true);
+											tmp_el.find("fieldset").append(tmp_sub_el);
+										}
+										tmp_sub_el.find(".sub_menu_item").val(tmp4[1]);
+										tmp_sub_el.find(".sub_menu_url").val(tmp4[2]);
+										if(tmp4[3] == "True"){
+											tmp_sub_el.find(".sub_menu_admin").prop("checked", true);
+											tmp_sub_el.find(".sub_menu_permissions").show();
+										}else{
+											tmp_sub_el.find(".sub_menu_permissions").hide();
+										}
+										tmp_sub_el.find(".sub_menu_permissions").val(permission_json["id_" + tmp4[4]]);
+									}
+								}
+							}else{
+								org_current_menu_items = "";
+							}
+
+							$(".menu_items_icon").each(function(i){
+								$(this).attr("id", "menu_items_icon_" + (i + 1));
+								$(this).attr("name", "menu_items_icon_" + (i + 1));
+							});
+							$(".menu_item_btn").val("-");
+							$(".menu_item_btn:last").val("+");
+							$(".design_dashboard_menu_body1").each(function(){
+								$(this).find(".sub_menu_btn").val("-");
+								$(this).find(".sub_menu_btn:last").val("+");
+							});
+							organizational_dashboard_demo_div_reload();
 					// 	}else{
 					// 		alert("error: " + r.Error);
 					// 	}
