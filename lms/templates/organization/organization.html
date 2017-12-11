@@ -100,7 +100,7 @@
 	
 	.design_dashboard_menu_body1 fieldset,.organizational_dashboard_menu_body1 fieldset {float:left; border: 1px solid #c0c0c0 !important; margin: 10px 2px !important; padding: 10px 0 10px 40px !important; display:none;}
 	
-	.organizational_dashboard_demo1{color:#ccc !important;}
+	.design_dashboard_demo1, .organizational_dashboard_demo1{color:#ccc !important;}
 	
 	/*cms items*/
 	.organizational_dashboard_cms_div{float:left; width:1100px; margin-left:50px;}	
@@ -210,6 +210,9 @@
                     <td colspan="2"><input type="text" id="organizational_base_main_page_button_link" ></td>
                 </tr>
             </table>
+            <div style="width:100%; text-align:right; height:30px;">
+                <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
+            </div>
             <div class="design_main">
 				<div style="width:600px;">
 			        <table id="design-table" class="design-table">
@@ -259,14 +262,14 @@
 			            <tr class="old_menu_tr">
 			                <td colspan="3" class="org_td1">
 			                    <label>
-				                    <input type="checkbox" name="organizational_dashboard_remove_all_menu" />
+				                    <input type="checkbox" name="design_dashboard_remove_all_menu" />
 			    	                <span style="margin-left:10px;">Remove all the menu items.</span>
 			                    </label>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td class="org_td1">Top Menu Color: </td>
-			                <td><input id="organizational_menu_color" type="color" /> </td>
+			                <td><input id="design_menu_color" type="color" /> </td>
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -276,14 +279,14 @@
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td class="org_td1">Logo URL: </td>
-			                <td><input type="text" id="organizational_base_logo_url" /> </td>
+			                <td><input type="text" id="design_base_logo_url" /> </td>
 			                <td></td>
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td colspan="3" class="org_td1">
-			                	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" onclick="isIconChange()" />All Words</label>
-			                    <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" onclick="isIconChange()" />All Icons</label>
-			                    <label class="org_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange()" />Text Below Icons</label>
+			                	<label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="0" onclick="isIconChange('design')" />All Words</label>
+			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="1" onclick="isIconChange('design')" />All Icons</label>
+			                    <label class="org_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange('design')" />Text Below Icons</label>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -450,15 +453,11 @@
 			            </tr>
 			        </table>
 			      	<div style="width:100%; text-align:right; height:30px;">
-			            <input type="button" next_sn="4" value="Next" class="small_btn expand_title_next" />
 			            <input type="button" value="Save" class="small_btn org_btn_last_save" />
 			      	</div>
 			    </div>
 			</div>
 			</div>
-			<div style="width:100%; text-align:right; height:30px;">
-                <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
-            </div>
         </div>        
     </div>
 </div>
@@ -1735,10 +1734,15 @@
 					$(this).parent().next().next().addClass("org_table1_selected");
 					$(".expand_title_parent").hide();
 					$(".design_expand_title_parent").show();
-					$.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: design_current_id}, function (r) {	
+					$.get("${reverse('organizational_configuration')}", {flag: "design_get", oid: design_current_id}, function (r) {
 						if (r.Success){
-							 organizationAddFileImg("design_menu_logo", r.logo);
-							 organizationAddFileImgInit("design_menu_logo");
+							organizationAddFileImg("design_menu_logo", r.logo);
+							organizationAddFileImgInit("design_menu_logo");
+							if(r["Menu Color"]){
+										$("#design_menu_color").val(r["Menu Color"]);
+									}
+							$("input[name='design_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");	
+
 							if(r["Footer Selected"] == "1"){
 								$("input[name='design_dashboard_footer'][value='1']").attr("checked", "checked");
 								addNewCertificate(1,'design');
@@ -1753,7 +1757,6 @@
 								$("input[name='design_dashboard_is_icon_text']").prop("checked", false);
 							}
 							if(r["Text Color"])		$("#design_dashboard_menu_text_color").val(r["Text Color"]);
-
 							$("#design_dashboard_menu_text_font").val(r["Text Font"]);
 							$("#design_dashboard_menu_text_size").val(r["Text Size"]);
 
@@ -1764,8 +1767,15 @@
 							if(r["Text Color Me"])		$("#design_dashboard_menu_text_color_me").val(r["Text Color Me"]);
 							$("#design_dashboard_menu_text_font_me").val(r["Text Font Me"]);
 							$("#design_dashboard_menu_text_size_me").val(r["Text Size Me"]);
+
 							$("#design_dashboard_space_between").val(r["Space Betwwen Items"]);
 							$("input[name='design_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
+							if(r["Remove All Menu"] == "1"){
+								$("input[name='design_dashboard_remove_all_menu']").prop("checked", true);											
+							}else{
+								$("input[name='design_dashboard_remove_all_menu']").prop("checked", false);
+							}
+							$("#design_base_logo_url").val(r["Logo Url"]);
 							$(".design_dashboard_menu_body1").each(function(i){
 								if(i > 0){
 									$(this).remove();
@@ -1858,6 +1868,10 @@
 								$(this).find(".sub_menu_btn:last").val("+");
 							});
 							organizational_dashboard_demo_div_reload();
+							isIconChange("design");
+							isPDDashboardChange($("input[name='design_dashboard_option']:checked").val());
+							isNewMenuChange($("input[name='design_dashboard_on_menu']:checked").val());
+							loadwin.hide();
 						}else{
 							alert("error: " + r.Error);
 						}
@@ -4855,51 +4869,51 @@
 	});	
 	
 	//--------------------------isIconChange
-	function isIconChange(){
-		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
-		var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+	function isIconChange(flag="organizational"){
+		var is_icon = $("input[name='"+flag+"_dashboard_is_icon']:checked").val();
+		var is_icon_width_text = ($("input[name='"+flag+"_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
 		
 		if(is_icon == "1"){
-			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", false);
-			$(".org_td1_demo2").removeClass("organizational_dashboard_demo1");
+			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", false);
+			$(".org_td1_demo2").removeClass(flag+"_dashboard_demo1");
 			
 			if(is_icon_width_text == "0"){
-				$("#organizational_dashboard_menu_text_color_icons").hide();
-				$("#organizational_dashboard_menu_text_font_icons").hide();
-				$("#organizational_dashboard_menu_text_size_icons").hide();
+				$("#"+flag+"_dashboard_menu_text_color_icons").hide();
+				$("#"+flag+"_dashboard_menu_text_font_icons").hide();
+				$("#"+flag+"_dashboard_menu_text_size_icons").hide();
 				
-				$("#organizational_dashboard_menu_text_color_me").show();
-				$("#organizational_dashboard_menu_text_font_me").show();
-				$("#organizational_dashboard_menu_text_size_me").show();
+				$("#"+flag+"_dashboard_menu_text_color_me").show();
+				$("#"+flag+"_dashboard_menu_text_font_me").show();
+				$("#"+flag+"_dashboard_menu_text_size_me").show();
 			}else{
-				$("#organizational_dashboard_menu_text_color_icons").show();
-				$("#organizational_dashboard_menu_text_font_icons").show();
-				$("#organizational_dashboard_menu_text_size_icons").show();
+				$("#"+flag+"_dashboard_menu_text_color_icons").show();
+				$("#"+flag+"_dashboard_menu_text_font_icons").show();
+				$("#"+flag+"_dashboard_menu_text_size_icons").show();
 				
-				$("#organizational_dashboard_menu_text_color_me").hide();
-				$("#organizational_dashboard_menu_text_font_me").hide();
-				$("#organizational_dashboard_menu_text_size_me").hide();
+				$("#"+flag+"_dashboard_menu_text_color_me").hide();
+				$("#"+flag+"_dashboard_menu_text_font_me").hide();
+				$("#"+flag+"_dashboard_menu_text_size_me").hide();
 			}
-			$("#organizational_dashboard_menu_text_color").hide();
-			$("#organizational_dashboard_menu_text_font").hide();
-			$("#organizational_dashboard_menu_text_size").hide();
+			$("#"+flag+"_dashboard_menu_text_color").hide();
+			$("#"+flag+"_dashboard_menu_text_font").hide();
+			$("#"+flag+"_dashboard_menu_text_size").hide();
 			
 		}else{
-			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", true);
-			$("input[name='organizational_dashboard_is_icon_text']").attr("checked", false);
-			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
+			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", true);
+			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("checked", false);
+			$(".org_td1_demo2").addClass(flag+"_dashboard_demo1");
 			
-			$("#organizational_dashboard_menu_text_color").show();
-			$("#organizational_dashboard_menu_text_font").show();
-			$("#organizational_dashboard_menu_text_size").show();
+			$("#"+flag+"_dashboard_menu_text_color").show();
+			$("#"+flag+"_dashboard_menu_text_font").show();
+			$("#"+flag+"_dashboard_menu_text_size").show();
 			
-			$("#organizational_dashboard_menu_text_color_icons").hide();
-			$("#organizational_dashboard_menu_text_font_icons").hide();
-			$("#organizational_dashboard_menu_text_size_icons").hide();
+			$("#"+flag+"_dashboard_menu_text_color_icons").hide();
+			$("#"+flag+"_dashboard_menu_text_font_icons").hide();
+			$("#"+flag+"_dashboard_menu_text_size_icons").hide();
 			
-			$("#organizational_dashboard_menu_text_color_me").hide();
-			$("#organizational_dashboard_menu_text_font_me").hide();
-			$("#organizational_dashboard_menu_text_size_me").hide();
+			$("#"+flag+"_dashboard_menu_text_color_me").hide();
+			$("#"+flag+"_dashboard_menu_text_font_me").hide();
+			$("#"+flag+"_dashboard_menu_text_size_me").hide();
 		}
 	}
 	

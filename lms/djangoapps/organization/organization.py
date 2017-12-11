@@ -863,7 +863,7 @@ def design_get(request):
             Designs = Nologindesign.objects.filter(id=oid)
             if len(Designs) > 0:
                 data['find'] = True
-                for tmp in Design:
+                for tmp in Designs:
                     design_footer_list = DesignFooter.objects.filter(design=Designs)
                     for tmp1 in design_footer_list:
                         data['Footer Content'] = tmp1.DataItem
