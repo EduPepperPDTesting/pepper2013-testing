@@ -31,7 +31,9 @@ from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
 from xmodule.remindstore import myactivitystore
 
+
 # -------------------------------------------------------------------main
+@login_required
 def main(request):
     get_flag = request.GET.get("flag")
     post_flag = request.POST.get("flag")
