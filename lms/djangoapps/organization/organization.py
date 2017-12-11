@@ -49,6 +49,9 @@ def main(request):
         elif get_flag == "organization_get":
             return organization_get(request)
 
+        elif get_flag == "design_get":
+            return design_get(request)
+
         elif get_flag == "organization_main_get":
             return organization_main_page_configuration_get(request)
 
@@ -850,7 +853,49 @@ def organization_get(request):
 
     return render_json_response(data)
 
+@login_required
+def design_get(request):
+    oid = request.GET.get('oid', False)
+    data = {}
+    try:
+        if oid:
+            data = {'Success': True}
+            Designs = Nologindesign.objects.filter(id=oid)
+            if len(Designs) > 0:
+                data['find'] = True
+                for tmp in Design:
+                    design_footer_list = DesignFooter.objects.filter(design=Designs)
+                    for tmp1 in design_footer_list:
+                        data['Footer Content'] = tmp1.DataItem
+                        break
 
+                    for tmp1 in DesignMenu.objects.filter(design=Designs):
+                        data[tmp1.itemType] = tmp1.itemValue
+
+                    menu_items = ""
+                    for tmp1 in DesignMenuitem.objects.filter(design=Designs, ParentID=0):
+                        if menu_items != "":
+                            menu_items = menu_items + "=<="
+
+                        menu_items_child = ""
+                        for tmp2 in DesignMenuitem.objects.filter(design=Designs, ParentID=tmp1.id):
+                            if menu_items_child != "":
+                                menu_items_child = menu_items_child + "_<_"
+
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_0_>_" + str(tmp2.id)
+
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=0=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id)
+
+                    data["menu_items"] = menu_items
+
+                    break
+            else:
+                data['find'] = False
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 # -------------------------------------------------------------------organization_get_locations
 @login_required
 def organization_get_locations(request):

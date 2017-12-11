@@ -203,6 +203,15 @@ class CommunityDiscussionsStore(MongoBaseStore):
     def get_community_discussions(self, community_id, page=0, size=0):
         return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
 
+    def get_community_discussion_replies(self, discussion_id):
+        return self.collection.find({"discussion_id": discussion_id, "db_table": "community_discussion_replies"}).sort("date_create", -1)
+
+    def get_poll(self, identifier):
+        return self.collection.find({"identifier": identifier, "db_table": "poll"})
+
+    def get_poll_ansers(self, identifier):
+        return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
+
     def dismiss(self, feeding_id, user_id):
         self.update({"_id": ObjectId(feeding_id)},
                     {"$push": {"dismiss": long(user_id)}}, False, True)
