@@ -74,6 +74,9 @@ def main(request):
         elif post_flag == "organization_delete":
             return organization_delete(request)
 
+        elif post_flag == "design_delete":
+            return design_delete(request)
+
         elif post_flag == "organizational_save_base":
             return organizational_save_base(request)
 
@@ -610,6 +613,25 @@ def organization_delete(request):
             OrganizationDashboard.objects.filter(organization=org).delete()
 
             org.delete()
+
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+# -------------------------------------------------------------------design_delete
+@login_required
+def design_delete(request):
+    try:
+        for oid in request.POST.get("ids", "").split(","):
+            des = Nologindesign.objects.filter(id=oid)
+
+            DesignMenuitem.objects.filter(design=des).delete()
+            DesignMenu.objects.filter(design=des).delete()
+            DesignFooter.objects.filter(design=des).delete()
+
+            des.delete()
 
         data = {'Success': True}
     except Exception as e:

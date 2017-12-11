@@ -30,8 +30,8 @@
 
 <style>
 	#design_dashboard_space_between{width: 60px;text-align: center;}
-	.editor_view1{width:900px;}
-	.deisgn_dashboard_menu_div{width:900px;}
+	.preview_view1,.editor_view1{width:900px;}
+	.design_dashboard_menu_div{width:900px;}
 	.design_dashboard_menu_body1 span{float: left;height: 40px;line-height: 40px;}
 	.design_main1{width: 1000px;margin: 0;padding: 10px;border: 1px solid #999;}
 	.design-permission-edit img{height:16px;width:16px;}
@@ -370,7 +370,7 @@
 			            </tr>
 			            <tr class="new_menu_tr">
 			                <td colspan="3" class="org_td1">
-			                	<div class="deisgn_dashboard_menu_div">
+			                	<div class="design_dashboard_menu_div">
 			                    	<div class="organizational_dashboard_menu_head1">
 			                        	<span class="organizational_dashboard_menu_item">Menu Item</span>
 			                            <span class="organizational_dashboard_menu_url">URL</span>
@@ -434,18 +434,18 @@
 			                            <div class="certificate_tabs_div">
 			                                <ol class="certificate_tabs">
 			                                    <li>
-			                                        <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+			                                        <a class="editor_view_btn1 active" href="javascript:void(0);">Editor</a>
 			                                    </li>
 			                                    <li>
-			                                        <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+			                                        <a class="preview_view_btn1" href="javascript:void(0);">Preview</a>
 			                                    </li>
 			                                </ol>
 			                            </div>
 			                            <div class="editor_view1">
-			                                <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
+			                                <textarea id="design_certificate_editor" class="design_certificate_editor" cols="10"></textarea>
 			                            </div>
-			                            <div class="preview_view" style="display: none;">
-			                                <iframe class = "preview-frame" id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+			                            <div class="preview_view1" style="display: none;">
+			                                <iframe class = "preview-frame" id="design_certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
 			                            </div>
 			                        </div>
 			                    </div>
@@ -1331,7 +1331,7 @@
 	//-----------------------------------------------------------------------CertificateEditor
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
-            if (textarea.className == 'certificate_editor') {
+            if (textarea.className == 'certificate_editor' || textarea.className == 'design_certificate_editor') {
                 // Add token plugin
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
@@ -1385,7 +1385,8 @@
         });
     }
 	
-	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);	
+	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);
+	var ceditor_design = new CertificateEditor(CKEDITOR.instances.design_certificate_editor);
     function addNewCertificate(flag,type="org") {
 		if(flag == 1){
 			if(type == "org"){
@@ -1754,7 +1755,7 @@
 								$("input[name='design_dashboard_footer'][value='0']").attr("checked", "checked");
 								addNewCertificate(0,'design');
 							}
-							ceditor.CKEDITOR.setData(r["Footer Content"]);
+							ceditor_design.CKEDITOR.setData(r["Footer Content"]);
 							if(r["Is Icon With Text"] == "1"){
 								$("input[name='design_dashboard_is_icon_text']").prop("checked", true);										
 							}else{
@@ -3916,6 +3917,30 @@
 				frame.height = frame.contentWindow.document.body.scrollHeight + "px";
 			}
 		});
+
+		//--------------------------editor_view_btn preview_view_btn
+		$('.editor_view_btn1').click(function(){
+			ceditor_design.switchView("Editor");
+			$(this).addClass("active");
+			$('.preview_view_btn1').removeClass('active');
+			$('.preview_view1').hide();
+			$('.editor_view1').show();
+		});
+		$('.preview_view_btn1').click(function(){
+			ceditor_design.switchView('Preview');
+			$(this).addClass('active');
+			$('.editor_view_btn1').removeClass('active');
+			$('.preview_view1').show();
+			$('.editor_view1').hide();
+			
+			var data = ceditor_design.replacePlaceholder(ceditor_design.CKEDITOR.getData());
+			$("#certificate_preview_announcement").contents().find("#content").html(data);
+			var frame = document.getElementById('design_certificate_preview');
+			if(frame) {
+				frame.height = "";
+				frame.height = frame.contentWindow.document.body.scrollHeight + "px";
+			}
+		});
 		
 		//--------------------------btn_profile_add
 		$("#btn_profile_add").click(function(){
@@ -4077,6 +4102,37 @@
 				});
 			}else{
 				alert("Select the organization(s) you want to delete.");
+			}
+		});
+		//--------------------------del-design
+		$('#design-organization').click(function () {
+			if($(".design-select:checked").length > 0){
+				var dialog = new Dialog('#dialogYesNo');
+				dialog.showYesNo('Delete design(s)', 'Are you sure you want to delete this design(s)? This action cannot be undone.', function(answer) {
+					if (answer) {
+						var ids = "";
+						$(".design-select:checked").each(function(){
+							if(ids != "") ids += ",";
+							ids += $(this).val();
+						});
+						if(ids != ""){
+							$.post("${reverse('organizational_configuration')}", {flag:"design_delete", ids: ids}, function (r) {
+								if (r.Success){
+									updatedesigns();
+									dialog.hide();
+								}else{
+									alert(r.Error);
+								}
+							});
+						}else{
+							dialog.hide();
+						}
+					} else {
+						dialog.hide();
+					}
+				});
+			}else{
+				alert("Select the design(s) you want to delete.");
 			}
 		});		
 		
