@@ -5,7 +5,7 @@ from file_uploader.models import FileUploads
 from django.conf import settings
 import pymongo
 from collections import OrderedDict
-
+from bson import ObjectId
 
 class CommunityCommunities(models.Model):
     class Meta:
@@ -205,6 +205,9 @@ class CommunityDiscussionsStore(MongoBaseStore):
 
     def get_community_discussion_replies(self, discussion_id):
         return self.collection.find({"discussion_id": discussion_id, "db_table": "community_discussion_replies"}).sort("date_create", -1)
+
+    def get_community_discussion_replies_next(self, parent_id):
+        return self.collection.find({"parent_id": ObjectId(parent_id), "db_table": "community_discussion_replies_next"}).sort("date_create", -1)
 
     def get_poll(self, identifier):
         return self.collection.find({"identifier": identifier, "db_table": "poll"})
