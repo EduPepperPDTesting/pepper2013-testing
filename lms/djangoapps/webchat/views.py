@@ -1,5 +1,5 @@
 from mitxmako.shortcuts import render_to_response
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 import json
 from django.contrib.auth.decorators import login_required
 from operator import itemgetter
@@ -10,6 +10,7 @@ from people.views import my_people
 from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
 from django.forms.models import model_to_dict
+from util.json_request import JsonResponse
 try:
     from urllib import urlencode
 except ImportError:
