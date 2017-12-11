@@ -100,14 +100,12 @@ $(document).ready(function(){
     });
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
-        var filePath = $(this).parents().siblings(".pep_file_input").val() || ""; //($(this).parents().siblings(".pep_file_input").val() !== "undefined")?
+        var filePath = $(this).parents().siblings(".pep_file_input").val() || "";
         alert("filePath="+filePath);
         if(filePath !== ""){
             $.post("${reverse('chat_attachment', args=[request.user.id])}", {"user_id": getId, "filePath": filePath}, function (data) {
                 console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
-                setTimeout(function() {
-                        alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
-                  }, 5000);
+                setTimeout(function(){}, 5000);
                 if(data.Success){
                     alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
                     $("textchat_"+data.textchatID).append(
