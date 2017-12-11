@@ -1,5 +1,5 @@
 from mitxmako.shortcuts import render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import json
 from django.contrib.auth.decorators import login_required
 from operator import itemgetter
@@ -379,4 +379,4 @@ def chat_attachment(request, userFromID):
 
     data = {'textchatID': userToID, 'fileObj': fileObj_dict, 'Success': success, 'Error': 'Error: {0}'.format(error)}
 
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    return JsonResponse(data)
