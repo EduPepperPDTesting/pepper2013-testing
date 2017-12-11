@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+
 from mitxmako.shortcuts import render_to_response
 import xmltodict
 from django.http import HttpResponse
@@ -285,3 +287,11 @@ def download_saml_federation_metadata(request):
     response.write(open(f, "r").read())
     return response
 
+
+@login_required
+def link_create(request):
+    context = {
+        'metadata': get_all_sp(),
+        'callback': request.GET.get('callback')
+    }
+    return render_to_response('sso/manage/sp_link_create.html', context)

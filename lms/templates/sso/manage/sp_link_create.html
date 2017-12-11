@@ -1,0 +1,38 @@
+<%!
+    from django.core.urlresolvers import reverse
+%>
+<%
+    # Create the list of options for the SP dropdown.
+    options = ''
+    for data in metadata:
+        if data['sso_type'] == 'SAML':
+            options += '<option value="{0}">{0}</option>'.format(data['sso_name'])
+%>
+
+<div class="sp-link-wrapper">
+    <form name="sp-link-create" class="sp-link-create">
+        <label for="sp">Service Provider:</label> <select name="sp">${options}</select>
+        <label for="link">External Link:</label> <input type="text" name="link"/>
+        <input type="submit" name="submit" value="Create"/>
+    </form>
+</div>
+
+<script type="text/javascript" src="/static/js/vendor/jquery.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+    // Handle the submission of the form.
+    $('.sp-link-create').submit(function (e) {
+        e.preventDefault();
+        // The callback function to call with the generated link.
+        var callback = '${callback}';
+        // The selected SP.
+        var sp = $("select[name='sp']").val();
+        // The link to the external page.
+        var link = $("input[name='link']").val();
+        // The SAML link to go to the external link.
+        var saml_link = "${reverse('sso_idp_acs_send')}" + '?sp=' + sp + '&RelayState=' + encodeURIComponent(link);
+        // Call the callback function with the generated/encoded link if it exists.
+        if (window[callback] instanceof Function) {
+            window[callback](saml_link);
+        }
+    });
+</script>

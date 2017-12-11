@@ -76,6 +76,7 @@ urlpatterns = (
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
     url(r'^sso/idp/acs/send$', 'sso.idp.send_acs', name="sso_idp_acs_send"),
     url(r'^sso/idp/logout/$', 'sso.idp.logout'),
+    url(r'^sso/sp/link_create$', 'sso.sp_metadata.link_create', name='sp_link_create'),
 
     url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
     url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
