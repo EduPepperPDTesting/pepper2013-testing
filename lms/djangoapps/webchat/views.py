@@ -347,7 +347,7 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 
-def chat_attachment(request, userFromID):
+def chat_attachment(request, userFromID, filePath):
     fileObj = ChatAttachment()
     error = ''
     success = 0
@@ -361,7 +361,7 @@ def chat_attachment(request, userFromID):
             attachment = FileUploads()
             attachment.type = 'chat_attachment'
             attachment.sub_type = userToID
-            attachment.upload = request.FILES.get('attachment')
+            attachment.upload = filePath #request.FILES.get('attachment')
             attachment.save()
             success = 1
         except Exception as e:
