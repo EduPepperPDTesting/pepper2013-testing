@@ -103,9 +103,9 @@ $(document).ready(function(){
         var filePath = $(this).parents().siblings(".pep_file_input").val() || ""; //($(this).parents().siblings(".pep_file_input").val() !== "undefined")?
         alert("filePath="+filePath);
         if(filePath !== ""){
-            var attachSource = "reverse('chat_attachment', args=[request.user.id])?user_id="+getId;
+            var attachSource = "reverse('chat_attachment', args=[request.user.id])";
             //var attachSource = "${reverse('chat_attachment', args=[request.user.id])}?user_id="+getId;
-            $.ajax({type: "POST", url: attachSource, data: {"user_id": getId, "filePath": filePath}, success: function (data) {
+            $.post(attachSource, {"user_id": getId, "filePath": filePath}, function (data) {
                 console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
                 setTimeout(function() {
                         alert("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment);
@@ -121,7 +121,7 @@ $(document).ready(function(){
                     );
                 }
             }
-            });
+            }).fail(function(){alert("error")});
         }
         $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
         $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
