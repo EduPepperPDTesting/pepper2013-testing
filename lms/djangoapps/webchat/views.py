@@ -347,16 +347,17 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 
-def chat_attachment(request, userFromID, filePath):
+def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
     success = 0
-    userToID = request.GET.get("user_id")
+    userToID = request.POST.get("user_id")
+    filePath = request.POST.get("filePath")
 
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=int(userToID))
 
-    if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+    if filePath: #request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
             attachment = FileUploads()
             attachment.type = 'chat_attachment'
