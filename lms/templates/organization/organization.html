@@ -63,7 +63,7 @@
 	
 	.org_table1 .org_icon_dn{background:url(/static/images/configuration/sort_dn.gif) no-repeat right center}
 	#organizational_dashboard_space_between{width:60px; text-align:center}
-	#organizational_dashboard_space_between_less,#organizational_dashboard_space_between_plus{ font-size:14px; margin-top:5px;}
+	#design_dashboard_space_between_less, #design_dashboard_space_between_plus, #organizational_dashboard_space_between_less,#organizational_dashboard_space_between_plus{ font-size:14px; margin-top:5px;}
 	
 	/*menu items*/
 	.organizational_dashboard_menu_div{float:left; width:1100px; margin-left:50px;}	
@@ -93,8 +93,8 @@
 	.design_dashboard_menu_sub_btn .btn_icon_expanded, .organizational_dashboard_menu_sub_btn .btn_icon_expanded{background: url("/static/images/arrows.png")no-repeat 0 -23px !important;}
 	
 	.design_dashboard_menu_sort span, .organizational_dashboard_menu_sort span{float:right; cursor:pointer; width:16px !important; height:16px !important; clear:both;}
-	.design_dashboard_menu_sort .btn_up, .organizational_dashboard_menu_sort .btn_up{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat 0 -48px; margin-top:2px;}
-	.design_dashboard_menu_sort .btn_dn, .organizational_dashboard_menu_sort .btn_dn{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat -64px -48px;}
+	.design_dashboard_menu_sort .design_btn_up, .organizational_dashboard_menu_sort .btn_up{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat 0 -48px; margin-top:2px;}
+	.design_dashboard_menu_sort .design_btn_dn, .organizational_dashboard_menu_sort .btn_dn{background: url("/static/images/ui-icons_222222_256x240.png") no-repeat -64px -48px;}
 	
 	.organizational_dashboard_menu_btn input{margin-top:7px;}
 	
@@ -392,10 +392,10 @@
 			                                </div>
 			                            </span>
 			                            <span class="design_dashboard_menu_sort">
-			                                <span class="btn_up"></span>
-			                                <span class="btn_dn"></span>
+			                                <span class="design_btn_up"></span>
+			                                <span class="design_btn_dn"></span>
 			                            </span>
-			                            <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="menu_item_btn small_btn" /></span>
+			                            <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,false)" value="+" class="design_menu_item_btn small_btn" /></span>
 			                            <fieldset>
 			                                <legend>Sub Menu (Maximum 20 items)</legend>
 			                                <div class="organizational_dashboard_menu_head1">
@@ -406,10 +406,10 @@
 			                                    <span class="design_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
 			                                    <span class="design_dashboard_menu_url"><input type="text" class="sub_menu_url" /></span>
 			                                    <span class="design_dashboard_menu_sort">
-			                                        <span class="btn_up"></span>
-			                                        <span class="btn_dn"></span>
+			                                        <span class="design_btn_up"></span>
+			                                        <span class="design_btn_dn"></span>
 			                                    </span>
-			                                    <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,true)" value="+" class="sub_menu_btn small_btn" /></span>
+			                                    <span class="design_dashboard_menu_btn"><input type="button" onclick="design_menu_item_clone(this,true)" value="+" class="design_sub_menu_btn small_btn" /></span>
 			                                </div>
 			                            </fieldset>
 			                        </div>
@@ -1418,9 +1418,9 @@
 	
 	//-----------------------------------------------------------------------organizational_dashboard_menu_text_size
 	for(var i = 9; i < 35; i++){
-		$("#organizational_dashboard_menu_text_size").append("<option value='" + i + "'>" + i + "</option>");
-		$("#organizational_dashboard_menu_text_size_icons").append("<option value='" + i + "'>" + i + "</option>");
-		$("#organizational_dashboard_menu_text_size_me").append("<option value='" + i + "'>" + i + "</option>");
+		$("#organizational_dashboard_menu_text_size,#design_dashboard_menu_text_size").append("<option value='" + i + "'>" + i + "</option>");
+		$("#organizational_dashboard_menu_text_size_icons,#design_dashboard_menu_text_size_icons").append("<option value='" + i + "'>" + i + "</option>");
+		$("#organizational_dashboard_menu_text_size_me,#design_dashboard_menu_text_size_me").append("<option value='" + i + "'>" + i + "</option>");
 	}
 	
 	//-----------------------------------------------------------------------LoadingWin
@@ -1798,7 +1798,7 @@
 											$(this).find(".sub_menu_btn").val("+");
 										}
 									});
-									$(this).find(".menu_item_btn").val("+");
+									$(this).find(".design_menu_item_btn").val("+");
 									$(this).find("fieldset").hide();
 								}
 							});
@@ -1861,11 +1861,11 @@
 								$(this).attr("id", "menu_items_icon_" + (i + 1));
 								$(this).attr("name", "menu_items_icon_" + (i + 1));
 							});
-							$(".menu_item_btn").val("-");
-							$(".menu_item_btn:last").val("+");
+							$(".design_menu_item_btn").val("-");
+							$(".design_menu_item_btn:last").val("+");
 							$(".design_dashboard_menu_body1").each(function(){
-								$(this).find(".sub_menu_btn").val("-");
-								$(this).find(".sub_menu_btn:last").val("+");
+								$(this).find(".design_sub_menu_btn").val("-");
+								$(this).find(".design_sub_menu_btn:last").val("+");
 							});
 							organizational_dashboard_demo_div_reload();
 							isIconChange("design");
@@ -4786,6 +4786,39 @@
 			organizational_dashboard_space_between_old_val = tmp1;
 			$("#organizational_dashboard_space_between").val(organizational_dashboard_space_between_old_val)
 		});
+
+		//--------------------------organizational_dashboard_space_between
+		$("#design_dashboard_space_between").on("input", function(){
+			var tmp1 = Number($.trim($("#design_dashboard_space_between").val()));
+			if(isNaN(tmp1)){
+				tmp1 = organizational_dashboard_space_between_old_val;
+			}			
+			if(tmp1 < 0){
+				tmp1 = 0;
+			}else if(tmp1 > 100){
+				tmp1 = 100;
+			}
+			organizational_dashboard_space_between_old_val = tmp1;
+			$("#design_dashboard_space_between").val(organizational_dashboard_space_between_old_val)
+		});
+
+		//--------------------------organizational_dashboard_space_between_less 
+		$("#design_dashboard_space_between_less").click(function(){
+			var tmp1 = Number($("#design_dashboard_space_between").val());
+			tmp1 -= 1;
+			if(tmp1 >= 0){
+				$("#design_dashboard_space_between").val(tmp1)
+			}
+		});
+		
+		//--------------------------organizational_dashboard_space_between_plus 
+		$("#design_dashboard_space_between_plus").click(function(){
+			var tmp1 = Number($("#design_dashboard_space_between").val());
+			tmp1 += 1;
+			if(tmp1 <= 100){
+				$("#design_dashboard_space_between").val(tmp1)
+			}
+		});
 		
 		//--------------------------organizational_dashboard_menu_sub_btn
 		$(".organizational_dashboard_menu_sub_btn").click(function(){
@@ -4833,6 +4866,39 @@
 			}
 		});		
 		
+		//--------------------------btn_up
+		$(".design_btn_up").click(function(){
+			var tmp_body1 = $(this).parent().parent();
+			if($(tmp_body1).prev().hasClass("design_dashboard_menu_body1")){
+				$(tmp_body1).insertBefore($(tmp_body1).prev());
+				
+				$(".design_item_btn").val("-");				
+				$(".designitem_btn:last").val("+");
+				
+			}else if($(tmp_body1).prev().hasClass("design_dashboard_menu_body2")){
+				$(tmp_body1).insertBefore($(tmp_body1).prev());
+				
+				$(tmp_body1).parent().find(".design_sub_menu_btn").val("-");
+				$(tmp_body1).parent().find(".design_sub_menu_btn:last").val("+");
+			}
+		});
+		
+		//--------------------------btn_dn
+		$(".design_btn_dn").click(function(){
+			var tmp_body1 = $(this).parent().parent();			
+			if($(tmp_body1).next().hasClass("design_dashboard_menu_body1")){
+				$(tmp_body1).insertAfter($(tmp_body1).next());
+				
+				$(".design_item_btn").val("-");				
+				$(".design_item_btn:last").val("+");
+				
+			}else if($(tmp_body1).next().hasClass("design_dashboard_menu_body2")){
+				$(tmp_body1).insertAfter($(tmp_body1).next());
+				$(tmp_body1).parent().find(".design_sub_menu_btn").val("-");
+				$(tmp_body1).parent().find(".design_sub_menu_btn:last").val("+");
+			}
+		});	
+
 		//--------------------------cms_btn_up
 		$(".cms_btn_up").click(function(){
 			var tmp_body1 = $(this).parent().parent();
@@ -4864,6 +4930,10 @@
 		
 		//--------------------------organizational_dashboard_on_menu change
 		$("input[name='organizational_dashboard_on_menu']").change(function(){
+			isNewMenuChange($(this).val());
+		});
+		//--------------------------design_dashboard_on_menu change
+		$("input[name='design_dashboard_on_menu']").change(function(){
 			isNewMenuChange($(this).val());
 		});
 	});	
