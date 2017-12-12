@@ -358,12 +358,12 @@ def chat_attachment(request, userFromID):
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=int(userToID))
 
-    if filePath: #request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+    if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
             attachment = FileUploads()
             attachment.type = 'chat_attachment'
             attachment.sub_type = userToID
-            attachment.upload = filePath #request.FILES.get('attachment')
+            attachment.upload = request.FILES.get('attachment')
             attachment.save()
             success = 1
         except Exception as e:

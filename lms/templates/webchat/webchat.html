@@ -100,10 +100,12 @@ $(document).ready(function(){
     });
      $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
-        var filePath = $(this).parents().siblings(".pep_file_input").val() || "";
-        alert("filePath="+filePath);
+
+        var form =  $(this).parents(".pep_attachment_form")[0];
+        var formData = new FormData(form);
+
         if(filePath !== ""){
-            $.post("${reverse('chat_attachment', args=[request.user.id])}", {"user_id": getId, "filePath": filePath}, function (data) {
+            $.ajax({type: "POST", url: "${reverse('chat_attachment', args=[request.user.id])}", data: {"user_id": getId, formData}, contentType: false, processData: false, success: function (data) {
                 console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
                 setTimeout(function(){}, 5000);
                 if(data.Success){
@@ -119,10 +121,10 @@ $(document).ready(function(){
                 }else{
                     $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
                 }
-            }).fail(function(){alert("error")});
+            }});
         }
-        $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
-        $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
+        $(this).parents(".pep_attachment_form").find("#submit_label").css("display", "none");
+        $(this).parents(".pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
 
 });
