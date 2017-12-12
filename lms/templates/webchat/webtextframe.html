@@ -33,6 +33,7 @@
                             <img src="/static/images/Pepptalk/PeppAttachment.png" alt="im-video">
                         </label>
                         <input class="pep_file_input" id="pep_file_input_${user_id}" data-user_id="${user_id}" type="file" name='attachment' style="display: none;"/>
+                        <input type="hidden" value="${user_id}" name="user_id">
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                         <label class="pep_attach_label" id="submit_label" for="pep_file_submit_${user_id}" style="display: none;cursor: pointer !important;">
                             <img class="pep_send_image" id="pep_send_image_${user_id}" data-user_id="${user_id}" src="/static/images/Pepptalk/PeppAttachmentSend.png" alt="im-video">
