@@ -106,7 +106,7 @@ $(document).ready(function(){
 
         if(formData){
             $.ajax({type: "POST", url: "${reverse('chat_attachment', args=[request.user.id])}", data: formData, contentType: false, processData: false, success: function (data) {
-                console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
+                console.log("textchat="+data.textchatID+" data.Success="+data.Success);
                 setTimeout(function(){}, 5000);
                 if(data.Success){
                     sessionStorage.setItem('chatAttach_'+data.textchatID, data.fileObjID);
