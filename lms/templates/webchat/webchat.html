@@ -109,7 +109,12 @@ $(document).ready(function(){
                 if(data.Success){
                     var fileurl='${get_file_url("'+data.fileObj.attachment+'")}';
                     var filename='${get_file_name("'+data.fileObj.attachment+'")}';
-                    alert("data.fileObj.attachment=${data.fileObj.attachment.upload} textchat="+data.textchatID+" attachment url="+fileurl+" attachment name="+filename);
+                    try{
+                        var fileupload = '${data.fileObj.attachment.upload}';
+                    }catch(e){
+                        var fileupload="";
+                    }
+                    alert("data.fileObj.attachment="+fileupload+" textchat="+data.textchatID+" attachment url="+fileurl+" attachment name="+filename);
                     $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url('+data.fileObj.attachment+')}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name('+data.fileObj.attachment+')}</a></div>');
                 }else{
                     $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
