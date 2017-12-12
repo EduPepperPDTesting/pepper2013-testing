@@ -110,7 +110,7 @@ $(document).ready(function(){
                     var fileurl='${get_file_url("'+data.fileObj.attachment+'")}';
                     var filename='${get_file_name("'+data.fileObj.attachment+'")}';
                     try{
-                        var fileupload = 'data.fileObj.attachment.upload';
+                        var fileupload = data.fileObj.attachment.upload;
                     }catch(e){
                         var fileupload="";
                     }
