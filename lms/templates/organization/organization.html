@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
+	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
 	.preview_view1,.editor_view1{width:900px;}
 	.design_dashboard_menu_div{width:900px;}
@@ -1910,7 +1911,7 @@
 						e.preventDefault();
 						var loadwin = new LoadingWin();
 						
-						design_current_id = $(this).attr('href').substr(1);
+						org_current_id = $(this).attr('href').substr(1);
 						var org_current_name = $(this).text();
 						
 						$(".org_table1_selected").removeClass("org_table1_selected");
@@ -1926,7 +1927,7 @@
 						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
-						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: design_current_id}, function (r) {							
+						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
 									$("#org_btn_reset_state").click();
