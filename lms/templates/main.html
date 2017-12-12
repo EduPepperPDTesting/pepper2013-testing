@@ -2,7 +2,7 @@
     from django.utils.translation import ugettext as _
     from django.utils import html
     from student.models import State, District, School, User, UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter, Nologindesign, DesignMenu, DesignFooter
 %>
 <%namespace name='static' file='static_content.html'/>
 
@@ -14,7 +14,7 @@
 <%
     organization_active = False
     footer = False
-    if request.path == "/":
+    if not request.user.is_authenticated():
         design = "" 
         for tmp1 in  Nologindesign.objects.filter(is_selected=1):
             design = tmp1
@@ -174,7 +174,7 @@ navbar_show_extended=True
 % elif not suppress_toplevel_navigation:
     % if organization_active and org_data["Is New Menu"] == "1":
         <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
-    % elif request.path == "/":
+    % elif not request.user.is_authenticated() and design_menu_flag == "1":
         <%include file="navigation_new2.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
     % else:
         <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
@@ -184,6 +184,8 @@ navbar_show_extended=True
 <!--@begin:Main module page, change the bottom margin in the body text-->
 <!--@date:2013-11-02-->
   % if organization_active and org_data["Is New Menu"] == "1":
+    <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
+  % elif not request.user.is_authenticated() and design_menu_flag == "1":
     <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
   % else:
     <section class="content-wrapper" style="padding-bottom: 0;">
