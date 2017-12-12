@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
 from django.forms.models import model_to_dict
 from util.json_request import JsonResponse
+from file_uploader.utils import get_file_url, get_file_name
 try:
     from urllib import urlencode
 except ImportError:
@@ -387,7 +388,7 @@ def read_attachment(request):
     try:
         fileObj = ChatAttachment.objects.select_related().get(id=int(fileObj_id))
         success = 1
-        data = {'fileObj': fileObj, 'success': success}
+        data = {'attachURL': get_file_url(fileObj.attachment), 'attachName': get_file_name(fileObj.attachment), 'success': success}
     except:
         success = 0
         data = {'success': success}
