@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
 <style>
+	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
 	.preview_view1,.editor_view1{width:900px;}
 	.design_dashboard_menu_div{width:900px;}
@@ -286,7 +287,7 @@
 			                <td colspan="3" class="org_td1">
 			                	<label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="0" onclick="isIconChange('design')" />All Words</label>
 			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="1" onclick="isIconChange('design')" />All Icons</label>
-			                    <label class="org_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange('design')" />Text Below Icons</label>
+			                    <label class="des_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange('design')" />Text Below Icons</label>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -1725,7 +1726,7 @@
 				});
 				$(".design_next").click(function(e){
 					e.preventDefault();
-					// var loadwin = new LoadingWin();
+					var loadwin = new LoadingWin();
 					
 					design_current_id = $(this).attr('href').substr(1);
 					var design_current_name = $(this).text();
@@ -1866,7 +1867,7 @@
 								$(this).find(".design_sub_menu_btn").val("-");
 								$(this).find(".design_sub_menu_btn:last").val("+");
 							});
-							organizational_dashboard_demo_div_reload();
+							design_dashboard_demo_div_reload();
 							isIconChange("design");
 							isPDDashboardChange($("input[name='design_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='design_dashboard_on_menu']:checked").val());
@@ -1910,7 +1911,7 @@
 						e.preventDefault();
 						var loadwin = new LoadingWin();
 						
-						design_current_id = $(this).attr('href').substr(1);
+						org_current_id = $(this).attr('href').substr(1);
 						var org_current_name = $(this).text();
 						
 						$(".org_table1_selected").removeClass("org_table1_selected");
@@ -1926,7 +1927,7 @@
 						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
 						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
-						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: design_current_id}, function (r) {							
+						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
 									$("#org_btn_reset_state").click();
@@ -3028,7 +3029,7 @@
 		var menu_text_font_icons = $("#organizational_dashboard_menu_text_font_icons").val();
 		var menu_text_size_icons = $("#organizational_dashboard_menu_text_size_icons").val();
 		
-		$(".menu_items_menu_item").each(function(){
+		$(".organizational_dashboard_menu_div .menu_items_menu_item").each(function(){
 			if($(this).val() != ""){
 				var tmp_item;
 				var tmp_name = $(this).val();
@@ -3125,7 +3126,7 @@
 		var menu_text_font_icons = $("#design_dashboard_menu_text_font_icons").val();
 		var menu_text_size_icons = $("#design_dashboard_menu_text_size_icons").val();
 		
-		$(".menu_items_menu_item").each(function(){
+		$(".design_dashboard_menu_div .menu_items_menu_item").each(function(){
 			if($(this).val() != ""){
 				var tmp_item;
 				var tmp_name = $(this).val();
@@ -5339,8 +5340,11 @@
 		
 		if(is_icon == "1"){
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", false);
-			$(".org_td1_demo2").removeClass(flag+"_dashboard_demo1");
-			
+			if (flag == 'organizational'){
+				$(".org_td1_demo2").removeClass(flag+"_dashboard_demo1");
+			}else{
+				$(".des_td1_demo2").removeClass(flag+"_dashboard_demo1");
+			}
 			if(is_icon_width_text == "0"){
 				$("#"+flag+"_dashboard_menu_text_color_icons").hide();
 				$("#"+flag+"_dashboard_menu_text_font_icons").hide();
@@ -5365,7 +5369,12 @@
 		}else{
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", true);
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("checked", false);
-			$(".org_td1_demo2").addClass(flag+"_dashboard_demo1");
+			if (flag == 'organizational'){
+				$(".org_td1_demo2").addClass(flag+"_dashboard_demo1");
+			}else{
+				$(".des_td1_demo2").addClass(flag+"_dashboard_demo1");
+			}
+			
 			
 			$("#"+flag+"_dashboard_menu_text_color").show();
 			$("#"+flag+"_dashboard_menu_text_font").show();
