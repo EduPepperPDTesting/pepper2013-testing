@@ -292,6 +292,5 @@ def download_saml_federation_metadata(request):
 def link_create(request):
     context = {
         'metadata': get_all_sp(),
-        'callback': request.GET.get('callback')
     }
     return render_to_response('sso/manage/sp_link_create.html', context)
