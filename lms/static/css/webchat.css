@@ -24,6 +24,7 @@
 .pep_textchat_block {
     bottom: 0;
     z-index: 20;
+    text-align: left !important;
 }
 .pep_videochat_block {
     top: 73px;

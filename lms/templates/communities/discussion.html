@@ -663,7 +663,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    console.log("discussion.attachment="+${discussion.attachment});
     CKEDITOR.replace( 'editable_post', {
         on: {
             instanceReady: function( evt ) {
@@ -728,6 +727,7 @@
         });
     }
     $(document).ready(function() {
+        console.log("discussion.attachment="+${discussion.attachment});
         $("#linkToDiscussion").click(function(e){
             e.preventDefault();
             new Dialog($('#dialog')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
