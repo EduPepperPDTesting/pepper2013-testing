@@ -1725,7 +1725,7 @@
 				});
 				$(".design_next").click(function(e){
 					e.preventDefault();
-					// var loadwin = new LoadingWin();
+					var loadwin = new LoadingWin();
 					
 					design_current_id = $(this).attr('href').substr(1);
 					var design_current_name = $(this).text();
@@ -1866,7 +1866,7 @@
 								$(this).find(".design_sub_menu_btn").val("-");
 								$(this).find(".design_sub_menu_btn:last").val("+");
 							});
-							organizational_dashboard_demo_div_reload();
+							design_dashboard_demo_div_reload();
 							isIconChange("design");
 							isPDDashboardChange($("input[name='design_dashboard_option']:checked").val());
 							isNewMenuChange($("input[name='design_dashboard_on_menu']:checked").val());
