@@ -18,6 +18,9 @@ import datetime
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+<!--autocomplete-->
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+
 <!--cropper-->
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -27,6 +30,15 @@ import datetime
 
 <style type="text/css" media="screen">
 /*-----------create or edit community window-----------*/
+/*-----------autocomplete-----------*/
+.ui-autocomplete .ui-state-focus,
+.acSelect {
+    padding:0;
+    background: #0000d4;
+    color: white;
+    font-weight:normal;
+}
+.ui-autocomplete {z-index: 100000 !important;}
 /*-----------akogan-----------*/
 .label{color: #000000 !important;}
 .switch i{ bottom: 15px !important;}
@@ -389,6 +401,12 @@ a{
 .con-main-all #btn-join:hover{
     background-color:#76ba35;
 }
+.con-main-all #btn-leave{
+    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+}
+.con-main-all #btn-leave:hover{
+    background-color:#76ba35;
+}
 .con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
 }
@@ -414,23 +432,19 @@ a{
 
 <%
     district_id = district
-    if district_id == '':
-        if request.user.profile.district_id:
-            district_id = request.user.profile.district_id
-
     state_id = state
-    if state_id == '':
-        for item in State.objects.all().order_by('name'):
-            if district_id:
-                if item.name == request.user.profile.district.state.name:
-                    state_id = item.id
-                    break
+    state_name = ''
+    if state_id:
+        for item in State.objects.filter(id=state_id):
+            state_name = item.name
+            break
+    community_id = community.id
 %>
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
 <section class="content-wrapper-community">
-    <div class="" style="margin:0 auto;width:1240px;padding-top:30px;">
+    <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
@@ -441,26 +455,26 @@ a{
                     <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
                 </div>
                 <div class="user-info">
-                    %if user_super or user_request_info.community_edit or user_request_info.community_delete:
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
                     <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
                         <div class="facilitator-triangle"></div>
-                    </div> 
-                    <div class="facilitator-menu">
+                        <div class="facilitator-menu">
                         <div class="f-menu-triangle"></div>
-                        <div class="f-lines">
-                            %if user_request_info.community_edit or user_super:
-                            <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
-                            %endif
-                            %if user_request_info.community_delete or user_super:
-                            <div class="f-rights-line">Delete Community</div>
-                            %endif
-                            %if user_request_info.community_default or user_super:
-                            <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community.id])}">Manage Users</a></div>
-                            %endif
+                            <div class="f-lines">
+                                %if ruser_info['edit'] or user_super:
+                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
+                                %endif
+                                %if ruser_info['delete'] or user_super:
+                                <div class="f-rights-line">Delete Community</div>
+                                %endif
+                                %if ruser_info['default'] or user_super:
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
+                                %endif
+                            </div>
                         </div>
-                    </div>
+                    </div> 
                     %else:
                     <div class="user-name overflow-text" style="margin-top:8px;">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     %endif
@@ -498,7 +512,7 @@ a{
                 </div>
             </div>
             <div class="trending">
-                <div class="sub-title">Trending ${community_id}</div>
+                <div class="sub-title">Trending</div>
                 <div class="trendings">
                     <div class="every-discussion">
                         <div class="discussion-subject overflow-text">Welcome to the O Nieill sdfsdfa sadf</div>
@@ -550,7 +564,11 @@ a{
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
-                                    <span id="btn-join">Join</span>
+                                    %if ruser_info['is_member']:
+                                        <span id="btn-join">Leave</span>
+                                    %else:
+                                        <span id="btn-leave">Join</span>
+                                    %endif
                                 </div>
                             </td>
                         </tr>
@@ -696,7 +714,7 @@ a{
                                 </label>
                             %else:
                                 <label id="community-state"><span>Select State:</span>
-                                    <select id="state-dropdown" name="state-dropdown" disabled class="select-lock"></select>
+                                    <select id="state-dropdown" name="state-dropdown"></select>
                                 </label>
                             %endif
                         </div>
@@ -707,7 +725,7 @@ a{
                                 </label>
                             %else:
                                 <label id="community-district"><span>Select District:</span>
-                                    <select id="district-dropdown" name="district-dropdown" disabled class="select-lock" style="min-width:100px;"></select>
+                                    <select id="district-dropdown" name="district-dropdown" style="min-width:100px;"></select>
                                 </label>
                             %endif
                         </div>
@@ -775,16 +793,7 @@ a{
                             <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
                                 <b>Facilitator</b>):</i>
                             <div style="margin:5px 0 5px 0;">
-                                <select id="complete-email" name="member" style="min-width:100px;margin:5px 5px 0 0;">
-                                    %for user_option in users_drop:
-                                        %if request.user.id == user_option['user_id']:
-                                            <option value="${user_option['user_id']}" selected="selected">${user_option['email']}</option>
-                                        %else:
-                                            <option value="${user_option['user_id']}">${user_option['email']}</option>
-                                        %endif
-                                    %endfor
-                                </select>
-                                <!--<input type="text" name="member" id="complete-email" autocomplete="off">-->
+                                <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
                                 <input type="button" name="" value="Add" class="btn-add-facilitator" style="color:#fff !important;"/>
                             </div>
                             <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
@@ -797,11 +806,16 @@ a{
 </div>
 
 
-<script type="text/javascript">
-    $(".btn-facilitator").click(function(){
-        $(".facilitator-menu").toggle("slow");
-    });
-
+<script type="text/javascript">    
+    $(".btn-facilitator").hover(
+        function(){
+            $(".facilitator-menu").slideDown(200);
+        },
+        function(){
+            $(".facilitator-menu").slideUp(200);
+        }
+    );
+    
     function newCourse() {
         var course_num = $('.community-course').length;
         $('.community-course').each(function(index) {
@@ -896,7 +910,6 @@ a{
                 self.steps.switchTo(einfo.id);
                 return;
             }
-            console.log("jsondata: ",data);
             self.createFormdata(data);
             /*
             $.post("${reverse('community_edit_process_new')}", data, function (r) {
@@ -904,7 +917,6 @@ a{
                     $("#dlg-add-training").hide();
                     $(".lean-overlay").hide();
                     //self.reloadTable();
-                    console.log("return ok");
                 }
             });
             */
@@ -925,7 +937,6 @@ a{
                 contentType: false,
                 processData: false
             });
-            console.log("ajax end");
         });
         return false;
     };
@@ -940,7 +951,6 @@ a{
                     self.steps.switchTo(einfo.id);
                     return;
                 } 
-                console.log("jsondata: ",data);
                 self.createFormdata(data);
                 
                 $.ajax({
@@ -950,7 +960,7 @@ a{
                         console.log("ajax ok");
                         //$("#dlg-add-training").hide();
                         //$(".lean-overlay").hide();
-                        window.location.href = "${reverse('maincommunity', args=[community_id])}";
+                        window.location.href = "/maincommunity/" + r.community_id;
                     },
                     error: function(r){},
                     // Form data
@@ -982,7 +992,6 @@ a{
             var $content = this.getContent(curr);
             
             var data = self.getInput();
-            console.log("initForm getInput: ", data);
             if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
                 return self.warning(error[1], self.dlgForm);
             }
@@ -1017,19 +1026,23 @@ a{
 
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
-            var email = $("#complete-email").find("option:selected").text();
-            var user_id = $("#complete-email").val();
-            self.addFacilitator(email);
+            var email = $("#complete-email").val();
+            $.get("${reverse('community_user_email_valid')}", {email: email}, function (result) {
+                if (result == "1"){
+                    self.addFacilitator(email);
+                    $("#complete-email").val("");
+                } 
+                else if(result == "2"){
+                    self.warning("User not exists.", self.dlgForm);
+                }
+                else{
+                    self.warning("The user you are trying to add is not in your district.", self.dlgForm);
+                }
+            });
         });
 
-        // ************* remove loaded facilitators
-        /*
-        $(".icon-remove").unbind("click").bind("click", function (e) {
+        $('#community-logo .remove').unbind("click").bind("click", function (e) {
             e.preventDefault();
-            $(this).parent().parent().remove();
-        });
-        */
-        $('#community-logo .remove').click(function() {
             var content = '<span>Logo </span><span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br><span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span><input type="hidden" name="logo" id="logo">';
             //$('#community-logo').replaceWith(content);
             $('#community-logo').html(content);
@@ -1038,7 +1051,8 @@ a{
             });
         });
 
-        $('.community-resource .remove').click(function() {
+        $('.community-resource .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
             var name = $(this).siblings('.community-resource-logo').attr('name');
             var content = '<input class="resource-logo typelogo" type="file" name="' + name + '" id="' + name + '">';
             $(this).parent('.community-resource-logo-wrap').replaceWith(content);
@@ -1176,7 +1190,6 @@ a{
             var id = $(this).attr("id");
             var name = $(this).attr("name");
             var type = $(this).attr("type");
-            console.log("id:",id,"  name:",name,"  type:",type);
             
             if(type == 'file'){
                 var fileObj = document.getElementById(id).files[0];
@@ -1457,10 +1470,16 @@ a{
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+        %if user_super:
+            var access_level = 'System';
+        %else:
+            var access_level = 'Notsystem';
+        %endif
 
-        var state_id = ${state_id};
-        var district_id = ${district_id};
-        $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
+        var state_id = "${state_id}";
+        var district_id = "${district_id}";
+        var state_name = "${state_name}"
+        $.get('${reverse('pepper_utilities_drop_states')}', {'access_level': access_level},function (data) {
             // Build the options.
             var options = '<option value=""></option>';
             $.each(data, function (index, object) {
@@ -1472,6 +1491,12 @@ a{
             });
             // Add them to the state dropdown.
             $('#state-dropdown').append(options);
+            if(state_id){
+                if(!$("#state-dropdown option[value='" + state_id + "']").val()){
+                    options = "<option value ='" + state_id + "'>" + state_name + "</option>";
+                    $('#state-dropdown').append(options);
+                }
+            }
 
             $("#state-dropdown").change(function (e,d_id) {
                 if ($(this).val()) {
@@ -1508,27 +1533,10 @@ a{
             }
         });
 
-
-        //** init expand title
-        /*
-        $(".expand_title").next("div.expand_div").slideDown(); //akogan
-        //$(".expand_title").off("click").bind("click", function () {
-        $(".expand_title").on("click", function () {
-            if ($(".expand_div").is(':visible')) {
-                $(".expand_div").slideUp();
-                $(this).removeClass("expand_title_expanded");
-            } else {
-                $(".expand_div").slideDown();
-                $(this).addClass("expand_title_expanded");
+        $('#complete-email').autocomplete({
+            source: function (request, response) {
+                $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
         });
-        */
-        // $(".expand_title").click();
-        /*
-        $(".print-map").click(function (e) {
-            e.preventDefault();
-            return false;
-        });
-        */
     });
 </script>
