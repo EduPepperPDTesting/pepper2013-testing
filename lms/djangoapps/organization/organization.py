@@ -33,7 +33,6 @@ from xmodule.remindstore import myactivitystore
 
 
 # -------------------------------------------------------------------main
-@login_required
 def main(request):
     get_flag = request.GET.get("flag")
     post_flag = request.POST.get("flag")
