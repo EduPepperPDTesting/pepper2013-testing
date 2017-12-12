@@ -79,7 +79,7 @@ $(document).ready(function(){
                     }else{
                         $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
                     }
-                }
+                });
                 sessionStorage.setItem('chatAttach_'+chat_id, "");
             }
             getMessage(chat_id);
