@@ -21,12 +21,15 @@
 <script type="text/javascript" src="/static/js/certificate-editor.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/configuration.js"></script>
+<script type="text/javascript" src="/static/js/sp_link_create.js"></script>
+
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
 <link rel="stylesheet" href="/static/css/permissions.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/css/configuration.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+<link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
 	#design_dashboard_space_between{width: 60px;text-align: center;}
@@ -114,7 +117,7 @@
 	.organizational_dashboard_cms_body2 span{float:left; height:40px; line-height:40px; }
 	.organizational_dashboard_cms_item{width:200px;}
 	.organizational_dashboard_cms_item input{width:98% !important;}
-	.organizational_dashboard_cms_url{width:270px;}
+	.organizational_dashboard_cms_url{width:270px; position: relative;}
 	.organizational_dashboard_cms_url input{width:98% !important;}
 	.organizational_dashboard_cms_icon{width:180px; overflow:hidden}
 	.organizational_dashboard_cms_icon_view{width:70px; overflow:hidden}
@@ -170,6 +173,17 @@
 	.org_assignment_qualifications_item .oaq_title{font-weight:bold;}
 	
 	.ui-datepicker-current{display:none;}
+
+    .cms_items_url {
+        padding-right: 28px;
+    }
+    .cms_items_url_external img {
+        height: 18px;
+        width: 18px;
+        position: absolute;
+        right: 12px;
+        top: 8px;
+    }
 </style>
 
 <!--Main Page Configuration-->
@@ -963,7 +977,7 @@
                         </div>
                         <div class="organizational_dashboard_cms_body1">
                             <span class="organizational_dashboard_cms_item"><input type="text" class="cms_items_cms_item" /></span>
-                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /></span>
+                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /><a href="#" class="cms_items_url_external"><img src="/static/images/external-link.png" /></a></span>
                             <span class="organizational_dashboard_cms_icon"><input type="file" class="cms_items_icon" id="cms_items_icon_1" name="cms_items_icon_1"></span>
                             <span class="organizational_dashboard_cms_icon_view"></span>
                             <span class="organizational_dashboard_cms_grade"><input type="text" class="cms_items_grade" /></span>
@@ -5517,4 +5531,13 @@
         $(datepicker_CurrentInput).change();
     });											
 	var csrf_token = '${csrf_token}';
+
+	function addExternalLink(link, selector) {
+	    $(selector).siblings('.cms_items_url').val(link);
+    }
+
+    $('.cms_items_url_external').click(function (e) {
+        e.preventDefault();
+        spExternalLink('addExternalLink', this);
+    })
 </script>
