@@ -65,6 +65,25 @@ $(document).ready(function(){
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
             $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
+            var getAttachmentID = sessionStorage.getItem('chatAttach_'+chat_id);
+            if(getAttachmentID){
+                $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
+                     if(data.success){
+                        var fileurl='${get_file_url("'+data.fileObj.attachment+'")}';
+                        var filename='${get_file_name("'+data.fileObj.attachment+'")}';
+                        try{
+                            var fileupload = data.fileObj.attachment.upload;
+                        }catch(e){
+                            var fileupload="";
+                        }
+                        alert("data.fileObj.attachment="+fileupload+" textchat="+data.textchatID+" attachment url="+fileurl+" attachment name="+filename);
+                        $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url('+data.fileObj.attachment+')}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name('+data.fileObj.attachment+')}</a></div>');
+                    }else{
+                        $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
+                    }
+                }
+                sessionStorage.setItem('chatAttach_'+chat_id, "");
+            }
             getMessage(chat_id);
             leftX-=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");

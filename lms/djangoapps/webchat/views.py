@@ -353,6 +353,7 @@ def chat_attachment(request, userFromID):
     error = ''
     success = 0
     userToID = request.POST.get("user_id")
+    fileObj_id = None
 
     fileObj.user_from = userFromID
     fileObj.user_to = User.objects.get(id=int(userToID))
@@ -373,10 +374,22 @@ def chat_attachment(request, userFromID):
 
     if attachment:
         fileObj.attachment = attachment
+        fileObj.save()
+        fileObj_id = fileObj.id
+        fileObj_dict = model_to_dict(fileObj)
 
-    fileObj.save()
-    fileObj_dict = model_to_dict(fileObj)
+    data = {'textchatID': userToID,  'fileObjID': fileObj_id,  'Success': success, 'Error': 'Error: {0}'.format(error)}
 
-    data = {'textchatID': userToID, 'fileObj': fileObj_dict, 'Success': success, 'Error': 'Error: {0}'.format(error)}
+    return JsonResponse(data)
+
+def read_attachment(request):
+    fileObj_id=request.POST.get('attachment_id')
+    try:
+        fileObj = ChatAttachment.objects.select_related().get(id=int(fileObj_id))
+        success = 1
+        data = {'fileObj': fileObj, 'success': success}
+    except:
+        success = 0
+        data = {'success': success}
 
     return JsonResponse(data)

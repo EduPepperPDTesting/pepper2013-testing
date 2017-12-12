@@ -138,7 +138,7 @@ urlpatterns = (
     url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
 
     url(r'^chatattachment/(?P<userFromID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
-
+    url(r'^readattachment/$', 'webchat.views.read_attachment', name='read_attachment'),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+) (?P<filePath>[\\\:\.w]+)/
 
     # === Portfolio Settings begin ==
