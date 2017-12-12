@@ -105,7 +105,6 @@ $(document).ready(function(){
         if(filePath !== ""){
             $.post("${reverse('chat_attachment', args=[request.user.id])}", {"user_id": getId, "filePath": filePath}, function (data) {
                 console.log("textchat="+data.textchatID+" data.fileObj.attachment="+data.fileObj.attachment+" data.Success="+data.Success);
-                console.log("data.fileObj.attachment=${data.fileObj.attachment.upload}");
                 setTimeout(function(){}, 5000);
                 if(data.Success){
                     var fileurl='${get_file_url("'+data.fileObj.attachment+'")}';
