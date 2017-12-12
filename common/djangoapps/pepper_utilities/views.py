@@ -1,6 +1,10 @@
+from django.core.urlresolvers import reverse
+
+from mitxmako.shortcuts import render_to_response
 from student.models import State, District, School, Cohort, User
-from .utils import render_json_response
+from .utils import render_json_response, get_request_array
 from permissions.utils import check_access_level, check_user_perms
+
 
 def drop_states(request):
     r = list()
@@ -110,3 +114,12 @@ def user_email_exists(request):
         exists = User.objects.filter(email=lookup).exists()
     return render_json_response(exists)
 
+
+def js_url_lookup(request):
+    arguments = get_request_array(request.GET, 'arguments')
+    url = reverse(request.GET.get('signature'), kwargs=arguments)
+    return render_json_response({'url': url})
+
+
+def js_url_lookup_js(request):
+    return render_to_response('js_url_resolver.js')

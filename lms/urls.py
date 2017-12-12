@@ -110,6 +110,10 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
 
+    # === JS URL Resolver begin ===
+    url(r'^js_url_resolver.js$', 'pepper_utilities.views.js_url_lookup_js', name='pepper_utilities_js_url_lookup_js'),
+    url(r'^js_url_resolver$', 'pepper_utilities.views.js_url_lookup', name='pepper_utilities_js_url_lookup'),
+
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
     url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
