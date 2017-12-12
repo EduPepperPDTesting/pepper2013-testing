@@ -287,7 +287,7 @@
 			                <td colspan="3" class="org_td1">
 			                	<label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="0" onclick="isIconChange('design')" />All Words</label>
 			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_is_icon" value="1" onclick="isIconChange('design')" />All Icons</label>
-			                    <label class="org_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange('design')" />Text Below Icons</label>
+			                    <label class="des_td1_demo2"><input type="checkbox" name="design_dashboard_is_icon_text" onclick="isIconChange('design')" />Text Below Icons</label>
 			                </td>
 			            </tr>
 			            <tr class="new_menu_tr">
@@ -5340,8 +5340,11 @@
 		
 		if(is_icon == "1"){
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", false);
-			$(".org_td1_demo2").removeClass(flag+"_dashboard_demo1");
-			
+			if (flag == 'organizational'){
+				$(".org_td1_demo2").removeClass(flag+"_dashboard_demo1");
+			}else{
+				$(".des_td1_demo2").removeClass(flag+"_dashboard_demo1");
+			}
 			if(is_icon_width_text == "0"){
 				$("#"+flag+"_dashboard_menu_text_color_icons").hide();
 				$("#"+flag+"_dashboard_menu_text_font_icons").hide();
@@ -5366,7 +5369,12 @@
 		}else{
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("disabled", true);
 			$("input[name='"+flag+"_dashboard_is_icon_text']").attr("checked", false);
-			$(".org_td1_demo2").addClass(flag+"_dashboard_demo1");
+			if (flag == 'organizational'){
+				$(".org_td1_demo2").addClass(flag+"_dashboard_demo1");
+			}else{
+				$(".des_td1_demo2").addClass(flag+"_dashboard_demo1");
+			}
+			
 			
 			$("#"+flag+"_dashboard_menu_text_color").show();
 			$("#"+flag+"_dashboard_menu_text_font").show();
