@@ -21,7 +21,10 @@
             <div class="close-chat"> <img src="/static/images/Pepptalk/closeChat.png" alt="Close"></div>
         </div>
     </div>
-    <div class="pep_text_chat" id="textchat_${user_id}" onload="readAttachment(${user_id})"></div>
+    <div class="pep_text_chat" id="textchat_${user_id}"></div>
+    <script>
+        readAttachment(${user_id});
+    </script>
     <div class="pep_textchatfooter_container container-fluid">
         <div class="row">
             <input type="text" class="pep_chat_input col-sm-8" data-to_id="${user_id}" data-from_id="${request.user.id}"></input>
@@ -63,7 +66,7 @@
             });
             sessionStorage.removeItem('chatAttach_'+userID);
         }
-    };
+    }
 
     $(".pep_header_right").on("click", ".pep_chat_video", function(e){
         var $link = $(e.target);
