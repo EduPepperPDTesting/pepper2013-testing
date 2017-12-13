@@ -129,9 +129,36 @@ $(document).ready(function(){
         $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form").find("#submit_label").css("display", "none");
         $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
+
+    function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+    }
 });
 
-$(window).load(function() {
+/*$(window).load(function() {
     $(".pep_text_chat").each(function(){
         var userID = $(this).attr("id").substr($(this).attr("id").indexOf("_")+1);
         var getAttachmentID = sessionStorage.getItem('chatAttach_'+userID);
@@ -179,5 +206,5 @@ $(window).load(function() {
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
         $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
     }
-});
+});*/
 </script>
