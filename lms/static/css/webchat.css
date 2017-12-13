@@ -6,8 +6,8 @@
 }
 #publisher {
     position: absolute;
-    top: 20px;
-    right: 0;
+    top: 40px;
+    right: 20px;
     height: 80px;
     width: 120px;
     z-index: 10;

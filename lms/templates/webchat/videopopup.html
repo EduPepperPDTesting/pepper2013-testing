@@ -67,6 +67,7 @@ function initializeSession() {
     var session = OT.initSession(apiKey, sessionId);
 
     session.on('streamCreated', function(event) {
+        console.log("Subscriber created");
         if (connections < 1) {
             var subscriber = session.subscribe(event.stream, 'subscriber', {
                 insertMode: 'append',
@@ -101,11 +102,21 @@ function initializeSession() {
         if (error) {
           handleError(error);
         } else {
+          console.log("Publishing...");
           session.publish(publisher, function(){});
         }
     });
-    $(document).keypress(function(e) {
-        if(e.which == 83) {
+    $("#publisher").click(function () {
+        console.log("hit...");
+        OT.checkScreenSharingCapability(function(response) {
+           if (response.supported) screenshare(session);
+        });
+    });
+}
+function screenshare(session) {
+    OT.checkScreenSharingCapability(function(response) {
+        console.log (response.supported);
+        if (response.supported) {
             var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {
@@ -113,12 +124,6 @@ function initializeSession() {
                 }
             });
         }
-    });
-}
-function screenshare() {
-    OT.checkScreenSharingCapability(function(response) {
-        console.log (response.supported);
-
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
         } else if (response.extensionInstalled === false) {
