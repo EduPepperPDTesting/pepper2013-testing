@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import sys
 import logging
 from xmodule.course_module import CourseDescriptor
+from pepper_utilities.utils import full_reverse
 
 log = logging.getLogger("tracking")
 
@@ -416,7 +417,7 @@ def _send_notification(action_user, receive_user, type_name, values):
             "ttt": ttt.name,
             "body": body,
             "subject": subject,
-            "location": values["refer_url"]
+            "location": values["Course Link"]
         })
 
         # Save none instant notification to audit
@@ -435,6 +436,6 @@ def _send_notification(action_user, receive_user, type_name, values):
                 send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
 
 
-def send_course_notification(action_user, course, notification_type, user_id):
-    values = {"refer_url": "", "course_name": course.display_name, "course_id": course.id}
+def send_course_notification(request, action_user, course, notification_type, user_id):
+    values = {"Course Link": full_reverse('courseware', request, course.id), "Course Name": course.display_name, "Course Number": course.id}
     _send_notification(action_user, User.objects.get(id=user_id), notification_type, values)

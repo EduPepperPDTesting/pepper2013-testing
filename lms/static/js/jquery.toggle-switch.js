@@ -23,22 +23,15 @@ $.fn.toggleSwitch = function() {
             }else{
                 value = 0;
             }
-            
-
             if(drag)self.val(value);
             // if(value != $(self).data("old")){
             //     $(self).trigger("change", [value]);
             // }
             // $switch.css("margin-left", '');
-
             // $(self).data("old", value);
-
             drag = false;
-
-   
         });
         $(document).on("mousemove", function(e){
-    
             function between(a, b, c){
                 if(a < b) return b;
                 if(a > c) return c;
@@ -56,8 +49,8 @@ $.fn.toggleSwitch = function() {
                 }
             }
         });
-
-        this.val = function (v){
+        this.val = function (v, trigger_event){
+            trigger_event = (typeof trigger_event == "undefined") || trigger_event;
             var old = $(self).data("old");
             $(self).data("old", v);
             if(typeof(v) == "undefined"){
@@ -71,9 +64,6 @@ $.fn.toggleSwitch = function() {
                 }
                 return V;
             }else{
-                if(v != old){
-                    ret.trigger("change", [v]);
-                }
                 $(self).removeClass("left");
                 $(self).removeClass("right");
                 if(v == -1){
@@ -82,12 +72,19 @@ $.fn.toggleSwitch = function() {
                     $(self).addClass("right")
                 }
                 $switch.css("margin-left", '');
+                if(v != old && trigger_event){
+                    ret.trigger("change", [v]);
+                }                
             }
         }
     });
-    ret.val = function(v) {
-        if(ret.length)
-            return ret[0].val(v);
+    ret.val = function(v, t) {
+        var r;
+        ret.each(function(i, item){
+            r = item.val(v, t);    
+        })
+        return r;
+        
     }
     return ret;
 }
