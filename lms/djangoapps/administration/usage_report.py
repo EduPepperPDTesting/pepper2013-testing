@@ -120,6 +120,7 @@ def get_user_login_info(request):
 				dict_tmp['last_session'] = ''
 				dict_tmp['online_state'] = 'On'
 				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+			dict_tmp['login_time'] = user_login_data.login_time
 		except:
 			dict_tmp['login_time'] = ''
 			dict_tmp['logout_time'] = ''

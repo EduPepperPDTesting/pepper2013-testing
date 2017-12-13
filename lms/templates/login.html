@@ -296,7 +296,7 @@
                         function(data) {
                             if (data.success) {
                                 $(".password-change-date-error").html("");
-                                $(".check-success").html("Your password has been changed successfully.");
+                                $(".check-success").html("User\'s password changes successfully.");
 
                                 $.post("/login_ajax", {'email': user_email,'password': psw2}, 
                                     function(json) {

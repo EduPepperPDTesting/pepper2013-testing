@@ -3,7 +3,8 @@
 %>
 
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/static/js/jquery-ui.js"></script>
+<!--script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
 
 <div id="pep_all_lists">
 	%for org in orgs_list:
@@ -70,71 +71,91 @@
 								user_ids.push(data.users[i].user_id);
 							}
 							//console.log(user_ids);
-							var prevLen;
+							var prevLen = 0;
 							var page = 2;
-							do{
-								$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
-									prevLen=user_ids.length;
-									if (data.success) {
-										for(i=0; i<data.users.length; i++){
-											user_ids.push(data.users[i].user_id);
+							var nthRow;
+							var boxBottom = $("#pep_user_list").offset().top + 280;
+							$("#pep_user_list").on("scroll", function(){
+								if(prevLen < user_ids.length){
+									nthRow=((page-1)*10)+1;
+									var nextTop = $("#pep_user_list tr:eq("+nthRow+")").offset().top;
+									console.log(nextTop);
+									if( (nextTop + 26) < boxBottom ){
+										$.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+											prevLen=user_ids.length;
+											if (data.success) {
+											user_ids = [];
+												for(i=0; i<data.users.length; i++){
+													user_ids.push(data.users[i].user_id);
+												}
+												page += 1;
+											}
+											console.log(page+" "+user_ids);
 										}
-										page += 1;
+										});
+										getRowsData(allUsersSource, user_ids);
 									}
-									//console.log(page+" "+user_ids);
-								}
-								});
-							}while(prevLen < user_ids.length);
-							$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
-									if(networkData.success){
-										for(i=0; i<networkData.rows.length; i++){
-											networkRows.push(networkData.rows[i]);
-										}
-									}
+								}else{
+									$("#pep_user_list").off("scroll");
 								}
 							});
-							var arrLength = networkRows.length;
-							//console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
-							var getUserRows={userRows: networkRows, arrLength: arrLength};
+							getRowsData(allUsersSource, user_ids);
+							function getRowsData(allUsersSource, user_ids){
+								$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
+										if(networkData.success){
+											for(i=0; i<networkData.rows.length; i++){
+												networkRows.push(networkData.rows[i]);
+											}
+										}
+									}
+								});
+								var arrLength = networkRows.length;
+								//console.log("networkRows="+networkRows+" isArray(networkRows)="+Array.isArray(networkRows)+" "+arrLength);
+								var getUserRows={userRows: networkRows, arrLength: arrLength};
+								addRowsData(getUserRows);
+							}
 						}else{
 							var userRows = data.rows;
+							addRowsData({userRows: userRows});
 						}
 
-						var tbodyID = "#users_"+commId;
-						var username, userID;
-						var elExists, addStyle, removeStyle;
-						if(getUserRows === undefined){
-							var records = userRows.length;
-						}else{
-							var records = getUserRows.arrLength;
-							var userRows = getUserRows.userRows;
-						}
-						//console.log(records);
-						for(i = 0; i < records; i++){
-							username = userRows[i][0];
-                            id = userRows[i][1];
-                            netIcon = userRows[i][2];
-                            commIcon = userRows[i][3];
-							//console.log(username+" "+id);
-							userID = username.replace(/ /g, "_")+','+id;
-							elExists = !!document.getElementById('ul'+id);
-							if(elExists === true){
-								//console.log("elExists === false=" + (elExists === false));
-								addStyle = 'display:none;';
-								removeStyle = 'display: inline-block;';
+						function addRowsData(RowsData){
+							var tbodyID = "#users_"+commId;
+							var username, userID;
+							var elExists, addStyle, removeStyle;
+							var userRows = RowsData.userRows;
+							if(RowsData.arrLength === undefined){
+								var records = userRows.length;
+							}else{
+								var records = RowsData.arrLength;
 							}
-							if(elExists === false){
-								//console.log("elExists === true=" + (elExists === true));
-								addStyle = 'display: inline-block;';
-								removeStyle = 'display:none;'
+							//console.log(records);
+							for(i = 0; i < records; i++){
+								username = userRows[i][0];
+								id = userRows[i][1];
+								netIcon = userRows[i][2];
+								commIcon = userRows[i][3];
+								//console.log(username+" "+id);
+								userID = username.replace(/ /g, "_")+','+id;
+								elExists = !!document.getElementById('ul'+id);
+								if(elExists === true){
+									//console.log("elExists === false=" + (elExists === false));
+									addStyle = 'display:none;';
+									removeStyle = 'display: inline-block;';
+								}
+								if(elExists === false){
+									//console.log("elExists === true=" + (elExists === true));
+									addStyle = 'display: inline-block;';
+									removeStyle = 'display:none;'
+								}
+								var netIconTag, commIconTag;
+								if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
+								if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
+								$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td></tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
 							}
-							var netIconTag, commIconTag;
-							if(netIcon!=''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
-							if(commIcon!=''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-							$("body #pep_user_list").find(tbodyID).append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+							if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
+							//console.log("tbodyID="+tbodyID);
 						}
-						if(commId == 'network' || commId == 'allptusers'){$("body").find(tbodyID).css("display","block");}
-						//console.log("tbodyID="+tbodyID);
 
 						$(".pep_contact_name").tooltip({
 							items: ".pep_contact_name",
@@ -170,6 +191,7 @@
 			}
 
 		});
+
         $("thead").on ("click", ".pep_start_video", function (e){
             community_id = $(this).parent().attr("id").replace("community_", '');
             $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
@@ -225,7 +247,17 @@
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
 						//console.log("leftX="+leftX);
 						//console.log("nameTitle="+nameTitle);
-						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + uclass + "`" + nameTitle + "`" + IdTitle + " .pep_text_panel");
+						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
+
+						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
+
+						var headsList = [];
+						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+						if(chatHeads !== null){
+							headsList = chatHeads;
+						}
+						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
+    					sessionStorage.setItem('chatHeads', JSON.stringify(headsList));
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
@@ -233,6 +265,20 @@
 				getMessage(id);
 			}
 			$link.data('lockedAt', +new Date());
+            $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
+                    e.preventDefault();
+                    user_id = ${request.user.id};
+                    request_user_id = $(this).attr("id");
+                    console.log(request_user_id);
+                    $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                        var session = data.session;
+                        $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                            window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                            link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                            sendVideoRequest(request_user_id, link, 0);
+                        });
+                    });
+                });
         });
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
 			var $link = $(e.target);

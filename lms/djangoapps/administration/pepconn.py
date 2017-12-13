@@ -127,6 +127,7 @@ def main(request):
                          'error_message': 'You do not have access to this view in Pepper,\
                           please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))           
+
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
     districts = District.objects.all().order_by('name')

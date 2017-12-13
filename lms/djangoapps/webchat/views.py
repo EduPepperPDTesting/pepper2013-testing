@@ -9,6 +9,9 @@ from .models import CommunityWebchat, UserWebchat, MessageAlerts, ChatAttachment
 from people.views import my_people
 from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
+from django.forms.models import model_to_dict
+from util.json_request import JsonResponse
+from file_uploader.utils import get_file_url, get_file_name
 try:
     from urllib import urlencode
 except ImportError:
@@ -346,13 +349,15 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 
-def chat_attachment(request, userFromID, userToID):
+def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
-    success = False
+    success = 0
+    userToID = request.POST.get("user_id")
+    fileObj_id = None
 
     fileObj.user_from = userFromID
-    fileObj.user_to = userToID
+    fileObj.user_to = User.objects.get(id=int(userToID))
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
@@ -361,7 +366,7 @@ def chat_attachment(request, userFromID, userToID):
             attachment.sub_type = userToID
             attachment.upload = request.FILES.get('attachment')
             attachment.save()
-            success = True
+            success = 1
         except Exception as e:
             attachment = None
             error = e
@@ -370,6 +375,23 @@ def chat_attachment(request, userFromID, userToID):
 
     if attachment:
         fileObj.attachment = attachment
-    fileObj.save()
+        fileObj.save()
+        fileObj_id = fileObj.id
+        fileObj_dict = model_to_dict(fileObj)
 
-    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})
+    data = {'textchatID': userToID,  'fileObjID': fileObj_id,  'Success': success, 'Error': 'Error: {0}'.format(error)}
+
+    return JsonResponse(data)
+
+def read_attachment(request):
+    fileObj_id=request.POST.get('attachment_id')
+    try:
+        fileObj = ChatAttachment.objects.select_related().get(id=int(fileObj_id))
+        textchatID = ChatAttachment.objects.get(id=int(fileObj_id)).user_to_id
+        success = 1
+        data = {'textchatID': textchatID, 'attachURL': get_file_url(fileObj.attachment), 'attachName': get_file_name(fileObj.attachment), 'success': success}
+    except:
+        success = 0
+        data = {'success': success}
+
+    return JsonResponse(data)

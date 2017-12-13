@@ -1,0 +1,19 @@
+<%!
+    from file_uploader.utils import get_file_url, get_file_name
+%>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    console.log("Success=${Success}");
+    if("${Success}" == "True"){
+        $("textchat_"+${textchatID}).append(
+            '<div class="pep_file_download"><span>Attachment: </span><a href="${get_file_url(fileObj.attachment)}" target="_blank"><img src="/static/images/document-download.png"> ${get_file_name(fileObj.attachment)}</a></div>'
+        );
+    }else{
+        $("textchat_"+${textchatID}).append(
+            '<div class="pep_file_download"><span>Error. </span><span>${Error}</span> </div>'
+        );
+    }
+});
+</script>
