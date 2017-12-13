@@ -4,6 +4,7 @@
     display:inline-block;
     background:#999;
     border-radius:10px;
+    text-align:left;
 }
 .toggle .switch{
     display:inline-block;
