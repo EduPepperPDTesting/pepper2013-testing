@@ -63,7 +63,7 @@ $(document).ready(function(){
         });
         sessionStorage.setItem('chatAttach_${user_id}', "");
     }
-
+});
     $(".pep_header_right").on("click", ".pep_chat_video", function(e){
         var $link = $(e.target);
         e.preventDefault();
@@ -79,7 +79,7 @@ $(document).ready(function(){
         });
         return false;
     });
-});
+
    /*$("#pep_attachment_form").on("change", "#pep_file_input", function(){
         console.log("pep_file_input_"+${user_id});
         if($(this).data("user_id")==${user_id}){
