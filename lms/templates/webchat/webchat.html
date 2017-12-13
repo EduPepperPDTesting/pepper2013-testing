@@ -110,7 +110,7 @@ $(document).ready(function(){
                 setTimeout(function(){}, 5000);
                 if(data.Success){
                     sessionStorage.setItem('chatAttach_'+data.textchatID, data.fileObjID);
-                    //alert("set sessionStorage");
+                    alert("set sessionStorage");
                 }
             }}).fail(function (jqXHR, textStatus) {
                console.log("attachment failed");
