@@ -113,12 +113,12 @@ $(document).ready(function(){
                     $.post("${reverse('read_attachment')}", {'attachment_id': data.fileObjID}, function(data) {
                         console.log("data.success="+data.success);
                         if(data.success){
-                            alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
+                            //alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
                             var attachDiv = '<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>';
                         }else{
                             var attachDiv = '<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>';
                         }
-                        $(".pep_textchat_block").find("#textchat_"+data.textchatID).append(attachDiv);
+                        //$(".pep_textchat_block").find("#textchat_"+data.textchatID).append(attachDiv);
                         sendChatMessage(data.textchatID, attachDiv);
                     });
                 }
@@ -153,8 +153,45 @@ $(document).ready(function(){
                 'activate': 'false'
             })
         };
+
+        getMessage(send_user);
+
         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
         $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+    }
+
+    function getMessage (id) {
+        console.log("id="+id);
+        $.post("${reverse('get_message')}", {
+            message_people: id,
+            skip: 0,
+            limit: 10
+        }, function(data) {
+            $("#textchat_"+id).html("");
+            $.each(data.results, function(k, v) {
+                var image = "<table class='pepchat_row'><tr><td class='pepchat_img'><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td><span class='pepchat_body'>";
+                date = new Date(v.date);
+                console.log(date);
+                if (date.getHours() > 11) end = "p"; else end = "a";
+                time =date.toLocaleTimeString().slice(0, -6) + end + ", " +  date.toLocaleDateString().slice(0,-5) ;
+                $("#textchat_"+id).prepend(image + v.body + "</span><br><span class='pepchat_time'>" + time + "<span></td></tr></table><hr class='pepchat_hr'>");
+            });
+            try {
+                $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            } catch (err) {
+                getMessage(id);
+            }
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
+        });
+    }
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
+            if (e.keyCode == 13) {
+                sendChatMessage($(this).data("to_id"), $(this).val());
+                $(this).val("");
+            }
+        });
     }
 });
 
