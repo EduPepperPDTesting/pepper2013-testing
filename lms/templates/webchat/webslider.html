@@ -69,7 +69,8 @@ $(document).ready(function(){
             if(getAttachmentID){
                 $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
                      if(data.success){
-                        alert(attachment url="+data.attachURL+" attachment name="+data.attachName);
+                        alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
+
                         $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
                     }else{
                         $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
