@@ -133,9 +133,9 @@ $(window).load(function() {
                 if(data.success){
                     alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
 
-                    $(".pep_textchat_block").find("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
+                    $(".pep_textchat_block").find("#textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
                 }else{
-                    $(".pep_textchat_block").find("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
+                    $(".pep_textchat_block").find("#textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
                 }
             });
             sessionStorage.removeItem('chatAttach_'+userID);
