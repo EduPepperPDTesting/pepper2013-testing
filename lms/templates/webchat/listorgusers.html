@@ -508,6 +508,7 @@
             if (e.keyCode == 13) {
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
+                $("#pep_message_"+user_id).trigger("click");
             }
         });
     }

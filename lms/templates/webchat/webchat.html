@@ -101,8 +101,10 @@ $(document).ready(function(){
      $(".pep_textchat_block").on("click", ".pep_send_message", function(){
         var getId = $(this).attr("data-user_id");
 
-        sendChatMessage(getId, $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val());
-        $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val("");
+        if($(this).closest(".pep_chat_icons").prev(".pep_chat_input").val() !== ""){
+            sendChatMessage(getId, $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val());
+            $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val("");
+        }
 
         var form =  $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form")[0];
         var formData = new FormData(form);
@@ -193,6 +195,7 @@ $(document).ready(function(){
             if (e.keyCode == 13) {
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
+                $("#pep_message_"+user_id).trigger("click");
             }
         });
     }
