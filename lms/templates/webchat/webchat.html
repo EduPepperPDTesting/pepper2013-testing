@@ -111,6 +111,8 @@ $(document).ready(function(){
                 if(data.Success){
                     sessionStorage.setItem('chatAttach_'+data.textchatID, data.fileObjID);
                     alert("set sessionStorage");
+                    var attachDiv = "works";
+                    $(".pep_textchat_block").find("#textchat_"+data.textchatID).append(attachDiv);
                 }
             }}).fail(function (jqXHR, textStatus) {
                console.log("attachment failed");
