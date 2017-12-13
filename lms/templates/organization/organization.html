@@ -4298,7 +4298,7 @@
 						if(ids != ""){
 							$.post("${reverse('organizational_configuration')}", {flag:"design_delete", ids: ids}, function (r) {
 								if (r.Success){
-									updatedesigns();
+									updateDesigns();
 									dialog.hide();
 								}else{
 									alert(r.Error);
