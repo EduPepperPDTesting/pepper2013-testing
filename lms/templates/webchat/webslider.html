@@ -69,6 +69,7 @@ $(document).ready(function(){
             if(getAttachmentID){
                 console.log("getAttachmentID="+getAttachmentID+' chatAttach_'+chat_id);
                 $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
+                    console.log("data.success="+data.success);
                     if(data.success){
                         alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
 
