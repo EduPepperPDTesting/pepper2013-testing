@@ -387,8 +387,9 @@ def read_attachment(request):
     fileObj_id=request.POST.get('attachment_id')
     try:
         fileObj = ChatAttachment.objects.select_related().get(id=int(fileObj_id))
+        textchatID = User.objects.get(id=int(fileObj_id)).user_to_id
         success = 1
-        data = {'attachURL': get_file_url(fileObj.attachment), 'attachName': get_file_name(fileObj.attachment), 'success': success}
+        data = {'textchatID': textchatID, 'attachURL': get_file_url(fileObj.attachment), 'attachName': get_file_name(fileObj.attachment), 'success': success}
     except:
         success = 0
         data = {'success': success}
