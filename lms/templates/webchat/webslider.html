@@ -65,21 +65,7 @@ $(document).ready(function(){
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
             $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
-            var getAttachmentID = sessionStorage.getItem('chatAttach_'+chat_id);
-            if(getAttachmentID){
-                console.log("getAttachmentID="+getAttachmentID+' chatAttach_'+chat_id);
-                $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
-                    console.log("data.success="+data.success);
-                    if(data.success){
-                        alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
-
-                        $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
-                    }else{
-                        $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
-                    }
-                });
-                sessionStorage.setItem('chatAttach_'+chat_id, "");
-            }
+            
             getMessage(chat_id);
             leftX-=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
