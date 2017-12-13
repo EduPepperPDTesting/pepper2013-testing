@@ -48,8 +48,9 @@
 <script>
 $(document).ready(function(){
     var getAttachmentID = sessionStorage.getItem('chatAttach_${user_id}');
+    console.log("chatAttach_${user_id}");
     if(getAttachmentID){
-        console.log("getAttachmentID="+getAttachmentID+' chatAttach_${user_id}');
+        console.log("getAttachmentID="+getAttachmentID+" chatAttach_${user_id}");
         $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
             console.log("data.success="+data.success);
             if(data.success){
