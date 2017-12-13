@@ -132,14 +132,42 @@ $(window).load(function() {
                 console.log("data.success="+data.success);
                 if(data.success){
                     //alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
-
-                    $(".pep_textchat_block").find("#textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
+                    var attachDiv = '<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>';
                 }else{
-                    $(".pep_textchat_block").find("#textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
+                    var attachDiv = '<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>';
                 }
+                $(".pep_textchat_block").find("#textchat_"+data.textchatID).append(attachDiv);
+                sendChatMessage(data.textchatID, attachDiv);
             });
             sessionStorage.removeItem('chatAttach_'+userID);
         }
     });
+
+    function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+    }
 });
 </script>
