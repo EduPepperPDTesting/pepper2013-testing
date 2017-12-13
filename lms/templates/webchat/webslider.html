@@ -65,7 +65,7 @@ $(document).ready(function(){
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
             $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
-
+            console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id););
             getMessage(chat_id);
             leftX-=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
