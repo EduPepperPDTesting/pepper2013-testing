@@ -122,8 +122,8 @@ $(document).ready(function(){
 });
 
 $(window).load(function() {
-    $(".pep_header_left").each(function(){
-        var userID = $(this).attr("id");
+    $(".pep_text_chat").each(function(){
+        var userID = $(this).attr("id").substr($(this).attr("id").indexOf("_")+1);
         var getAttachmentID = sessionStorage.getItem('chatAttach_'+userID);
         console.log('chatAttach_'+userID);
         if(getAttachmentID){
