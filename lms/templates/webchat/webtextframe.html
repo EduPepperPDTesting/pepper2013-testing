@@ -46,12 +46,12 @@
     </div>
 </div>
 <script>
-$(document).ready(function(){
+/*$(document).ready(function(){
     var getAttachmentID = sessionStorage.getItem('chatAttach_${user_id}');
-    console.log("chatAttach_${user_id}");
+    console.log("chatAttach_ user_id}");
     if(getAttachmentID){
-        console.log("getAttachmentID="+getAttachmentID+" chatAttach_${user_id}");
-        $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
+        console.log("getAttachmentID="+getAttachmentID+" chatAttach_ user_id}");
+        $.post(" reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
             console.log("data.success="+data.success);
             if(data.success){
                 alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
@@ -61,9 +61,9 @@ $(document).ready(function(){
                 $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
             }
         });
-        sessionStorage.setItem('chatAttach_${user_id}', "");
+        sessionStorage.setItem('chatAttach_ user_id}', "");
     }
-});
+});*&/
     $(".pep_header_right").on("click", ".pep_chat_video", function(e){
         var $link = $(e.target);
         e.preventDefault();
