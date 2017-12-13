@@ -492,11 +492,32 @@ def maincommunity(request, community_id):
     community_other_info = {'state': community.state.id if community.state else '',
                             'district': community.district.id if community.district else '',
                             'user_super': user_super}
-   
+
     data.update(community_info)
     data.update(community_other_info)
-  
+
     return render_to_response('communities/community_new.html', data)
+
+@login_required
+def email_facilitator(request):
+    community_id = request.POST.get('community_id', '')
+    subject = request.POST.get('subject', '')
+    message = request.POST.get('message', '')
+    facilitator_receive_email = CommunityUsers.objects.select_related().filter(facilitator=True, receive_email=True, community=community_id)
+    email_list = list()
+    for f in facilitator_receive_email:
+        email_list.append(f.user.email)
+
+    result = "Mail sent successfully!"
+    mail_success = True
+    for email in email_list:
+        try:
+            send_mail(subject, message, request.user.email, [email], fail_silently=False)
+        except Exception as e:
+            mail_success = False
+            result = "There was a problem sending the message."
+            
+    return HttpResponse(json.dumps({'success': mail_success, 'result': result}), content_type='application/json')
 
 @login_required
 def discussion_list(request, community_id):
