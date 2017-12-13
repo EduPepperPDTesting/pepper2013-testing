@@ -1,0 +1,36 @@
+.sp-link-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 12;
+}
+
+.sp-link-wrapper {
+    background-color: white;
+    border: 2px black;
+    margin: 200px auto;
+    width: 600px;
+    padding: 40px;
+}
+
+.sp-link-wrapper div {
+    margin-bottom: 20px;
+}
+
+.sp-link-header {
+    width: 640px;
+    margin: -40px -40px 0 -40px;
+    padding: 20px;
+    background-color: #ccc;
+    font-size: 140%;
+    position: relative;
+}
+
+.sp-link-header a {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+}

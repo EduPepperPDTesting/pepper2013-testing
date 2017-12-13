@@ -1,0 +1,23 @@
+<%!
+    from django.core.urlresolvers import reverse
+%>
+<%
+    # Create the list of options for the SP dropdown.
+    options = ''
+    for data in metadata:
+        if data['sso_type'] == 'SAML':
+            options += '<option value="{0}">{0}</option>'.format(data['sso_name'])
+%>
+<div class="sp-link-backdrop">
+    <div class="sp-link-wrapper">
+        <div class="sp-link-header">
+            <a href="#"><img src="/static/images/removal.png" /></a>
+            Add External Link From SP
+        </div>
+        <form name="sp-link-create" class="sp-link-create">
+            <div><label for="sp">Service Provider:</label> <select name="sp">${options}</select></div>
+            <div><label for="link">External Link:</label> <input type="text" name="link"/></div>
+            <input type="submit" name="submit" value="Add"/>
+        </form>
+    </div>
+</div>

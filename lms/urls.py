@@ -76,6 +76,7 @@ urlpatterns = (
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
     url(r'^sso/idp/acs/send$', 'sso.idp.send_acs', name="sso_idp_acs_send"),
     url(r'^sso/idp/logout/$', 'sso.idp.logout'),
+    url(r'^sso/sp/link_create$', 'sso.sp_metadata.link_create', name='sp_link_create'),
 
     url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
     url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
@@ -108,6 +109,10 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'training.views.get_add_user_rows', name="training_get_add_user_rows"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
+
+    # === JS URL Resolver begin ===
+    url(r'^js_url_resolver.js$', 'pepper_utilities.views.js_url_lookup_js', name='pepper_utilities_js_url_lookup_js'),
+    url(r'^js_url_resolver$', 'pepper_utilities.views.js_url_lookup', name='pepper_utilities_js_url_lookup'),
 
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),

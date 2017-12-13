@@ -782,7 +782,7 @@ f.close()
                 % endfor
               </select>
               % else:
-              <input type="hidden" name="state_id" value="${request.user.profile.district.state.id}" />
+              <input type="hidden" name="user_filter_state_id" value="${request.user.profile.district.state.id}" />
               % endif
               <!-- district -->
               % if check_user_perms(request.user, access_level='System'):
@@ -796,14 +796,14 @@ f.close()
                 % endfor
               </select>
               %else:
-              <input type="hidden" name="district_id" value="${request.user.profile.district.id}" />
+              <input type="hidden" name="user_filter_district_id" value="${request.user.profile.district.id}" />
               % endif
               <!-- school -->
               % if check_user_perms(request.user, access_level='District'):
               <select id="lst-user-filter-school" name="" autocomplate="off" class="mu" label="School">
               </select>
               % else:
-              <input type="hidden" name="school_id" value="${request.user.profile.school.id}" />
+              <input type="hidden" name="user_filter_school_id" value="${request.user.profile.school.id}" />
               % endif
               <!-- csv load buttn -->
               % if check_user_perms(request.user, access_level='System'):
@@ -812,7 +812,7 @@ f.close()
                 <input type="file" name="" value="" style="display:none;"/>
                 <div style="position:relative;margin-top:10px;">
                   <label style="font-style:normal;color:#555;font-size:9px;">
-                    * CSV file seperated by tab should contain the following columns
+                    * Text Tab Delimited CSV file separated by tab should contain the following columns
                     <br>(Email, course ID in URL, Access/Enrollment)
                     <br>e.g.: edutest06@edu.com PCG_EDU/SE504/SU2017 Enrollment.
                   </label>
@@ -874,7 +874,11 @@ f.close()
               <table class="tablesorter-blue">
                 <thead>
                   <tr class="tablesorter-headerRow">
-                    <th data-sorter="false" class="id sorter-false">Select Users to Edit Access <input type="checkbox" class="check-all"/></th>
+                    <th data-sorter="false" class="id sorter-false" style="white-space:nowrap">
+                      None <input name="user-select" type="radio" value="manual" class="check-manual" checked="true" autocomplete="off"/><br/>
+                      Current Page <input name="user-select" type="radio" value="current-page" class="check-current-page" autocomplete="off"/><br/>
+                      All Users <input name="user-select" type="radio" value="all" class="check-all" autocomplete="off"/>
+                    </th>
                     <th class="first_name ">First Name</th>
                     <th class="last_name ">Last Name</th>
                     <th class="email">Email</th>

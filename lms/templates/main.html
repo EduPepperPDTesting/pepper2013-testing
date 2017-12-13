@@ -1,6 +1,7 @@
 <%!
     from django.utils.translation import ugettext as _
     from django.utils import html
+    from django.core.urlresolvers import reverse
     from student.models import State, District, School, User, UserProfile
     from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter, Nologindesign, DesignMenu, DesignFooter
 %>
@@ -129,6 +130,9 @@
   <%static:css group='application'/>
 
   <%static:js group='main_vendor'/>
+
+  <script type="text/javascript" src="${reverse('pepper_utilities_js_url_lookup_js')}"></script>
+
   <%block name="headextra"/>
   % if theme_enabled():
     <%include file="theme-head-extra.html" />
