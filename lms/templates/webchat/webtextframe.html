@@ -26,7 +26,7 @@
         <div class="row">
             <input type="text" class="pep_chat_input col-sm-8" data-to_id="${user_id}" data-from_id="${request.user.id}"></input>
             <div class="pep_chat_icons col-sm-3">
-                <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text"></a>
+                <a href="#"><img src="/static/images/Pepptalk/PeppText.png" alt="im-text" class="pep_send_message" id="pep_message_${user_id}" data-user_id="${user_id}"></a>
                 <div class="pep-image-upload" style="display: inline-block;">
                     <form action="" method="post" enctype="multipart/form-data" class="pep_attachment_form" id="pep_attachment_form_${user_id}">
                         <label class="pep_attach_label" id="input_label" for="pep_file_input_${user_id}" style="display: inline-block;cursor: pointer !important;">
