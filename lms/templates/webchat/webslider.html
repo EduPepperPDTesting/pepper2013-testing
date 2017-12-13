@@ -67,8 +67,9 @@ $(document).ready(function(){
             console.log(getIdString);
             var getAttachmentID = sessionStorage.getItem('chatAttach_'+chat_id);
             if(getAttachmentID){
+                console.log("getAttachmentID="+getAttachmentID+' chatAttach_'+chat_id);
                 $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
-                     if(data.success){
+                    if(data.success){
                         alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
 
                         $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
