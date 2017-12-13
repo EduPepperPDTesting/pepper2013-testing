@@ -21,7 +21,7 @@
             <div class="close-chat"> <img src="/static/images/Pepptalk/closeChat.png" alt="Close"></div>
         </div>
     </div>
-    <div class="pep_text_chat" id="textchat_${user_id}"></div>
+    <div class="pep_text_chat" id="textchat_${user_id}" onload="readAttachment(${user_id})"></div>
     <div class="pep_textchatfooter_container container-fluid">
         <div class="row">
             <input type="text" class="pep_chat_input col-sm-8" data-to_id="${user_id}" data-from_id="${request.user.id}"></input>
@@ -46,11 +46,11 @@
     </div>
 </div>
 <script>
-    $(window).on('load', function () {
-        var getAttachmentID = sessionStorage.getItem('chatAttach_${user_id}');
-        console.log("chatAttach_${user_id}");
+    function readAttachment(userID) {
+        var getAttachmentID = sessionStorage.getItem('chatAttach_'+userID);
+        console.log('chatAttach_'+userID);
         if(getAttachmentID){
-            console.log("getAttachmentID="+getAttachmentID+" chatAttach_${user_id}");
+            console.log("getAttachmentID="+getAttachmentID+" chatAttach_"+userID);
             $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
                 console.log("data.success="+data.success);
                 if(data.success){
@@ -61,9 +61,9 @@
                     $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
                 }
             });
-            sessionStorage.removeItem('chatAttach_${user_id}');
+            sessionStorage.removeItem('chatAttach_'+userID);
         }
-    });
+    };
 
     $(".pep_header_right").on("click", ".pep_chat_video", function(e){
         var $link = $(e.target);
