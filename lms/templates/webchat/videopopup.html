@@ -107,21 +107,20 @@ function initializeSession() {
         }
     });
     $("#publisher").click(function () {
-        console.log("hit...");
-        OT.checkScreenSharingCapability(function(response) {
-           if (response.supported) screenshare(session);
-        });
+        screenshare();
     });
 }
-function screenshare(session) {
+function screenshare() {
     OT.checkScreenSharingCapability(function(response) {
         console.log (response.supported);
         if (response.supported) {
-            var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
+            var session = OT.initSession(apiKey, sessionId);
+            var screenSharingPublisher = OT.initPublisher('publisher', {videoSource: 'screen', insertMode:'append',width:'100%',height:'100%'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {
                     alert('Could not share the screen: ' + error.message);
                 }
+                console.log("Publishing Screen");
             });
         }
         if (!response.supported || response.extensionRegistered === false) {
@@ -130,6 +129,7 @@ function screenshare(session) {
             //alert('Please install the screen sharing extension and load your app over https.');
         } else {
             // Screen sharing is available. Publish the screen.
+            var session = OT.initSession(apiKey, sessionId);
             var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {
