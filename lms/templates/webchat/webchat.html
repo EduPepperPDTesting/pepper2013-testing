@@ -98,10 +98,10 @@ $(document).ready(function(){
         $(this).parents(".pep_attachment_form").find("#input_label").css("display", "none");
         $(this).parents(".pep_attachment_form").find("#submit_label").css("display", "inline-block");
     });
-     $(".pep_textchat_block").on("click", ".pep_send_image", function(){
-        var getId = $(this).parents().siblings(".pep_file_input").attr("data-user_id");
+     $(".pep_textchat_block").on("click", ".pep_send_message", function(){
+        var getId = $(this).attr("data-user_id");
 
-        var form =  $(this).parents(".pep_attachment_form")[0];
+        var form =  $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form")[0];
         var formData = new FormData(form);
 
         if(formData){
