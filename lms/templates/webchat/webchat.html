@@ -119,6 +119,27 @@ $(document).ready(function(){
         $(this).parents(".pep_attachment_form").find("#submit_label").css("display", "none");
         $(this).parents(".pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
+});
 
+$(window).load(function() {
+    $(".pep_header_left").each(function(){
+        var userID = $(this).attr("id");
+        var getAttachmentID = sessionStorage.getItem('chatAttach_'+userID);
+        console.log('chatAttach_'+userID);
+        if(getAttachmentID){
+            console.log("getAttachmentID="+getAttachmentID+" chatAttach_"+userID);
+            $.post("${reverse('read_attachment')}", {'attachment_id': getAttachmentID}, function(data) {
+                console.log("data.success="+data.success);
+                if(data.success){
+                    alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
+
+                    $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>');
+                }else{
+                    $("textchat_"+data.textchatID).append('<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>');
+                }
+            });
+            sessionStorage.removeItem('chatAttach_'+userID);
+        }
+    });
 });
 </script>
