@@ -44,7 +44,8 @@ if (token=='default') {
 console.log (sessionId);
 console.log (token);
 
-    var apiKey = "45939862";
+var apiKey = "45939862";
+
 $(document).ready(function(){
         console.log ("starting...");
         initializeSession();
@@ -66,19 +67,24 @@ function initializeSession() {
     var session = OT.initSession(apiKey, sessionId);
 
     session.on('streamCreated', function(event) {
+        console.log("Subscriber created");
         if (connections < 1) {
             var subscriber = session.subscribe(event.stream, 'subscriber', {
                 insertMode: 'append',
                 width: '100%',
                 height: '100%',
-                style: { nameDisplayMode: "auto" }
+                style: { nameDisplayMode: "on" }
             }, handleError);
         } else {
-            var subscriber = session.subscribe(event.stream, 'publisher', {
-                insertMode: 'append',
+            parent = event.stream.videoType === 'screen' ?
+                'subscriber' : 'publisher';
+            imode = event.stream.videoType === 'screen' ?
+                'replace': 'append';
+            var subscriber = session.subscribe(event.stream, parent, {
+                insertMode: imode,
                 width: '100%',
                 height: '100%',
-                style: { nameDisplayMode: "auto" }
+                style: { nameDisplayMode: "on" }
             }, handleError);
         }
         connections ++;
@@ -100,20 +106,34 @@ function initializeSession() {
         if (error) {
           handleError(error);
         } else {
-          session.publish(publisher, function(){
-              screenshare();
-          });
+          console.log("Publishing...");
+          session.publish(publisher, function(){});
         }
+    });
+    $("#publisher").click(function () {
+        //screenshare();
     });
 }
 function screenshare() {
     OT.checkScreenSharingCapability(function(response) {
+        console.log (response.supported);
+        if (response.supported) {
+            var session = OT.initSession(apiKey, sessionId);
+            var screenSharingPublisher = OT.initPublisher('publisher', {videoSource: 'screen', insertMode:'append',width:'100%',height:'100%'});
+            session.publish(screenSharingPublisher, function(error) {
+                if (error) {
+                    alert('Could not share the screen: ' + error.message);
+                }
+                console.log("Publishing Screen");
+            });
+        }
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
         } else if (response.extensionInstalled === false) {
-            alert('Please install the screen sharing extension and load your app over https.');
+            //alert('Please install the screen sharing extension and load your app over https.');
         } else {
             // Screen sharing is available. Publish the screen.
+            var session = OT.initSession(apiKey, sessionId);
             var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {
@@ -128,7 +148,6 @@ var SpeakerDetection = function(subscriber, startTalking, stopTalking) {
   var activity = null;
   subscriber.on('audioLevelUpdated', function(event) {
     var now = Date.now();
-    console.log ("Audio Levels: " + event.audioLevel);
     if (event.audioLevel > 0.2) {
       if (!activity) {
         activity = {timestamp: now, talking: false};

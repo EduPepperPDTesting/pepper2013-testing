@@ -5,7 +5,8 @@ from django.core.urlresolvers import reverse
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
 
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/static/js/jquery-ui.js"></script>
+<!--script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
 
 <div id="pep_container">
 
@@ -51,6 +52,89 @@ $(document).ready(function(){
     //@Mike Minnick 11/8/17
     setInterval(function(){ checkForAlert() }, 3000);
     //@END
+
+    //show open text chats - Anatoliy
+    var getChatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+    if(getChatHeads) {
+        for (var arrInd in getChatHeads){
+            getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
+            var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
+            var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
+            var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
+            var getIdString = getChatHead.substring(getChatHead.indexOf("`") + 1);
+            var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
+            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
+            console.log(getIdString);
+            console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id));
+            getMessage(chat_id);
+            leftX-=235;
+            $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+        }
+    }
+
+    function getMessage (id) {
+        console.log("id="+id);
+        $.post("${reverse('get_message')}", {
+            message_people: id,
+            skip: 0,
+            limit: 10
+        }, function(data) {
+            $("#textchat_"+id).html("");
+            $.each(data.results, function(k, v) {
+                var image = "<table class='pepchat_row'><tr><td class='pepchat_img'><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td><span class='pepchat_body'>";
+                date = new Date(v.date);
+                console.log(date);
+                if (date.getHours() > 11) end = "p"; else end = "a";
+                time =date.toLocaleTimeString().slice(0, -6) + end + ", " +  date.toLocaleDateString().slice(0,-5) ;
+                $("#textchat_"+id).prepend(image + v.body + "</span><br><span class='pepchat_time'>" + time + "<span></td></tr></table><hr class='pepchat_hr'>");
+            });
+            try {
+                $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            } catch (err) {
+                getMessage(id);
+            }
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
+        });
+    }
+
+    function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+        getMessage(send_user);
+    }
+
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
+            if (e.keyCode == 13) {
+                sendChatMessage($(this).data("to_id"), $(this).val());
+                $(this).val("");
+                $("#pep_message_"+user_id).trigger("click");
+            }
+        });
+    }
 
     var slPos='out';
     $("#pep_title_tab").click(function(){
@@ -167,147 +251,164 @@ $(document).ready(function(){
                         user_ids.push(data.users[i].user_id);
                     }
                     //console.log(user_ids);
-                    var prevLen;
+                    //get all users to search from - Anatoliy
+                    var prevLen = 0;
                     var page = 2;
-                    do{
-                        $.ajax({type: "get", url: "${reverse('people')}", data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
-                            prevLen=user_ids.length;
-                            if (data.success) {
-                                for(i=0; i<data.users.length; i++){
-                                    user_ids.push(data.users[i].user_id);
+                    var nthRow;
+                    var boxBottom = $("#pep_user_list").offset().top + 280;
+                    $("#pep_user_list").on("scroll", function(){
+                        if(prevLen < user_ids.length){
+                            nthRow=((page-1)*10)+1;
+                            var nextTop = $("#pep_user_list tr:eq("+nthRow+")").offset().top;
+                            console.log(nextTop);
+                            if( (nextTop + 26) < boxBottom ){
+                                $.ajax({type: ajaxType, url: rowSource, data: {searching: 1, community_id: commId, page: page}, async: false, success: function (data) {
+                                    prevLen=user_ids.length;
+                                    if (data.success) {
+                                    user_ids = [];
+                                        for(i=0; i<data.users.length; i++){
+                                            user_ids.push(data.users[i].user_id);
+                                        }
+                                        page += 1;
+                                    }
+                                    console.log(page+" "+user_ids);
                                 }
-                                page += 1;
+                                });
+                                searchRowsData(user_ids, searchterm);
                             }
-                            //console.log(page+" "+user_ids);
-                        }
-                        });
-                    }while(prevLen < user_ids.length);
-                    $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
-                            $("#pep_user_list .org-list-table:gt(0)").remove();
-                            $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
-
-                            if(networkData.success){
-                                for(i=0; i<networkData.rows.length; i++){
-                                    networkRows.push(networkData.rows[i]);
-                                }
-
-                                var arrLength = networkRows.length;
-                                var getUserRows={userRows: networkRows, arrLength: arrLength};
-
-                                var username, userID, records;
-                                var elExists, addStyle, removeStyle;
-
-                                records = getUserRows.arrLength;
-                                var userRows = getUserRows.userRows;
-
-                                //console.log(records);
-                                for(i = 0; i < records; i++){
-                                    username = userRows[i][0];
-                                    id = userRows[i][1];
-                                    netIcon = userRows[i][2];
-                                    commIcon = userRows[i][3];
-                                    //console.log(username+" "+id);
-                                    userID = username.replace(/ /g, "_")+','+id;
-							        elExists = !!document.getElementById('ul'+id);
-                                    if(elExists === true){
-                                        //console.log("elExists === false=" + (elExists === false));
-                                        addStyle = 'display:none;';
-                                        removeStyle = 'display: inline-block;';
-                                    }
-                                    if(elExists === false){
-                                        //console.log("elExists === true=" + (elExists === true));
-                                        addStyle = 'display: inline-block;';
-                                        removeStyle = 'display:none;';
-                                    }
-                                    var netIconTag, commIconTag;
-                                    if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
-                                    if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                    $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
-						        }
-
-						        $("#user_search .pep_add_im").each(function(){
-                                    var $elem = $(this)
-
-                                    if ($elem.data('click-init')) return true;
-
-                                    $elem.data('click-init', true);
-
-                                    $elem.on('click', function (e) {
-                                        e.preventDefault();
-                                        $(this).css("display", "none");
-                                        $(this).siblings(".pep_remove_im").css("display", "inline-block");
-                                        var uclass = $(this).closest("td").attr("class");
-                                        var userName = $(this).siblings(".pep_contact_name").text();
-                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
-
-                                        userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
-                                        $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-                                        $("#pep_list_clear").css("display", "block");
-                                        var elems = document.getElementsByClassName(uclass);
-                                        for(n = 0; n < elems.length; n++){
-                                            addTag = elems[n].getElementsByClassName("pep_add_im");
-                                            addTag[0].style.display="none";
-                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
-                                            removeTag[0].style.display="inline-block";
-                                        }
-                                    });
-                                });
-                                $("#user_search .pep_remove_im").each(function(){
-                                    var $elem = $(this)
-
-                                    if ($elem.data('click-init')) return true;
-
-                                    $elem.data('click-init', true);
-
-                                    $elem.on('click', function (e) {
-                                        e.preventDefault();
-                                        $(this).css("display", "none");
-                                        $(this).siblings(".pep_add_im").css("display", "inline-block");
-                                        var idUser = $(this).siblings(".pep_contact_name").attr("id");
-
-                                        var parent = document.getElementById("pep_slider_list");
-                                        var child = document.getElementById("ul" + idUser);
-                                        parent.removeChild(child);
-
-                                        if($("#pep_slider_list").children().length==0){
-                                            $("#pep_list_clear").css("display", "none");
-                                        }
-
-                                        var uclass = $(this).closest("td").attr("class");
-
-                                        var elems = document.getElementsByClassName(uclass);
-                                        for(n = 0; n < elems.length; n++){
-                                            addTag = elems[n].getElementsByClassName("pep_add_im");
-                                            addTag[0].style.display="inline-block";
-                                            removeTag = elems[n].getElementsByClassName("pep_remove_im");
-                                            removeTag[0].style.display="none";
-                                        }
-                                    });
-                                });
-
-                                $(".pep_contact_name").tooltip({
-                                    items: ".pep_contact_name",
-                                    track: true,
-                                    open: function (event, ui) {
-                                        ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border": "1px solid black", "-webkit-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "-moz-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
-                                    },
-                                    show: {
-                                        effect: "slideDown",
-                                        delay: 250
-                                    },
-                                    content: function(){
-                                        var username = $(this).text();
-                                        var IdTitle = $(this).attr("id");
-                                        var nameLength = username.length; // + IdTitle.length;
-                                        var nameTitle = (nameLength>15)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
-                                        return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
-                                    }
-                                });
-                            }else{
-                                $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
-                            }
+                        }else{
+                            $("#pep_user_list").off("scroll");
                         }
                     });
+                    searchRowsData(user_ids, searchterm);
+                    function searchRowsData(user_ids, searchterm){
+                        $.ajax({type: "post", url: "${reverse('get_all_ptusers')}", data: {'user_ids[]': user_ids, searchterm: searchterm}, async: true, success: function (networkData){
+                                $("#pep_user_list .org-list-table:gt(0)").remove();
+                                $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
+
+                                if(networkData.success){
+                                    for(i=0; i<networkData.rows.length; i++){
+                                        networkRows.push(networkData.rows[i]);
+                                    }
+
+                                    var arrLength = networkRows.length;
+                                    var getUserRows={userRows: networkRows, arrLength: arrLength};
+
+                                    var username, userID, records;
+                                    var elExists, addStyle, removeStyle;
+
+                                    records = getUserRows.arrLength;
+                                    var userRows = getUserRows.userRows;
+
+                                    //console.log(records);
+                                    for(i = 0; i < records; i++){
+                                        username = userRows[i][0];
+                                        id = userRows[i][1];
+                                        netIcon = userRows[i][2];
+                                        commIcon = userRows[i][3];
+                                        //console.log(username+" "+id);
+                                        userID = username.replace(/ /g, "_")+','+id;
+                                        elExists = !!document.getElementById('ul'+id);
+                                        if(elExists === true){
+                                            //console.log("elExists === false=" + (elExists === false));
+                                            addStyle = 'display:none;';
+                                            removeStyle = 'display: inline-block;';
+                                        }
+                                        if(elExists === false){
+                                            //console.log("elExists === true=" + (elExists === true));
+                                            addStyle = 'display: inline-block;';
+                                            removeStyle = 'display:none;';
+                                        }
+                                        var netIconTag, commIconTag;
+                                        if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
+                                        if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
+                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+                                    }
+
+                                    $("#user_search .pep_add_im").each(function(){
+                                        var $elem = $(this)
+
+                                        if ($elem.data('click-init')) return true;
+
+                                        $elem.data('click-init', true);
+
+                                        $elem.on('click', function (e) {
+                                            e.preventDefault();
+                                            $(this).css("display", "none");
+                                            $(this).siblings(".pep_remove_im").css("display", "inline-block");
+                                            var uclass = $(this).closest("td").attr("class");
+                                            var userName = $(this).siblings(".pep_contact_name").text();
+                                            var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                            userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim();
+                                            $("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+                                            $("#pep_list_clear").css("display", "block");
+                                            var elems = document.getElementsByClassName(uclass);
+                                            for(n = 0; n < elems.length; n++){
+                                                addTag = elems[n].getElementsByClassName("pep_add_im");
+                                                addTag[0].style.display="none";
+                                                removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                                removeTag[0].style.display="inline-block";
+                                            }
+                                        });
+                                    });
+                                    $("#user_search .pep_remove_im").each(function(){
+                                        var $elem = $(this)
+
+                                        if ($elem.data('click-init')) return true;
+
+                                        $elem.data('click-init', true);
+
+                                        $elem.on('click', function (e) {
+                                            e.preventDefault();
+                                            $(this).css("display", "none");
+                                            $(this).siblings(".pep_add_im").css("display", "inline-block");
+                                            var idUser = $(this).siblings(".pep_contact_name").attr("id");
+
+                                            var parent = document.getElementById("pep_slider_list");
+                                            var child = document.getElementById("ul" + idUser);
+                                            parent.removeChild(child);
+
+                                            if($("#pep_slider_list").children().length==0){
+                                                $("#pep_list_clear").css("display", "none");
+                                            }
+
+                                            var uclass = $(this).closest("td").attr("class");
+
+                                            var elems = document.getElementsByClassName(uclass);
+                                            for(n = 0; n < elems.length; n++){
+                                                addTag = elems[n].getElementsByClassName("pep_add_im");
+                                                addTag[0].style.display="inline-block";
+                                                removeTag = elems[n].getElementsByClassName("pep_remove_im");
+                                                removeTag[0].style.display="none";
+                                            }
+                                        });
+                                    });
+
+                                    $(".pep_contact_name").tooltip({
+                                        items: ".pep_contact_name",
+                                        track: true,
+                                        open: function (event, ui) {
+                                            ui.tooltip.css({"position": "absolute", "z-index": "21", "bottom": "50px", "text-align": "center", "width":"100px", "height": "90px", "border": "1px solid black", "-webkit-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "-moz-box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "box-shadow": "0px 0px 7px 3px rgba(0,0,0,0.75)", "border-radius": "0px", "padding": "2px", "margin": "0px", "opacity": "1", "color": "#000", "background": "#FFF", "font-size": ".8em"});
+                                        },
+                                        show: {
+                                            effect: "slideDown",
+                                            delay: 250
+                                        },
+                                        content: function(){
+                                            var username = $(this).text();
+                                            var IdTitle = $(this).attr("id");
+                                            var nameLength = username.length; // + IdTitle.length;
+                                            var nameTitle = (nameLength>15)?username.substr(0, 15).trim()+'...':username.trim(); //nameLength-((username.length - 9) + IdTitle.length)).trim()+'...':username.trim();
+                                            return "<div>" + nameTitle + "</div><img class='pep_contact_photo' alt='" + nameTitle + "' src='/user_photo/" + IdTitle +"'>";
+                                        }
+                                    });
+                                }else{
+                                    $("body #pep_user_list").find("#user_search").append("<tr><td><div id='"+id+"' class='pep_contact_name'>No user found.</div></td><tr>");
+                                }
+                            }
+                        });
+                    }
                 }
             }
             });

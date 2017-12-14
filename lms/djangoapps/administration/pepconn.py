@@ -126,7 +126,8 @@ def main(request):
                          'error_title': '',
                          'error_message': 'You do not have access to this view in Pepper,\
                           please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
-        return HttpResponseForbidden(render_to_response('error.html', error_context))
+        return HttpResponseForbidden(render_to_response('error.html', error_context))           
+
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
     districts = District.objects.all().order_by('name')
@@ -1905,6 +1906,32 @@ def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, 
     return courses
 
 
+def filter_user(states, districts, schools, first_name_fuzzy, last_name_fuzzy, email_fuzzy, limit_ids):
+    users = UserProfile.objects.all()
+    if states != "":
+        users = users.filter(district__state_id__in=states.split(","))
+
+    if districts != "":
+        users = users.filter(district__in=districts.split(","))
+
+    if schools != "":
+        users = users.filter(school__in=schools.split(","))
+
+    if limit_ids != "":
+        users = users.filter(user_id__in=limit_ids.split(","))
+
+    if first_name_fuzzy != "":
+        users = users.filter(user__first_name__icontains=first_name_fuzzy)
+
+    if last_name_fuzzy != "":
+        users = users.filter(user__last_name__icontains=last_name_fuzzy)
+
+    if email_fuzzy != "":
+        users = users.filter(user__email__icontains=email_fuzzy)
+        
+    return users
+
+    
 @login_required
 def get_course_permission_user_rows(request):
     columns = {
@@ -1926,47 +1953,33 @@ def get_course_permission_user_rows(request):
     order = build_sorts(columns, sorts)
     if len(order) == 0:
         order = ['user__id']
-
-    users = UserProfile.objects.all()
-
-    if request.REQUEST.get("states", "") != "":
-        users = users.filter(district__state_id__in=request.REQUEST.get("states").split(","))
-
-    if request.REQUEST.get("districts", "") != "":
-        users = users.filter(district__in=request.REQUEST.get("districts").split(","))
-
-    if request.REQUEST.get("schools", "") != "":
-        users = users.filter(school__in=request.REQUEST.get("schools").split(","))
-
-    if request.REQUEST.get("csv_users", "") != "":
-        users = users.filter(user_id__in=request.REQUEST.get("csv_users").split(","))
-
-    if request.REQUEST.get("first_name_fuzzy", "") != "":
-        users = users.filter(user__first_name__icontains=request.REQUEST.get("first_name_fuzzy"))
-
-    if request.REQUEST.get("last_name_fuzzy", "") != "":
-        users = users.filter(user__last_name__icontains=request.REQUEST.get("last_name_fuzzy"))
-
-    if request.REQUEST.get("email_fuzzy", "") != "":
-        users = users.filter(user__email__icontains=request.REQUEST.get("email_fuzzy"))
-            
-
+        
+    users = filter_user(
+        states=request.REQUEST.get("user_filter_states", ""),
+        districts=request.REQUEST.get("user_filter_districts", ""),
+        schools=request.REQUEST.get("user_filter_schools", ""),
+        first_name_fuzzy=request.REQUEST.get("user_filter_first_name_fuzzy", ""),
+        last_name_fuzzy=request.REQUEST.get("user_filter_last_name_fuzzy", ""),
+        email_fuzzy=request.REQUEST.get("user_filter_email_fuzzy", ""),
+        limit_ids=request.REQUEST.get("users", "")
+    )
+ 
     users = users.order_by(*order)
 
     count = users.count()
     json_out = [count]
 
     course_filters = {
-        "subjects": to_list(request.REQUEST.get("subject", "")),
-        "authors": to_list(request.REQUEST.get("author", "")),
-        "grade_levels": to_list(request.REQUEST.get("grade_level", "")),
+        "subjects": to_list(request.REQUEST.get("user_course_filter_subject", "")),
+        "authors": to_list(request.REQUEST.get("user_course_filter_author", "")),
+        "grade_levels": to_list(request.REQUEST.get("user_course_filter_grade_level", "")),
         "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
 
     coursenames = []
     courses = filter_courses(**course_filters)
     for c in courses:
-        coursenames.append({"display_name": c.display_name})
+        coursenames.append({"display_name": c.display_name, "id": c.id, "display_coursenumber": c.display_coursenumber})
 
     # Add the row data to the list of rows.
     rows = list()
@@ -2017,27 +2030,27 @@ def get_course_permission_course_rows(request):
     end = start + size
 
     states = None
-    if request.REQUEST.get("states"):
+    if request.REQUEST.get("course_filter_states"):
         states = []
-        for id in request.REQUEST.get("states").split(","):
+        for id in request.REQUEST.get("course_filter_states").split(","):
             states.append(State.objects.get(id=id).name)
 
     districts = None
-    if request.REQUEST.get("districts"):
+    if request.REQUEST.get("course_filter_districts"):
         districts = []
-        for id in request.REQUEST.get("districts").split(","):
+        for id in request.REQUEST.get("course_filter_districts").split(","):
             districts.append(District.objects.get(id=id).code)
                 
     course_filters = {
-        "subjects": to_list(request.REQUEST.get("subjects")),
-        "authors": to_list(request.REQUEST.get("authors")),
-        "grade_levels": to_list(request.REQUEST.get("grade_levels")),
+        "subjects": to_list(request.REQUEST.get("course_filter_subjects")),
+        "authors": to_list(request.REQUEST.get("course_filter_authors")),
+        "grade_levels": to_list(request.REQUEST.get("course_filter_grade_levels")),
         "states": states,
         "districts": districts,
-        "subject_fuzzy": request.REQUEST.get("subject_fuzzy"),
-        "author_fuzzy": request.REQUEST.get("author_fuzzy"),
-        "grade_level_fuzzy": request.REQUEST.get("grade_level_fuzzy"),
-        "course_name_fuzzy": request.REQUEST.get("course_name_fuzzy"),
+        "subject_fuzzy": request.REQUEST.get("course_filter_subject_fuzzy"),
+        "author_fuzzy": request.REQUEST.get("course_filter_author_fuzzy"),
+        "grade_level_fuzzy": request.REQUEST.get("course_filter_grade_level_fuzzy"),
+        "course_name_fuzzy": request.REQUEST.get("course_filter_course_name_fuzzy"),
         "limit": CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
     }
     
@@ -2045,13 +2058,13 @@ def get_course_permission_course_rows(request):
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, "", ""])
+        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, c.display_coursenumber, "", ""])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def _update_user_course_permission(user, course, access, enroll, send_notification=False):
+def _update_user_course_permission(request, user, course, access, enroll, send_notification=False):
     # ** access
     if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
@@ -2059,7 +2072,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             cea.is_active = True
             cea.save()
             if send_notification:
-                send_course_notification(user, course, "Add Course Access", user.id)
+                send_course_notification(request, user, course, "Add Course Access", user.id)
     elif access == -1:
         find = CourseEnrollmentAllowed.objects.filter(email=user.email, course_id=course.id, is_active=True)
         if find.exists():
@@ -2067,7 +2080,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             cea.is_active = False
             cea.save()
             if send_notification:
-                send_course_notification(user, course, "Remove Course Access", user.id)
+                send_course_notification(request, user, course, "Remove Course Access", user.id)
 
     # ** enroll
     if enroll == 1:
@@ -2076,7 +2089,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             enr.is_active = True
             enr.save()
             if send_notification:
-                send_course_notification(user, course, "Add Course Enroll", user.id)
+                send_course_notification(request, user, course, "Add Course Enroll", user.id)
     elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
@@ -2084,7 +2097,7 @@ def _update_user_course_permission(user, course, access, enroll, send_notificati
             enr.is_active = False
             enr.save()
             if send_notification:
-                send_course_notification(user, course, "Remove Course Enroll", user.id)
+                send_course_notification(request, user, course, "Remove Course Enroll", user.id)
 
 
 @login_required
@@ -2093,31 +2106,64 @@ def update_course_permission(request):
     def async_do(request, task):
         gevent.sleep(0)
 
-        user_ids = to_list(request.POST.get('users', ''), [])
         course_ids = to_list(request.POST.get('courses', ''), [])
+        
         access = to_list(request.POST.get('access', ''), [])
         enroll = to_list(request.POST.get('enroll', ''), [])
-        send_notification = request.POST.get('send_notification', '0') == '1'
 
+        global_course_access = request.POST.get('global_course_access', '')
+        global_course_enroll = request.POST.get('global_course_enroll', '')
+        
+        global_all_course = request.POST.get('global_all_course', '') == 'true'
+        send_notification = request.POST.get('send_notification', '') == 'true'
+
+        users = filter_user(
+            states=request.REQUEST.get("user_filter_states", ""),
+            districts=request.REQUEST.get("user_filter_districts", ""),
+            schools=request.REQUEST.get("user_filter_schools", ""),
+            first_name_fuzzy=request.REQUEST.get("user_filter_first_name_fuzzy", ""),
+            last_name_fuzzy=request.REQUEST.get("user_filter_last_name_fuzzy", ""),
+            email_fuzzy=request.REQUEST.get("user_filter_email_fuzzy", ""),
+            limit_ids=request.POST.get("users", ""),
+        )
+
+        access_course = CourseEnrollmentAllowed.objects.filter(email=request.user.email).values_list('course_id', flat=True) if not request.user.is_superuser else None
+        if not global_all_course:
+            if access_course:
+                limit_ids = [c for c in course_ids if c in access_course]
+            else:
+                limit_ids = course_ids
+        else:
+            limit_ids = access_course
+        
+        courses = filter_courses(
+            subjects=to_list(request.REQUEST.get("course_filter_subjects", "")),
+            authors=to_list(request.REQUEST.get("course_filter_authors", "")),
+            grade_levels=to_list(request.REQUEST.get("course_filter_grade_levels", "")),
+            limit=limit_ids
+        )
+
+        print limit_ids
+
+        
         done_count = 0
-        total_count = len(course_ids) * len(user_ids)
+        total_count = len(courses) * len(users)
 
         errors = []
         user = None
         course = None
-        for i, course_id in enumerate(course_ids):
+        for i, course in enumerate(courses):
             try:
-                course = get_course_by_id(course_id)
-                a = int(access[i])
-                e = int(enroll[i])
+                a = int(global_course_access) if global_all_course else int(access[i])
+                e = int(global_course_enroll) if global_all_course else int(enroll[i])
                 a = 1 if e == 1 else a
                 e = -1 if a == -1 else e
-                for user_id in user_ids:
-                    user = User.objects.get(id=user_id)
+                for profile in users:
+                    user = profile.user
                     task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                     task.update_time = task.create_time
                     task.title = "update user %s" % user.email
-                    _update_user_course_permission(user, course, a, e, send_notification)
+                    _update_user_course_permission(request, user, course, a, e, send_notification)
                     done_count += 1
                     task.progress = int(done_count / total_count * 100)
                     task.status = "continue"
@@ -2132,8 +2178,11 @@ def update_course_permission(request):
                 task.save()
                 db.transaction.commit()
 
+        if total_count == 0:
+            task.progress = 100
+            
         task.status = "finish" if len(errors) == 0 else "error"
-        task.last_message = "all done" if len(errors) == 0 else "all done with errors"
+        task.last_message = "all done" if len(errors) == 0 else ("all done with errors, %s, %s, %s" % tuple(errors[0]))
         task.title = "all done" if len(errors) == 0 else "all done with errors"
         task.save()
         db.transaction.commit()
@@ -2205,7 +2254,7 @@ def course_permission_load_csv(request):
                 task.update_time = task.create_time
                 task.title = "update user %s" % user.email
 
-                _update_user_course_permission(user, course, a, e)
+                _update_user_course_permission(request, user, course, a, e)
                 
                 done_count += 1
                 task.status = "continue"
@@ -2264,7 +2313,7 @@ def course_permission_download_excel(request):
 
     # ** io
     output = StringIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})  # {'in_memory': True}
     worksheet = workbook.add_worksheet()
 
     row = 0

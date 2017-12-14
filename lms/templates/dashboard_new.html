@@ -1237,21 +1237,30 @@ $(document).ready(function(){
         }
     });
 
+    //my activity scroll-----------------------------------------------------
+    var page_leftnav = $(".con-my-communities").outerHeight(); //530
+    if(!page_leftnav){
+        page_leftnav = 0;
+    }
+    var page_rightnav = $(".con-my-courses").outerHeight();
+    if(!page_rightnav){
+        page_rightnav = 0;
+    }
+    var height_max = page_leftnav;
+    if(page_rightnav > height_max){
+        height_max = page_rightnav;
+    } 
+    var page_top = 77 + 20;
+    var page_bottom = 107;
+    var show_page_height = page_top + height_max + page_bottom;
+
     $(window).bind("scroll", function(){
         var scrollTop = $(document).scrollTop();
 　　    var windowHeight = $(this).height();
-        var scrollHeight = $(document).height();
+        var documentHeight = $(document).height();
         var scrollTop_ceil = Math.ceil(scrollTop);
 
-        console.log("scrollTop:",scrollTop);
-        console.log("---------");
-        console.log("scrollTop_ceil:",scrollTop_ceil);
-        console.log("windowHeight:",windowHeight);
-        console.log(">=");
-        console.log("scrollHeight:",scrollHeight);
-        console.log("============================");
-
-        if(scrollTop_ceil + windowHeight >= scrollHeight)
+        if(scrollTop_ceil + windowHeight >= documentHeight)
         {
             if(skip_rows_scroll >= data_all){
                 //$(".info_div").hide();
@@ -1264,6 +1273,21 @@ $(document).ready(function(){
                     skip_rows_scroll += get_rows_scroll; 
                 } 
             }
+        }
+
+        if(height_max > 0){
+            var a1 = page_top + height_max;
+            var a2 = $(this).height() - a1;
+            var a3 = page_bottom - a2;
+            var top_offset = $(this).height() - show_page_height -3;
+            if(scrollTop + windowHeight >= documentHeight - a3){
+                $(".con-my-communities").css({'margin-top':top_offset});
+                $(".con-my-courses").css({'margin-top':top_offset});
+            } 
+            if(scrollTop + windowHeight < documentHeight - a3){
+                $(".con-my-communities").css({'margin-top':'0px'});
+                $(".con-my-courses").css({'margin-top':'0px'});
+            } 
         }
     });
     

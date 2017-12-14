@@ -3,7 +3,8 @@
 %>
 
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/static/js/jquery-ui.js"></script>
+<!--script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
 
 <div id="pep_all_lists">
 	%for org in orgs_list:
@@ -92,7 +93,7 @@
 											console.log(page+" "+user_ids);
 										}
 										});
-										getRowsData(allUsersSource, user_ids)
+										getRowsData(allUsersSource, user_ids);
 									}
 								}else{
 									$("#pep_user_list").off("scroll");
@@ -190,6 +191,7 @@
 			}
 
 		});
+
         $("thead").on ("click", ".pep_start_video", function (e){
             community_id = $(this).parent().attr("id").replace("community_", '');
             $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
@@ -245,7 +247,17 @@
 						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
 						//console.log("leftX="+leftX);
 						//console.log("nameTitle="+nameTitle);
-						$(".pep_text_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + uclass + "`" + nameTitle + "`" + IdTitle + " .pep_text_panel");
+						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
+
+						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
+
+						var headsList = [];
+						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+						if(chatHeads !== null){
+							headsList = chatHeads;
+						}
+						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
+    					sessionStorage.setItem('chatHeads', JSON.stringify(headsList));
 						leftX-=235;
 						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
 					}
@@ -253,6 +265,20 @@
 				getMessage(id);
 			}
 			$link.data('lockedAt', +new Date());
+            $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
+                    e.preventDefault();
+                    user_id = ${request.user.id};
+                    request_user_id = $(this).attr("id");
+                    console.log(request_user_id);
+                    $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
+                        var session = data.session;
+                        $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
+                            window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
+                            link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                            sendVideoRequest(request_user_id, link, 0);
+                        });
+                    });
+                });
         });
 		$(".pep_contact_block").on("click", ".pep_start_video", function(e){
 			var $link = $(e.target);
@@ -482,6 +508,7 @@
             if (e.keyCode == 13) {
                 sendChatMessage($(this).data("to_id"), $(this).val());
                 $(this).val("");
+                $("#pep_message_"+user_id).trigger("click");
             }
         });
     }
