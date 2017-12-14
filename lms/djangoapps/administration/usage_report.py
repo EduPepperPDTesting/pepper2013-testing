@@ -185,13 +185,27 @@ def save_user_status(request):
 		return
 
 	context = {'success': False}
-	user_id = int(request.POST.get('user_id'))
-	user_changed = User.objects.filter(id=user_id)
+	user_email = request.POST.get('user_email', '')
+	user_changed = User.objects.filter(email=user_email)
 	if user_changed:
 		user = user_changed[0]
-		is_active = int(request.POST.get('is_active'))
-		is_staff = int(request.POST.get('is_staff'))
-		is_superuser = int(request.POST.get('is_superuser'))
+		is_active = request.POST.get('is_active')
+		if is_active == 'checked':
+			is_active = 1
+		else:
+			is_active = 0
+
+		is_staff = request.POST.get('is_staff')
+		if is_staff == 'checked':
+			is_staff = 1
+		else:
+			is_staff = 0
+
+		is_superuser = request.POST.get('is_superuser')
+		if is_superuser == 'checked':
+			is_superuser = 1
+		else:
+			is_superuser = 0
 
 		user.is_active = is_active
 		user.is_staff = is_staff
@@ -220,10 +234,10 @@ def save_user_password(request):
 	else:
 		return
 
-	user_id = int(request.POST.get('user_id'))
-	context = {'success': False, 'value': {}}
+	user_email = request.POST.get('user_email', '')
+	context = {'success': False, 'value': {"grouptype": "error4", "type": 1, "info": "Save password failure. Please check the E-mail."}}
 
-	user_login = User.objects.filter(id=user_id)
+	user_login = User.objects.filter(email=user_email)
 	if user_login:
 		user = user_login[0]
 		user_psw = request.POST.get('user_post_1')
@@ -240,13 +254,13 @@ def save_user_password(request):
 		if user_newpws:
 			context['value'] = {"grouptype": "error3", "type": 1, "info": "The password needs to be different from the previous one."}
 			return HttpResponse(json.dumps(context), content_type="application/json")
-		
+
 		# save user password
 		user.set_password(user_psw)
 		user.save()
-		
+
 		# save user password_change_date
-		user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+		user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
 		if user_log_info:
 			utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 			user_log_info[0].password_change_date = utctime_str
@@ -260,10 +274,10 @@ def save_user_password_checkold(request):
 	'''
 	Save password for no login user with check old password.
 	'''
-	user_id = int(request.POST.get('user_id'))
-	context = {'success': False, 'value': {}}
+	user_email = request.POST.get('user_email', '')
+	context = {'success': False, 'value': {"grouptype": "error4", "type": 1, "info": "Save password failure. Please check your E-mail."}}
 
-	user_login = User.objects.filter(id=user_id)
+	user_login = User.objects.filter(email=user_email)
 	if user_login:
 		user = user_login[0]
 		user_psw = request.POST.get('user_post_1')
@@ -287,15 +301,15 @@ def save_user_password_checkold(request):
 		# verify whether the new password equals to the old one
 		user_newpws = authenticate(username=user.username, password=user_psw, request=request)
 		if user_newpws:
-			context['value'] = {"grouptype":"error3","type":1,"info":"The password needs to be different from the previous one."}
+			context['value'] = {"grouptype": "error3", "type": 1, "info": "The password needs to be different from the previous one."}
 			return HttpResponse(json.dumps(context), content_type="application/json")
-		
+
 		# save user password
 		user.set_password(user_psw)
 		user.save()
-		
+
 		# save user password_change_date
-		user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+		user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
 		if user_log_info:
 			utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 			user_log_info[0].password_change_date = utctime_str

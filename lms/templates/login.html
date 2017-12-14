@@ -220,7 +220,7 @@
                     }
 
                 } else {
-                    if(json.user_id){
+                    if(json.user_email && json.user_email !== undefined){
                         toggleSubmitButton(true);
 
                         $("#id_new_password1").val("");
@@ -230,7 +230,6 @@
                         $(".check-error-p2").html("");
                         $(".check-success").html("");
                         $(".login-failed").html("");
-                        $("#id_new_password1").attr("user_id",json.user_id);
                         $("#id_new_password1").attr("user_email",json.user_email);
 
                         change_psw_press = 0;
@@ -255,7 +254,6 @@
                     $(".check-success").html("");
                     $(".login-failed").html("");
 
-                    var user_id = $("#id_new_password1").attr("user_id");
                     var user_email = $("#id_new_password1").attr("user_email");
                     var psw0 = $("#id_old_password").val().trim();
                     var psw1 = $("#id_new_password1").val().trim();
@@ -292,7 +290,7 @@
                     $(".check-error-p1").html("");
                     $(".check-error-p2").html("");
                     $(".check-success").html("Now Saving......");
-                    $.post("${reverse('save_user_passwordold')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
+                    $.post("${reverse('save_user_passwordold')}", {'user_email': user_email,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
                         function(data) {
                             if (data.success) {
                                 $(".password-change-date-error").html("");
@@ -344,6 +342,11 @@
                                         $(".check-error-p1").html(data.value.info);
                                         $(".check-error-p2").html("");
                                         $("#id_new_password1").focus();
+                                    }
+                                    else if(data.value.grouptype == 'error4'){
+                                        $(".check-error-p0").html("");
+                                        $(".check-error-p1").html("");
+                                        $(".check-error-p2").html(data.value.info);
                                     }
                                 }, 100);
                             }
