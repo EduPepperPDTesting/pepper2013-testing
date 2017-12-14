@@ -137,8 +137,8 @@ $(document).ready(function(){
 
     $(".pep_textchat_block").on("click", ".pep_send_image", function(){
         $(this).closest(".pep_attachment_form")[0].reset();
-        $(this).parent().css("display", "none");
-        $(this).parent().siblings("#input_label").css("display", "inline-block");
+        $(this).parent().parent().css("display", "none");
+        $(this).parent().parent().siblings("#input_label").css("display", "inline-block");
     });
 
     function sendChatMessage (send_user, message) {
