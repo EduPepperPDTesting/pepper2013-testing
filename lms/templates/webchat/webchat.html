@@ -135,6 +135,12 @@ $(document).ready(function(){
         $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
 
+    $(".pep_textchat_block").on("click", ".pep_send_image", function(){
+        $(this).closest(".pep_attachment_form")[0].reset();
+        $(this).parent().css("display", "none");
+        $(this).parent().siblings("#input_label").css("display", "inline-block");
+    });
+
     function sendChatMessage (send_user, message) {
         console.log(send_user+message);
         var datainfo = {
@@ -225,6 +231,9 @@ $(document).ready(function(){
 
     function sendChatMessage (send_user, message) {
         console.log(send_user+message);
+
+
+
         var datainfo = {
             'info': JSON.stringify({
                 'sender_id': '${user.id}',
