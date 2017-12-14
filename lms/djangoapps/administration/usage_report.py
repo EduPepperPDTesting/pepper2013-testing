@@ -78,9 +78,9 @@ def get_user_login_info(request):
 	order = build_sorts(columns, sorts)
 	if len(filters):
 		kwargs = build_filter(columns, filters)
-		user_data = UserProfile.objects.filter(**kwargs).order_by(*order)
+		user_data = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
 	else:
-		user_data = UserProfile.objects.all().order_by(*order)
+		user_data = UserProfile.objects.prefetch_related().all().order_by(*order)
 
 	total_rows_count = user_data.count()
 	login_info_list = list()
