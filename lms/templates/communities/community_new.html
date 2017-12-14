@@ -399,13 +399,13 @@ a{
     color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
 }
 .con-main-all #btn-join:hover{
-    background-color:#76ba35;
+    background-color:#8acc4a;
 }
 .con-main-all #btn-leave{
     color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
 }
 .con-main-all #btn-leave:hover{
-    background-color:#76ba35;
+    background-color:#8acc4a;
 }
 .con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
@@ -427,6 +427,43 @@ a{
     color:#2CBAEC;font-weight:bold;
     font-size:13px;
     border:0px solid;
+}
+/*--------------email facilitator--------------*/
+.email-facilitator{
+    position:absolute;
+    left:0px;
+    top:0px;
+    padding:20px 10px 10px 10px;
+    border:1px solid #ccc;
+    background-color:#fff;
+    display:none;  
+}
+.email-facilitator-title{
+    font-size:15px;
+}
+.email-facilitator-message{
+    margin-top:5px;width:350px;font-size:15px;height:38px;
+}
+.email-facilitator-send-btn{
+    padding:3px 15px 3px 15px;
+    background-color:#2CBAEC;
+    color:#fff;
+    border:1px solid #45719E;
+    font-size:15px;
+    cursor:pointer;
+}
+.email-facilitator-error{
+  margin-top:5px;font-size:15px;text-align:center;display:none;  
+}
+.email-facilitator-send-btn:hover{
+    background-color:#2ec3f8;
+}
+.email-facilitator-close-btn{
+    position:absolute;
+    left:350px;
+    top:5px;
+    font-size:14px;
+    cursor:pointer;
 }
 </style>
 
@@ -479,8 +516,8 @@ a{
                     <div class="user-name overflow-text" style="margin-top:8px;">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
                     %endif
                 </div>
-                <div class="user-email">
-                    <a href="mailto:${facilitator.user.email}"><img src="/static/images/community_new/facilitator-mail-50.png" width="30"/></a>
+                <div class="user-email user-email-btn">
+                    <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
                 </div>
                 <div style="clear:both;"></div>
             </div>
@@ -536,8 +573,17 @@ a{
         </div>
 
         <!--Main content-->
-        <div class="con-main-all" style="background-color:#fff;">
-            <div class="con-main-all-top" style="border:0px solid;">
+        <div class="con-main-all" style="background-color:#fff;border:0px solid;">
+            <div class="" style="position:relative;left:0px;top:0px;">
+                <div class="email-facilitator">
+                    <div class="email-facilitator-title">Email Facilitator</div>
+                    <textarea id="ask_expert_message" class="email-facilitator-message" placeholder="Ask a question of your community facilitator." rows="3"></textarea>
+                    <div class="email-facilitator-error"></div>
+                    <div style="margin-top:10px;text-align:center;"><span class="email-facilitator-send-btn">Send</span></div>
+                    <div class="email-facilitator-close-btn">✕</div>
+                </div>
+            </div>
+            <div class="con-main-all-top" style="border:0px solid #f00;">
                 <div class="con-main-info-outer">
                     <table class="con-main-info" width="100%" height="130" cellspacing="0" cellpadding="0" border="0">
                         <tr>
@@ -628,7 +674,6 @@ a{
         <div style="clear:both;"></div>
     </div>
 </section>
-
 <div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -806,7 +851,39 @@ a{
 </div>
 
 
-<script type="text/javascript">    
+<script type="text/javascript">  
+    //email facilitator
+    $(".user-email-btn").click(function(){
+        $(".email-facilitator-error").hide();
+        $(".email-facilitator").fadeToggle("fast");
+    });
+    $(".email-facilitator-close-btn").click(function(){
+        $(this).parent().fadeOut("fast");
+    });
+    $(".email-facilitator-send-btn").click(function(){
+        var community_id = "${community_id}";
+        var subject = "${community.name} Community Question from ${request.user.first_name} ${request.user.last_name}";
+        var message = $(".email-facilitator-message").val().trim();
+        if(message ==  ""){
+            return;
+        } 
+        
+        $.post("${reverse('community_email_facilitator')}", {'community_id': community_id, 'subject': subject, 'message': message}, function(data){
+                $(".email-facilitator-error").text(data.result);
+                $(".email-facilitator-error").show();
+                $(".email-facilitator-message").val("");
+        });
+        
+    });
+
+    //menu facilitator
+    $(".btn-facilitator").click(function(){
+        $(".facilitator-menu").toggle("fast");
+    });
+    $(".btn-facilitator").mouseleave(function(){
+        $(".facilitator-menu").hide("fast");
+    });
+    /*
     $(".btn-facilitator").hover(
         function(){
             $(".facilitator-menu").slideDown(200);
@@ -815,7 +892,7 @@ a{
             $(".facilitator-menu").slideUp(200);
         }
     );
-    
+    */
     function newCourse() {
         var course_num = $('.community-course').length;
         $('.community-course').each(function(index) {
