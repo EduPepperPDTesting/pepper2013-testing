@@ -1,8 +1,9 @@
 <%!
     from django.utils.translation import ugettext as _
     from django.utils import html
+    from django.core.urlresolvers import reverse
     from student.models import State, District, School, User, UserProfile
-    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationFooter, Nologindesign, DesignMenu, DesignFooter
 %>
 <%namespace name='static' file='static_content.html'/>
 
@@ -11,52 +12,83 @@
 % else:
     <% curr_user=user %>
 % endif
-<%
+<%  
+    if request.path == "/":
+        path = ""
+    else:
+        path = request.path
+        
+    urlname = ["https://",request.get_host(),path]
+    urlname = "".join(urlname)
+    new_nologin_flag = "0"
     organization_active = False
     footer = False
-    if request.user.is_authenticated():            
-        try:
-            state_id = request.user.profile.district.state.id
-        except:
-            state_id = -1
-        try:
-            district_id = request.user.profile.district.id
-        except:
-            district_id = -1
-        try:
-            school_id = request.user.profile.school.id
-        except:
-            school_id = -1
-            
-        organization_obj = OrganizationMetadata()
-        if school_id != -1:
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-                organization_obj = tmp1.organization
-                organization_active = True
-                break
+    if not request.user.is_authenticated():
+        design = "" 
+        for tmp1 in  Nologindesign.objects.filter(DesignName=urlname):
+            design = tmp1
+        if design:
+            new_nologin_flag = "1"
+            organization_obj = design
+            design_footer_flag = "0"
+            for tmp1 in  DesignMenu.objects.filter(design=design,itemType="Is New Menu"):
+                design_menu_flag = tmp1.itemValue
+            for tmp1 in DesignMenu.objects.filter(design=design,itemType="Footer Selected"):
+                design_footer_flag = tmp1.itemValue
 
-        if not organization_active and district_id != -1:
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-                organization_obj = tmp1.organization
-                organization_active = True
-                break
-        
-        if not organization_active and state_id != -1:
-            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                organization_active = True
-                organization_obj = tmp1.organization
-                break
-                
-        org_data = {}
-        if organization_active:
-            org_data["org_id"] = organization_obj.id;
-            for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
-                org_data[tmp1.itemType] = tmp1.itemValue
-            if org_data["Footer Selected"] == "1":
-                footer = OrganizationFooter.objects.get(organization=org_data['org_id']).DataItem
-            org_data["PeppTalk"] = ""
-            for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='PeppTalk'):
-                org_data["PeppTalk"] = tmp2.itemValue
+            if design_footer_flag == "1":
+                for tmp in DesignFooter.objects.filter(design=design):
+                    footer = tmp.DataItem
+            
+            org_data = {}
+            if design_menu_flag == "1":
+                for tmp1 in DesignMenu.objects.filter(design=design):
+                    org_data[tmp1.itemType] = tmp1.itemValue
+
+    else:
+      if request.user.is_authenticated():            
+          try:
+              state_id = request.user.profile.district.state.id
+          except:
+              state_id = -1
+          try:
+              district_id = request.user.profile.district.id
+          except:
+              district_id = -1
+          try:
+              school_id = request.user.profile.school.id
+          except:
+              school_id = -1
+              
+          organization_obj = OrganizationMetadata()
+          if school_id != -1:
+              for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                  organization_obj = tmp1.organization
+                  organization_active = True
+                  break
+
+          if not organization_active and district_id != -1:
+              for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                  organization_obj = tmp1.organization
+                  organization_active = True
+                  break
+          
+          if not organization_active and state_id != -1:
+              for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                  organization_active = True
+                  organization_obj = tmp1.organization
+                  break
+                  
+          org_data = {}
+          if organization_active:
+              org_data["org_id"] = organization_obj.id;
+              for tmp1 in OrganizationMenu.objects.filter(organization=organization_obj):
+                  org_data[tmp1.itemType] = tmp1.itemValue
+              if org_data["Footer Selected"] == "1":
+                  footer = OrganizationFooter.objects.get(organization=org_data['org_id']).DataItem
+              org_data["PeppTalk"] = ""
+              for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='PeppTalk'):
+                  org_data["PeppTalk"] = tmp2.itemValue
 %>
 ## Define a couple of helper functions to make life easier when
 ## embedding theme conditionals into templates. All inheriting
@@ -107,6 +139,9 @@
   <%static:css group='application'/>
 
   <%static:js group='main_vendor'/>
+
+  <script type="text/javascript" src="${reverse('pepper_utilities_js_url_lookup_js')}"></script>
+
   <%block name="headextra"/>
   % if theme_enabled():
     <%include file="theme-head-extra.html" />
@@ -133,6 +168,7 @@
   <%include file="widgets/segment-io.html" />
 
 </head>
+
 % if organization_active:
     % if org_data["PeppTalk"] == "1":
         <%include file="webchat/webslider.html" />
@@ -140,7 +176,6 @@
         <%include file="webchat/webchat.html" />
     % endif
 % endif
-
 <%!
 navbar_show_extended=True
 %>
@@ -152,6 +187,8 @@ navbar_show_extended=True
 % elif not suppress_toplevel_navigation:
     % if organization_active and org_data["Is New Menu"] == "1":
         <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
+    % elif new_nologin_flag == "1":
+        <%include file="navigation_new2.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
     % else:
         <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
     % endif
@@ -160,6 +197,8 @@ navbar_show_extended=True
 <!--@begin:Main module page, change the bottom margin in the body text-->
 <!--@date:2013-11-02-->
   % if organization_active and org_data["Is New Menu"] == "1":
+    <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
+  % elif new_nologin_flag == "1":
     <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
   % else:
     <section class="content-wrapper" style="padding-bottom: 0;">
