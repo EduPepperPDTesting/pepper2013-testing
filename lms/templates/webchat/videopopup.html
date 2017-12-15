@@ -161,15 +161,8 @@ $(document).ready(function() {
         if (!screensharing) {
             screenshare();
         }
-        else {
-            resetScreenshare();
-        }
     });
 });
-
-function resetScreenshare() {
-    screenSharingPublisher.destroy();
-}
 
 function screenshare() {
     OT.checkScreenSharingCapability(function(response) {
@@ -184,6 +177,12 @@ function screenshare() {
                 console.log("Publishing Screen");
             });
             screensharing = true;
+            $(".screenshare").click(function() {
+                if (screensharing) {
+                    session.unpublish(screenSharingPublisher);
+                    screensharing = false;
+                }
+            })
         }
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
