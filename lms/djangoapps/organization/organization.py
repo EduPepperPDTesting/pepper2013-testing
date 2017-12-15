@@ -377,7 +377,7 @@ def design_list(request):
 
     rows = []
     for design in design_list:
-        rows.append({'id': design.id, 'DesignName': design.DesignName, 'is_selected': design.is_selected})
+        rows.append({'id': design.id, 'DesignName': design.DesignName})
 
     return render_json_response({'success': True, 'rows': rows})
 
