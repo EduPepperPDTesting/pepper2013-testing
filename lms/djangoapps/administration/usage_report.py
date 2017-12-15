@@ -321,8 +321,8 @@ def save_user_password_checkold(request):
 def password_format_check(psw1, **psw2):
 	error_info = [{"grouptype": "error1", "type": 200, "info": ""},
                   {"grouptype": "error1", "type": 1, "info": "Please fill in new password."},
-                  {"grouptype": "error1", "type": 2, "info": "New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
-                  {"grouptype": "error1", "type": 3, "info": "New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                  {"grouptype": "error1", "type": 2, "info": "New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
+                  {"grouptype": "error1", "type": 3, "info": "New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
                   {"grouptype": "error1", "type": 4, "info": "Confirm password is required."},
                   {"grouptype": "error1", "type": 5, "info": "Your new and confirm password are different. Please enter again."}]
 
