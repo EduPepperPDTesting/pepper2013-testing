@@ -233,9 +233,8 @@
 			        <table id="design-table" class="design-table">
 			            <thead>
 			                <tr>
-			                    <th>design</th>
+			                    <th>Site Pages</th>
 			                    <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="design-select-all"></th>
-			                    <th class="check-column sorter-false filter-false">show</th>
 			                </tr>
 			            </thead>
 			            <tbody></tbody>
@@ -1725,11 +1724,6 @@
 						row += '<input type="checkbox" name="design" value="' + r.rows[i].id + '" class="design-select">&nbsp;';
 						row += '<a href="#' + r.rows[i].id + '" class="design-permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 						row += '</td>';
-						if (r.rows[i].is_selected == 1){
-							row += "<td><input type='radio' checked name='selectdesign' value='"+r.rows[i].id+"'></td>";
-						}else{
-							row += "<td><input type='radio' name='selectdesign' value='"+r.rows[i].id+"'></td>";
-						}
 						row += '</tr> ';
 						$('#design-table tbody').append(row);
 					}
@@ -3159,12 +3153,26 @@
 						img_src = "/static/images/ppd-iMessage-default.png";
 					}
 
+					if (tmp_name == "#Shopping"){
+						img_src = "/static/images/index_login_cart-537824274.png";
+					}
+
 					tmp_item = $("<span></span>");
 					if(is_icon_width_text == "0"){
 						tmp_item.css({"float": "right", "margin": "15px " + space + "px 0 0", "width": "45px", "height": "45px", "overflow": "hidden"});
 						tmp_item.append("<img src='" + img_src + "' title='" + tmp_name + "' width='45' height='45' />");
 					}else{
-						if(tmp_name == "#Messenger"){
+						if (tmp_name == "#Shopping"){
+							tmp_item_txt = '<a href="/shopping"><table border="0" cellpadding="0" cellspacing="0" style="float:right; margin: 5px ' + space + 'px 0 0">';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="45" align="center"><img src="' + img_src + '" title="' + tmp_name + '" width="45" height="45" /></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '<tr>';
+                            tmp_item_txt += '<td height="20"><span style="float:left; height:20px; line-height:20px; margin-top:-5px; font-family:' + menu_text_font_icons + '; color:' + menu_text_color_icons + '; font-size:' + menu_text_size_icons + 'px;">Shopping</span></td>';
+                            tmp_item_txt += '</tr>';
+                            tmp_item_txt += '</table></a>';
+							tmp_item.append(tmp_item_txt);
+						}else if(tmp_name == "#Messenger"){
 							tmp_item_txt = '<table border="0" cellpadding="0" cellspacing="0" style="float:right; margin: 5px ' + space + 'px 0 0">';
                             tmp_item_txt += '<tr>';
                             tmp_item_txt += '<td height="45" align="center"><img src="' + img_src + '" title="' + tmp_name + '" width="45" height="45" /></td>';
@@ -3205,6 +3213,8 @@
 				else{
 					if(tmp_name == "#Messenger"){
 						tmp_name = "Messenger";
+					}elseif(tmp_name == "#Shopping"){
+						tmp_name = "Shopping";
 					}
 					tmp_item = $("<span>" + tmp_name + "</span>");
 					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
@@ -5052,7 +5062,7 @@
 			var space_between_items = $("#design_dashboard_space_between").val();
 			var is_new_menu = $("input[name='design_dashboard_on_menu']:checked").val();
 			
-			var remove_all_menu = ($("input[name='deisgn_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
+			var remove_all_menu = ($("input[name='design_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
 			var logo_url = $("#design_base_logo_url").val();
 			var footer_flag = $("input[name='design_dashboard_footer']:checked").val();
 			var footer_content = ceditor_design.CKEDITOR.getData();
@@ -5121,8 +5131,7 @@
 			var site_url = $("#organizational_base_site_url").val();
 			var logo_text = $("#organizational_base_main_logo_text").val();
 			var button_text = $("#organizational_base_main_page_button_text").val();
-			var button_link = $("#organizational_base_main_page_button_link").val();			
-			var selectdesign = $("input[name='selectdesign']:checked").val();
+			var button_link = $("#organizational_base_main_page_button_link").val();
 			var mid = $(this).attr("mid");
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_main_base", 
 				mid: mid,
@@ -5130,7 +5139,6 @@
 				logo_text: logo_text,
 				button_text: button_text,
 				button_link: button_link,
-				selectdesign: selectdesign
 			}, function (r) {
 				if (r.Success){
 					if($("#organizational_base_top_main_logo").val() != ""){
