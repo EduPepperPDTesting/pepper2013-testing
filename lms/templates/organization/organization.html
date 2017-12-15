@@ -1661,14 +1661,14 @@
 
 	function designEdit(type, id, name){
 		var button_name = 'Add';
-		var dialog_title = 'New Design';
+		var dialog_title = 'New Site Page';
 		if (type == 'edit') {
 			button_name = 'Save';
-			dialog_title = 'Edit Design';
+			dialog_title = 'Edit Site Page';
 		}
 		
 		var content = '<form action="${reverse('organizational_configuration')}" method="post" id="new-design-submit">';
-		content += '<label>Design Name:<input type="text" name="Design_name" placeholder="Name" value="' + name + '"></label>';
+		content += '<label>Site Page Name:<input type="text" name="Design_name" placeholder="Name" value="' + name + '"></label>';
 		
 		if(type != "edit"){
 			content += '<label>Copy from:<select name="design_copy_from"><option value="">Select Design</option>';
