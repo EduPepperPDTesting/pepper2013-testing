@@ -89,7 +89,8 @@ function initializeSession() {
             main_subscriber = subscriber;
         } else {
             if (event.stream.videoType === 'screen') {
-                var being_replaced = main_subscriber.stream;
+                console.log ("Doing replacements...");
+                var being_replaced = main_subscriber;
                 session.subscribe(being_replaced.stream, 'publisher', {
                    insertMode: 'append',
                     width: '100%',
@@ -157,7 +158,9 @@ function initializeSession() {
 }
 $(document).ready(function() {
     $(".screenshare").click(function() {
-        if (!screensharing) screenshare();
+        if (!screensharing) {
+            screenshare();
+        }
         else {
             resetScreenshare();
         }
@@ -180,6 +183,7 @@ function screenshare() {
                 }
                 console.log("Publishing Screen");
             });
+            screensharing = true;
         }
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
