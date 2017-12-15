@@ -771,6 +771,21 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break
                             break
+                            
+                    elif column == "Designlogo":
+                        for tmp1 in Nologindesign.objects.filter(id=oid):
+                            for tmp2 in DesignMenu.objects.filter(design=tmp1, itemType="logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
                     elif column == "OrganizationLogo":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):

@@ -2828,6 +2828,7 @@
 			var loadwin = new LoadingWin();
 			var db = "attributes";
 			var column = "";
+			var current_id = org_current_id;
 			if(eid == "organizational_base_top_main_logo"){
 				db = "configuration";
 				column = "TopMainLogo";
@@ -2845,8 +2846,12 @@
 				column = "LogoProfileCurr";
 			}else if(eid == "organizational_base_organization_logo"){
 				column = "OrganizationLogo";
+			}else if(eid == "design_menu_logo"){
+				column = "Designlogo";
+				current_id = design_current_id;
 			}
-			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: org_current_id, column: column, db: db}, function (r) {	
+			
+			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: current_id, column: column, db: db}, function (r) {	
 				if (r.Success){
 					$("#" + eid + "_p").next().empty();
 				}

@@ -11,7 +11,6 @@ class Nologindesign(models.Model):
     DesignName = models.CharField(blank=False, max_length=255, db_index=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    is_selected = models.IntegerField(default=0,blank=False)
 
 class OrganizationMetadata(models.Model):
     class Meta:
