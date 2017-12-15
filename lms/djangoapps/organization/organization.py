@@ -1430,7 +1430,7 @@ def design_save_base(request):
         is_icon = request.POST.get("is_icon", "")
         is_icon_width_text = request.POST.get("is_icon_width_text", "")
         is_new_menu = request.POST.get("is_new_menu", "")
-        remove_all_menu = request.POST.get("remove_all_menu", "")
+        # remove_all_menu = request.POST.get("remove_all_menu", "")
         menu_text_color = request.POST.get("menu_text_color", "")
         menu_text_font = request.POST.get("menu_text_font", "")
         menu_text_size = request.POST.get("menu_text_size", "")
@@ -1522,7 +1522,7 @@ def design_save_base(request):
             design_menusave(design_metadata, "Space Betwwen Items", space_between_items)
             design_menusave(design_metadata, "Is New Menu", is_new_menu)
             design_menusave(design_metadata, "Logo Url", logo_url)
-            design_menusave(design_metadata, "Remove All Menu", remove_all_menu)
+            # design_menusave(design_metadata, "Remove All Menu", remove_all_menu)
             design_menusave(design_metadata, "Footer Selected", footer_flag)
         data = {'Success': True}
     except Exception as e:

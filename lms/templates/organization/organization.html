@@ -273,14 +273,14 @@
 			                    <label style="margin-right:20px;"><input type="radio" name="design_dashboard_on_menu" value="1" />New Menu</label>
 			                </td>
 			            </tr>
-			            <tr class="old_menu_tr">
+			            <!-- <tr class="old_menu_tr">
 			                <td colspan="3" class="org_td1">
 			                    <label>
 				                    <input type="checkbox" name="design_dashboard_remove_all_menu" />
 			    	                <span style="margin-left:10px;">Remove all the menu items.</span>
 			                    </label>
 			                </td>
-			            </tr>
+			            </tr> -->
 			            <tr class="new_menu_tr">
 			                <td class="org_td1">Top Menu Color: </td>
 			                <td><input id="design_menu_color" type="color" /> </td>
@@ -1785,11 +1785,11 @@
 
 							$("#design_dashboard_space_between").val(r["Space Betwwen Items"]);
 							$("input[name='design_dashboard_on_menu'][value='" + r["Is New Menu"] + "']").attr("checked", "checked");
-							if(r["Remove All Menu"] == "1"){
-								$("input[name='design_dashboard_remove_all_menu']").prop("checked", true);											
-							}else{
-								$("input[name='design_dashboard_remove_all_menu']").prop("checked", false);
-							}
+							// if(r["Remove All Menu"] == "1"){
+							// 	$("input[name='design_dashboard_remove_all_menu']").prop("checked", true);											
+							// }else{
+							// 	$("input[name='design_dashboard_remove_all_menu']").prop("checked", false);
+							// }
 							$("#design_base_logo_url").val(r["Logo Url"]);
 							$(".design_dashboard_menu_body1").each(function(i){
 								if(i > 0){
@@ -3213,7 +3213,7 @@
 				else{
 					if(tmp_name == "#Messenger"){
 						tmp_name = "Messenger";
-					}elseif(tmp_name == "#Shopping"){
+					}else if(tmp_name == "#Shopping"){
 						tmp_name = "Shopping";
 					}
 					tmp_item = $("<span>" + tmp_name + "</span>");
@@ -5062,7 +5062,7 @@
 			var space_between_items = $("#design_dashboard_space_between").val();
 			var is_new_menu = $("input[name='design_dashboard_on_menu']:checked").val();
 			
-			var remove_all_menu = ($("input[name='design_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
+			// var remove_all_menu = ($("input[name='design_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
 			var logo_url = $("#design_base_logo_url").val();
 			var footer_flag = $("input[name='design_dashboard_footer']:checked").val();
 			var footer_content = ceditor_design.CKEDITOR.getData();
@@ -5072,7 +5072,7 @@
 				is_icon: is_icon,
 				is_icon_width_text: is_icon_width_text,
 				is_new_menu: is_new_menu,
-				remove_all_menu: remove_all_menu,
+				// remove_all_menu: remove_all_menu,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,
