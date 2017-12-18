@@ -169,7 +169,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     color:#ccc;
 }
 
-/*----------------------------------community page----------------------------------*/
+/*----------------------------------community page common----------------------------------*/
 a{
     text-decoration:none !important;
     cursor: pointer;
@@ -182,6 +182,9 @@ a{
 .overflow-text-wrap{
     text-overflow:ellipsis;
     overflow:hidden;
+}
+.border-zero{
+    border:0 !important;
 }
 /*--------------community all--------------*/
 .content-wrapper-community{
@@ -310,13 +313,13 @@ a{
     width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
 }
 .community-left .discussion-subject{
-    font-weight: bold;font-size: 13px;
+    font-size: 13px;
 }
 .community-left .discussion-date .posted{
-    font-size: 13px;color:#F58221;
+    font-size: 13px;color:#F58221;font-style:italic;
 }
 .community-left .discussion-date .date{
-    font-size: 13px;
+    font-size: 13px;font-style:italic;
 }
 .community-left .seemore-t{
     width:212px;padding:0px 10px 0 0;text-align:right;border:0px solid;
@@ -371,13 +374,16 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;height:320px;overflow-y:auto;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:320px;
 }
 .community-right .every-resource{
-    width:80%;;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
+    width:80%;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
 }
 .community-right .community-resources a{
     font-size:13px;color:#000;
+}
+.community-right .every-resource-more{
+    display:none;
 }
 .community-right .resources-seemore{
     width:80%;margin-left:20px;padding:0px 0 5px 0;
@@ -629,17 +635,18 @@ a{
                 <div class="sub-title">Community Status</div>
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
-                    <div class="members">Members:&nbsp;<span>17</span>&nbsp;<a>[view]</a></div>
+                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a>[view]</a></div>
                     <div class="my-communities">
                         <div style="font-size:14px;float:left;">My Communities</div>
                         <div class="my-communities-triangle"></div>
                         <div style="clear:both;"></div>
-                        <div class="my-community">
-                            <div class="subject overflow-text"><a>Oklahoma SPED</a></div>
-                        </div>
-                        <div class="my-community">
-                            <div class="subject overflow-text" style="border-bottom:0"><a>ESPN Ninjas sadf fsadf asdf</a></div>
-                        </div>
+                        %for c in my_communities:
+                            <div class="my-community">
+                                <div class="subject overflow-text">
+                                    <a href="${reverse('maincommunity', args=[c['id']])}">${c['name']}</a>
+                                </div>
+                            </div>
+                        %endfor
                         <div class="my-community">
                             <span class="btn-seemore-cs">See More</span>
                         </div>
@@ -649,24 +656,40 @@ a{
             <div class="resources">
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
-                    <div class="every-resource">
-                        <a>O Niell Sea Odyssey Website</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>O Niell Sea Odyssey Website sf asdf gagadfsa fa</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>Those were such happy times Those were such</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>And not so long ago dfa</a>
-                    </div>
-                    <div class="every-resource" style="border-bottom:0;">
-                        <a>How I wondered where they d gone</a>
-                    </div>
-                    <div class="resources-seemore">
-                        <span class="btn-seemore-r">See More</span>
-                    </div>
+                    <% 
+                        resources_count = resources.count() 
+                        resources_show = 4
+                    %>
+                    %for k, resource in enumerate(resources):
+                        %if resources_count <= resources_show:
+                            %if k + 1 == resources_count:
+                                <div class="every-resource border-zero">
+                            %else:
+                                <div class="every-resource">
+                            %endif 
+                        %else:
+                            %if k + 1 <= resources_show:
+                                %if k + 1 == resources_show:
+                                    <div class="every-resource border-zero resource-removeline">
+                                %else:
+                                    <div class="every-resource">
+                                %endif
+                            %else:
+                                %if k + 1 == resources_count:
+                                    <div class="every-resource every-resource-more border-zero">
+                                %else:
+                                    <div class="every-resource every-resource-more">
+                                %endif
+                            %endif
+                        %endif
+                            <a href="${resource.link}" target="_blank">${resource.name}</a>
+                        </div>
+                    %endfor
+                    %if resources_count > resources_show and resources_count > 0:
+                        <div class="resources-seemore">
+                            <span class="btn-seemore-r">See More</span>
+                        </div>
+                    %endif
                 </div>
             </div>
         </div>
@@ -883,16 +906,15 @@ a{
     $(".btn-facilitator").mouseleave(function(){
         $(".facilitator-menu").hide("fast");
     });
-    /*
-    $(".btn-facilitator").hover(
-        function(){
-            $(".facilitator-menu").slideDown(200);
-        },
-        function(){
-            $(".facilitator-menu").slideUp(200);
-        }
-    );
-    */
+    
+    //resources see more btn
+    $(".btn-seemore-r").click(function(){
+        $(".every-resource-more").show();
+        $(this).hide();
+        $(".resource-removeline").removeClass('border-zero');
+    });
+</script>
+<script type="text/javascript">
     function newCourse() {
         var course_num = $('.community-course').length;
         $('.community-course').each(function(index) {

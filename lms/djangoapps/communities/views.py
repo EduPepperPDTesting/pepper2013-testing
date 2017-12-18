@@ -473,7 +473,7 @@ def maincommunity(request, community_id):
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=request.user)
+    ruser_in_commumity = CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered',user=request.user)
     if ruser_in_commumity:
         ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
         ruser_info['edit'] = ruser_in_commumity[0].community_edit
@@ -485,16 +485,50 @@ def maincommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
-    community_info = {'community': community,
-                      'facilitator': facilitator,
-                      'ruser_info': ruser_info}
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
 
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    if items:
+        for item in items:
+            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
+                else:
+                    if len(itmes_all) > 1:
+                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
+
+    else:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+        for item in items:
+            my_communities_list.append({'id': item.id, 'name': item.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
                             'district': community.district.id if community.district else '',
                             'user_super': user_super}
-
-    data.update(community_info)
     data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list}
+    data.update(community_info)
 
     return render_to_response('communities/community_new.html', data)
 
