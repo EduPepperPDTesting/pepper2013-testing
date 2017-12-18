@@ -367,6 +367,9 @@ a{
 .community-right .my-community .subject{
     padding:10px 0 10px 0;border-bottom:1px solid #ccc;
 }
+.community-right .my-community:nth-last-child(2) .subject{
+    border:0;
+}
 .community-right .my-community a{
     color: #000;cursor: pointer;
 }
@@ -413,7 +416,7 @@ a{
 .con-main-all #btn-leave:hover{
     background-color:#8acc4a;
 }
-.con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
+.con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-chat-count,.top-like-count{
@@ -426,7 +429,7 @@ a{
     border:0px solid;
 }
 
-.con-main-all .top-other-count{
+.con-main-all .top-activeusers-count{
     padding-top:3px;
     height:17px;
     float:right;
@@ -471,6 +474,45 @@ a{
     font-size:14px;
     cursor:pointer;
 }
+/*--------------community members window--------------*/
+.circle:hover {
+    cursor: pointer;
+}
+.sidebar-section {
+    margin: 0 0 20px 0;
+}
+.members-container{
+    text-align:left;
+}
+.members-name {
+    display: inline-block;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    overflow-y: hidden;
+}
+.members-image {
+    margin-top: -20px;
+    position: relative;
+    right: 3px;
+    bottom: 7px;
+    width: 10px;
+}
+
+.modal-members {
+    position: absolute;
+    width:680px !important;
+    opacity: 1;
+    z-index: 101;
+    left: 50%;
+    margin-left: -349px !important;
+    top: 120px;
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+}
 </style>
 
 <%
@@ -483,9 +525,50 @@ a{
             break
     community_id = community.id
 %>
+<!--Hide info and html-->
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
+<div class="sidebar-section" style="display:none">
+    <h2>Members</h2>
+    <div id="members_container" class="">
+    <table class="members-container" cellspacing="" cellpadding="" border="0">
+        <% active_users_count = 0 %>
+        %for u in users:
+            <%
+            use = u.user
+            utc_month=datetime.datetime.utcnow().strftime("%m")
+            utc_day=datetime.datetime.utcnow().strftime("%d")
+            utc_h=datetime.datetime.utcnow().strftime("%H")
+            utc_m=datetime.datetime.utcnow().strftime("%M")
+            d_min = 60*int(utc_h) + int(utc_m)
+            if use.profile.last_activity:
+                usr=use.profile.last_activity
+                u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+                close = int(d_min) - int(u_min) < 1
+                active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+            else:
+                active_recent = False   
+            %>
+            <tr><td>
+            %if not active_recent:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %else:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %endif
+            <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+            <span class="members-name">${use.first_name} ${use.last_name}</span></a>
+            %if active_recent:
+                <% active_users_count += 1 %>
+                <img src ="/static/images/online-3.png" data-skypename='${use.profile.skype_username}' data-fname='${use.first_name}' data-lname="${use.last_name}" data-username='${use.username}' data-email='${use.email}' data-id='${use.id}' width="" class="members-image circle"></img>
+            %endif
+            </td></tr>
+        %endfor
+    </table>
+    </div>
+</div>
+
+<!--Html page-->
 <section class="content-wrapper-community">
     <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
@@ -602,8 +685,8 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-other-count">82</div>
-                                    <div class="top-other-ico">
+                                    <div class="top-activeusers-count">${active_users_count}</div>
+                                    <div class="top-activeusers-ico">
                                         <img src="/static/images/community_new/newcommunity-chat.png" height="20">
                                     </div>
                                     <div class="top-like-count">83</div>
@@ -635,7 +718,7 @@ a{
                 <div class="sub-title">Community Status</div>
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
-                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a>[view]</a></div>
+                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities">
                         <div style="font-size:14px;float:left;">My Communities</div>
                         <div class="my-communities-triangle"></div>
@@ -697,7 +780,18 @@ a{
         <div style="clear:both;"></div>
     </div>
 </section>
-<div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+
+<!--Windows modal-->
+<div id="dlg-members" class="modal modal-members">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div id="dlg-warning" class="modal bootstrap-iso" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -706,7 +800,7 @@ a{
         <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal bootstrap-iso" id="dlg-upload_picture" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
+<div id="dlg-upload_picture" class="modal bootstrap-iso" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -737,7 +831,7 @@ a{
         </div>
     </div>
 </div>
-<div class=" modal bootstrap-iso" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div  id="dlg-add-training" class=" modal bootstrap-iso" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
@@ -873,7 +967,6 @@ a{
     </div>
 </div>
 
-
 <script type="text/javascript">  
     //email facilitator
     $(".user-email-btn").click(function(){
@@ -895,8 +988,7 @@ a{
                 $(".email-facilitator-error").text(data.result);
                 $(".email-facilitator-error").show();
                 $(".email-facilitator-message").val("");
-        });
-        
+        }); 
     });
 
     //menu facilitator
@@ -907,6 +999,36 @@ a{
         $(".facilitator-menu").hide("fast");
     });
     
+    //coummunity status view
+    $("#members_view_all").click(function(e){
+        e.preventDefault();
+        var members_dialog = new Dialog($('#dlg-members'));
+        members_dialog.show('Members', $("#members_container").html());
+        $(".circle").click(function(event){
+            event.preventDefault();
+            scroll(0,0);
+            $(".hangout-span").hide();
+            $("#hangout_span_"+$(this).data('id')).show();
+            $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
+            $("#skype-online-name").text("");
+            $("#skype-name-exists").text("Begin a call with: ");
+            $("#skype-name-exists-toggle").show();
+            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("data-id"));
+            $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
+            $("#message_board_data").attr("data-name", $(this).attr("data-username"));
+            $("#message_board_data").attr("data-id", $(this).attr("data-id"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }            main_dlg=new Dialog($('#online_dialog'));
+            main_dlg.show("Error", "");
+            return false;
+        });
+    })
+
     //resources see more btn
     $(".btn-seemore-r").click(function(){
         $(".every-resource-more").show();
@@ -1569,6 +1691,7 @@ a{
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+
         %if user_super:
             var access_level = 'System';
         %else:
