@@ -2063,10 +2063,8 @@ def new_process_get_discussions(request):
     id = 0
     size = request.POST.get('size')
     mongo3_store = community_discussions_store()
-    c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
 
     html = ""
-    # total = int(CommunityDiscussions.objects.filter(community=c).count())
     total = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, 0).count()
     if total >= int(size):
         all = "NO"
@@ -2074,22 +2072,95 @@ def new_process_get_discussions(request):
         all = "DONE"
     else:
         all = "DONE"
-    discussions = CommunityDiscussions.objects.filter(community=c).order_by('-date_create')[0:size]
-    # discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, int(size))
-    views_connect = view_counter_store()
-    for disc in discussions:
-        views_object = views_connect.get_item('discussion', str(disc.id))
-        # views_object = mongo3_store.find_one({"type": "discussion", "identifier": disc["did"]})
-        if views_object is None:
-            views = 0
-        else:
-            views = views_object['views']
 
-        html += "<div class = 'discussion'><img class='discussion-avatar' src ='" + reverse('user_photo', args=[disc.user_id]) + "'>"
-        re = int(CommunityDiscussionReplies.objects.filter(discussion=disc).count())
-        html += "<div class = 'discussion-stats'><span>Replies: " + str(re) + "</span><span>Views: " + str(views) + "</span>"
-        html += "</div><h2><a href='" + reverse('community_discussion_view', args=[disc.id]) + "'>" + disc.subject + "</a></h2>"
-        html += "<div class='discussion-post-info'><div class='discussion-byline'><span>Posted By: </span>" + disc.user.first_name + " " + disc.user.last_name + "</div>"
-        html += "<div class='discussion-date'><span> On: </span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc.date_create) + "</div>"
+    discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, int(size))
+    for disc in discussions:
+        user = User.objects.get(id=disc['user'])
+        # views_object = mongo3_store.find_one({"db_table": "view_counter", "type": "discussion", "identifier": str(disc["did"])})
+        # if views_object is None:
+        #     views = 0
+        # else:
+        #     views = views_object['views']
+
+        # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
+
+        tmp_reply = ""
+        for itemx_1 in mongo3_store.get_community_discussion_replies(disc['did']):
+            user_1 = User.objects.get(id=itemx_1['user'])
+
+            tmp_reply_next = ""
+            for itemx_2 in mongo3_store.get_community_discussion_replies_next(itemx_1['_id']):
+                user_2 = User.objects.get(id=itemx_2['user'])
+                tmp_reply_next += "<span class='dis_reply_left'>"
+                tmp_reply_next += "    <img class='user_phone' src ='" + reverse('user_photo', args=[str(itemx_2['user'])]) + "' />"
+                tmp_reply_next += "</span>"
+                tmp_reply_next += "<span class='dis_reply_next_right'>"
+                tmp_reply_next += "    <div class='dis_row'>"
+                tmp_reply_next += "        <span class='dis_subject'>" + itemx_2['subject'] + "</span>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "    <div class='dis_row'>"
+                tmp_reply_next += "        <div class='dis_post'>" + itemx_2['post'] + "</div>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "    <div class='dis_row dis_reply_next_tool'>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
+                tmp_reply_next += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "</span>"
+
+            tmp_reply += "<span class='dis_reply_left'>"
+            tmp_reply += "    <img class='user_phone' src ='" + reverse('user_photo', args=[str(itemx_1['user'])]) + "' />"
+            tmp_reply += "</span>"
+            tmp_reply += "<span class='dis_reply_right'>"
+            tmp_reply += "    <div class='dis_row'>"
+            tmp_reply += "        <span class='dis_subject'>" + itemx_1['subject'] + "</span>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_row'>"
+            tmp_reply += "        <div class='dis_post'>" + itemx_1['post'] + "</div>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_row dis_reply_tool'>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
+            tmp_reply += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_reply'>" + tmp_reply_next + "</div>"
+            tmp_reply += "</span>"
+
+        html += "<div class='center_block'>"
+        html += "    <span class='center_block_left'>"
+        html += "        <img class='user_phone' src ='" + reverse('user_photo', args=[str(disc['user'])]) + "' />"
+        html += "    </span>"
+        html += "    <span class='center_block_right'>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_subject'>" + disc['subject'] + "</span>"
+        html += "            <span class='dis_subject_pin icon-aw icon-pushpin'></span>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <div class='dis_post'>" + disc['post'] + "</div>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>"
+        html += "            <span class='dis_posted_by_first_name'>" + user.first_name + "</span>"
+        html += "            <span class='dis_posted_tool'>"
+        html += "                <span class='icon-aw icon-comment'> Comment</span>"
+        html += "                <span class='icon-aw icon-thumbs-up'> Like</span>"
+        html += "                <span class='icon-aw icon-edit'> Edit</span>"
+        html += "                <span class='icon-aw icon-reorder dis_more' levelx='1'> More</span>"
+        html += "            </span>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>"
+        html += "            <span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc['date_create']) + "</span>"
+        html += "            <span class='dis_posted_tool'>"
+        html += "                <a href='#'><span class='icon-aw icon-thumbs-up' style='color:#25B8EB'> Ginger Jiang and 32 others liked this.</span></a>"
+        html += "            </span>"
+        html += "        </div>"
+        html += "        <div class='dis_reply'>" + tmp_reply + "</div>"
+        html += "    </span>"
+        html += "</div>"
+
         html += "</div><div class='community-clear'></div></div>"
+
     return HttpResponse(json.dumps({'id': id, 'Success': 'True', 'all': all, 'content': html, 'community': request.POST.get('community_id')}), content_type='application/json')
