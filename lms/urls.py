@@ -459,6 +459,8 @@ urlpatterns = (
     url(r'^community/user/email-valid', 'communities.views.community_user_email_valid', name='community_user_email_valid'),
     url(r'^community/email-facilitator', 'communities.views.email_facilitator', name='community_email_facilitator'),
 
+    url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
+
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),

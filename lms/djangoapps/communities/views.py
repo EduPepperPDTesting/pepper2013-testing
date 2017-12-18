@@ -15,7 +15,7 @@ import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts, community_discussions_store
 # from .models import CommunityPostTops
 from administration.pepconn import get_post_array
 from operator import itemgetter
@@ -2006,6 +2006,7 @@ def top_post(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 #@end
 
+
 def community_user_email_completion(request):
     r = list()
     user_district = request.user.profile.district
@@ -2019,6 +2020,7 @@ def community_user_email_completion(request):
         for item in data:
             r.append(item.email)
     return render_json_response(r)
+
 
 def community_user_email_valid(request):
     exists = False
@@ -2040,3 +2042,54 @@ def community_user_email_valid(request):
         check_result = "3"
 
     return render_json_response(check_result)
+
+
+def new_discussion_process(request):
+    get_flag = request.GET.get("flag")
+    post_flag = request.POST.get("flag")
+
+    if get_flag:
+        if get_flag == "organization_list":
+            return organization_list(request)
+
+    elif post_flag:
+        if post_flag == "get_discussions":
+            return new_process_get_discussions(request)
+
+
+# -------------------------------------------------------------------new_process_get_discussions
+@login_required
+def new_process_get_discussions(request):
+    id = 0
+    size = request.POST.get('size')
+    mongo3_store = community_discussions_store()
+    c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+
+    html = ""
+    # total = int(CommunityDiscussions.objects.filter(community=c).count())
+    total = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, 0).count()
+    if total >= int(size):
+        all = "NO"
+    elif total == 0:
+        all = "DONE"
+    else:
+        all = "DONE"
+    discussions = CommunityDiscussions.objects.filter(community=c).order_by('-date_create')[0:size]
+    # discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, int(size))
+    views_connect = view_counter_store()
+    for disc in discussions:
+        views_object = views_connect.get_item('discussion', str(disc.id))
+        # views_object = mongo3_store.find_one({"type": "discussion", "identifier": disc["did"]})
+        if views_object is None:
+            views = 0
+        else:
+            views = views_object['views']
+
+        html += "<div class = 'discussion'><img class='discussion-avatar' src ='" + reverse('user_photo', args=[disc.user_id]) + "'>"
+        re = int(CommunityDiscussionReplies.objects.filter(discussion=disc).count())
+        html += "<div class = 'discussion-stats'><span>Replies: " + str(re) + "</span><span>Views: " + str(views) + "</span>"
+        html += "</div><h2><a href='" + reverse('community_discussion_view', args=[disc.id]) + "'>" + disc.subject + "</a></h2>"
+        html += "<div class='discussion-post-info'><div class='discussion-byline'><span>Posted By: </span>" + disc.user.first_name + " " + disc.user.last_name + "</div>"
+        html += "<div class='discussion-date'><span> On: </span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc.date_create) + "</div>"
+        html += "</div><div class='community-clear'></div></div>"
+    return HttpResponse(json.dumps({'id': id, 'Success': 'True', 'all': all, 'content': html, 'community': request.POST.get('community_id')}), content_type='application/json')
