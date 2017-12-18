@@ -1671,7 +1671,7 @@
 		content += '<label>Site Page Name:<input type="text" name="Design_name" placeholder="Name" value="' + name + '"></label>';
 		
 		if(type != "edit"){
-			content += '<label>Copy from:<select name="design_copy_from"><option value="">Select Design</option>';
+			content += '<label>Copy from:<select name="design_copy_from"><option value="">Select Site Page</option>';
 			$(".design_next").each(function(){
 				content += '<option value="' + $(this).attr("href").replace("#", "") + '">' + $(this).html() + '</option>';
 			});
@@ -3121,7 +3121,7 @@
 		$("#design_dashboard_demo_div").empty();
 		var menu_color = $("#design_menu_color").val();
 		$("#design_dashboard_demo_div").css("backgroundColor", menu_color);
-		var logo = $("#design_base_home_logo_p").next().find("img").clone(true);
+		var logo = $("#design_menu_logo_p").next().find("img").clone(true);
 		if(logo.length > 0){
 			logo.removeAttr("width");
 			logo.attr("height", 58);
