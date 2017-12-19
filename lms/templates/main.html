@@ -24,9 +24,17 @@
     organization_active = False
     footer = False
     if not request.user.is_authenticated():
-        design = "" 
-        for tmp1 in  Nologindesign.objects.filter(DesignName=urlname):
-            design = tmp1
+        design = ""
+        while True:
+            for tmp1 in Nologindesign.objects.filter(DesignName=urlname):
+                design = tmp1
+            if design:
+                break
+            elif len(urlname)>8:
+                a = urlname.rfind('/')
+                urlname = urlname[0:a]
+            else:
+                break
         if design:
             new_nologin_flag = "1"
             organization_obj = design
