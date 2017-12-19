@@ -8,7 +8,7 @@ function popWin(obj){
 	var _tit= _obj.find(".tit");
 	var _cls =_obj.find(".close");
 	var docE =document.documentElement;
-	var left=($(document).width()-_obj.width())/2 + document.documentElement.scrollLeft;
+	var left=(docE.clientWidth -_obj.width())/2 + document.documentElement.scrollLeft;
 	var top =(docE.clientHeight-_obj.height())/2 + document.documentElement.scrollTop;
 	_obj.css({	"left":left,"top":top,"display":"block","z-index":_z-(-1)});
 			
