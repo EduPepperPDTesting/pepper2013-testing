@@ -284,7 +284,13 @@
         % endif
         
         
-        <ol class="pepper-nav-courseware" style="margin-top: 15px">
+        <ol class="pepper-nav-courseware" style="margin-top:
+        % if org_data['Is Icon'] == "0":
+            15px
+        % else:
+            25px
+        % endif
+        ">
             <!-- <li><a class="pepper-main-link" href="${absolute_url('/shopping')}" target="_blank"><img src="${absolute_url('/static/images/index_login_cart-537824274.png')}" /></a></li> -->
             <li class="pepper-nav-courseware-01">
                 % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
