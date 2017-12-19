@@ -1,9 +1,3 @@
-/***
- * 小鸟弹出层插件，由漫画Jquery弹出层插件改编而来
- * QQ:9169775
- * 编写时间：2013年3月21号
- * version:1.0
-***/
 function popWin(obj){
 	var _z=9000;//新对象的z-index
 	var _mv=false;//移动标记
@@ -14,8 +8,8 @@ function popWin(obj){
 	var _tit= _obj.find(".tit");
 	var _cls =_obj.find(".close");
 	var docE =document.documentElement;
-	var left=($(document).width()-_obj.width())/2;
-	var top =(docE.clientHeight-_obj.height())/2;
+	var left=($(document).width()-_obj.width())/2 + document.documentElement.scrollLeft;
+	var top =(docE.clientHeight-_obj.height())/2 + document.documentElement.scrollTop;
 	_obj.css({	"left":left,"top":top,"display":"block","z-index":_z-(-1)});
 			
 	_tit.mousedown(function(e){
