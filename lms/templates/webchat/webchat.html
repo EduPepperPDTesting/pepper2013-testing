@@ -1,3 +1,8 @@
+<%!
+    from django.core.urlresolvers import reverse
+    from file_uploader.utils import get_file_url, get_file_name
+%>
+
 <link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
 
 <div class="pep_textchat_block">
@@ -6,20 +11,44 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-    $(".pep_textchat_block").on("click", ".hide-chat", function(){
-        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
-        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
-        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-220px");
-        $(this).siblings(".open-chat").css("display","inline-block");
-        $(this).css("display", "none");
-    });
+    $(".pep_textchat_block").on("click", ".pep_textchatheader_container", function(e){
 
-    $(".pep_textchat_block").on("click", ".open-chat", function(){
-        $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
-        $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
-        $(this).parents(".pep_text_container").find(".pep_text_panel").css("bottom","-10px");
-        $(this).siblings(".hide-chat").css("display","inline-block");
-        $(this).css("display", "none");
+        if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
+
+            var getId = $(this).find(".pep_header_left").attr("id");
+            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+
+            if($(this).parents(".pep_text_container").css("bottom") !== "-210px"){
+                $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
+                $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
+                $(this).parents(".pep_text_container").css("bottom","-210px");
+
+                for (var arrInd in chatHeads){
+                    headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                    headData = headData.substring(0, headData.indexOf("`"));
+                    console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
+                    if(headData == getId){
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
+                        break;
+                    }
+                }
+            }else{
+                $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
+                $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
+                $(this).parents(".pep_text_container").css("bottom","0px");
+
+                for (var arrInd in chatHeads){
+                    headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                    headData = headData.substring(0, headData.indexOf("`"));
+                    if(headData == getId){
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
+                        break;
+                    }
+                }
+
+            }
+            sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+        }
     });
 
     $(".pep_textchat_block").on("click", ".close-chat", function(){
@@ -34,20 +63,147 @@ $(document).ready(function(){
                 $(el).css({"right": "", "left": leftX + "px"});
             }
         });
+        var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+        var headData;
+        var leftX;
+        for (var arrInd in chatHeads){
+            headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+            headData = headData.substring(0, headData.indexOf("`"));
+            if(headData == getId){
+                leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
+                chatHeads.splice(arrInd, 1);
+                break;
+            }
+        }
+        var movedHeads=[];
+        var itemStart, itemEnd;
+        for(var i=0; i<arrInd; i++){
+            movedHeads[i]=chatHeads[i];
+        }
+        for(i - 1; i<chatHeads.length; i++){
+            itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
+            itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
+            movedHeads[i] = itemStart + leftX + itemEnd;
+            leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
+        }
+        sessionStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
+        return false;
     });
 
 
-    $("#pep_textchat_block").on("change", "#pep_file_input", function(){
+    $(".pep_textchat_block").on("change", ".pep_file_input", function(){
         console.log("pep_file_input");
-        $(this).parents("#pep_attachment_form").find("#input_label").css("display", "none");
-        $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "inline-block");
+        $(this).parents(".pep_attachment_form").find("#input_label").css("display", "none");
+        $(this).parents(".pep_attachment_form").find("#submit_label").css("display", "inline-block");
     });
-     $("#pep_textchat_block").on("click", "#pep_send_image", function(){
-        console.log("send_image");
-        $(this).parents("#pep_attachment_form").find("#submit_label").css("display", "none");
-        $(this).parents("#pep_attachment_form").find("#input_label").css("display", "inline-block");
+     $(".pep_textchat_block").on("click", ".pep_send_message", function(){
+        var getId = $(this).attr("data-user_id");
+
+        if($(this).closest(".pep_chat_icons").prev(".pep_chat_input").val() !== ""){
+            sendChatMessage(getId, $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val());
+            $(this).closest(".pep_chat_icons").prev(".pep_chat_input").val("");
+        }
+
+        var form =  $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form")[0];
+        var formData = new FormData(form);
+
+        if(formData){
+            $.ajax({type: "POST", url: "${reverse('chat_attachment', args=[request.user.id])}", data: formData, contentType: false, processData: false, success: function (data) {
+                console.log("textchat="+data.textchatID+" data.Success="+data.Success);
+                setTimeout(function(){}, 5000);
+                if(data.Success){
+                    console.log("getAttachmentID="+data.fileObjID);
+                    $.post("${reverse('read_attachment')}", {'attachment_id': data.fileObjID}, function(data) {
+                        console.log("data.success="+data.success);
+                        if(data.success){
+                            //alert("textchat="+data.textchatID+" attachment url="+data.attachURL+" attachment name="+data.attachName);
+                            var attachDiv = '<div class="pep_file_download"><span>Attachment: </span><a href="'+data.attachURL+'" target="_blank"><img src="/static/images/document-download.png"> '+data.attachName+'</a></div>';
+                        }else{
+                            var attachDiv = '<div class="pep_file_download"><span>Error. </span><span>'+data.Error+'</span> </div>';
+                        }
+                        //$(".pep_textchat_block").find("#textchat_"+data.textchatID).append(attachDiv);
+                        sendChatMessage(data.textchatID, attachDiv);
+                    });
+                }
+            }}).fail(function (jqXHR, textStatus) {
+               console.log("attachment failed");
+            });
+        }
+        $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form").find("#submit_label").css("display", "none");
+        $(this).parent().siblings(".pep-image-upload").children(".pep_attachment_form").find("#input_label").css("display", "inline-block");
     });
 
+    $(".pep_textchat_block").on("click", ".pep_send_image", function(){
+        $(this).closest(".pep_attachment_form")[0].reset();
+        $(this).parent().parent().css("display", "none");
+        $(this).parent().parent().siblings("#input_label").css("display", "inline-block");
+    });
+
+    function sendChatMessage (send_user, message) {
+        console.log(send_user+message);
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': send_user.toString(),
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){});
+        var messageinfo = {
+            'info': JSON.stringify({
+                'user_id': send_user.toString(),
+                'interviewer_id': '${request.user.id}',
+                'interviewer_name': '${request.user.first_name}',
+                'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                'type': 'message',
+                'body': message,
+                'date': (new Date()).toISOString(),
+                'activate': 'false'
+            })
+        };
+
+        getMessage(send_user);
+
+        $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        $.post("${reverse('send_webchat_alert')}", {'id': ${request.user.id}, 'to_id': send_user}, function (){});
+    }
+
+    function getMessage (id) {
+        console.log("id="+id);
+        $.post("${reverse('get_message')}", {
+            message_people: id,
+            skip: 0,
+            limit: 10
+        }, function(data) {
+            $("#textchat_"+id).html("");
+            $.each(data.results, function(k, v) {
+                var image = "<table class='pepchat_row'><tr><td class='pepchat_img'><img src='/user_photo/"+ v.sender_id+"' style = 'width:16px; height:16px;'></img></td><td><span class='pepchat_body'>";
+                date = new Date(v.date);
+                console.log(date);
+                if (date.getHours() > 11) end = "p"; else end = "a";
+                time =date.toLocaleTimeString().slice(0, -6) + end + ", " +  date.toLocaleDateString().slice(0,-5) ;
+                $("#textchat_"+id).prepend(image + v.body + "</span><br><span class='pepchat_time'>" + time + "<span></td></tr></table><hr class='pepchat_hr'>");
+            });
+            try {
+                $("#textchat_"+id).scrollTop($('#textchat_'+id)[0].scrollHeight);
+            } catch (err) {
+                getMessage(id);
+            }
+            $(".pep_chat_input[data-to_id='"+id+"']").unbind();
+            tieListener(id);
+        });
+    }
+    function tieListener(user_id) {
+        $(".pep_chat_input[data-to_id='"+user_id+"']").keyup(function (e) {
+            if (e.keyCode == 13) {
+                sendChatMessage($(this).data("to_id"), $(this).val());
+                $(this).val("");
+                $("#pep_message_"+user_id).trigger("click");
+            }
+        });
+    }
 });
 </script>
