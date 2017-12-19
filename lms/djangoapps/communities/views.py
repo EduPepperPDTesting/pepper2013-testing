@@ -473,7 +473,7 @@ def maincommunity(request, community_id):
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered',user=request.user)
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community,user__profile__subscription_status='Registered',user=request.user)
     if ruser_in_commumity:
         ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
         ruser_info['edit'] = ruser_in_commumity[0].community_edit

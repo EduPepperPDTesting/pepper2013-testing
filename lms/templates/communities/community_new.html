@@ -52,7 +52,10 @@ import datetime
 .form-row input{color: #222 !important;}
 .form-row textarea{color: #222 !important;}
 
-h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;}
+h1, h2, section.outside-app h1, h3, h4, h5, h6{
+/*font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;*/
+font: normal 1.2em/1.2em;
+}
 
 #dlg-warning{height: 210px;}
 
@@ -404,17 +407,26 @@ a{
 .con-main-all .con-main-info-motto{
     width:340px;font-size:13px;line-height:18px;height:92px;
 }
-.con-main-all #btn-join{
-    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+.con-main-all #btn-join, .con-main-all #btn-leave{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;cursor:pointer;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
 }
 .con-main-all #btn-join:hover{
     background-color:#8acc4a;
 }
-.con-main-all #btn-leave{
-    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
-}
+
 .con-main-all #btn-leave:hover{
-    background-color:#8acc4a;
+    background-color:#F5821F;
+}
+.con-main-all #btn-leave-facilitator{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
 }
 .con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
@@ -499,7 +511,7 @@ a{
     width: 10px;
 }
 
-.modal-members {
+.modal-members ,.modal-members-sendmessage{
     position: absolute;
     width:680px !important;
     opacity: 1;
@@ -700,9 +712,15 @@ a{
                                 </div>
                                 <div style="text-align:right;">
                                     %if ruser_info['is_member']:
-                                        <span id="btn-join">Leave</span>
+                                        %if not ruser_info['facilitator']:
+                                            <span id="btn-leave" onclick="leaveCommunity()">Member</span>
+                                        %else:
+                                            <span id="btn-leave-facilitator">Member</span>
+                                        %endif
                                     %else:
-                                        <span id="btn-leave">Join</span>
+                                        %if not community.private:
+                                            <span id="btn-join" onclick="joinMe()">Join</span>
+                                        %endif
                                     %endif
                                 </div>
                             </td>
@@ -782,7 +800,7 @@ a{
 </section>
 
 <!--Windows modal-->
-<div id="dlg-members" class="modal modal-members">
+<div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -790,6 +808,37 @@ a{
         </div>
         <div class="content"></div>
     </div>
+</div>
+<div id="dlg-members" class="modal modal-members">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar" style="text-align:center;">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="online_dialog" class="modal modal-members-sendmessage">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+        <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+        <div style="display:inline-block;vertical-align:top;">
+            <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
+            <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
+        </div>
+        <br><br>
+        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+            <div class="message_board_btn" id="message_board_data" data-fullname="" data-name="${user.username}" data-id="${user.user_id}" onclick="imessage_click(this);">
+                <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                <div id="" style="display:none;"></div>
+            </div>
+        </a>
+    </div>
+  </div>
 </div>
 <div id="dlg-warning" class="modal bootstrap-iso" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
@@ -1029,12 +1078,51 @@ a{
         });
     })
 
+    $("#btn-leave").mouseenter(function(){
+        $(this).html("Leave");
+    });
+    $("#btn-leave").mouseleave(function(){
+        $(this).html("Member");
+    });
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+
+    function leaveCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                       window.location.replace("${reverse('newcommunities')}");
+                       //window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       //return redirect(reverse('dashboard'));
+                });
+            }
+        });
+    }
+
     //resources see more btn
     $(".btn-seemore-r").click(function(){
         $(".every-resource-more").show();
         $(this).hide();
         $(".resource-removeline").removeClass('border-zero');
     });
+
+    //members modal send web inner message btn
+    function imessage_click(obj){
+        var userInfo=[];
+        userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
+        message_board(userInfo);
+    }
 </script>
 <script type="text/javascript">
     function newCourse() {
@@ -1759,6 +1847,11 @@ a{
             source: function (request, response) {
                 $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
+        });
+
+        //send message close btn in navigation
+        $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
         });
     });
 </script>
