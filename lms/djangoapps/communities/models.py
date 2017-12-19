@@ -203,6 +203,12 @@ class CommunityDiscussionsStore(MongoBaseStore):
     def get_community_discussions(self, community_id, page=0, size=0):
         return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
 
+    def get_community_discussions_id(self):    
+        max_id = 0
+        for itemx in self.collection.find({"db_table": "community_discussions"}).limit(1).sort("did", -1):
+            max_id = int(itemx['did']) + 1
+        return max_id
+
     def get_community_discussion_replies(self, discussion_id):
         return self.collection.find({"discussion_id": discussion_id, "db_table": "community_discussion_replies"}).sort("date_create", -1)
 

@@ -15,7 +15,7 @@ import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts, community_discussions_store
 # from .models import CommunityPostTops
 from administration.pepconn import get_post_array
 from operator import itemgetter
@@ -473,7 +473,7 @@ def maincommunity(request, community_id):
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.filter(community=community_id,user__profile__subscription_status='Registered',user=request.user)
+    ruser_in_commumity = CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered',user=request.user)
     if ruser_in_commumity:
         ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
         ruser_info['edit'] = ruser_in_commumity[0].community_edit
@@ -485,16 +485,50 @@ def maincommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
-    community_info = {'community': community,
-                      'facilitator': facilitator,
-                      'ruser_info': ruser_info}
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
 
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    if items:
+        for item in items:
+            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
+                else:
+                    if len(itmes_all) > 1:
+                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
+
+    else:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+        for item in items:
+            my_communities_list.append({'id': item.id, 'name': item.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
                             'district': community.district.id if community.district else '',
                             'user_super': user_super}
-
-    data.update(community_info)
     data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list}
+    data.update(community_info)
 
     return render_to_response('communities/community_new.html', data)
 
@@ -1972,6 +2006,7 @@ def top_post(request):
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 #@end
 
+
 def community_user_email_completion(request):
     r = list()
     user_district = request.user.profile.district
@@ -1985,6 +2020,7 @@ def community_user_email_completion(request):
         for item in data:
             r.append(item.email)
     return render_json_response(r)
+
 
 def community_user_email_valid(request):
     exists = False
@@ -2006,3 +2042,125 @@ def community_user_email_valid(request):
         check_result = "3"
 
     return render_json_response(check_result)
+
+
+def new_discussion_process(request):
+    get_flag = request.GET.get("flag")
+    post_flag = request.POST.get("flag")
+
+    if get_flag:
+        if get_flag == "organization_list":
+            return organization_list(request)
+
+    elif post_flag:
+        if post_flag == "get_discussions":
+            return new_process_get_discussions(request)
+
+
+# -------------------------------------------------------------------new_process_get_discussions
+@login_required
+def new_process_get_discussions(request):
+    id = 0
+    size = request.POST.get('size')
+    mongo3_store = community_discussions_store()
+
+    html = ""
+    total = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, 0).count()
+    if total >= int(size):
+        all = "NO"
+    elif total == 0:
+        all = "DONE"
+    else:
+        all = "DONE"
+
+    discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, int(size))
+    for disc in discussions:
+        user = User.objects.get(id=disc['user'])
+        # views_object = mongo3_store.find_one({"db_table": "view_counter", "type": "discussion", "identifier": str(disc["did"])})
+        # if views_object is None:
+        #     views = 0
+        # else:
+        #     views = views_object['views']
+
+        # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
+
+        tmp_reply = ""
+        for itemx_1 in mongo3_store.get_community_discussion_replies(disc['did']):
+            user_1 = User.objects.get(id=itemx_1['user'])
+
+            tmp_reply_next = ""
+            for itemx_2 in mongo3_store.get_community_discussion_replies_next(itemx_1['_id']):
+                user_2 = User.objects.get(id=itemx_2['user'])
+                tmp_reply_next += "<span class='dis_reply_left'>"
+                tmp_reply_next += "    <img class='user_phone' src ='" + reverse('user_photo', args=[str(itemx_2['user'])]) + "' />"
+                tmp_reply_next += "</span>"
+                tmp_reply_next += "<span class='dis_reply_next_right'>"
+                tmp_reply_next += "    <div class='dis_row'>"
+                tmp_reply_next += "        <span class='dis_subject'>" + itemx_2['subject'] + "</span>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "    <div class='dis_row'>"
+                tmp_reply_next += "        <div class='dis_post'>" + itemx_2['post'] + "</div>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "    <div class='dis_row dis_reply_next_tool'>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
+                tmp_reply_next += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
+                tmp_reply_next += "    </div>"
+                tmp_reply_next += "</span>"
+
+            tmp_reply += "<span class='dis_reply_left'>"
+            tmp_reply += "    <img class='user_phone' src ='" + reverse('user_photo', args=[str(itemx_1['user'])]) + "' />"
+            tmp_reply += "</span>"
+            tmp_reply += "<span class='dis_reply_right'>"
+            tmp_reply += "    <div class='dis_row'>"
+            tmp_reply += "        <span class='dis_subject'>" + itemx_1['subject'] + "</span>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_row'>"
+            tmp_reply += "        <div class='dis_post'>" + itemx_1['post'] + "</div>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_row dis_reply_tool'>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
+            tmp_reply += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
+            tmp_reply += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
+            tmp_reply += "    </div>"
+            tmp_reply += "    <div class='dis_reply'>" + tmp_reply_next + "</div>"
+            tmp_reply += "</span>"
+
+        html += "<div class='center_block'>"
+        html += "    <span class='center_block_left'>"
+        html += "        <img class='user_phone' src ='" + reverse('user_photo', args=[str(disc['user'])]) + "' />"
+        html += "    </span>"
+        html += "    <span class='center_block_right'>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_subject'>" + disc['subject'] + "</span>"
+        html += "            <span class='dis_subject_pin icon-aw icon-pushpin'></span>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <div class='dis_post'>" + disc['post'] + "</div>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>"
+        html += "            <span class='dis_posted_by_first_name'>" + user.first_name + "</span>"
+        html += "            <span class='dis_posted_tool'>"
+        html += "                <span class='icon-aw icon-comment'> Comment</span>"
+        html += "                <span class='icon-aw icon-thumbs-up'> Like</span>"
+        html += "                <span class='icon-aw icon-edit'> Edit</span>"
+        html += "                <span class='icon-aw icon-reorder dis_more' levelx='1'> More</span>"
+        html += "            </span>"
+        html += "        </div>"
+        html += "        <div class='dis_row'>"
+        html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>"
+        html += "            <span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc['date_create']) + "</span>"
+        html += "            <span class='dis_posted_tool'>"
+        html += "                <a href='#'><span class='icon-aw icon-thumbs-up' style='color:#25B8EB'> Ginger Jiang and 32 others liked this.</span></a>"
+        html += "            </span>"
+        html += "        </div>"
+        html += "        <div class='dis_reply'>" + tmp_reply + "</div>"
+        html += "    </span>"
+        html += "</div>"
+
+        html += "</div><div class='community-clear'></div></div>"
+
+    return HttpResponse(json.dumps({'id': id, 'Success': 'True', 'all': all, 'content': html, 'community': request.POST.get('community_id')}), content_type='application/json')
