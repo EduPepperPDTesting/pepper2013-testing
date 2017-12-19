@@ -703,7 +703,7 @@ def create_report_collection2(request, report, selected_view, columns, filters, 
     year = request.GET.get('school_year', '')
     school_year = ''
     if year:
-        school_year = str(school_year).replace("-","_")
+        school_year = str(year).replace("-","_")
     aggregate_collection = get_aggregate_collection(selected_view, year)
     query = get_query_display(columns)
     query = query.replace('\n', '').replace('\r', '')
@@ -1006,6 +1006,9 @@ def report_get_progress(request, report_id):
     school_year = request.GET.get('school_year', '')
     rs = reporting_store()
     collection = get_cache_collection(request, report_id, school_year)
+    report = report.objects.get(pk=report_id)
+    if report.report_type == "1":
+        collection = collection + "aggregate"
     stats = int(rs.get_collection_stats(collection)['ok'])
     return render_json_response({'success': stats, 'collection':collection})
 
