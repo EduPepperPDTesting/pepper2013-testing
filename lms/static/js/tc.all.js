@@ -34,18 +34,19 @@ function popWin(obj){
 		if(_mv){
 			var x=e.pageX-_x;//移动时根据鼠标位置计算控件左上角的绝对位置
 			if(x<=0){x=0};
-			x=Math.min(docE.clientWidth-_wid,x)-5;
+			x=Math.min(docE.clientWidth+document.documentElement.scrollLeft-_wid,x)-5;
 			var y=e.pageY-_y;
 			if(y<=0){y=0};
-			y=Math.min(docE.clientHeight-_hei,y)-5;
+			y=Math.min(docE.clientHeight+document.documentElement.scrollTop-_hei,y)-5;
 			_obj.css({
 				top:y,left:x
 			});//控件新位置
 		}
 	});
 
-			_cls.live("click",function(){
-		$(this).parent().parent().hide().siblings("#maskLayer").remove();
+	_cls.live("click",function(){
+		$(this).parent().parent().hide();
+		$("#maskLayer").remove()
 	});
 			
 	$('<div id="maskLayer"></div>').appendTo("body").css({

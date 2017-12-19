@@ -271,7 +271,7 @@ var report_view = {
         init:function(){
             var self = this;
             clearInterval(self.timeID);
-            self.timeID = setInterval(self.show_progress, 4000, self);
+            self.timeID = setInterval(self.show_progress, 400, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
             });
@@ -309,7 +309,7 @@ var report_view = {
         show_progress: function(obj){
             var self = this;
             $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
-                if (data != null) {                 
+                if (data != null) {
                     if(data.success)
                     {
                         obj.reloadTable()
