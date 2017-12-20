@@ -40,11 +40,17 @@ def main(request):
         if get_flag == "organization_list":
             return organization_list(request)
 
+        elif get_flag == "design_list":
+            return design_list(request)
+
         elif get_flag == "checkPost":
             return organization_check(request)
 
         elif get_flag == "organization_get":
             return organization_get(request)
+
+        elif get_flag == "design_get":
+            return design_get(request)
 
         elif get_flag == "organization_main_get":
             return organization_main_page_configuration_get(request)
@@ -62,14 +68,26 @@ def main(request):
         if post_flag == "organization_add":
             return organization_add(request)
 
+        elif post_flag == "design_add":
+            return design_add(request)
+
         elif post_flag == "organization_delete":
             return organization_delete(request)
+
+        elif post_flag == "design_delete":
+            return design_delete(request)
 
         elif post_flag == "organizational_save_base":
             return organizational_save_base(request)
 
+        elif post_flag == "design_save_base":
+            return design_save_base(request)
+
         elif post_flag == "org_upload":
             return org_upload(request)
+
+        elif post_flag == "design_upload":
+            return design_upload(request)
 
         elif post_flag == "organizational_save_main_base":
             return organizational_save_main_base(request)
@@ -79,6 +97,9 @@ def main(request):
 
         elif post_flag == "org_dashboard_upload":
             return org_dashboard_upload(request)
+
+        elif post_flag == "design_dashboard_upload":
+            return design_dashboard_upload(request)
 
         elif post_flag == "org_dashboard_upload_cms":
             return org_dashboard_upload_cms(request)
@@ -344,6 +365,20 @@ def organization_list(request):
 
     return render_json_response({'success': True, 'rows': rows})
 
+#----------------------------------------------------------------------design_list
+@login_required
+def design_list(request):
+    oid = request.GET.get("oid", False)
+    if oid:
+        design_list = Nologindesign.objects.filter(id=oid)
+    else:
+        design_list = Nologindesign.objects.prefetch_related().all()
+
+    rows = []
+    for design in design_list:
+        rows.append({'id': design.id, 'DesignName': design.DesignName})
+
+    return render_json_response({'success': True, 'rows': rows})
 
 # -------------------------------------------------------------------organization_check
 @login_required
@@ -550,7 +585,82 @@ def organization_add(request):
             data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return render_json_response(data)
+# -------------------------------------------------------------------design_add
+@login_required
+def design_add(request):
+    name = request.POST.get('Design_name', False)
+    copyfromid = request.POST.get('design_copy_from', False)
+    oid = request.POST.get('oid', False)
+    data = {'Success': False}
+    if name:
+        if oid != "-1":
+            design = Nologindesign.objects.get(id=oid)
+        else:
+            design = Nologindesign()
 
+        try:
+            design.DesignName = name
+            design.save()
+            if copyfromid:
+                design_old = Nologindesign.objects.get(id=copyfromid)
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design.id) + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                for bean1 in DesignMenuitem.objects.filter(design=design_old, ParentID=0):
+                    org_menu_item = DesignMenuitem()
+                    org_menu_item.MenuItem = bean1.MenuItem
+                    org_menu_item.Url = bean1.Url
+                    org_menu_item.Icon = bean1.Icon
+                    org_menu_item.rowNum = bean1.rowNum
+                    org_menu_item.ParentID = 0
+                    org_menu_item.design = design
+                    org_menu_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)
+
+                    for bean2 in DesignMenuitem.objects.filter(design=design_old, ParentID=bean1.id):
+                        org_menu_item2 = DesignMenuitem()
+                        org_menu_item2.MenuItem = bean2.MenuItem
+                        org_menu_item2.Url = bean2.Url
+                        org_menu_item2.rowNum = bean2.rowNum
+                        org_menu_item2.ParentID = org_menu_item.id
+                        org_menu_item2.design = design
+                        org_menu_item2.save()
+
+                for bean1 in DesignMenu.objects.filter(design=design_old):
+                    org_menu = DesignMenu()
+                    org_menu.itemType = bean1.itemType
+                    org_menu.itemValue = bean1.itemValue
+                    org_menu.design = design
+                    org_menu.save()
+
+                    if bean1.itemType == "logo" and bean1.itemValue != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design_old.id) + '/' + bean1.itemValue
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
+
+                org_data_list = DesignFooter.objects.filter(design=design_old)
+                for tmp1 in org_data_list:
+                    org_footer = DesignFooter()
+                    org_footer.DataItem = tmp1.DataItem
+                    org_footer.design = design
+                    org_footer.save()
+                    break
+
+            data = {'Success': True}
+        except Exception as e:
+            data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 
 # -------------------------------------------------------------------organization_add
 @login_required
@@ -566,6 +676,25 @@ def organization_delete(request):
             OrganizationDashboard.objects.filter(organization=org).delete()
 
             org.delete()
+
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+# -------------------------------------------------------------------design_delete
+@login_required
+def design_delete(request):
+    try:
+        for oid in request.POST.get("ids", "").split(","):
+            des = Nologindesign.objects.filter(id=oid)
+
+            DesignMenuitem.objects.filter(design=des).delete()
+            DesignMenu.objects.filter(design=des).delete()
+            DesignFooter.objects.filter(design=des).delete()
+
+            des.delete()
 
         data = {'Success': True}
     except Exception as e:
@@ -641,6 +770,21 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break
                             break
+                            
+                    elif column == "Designlogo":
+                        for tmp1 in Nologindesign.objects.filter(id=oid):
+                            for tmp2 in DesignMenu.objects.filter(design=tmp1, itemType="logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+                     
                     elif column == "OrganizationLogo":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
@@ -809,7 +953,49 @@ def organization_get(request):
 
     return render_json_response(data)
 
+@login_required
+def design_get(request):
+    oid = request.GET.get('oid', False)
+    data = {}
+    try:
+        if oid:
+            data = {'Success': True}
+            Designs = Nologindesign.objects.filter(id=oid)
+            if len(Designs) > 0:
+                data['find'] = True
+                for tmp in Designs:
+                    design_footer_list = DesignFooter.objects.filter(design=Designs)
+                    for tmp1 in design_footer_list:
+                        data['Footer Content'] = tmp1.DataItem
+                        break
 
+                    for tmp1 in DesignMenu.objects.filter(design=Designs):
+                        data[tmp1.itemType] = tmp1.itemValue
+
+                    menu_items = ""
+                    for tmp1 in DesignMenuitem.objects.filter(design=Designs, ParentID=0):
+                        if menu_items != "":
+                            menu_items = menu_items + "=<="
+
+                        menu_items_child = ""
+                        for tmp2 in DesignMenuitem.objects.filter(design=Designs, ParentID=tmp1.id):
+                            if menu_items_child != "":
+                                menu_items_child = menu_items_child + "_<_"
+
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_0_>_" + str(tmp2.id)
+
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=0=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id)
+
+                    data["menu_items"] = menu_items
+
+                    break
+            else:
+                data['find'] = False
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 # -------------------------------------------------------------------organization_get_locations
 @login_required
 def organization_get_locations(request):
@@ -864,10 +1050,10 @@ def organizational_save_base(request):
         is_icon_width_text = request.POST.get("is_icon_width_text", "")
         new_show_left = request.POST.get("new_show_left", "")
         new_show_right = request.POST.get("new_show_right", "")
-        new_PeppTalk = request.POST.get("new_PeppTalk", "")
-        new_PeppTalk_curr = request.POST.get("new_PeppTalk_curr", "")
         new_show_left_curr = request.POST.get("new_show_left_curr", "")
         new_show_right_curr = request.POST.get("new_show_right_curr", "")
+        new_PeppTalk = request.POST.get("new_PeppTalk", "")
+        new_PeppTalk_curr = request.POST.get("new_PeppTalk_curr", "")
         menu_text_color = request.POST.get("menu_text_color", "")
         menu_text_font = request.POST.get("menu_text_font", "")
         menu_text_size = request.POST.get("menu_text_size", "")
@@ -1088,6 +1274,7 @@ def organizational_save_base(request):
                         if permission_content != "":
                             permission_content += ", "
                         permission_content += "'id_" + str(org_menu_item.id) + "':'" + tmp2[6] + "'"
+                    
 
                     if tmp2[4]:
                         sub_items_list = tmp2[4].split("_<_")
@@ -1109,6 +1296,7 @@ def organizational_save_base(request):
                             org_menu_item1.Url = tmp4[2]
                             if tmp4[3] == "1":
                                 org_menu_item1.isAdmin = True
+                                
                             else:
                                 org_menu_item1.isAdmin = False
                             org_menu_item1.rowNum = tmp4[0]
@@ -1248,6 +1436,125 @@ def organizational_save_base(request):
 
     return render_json_response(data)
 
+# -------------------------------------------------------------------organizational_save_base
+def design_save_base(request):
+    try:
+        oid = request.POST.get("oid", "")
+        menu_items = request.POST.get("menu_items", "")
+        is_icon = request.POST.get("is_icon", "")
+        is_icon_width_text = request.POST.get("is_icon_width_text", "")
+        is_new_menu = request.POST.get("is_new_menu", "")
+        # remove_all_menu = request.POST.get("remove_all_menu", "")
+        menu_text_color = request.POST.get("menu_text_color", "")
+        menu_text_font = request.POST.get("menu_text_font", "")
+        menu_text_size = request.POST.get("menu_text_size", "")
+        menu_text_color_icons = request.POST.get("menu_text_color_icons", "")
+        menu_text_font_icons = request.POST.get("menu_text_font_icons", "")
+        menu_text_size_icons = request.POST.get("menu_text_size_icons", "")
+        menu_text_color_me = request.POST.get("menu_text_color_me", "")
+        menu_text_font_me = request.POST.get("menu_text_font_me", "")
+        menu_text_size_me = request.POST.get("menu_text_size_me", "")
+        space_between_items = request.POST.get("space_between_items", "")
+        logo_url = request.POST.get("logo_url", "")
+        footer_flag = request.POST.get("footer_flag", "")
+        footer_content = request.POST.get("footer_content", "")
+        menu_color = request.POST.get("menu_color", "")
+        if oid:
+            design_metadata = Nologindesign.objects.get(id=oid)
+
+            des_footer = DesignFooter()
+            des_data_list = DesignFooter.objects.filter(design=design_metadata)
+            for tmp1 in des_data_list:
+                des_footer = tmp1
+                break
+
+            des_footer.DataItem = footer_content
+            des_footer.design = design_metadata
+            des_footer.save()
+
+            if menu_items:
+                menu_items_list = menu_items.split("=<=")
+
+                # Delete the deleted records
+                for item_c in DesignMenuitem.objects.filter(design=design_metadata, ParentID=0):
+                    if item_c.rowNum > len(menu_items_list):
+                        DesignMenuitem.objects.filter(design=design_metadata, ParentID=item_c.id).delete()
+                        item_c.delete()
+
+                permission_content = ""
+                for tmp1 in menu_items_list:
+                    tmp2 = tmp1.split("=>=")
+
+                    org_menu_item = DesignMenuitem()
+                    for org_menu_item1 in DesignMenuitem.objects.filter(design=design_metadata, ParentID=0, rowNum=int(tmp2[0])):
+                        org_menu_item = org_menu_item1
+                        break
+
+                    org_menu_item.design = design_metadata
+                    org_menu_item.MenuItem = tmp2[1]
+                    org_menu_item.Url = tmp2[2]
+                    org_menu_item.Icon = tmp2[5]
+                    org_menu_item.rowNum = tmp2[0]
+                    org_menu_item.save()
+
+                    if tmp2[4]:
+                        sub_items_list = tmp2[4].split("_<_")
+
+                        # Delete the deleted records
+                        for item_c in DesignMenuitem.objects.filter(design=design_metadata, ParentID=org_menu_item.id):
+                            if item_c.rowNum > len(sub_items_list):
+                                item_c.delete()
+
+                        for tmp3 in sub_items_list:
+                            tmp4 = tmp3.split("_>_")
+                            org_menu_item1 = DesignMenuitem()
+                            for org_menu_item1_1 in DesignMenuitem.objects.filter(design=design_metadata, ParentID=org_menu_item.id, rowNum=int(tmp4[0])):
+                                org_menu_item1 = org_menu_item1_1
+                                break
+
+                            org_menu_item1.design = design_metadata
+                            org_menu_item1.MenuItem = tmp4[1]
+                            org_menu_item1.Url = tmp4[2]
+                            org_menu_item1.rowNum = tmp4[0]
+                            org_menu_item1.ParentID = org_menu_item.id
+                            org_menu_item1.save()
+            else:
+                DesignMenuitem.objects.filter(design=design_metadata).delete()       
+
+            design_menusave(design_metadata, "Menu Color", menu_color)
+            design_menusave(design_metadata, "Is Icon", is_icon)
+            design_menusave(design_metadata, "Is Icon With Text", is_icon_width_text)
+            design_menusave(design_metadata, "Text Color", menu_text_color)
+            design_menusave(design_metadata, "Text Font", menu_text_font)
+            design_menusave(design_metadata, "Text Size", menu_text_size)
+            design_menusave(design_metadata, "Text Color Icons", menu_text_color_icons)
+            design_menusave(design_metadata, "Text Font Icons", menu_text_font_icons)
+            design_menusave(design_metadata, "Text Size Icons", menu_text_size_icons)
+            design_menusave(design_metadata, "Text Color Me", menu_text_color_me)
+            design_menusave(design_metadata, "Text Font Me", menu_text_font_me)
+            design_menusave(design_metadata, "Text Size Me", menu_text_size_me)
+            design_menusave(design_metadata, "Space Betwwen Items", space_between_items)
+            design_menusave(design_metadata, "Is New Menu", is_new_menu)
+            design_menusave(design_metadata, "Logo Url", logo_url)
+            # design_menusave(design_metadata, "Remove All Menu", remove_all_menu)
+            design_menusave(design_metadata, "Footer Selected", footer_flag)
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+
+def design_menusave(design, itemtype, itemvalue):
+    org_menu_tmp = DesignMenu()
+    for tmp1 in DesignMenu.objects.filter(design=design, itemType=itemtype):
+        org_menu_tmp = tmp1
+        break
+
+    org_menu_tmp.design = design
+    org_menu_tmp.itemType = itemtype
+    org_menu_tmp.itemValue = itemvalue
+    org_menu_tmp.save()
 
 # -------------------------------------------------------------------org_organizationmenusave
 def org_organizationmenusave(organization, itemtype, itemvalue):
@@ -1365,6 +1672,48 @@ def org_upload(request):
     return render_json_response(data)
 
 
+# -------------------------------------------------------------------organizational_save_base
+@login_required
+def design_upload(request):
+    try:
+        data = {'Success': False}
+        file_type = request.POST.get("file_type", "")
+        oid = request.POST.get("oid", "")
+
+        if file_type and oid:
+            design = Nologindesign.objects.get(id=oid)
+
+            if file_type == "home_logo":
+                imgx = request.FILES.get("design_menu_logo", None)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + '/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            if imgx:
+                ext = os.path.splitext(imgx.name)[1]
+                destination = open(path + file_type + ext, 'wb+')
+                for chunk in imgx.chunks():
+                    destination.write(chunk)
+                destination.close()
+
+                org_menu = DesignMenu()
+                if file_type == "home_logo":
+                    for tmp1 in DesignMenu.objects.filter(design=design, itemType="logo"):
+                        org_menu = tmp1
+                        break
+
+                    org_menu.design = design
+                    org_menu.itemType = "logo"
+                    org_menu.itemValue = file_type + ext
+                    org_menu.save()
+
+                data = {'Success': True, 'name': file_type + ext}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 # -------------------------------------------------------------------organization_main_page_configuration_get
 @login_required
 def organization_main_page_configuration_get(request):
@@ -1411,6 +1760,7 @@ def organizational_save_main_base(request):
         org_main.MainPageButtonText = button_text
         org_main.MainPageButtonLink = button_link
         org_main.save()
+
         data = {'Success': True}
 
     except Exception as e:
@@ -1514,6 +1864,48 @@ def org_dashboard_upload(request):
 
     return render_json_response(data)
 
+
+# -------------------------------------------------------------------org_dashboard_upload
+@login_required
+def design_dashboard_upload(request):
+    try:
+        data = {'Success': False}
+
+        rownum = request.POST.get("rowNum", "")
+        oid = request.POST.get("oid", "")
+        fileelementid = request.POST.get("fileelementid", "")
+
+        if rownum and oid:
+            rownum = str(rownum)
+            design = Nologindesign.objects.get(id=oid)
+            imgx = request.FILES.get("menu_items_icon_" + rownum, None)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + '/'
+
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            if imgx:
+                destination = open(path + imgx.name, 'wb+')
+                for chunk in imgx.chunks():
+                    destination.write(chunk)
+                destination.close()
+
+                for org_menu_item in DesignMenuitem.objects.filter(design=design, rowNum=int(rownum), ParentID=0):
+                    org_menu_item.Icon = imgx.name
+                    org_menu_item.save()
+                    break
+
+                data = {'Success': True, 'name': imgx.name}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
 
 # -------------------------------------------------------------------org_dashboard_upload_cms
 @login_required

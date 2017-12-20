@@ -9,7 +9,6 @@
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
 <script type="text/javascript" src="/static/js/tc.all.js"></script>
-<script type="text/javascript" src="/static/js/tc.min.js"></script>
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
@@ -216,7 +215,9 @@ $.extend($.tablesorter.themes.jui, {
         cssGoto: '.gotoPage',
         ajaxUrl: '',
         ajaxProcessing: function(data){
-            return [data.total, data.rows]
+            report_view.createTimeTable(data.rows)
+            $("#table_data").show()
+            return [data.total]
         },
         processAjaxOnInit: true,
         page: 0,
@@ -269,7 +270,7 @@ var report_view = {
         init:function(){
             var self = this;
             clearInterval(self.timeID);
-            self.timeID = setInterval(self.show_progress, 4000, self);
+            self.timeID = setInterval(self.show_progress, 400, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
             });
@@ -278,10 +279,36 @@ var report_view = {
             });
             self.selectSchoolYear();
         },
+        createTimeTable: function(data){
+            $('#table_data').empty()
+            var tablestr = ''
+            for (d in data){
+                tablestr += '<tr>';
+                for (dd in data[d]){
+                    if (dd == 0){
+                        tablestr += '<td><img class="row_aggregate_img" src="/static/images/icon_reporting.png" onclick="row_graphable(this)">' + data[d][dd] + "</td>";
+                    }else{
+                        if (data[d][dd] != 0){
+                           tablestr += '<td><img class="aggregate_img" style="width:16px;height:16px" src="/static/images/table-icon.jpg" column="'+ dd + '"><span style="margin-left:14px">' + data[d][dd] + "</span></td>";
+                       }else{
+                           tablestr += '<td><span style="margin-left:30px;">0</span>';
+                       }
+                    }
+                }
+                tablestr += '</tr>'
+            }
+            $('#table_data').append(tablestr)
+            $(".aggregate_img").click(function(){
+                var x = $(this).attr('column')
+                var y = $(this).parent().parent().find('td:first').text();
+                get_ajax_get_aggregate(x,y)
+                popWin("detail");
+            })
+        },
         show_progress: function(obj){
             var self = this;
             $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
-                if (data != null) {                 
+                if (data != null) {
                     if(data.success)
                     {
                         obj.reloadTable()

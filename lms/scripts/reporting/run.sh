@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+# set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
@@ -29,7 +29,7 @@ mongo2_db_assist="$EDX_PLATFORM_MONGO_DB_ASSIST"
 
 
 echo -e "tahoe" | sudo -S netstat -tlnp
-mongo3_path="/home/tahoe/mongo3/bin"
+mongo3_path="/home/tahoe/mongo321/mongodb-linux-x86_64-ubuntu1204-3.2.1/bin"
 
 echo '-------------------------------------------'
 echo 'User information conversion'
@@ -51,6 +51,13 @@ EOF
 $mongo3_path/mongoimport -d "$mongo3_db_reporting" -c "user_info" --port $mongo3_port -f "id,user_id,email,username,first_name,last_name,state,district,school,state_id,district_id,school_id,activate_date,subscription_status,major_subject_area" --type=csv --file=/tmp/user_info.csv
 
 sudo rm -f /tmp/user_info.csv;
+
+$mongo3_path/mongo --port=$mongo3_port <<EOF
+use $mongo3_db_reporting
+db.user_info.createIndex({
+    'user_id': 1
+})
+EOF
 
 echo '-------------------------------------------'
 echo 'user conversion is complete!'
@@ -83,6 +90,10 @@ db.modulestore.find({'_id.category':'course'}).forEach(function(x){
   x.course_id = [x._id.org, x._id.course, x._id.name].join('/');
   db.modulestore.save(x);
 })
+db.modulestore.createIndex({
+    'course_id': 1
+})
+
 db.modulestore.remove({'_id.revision':'draft'})
 EOF
 
@@ -146,10 +157,18 @@ db.adjustment_time.find().forEach(function(x){
   db.adjustment_time.save(x);
 });
 
+db.adjustment_time.createIndex({
+    'user_id': 1
+})
+
 db.page_time.find().forEach(function(x){
   x.user_id =  parseInt(x.user_id);
   db.page_time.save(x);
 });
+
+db.page_time.createIndex({
+    'user_id': 1
+})
 
 db.page_time.aggregate({
     \$group: {
@@ -169,6 +188,11 @@ db.page_time.aggregate({
     }
 },{\$out:'course_time'})
 
+
+db.course_time.createIndex({
+    'user_id': 1
+})
+
 db.adjustment_time.find({'type':'courseware'}).forEach(function(ad){
   var cur_item = db.course_time.findOne({'course_id':ad.course_id,'user_id':ad.user_id})
   if(cur_item!=null){
@@ -180,10 +204,16 @@ db.adjustment_time.find({'type':'courseware'}).forEach(function(ad){
   }
 
 })
+
 db.discussion_time.find().forEach(function(x){
   x.user_id =  parseInt(x.user_id);
   db.discussion_time.save(x);
 });
+
+db.discussion_time.createIndex({
+    'user_id': 1
+})
+
 db.adjustment_time.find({'type':'discussion'}).forEach(function(ad){
   var cur_item = db.discussion_time.findOne({'course_id':ad.course_id,'user_id':ad.user_id})
   if(cur_item!=null){
@@ -195,10 +225,16 @@ db.adjustment_time.find({'type':'discussion'}).forEach(function(ad){
   }
 
 })
+
 db.portfolio_time.find().forEach(function(x){
   x.user_id =  parseInt(x.user_id);
   db.portfolio_time.save(x);
 });
+
+db.portfolio_time.createIndex({
+    'user_id': 1
+})
+
 db.adjustment_time.find({'type':'portfolio'}).forEach(function(ad){
   var cur_item = db.portfolio_time.findOne({'user_id':ad.user_id})
   if(cur_item!=null){
@@ -210,6 +246,7 @@ db.adjustment_time.find({'type':'portfolio'}).forEach(function(ad){
   }
 
 })
+
 db.t_external_time.find().forEach(function(x){
   x.user_id =  parseInt(x.user_id);
   var course = x.course_id.split('/')[1];
@@ -236,6 +273,10 @@ db.t_external_time.aggregate({
         r_time: 1
     }
 },{\$out:'external_time'})
+
+db.external_time.createIndex({
+    'user_id': 1
+})
 
 db.adjustment_time.find({'type':'external'}).forEach(function(ad){
   var cur_item = db.external_time.findOne({'course_id':ad.course_id,'user_id':ad.user_id})
@@ -325,6 +366,10 @@ db.student_courseenrollment.find().forEach(
       db.student_courseenrollment.remove(x);
     }
 })
+
+db.student_courseenrollment.createIndex({
+    'course_id': 1
+})
 EOF
 
 echo '-------------------------------------------'
@@ -371,6 +416,18 @@ db.courseware_studentmodule.find().forEach(
         }
         db.courseware_studentmodule.save(x);
     })
+db.courseware_studentmodule.createIndex({
+    'c_student_id': 1
+})
+db.courseware_studentmodule.createIndex({
+    'c_course_id': 1
+})
+db.courseware_studentmodule.createIndex({
+    'module_id': 1
+})
+db.courseware_studentmodule.createIndex({
+    'student_id': 1, 'module_id': 1, course_id:1
+})
 EOF
 
 echo '-------------------------------------------'
@@ -397,51 +454,8 @@ db.modulestore.find({'_id.category':'course'}).forEach(function(x){
 })
 db.student_courseenrollment.remove({'course_id':{'\$nin':courseArr}});
 db.courseware_studentmodule.remove({'course_id':{'\$nin':courseArr}});
-db.student_courseenrollment.createIndex({
-    'user_id': 1
-})
-db.student_courseenrollment.createIndex({
-    'course_id': 1
-})
-db.user_info.createIndex({
-    'user_id': 1
-})
-db.modulestore.createIndex({
-    'course_id': 1
-})
-db.modulestore.createIndex({
-    'q_course_id': 1
-})
-db.course_time.createIndex({
-    'user_id': 1
-})
-db.discussion_time.createIndex({
-    'user_id': 1
-})
-db.portfolio_time.createIndex({
-    'user_id': 1
-})
-db.external_time.createIndex({
-    'user_id': 1
-})
-db.adjustment_time.createIndex({
-    'user_id': 1
-})
 db.user_course_progress.createIndex({
     'user_id': 1
-})
-//db.courseware_studentmodule.dropIndexes();
-db.courseware_studentmodule.createIndex({
-    'c_student_id': 1
-})
-db.courseware_studentmodule.createIndex({
-    'c_course_id': 1
-})
-db.courseware_studentmodule.createIndex({
-    'module_id': 1
-})
-db.courseware_studentmodule.createIndex({
-    'student_id': 1, 'module_id': 1, course_id:1
 })
 
 EOF
@@ -518,5 +532,15 @@ echo '-----------------------------------------------'
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
+echo '-------------------------------------------'
+echo 'Create allfield views!'
+echo '-----------------------------------------------'
+source /usr/local/bin/virtualenvwrapper.sh
+source ~/.rvm/scripts/rvm
+workon edx-platform
+python $DIR/createallfield.py
+echo '-------------------------------------------'
+echo 'Create allfield complete!'
+echo '-----------------------------------------------'
 exit 0;
 

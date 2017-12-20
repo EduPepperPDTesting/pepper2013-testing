@@ -5,6 +5,12 @@ from django.conf import settings
 from student.feeding import MongoBaseStore
 import logging
 
+class Nologindesign(models.Model):
+    class Meta:
+        db_table = 'nologindesign'
+    DesignName = models.CharField(blank=False, max_length=255, db_index=False)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
 class OrganizationMetadata(models.Model):
     class Meta:
@@ -51,7 +57,6 @@ class MainPageConfiguration(models.Model):
     MainPageButtonText = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonLink = models.CharField(blank=False, max_length=255, db_index=False)
 
-
 class OrganizationMenuitem(models.Model):
     class Meta:
         db_table = 'organization_menuitem'
@@ -62,6 +67,16 @@ class OrganizationMenuitem(models.Model):
     rowNum = models.IntegerField(blank=False, default=0)
     ParentID = models.IntegerField(blank=False, default=0)
     organization = models.ForeignKey(OrganizationMetadata)
+
+class DesignMenuitem(models.Model):
+    class Meta:
+        db_table = 'design_menuitem'
+    MenuItem = models.CharField(blank=False, max_length=255, db_index=False)
+    Url = models.CharField(blank=False, max_length=255, db_index=False)
+    Icon = models.CharField(blank=False, max_length=255, db_index=False)
+    rowNum = models.IntegerField(blank=False, default=0)
+    ParentID = models.IntegerField(blank=False, default=0)
+    design = models.ForeignKey(Nologindesign)
 
 
 class OrganizationCmsitem(models.Model):
@@ -82,6 +97,12 @@ class OrganizationMenu(models.Model):
     itemValue = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+class DesignMenu(models.Model):
+    class Meta:
+        db_table = 'design_menu'
+    itemType = models.CharField(blank=False, max_length=255, db_index=False)
+    itemValue = models.CharField(blank=False, max_length=255, db_index=False)
+    design = models.ForeignKey(Nologindesign)
 
 class OrganizationDashboard(models.Model):
     class Meta:
@@ -97,6 +118,11 @@ class OrganizationFooter(models.Model):
     DataItem = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
+class DesignFooter(models.Model):
+    class Meta:
+        db_table = 'design_footer'
+    DataItem = models.TextField(blank=False, db_index=False)
+    design = models.ForeignKey(Nologindesign)
 
 class OrganizationMoreText(models.Model):
     class Meta:
