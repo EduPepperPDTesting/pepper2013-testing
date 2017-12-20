@@ -219,7 +219,7 @@
             var self = this;
             clearInterval(self.timeID);
             loadwin = new LoadingWin();
-            self.timeID = setInterval(self.show_progress, 4000, self);
+            self.timeID = setInterval(self.show_progress, 400, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
             });
