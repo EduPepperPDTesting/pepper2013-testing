@@ -102,11 +102,46 @@ import json
         $("label").parent().removeClass("is-focused");
       });
     });
+    function checkBase(s){
+      var reg = '^[0-9a-zA-Z]+$';
+      var re = new RegExp(reg)
+      if (re.test(s)){
+         return true;
+      }else{
+         return false;
+      }
+    }
     (function() {
       toggleSubmitButton(true);
       $('#register-form').on('submit', function() {
         toggleSubmitButton(false);
-										
+		username = $("#username").val();
+    if (!checkBase(username)){
+      toggleSubmitButton(true);
+      $('.status.message.submission-error').addClass('is-shown').focus();
+      $('.status.message.submission-error .message-copy').html("Username should only consiste of A-Z and 0-9, with no space.").stop().css("display", "block");
+      $(".field-error").removeClass('field-error');
+      $("#username").addClass('field-error');                         
+      return false;   
+    }
+    first_name = $("#first_name").val();
+    if (!checkBase(first_name)){
+      toggleSubmitButton(true);
+      $('.status.message.submission-error').addClass('is-shown').focus();
+      $('.status.message.submission-error .message-copy').html("First Name should only consiste of A-Z and 0-9.").stop().css("display", "block");
+      $(".field-error").removeClass('field-error');
+      $("#first_name").addClass('field-error');                         
+      return false;   
+    }
+    last_name = $("#last_name").val();
+		if (!checkBase(last_name)){
+      toggleSubmitButton(true);
+      $('.status.message.submission-error').addClass('is-shown').focus();
+      $('.status.message.submission-error .message-copy').html("Last Name should only consiste of A-Z and 0-9.").stop().css("display", "block");
+      $(".field-error").removeClass('field-error');
+      $("#last_name").addClass('field-error');                         
+      return false;   
+    }						
 		//----------------Major Subject Area
 		if(!$("select[name='major_subject_area_id']").is(":hidden")){
 			if($("select[name='major_subject_area_id']").val() == ""){

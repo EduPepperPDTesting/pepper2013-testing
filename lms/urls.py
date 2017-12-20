@@ -132,9 +132,12 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
-    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/(?P<userToID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+    url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
+    url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
 
-    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
+    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+    url(r'^readattachment/$', 'webchat.views.read_attachment', name='read_attachment'),
+    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+) (?P<filePath>[\\\:\.w]+)/
 
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
