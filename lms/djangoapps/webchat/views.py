@@ -267,6 +267,31 @@ def get_user_session(request):
         return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
 
 
+def check_alerts(request):
+    user = User.objects.get(id=request.POST.get('id'))
+    try:
+        alert = MessageAlerts.objects.filter(to_user=user)
+        if alert:
+            from_id = alert[0].from_user.id
+            alert.delete()
+            return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+        else:
+            return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+    except MessageAlerts.DoesNotExist as e:
+        return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+
+def send_alert (request):
+    try:
+        user = User.objects.get(id=request.POST.get('id'))
+        to_user = User.objects.get(id=request.POST.get('to_id'))
+        alert = MessageAlerts()
+        alert.to_user = to_user
+        alert.from_user = user
+        alert.save()
+        return HttpResponse (json.dumps({'success':'true'}), content_type="application/json")
+    except Exception as e:
+        return HttpResponse (json.dumps({'success': 'false', 'error':e.message}), content_type="application/json")
+
 def get_community_user_rows(request):
     """
     Builds the rows for display in the community members in webchat widget.
