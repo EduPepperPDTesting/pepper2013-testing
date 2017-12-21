@@ -178,6 +178,9 @@ class MongoBaseStore(object):
     def find(self, cond):
         return self.collection.find(cond)
 
+    def find_size_sort(self, cond, page, size, sort_field, sort_desc):
+        return self.collection.find(cond).limit(size).skip(page).sort(sort_field, sort_desc)
+
     def find_one(self, cond):
         return self.collection.find_one(cond)
 
