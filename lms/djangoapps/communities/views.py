@@ -942,6 +942,12 @@ def get_edit_community(request):
 def is_facilitator_edit(user, community_id):
     return True
 
+def save_last_subaccess_time(request):
+    testinfo = request.POST.get("testinfo", "noget testinfo")
+    log.debug("================")
+    log.debug(testinfo)
+    return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+
 @login_required
 def community_delete(request, community_id):
     try:
@@ -1095,7 +1101,7 @@ def community_edit_process_new(request):
                 img_file.write(imgData)
                 img_file.close()
                 im = Image.open(path)
-                x,y = im.size
+                x, y = im.size
                 p = Image.new('RGBA', im.size, (255, 255, 255))
                 p.paste(im, (0, 0, x, y), im)
                 p.save(path)
@@ -1116,7 +1122,10 @@ def community_edit_process_new(request):
         resource_names = get_post_dict(request, 'resource_names')
         resource_links = get_post_dict(request, 'resource_links')
 
-        # If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        community_object = ''
         if community_id == 'new':
             community_object = CommunityCommunities()
         else:
@@ -1132,9 +1141,19 @@ def community_edit_process_new(request):
         community_object.district = district
         community_object.state = state
         community_object.discussion_priority = int(priority_id)
+
+        # Sub community, Save main community id to sub community
+        main_community_id = request.POST.get('main_community_id', '')
+        if main_community_id:
+            try:
+                main_community = CommunityCommunities.objects.get(id=main_community_id)
+                community_object.main_id = int(main_community_id)
+            except Exception as e:
+                pass
+        # Save the community
         community_object.save()
 
-        # facilitators
+        # Facilitators
         old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
         for f in old_facilitators:
             f.facilitator = False
@@ -1263,7 +1282,7 @@ def community_edit_process_new(request):
                 'error_message': 'Error: {0}'.format(e),
                 'window_title': 'Problem Saving Community'}
         return render_to_response('error.html', data)
-    
+
 def get_post_dict(request, name):
     output = dict()
     value_str = request.POST.get(name, '')

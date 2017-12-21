@@ -18,6 +18,7 @@ class CommunityCommunities(models.Model):
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
     discussion_priority = models.BooleanField(blank=False, default=0)
+    main_id = models.IntegerField(blank=False, max_length=11, default=0)
 
 
 class CommunityUsers(models.Model):

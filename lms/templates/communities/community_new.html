@@ -244,7 +244,7 @@ a{
     font-size:14px;font-weight:bold;
 }
 .community-left .btn-facilitator{
-    cursor:pointer;float:left;border:0px solid #f00;
+    cursor:pointer;float:left;border:0px solid #f00;margin-top:2px;
 }
 .community-left .facilitator-triangle{
     float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;
@@ -624,7 +624,7 @@ a{
             </div>
             %endif
             <div class="subcommunities">
-                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub">+</span></div>
+                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span></div>
                 <div class="sub-community-titles">
                     <div class="joined">
                         <div class="overflow-text joined-title">
@@ -1016,7 +1016,7 @@ a{
     </div>
 </div>
 
-<script type="text/javascript">  
+<script type="text/javascript">
     //email facilitator
     $(".user-email-btn").click(function(){
         $(".email-facilitator-error").hide();
@@ -1123,6 +1123,12 @@ a{
         userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
         message_board(userInfo);
     }
+
+    //create subcommunity btn
+    $(".btn-addsub").click(function(){
+        console.log("create subcommunity btn");
+
+    });
 </script>
 <script type="text/javascript">
     function newCourse() {
@@ -1202,6 +1208,7 @@ a{
         this.$content = $content;
         //this.initContent();
         this.formdata = '';
+        this.community_id = '';
         this.courses_drop = new Array();
         $('.coursesdropdata').each(function(){
             var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
@@ -1212,7 +1219,7 @@ a{
     PepReg.prototype.addTraining = function () {
         var self = this;
         var community_data = '';
-        var steps = this.initForm(community_data, function (data) {          
+        var steps = self.initForm(community_data, function (data) {          
             //submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -1229,6 +1236,39 @@ a{
                 }
             });
             */
+            $.ajax({
+                url: "${reverse('community_edit_process_new')}",
+                type: 'POST',
+                success: function(r){
+                    console.log("ok");
+                    //$("#dlg-add-training").hide();
+                    //$(".lean-overlay").hide();
+                    window.location.href = "/newcommunities";
+                },
+                error: function(r){},
+                // Form data
+                data: self.formdata,
+                //Options to tell JQuery not to process data or worry about content-type
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        return false;
+    };
+
+    PepReg.prototype.addSubTraining = function (id) {
+        var self = this;
+        var community_data = '';
+        var steps = self.initForm(community_data, function (data) {          
+            //submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            self.createFormdata(data, id);
+            
             $.ajax({
                 url: "${reverse('community_edit_process_new')}",
                 type: 'POST',
@@ -1326,13 +1366,11 @@ a{
             self.clearData();
         }
          
-
         // ************* btn upload Picture
         $("#edit_photo").click(function(){
             self.upload_picture("", self.dlgForm);
         });
         
-
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -1486,13 +1524,19 @@ a{
         return json;
     };
     
-    PepReg.prototype.createFormdata = function (data) {
+    PepReg.prototype.createFormdata = function (data, main_community_id) {
         var self = this;
         var jsondata = data;
         self.formdata = null;
         self.formdata = new FormData();
         for(var k in jsondata){
-            self.formdata.append(k, jsondata[k]);
+            if(main_community_id && main_community_id !== undefined && k=="community_id"){
+                self.formdata.append(k, 'new');
+                self.formdata.append('main_community_id', main_community_id);
+            }
+            else{
+                self.formdata.append(k, jsondata[k]);
+            }
         }
         
         $("#community-resources").find(".typelogo").each(function (i) {
@@ -1849,9 +1893,32 @@ a{
             }
         });
 
+        /*------community page------*/
         //send message close btn in navigation
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();
         });
+
+        /*
+        $(window).on('beforeunload',function(){
+            console.log("window_close");
+            $.post("${reverse('save_last_subaccess_time')}",{"testinfo":"last access sub community time11"},function(r){
+                if(r.success)
+                    console.log("window_click_end");
+            });
+            //return'Your own message goes here...';
+        });
+        */
+        
+        /*
+        var window_click = 0;
+        $(window).click(function(){
+            if(!window_click){
+                window_click = 1;
+                console.log("window_click");
+            }
+        });
+        //$(window).trigger("click");
+        */
     });
 </script>
