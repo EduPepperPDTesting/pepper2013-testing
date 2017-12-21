@@ -129,7 +129,7 @@ border-top-right-radius: 15px;
 #pep_slider_icons {
     position: relative;
     left: 15px;
-    width: 70px;
+    width: 35px; /*70px;*/
     height: 27px;
     padding-top: 7px;
     padding-right: 5px;
