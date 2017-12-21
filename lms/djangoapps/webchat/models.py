@@ -15,6 +15,12 @@ class UserWebchat (models.Model):
     user = models.ForeignKey (User, on_delete=models.CASCADE)
     session_id = models.CharField(max_length=255)
 
+class MessageAlerts (models.Model):
+    class Meta:
+        db_table = 'webchat_alerts'
+    to_user = models.ForeignKey (User, on_delete=models.CASCADE, related_name='messagealerts_to')
+    from_user = models.ForeignKey (User, on_delete=models.CASCADE, related_name='messagealerts_from')
+
 class ChatAttachment(models.Model):
     class Meta:
         db_table = 'pepptalk_attachments'
