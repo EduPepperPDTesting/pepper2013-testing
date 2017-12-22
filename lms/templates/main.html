@@ -12,14 +12,32 @@
 % else:
     <% curr_user=user %>
 % endif
-<%
+<%  
+    if request.path == "/":
+        path = ""
+    else:
+        path = request.path
+        
+    urlname = ["https://",request.get_host(),path]
+    urlname = "".join(urlname)
+    new_nologin_flag = "0"
     organization_active = False
     footer = False
     if not request.user.is_authenticated():
-        design = "" 
-        for tmp1 in  Nologindesign.objects.filter(is_selected=1):
-            design = tmp1
+        design = ""
+        while True: 
+            for tmp1 in  Nologindesign.objects.filter(DesignName=urlname):
+                design = tmp1
+                break
+            if design:
+                break
+            elif len(urlname)>8:
+                a = urlname.rfind('/')
+                urlname = urlname[0:a]
+            else:
+                break
         if design:
+            new_nologin_flag = "1"
             organization_obj = design
             design_footer_flag = "0"
             for tmp1 in  DesignMenu.objects.filter(design=design,itemType="Is New Menu"):
@@ -178,7 +196,7 @@ navbar_show_extended=True
 % elif not suppress_toplevel_navigation:
     % if organization_active and org_data["Is New Menu"] == "1":
         <%include file="navigation_new.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
-    % elif not request.user.is_authenticated() and design_menu_flag == "1":
+    % elif new_nologin_flag == "1":
         <%include file="navigation_new2.html" args="show_extended=navbar_show_extended, organization_obj=organization_obj, org_data=org_data, is_external=False"/>
     % else:
         <%include file="navigation.html" args="show_extended=navbar_show_extended, is_external=False"/>
@@ -189,7 +207,7 @@ navbar_show_extended=True
 <!--@date:2013-11-02-->
   % if organization_active and org_data["Is New Menu"] == "1":
     <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
-  % elif not request.user.is_authenticated() and design_menu_flag == "1":
+  % elif new_nologin_flag == "1":
     <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
   % else:
     <section class="content-wrapper" style="padding-bottom: 0;">

@@ -82,7 +82,7 @@
                     newMeStyleColor = org_data['Text Color Me']
                     newMeStyleSize = org_data['Text Size Me']
 
-                tmp_style = " style='font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
+                tmp_style = " style='line-height:20px;font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
 
                 if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     img_src = "/static/images/ppd-iMessage-default.png"
@@ -107,6 +107,29 @@
                         menu_items_tmp1 = menu_items_tmp1 + menu_items_child
 
                     menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
+                elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
+                    img_src = "/static/images/index_login_cart-537824274.png"
+                    tmp1_MenuItem_txt = "Shopping"
+                    icon_a = "<a href='/shopping' style='text-decoration:none !important;'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />"
+                        menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Shopping</td></tr></table>"
+
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0; padding-top:0 !important;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
                 else:
                     if liClass == "":
                         icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>"
@@ -119,7 +142,7 @@
                         menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
                         if liClass != "":
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
-                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
                         else:
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
@@ -147,6 +170,8 @@
                 #---------------text
                 if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count'  style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
+                elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='/shopping' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Shopping </a></li>"
                 else:
                     tmp_menu_icon = " &#9662;"
                     if liClass == "":
@@ -259,8 +284,14 @@
         % endif
         
         
-        <ol class="pepper-nav-courseware" style="margin-top: 15px">
-            <li><a class="pepper-main-link" href="${absolute_url('/shopping')}" target="_blank"><img src="${absolute_url('/static/images/index_login_cart-537824274.png')}" /></a></li>
+        <ol class="pepper-nav-courseware" style="margin-top:
+        % if org_data['Is Icon'] == "1":
+            15px
+        % else:
+            25px
+        % endif
+        ">
+            <!-- <li><a class="pepper-main-link" href="${absolute_url('/shopping')}" target="_blank"><img src="${absolute_url('/static/images/index_login_cart-537824274.png')}" /></a></li> -->
             <li class="pepper-nav-courseware-01">
                 % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                     % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:

@@ -5,10 +5,13 @@ from django.contrib.auth.decorators import login_required
 from operator import itemgetter
 from django.contrib.auth.models import User
 from communities.models import CommunityUsers, CommunityCommunities
-from .models import CommunityWebchat, UserWebchat, ChatAttachment
+from .models import CommunityWebchat, UserWebchat, MessageAlerts, ChatAttachment
 from people.views import my_people
 from django.contrib.auth.models import User
 from file_uploader.models import FileUploads
+from django.forms.models import model_to_dict
+from util.json_request import JsonResponse
+from file_uploader.utils import get_file_url, get_file_name
 try:
     from urllib import urlencode
 except ImportError:
@@ -47,12 +50,13 @@ def get_users_org(request):
 def get_all_ptusers(request):
     my_network_ids = list()
     prevLen = -1
-    pageAttr = 0
-    while prevLen < len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     rows = list()
 
@@ -79,7 +83,7 @@ def get_all_ptusers(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, user_item))
+            #row.append(checkInCommunities(request.user, user_item))
             row.append('')
 
             rows.append(row)
@@ -96,7 +100,7 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user_item))
+                #row.append(checkInCommunities(request.user, user_item))
                 row.append('')
 
                 rows.append(row)
@@ -119,8 +123,8 @@ def get_all_ptusers(request):
                 else:
                     row.append('')
 
-                row.append(checkInCommunities(request.user, user))
-
+                #row.append(checkInCommunities(request.user, user))
+                row.append('')
                 rows.append(row)
 
     if not rows:
@@ -147,8 +151,8 @@ def get_network_users(request):
             row.append(str(user.first_name) + " " + str(user.last_name))
             row.append(str(user.id))
             row.append('https://image.flaticon.com/icons/svg/125/125702.svg')
-            row.append(checkInCommunities(request.user, user))
-
+            #row.append(checkInCommunities(request.user, user))
+            row.append('')
             rows.append(row)
 
     if not rows:
@@ -200,14 +204,15 @@ def get_communities(request):
         for item in items: #orgs_list.append({'id': item.community.id, 'name': item.community.name})
             community_list.append({'id': item.community.id, 'name': item.community.name})
 
-    # Query for the communities this user is allowed to see.
-    items = CommunityCommunities.objects.filter(**filter_dict)
-    for item in items:
-        community_name = item.name
-        try:
-            community_name = community_name.replace("'", "~")
-        except:
-            pass
+    if request.user.is_superuser:
+        # Query for the communities this user is allowed to see.
+        items = CommunityCommunities.objects.filter(**filter_dict)
+        for item in items:
+            community_name = item.name
+            try:
+                community_name = community_name.replace("'", "~")
+            except:
+                pass
 
         community_list.append({'id': item.id, 'name': community_name})
 
@@ -263,6 +268,31 @@ def get_user_session(request):
         return HttpResponse (json.dumps({'session': use.session_id}), content_type="application/json")
 
 
+def check_alerts(request):
+    user = User.objects.get(id=request.POST.get('id'))
+    try:
+        alert = MessageAlerts.objects.filter(to_user=user)
+        if alert:
+            from_id = alert[0].from_user.id
+            alert.delete()
+            return HttpResponse (json.dumps({'alert_id': from_id, 'alert':'true'}), content_type="application/json")
+        else:
+            return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+    except MessageAlerts.DoesNotExist as e:
+        return HttpResponse (json.dumps({'alert':'false'}), content_type="application/json")
+
+def send_alert (request):
+    try:
+        user = User.objects.get(id=request.POST.get('id'))
+        to_user = User.objects.get(id=request.POST.get('to_id'))
+        alert = MessageAlerts()
+        alert.to_user = to_user
+        alert.from_user = user
+        alert.save()
+        return HttpResponse (json.dumps({'success':'true'}), content_type="application/json")
+    except Exception as e:
+        return HttpResponse (json.dumps({'success': 'false', 'error':e.message}), content_type="application/json")
+
 def get_community_user_rows(request):
     """
     Builds the rows for display in the community members in webchat widget.
@@ -286,16 +316,16 @@ def get_community_user_rows(request):
     my_network_ids = list()
     prevLen = -1
 
-    pageAttr = 0
-    while prevLen < len(my_network_ids):
-        prevLen = len(my_network_ids)
-        pageAttr = pageAttr + 1
-        getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
-        my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
+    # pageAttr = 0
+    # while prevLen < len(my_network_ids):
+    #     prevLen = len(my_network_ids)
+    #     pageAttr = pageAttr + 1
+    #     getMyPeople = json.loads(my_people(request, checkInNetwork=1, pageAttr=str(pageAttr)).content)
+    #     my_network_ids.extend(sorted([d["user_id"].encode("utf-8") for d in getMyPeople if 'user_id' in d]))
 
     #for item in users[start:end]:
-    if my_network_ids:
-        my_network_ids.sort()
+    # if my_network_ids:
+    #     my_network_ids.sort()
 
     for item in users:
         row = list()
@@ -309,7 +339,8 @@ def get_community_user_rows(request):
             else:
                 row.append('')
 
-            row.append(checkInCommunities(request.user, item.user))
+            #row.append(checkInCommunities(request.user, item.user))
+            row.append('')
             rows.append(row)
 
     if not rows:
@@ -318,13 +349,15 @@ def get_community_user_rows(request):
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
 
 
-def chat_attachment(request, userFromID, userToID):
+def chat_attachment(request, userFromID):
     fileObj = ChatAttachment()
     error = ''
-    success = False
+    success = 0
+    userToID = request.POST.get("user_id")
+    fileObj_id = None
 
     fileObj.user_from = userFromID
-    fileObj.user_to = userToID
+    fileObj.user_to = User.objects.get(id=int(userToID))
 
     if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
         try:
@@ -333,7 +366,7 @@ def chat_attachment(request, userFromID, userToID):
             attachment.sub_type = userToID
             attachment.upload = request.FILES.get('attachment')
             attachment.save()
-            success = True
+            success = 1
         except Exception as e:
             attachment = None
             error = e
@@ -342,6 +375,23 @@ def chat_attachment(request, userFromID, userToID):
 
     if attachment:
         fileObj.attachment = attachment
-    fileObj.save()
+        fileObj.save()
+        fileObj_id = fileObj.id
+        fileObj_dict = model_to_dict(fileObj)
 
-    return render_to_response('webchat/add_attachment.html', {'Success': success, 'Error': 'Error: {0}'.format(error), 'textchatID': userToID, 'fileObj': fileObj})
+    data = {'textchatID': userToID,  'fileObjID': fileObj_id,  'Success': success, 'Error': 'Error: {0}'.format(error)}
+
+    return JsonResponse(data)
+
+def read_attachment(request):
+    fileObj_id=request.POST.get('attachment_id')
+    try:
+        fileObj = ChatAttachment.objects.select_related().get(id=int(fileObj_id))
+        textchatID = ChatAttachment.objects.get(id=int(fileObj_id)).user_to_id
+        success = 1
+        data = {'textchatID': textchatID, 'attachURL': get_file_url(fileObj.attachment), 'attachName': get_file_name(fileObj.attachment), 'success': success}
+    except:
+        success = 0
+        data = {'success': success}
+
+    return JsonResponse(data)

@@ -18,6 +18,7 @@ class CommunityCommunities(models.Model):
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
     discussion_priority = models.BooleanField(blank=False, default=0)
+    main_id = models.IntegerField(blank=False, max_length=11, default=0)
 
 
 class CommunityUsers(models.Model):
@@ -178,6 +179,9 @@ class MongoBaseStore(object):
     def find(self, cond):
         return self.collection.find(cond)
 
+    def find_size_sort(self, cond, page, size, sort_field, sort_desc):
+        return self.collection.find(cond).limit(size).skip(page).sort(sort_field, sort_desc)
+
     def find_one(self, cond):
         return self.collection.find_one(cond)
 
@@ -202,6 +206,12 @@ class CommunityDiscussionsStore(MongoBaseStore):
 
     def get_community_discussions(self, community_id, page=0, size=0):
         return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
+
+    def get_community_discussions_id(self):    
+        max_id = 0
+        for itemx in self.collection.find({"db_table": "community_discussions"}).limit(1).sort("did", -1):
+            max_id = int(itemx['did']) + 1
+        return max_id
 
     def get_community_discussion_replies(self, discussion_id):
         return self.collection.find({"discussion_id": discussion_id, "db_table": "community_discussion_replies"}).sort("date_create", -1)

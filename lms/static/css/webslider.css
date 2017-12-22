@@ -129,7 +129,7 @@ border-top-right-radius: 15px;
 #pep_slider_icons {
     position: relative;
     left: 15px;
-    width: 70px;
+    width: 35px; /*70px;*/
     height: 27px;
     padding-top: 7px;
     padding-right: 5px;
@@ -283,4 +283,14 @@ border-top-right-radius: 15px;
 .pep_offline_icon img, .pep_online_icon img {
     width: 15px;
     height: 17px;
+}
+.pep_org_header{
+    display: inline-block;
+    max-width: 230px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pep_btn_active{
+    background-color: rgb(245, 130, 31) !important;
 }

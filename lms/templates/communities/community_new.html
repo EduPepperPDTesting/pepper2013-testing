@@ -52,7 +52,10 @@ import datetime
 .form-row input{color: #222 !important;}
 .form-row textarea{color: #222 !important;}
 
-h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;}
+h1, h2, section.outside-app h1, h3, h4, h5, h6{
+/*font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;*/
+font: normal 1.2em/1.2em;
+}
 
 #dlg-warning{height: 210px;}
 
@@ -169,7 +172,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     color:#ccc;
 }
 
-/*----------------------------------community page----------------------------------*/
+/*----------------------------------community page common----------------------------------*/
 a{
     text-decoration:none !important;
     cursor: pointer;
@@ -182,6 +185,9 @@ a{
 .overflow-text-wrap{
     text-overflow:ellipsis;
     overflow:hidden;
+}
+.border-zero{
+    border:0 !important;
 }
 /*--------------community all--------------*/
 .content-wrapper-community{
@@ -238,7 +244,7 @@ a{
     font-size:14px;font-weight:bold;
 }
 .community-left .btn-facilitator{
-    cursor:pointer;float:left;border:0px solid #f00;
+    cursor:pointer;float:left;border:0px solid #f00;margin-top:2px;
 }
 .community-left .facilitator-triangle{
     float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;
@@ -310,13 +316,13 @@ a{
     width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
 }
 .community-left .discussion-subject{
-    font-weight: bold;font-size: 13px;
+    font-size: 13px;
 }
 .community-left .discussion-date .posted{
-    font-size: 13px;color:#F58221;
+    font-size: 13px;color:#F58221;font-style:italic;
 }
 .community-left .discussion-date .date{
-    font-size: 13px;
+    font-size: 13px;font-style:italic;
 }
 .community-left .seemore-t{
     width:212px;padding:0px 10px 0 0;text-align:right;border:0px solid;
@@ -364,6 +370,9 @@ a{
 .community-right .my-community .subject{
     padding:10px 0 10px 0;border-bottom:1px solid #ccc;
 }
+.community-right .my-community:nth-last-child(2) .subject{
+    border:0;
+}
 .community-right .my-community a{
     color: #000;cursor: pointer;
 }
@@ -371,13 +380,16 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;height:320px;overflow-y:auto;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:320px;
 }
 .community-right .every-resource{
-    width:80%;;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
+    width:80%;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
 }
 .community-right .community-resources a{
     font-size:13px;color:#000;
+}
+.community-right .every-resource-more{
+    display:none;
 }
 .community-right .resources-seemore{
     width:80%;margin-left:20px;padding:0px 0 5px 0;
@@ -395,19 +407,28 @@ a{
 .con-main-all .con-main-info-motto{
     width:340px;font-size:13px;line-height:18px;height:92px;
 }
-.con-main-all #btn-join{
-    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
+.con-main-all #btn-join, .con-main-all #btn-leave{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;cursor:pointer;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
 }
 .con-main-all #btn-join:hover{
     background-color:#8acc4a;
 }
-.con-main-all #btn-leave{
-    color:#fff;font-size:14px;padding:5px 25px 5px 25px;background-color:#89c252;border-radius:7px;cursor:pointer;
-}
+
 .con-main-all #btn-leave:hover{
-    background-color:#8acc4a;
+    background-color:#F5821F;
 }
-.con-main-all .top-chat-ico,.top-like-ico,.top-other-ico{
+.con-main-all #btn-leave-facilitator{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
+}
+.con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-chat-count,.top-like-count{
@@ -420,7 +441,7 @@ a{
     border:0px solid;
 }
 
-.con-main-all .top-other-count{
+.con-main-all .top-activeusers-count{
     padding-top:3px;
     height:17px;
     float:right;
@@ -465,6 +486,45 @@ a{
     font-size:14px;
     cursor:pointer;
 }
+/*--------------community members window--------------*/
+.circle:hover {
+    cursor: pointer;
+}
+.sidebar-section {
+    margin: 0 0 20px 0;
+}
+.members-container{
+    text-align:left;
+}
+.members-name {
+    display: inline-block;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    overflow-y: hidden;
+}
+.members-image {
+    margin-top: -20px;
+    position: relative;
+    right: 3px;
+    bottom: 7px;
+    width: 10px;
+}
+
+.modal-members ,.modal-members-sendmessage{
+    position: absolute;
+    width:680px !important;
+    opacity: 1;
+    z-index: 101;
+    left: 50%;
+    margin-left: -349px !important;
+    top: 120px;
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+}
 </style>
 
 <%
@@ -477,9 +537,50 @@ a{
             break
     community_id = community.id
 %>
+<!--Hide info and html-->
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
+<div class="sidebar-section" style="display:none">
+    <h2>Members</h2>
+    <div id="members_container" class="">
+    <table class="members-container" cellspacing="" cellpadding="" border="0">
+        <% active_users_count = 0 %>
+        %for u in users:
+            <%
+            use = u.user
+            utc_month=datetime.datetime.utcnow().strftime("%m")
+            utc_day=datetime.datetime.utcnow().strftime("%d")
+            utc_h=datetime.datetime.utcnow().strftime("%H")
+            utc_m=datetime.datetime.utcnow().strftime("%M")
+            d_min = 60*int(utc_h) + int(utc_m)
+            if use.profile.last_activity:
+                usr=use.profile.last_activity
+                u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+                close = int(d_min) - int(u_min) < 1
+                active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+            else:
+                active_recent = False   
+            %>
+            <tr><td>
+            %if not active_recent:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %else:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %endif
+            <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+            <span class="members-name">${use.first_name} ${use.last_name}</span></a>
+            %if active_recent:
+                <% active_users_count += 1 %>
+                <img src ="/static/images/online-3.png" data-skypename='${use.profile.skype_username}' data-fname='${use.first_name}' data-lname="${use.last_name}" data-username='${use.username}' data-email='${use.email}' data-id='${use.id}' width="" class="members-image circle"></img>
+            %endif
+            </td></tr>
+        %endfor
+    </table>
+    </div>
+</div>
+
+<!--Html page-->
 <section class="content-wrapper-community">
     <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
@@ -523,7 +624,7 @@ a{
             </div>
             %endif
             <div class="subcommunities">
-                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub">+</span></div>
+                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;<span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span></div>
                 <div class="sub-community-titles">
                     <div class="joined">
                         <div class="overflow-text joined-title">
@@ -596,8 +697,8 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-other-count">82</div>
-                                    <div class="top-other-ico">
+                                    <div class="top-activeusers-count">${active_users_count}</div>
+                                    <div class="top-activeusers-ico">
                                         <img src="/static/images/community_new/newcommunity-chat.png" height="20">
                                     </div>
                                     <div class="top-like-count">83</div>
@@ -611,9 +712,15 @@ a{
                                 </div>
                                 <div style="text-align:right;">
                                     %if ruser_info['is_member']:
-                                        <span id="btn-join">Leave</span>
+                                        %if not ruser_info['facilitator']:
+                                            <span id="btn-leave" onclick="leaveCommunity()">Member</span>
+                                        %else:
+                                            <span id="btn-leave-facilitator">Member</span>
+                                        %endif
                                     %else:
-                                        <span id="btn-leave">Join</span>
+                                        %if not community.private:
+                                            <span id="btn-join" onclick="joinMe()">Join</span>
+                                        %endif
                                     %endif
                                 </div>
                             </td>
@@ -629,17 +736,18 @@ a{
                 <div class="sub-title">Community Status</div>
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
-                    <div class="members">Members:&nbsp;<span>17</span>&nbsp;<a>[view]</a></div>
+                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities">
                         <div style="font-size:14px;float:left;">My Communities</div>
                         <div class="my-communities-triangle"></div>
                         <div style="clear:both;"></div>
-                        <div class="my-community">
-                            <div class="subject overflow-text"><a>Oklahoma SPED</a></div>
-                        </div>
-                        <div class="my-community">
-                            <div class="subject overflow-text" style="border-bottom:0"><a>ESPN Ninjas sadf fsadf asdf</a></div>
-                        </div>
+                        %for c in my_communities:
+                            <div class="my-community">
+                                <div class="subject overflow-text">
+                                    <a href="${reverse('maincommunity', args=[c['id']])}">${c['name']}</a>
+                                </div>
+                            </div>
+                        %endfor
                         <div class="my-community">
                             <span class="btn-seemore-cs">See More</span>
                         </div>
@@ -649,24 +757,40 @@ a{
             <div class="resources">
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
-                    <div class="every-resource">
-                        <a>O Niell Sea Odyssey Website</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>O Niell Sea Odyssey Website sf asdf gagadfsa fa</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>Those were such happy times Those were such</a>
-                    </div>
-                    <div class="every-resource">
-                        <a>And not so long ago dfa</a>
-                    </div>
-                    <div class="every-resource" style="border-bottom:0;">
-                        <a>How I wondered where they d gone</a>
-                    </div>
-                    <div class="resources-seemore">
-                        <span class="btn-seemore-r">See More</span>
-                    </div>
+                    <% 
+                        resources_count = resources.count() 
+                        resources_show = 4
+                    %>
+                    %for k, resource in enumerate(resources):
+                        %if resources_count <= resources_show:
+                            %if k + 1 == resources_count:
+                                <div class="every-resource border-zero">
+                            %else:
+                                <div class="every-resource">
+                            %endif 
+                        %else:
+                            %if k + 1 <= resources_show:
+                                %if k + 1 == resources_show:
+                                    <div class="every-resource border-zero resource-removeline">
+                                %else:
+                                    <div class="every-resource">
+                                %endif
+                            %else:
+                                %if k + 1 == resources_count:
+                                    <div class="every-resource every-resource-more border-zero">
+                                %else:
+                                    <div class="every-resource every-resource-more">
+                                %endif
+                            %endif
+                        %endif
+                            <a href="${resource.link}" target="_blank">${resource.name}</a>
+                        </div>
+                    %endfor
+                    %if resources_count > resources_show and resources_count > 0:
+                        <div class="resources-seemore">
+                            <span class="btn-seemore-r">See More</span>
+                        </div>
+                    %endif
                 </div>
             </div>
         </div>
@@ -674,7 +798,49 @@ a{
         <div style="clear:both;"></div>
     </div>
 </section>
-<div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+
+<!--Windows modal-->
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div id="dlg-members" class="modal modal-members">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar" style="text-align:center;">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="online_dialog" class="modal modal-members-sendmessage">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+        <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+        <div style="display:inline-block;vertical-align:top;">
+            <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
+            <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
+        </div>
+        <br><br>
+        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+            <div class="message_board_btn" id="message_board_data" data-fullname="" data-name="${user.username}" data-id="${user.user_id}" onclick="imessage_click(this);">
+                <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                <div id="" style="display:none;"></div>
+            </div>
+        </a>
+    </div>
+  </div>
+</div>
+<div id="dlg-warning" class="modal bootstrap-iso" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -683,7 +849,7 @@ a{
         <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal bootstrap-iso" id="dlg-upload_picture" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
+<div id="dlg-upload_picture" class="modal bootstrap-iso" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -714,7 +880,7 @@ a{
         </div>
     </div>
 </div>
-<div class=" modal bootstrap-iso" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div  id="dlg-add-training" class=" modal bootstrap-iso" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
@@ -850,8 +1016,7 @@ a{
     </div>
 </div>
 
-
-<script type="text/javascript">  
+<script type="text/javascript">
     //email facilitator
     $(".user-email-btn").click(function(){
         $(".email-facilitator-error").hide();
@@ -872,8 +1037,7 @@ a{
                 $(".email-facilitator-error").text(data.result);
                 $(".email-facilitator-error").show();
                 $(".email-facilitator-message").val("");
-        });
-        
+        }); 
     });
 
     //menu facilitator
@@ -883,16 +1047,90 @@ a{
     $(".btn-facilitator").mouseleave(function(){
         $(".facilitator-menu").hide("fast");
     });
-    /*
-    $(".btn-facilitator").hover(
-        function(){
-            $(".facilitator-menu").slideDown(200);
-        },
-        function(){
-            $(".facilitator-menu").slideUp(200);
-        }
-    );
-    */
+    
+    //coummunity status view
+    $("#members_view_all").click(function(e){
+        e.preventDefault();
+        var members_dialog = new Dialog($('#dlg-members'));
+        members_dialog.show('Members', $("#members_container").html());
+        $(".circle").click(function(event){
+            event.preventDefault();
+            scroll(0,0);
+            $(".hangout-span").hide();
+            $("#hangout_span_"+$(this).data('id')).show();
+            $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
+            $("#skype-online-name").text("");
+            $("#skype-name-exists").text("Begin a call with: ");
+            $("#skype-name-exists-toggle").show();
+            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("data-id"));
+            $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
+            $("#message_board_data").attr("data-name", $(this).attr("data-username"));
+            $("#message_board_data").attr("data-id", $(this).attr("data-id"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }            main_dlg=new Dialog($('#online_dialog'));
+            main_dlg.show("Error", "");
+            return false;
+        });
+    })
+
+    $("#btn-leave").mouseenter(function(){
+        $(this).html("Leave");
+    });
+    $("#btn-leave").mouseleave(function(){
+        $(this).html("Member");
+    });
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+
+    function leaveCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                       window.location.replace("${reverse('newcommunities')}");
+                       //window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       //return redirect(reverse('dashboard'));
+                });
+            }
+        });
+    }
+
+    //resources see more btn
+    $(".btn-seemore-r").click(function(){
+        $(".every-resource-more").show();
+        $(this).hide();
+        $(".resource-removeline").removeClass('border-zero');
+    });
+
+    //members modal send web inner message btn
+    function imessage_click(obj){
+        var userInfo=[];
+        userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
+        message_board(userInfo);
+    }
+
+    //create subcommunity btn
+    $(".btn-addsub").click(function(){
+        console.log("create subcommunity btn");
+
+    });
+</script>
+<script type="text/javascript">
     function newCourse() {
         var course_num = $('.community-course').length;
         $('.community-course').each(function(index) {
@@ -970,6 +1208,7 @@ a{
         this.$content = $content;
         //this.initContent();
         this.formdata = '';
+        this.community_id = '';
         this.courses_drop = new Array();
         $('.coursesdropdata').each(function(){
             var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
@@ -980,7 +1219,7 @@ a{
     PepReg.prototype.addTraining = function () {
         var self = this;
         var community_data = '';
-        var steps = this.initForm(community_data, function (data) {          
+        var steps = self.initForm(community_data, function (data) {          
             //submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -997,6 +1236,39 @@ a{
                 }
             });
             */
+            $.ajax({
+                url: "${reverse('community_edit_process_new')}",
+                type: 'POST',
+                success: function(r){
+                    console.log("ok");
+                    //$("#dlg-add-training").hide();
+                    //$(".lean-overlay").hide();
+                    window.location.href = "/newcommunities";
+                },
+                error: function(r){},
+                // Form data
+                data: self.formdata,
+                //Options to tell JQuery not to process data or worry about content-type
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        return false;
+    };
+
+    PepReg.prototype.addSubTraining = function (id) {
+        var self = this;
+        var community_data = '';
+        var steps = self.initForm(community_data, function (data) {          
+            //submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            self.createFormdata(data, id);
+            
             $.ajax({
                 url: "${reverse('community_edit_process_new')}",
                 type: 'POST',
@@ -1094,13 +1366,11 @@ a{
             self.clearData();
         }
          
-
         // ************* btn upload Picture
         $("#edit_photo").click(function(){
             self.upload_picture("", self.dlgForm);
         });
         
-
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -1254,13 +1524,19 @@ a{
         return json;
     };
     
-    PepReg.prototype.createFormdata = function (data) {
+    PepReg.prototype.createFormdata = function (data, main_community_id) {
         var self = this;
         var jsondata = data;
         self.formdata = null;
         self.formdata = new FormData();
         for(var k in jsondata){
-            self.formdata.append(k, jsondata[k]);
+            if(main_community_id && main_community_id !== undefined && k=="community_id"){
+                self.formdata.append(k, 'new');
+                self.formdata.append('main_community_id', main_community_id);
+            }
+            else{
+                self.formdata.append(k, jsondata[k]);
+            }
         }
         
         $("#community-resources").find(".typelogo").each(function (i) {
@@ -1547,6 +1823,7 @@ a{
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+
         %if user_super:
             var access_level = 'System';
         %else:
@@ -1615,5 +1892,33 @@ a{
                 $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
         });
+
+        /*------community page------*/
+        //send message close btn in navigation
+        $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+
+        /*
+        $(window).on('beforeunload',function(){
+            console.log("window_close");
+            $.post("${reverse('save_last_subaccess_time')}",{"testinfo":"last access sub community time11"},function(r){
+                if(r.success)
+                    console.log("window_click_end");
+            });
+            //return'Your own message goes here...';
+        });
+        */
+        
+        /*
+        var window_click = 0;
+        $(window).click(function(){
+            if(!window_click){
+                window_click = 1;
+                console.log("window_click");
+            }
+        });
+        //$(window).trigger("click");
+        */
     });
 </script>

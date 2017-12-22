@@ -132,9 +132,12 @@ urlpatterns = (
     url(r'^getusersession/$', 'webchat.views.get_user_session', name='get_user_session'),
     url(r'^getsessiontoken/$', 'webchat.views.get_session_token', name='get_session_token'),
 
-    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/(?P<userToID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+    url(r'^sendmessagealert/$', 'webchat.views.send_alert', name='send_webchat_alert'),
+    url(r'^checkalerts/$', 'webchat.views.check_alerts', name='check_webchat_alerts'),
 
-    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+)
+    url(r'^chatattachment/(?P<userFromID>[\'\w]+)/$', 'webchat.views.chat_attachment', name='chat_attachment'),
+    url(r'^readattachment/$', 'webchat.views.read_attachment', name='read_attachment'),
+    # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+) (?P<filePath>[\\\:\.w]+)/
 
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
@@ -458,6 +461,9 @@ urlpatterns = (
     url(r'^community/user/email-completion', 'communities.views.community_user_email_completion', name='community_user_email_completion'),
     url(r'^community/user/email-valid', 'communities.views.community_user_email_valid', name='community_user_email_valid'),
     url(r'^community/email-facilitator', 'communities.views.email_facilitator', name='community_email_facilitator'),
+    url(r'^community/save_last_subaccess_time', 'communities.views.save_last_subaccess_time', name='save_last_subaccess_time'),
+
+    url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),

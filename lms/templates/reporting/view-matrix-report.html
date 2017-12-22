@@ -9,7 +9,6 @@
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
 <script type="text/javascript" src="/static/js/tc.all.js"></script>
-<script type="text/javascript" src="/static/js/tc.min.js"></script>
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
@@ -271,7 +270,7 @@ var report_view = {
         init:function(){
             var self = this;
             clearInterval(self.timeID);
-            self.timeID = setInterval(self.show_progress, 4000, self);
+            self.timeID = setInterval(self.show_progress, 400, self);
             $("#btnEditReport").click(function(){
                 window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
             });
@@ -309,7 +308,7 @@ var report_view = {
         show_progress: function(obj){
             var self = this;
             $.post("${reverse('reporting_report_get_progress',args=[report.id])}?school_year=${school_year}", function(data) {
-                if (data != null) {                 
+                if (data != null) {
                     if(data.success)
                     {
                         obj.reloadTable()

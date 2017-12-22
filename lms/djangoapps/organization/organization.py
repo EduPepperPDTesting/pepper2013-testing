@@ -377,7 +377,7 @@ def design_list(request):
 
     rows = []
     for design in design_list:
-        rows.append({'id': design.id, 'DesignName': design.DesignName, 'is_selected': design.is_selected})
+        rows.append({'id': design.id, 'DesignName': design.DesignName})
 
     return render_json_response({'success': True, 'rows': rows})
 
@@ -602,6 +602,60 @@ def design_add(request):
         try:
             design.DesignName = name
             design.save()
+            if copyfromid:
+                design_old = Nologindesign.objects.get(id=copyfromid)
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design.id) + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+                for bean1 in DesignMenuitem.objects.filter(design=design_old, ParentID=0):
+                    org_menu_item = DesignMenuitem()
+                    org_menu_item.MenuItem = bean1.MenuItem
+                    org_menu_item.Url = bean1.Url
+                    org_menu_item.Icon = bean1.Icon
+                    org_menu_item.rowNum = bean1.rowNum
+                    org_menu_item.ParentID = 0
+                    org_menu_item.design = design
+                    org_menu_item.save()
+
+                    if bean1.Icon != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design_old.id) + '/' + bean1.Icon
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.Icon)
+
+                    for bean2 in DesignMenuitem.objects.filter(design=design_old, ParentID=bean1.id):
+                        org_menu_item2 = DesignMenuitem()
+                        org_menu_item2.MenuItem = bean2.MenuItem
+                        org_menu_item2.Url = bean2.Url
+                        org_menu_item2.rowNum = bean2.rowNum
+                        org_menu_item2.ParentID = org_menu_item.id
+                        org_menu_item2.design = design
+                        org_menu_item2.save()
+
+                for bean1 in DesignMenu.objects.filter(design=design_old):
+                    org_menu = DesignMenu()
+                    org_menu.itemType = bean1.itemType
+                    org_menu.itemValue = bean1.itemValue
+                    org_menu.design = design
+                    org_menu.save()
+
+                    if bean1.itemType == "logo" and bean1.itemValue != "":
+                        tmp_logo_src = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + str(design_old.id) + '/' + bean1.itemValue
+                        if os.path.exists(tmp_logo_src):
+                            shutil.copyfile(tmp_logo_src, path + bean1.itemValue)
+
+                org_data_list = DesignFooter.objects.filter(design=design_old)
+                for tmp1 in org_data_list:
+                    org_footer = DesignFooter()
+                    org_footer.DataItem = tmp1.DataItem
+                    org_footer.design = design
+                    org_footer.save()
+                    break
 
             data = {'Success': True}
         except Exception as e:
@@ -717,6 +771,21 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break
                             break
+                            
+                    elif column == "Designlogo":
+                        for tmp1 in Nologindesign.objects.filter(id=oid):
+                            for tmp2 in DesignMenu.objects.filter(design=tmp1, itemType="logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
                     elif column == "OrganizationLogo":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
@@ -1376,7 +1445,7 @@ def design_save_base(request):
         is_icon = request.POST.get("is_icon", "")
         is_icon_width_text = request.POST.get("is_icon_width_text", "")
         is_new_menu = request.POST.get("is_new_menu", "")
-        remove_all_menu = request.POST.get("remove_all_menu", "")
+        # remove_all_menu = request.POST.get("remove_all_menu", "")
         menu_text_color = request.POST.get("menu_text_color", "")
         menu_text_font = request.POST.get("menu_text_font", "")
         menu_text_size = request.POST.get("menu_text_size", "")
@@ -1468,7 +1537,7 @@ def design_save_base(request):
             design_menusave(design_metadata, "Space Betwwen Items", space_between_items)
             design_menusave(design_metadata, "Is New Menu", is_new_menu)
             design_menusave(design_metadata, "Logo Url", logo_url)
-            design_menusave(design_metadata, "Remove All Menu", remove_all_menu)
+            # design_menusave(design_metadata, "Remove All Menu", remove_all_menu)
             design_menusave(design_metadata, "Footer Selected", footer_flag)
         data = {'Success': True}
     except Exception as e:
@@ -1681,7 +1750,6 @@ def organizational_save_main_base(request):
         logo_text = request.POST.get("logo_text", "")
         button_text = request.POST.get("button_text", "")
         button_link = request.POST.get("button_link", "")
-        selectdesign = request.POST.get("selectdesign", "")
 
         org_main = MainPageConfiguration()
         for tmp1 in MainPageConfiguration.objects.prefetch_related().all():
@@ -1693,16 +1761,6 @@ def organizational_save_main_base(request):
         org_main.MainPageButtonText = button_text
         org_main.MainPageButtonLink = button_link
         org_main.save()
-
-        for tmp1 in Nologindesign.objects.filter(is_selected=1):
-            tmp1.is_selected = 0
-            tmp1.save()
-            break
-
-        for tmp1 in Nologindesign.objects.filter(pk=selectdesign):
-            tmp1.is_selected = 1
-            tmp1.save()
-            break
 
         data = {'Success': True}
 

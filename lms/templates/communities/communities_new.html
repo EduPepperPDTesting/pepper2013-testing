@@ -810,6 +810,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         this.$content = $content;
         //this.initContent();
         this.formdata = '';
+        this.community_id = '';
         this.courses_drop = new Array();
         $('.coursesdropdata').each(function(){
             var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
@@ -820,7 +821,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
     PepReg.prototype.addTraining = function () {
         var self = this;
         var community_data = '';
-        var steps = this.initForm(community_data, function (data) {          
+        var steps = self.initForm(community_data, function (data) {          
             //submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -837,6 +838,39 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 }
             });
             */
+            $.ajax({
+                url: "${reverse('community_edit_process_new')}",
+                type: 'POST',
+                success: function(r){
+                    console.log("ok");
+                    //$("#dlg-add-training").hide();
+                    //$(".lean-overlay").hide();
+                    window.location.href = "/newcommunities";
+                },
+                error: function(r){},
+                // Form data
+                data: self.formdata,
+                //Options to tell JQuery not to process data or worry about content-type
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        return false;
+    };
+
+    PepReg.prototype.addSubTraining = function (id) {
+        var self = this;
+        var community_data = '';
+        var steps = self.initForm(community_data, function (data) {          
+            //submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            self.createFormdata(data, id);
+            
             $.ajax({
                 url: "${reverse('community_edit_process_new')}",
                 type: 'POST',
@@ -934,13 +968,11 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             self.clearData();
         }
          
-
         // ************* btn upload Picture
         $("#edit_photo").click(function(){
             self.upload_picture("", self.dlgForm);
         });
         
-
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -1094,13 +1126,19 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return json;
     };
     
-    PepReg.prototype.createFormdata = function (data) {
+    PepReg.prototype.createFormdata = function (data, main_community_id) {
         var self = this;
         var jsondata = data;
         self.formdata = null;
         self.formdata = new FormData();
         for(var k in jsondata){
-            self.formdata.append(k, jsondata[k]);
+            if(main_community_id && main_community_id !== undefined && k=="community_id"){
+                self.formdata.append(k, 'new');
+                self.formdata.append('main_community_id', main_community_id);
+            }
+            else{
+                self.formdata.append(k, jsondata[k]);
+            }
         }
         
         $("#community-resources").find(".typelogo").each(function (i) {
@@ -1387,6 +1425,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+
         %if user_super:
             var access_level = 'System';
         %else:
