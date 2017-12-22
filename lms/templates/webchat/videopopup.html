@@ -6,14 +6,13 @@
         <div id="subscriber"></div>
         <div id="publisher"></div>
         <div id="buttons">
-            <img src = "/static/images/screenshare.png" class="screenshare"></img>
+            <img src = "/static/images/screenshare.png" class="screenshare" alt="Screen Share" />
         </div>
     </div>
 
 <script>
 window.resizeTo(528,396);
-    function getParams ()
-{
+function getParams () {
     var result = {};
     var tmp = [];
 
@@ -28,17 +27,18 @@ window.resizeTo(528,396);
 
     return result;
 }
-try{
+
+var token = '';
+try {
     location.getParams = getParams;
     token = location.search.substr(1).split('&')[1].replace("token=",'');
     sessionId = location.getParams()['session']
 } catch (err) {
     console.log ("No Session/Token Passed.");
-    token='default';
+    token = 'default';
 }
 
-
-if (token=='default') {
+if (token === 'default') {
     sessionId='2_MX40NTkzOTg2Mn5-MTUwNjAyMTc3ODE5OH4xcHBCZkNSWW5jb01iS2ZPbm1sOUkzL01-fg';
     token = 'T1==cGFydG5lcl9pZD00NTkzOTg2MiZzaWc9N2IxYmZkODU4N2E0Y2EyMDU3ZWMzMjlhNWZhMWRlZWRmYWUyOGI3MDpzZXNzaW9uX2lkPTJfTVg0ME5Ua3pPVGcyTW41LU1UVXdOakF5TVRjM09ERTVPSDR4Y0hCQ1prTlNXVzVqYjAxaVMyWlBibTFzT1VrekwwMS1mZyZjcmVhdGVfdGltZT0xNTA2MDIxODI2Jm5vbmNlPTAuNDUyMTI1NTQwNDExMTcwOCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNTA4NjEzODIzJmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9';
 }
@@ -51,10 +51,10 @@ var apiKey = "45939862";
 var screensharing = false;
 
 $(document).ready(function(){
-        console.log ("starting...");
-        initializeSession();
+    console.log ("starting...");
+    initializeSession();
 });
-connections = 0;
+var connections = 0;
 
 function handleError(error) {
   if (error) {
@@ -64,7 +64,7 @@ function handleError(error) {
 
 function disconnectSession () {
     var session = OT.initSession(apiKey, sessionId);
-        session.disconnect();
+    session.disconnect();
 }
 
 var main_subscriber;
