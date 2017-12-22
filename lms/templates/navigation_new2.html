@@ -82,7 +82,7 @@
                     newMeStyleColor = org_data['Text Color Me']
                     newMeStyleSize = org_data['Text Size Me']
 
-                tmp_style = " style='font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
+                tmp_style = " style='line-height:20px;font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
 
                 if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     img_src = "/static/images/ppd-iMessage-default.png"
@@ -110,7 +110,7 @@
                 elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
                     img_src = "/static/images/index_login_cart-537824274.png"
                     tmp1_MenuItem_txt = "Shopping"
-                    icon_a = "<a href='/shopping' rel='leanModal' style='text-decoration:none !important;'>"
+                    icon_a = "<a href='/shopping' style='text-decoration:none !important;'>"
 
                     #---------------icon
                     nav_option_text_top = ""
@@ -142,7 +142,7 @@
                         menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
                         if liClass != "":
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
-                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class1='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
                         else:
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
                             menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
@@ -171,7 +171,7 @@
                 if tmp1_MenuItem_txt == "#Messenger" and not is_external:
                     menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count'  style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
                 elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
-                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='/shopping' rel='leanModal' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Shopping </a></li>"
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='/shopping' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Shopping </a></li>"
                 else:
                     tmp_menu_icon = " &#9662;"
                     if liClass == "":

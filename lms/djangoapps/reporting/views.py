@@ -1006,7 +1006,7 @@ def report_get_progress(request, report_id):
     school_year = request.GET.get('school_year', '')
     rs = reporting_store()
     collection = get_cache_collection(request, report_id, school_year)
-    report = report.objects.get(pk=report_id)
+    report = Reports.objects.get(pk=report_id)
     if report.report_type == "1":
         collection = collection + "aggregate"
     stats = int(rs.get_collection_stats(collection)['ok'])

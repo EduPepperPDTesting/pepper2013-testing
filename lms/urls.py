@@ -461,6 +461,7 @@ urlpatterns = (
     url(r'^community/user/email-completion', 'communities.views.community_user_email_completion', name='community_user_email_completion'),
     url(r'^community/user/email-valid', 'communities.views.community_user_email_valid', name='community_user_email_valid'),
     url(r'^community/email-facilitator', 'communities.views.email_facilitator', name='community_email_facilitator'),
+    url(r'^community/save_last_subaccess_time', 'communities.views.save_last_subaccess_time', name='save_last_subaccess_time'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 
