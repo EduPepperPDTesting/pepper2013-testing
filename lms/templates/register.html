@@ -119,7 +119,7 @@ import json
     if (!checkBase(username)){
       toggleSubmitButton(true);
       $('.status.message.submission-error').addClass('is-shown').focus();
-      $('.status.message.submission-error .message-copy').html("Username should only consiste of A-Z and 0-9, with no space.").stop().css("display", "block");
+      $('.status.message.submission-error .message-copy').html("Username should only consist of A-Z and 0-9, with no space.").stop().css("display", "block");
       $(".field-error").removeClass('field-error');
       $("#username").addClass('field-error');                         
       return false;   
@@ -128,7 +128,7 @@ import json
     if (!checkBase(first_name)){
       toggleSubmitButton(true);
       $('.status.message.submission-error').addClass('is-shown').focus();
-      $('.status.message.submission-error .message-copy').html("First Name should only consiste of A-Z and 0-9.").stop().css("display", "block");
+      $('.status.message.submission-error .message-copy').html("First Name should only consist of A-Z and 0-9.").stop().css("display", "block");
       $(".field-error").removeClass('field-error');
       $("#first_name").addClass('field-error');                         
       return false;   
@@ -137,7 +137,7 @@ import json
     if (!checkBase(last_name)){
       toggleSubmitButton(true);
       $('.status.message.submission-error').addClass('is-shown').focus();
-      $('.status.message.submission-error .message-copy').html("Last Name should only consiste of A-Z and 0-9.").stop().css("display", "block");
+      $('.status.message.submission-error .message-copy').html("Last Name should only consist of A-Z and 0-9.").stop().css("display", "block");
       $(".field-error").removeClass('field-error');
       $("#last_name").addClass('field-error');                         
       return false;   
