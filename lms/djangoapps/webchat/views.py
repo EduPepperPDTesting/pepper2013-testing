@@ -204,14 +204,15 @@ def get_communities(request):
         for item in items: #orgs_list.append({'id': item.community.id, 'name': item.community.name})
             community_list.append({'id': item.community.id, 'name': item.community.name})
 
-    # Query for the communities this user is allowed to see.
-    items = CommunityCommunities.objects.filter(**filter_dict)
-    for item in items:
-        community_name = item.name
-        try:
-            community_name = community_name.replace("'", "~")
-        except:
-            pass
+    if request.user.is_superuser:
+        # Query for the communities this user is allowed to see.
+        items = CommunityCommunities.objects.filter(**filter_dict)
+        for item in items:
+            community_name = item.name
+            try:
+                community_name = community_name.replace("'", "~")
+            except:
+                pass
 
         community_list.append({'id': item.id, 'name': community_name})
 
