@@ -200,7 +200,7 @@ def get_communities(request):
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=request.user)#, community__private=True
         for item in items: #orgs_list.append({'id': item.community.id, 'name': item.community.name})
             community_list.append({'id': item.community.id, 'name': item.community.name})
 
