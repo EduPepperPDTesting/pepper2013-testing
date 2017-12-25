@@ -474,7 +474,7 @@ def maincommunity(request, community_id):
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community,user__profile__subscription_status='Registered',user=request.user)
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
     if ruser_in_commumity:
         ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
         ruser_info['edit'] = ruser_in_commumity[0].community_edit
@@ -485,6 +485,18 @@ def maincommunity(request, community_id):
     user_super = ""
     if request.user.is_superuser:
         user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
     '''
     Get Community Status
@@ -528,10 +540,102 @@ def maincommunity(request, community_id):
                       'ruser_info': ruser_info,
                       'resources': resources,
                       'users': users,
-                      'my_communities': my_communities_list}
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
     data.update(community_info)
 
     return render_to_response('communities/community_new.html', data)
+
+@login_required
+def subcommunity(request, community_id):
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, community_id)
+    data = {'courses_drop': courses_drop}
+
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+    facilitator = ""
+    if facilitator_default:
+        facilitator = facilitator_default[0]
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    if items:
+        for item in items:
+            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
+                else:
+                    if len(itmes_all) > 1:
+                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
+
+    else:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+        for item in items:
+            my_communities_list.append({'id': item.id, 'name': item.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
+    data.update(community_info)
+
+    return render_to_response('communities/subcommunity.html', data)
 
 @login_required
 def email_facilitator(request):
@@ -814,7 +918,7 @@ def newcommunities(request):
     """
     user = request.user
     community_list = list()
-    filter_dict = dict()
+    filter_dict = {'main_id': 0}
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -822,7 +926,7 @@ def newcommunities(request):
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True, community__main_id=0)
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
