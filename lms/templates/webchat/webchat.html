@@ -14,11 +14,10 @@ $(document).ready(function(){
     $(".pep_textchat_block").on("click", ".pep_text_panel", function(e){
 
         var needIndex = $(".pep_text_container").length + 1;
+        var getId = $(this).find(".pep_header_left").attr("id");
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
         if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
-
-            var getId = $(this).find(".pep_header_left").attr("id");
-            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
             if($(this).parents(".pep_text_container").css("bottom") !== "-210px"){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
@@ -32,7 +31,8 @@ $(document).ready(function(){
                     if(headData == getId){
 
                         $(this).parents(".pep_text_container").css("z-index",arrInd);
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
+                        //chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + arrInd + "``1";
                         break;
                     }
                 }
@@ -42,10 +42,8 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").css("bottom","0px");
 
                 $(".pep_text_container").filter(function(){
-                            console.log("check index="+needIndex);
                             return $(this).css("z-index") == needIndex;
                         }).each(function(){
-                            console.log("this index="+($(this).index() + 1));
                             $(this).css("z-index", $(this).index() + 1);
                         });
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
@@ -54,7 +52,8 @@ $(document).ready(function(){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     if(headData == getId){
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
+                        //chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
                         break;
                     }
                 }
@@ -66,16 +65,23 @@ $(document).ready(function(){
             if(parseInt($(this).closest(".pep_text_container").css("z-index")) != needIndex){
 
                 $(".pep_text_container").filter(function(){
-                            console.log("check index="+needIndex);
-                            return $(this).css("z-index") == needIndex;
-                        }).each(function(){
-                            console.log("this index="+($(this).index() + 1));
-                            $(this).css("z-index", $(this).index() + 1);
-                        });
+                        return $(this).css("z-index") == needIndex;
+                    }).each(function(){
+                        $(this).css("z-index", $(this).index() + 1);
+                    });
 
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
             }
-        }
+            for (var arrInd in chatHeads){
+                headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                headData = headData.substring(0, headData.indexOf("`"));
+                console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
+                if(headData == getId){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + chatHeads[arrInd].substr(indexOf("``"));
+                    break;
+                }
+            }
+    }
     });
 
     $(".pep_textchat_block").on("click", ".close-chat", function(){
