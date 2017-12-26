@@ -25,6 +25,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").css("bottom","-210px");
 
                 for (var arrInd in chatHeads){
+                    console.log(chatHeads[arrInd]);
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
@@ -49,6 +50,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
 
                 for (var arrInd in chatHeads){
+                    console.log(chatHeads[arrInd]);
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     if(headData == getId){
@@ -73,6 +75,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
 
                 for (var arrInd in chatHeads){
+                    console.log(chatHeads[arrInd]);
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
