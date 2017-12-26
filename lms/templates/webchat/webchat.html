@@ -11,7 +11,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-    $(".pep_textchat_block").on("click", ".pep_textchatheader_container", function(e){
+    $(".pep_textchat_block").on("click", ".pep_text_panel", function(e){
 
         if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
 
@@ -28,6 +28,7 @@ $(document).ready(function(){
                     headData = headData.substring(0, headData.indexOf("`"));
                     console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
                     if(headData == getId){
+                        $(this).parents(".pep_text_container").css("z-index",arrInd);
                         chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
                         break;
                     }
@@ -36,6 +37,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
                 $(this).parents(".pep_text_container").css("bottom","0px");
+                $(this).parents(".pep_text_container").css("z-index", $(".pep_text_container").length + 1);
 
                 for (var arrInd in chatHeads){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
@@ -48,6 +50,13 @@ $(document).ready(function(){
 
             }
             sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+        }else{
+            var needIndex = $(".pep_text_container").length + 1;
+            if($(this).parents(".pep_text_container").attr("z-index") == needIndex){
+                $(this).parents(".pep_text_container").css("z-index", $(this).parents(".pep_text_container").index() + 1);
+            }else{
+                $(this).parents(".pep_text_container").css("z-index", needIndex);
+            }
         }
     });
 
@@ -60,7 +69,7 @@ $(document).ready(function(){
             if(i < ind){
                 var posPrev = $(el).prev().offset();
                 var leftX = posPrev.left;
-                $(el).css({"right": "", "left": leftX + "px"});
+                $(el).css({"right": "", "left": leftX + "px", "z-index": $(el).attr("z-index") - 1);
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
