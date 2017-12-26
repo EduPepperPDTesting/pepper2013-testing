@@ -59,6 +59,7 @@ $(document).ready(function(){
                         headData = headData.substring(0, headData.indexOf("`"));
                         console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         if(headData == getId){
+                            console.log("--> "+chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1");
                             chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
                             break;
                         }
