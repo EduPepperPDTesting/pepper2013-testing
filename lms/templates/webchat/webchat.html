@@ -52,7 +52,8 @@ $(document).ready(function(){
             sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         }else{
             var needIndex = $(".pep_text_container").length + 1;
-            if($(this).parents(".pep_text_container").attr("z-index") == needIndex){
+            console.log("needIndex="+needIndex+" "+e.target.closest(".pep_text_container").attr("z-index"));
+            if(e.target.closest(".pep_text_container").attr("z-index") == needIndex){
                 $(this).parents(".pep_text_container").css("z-index", $(this).parents(".pep_text_container").index() + 1);
             }else{
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
