@@ -530,6 +530,9 @@ a{
     padding: 0 0 8px 0;
     display: none;
 }
+.coursesdropdata{
+    display:none
+}
 </style>
 
 <%
@@ -544,7 +547,7 @@ a{
 %>
 <!--Hide info and html-->
 %for course_option in courses_drop:
-    <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
+    <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}">${course_option['name']}</div>
 %endfor
 <div class="sidebar-section" style="display:none">
     <h2>Members</h2>
@@ -591,7 +594,7 @@ a{
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
-            <div class="sub-community-info">Digital Citixenship Community :<br/><b>${community.name}</b></div>
+            <div class="sub-community-info">${main_community.name} /<br/><b>${community.name}</b></div>
             %if facilitator:
             <div class="facilitator-info">
                 <div class="user-photo">
@@ -607,7 +610,7 @@ a{
                         <div class="f-menu-triangle"></div>
                             <div class="f-lines">
                                 %if ruser_info['edit'] or user_super:
-                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
+                                <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
                                 <div class="f-rights-line">Delete Community</div>
@@ -910,18 +913,18 @@ a{
             <div class="" style="width:100%;height:100%;overflow:hidden;">
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 1 of 5</h5>
+                        <h5>Create Subcommunity: Step 1 of 5</h5>
                         <h4>General Information</h4>
                         <div class="form-row">
                             <label id="community-name">
-                                <span>Community Name:</span></br>
-                                <input type="text" name="name" value="" placeholder="The name of the community">
+                                <span>Name:</span></br>
+                                <input type="text" name="name" value="" placeholder="The name of the subcommunity">
                             </label>
                         </div>
                         <div class="form-row">
                             <label id="community-motto">
                                 <span>Description (Motto):</span></br>
-                                <input type="text" name="motto" value="" placeholder="A description or motto for this community">
+                                <input type="text" name="motto" value="" placeholder="A description or motto for this Subcommunity">
                             </label>
                         </div>
                         <div class="form-row">
@@ -935,7 +938,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 2 of 5</h5>
+                        <h5>Create Subcommunity: Step 2 of 5</h5>
                         <h4>Organization Information</h4>
                         <div class="form-row" style="font-size:14px;">
                             %if request.user.is_superuser:
@@ -963,7 +966,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 3 of 5</h5>
+                        <h5>Create Subcommunity: Step 3 of 5</h5>
                         <h4>Add Courses</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>courses:</span></label></br>
@@ -976,7 +979,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 4 of 5</h5>
+                        <h5>Create Subcommunity: Step 4 of 5</h5>
                         <h4>Add resources</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>Resources:</span></label></br>
@@ -989,7 +992,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 5 of 5</h5>
+                        <h5>Create Subcommunity: Step 5 of 5</h5>
                         <h4>Add/Remove Facilitators</h4>
                         <div class="form-row" style="font-size:14px;">
                             <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
@@ -1020,7 +1023,7 @@ a{
                             </div>
                         </div>
                         <div class="form-row" style="font-size:14px;">
-                            <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
+                            <i>Select a <b>Subcommunity Facilitator</b> by searching email (start typing and select email of
                                 <b>Facilitator</b>):</i>
                             <div style="margin:5px 0 5px 0;">
                                 <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
@@ -1235,81 +1238,7 @@ a{
         });
     }
 
-    PepReg.prototype.addTraining = function () {
-        var self = this;
-        var community_data = '';
-        var steps = self.initForm(community_data, function (data) {          
-            //submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            self.createFormdata(data);
-            /*
-            $.post("${reverse('community_edit_process_new')}", data, function (r) {
-                if (r.success) {
-                    $("#dlg-add-training").hide();
-                    $(".lean-overlay").hide();
-                    //self.reloadTable();
-                }
-            });
-            */
-            $.ajax({
-                url: "${reverse('community_edit_process_new')}",
-                type: 'POST',
-                success: function(r){
-                    console.log("ok");
-                    //$("#dlg-add-training").hide();
-                    //$(".lean-overlay").hide();
-                    window.location.href = "/newcommunities";
-                },
-                error: function(r){},
-                // Form data
-                data: self.formdata,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-        return false;
-    };
-
-    PepReg.prototype.addSubTraining = function (id) {
-        var self = this;
-        var community_data = '';
-        var steps = self.initForm(community_data, function (data) {          
-            //submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            self.createFormdata(data, id);
-            
-            $.ajax({
-                url: "${reverse('community_edit_process_new')}",
-                type: 'POST',
-                success: function(r){
-                    console.log("ok");
-                    //$("#dlg-add-training").hide();
-                    //$(".lean-overlay").hide();
-                    window.location.href = "/newcommunities";
-                },
-                error: function(r){},
-                // Form data
-                data: self.formdata,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-        return false;
-    };
-
-    PepReg.prototype.editTraining = function (id) {
+    PepReg.prototype.editSubTraining = function (id) {
         var self = this;
         $.post("${reverse('get_edit_community')}", {id: id}, function (d) {
             
@@ -1393,16 +1322,13 @@ a{
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
-            $.get("${reverse('community_user_email_valid')}", {email: email}, function (result) {
-                if (result == "1"){
+            $.get("${reverse('subcommunity_user_email_valid')}", {email: email, main_id: '${community.main_id}'}, function (result) {
+                if (result.success){
                     self.addFacilitator(email);
                     $("#complete-email").val("");
                 } 
-                else if(result == "2"){
-                    self.warning("User not exists.", self.dlgForm);
-                }
                 else{
-                    self.warning("The user you are trying to add is not in your district.", self.dlgForm);
+                    self.warning(result.info, self.dlgForm);
                 }
             });
         });
@@ -1744,11 +1670,11 @@ a{
         if (page == 0) {
             if (!data.name) {
                 $('#community-name input').addClass('community-error-box');
-                return ["name", "Community Name is required."];
+                return ["name", "Subcommunity Name is required."];
             }
             else if(!/[A-Za-z]/.test(data.name)){
                 $('#community-name input').addClass('community-error-box');
-                return ["name", "Community Name format wrong."];
+                return ["name", "Subcommunity Name format wrong."];
             }
         }
         else if (page == 1) {
@@ -1908,7 +1834,7 @@ a{
 
         $('#complete-email').autocomplete({
             source: function (request, response) {
-                $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
+                $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${community.main_id}'}, response);
             }
         });
 

@@ -557,12 +557,15 @@ def subcommunity(request, community_id):
     courses_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop}
 
-    # Get community info
+    # Get subcommunity info
     community = CommunityCommunities.objects.get(id=community_id)
     facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
     facilitator = ""
     if facilitator_default:
         facilitator = facilitator_default[0]
+
+    # Get maincommunity
+    main_community = CommunityCommunities.objects.get(id=community.main_id)
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
@@ -582,7 +585,7 @@ def subcommunity(request, community_id):
     Get Subcommunities
     '''
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('-id')
     for item in subcommunities:
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
@@ -628,6 +631,7 @@ def subcommunity(request, community_id):
     data.update(community_other_info)
 
     community_info = {'community': community,
+                      'main_community': main_community,
                       'facilitator': facilitator,
                       'ruser_info': ruser_info,
                       'resources': resources,
@@ -2150,24 +2154,63 @@ def community_user_email_completion(request):
 def community_user_email_valid(request):
     exists = False
     email_can_input = False
+    check_result = {'success': True, 'info': ''}
+
     lookup = request.GET.get('email', False)
     if lookup:
         user_add = User.objects.filter(email=lookup)
         exists = user_add.exists()
         if exists:
-            if request.user.is_superuser:
-                email_can_input = True
-            elif user_add[0].profile.district == request.user.profile.district:
+            if request.user.is_superuser or user_add[0].profile.district == request.user.profile.district:
                 email_can_input = True
 
-    check_result = "1"
     if not exists:
-        check_result = "2"
+        check_result['success'] = False
+        check_result['info'] = 'User not exists.'
     elif not email_can_input:
-        check_result = "3"
+        check_result['success'] = False
+        check_result['info'] = 'The user you are trying to add is not in your district.'
 
     return render_json_response(check_result)
 
+
+def subcommunity_user_email_completion(request):
+    r = list()
+    user_district = request.user.profile.district
+    lookup = request.GET.get('q', False)
+    main_community_id = request.GET.get('main_id', 0)
+
+    if lookup and main_community_id:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered', 'communityuser__community': main_community_id}
+
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
+    return render_json_response(r)
+
+def subcommunity_user_email_valid(request):
+    exists = False
+    email_can_input = False
+    check_result = {'success': True, 'info': ''}
+
+    lookup = request.GET.get('email', False)
+    main_community_id = request.GET.get('main_id', 0)
+    if lookup and main_community_id:
+        user_add = User.objects.filter(email=lookup)
+        exists = user_add.exists()
+        if exists:
+            main_community_user = CommunityUsers.objects.filter(user=user_add[0], community=main_community_id)
+            if user_add[0].is_superuser or main_community_user:
+                email_can_input = True
+
+    if not exists:
+        check_result['success'] = False
+        check_result['info'] = 'User not exists.'
+    elif not email_can_input:
+        check_result['success'] = False
+        check_result['info'] = 'The user you are trying to add is not the member of this community.'
+
+    return render_json_response(check_result)
 
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
