@@ -97,7 +97,7 @@ $(document).ready(function(){
                         headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                         headData = headData.substring(0, headData.indexOf("`"));
                         if(headData == getId){
-                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``1";
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + ($(this).index() + 1) + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
                             break;
                         }
                     }
