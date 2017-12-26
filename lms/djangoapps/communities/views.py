@@ -33,6 +33,7 @@ from courseware.courses import get_course_by_id
 from xmodule.remindstore import myactivitystore
 from file_uploader.utils import get_file_url
 from pepper_utilities.utils import render_json_response
+from django.utils.timezone import UTC
 
 log = logging.getLogger("tracking")
 
@@ -473,7 +474,7 @@ def maincommunity(request, community_id):
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community,user__profile__subscription_status='Registered',user=request.user)
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
     if ruser_in_commumity:
         ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
         ruser_info['edit'] = ruser_in_commumity[0].community_edit
@@ -484,6 +485,18 @@ def maincommunity(request, community_id):
     user_super = ""
     if request.user.is_superuser:
         user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
     '''
     Get Community Status
@@ -527,10 +540,102 @@ def maincommunity(request, community_id):
                       'ruser_info': ruser_info,
                       'resources': resources,
                       'users': users,
-                      'my_communities': my_communities_list}
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
     data.update(community_info)
 
     return render_to_response('communities/community_new.html', data)
+
+@login_required
+def subcommunity(request, community_id):
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, community_id)
+    data = {'courses_drop': courses_drop}
+
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+    facilitator = ""
+    if facilitator_default:
+        facilitator = facilitator_default[0]
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    if items:
+        for item in items:
+            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
+                else:
+                    if len(itmes_all) > 1:
+                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
+
+    else:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+        for item in items:
+            my_communities_list.append({'id': item.id, 'name': item.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
+    data.update(community_info)
+
+    return render_to_response('communities/subcommunity.html', data)
 
 @login_required
 def email_facilitator(request):
@@ -813,7 +918,7 @@ def newcommunities(request):
     """
     user = request.user
     community_list = list()
-    filter_dict = dict()
+    filter_dict = {'main_id': 0}
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not user.is_superuser:
@@ -821,7 +926,7 @@ def newcommunities(request):
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True, community__main_id=0)
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
@@ -940,6 +1045,12 @@ def get_edit_community(request):
 
 def is_facilitator_edit(user, community_id):
     return True
+
+def save_last_subaccess_time(request):
+    testinfo = request.POST.get("testinfo", "noget testinfo")
+    log.debug("================")
+    log.debug(testinfo)
+    return HttpResponse(json.dumps({"success": True}), content_type="application/json")
 
 @login_required
 def community_delete(request, community_id):
@@ -1094,7 +1205,7 @@ def community_edit_process_new(request):
                 img_file.write(imgData)
                 img_file.close()
                 im = Image.open(path)
-                x,y = im.size
+                x, y = im.size
                 p = Image.new('RGBA', im.size, (255, 255, 255))
                 p.paste(im, (0, 0, x, y), im)
                 p.save(path)
@@ -1115,7 +1226,10 @@ def community_edit_process_new(request):
         resource_names = get_post_dict(request, 'resource_names')
         resource_links = get_post_dict(request, 'resource_links')
 
-        # If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        community_object = ''
         if community_id == 'new':
             community_object = CommunityCommunities()
         else:
@@ -1131,9 +1245,19 @@ def community_edit_process_new(request):
         community_object.district = district
         community_object.state = state
         community_object.discussion_priority = int(priority_id)
+
+        # Sub community, Save main community id to sub community
+        main_community_id = request.POST.get('main_community_id', '')
+        if main_community_id:
+            try:
+                main_community = CommunityCommunities.objects.get(id=main_community_id)
+                community_object.main_id = int(main_community_id)
+            except Exception as e:
+                pass
+        # Save the community
         community_object.save()
 
-        # facilitators
+        # Facilitators
         old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
         for f in old_facilitators:
             f.facilitator = False
@@ -1262,7 +1386,7 @@ def community_edit_process_new(request):
                 'error_message': 'Error: {0}'.format(e),
                 'window_title': 'Problem Saving Community'}
         return render_to_response('error.html', data)
-    
+
 def get_post_dict(request, name):
     output = dict()
     value_str = request.POST.get(name, '')
@@ -2056,6 +2180,12 @@ def new_discussion_process(request):
         if post_flag == "get_discussions":
             return new_process_get_discussions(request)
 
+        elif post_flag == "discussions_pin_change":
+            return new_process_discussions_pin_change(request)
+
+        elif post_flag == "discussions_like":
+            return new_process_discussions_like(request)
+
 
 # -------------------------------------------------------------------new_process_get_discussions
 @login_required
@@ -2120,22 +2250,36 @@ def new_process_get_discussions(request):
             tmp_reply += "        <div class='dis_post'>" + itemx_1['post'] + "</div>"
             tmp_reply += "    </div>"
             tmp_reply += "    <div class='dis_row dis_reply_tool'>"
-            tmp_reply += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
-            tmp_reply += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
-            tmp_reply += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
-            tmp_reply += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
+            tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>"
+            tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked'></span>"
+            tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>"
+            tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='2'> More</span>"
             tmp_reply += "    </div>"
             tmp_reply += "    <div class='dis_reply'>" + tmp_reply_next + "</div>"
             tmp_reply += "</span>"
 
-        html += "<div class='center_block'>"
+        pin = ""
+        if 'pin' in disc:
+            pin = str(disc['pin'])
+
+        like_size = ""
+        like_first = ""
+        like_last = ""
+        like_data = new_process_get_like_info(disc['did'], -1, request.user.id)
+        is_liked = like_data['is_liked']
+        if like_data['Success']:
+            like_size = str(like_data['like_size'])
+            like_first = like_data['like_first']
+            like_last = like_data['like_last']
+
+        html += "<div class='center_block' discussion_id='" + str(disc['did']) + "'>"
         html += "    <span class='center_block_left'>"
         html += "        <img class='user_phone' src ='" + reverse('user_photo', args=[str(disc['user'])]) + "' />"
         html += "    </span>"
         html += "    <span class='center_block_right'>"
         html += "        <div class='dis_row'>"
-        html += "            <span class='dis_subject'>" + disc['subject'] + "</span>"
-        html += "            <span class='dis_subject_pin icon-aw icon-pushpin'></span>"
+        html += "            <span class='dis_subject'><a href='" + reverse('community_discussion_view', args=[disc['did']]) + "'>" + disc['subject'] + "</a></span>"
+        html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + pin + "'></span>"
         html += "        </div>"
         html += "        <div class='dis_row'>"
         html += "            <div class='dis_post'>" + disc['post'] + "</div>"
@@ -2145,16 +2289,16 @@ def new_process_get_discussions(request):
         html += "            <span class='dis_posted_by_first_name'>" + user.first_name + "</span>"
         html += "            <span class='dis_posted_tool'>"
         html += "                <span class='icon-aw icon-comment'> Comment</span>"
-        html += "                <span class='icon-aw icon-thumbs-up'> Like</span>"
+        html += "                <span class='icon-aw icon-thumbs-up discussion_liked' is_liked='" + is_liked + "'> Like</span>"
         html += "                <span class='icon-aw icon-edit'> Edit</span>"
         html += "                <span class='icon-aw icon-reorder dis_more' levelx='1'> More</span>"
         html += "            </span>"
         html += "        </div>"
         html += "        <div class='dis_row'>"
         html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>"
-        html += "            <span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc['date_create']) + "</span>"
+        html += "            <span class='dis_posted_by_first_name'>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc['date_create']) + "</span>"
         html += "            <span class='dis_posted_tool'>"
-        html += "                <a href='#'><span class='icon-aw icon-thumbs-up' style='color:#25B8EB'> Ginger Jiang and 32 others liked this.</span></a>"
+        html += "                <span class='discussion_liked_txt' like_size='" + like_size + "' like_first='" + like_first + "' like_last='" + like_last + "'></span>"
         html += "            </span>"
         html += "        </div>"
         html += "        <div class='dis_reply'>" + tmp_reply + "</div>"
@@ -2164,3 +2308,68 @@ def new_process_get_discussions(request):
         html += "</div><div class='community-clear'></div></div>"
 
     return HttpResponse(json.dumps({'id': id, 'Success': 'True', 'all': all, 'content': html, 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_discussions_pin_change
+@login_required
+def new_process_discussions_pin_change(request):
+    discussion_id = request.POST.get("discussion_id", "")
+    pin_flag = request.POST.get("pin_flag", "")
+    mongo3_store = community_discussions_store()
+    data = {'Success': False}
+
+    if discussion_id and pin_flag:
+        if pin_flag == "pin":
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "did": int(discussion_id)}, {"$set": {"pin": 1}})
+        else:
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "did": int(discussion_id)}, {"$unset": {"pin": ""}})
+
+        data = {'Success': True}
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_discussions_like
+@login_required
+def new_process_discussions_like(request):
+    did = request.POST.get("did", "")
+    comment_id = request.POST.get("comment_id", "-1")
+    mongo3_store = community_discussions_store()
+    data = {'Success': False}
+
+    if did:
+        did = int(did)
+        comment_id = int(comment_id)
+
+        result = mongo3_store.find_one({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id})
+        if not result:
+            itemx = {"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id, "date_create": datetime.datetime.now(UTC())}
+            mongo3_store.insert(itemx)
+        else:
+            mongo3_store.remove({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id})
+
+        data = new_process_get_like_info(did, comment_id, request.user.id)
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_get_like_info
+def new_process_get_like_info(did, comment_id, uid):
+    mongo3_store = community_discussions_store()
+    data = {'Success': False, 'like_size': 0}
+
+    result_list = mongo3_store.find_size_sort({"db_table": "community_like", "did": did, "comment_id": comment_id}, 0, 0, "date_create", -1)
+    like_size = mongo3_store.find({"db_table": "community_like", "did": did, "comment_id": comment_id}).count()
+
+    for itemx in result_list:
+        itemx_user = User.objects.get(id=itemx['user'])
+        data = {'Success': True, 'like_size': like_size, 'like_first': itemx_user.first_name, 'like_last': itemx_user.last_name}
+        break
+
+    result = mongo3_store.find_one({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": uid})
+    if result:
+        data['is_liked'] = "1"
+    else:
+        data['is_liked'] = "0"
+
+    return data

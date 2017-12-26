@@ -220,6 +220,11 @@ a{
     background-color: #fff;
     padding-bottom: 50px;
 }
+.sub-community-info{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid;
+    color:#aaa;
+    font-size:14px;
+}
 .facilitator-info,.subcommunities, .trending{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
@@ -586,7 +591,7 @@ a{
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
-            <div class="sub-community-info"></div>
+            <div class="sub-community-info">Digital Citixenship Community :<br/><b>${community.name}</b></div>
             %if facilitator:
             <div class="facilitator-info">
                 <div class="user-photo">
@@ -624,22 +629,18 @@ a{
             </div>
             %endif
             <div class="subcommunities">
-                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;
-                    %if user_super or ruser_info['facilitator']:
-                    <span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span>
-                    %endif
-                </div>
+                <div class="sub-title">Subcommunities</div>
                 <div class="sub-community-titles">
                     %for sc in subcommunities:
                         %if sc['member']:
                         <div class="overflow-text joined-title">
-                            <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
+                            <a>${sc['name']}</a>
                         </div>
                         <div style="display:table-cell">
                             <div class="discussion-count overflow-text">8</div>
                         </div>
                         %else:
-                        <div class="unjoined overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>   
+                        <div class="unjoined overflow-text"><a>${sc['name']}</a></div>   
                         %endif
                     %endfor 
                     <div class="seemore-sc">
