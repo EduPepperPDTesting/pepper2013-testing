@@ -7,6 +7,7 @@ CoursePermission.prototype.downloadExcel = function(url){
     var user_state_ids = $("#lst-user-filter-state").get_selection();
     var user_district_ids = $("#lst-user-filter-district").get_selection();
     var user_school_ids = $("#lst-user-filter-school").get_selection();
+    var user_cohort_ids = ($("#lst-user-filter-cohort").length ? $("#lst-user-filter-cohort").get_selection().join(",") : []);
     var course_subject = ($("#filters-subject-submenu li.active").attr("data-value") || '');
     var course_author = ($("#filters-author-submenu li.active").attr("data-value") || '');
     var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value") || '');
@@ -14,6 +15,7 @@ CoursePermission.prototype.downloadExcel = function(url){
     url += "&states=" + user_state_ids.join(",");
     url += "&districts=" + user_district_ids.join(",");
     url += "&schools=" + user_school_ids.join(",");
+    url += "&cohorts=" + user_cohort_ids.join(",");
     url += "&subject=" + course_subject;
     url += "&author=" + course_author;
     url += "&grade_level=" + course_grade_level;
@@ -233,7 +235,8 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             user_course_filter_grade_level: ($("#filters-grade-submenu li.active").attr("data-value"))  || "",
             user_filter_states: hidden["state_id"] || $("#lst-user-filter-state").get_selection().join(",")  || "",
             user_filter_districts: hidden["district_id"] || $("#lst-user-filter-district").get_selection().join(",")  || "",
-            user_filter_schools: $("#lst-user-filter-school").get_selection().join(",") || ""
+            user_filter_schools: $("#lst-user-filter-school").get_selection().join(",") || "",
+            user_filter_cohorts: ($("#lst-user-filter-cohort").length? $("#lst-user-filter-cohort").get_selection().join(",") : null)  || ""
         };
     }
     var url = this.sys.url.get_course_permission_user_rows + "?page={page}&size={size}&{sortList:col}";
@@ -428,6 +431,18 @@ CoursePermission.prototype.dropSchoolMu = function(select, district_ids){
         $(select).reload();
     });
 }
+CoursePermission.prototype.dropCohortMu = function(select, district_ids){
+    $(select).find("option").remove();
+    $(select).reload();
+    if(!district_ids.length)
+        return;
+    $.get('/pepper-utilities/drop/cohorts',{access_level: 'System', district: district_ids.join(",")}, function(r){
+        $.each(r, function(i, d){
+            $(select).append("<option value='" + d.id + "'>" + d.code + "</option>");
+        });
+        $(select).reload();
+    });
+}
 CoursePermission.prototype.loadCsv=function(){
     var self = this;
     var $file =  $("#btnCoursePermCsvLoad").next("input");
@@ -501,7 +516,10 @@ CoursePermission.prototype.initUI = function(){
             self.dropDistrictMu(sele, $(this).get_selection());
         }else if(this.id == "lst-user-filter-district"){
             var sele = ("#lst-user-filter-school");
-            self.dropSchoolMu(sele, $(this).get_selection());              
+            self.dropSchoolMu(sele, $(this).get_selection());
+            
+            var sele = ("#lst-user-filter-cohort");
+            self.dropCohortMu(sele, $(this).get_selection());
         }else if(this.id == "lst-course-filter-state"){
             var sele = ("#lst-course-filter-district");
             self.dropDistrictMu(sele, $(this).get_selection());
