@@ -3,15 +3,16 @@
 <link rel="stylesheet" type="text/css" href="/static/css/webchat.css">
 
      <div id="videos">
-        <div id="publisher"></div>
         <div id="subscriber"></div>
-         <div id="screen-preview"></div>
+        <div id="publisher"></div>
+        <div id="buttons">
+            <img src = "/static/images/screenshare.png" class="screenshare" alt="Screen Share" />
+        </div>
     </div>
 
 <script>
 window.resizeTo(528,396);
-    function getParams ()
-{
+function getParams () {
     var result = {};
     var tmp = [];
 
@@ -26,17 +27,18 @@ window.resizeTo(528,396);
 
     return result;
 }
-try{
+
+var token = '';
+try {
     location.getParams = getParams;
     token = location.search.substr(1).split('&')[1].replace("token=",'');
     sessionId = location.getParams()['session']
 } catch (err) {
     console.log ("No Session/Token Passed.");
-    token='default';
+    token = 'default';
 }
 
-
-if (token=='default') {
+if (token === 'default') {
     sessionId='2_MX40NTkzOTg2Mn5-MTUwNjAyMTc3ODE5OH4xcHBCZkNSWW5jb01iS2ZPbm1sOUkzL01-fg';
     token = 'T1==cGFydG5lcl9pZD00NTkzOTg2MiZzaWc9N2IxYmZkODU4N2E0Y2EyMDU3ZWMzMjlhNWZhMWRlZWRmYWUyOGI3MDpzZXNzaW9uX2lkPTJfTVg0ME5Ua3pPVGcyTW41LU1UVXdOakF5TVRjM09ERTVPSDR4Y0hCQ1prTlNXVzVqYjAxaVMyWlBibTFzT1VrekwwMS1mZyZjcmVhdGVfdGltZT0xNTA2MDIxODI2Jm5vbmNlPTAuNDUyMTI1NTQwNDExMTcwOCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNTA4NjEzODIzJmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9';
 }
@@ -46,11 +48,13 @@ console.log (token);
 
 var apiKey = "45939862";
 
+var screensharing = false;
+
 $(document).ready(function(){
-        console.log ("starting...");
-        initializeSession();
+    console.log ("starting...");
+    initializeSession();
 });
-connections = 0;
+var connections = 0;
 
 function handleError(error) {
   if (error) {
@@ -60,13 +64,21 @@ function handleError(error) {
 
 function disconnectSession () {
     var session = OT.initSession(apiKey, sessionId);
-        session.disconnect();
+    session.disconnect();
 }
+
+var main_subscriber;
+var screenSharingPublisher;
+var videoPublisher;
+var subscribedStream;
+var resetScreenVideo;
+var subscribers = [];
 
 function initializeSession() {
     var session = OT.initSession(apiKey, sessionId);
 
     session.on('streamCreated', function(event) {
+        console.log("Subscriber created");
         if (connections < 1) {
             var subscriber = session.subscribe(event.stream, 'subscriber', {
                 insertMode: 'append',
@@ -74,13 +86,36 @@ function initializeSession() {
                 height: '100%',
                 style: { nameDisplayMode: "on" }
             }, handleError);
+            main_subscriber = subscriber;
         } else {
-            var subscriber = session.subscribe(event.stream, 'publisher', {
-                insertMode: 'append',
-                width: '100%',
-                height: '100%',
-                style: { nameDisplayMode: "on" }
-            }, handleError);
+            if (event.stream.videoType === 'screen') {
+                console.log ("Doing replacements...");
+                var being_replaced = main_subscriber;
+                session.subscribe(being_replaced.stream, 'publisher', {
+                   insertMode: 'append',
+                    width: '100%',
+                    height: '100%',
+                    style: { nameDisplayMode: "on" }
+                });
+                main_subscriber.destroy();
+                resetScreenVideo = being_replaced;
+
+                session.subscribe(event.stream, 'subscriber', {
+                    insertMode: 'replace',
+                    width: '100%',
+                    height: '100%',
+                    style: { nameDisplayMode: "on" }
+                });
+            } else {
+                var subscriber = session.subscribe(event.stream, 'publisher', {
+                    insertMode: 'append',
+                    width: '100%',
+                    height: '100%',
+                    style: { nameDisplayMode: "on" }
+                }, handleError);
+                subscribers.push(subscriber);
+            }
+
         }
         connections ++;
         SpeakerDetection(subscriber, function() {
@@ -89,8 +124,20 @@ function initializeSession() {
             console.log('stopped talking');
         });
     });
+    session.on("streamDestroyed", function (event){
+        if (event.stream.videoType === 'screen') {
+            main_subscriber = resetScreenVideo;
+            resetScreenVideo.destroy();
+            session.subscribe(main_subscriber.stream, 'subscriber', {
+                insertMode: 'replace',
+                width: '100%',
+                height: '100%',
+                style: { nameDisplayMode: "on" }
+            });
+        }
+    });
 
-    var publisher = OT.initPublisher('publisher', {
+    videoPublisher = OT.initPublisher('publisher', {
         insertMode: 'append',
         width: '100%',
         height: '100%',
@@ -101,30 +148,49 @@ function initializeSession() {
         if (error) {
           handleError(error);
         } else {
-          session.publish(publisher, function(){});
+          console.log("Publishing...");
+          session.publish(videoPublisher, function(){});
         }
     });
-    $(document).keypress(function(e) {
-        if(e.which == 83) {
-            var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
+    $("#publisher").click(function () {
+        //screenshare();
+    });
+}
+$(document).ready(function() {
+    $(".screenshare").click(function() {
+        if (!screensharing) {
+            screenshare();
+        }
+    });
+});
+
+function screenshare() {
+    OT.checkScreenSharingCapability(function(response) {
+        console.log (response.supported);
+        if (response.supported) {
+            var session = OT.initSession(apiKey, sessionId);
+            screenSharingPublisher = OT.initPublisher('publisher', {videoSource: 'screen', insertMode:'append',width:'100%',height:'100%'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {
                     alert('Could not share the screen: ' + error.message);
                 }
+                console.log("Publishing Screen");
             });
+            screensharing = true;
+            $(".screenshare").click(function() {
+                if (screensharing) {
+                    session.unpublish(screenSharingPublisher);
+                    screensharing = false;
+                }
+            })
         }
-    });
-}
-function screenshare() {
-    OT.checkScreenSharingCapability(function(response) {
-        console.log (response.supported);
-
         if (!response.supported || response.extensionRegistered === false) {
             //ailert('This browser does not support screen sharing.');
         } else if (response.extensionInstalled === false) {
             //alert('Please install the screen sharing extension and load your app over https.');
         } else {
             // Screen sharing is available. Publish the screen.
+            var session = OT.initSession(apiKey, sessionId);
             var screenSharingPublisher = OT.initPublisher('screen-preview', {videoSource: 'screen'});
             session.publish(screenSharingPublisher, function(error) {
                 if (error) {

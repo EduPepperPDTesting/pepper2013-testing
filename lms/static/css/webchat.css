@@ -6,8 +6,8 @@
 }
 #publisher {
     position: absolute;
-    top: 20px;
-    right: 0;
+    top: 40px;
+    right: 20px;
     height: 80px;
     width: 120px;
     z-index: 10;
@@ -15,7 +15,20 @@
 #videos {
     height: 100%;
 }
-
+#buttons {
+    position:absolute;
+    left: 10px;
+    bottom:10px;
+}
+.screenshare {
+    width:30px;
+    height:30px;
+    border: 1px solid black;
+    border-radius:5px;
+}
+.screenshare:hover{
+    cursor:pointer;
+}
 .pep_textchat_block, .pep_videochat_block {
     position: fixed;
     right: 0px;

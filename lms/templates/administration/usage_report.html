@@ -396,7 +396,7 @@ var userTimeReport = {
         local_utc_diff_m = local_utc_diff_m / 60;
         
         for(d in data){
-            table_con += '<tr role="row" user_id=' + data[d].id + '>';
+            table_con += '<tr role="row" user_email=' + data[d].email + '>';
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
             table_con += '<td class="useremail">' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
             if(data[d].login_time == ''){
@@ -458,32 +458,15 @@ var userTimeReport = {
                 save_status_press = 1;
                 $(".save-status").css({"background-color":"#ccc","color":"#666"});
 
-                var user_id = $(this).parent().parent().parent().attr("user_id")
+                var user_email = $(this).parent().parent().parent().attr("user_email")
                 var is_active = $(this).parent().parent().children(".is_active").attr("checked");
-                if(is_active == "checked"){
-                    is_active = 1;
-                }else{
-                    is_active = 0;
-                } 
-
                 var is_staff = $(this).parent().parent().children(".is_staff").attr("checked");
-                if(is_staff == "checked"){
-                    is_staff = 1;
-                }else{
-                    is_staff = 0;
-                } 
-
                 var is_superuser = $(this).parent().parent().children(".is_superuser").attr("checked");
-                if(is_superuser == "checked"){
-                    is_superuser = 1;
-                }else{
-                    is_superuser = 0;
-                } 
-
+              
                 self.dialog = new Dialog($('#dialog_loading'));
                 self.dialog.show('Saving user status, Please wait...');
 
-                $.post("${reverse('save_user_status')}", {'is_active': is_active,'is_staff': is_staff,'is_superuser': is_superuser,'user_id': user_id}, 
+                $.post("${reverse('save_user_status')}", {'is_active': is_active,'is_staff': is_staff,'is_superuser': is_superuser,'user_email': user_email}, 
                 function(data) {
                     if (data.success) {
                         window.setTimeout(function () {
@@ -500,8 +483,8 @@ var userTimeReport = {
         var change_psw_press = 0;
         $(".change-password").unbind("click");
         $(".change-password").click(function(){
-            var user_id = $(this).parent().parent().attr("user_id");
-            $("#id_new_password1").attr("user_id",user_id);
+            var user_email = $(this).parent().parent().attr("user_email");
+            $("#id_new_password1").attr("user_email",user_email);
 
             //$("#id_old_password").val("");
             $("#id_new_password1").val("");
@@ -526,7 +509,7 @@ var userTimeReport = {
                 $("#btn_change_password").addClass("btn-change-password-lock");
                 $(".check-success").html("");
 
-                var user_id = $("#id_new_password1").attr("user_id");
+                var user_email = $("#id_new_password1").attr("user_email");
                 var psw1 = $("#id_new_password1").val().trim();
                 var psw2 = $("#id_new_password2").val().trim();
                 
@@ -552,7 +535,7 @@ var userTimeReport = {
                 $(".check-error-p1").html("");
                 $(".check-error-p2").html("");
                 $(".check-success").html("Now Saving......");
-                $.post("${reverse('save_user_password')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2}, 
+                $.post("${reverse('save_user_password')}", {'user_email': user_email,'user_post_1': psw1,'user_post_2': psw2}, 
                     function(data) {
                         if (data.success) {
                             window.setTimeout(function () {
@@ -583,6 +566,10 @@ var userTimeReport = {
                                     $(".check-error-p2").html("");
                                     $("#id_new_password1").focus();
                                 }
+                                else if(data.value.grouptype == 'error4'){
+                                    $(".check-error-p1").html("");
+                                    $(".check-error-p2").html(data.value.info);
+                                }
                             }, 100);
                         }
                     });
@@ -592,8 +579,8 @@ var userTimeReport = {
         function password_verify_local(psw1,psw2){
             var error_info = [{"type":200,"info":""},
                               {"type":1,"info":"Please fill in new password."},
-                              {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
-                              {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                              {"type":2,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
+                              {"type":3,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
                               {"type":4,"info":"Confirm password is required."},
                               {"type":5,"info":"Your new and confirm password are different. Please enter again."}];
             if(psw1 == ""){

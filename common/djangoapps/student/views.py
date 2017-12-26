@@ -894,7 +894,6 @@ def login_user(request, error=""):
                 if int(password_change_time_diff.total_seconds()) > expiration_time:
                     return HttpResponse(json.dumps({'success': False,
                                                     'value': _('Your password has expired. Please enter a new password.'),
-                                                    'user_id': user.id,
                                                     'user_email': email}),
                                                      content_type="application/json")
             else:

@@ -1,0 +1,479 @@
+## mako
+<%namespace name='static' file='static_content.html'/>
+<%namespace file='main.html' import="login_query, stanford_theme_enabled, absolute_url"/>
+<%page args="show_extended, organization_obj ,org_data, is_external" />
+
+<%!
+    from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
+
+    # App that handles subdomain specific branding
+    import branding
+    import logging
+    # app that handles site status messages
+    from status.status import get_site_status_msg
+    from permissions.utils import check_user_perms
+    from django.core.urlresolvers import resolve
+    from student.models import State,District,School,User,UserProfile
+    from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText,DesignMenuitem
+    from permissions.models import PermGroupMember
+    log = logging.getLogger("tracking")
+%>
+
+<%
+    base_src = absolute_url("/static/uploads/design/" + str(organization_obj.id) + "/")
+    org_logos = False
+    newMeStyleFlag = 0
+    newMeStyleFont = ""
+    newMeStyleColor = "#000"
+    newMeStyleSize = ""
+
+    #---------------OrganizationMenu
+    if org_data.has_key('logo') and org_data['logo'] != "":
+        org_logos = True
+    if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
+        org_logos = True
+
+    #---------------OrganizationMenuitem
+    if org_data.has_key('Is Icon With Text') and org_data['Is Icon With Text'] == "1":
+        menu_items = "<ol class='nav-option-ol' style='margin-top:10px !important;'>"
+    else:
+        menu_items = "<ol class='nav-option-ol' style='margin-top:11px !important;'>"
+    
+    for tmp1 in DesignMenuitem.objects.filter(design=organization_obj, ParentID=0):
+        if tmp1:
+            #---------------Sub Menu
+            liClass = ""
+            if org_data['Is Icon'] == "1":
+                if org_data['Is Icon With Text'] == "1":
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:66px !important;'>"
+                else:
+                    menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:64px !important;'>"
+            else:
+                menu_items_child = "<ul id='admin-dropdown-menu-" + str(tmp1.id) + "' class='admin-dropdown-menu' style='top:65px !important;'>"
+
+            #---------------
+            for tmp2 in DesignMenuitem.objects.filter(design=organization_obj, ParentID=tmp1.id):
+                if tmp2:
+                    if liClass == "":
+                        liClass = " class='new-pepper-menu-holder'"
+
+                    menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
+
+            menu_items_child = menu_items_child + "</ul>"
+
+            tmp1_MenuItem_txt = tmp1.MenuItem
+
+            newMeStyleFont = org_data['Text Font']
+            newMeStyleColor = org_data['Text Color']
+            newMeStyleSize = org_data['Text Size']
+
+            if org_data['Is Icon'] == "1":
+                img_src = base_src + tmp1.Icon
+
+                if org_data['Is Icon With Text'] == "1":
+                    newMeStyleFlag = 1
+                    newMeStyleFont = org_data['Text Font Icons']
+                    newMeStyleColor = org_data['Text Color Icons']
+                    newMeStyleSize = org_data['Text Size Icons']
+                else:
+                    newMeStyleFlag = 2
+                    newMeStyleFont = org_data['Text Font Me']
+                    newMeStyleColor = org_data['Text Color Me']
+                    newMeStyleSize = org_data['Text Size Me']
+
+                tmp_style = " style='line-height:20px;font-family:" + org_data['Text Font Icons'] + " !important; color:" + org_data['Text Color Icons'] + "; font-size:" + org_data['Text Size Icons'] + "px !important;'"
+
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
+                    img_src = "/static/images/ppd-iMessage-default.png"
+                    tmp1_MenuItem_txt = "Messenger"
+                    icon_a = "<a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important;'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />"
+                        menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Messenger</td></tr></table>"
+
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0; padding-top:0 !important;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
+                elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
+                    img_src = "/static/images/index_login_cart-537824274.png"
+                    tmp1_MenuItem_txt = "Shopping"
+                    icon_a = "<a href='/shopping' style='text-decoration:none !important;'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' title='" + tmp1_MenuItem_txt + "' width='45' height='45' />"
+                        menu_items_tmp1 = menu_items_tmp1 + "<span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:50%; margin-left:-4px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr>"
+                        menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20'" + tmp_style + ">Shopping</td></tr></table>"
+
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0; padding-top:0 !important;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'><span class='info_count' style='position:absolute; width:25px; height:20px; text-align:center; top:20px; left:18px; color:#f00;font-weight:bold;font-size:13px;'></span></td></tr><tr><td height='20'></td></tr></table></a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
+                else:
+                    if liClass == "":
+                        icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>"
+                    else:
+                        icon_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "'>"
+
+                    #---------------icon
+                    nav_option_text_top = ""
+                    if org_data['Is Icon With Text'] == "1":
+                        menu_items_tmp1 = "<li class='nav-option-ol-li' style='margin-left:0;margin-right:" + org_data['Space Betwwen Items'] + "px;'" + liClass + ">"  + icon_a + "<table border='0' cellpadding='0' cellspacing='0'>"
+                        if liClass != "":
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' colspan='2' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td><td width='15' style='float:left;font-size:25px; color:" + org_data['Text Color Icons'] + ";'>&#9662;</td></tr></table>"
+                        else:
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='45' align='center'><img src='" + img_src + "' width='45' height='45'></td></tr>"
+                            menu_items_tmp1 = menu_items_tmp1 + "<tr><td height='20' align='center' class='nav-option-ol-txt'" + tmp_style + ">" + tmp1_MenuItem_txt + "</td></tr></table>"
+
+                        menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    else:
+                        menu_items_tmp1 = "<li style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0; padding-top:0 !important;'" + liClass + ">" + icon_a + "<table border='0' cellpadding='0' cellspacing='0'><tr><td height='45' width='45'><img src='" + img_src + "' width='45' height='45'></td></tr><tr>"
+                        if liClass != "":
+                            menu_items_tmp1 = menu_items_tmp1 + "<td height='20' align='center' style='font-size:25px; color:" + newMeStyleColor + ";'>&#9662;</td></tr></table>"
+                        else:
+                            menu_items_tmp1 = menu_items_tmp1 + "<td height='20'></td></tr></table>"
+
+                        menu_items_tmp1 = menu_items_tmp1 + "</a>"
+                        nav_option_text_top = "top:0px !important; left:40px !important;"
+
+                    menu_items_tmp1 = menu_items_tmp1 + "<div class='nav-option-text' style='" + nav_option_text_top + "'>" + tmp1_MenuItem_txt + "</div>"
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</li>"
+
+            else:
+                #---------------text
+                if tmp1_MenuItem_txt == "#Messenger" and not is_external:
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='#show_notifications' rel='leanModal' id='show_notifications_link' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Messenger <font style='color:#F5821F'>(<span class='info_count'  style='color:#F5821F;font-weight:bold;font-size:13px;'></span>)</font></a></li>"
+                elif tmp1_MenuItem_txt == "#Shopping" and not is_external:
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin:0 " + org_data['Space Betwwen Items'] + "px 0 0;'><a href='/shopping' style='text-decoration:none !important; font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + " !important; font-family:" + org_data['Text Font'] + " !important;'>Shopping </a></li>"
+                else:
+                    tmp_menu_icon = " &#9662;"
+                    if liClass == "":
+                        text_a = "<a href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        tmp_menu_icon = ""
+                    else:
+                        text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+
+                    menu_items_tmp1 = "<li class='nav-option-ol-only-txt' style='margin-left:0; margin-right:" + org_data['Space Betwwen Items'] + "px;'>" + text_a +  tmp1.MenuItem + tmp_menu_icon + "</a>"
+
+                    if liClass != "":
+                        menu_items_tmp1 = menu_items_tmp1 + menu_items_child
+
+                    menu_items_tmp1 = menu_items_tmp1 + "</li>"
+
+            menu_items = menu_items + menu_items_tmp1
+
+    org_data["menu_items"] = menu_items + "</ol>"
+%>
+
+## Provide a hook for themes to inject branding on top.
+<%block name="navigation_top" />
+<%block cached="False">
+    <%
+        # print index
+        try:
+            course_id = course.id
+        except:
+            # can't figure out a better way to get at a possibly-defined course var
+            course_id = None
+        site_status_msg = get_site_status_msg(course_id)
+    %>
+    % if site_status_msg and not is_external:
+        <div class="site-status">
+            <div class="inner-wrapper">
+                <span class="white-error-icon"></span>
+                <p>${site_status_msg}</p>
+            </div>
+        </div>
+    % endif
+</%block>
+
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/record_time.js"></script>
+<script type="text/javascript" src="/static/js/navigation_new.js"></script>
+<script type="text/javascript" src="/static/js/string_utils.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<style>
+* {
+        box-sizing:content-box;
+}
+</style>
+
+% if context.get("curr_user"):
+    <% curr_user=context.get("curr_user") %>
+% else:
+    <% curr_user=user %>
+% endif
+% if not is_external:
+    <div id="pepper-logged-in"></div>
+% endif
+
+<!--header-->
+<header id="pepper-nav" class="pepper-nav pepper-nav-fixed" aria-label="${_('Global Navigation')}" style="background-color: ${org_data['Menu Color']};">
+    <!--nav-->
+    <nav class="pepper-org">
+        <!--sub logo-->
+
+        <h1 class="pepper-logo-wrap">
+            <!--@begin:Choose the link of the top logo according user's login status-->
+            % if org_data['Is New Menu'] == "1" and org_logos:
+                % if org_data.has_key('logo') and org_data['logo'] != "":
+                    % if org_data['Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Logo Url'])}">
+                    % else:
+                        <a class="pepper-logo-link" href="#">
+                    % endif
+                    <img class="pepper-logo" src="${base_src}${org_data['logo']}" /></a>
+                % endif
+                % if org_data.has_key('organization_logo') and org_data['organization_logo'] != "":
+                    % if org_data['Organization Logo Url'] != "":
+                        <a class="pepper-logo-link" href="${absolute_url(org_data['Organization Logo Url'])}">
+                    % else:
+                        <a class="pepper-logo-link" href="#">
+                    %endif
+                    <img class="pepper-logo" src="${base_src}${org_data['organization_logo']}" /></a>
+                %endif
+            % else:
+                <a href="${absolute_url('/dashboard')}">
+                <%block name="navigation_logo">
+                    <!--@begin:Choose the image of the top logo according to user login status-->
+                        <img class="orig-pepper-logo" src="${absolute_url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="Pepper Home" />
+                    <!--@end-->
+                </%block>
+                </a>
+            % endif
+        </h1>
+
+        % if course and not is_external: 
+            <script type="text/javascript">                
+                $(document).ready(function(){
+                    var tmp1 = "<div style=\"text-align:left; padding:5px 0 5px 22px; font-family:'Open Sans',Verdana,Geneva,sans-serif; \">";
+                    tmp1 += "<span style='color:#3c3c3c; font-weight:bold; font-size:18px;'>${course.display_org_with_default | h}: </span><span style='color:#646464; font-weight:bold;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
+                    tmp1 += "</div>";
+                    $(".inner-wrapper").prepend(tmp1);
+                    $(".course-tabs").css("paddingTop", "0");
+                });
+            </script>
+        % endif
+        
+        
+        <ol class="pepper-nav-courseware" style="margin-top:
+        % if org_data['Is Icon'] == "1":
+            15px
+        % else:
+            25px
+        % endif
+        ">
+            <!-- <li><a class="pepper-main-link" href="${absolute_url('/shopping')}" target="_blank"><img src="${absolute_url('/static/images/index_login_cart-537824274.png')}" /></a></li> -->
+            <li class="pepper-nav-courseware-01">
+                % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                    % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                        <!--@begin:Change the text in Log in to Login-->
+                        <!--@date:2013-11-02-->
+                        <a class="pepepr-cta peppepr-cta-login" href="${absolute_url(reverse('course-specific-login', args=[course.id]))}${login_query()}">${_("Login")}</a>
+                    % else:
+                        <a class="pepper-cta pepper-cta-login" href="${absolute_url('/login' + login_query())}">${_("Login")}</a>
+                        <!--@end-->
+                    % endif
+                % endif
+            </li>
+        </ol>
+
+        % if org_data['Is New Menu'] == "1":
+            ${org_data["menu_items"]}
+        % endif
+
+    </nav>
+</header>
+
+% if course and not is_external:
+    <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
+% endif
+
+<%include file="help_modal.html"/>
+
+<!-- task panel -->
+% if not is_external and (request.user.is_superuser or check_user_perms(request.user, 'time_report')):
+    <div class="global_task_panel_wrapper">
+        <div class="control global_task_panel">
+            <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
+            <div class="content"></div>
+            <textarea class="setting">
+                {
+                    "interval": 5000,
+                    "sources": [{
+                    "tasks": "${reverse('pepconn_import_user_tasks')}",
+                    "message_formatter": function(task){
+                        var name = task.type == 'import' ? 'Import' : 'Email';
+                        if(task.error){
+                            return name + ' - ERROR (' + task.id + ')';
+                        }
+                        if(task.type == 'import'){
+                           return name + ' - ' + task.filename;
+                        }else if(task.type == 'email'){
+                           return name + ' - ' + task.total + ' email' + (task.total > 1 ? 's' : '');
+                        }
+                    },
+                    "close": "${reverse('pepconn_task_close')}"
+                  },
+                  {
+                    "tasks": "${reverse('pepconn_course_permission_tasks')}",
+                    "message_formatter": function(task){
+                        if(task.error){
+                            return task.type + ' ERROR (' + task.id + ')';
+                        }
+                        return task.type;
+                    },
+                    "close": "${reverse('pepconn_course_permission_task_close')}"
+                  }]
+                }
+            </textarea>
+        </div>
+    </div>
+%endif
+
+<script>
+    function LoadingWinNav(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWinNav.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay-nav"></div>');
+            //this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWinNav.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+    var loadwinnav = new LoadingWinNav();
+
+    //------------------organization_get_info
+    var organization_data;
+    $(function(){
+        var flag_main;
+        if ($(".mainlogo").length > 0) {
+            flag_main = "index";
+        } else if ($("#organization_obj").length > 0) {
+            flag_main = $("#organization_obj").attr("o_name");
+        }
+        
+        if ($("#organization_obj").attr("o_name") === "report"){
+            loadwinnav.hide();
+        }
+        
+        $.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
+            if (r.SiteURL_OK){
+                if (r.flag_main === "index"){
+                    if (r.TopMainLogo) {
+                        $(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
+                    }
+                    if (r.MainLogoText) {
+                        $(".maintitle").html(r.MainLogoText);
+                    }
+                    if (r.BottomMainLogo){
+                        $(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");
+                    }
+                    if (r.MainPageBottomImage) {
+                        $(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
+                        var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
+                        var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
+                        $(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
+                    } else {
+                        if (r.MainPageButtonText){
+                            $(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
+                        }
+                        if (r.MainPageButtonLink) {
+                            $(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
+                        }
+                    }
+                }
+                
+                if (r.Success && r.OrganizationOK) {
+                    if (r.flag_main === "dashboard") {
+                        if(r.DistrictType != ""){
+                            $("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+                        }
+                        if(r.SchoolType != ""){
+                            $("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+                            $("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+                        }
+                    } else if (r.flag_main === "communities") {
+                        $(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
+                    } else if (r.flag_main === "pepconn") {
+                        $("#District_search").attr("placeholder", "Search " + r.DistrictType);
+                        $("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
+                        $("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
+
+                        $("#School_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#School_search").attr("placeholder", "Search " + r.SchoolType);
+                        $("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
+                        $("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
+                        $("#school_table_init").find(".school_district_id").html(r.DistrictType);
+                        $("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
+
+                        $("#User_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#User_school_select").find("option:first").html("Select " + r.SchoolType);
+                        $("#user_table_init").find(".user_school").html(r.SchoolType);
+                        $("#user_table_init").find(".user_district").html(r.DistrictType);
+
+                        $("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
+                        $("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
+                        $("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
+
+                    } else if (r.flag_main === "pepreg") {
+                        var tmp_first = $("#district_select").find("option:first");
+                        if(tmp_first.val() == ""){
+                            tmp_first.html("Select " + r.DistrictType);
+                        }
+                        $("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
+                        $("#organization_pepreg_d1").text(r.DistrictType + ":");
+                        $("#organization_pepreg_s1").text(r.SchoolType + ":");
+                        
+                    } else if (r.flag_main === "people") {
+                        $("select[name='district_id']").find("option:first").html(r.DistrictType);
+                        $("select[name='school_id']").find("option:first").html(r.SchoolType);
+                        
+                    } else if (r.flag_main === "report") {
+                        organization_data = r;
+                    }
+                }
+            }
+            if ($("#organization_obj").attr("o_name") !== "report") {
+                loadwinnav.hide();
+            }
+        });
+    });         
+</script>

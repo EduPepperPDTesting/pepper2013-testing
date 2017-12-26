@@ -220,7 +220,7 @@
                     }
 
                 } else {
-                    if(json.user_id){
+                    if(json.user_email && json.user_email !== undefined){
                         toggleSubmitButton(true);
 
                         $("#id_new_password1").val("");
@@ -230,7 +230,6 @@
                         $(".check-error-p2").html("");
                         $(".check-success").html("");
                         $(".login-failed").html("");
-                        $("#id_new_password1").attr("user_id",json.user_id);
                         $("#id_new_password1").attr("user_email",json.user_email);
 
                         change_psw_press = 0;
@@ -255,7 +254,6 @@
                     $(".check-success").html("");
                     $(".login-failed").html("");
 
-                    var user_id = $("#id_new_password1").attr("user_id");
                     var user_email = $("#id_new_password1").attr("user_email");
                     var psw0 = $("#id_old_password").val().trim();
                     var psw1 = $("#id_new_password1").val().trim();
@@ -292,7 +290,7 @@
                     $(".check-error-p1").html("");
                     $(".check-error-p2").html("");
                     $(".check-success").html("Now Saving......");
-                    $.post("${reverse('save_user_passwordold')}", {'user_id': user_id,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
+                    $.post("${reverse('save_user_passwordold')}", {'user_email': user_email,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
                         function(data) {
                             if (data.success) {
                                 $(".password-change-date-error").html("");
@@ -345,6 +343,11 @@
                                         $(".check-error-p2").html("");
                                         $("#id_new_password1").focus();
                                     }
+                                    else if(data.value.grouptype == 'error4'){
+                                        $(".check-error-p0").html("");
+                                        $(".check-error-p1").html("");
+                                        $(".check-error-p2").html(data.value.info);
+                                    }
                                 }, 100);
                             }
                     });
@@ -354,8 +357,8 @@
             function password_verify_local(psw0,psw1,psw2){
                 var error_info = [{"type":200,"info":""},
                                   {"type":1,"info":"Please fill in new password."},
-                                  {"type":2,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
-                                  {"type":3,"info":"New password must contain A-Z, a-z, 0-9 and ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":2,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":3,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
                                   {"type":4,"info":"Confirm password is required."},
                                   {"type":5,"info":"Your new and confirm password are different. Please enter again."},
                                   {"type":6,"info":"Please fill in old password."}];
