@@ -185,7 +185,14 @@ $(document).ready(function(){
         }
 
         if(el.className!='pep_textchat_block' && $(el).closest('.pep_textchat_block').length==0 && $(".pep_text_container[data-chat_mini='0']").length > 0){
-            $(".pep_text_container[data-chat_mini='0']").data("data-chat_mini", "1");
+            $(".pep_text_container[data-chat_mini='0']").attr("data-chat_mini", "1");
+            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+            for (var arrInd in chatHeads){
+                if(chatHeads[arrInd].substr(-1, 1) == "0"){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")+2) + "1";
+                }
+            }
+            sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         }
     });
 
