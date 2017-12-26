@@ -34,7 +34,7 @@ $(document).ready(function(){
 
                         $(this).parents(".pep_text_container").css("z-index",arrInd);
                         //chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + arrInd + "``1";
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + arrInd + "``1";
                         console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         break;
                     }
@@ -59,8 +59,8 @@ $(document).ready(function(){
                         headData = headData.substring(0, headData.indexOf("`"));
                         console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         if(headData == getId){
-                            console.log("--> "+chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1");
-                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
+                            console.log("--> "+chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``1");
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``1";
                             break;
                         }
                     }
@@ -73,8 +73,8 @@ $(document).ready(function(){
                     headData = headData.substring(0, headData.indexOf("`"));
                     if(headData == getId){
                         //chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
-                        console.log("--> "+chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``0");
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``0";
+                        console.log("--> "+chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``0");
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``0";
                         break;
                     }
                 }
@@ -97,7 +97,7 @@ $(document).ready(function(){
                         headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                         headData = headData.substring(0, headData.indexOf("`"));
                         if(headData == getId){
-                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``1";
                             break;
                         }
                     }
@@ -113,7 +113,7 @@ $(document).ready(function(){
                     headData = headData.substring(0, headData.indexOf("`"));
                     console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
                     if(headData == getId){
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
                         break;
                     }
                 }
