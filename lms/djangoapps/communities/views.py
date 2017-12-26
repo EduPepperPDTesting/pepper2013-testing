@@ -34,6 +34,7 @@ from xmodule.remindstore import myactivitystore
 from file_uploader.utils import get_file_url
 from pepper_utilities.utils import render_json_response
 from django.utils.timezone import UTC
+from bson import ObjectId
 
 log = logging.getLogger("tracking")
 
@@ -2215,7 +2216,7 @@ def new_process_get_discussions(request):
         # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
 
         tmp_reply = ""
-        for itemx_1 in mongo3_store.get_community_discussion_replies(disc['did']):
+        for itemx_1 in mongo3_store.get_community_discussion_replies(disc['_id']):
             user_1 = User.objects.get(id=itemx_1['user'])
 
             tmp_reply_next = ""
@@ -2231,13 +2232,19 @@ def new_process_get_discussions(request):
                 tmp_reply_next += "    <div class='dis_row'>"
                 tmp_reply_next += "        <div class='dis_post'>" + itemx_2['post'] + "</div>"
                 tmp_reply_next += "    </div>"
-                tmp_reply_next += "    <div class='dis_row dis_reply_next_tool'>"
+                tmp_reply_next += "    <div class='dis_row dis_reply_next_tool' discussion_id='" + str(disc['_id']) + "'  comment_id='" + str(itemx_2['_id']) + "'>"
                 tmp_reply_next += "        <a href='#'><span class='icon-aw icon-comment'> Comment</span></a>"
-                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-thumbs-up'> Like</span></a>"
+                tmp_reply_next += "        <a href='#'><span class='icon-aw icon-thumbs-up reply_liked'> Like</span></a>"
                 tmp_reply_next += "        <a href='#'><span class='icon-aw icon-edit'> Edit</span></a>"
                 tmp_reply_next += "        <a href='javascript:void(0)' class='dis_more' levelx='2'><span class='icon-aw icon-reorder'> More</span></a>"
                 tmp_reply_next += "    </div>"
                 tmp_reply_next += "</span>"
+
+            like_reply_size = ""
+            like_reply_data = new_process_get_like_info(disc['_id'], itemx_1['_id'], request.user.id)
+            is_reply_liked = like_reply_data['is_liked']
+            if like_reply_data['Success']:
+                like_reply_size = str(like_reply_data['like_size'])
 
             tmp_reply += "<span class='dis_reply_left'>"
             tmp_reply += "    <img class='user_phone' src ='" + reverse('user_photo', args=[str(itemx_1['user'])]) + "' />"
@@ -2249,9 +2256,9 @@ def new_process_get_discussions(request):
             tmp_reply += "    <div class='dis_row'>"
             tmp_reply += "        <div class='dis_post'>" + itemx_1['post'] + "</div>"
             tmp_reply += "    </div>"
-            tmp_reply += "    <div class='dis_row dis_reply_tool'>"
+            tmp_reply += "    <div class='dis_row dis_reply_tool' discussion_id='" + str(disc['_id']) + "'  comment_id='" + str(itemx_1['_id']) + "'>"
             tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>"
-            tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked'></span>"
+            tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + is_reply_liked + "' like_size='" + like_reply_size + "'></span>"
             tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>"
             tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='2'> More</span>"
             tmp_reply += "    </div>"
@@ -2265,21 +2272,21 @@ def new_process_get_discussions(request):
         like_size = ""
         like_first = ""
         like_last = ""
-        like_data = new_process_get_like_info(disc['did'], -1, request.user.id)
+        like_data = new_process_get_like_info(disc['_id'], "", request.user.id)
         is_liked = like_data['is_liked']
         if like_data['Success']:
             like_size = str(like_data['like_size'])
             like_first = like_data['like_first']
             like_last = like_data['like_last']
 
-        html += "<div class='center_block' discussion_id='" + str(disc['did']) + "'>"
+        html += "<div class='center_block' discussion_id='" + str(disc['_id']) + "'>"
         html += "    <span class='center_block_left'>"
         html += "        <img class='user_phone' src ='" + reverse('user_photo', args=[str(disc['user'])]) + "' />"
         html += "    </span>"
         html += "    <span class='center_block_right'>"
         html += "        <div class='dis_row'>"
-        html += "            <span class='dis_subject'><a href='" + reverse('community_discussion_view', args=[disc['did']]) + "'>" + disc['subject'] + "</a></span>"
-        html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + pin + "'></span>"
+        html += "            <span class='dis_subject'><!--a href='" + reverse('community_discussion_view', args=[disc['mysql_id']]) + "'-->" + disc['subject'] + "<!--/a--></span>"
+        html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + pin + "' title='Unpin'></span>"
         html += "        </div>"
         html += "        <div class='dis_row'>"
         html += "            <div class='dis_post'>" + disc['post'] + "</div>"
@@ -2320,9 +2327,9 @@ def new_process_discussions_pin_change(request):
 
     if discussion_id and pin_flag:
         if pin_flag == "pin":
-            tmp_list = mongo3_store.update({"db_table": "community_discussions", "did": int(discussion_id)}, {"$set": {"pin": 1}})
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(discussion_id)}, {"$set": {"pin": 1}})
         else:
-            tmp_list = mongo3_store.update({"db_table": "community_discussions", "did": int(discussion_id)}, {"$unset": {"pin": ""}})
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(discussion_id)}, {"$unset": {"pin": ""}})
 
         data = {'Success': True}
 
@@ -2333,20 +2340,17 @@ def new_process_discussions_pin_change(request):
 @login_required
 def new_process_discussions_like(request):
     did = request.POST.get("did", "")
-    comment_id = request.POST.get("comment_id", "-1")
+    comment_id = request.POST.get("comment_id", "")
     mongo3_store = community_discussions_store()
     data = {'Success': False}
 
     if did:
-        did = int(did)
-        comment_id = int(comment_id)
-
-        result = mongo3_store.find_one({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id})
+        result = mongo3_store.find_one({"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": comment_id, "user": request.user.id})
         if not result:
-            itemx = {"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id, "date_create": datetime.datetime.now(UTC())}
+            itemx = {"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": comment_id, "user": request.user.id, "date_create": datetime.datetime.now(UTC())}
             mongo3_store.insert(itemx)
         else:
-            mongo3_store.remove({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": request.user.id})
+            mongo3_store.remove({"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": comment_id, "user": request.user.id})
 
         data = new_process_get_like_info(did, comment_id, request.user.id)
 
@@ -2357,16 +2361,16 @@ def new_process_discussions_like(request):
 def new_process_get_like_info(did, comment_id, uid):
     mongo3_store = community_discussions_store()
     data = {'Success': False, 'like_size': 0}
-
-    result_list = mongo3_store.find_size_sort({"db_table": "community_like", "did": did, "comment_id": comment_id}, 0, 0, "date_create", -1)
-    like_size = mongo3_store.find({"db_table": "community_like", "did": did, "comment_id": comment_id}).count()
+    # ObjectId(parent_id)
+    result_list = mongo3_store.find_size_sort({"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": str(comment_id)}, 0, 0, "date_create", -1)
+    like_size = mongo3_store.find({"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": str(comment_id)}).count()
 
     for itemx in result_list:
         itemx_user = User.objects.get(id=itemx['user'])
         data = {'Success': True, 'like_size': like_size, 'like_first': itemx_user.first_name, 'like_last': itemx_user.last_name}
         break
 
-    result = mongo3_store.find_one({"db_table": "community_like", "did": did, "comment_id": comment_id, "user": uid})
+    result = mongo3_store.find_one({"db_table": "community_like", "discussions_id": ObjectId(did), "comment_id": str(comment_id), "user": uid})
     if result:
         data['is_liked'] = "1"
     else:
