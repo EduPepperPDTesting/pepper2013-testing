@@ -44,6 +44,7 @@ $(document).ready(function(){
                 $(".pep_text_container").filter(function(zInd = needIndex){
                             return $(this).css("z-index") == zInd;
                         }).each(function(){
+                            console.log("this index="+needIndex);
                             $(this).css("z-index", $(this).index() + 1);
                         });
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
