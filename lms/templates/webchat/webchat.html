@@ -69,7 +69,7 @@ $(document).ready(function(){
             if(i < ind){
                 var posPrev = $(el).prev().offset();
                 var leftX = posPrev.left;
-                $(el).css({"right": "", "left": leftX + "px", "z-index": $(el).attr("z-index") - 1);
+                $(el).css({"right": "", "left": leftX + "px", "z-index": $(el).attr("z-index") - 1});
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
