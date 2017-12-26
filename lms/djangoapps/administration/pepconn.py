@@ -127,7 +127,6 @@ def main(request):
                          'error_message': 'You do not have access to this view in Pepper,\
                           please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))           
-
     # from django.contrib.sessions.models import Session
     states = State.objects.all().order_by('name')
     districts = District.objects.all().order_by('name')
@@ -1906,7 +1905,7 @@ def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, 
     return courses
 
 
-def filter_user(states, districts, schools, first_name_fuzzy, last_name_fuzzy, email_fuzzy, limit_ids):
+def filter_user(states, districts, schools, cohorts, first_name_fuzzy, last_name_fuzzy, email_fuzzy, limit_ids):
     users = UserProfile.objects.all()
     if states != "":
         users = users.filter(district__state_id__in=states.split(","))
@@ -1917,6 +1916,9 @@ def filter_user(states, districts, schools, first_name_fuzzy, last_name_fuzzy, e
     if schools != "":
         users = users.filter(school__in=schools.split(","))
 
+    if cohorts != "":
+        users = users.filter(cohort__in=cohorts.split(","))
+        
     if limit_ids != "":
         users = users.filter(user_id__in=limit_ids.split(","))
 
@@ -1958,6 +1960,7 @@ def get_course_permission_user_rows(request):
         states=request.REQUEST.get("user_filter_states", ""),
         districts=request.REQUEST.get("user_filter_districts", ""),
         schools=request.REQUEST.get("user_filter_schools", ""),
+        cohorts=request.REQUEST.get("user_filter_cohorts", ""),
         first_name_fuzzy=request.REQUEST.get("user_filter_first_name_fuzzy", ""),
         last_name_fuzzy=request.REQUEST.get("user_filter_last_name_fuzzy", ""),
         email_fuzzy=request.REQUEST.get("user_filter_email_fuzzy", ""),
@@ -2121,6 +2124,7 @@ def update_course_permission(request):
             states=request.REQUEST.get("user_filter_states", ""),
             districts=request.REQUEST.get("user_filter_districts", ""),
             schools=request.REQUEST.get("user_filter_schools", ""),
+            cohorts=request.REQUEST.get("user_filter_cohorts", ""),
             first_name_fuzzy=request.REQUEST.get("user_filter_first_name_fuzzy", ""),
             last_name_fuzzy=request.REQUEST.get("user_filter_last_name_fuzzy", ""),
             email_fuzzy=request.REQUEST.get("user_filter_email_fuzzy", ""),
@@ -2309,6 +2313,8 @@ def course_permission_download_excel(request):
         users = users.filter(district__in=request.GET.get("districts").split(","))
     if request.GET.get("schools", "") != "":
         users = users.filter(school__in=request.GET.get("schools").split(","))
+    if request.GET.get("cohorts", "") != "":
+        users = users.filter(cohort__in=request.GET.get("cohorts").split(","))
     users = users.order_by('user__email')
 
     # ** io
