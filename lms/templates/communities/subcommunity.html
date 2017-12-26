@@ -223,9 +223,26 @@ a{
 .sub-community-info{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid;
     color:#aaa;
-    font-size:14px;
+    font-size:13px;
 }
-.facilitator-info,.subcommunities, .trending{
+.sub-community-info .main-name{
+    display:inline-block;
+    max-width:105px;
+}
+.sub-community-info .name-divide{
+    display:inline-block;
+    width:6px;
+    text-align:center;
+}
+.sub-community-info .sub-name{
+    display:inline-block;
+    font-weight:bold;
+    max-width:105px;
+}
+.facilitator-info{
+    width:226px;margin-left:13px;margin-top:10px;border:0px solid #f00;
+}
+.subcommunities, .trending{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
 .sub-title .btn-addsub{
@@ -594,7 +611,11 @@ a{
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
-            <div class="sub-community-info">${main_community.name} /<br/><b>${community.name}</b></div>
+            <div class="sub-community-info">
+                <div class="main-name overflow-text">Test Community By Lvzh</div>
+                <div class="name-divide overflow-text">/</div>
+                <div class="sub-name overflow-text">sub gingjer 2017dec26 1012wertyhu</div>
+            </div>
             %if facilitator:
             <div class="facilitator-info">
                 <div class="user-photo">
@@ -636,11 +657,13 @@ a{
                 <div class="sub-community-titles">
                     %for sc in subcommunities:
                         %if sc['member']:
-                        <div class="overflow-text joined-title">
-                            <a>${sc['name']}</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">8</div>
+                        <div class="joined">
+                            <div class="overflow-text joined-title">
+                                <a>${sc['name']}</a>
+                            </div>
+                            <div style="display:table-cell">
+                                <div class="discussion-count overflow-text">8</div>
+                            </div>
                         </div>
                         %else:
                         <div class="unjoined overflow-text"><a>${sc['name']}</a></div>   
@@ -1257,7 +1280,7 @@ a{
                         console.log("ajax ok");
                         //$("#dlg-add-training").hide();
                         //$(".lean-overlay").hide();
-                        window.location.href = "/maincommunity/" + r.community_id;
+                        window.location.href = "/subcommunity/" + r.community_id;
                     },
                     error: function(r){},
                     // Form data
