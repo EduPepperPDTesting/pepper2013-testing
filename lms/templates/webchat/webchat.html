@@ -35,6 +35,7 @@ $(document).ready(function(){
                         $(this).parents(".pep_text_container").css("z-index",arrInd);
                         //chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
                         chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + arrInd + "``1";
+                        console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         break;
                     }
                 }
@@ -53,9 +54,10 @@ $(document).ready(function(){
                     var getId = $(this).find(".pep_header_left").attr("id");
 
                     for (var arrInd in chatHeads){
-                        console.log(chatHeads[arrInd]);
+                        console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                         headData = headData.substring(0, headData.indexOf("`"));
+                        console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         if(headData == getId){
                             chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
                             break;
@@ -65,7 +67,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
 
                 for (var arrInd in chatHeads){
-                    console.log(chatHeads[arrInd]);
+                    console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     if(headData == getId){
@@ -89,7 +91,7 @@ $(document).ready(function(){
                     var getId = $(this).find(".pep_header_left").attr("id");
 
                     for (var arrInd in chatHeads){
-                        console.log(chatHeads[arrInd]);
+                        console.log("chatHeads["+arrInd+"]="+chatHeads[arrInd]);
                         headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                         headData = headData.substring(0, headData.indexOf("`"));
                         if(headData == getId){
@@ -100,7 +102,7 @@ $(document).ready(function(){
                 });
 
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
-                
+
                 var getId = $(this).find(".pep_header_left").attr("id");
 
                 for (var arrInd in chatHeads){
