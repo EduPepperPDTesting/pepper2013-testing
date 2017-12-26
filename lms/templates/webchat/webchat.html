@@ -22,7 +22,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
                 $(this).parents(".pep_text_container").css("bottom","-210px");
-                $(this).attr("data-chat_mini", "1");
+                $(this).parents(".pep_text_container").attr("data-chat_mini", "1");
 
                 var getId = $(this).find(".pep_header_left").attr("id");
 
@@ -42,7 +42,7 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
                 $(this).parents(".pep_text_container").css("bottom","0px");
-                $(this).attr("data-chat_mini", "0");
+                $(this).parents(".pep_text_container").attr("data-chat_mini", "0");
 
                 var getId = $(this).find(".pep_header_left").attr("id");
 
