@@ -14,7 +14,6 @@ $(document).ready(function(){
     $(".pep_textchat_block").on("click", ".pep_text_panel", function(e){
 
         var needIndex = $(".pep_text_container").length + 1;
-        var getId = $(this).find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
         if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
@@ -23,6 +22,8 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
                 $(this).parents(".pep_text_container").css("bottom","-210px");
+
+                var getId = $(this).find(".pep_header_left").attr("id");
 
                 for (var arrInd in chatHeads){
                     console.log(chatHeads[arrInd]);
@@ -42,11 +43,25 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
                 $(this).parents(".pep_text_container").css("bottom","0px");
 
+                var getId = $(this).find(".pep_header_left").attr("id");
+
                 $(".pep_text_container").filter(function(){
-                            return $(this).css("z-index") == needIndex;
-                        }).each(function(){
-                            $(this).css("z-index", $(this).index() + 1);
-                        });
+                    return $(this).css("z-index") == needIndex;
+                }).each(function(){
+                    $(this).css("z-index", $(this).index() + 1);
+
+                    var getId = $(this).find(".pep_header_left").attr("id");
+
+                    for (var arrInd in chatHeads){
+                        console.log(chatHeads[arrInd]);
+                        headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                        headData = headData.substring(0, headData.indexOf("`"));
+                        if(headData == getId){
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
+                            break;
+                        }
+                    }
+                });
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
 
                 for (var arrInd in chatHeads){
@@ -67,12 +82,26 @@ $(document).ready(function(){
             if(parseInt($(this).closest(".pep_text_container").css("z-index")) != needIndex){
 
                 $(".pep_text_container").filter(function(){
-                        return $(this).css("z-index") == needIndex;
-                    }).each(function(){
-                        $(this).css("z-index", $(this).index() + 1);
-                    });
+                    return $(this).css("z-index") == needIndex;
+                }).each(function(){
+                    $(this).css("z-index", $(this).index() + 1);
+
+                    var getId = $(this).find(".pep_header_left").attr("id");
+
+                    for (var arrInd in chatHeads){
+                        console.log(chatHeads[arrInd]);
+                        headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                        headData = headData.substring(0, headData.indexOf("`"));
+                        if(headData == getId){
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+1) + needIndex + "``1";
+                            break;
+                        }
+                    }
+                });
 
                 $(this).parents(".pep_text_container").css("z-index", needIndex);
+                
+                var getId = $(this).find(".pep_header_left").attr("id");
 
                 for (var arrInd in chatHeads){
                     console.log(chatHeads[arrInd]);
