@@ -75,7 +75,7 @@ $(document).ready(function(){
                 }
 
                 $("#textchat_"+getId).animate({
-                    scrollTop: $("#textchat_"+getId).find(".pepchat_hr").last().offset().top
+                    scrollTop: $("#textchat_"+getId)[0].scrollHeight
                 }, 500);
 
             }

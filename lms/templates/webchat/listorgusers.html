@@ -264,7 +264,7 @@
 				}
 				getMessage(id);
 				$("#textchat_"+id).animate({
-					scrollTop: $("#textchat_"+id).find(".pepchat_hr").last().offset().top
+					scrollTop: $("#textchat_"+id)[0].scrollHeight
 				}, 500);
 			}
 			$link.data('lockedAt', +new Date());

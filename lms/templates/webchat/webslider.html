@@ -69,7 +69,7 @@ $(document).ready(function(){
             getMessage(chat_id);
             if(chatMini == "0"){
                 $("#textchat_"+chat_id).animate({
-                    scrollTop: $("#textchat_"+chat_id).find(".pepchat_hr").last().offset().top
+                    scrollTop: $("#textchat_"+chat_id)[0].scrollHeight
                 }, 500);
             }
             leftX-=235;
