@@ -172,7 +172,7 @@ def get_add_user_rows(request, community_id):
 
     users = users.exclude(user__in=members)
     # users = users.exclude(activate_date__isnull=True)
-    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported')|Q(subscription_status='unregistered'))
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
