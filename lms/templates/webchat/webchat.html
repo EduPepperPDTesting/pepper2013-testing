@@ -74,8 +74,8 @@ $(document).ready(function(){
                     }
                 }
 
-                $("#textchat_"+getId).animate({
-                    scrollTop: $("#textchat_"+getId)[0].scrollHeight
+                $("#textchat_"+getId.substr(getId.indexOf(",")+1)).animate({
+                    scrollTop: $("#textchat_"+getId.substr(getId.indexOf(",")+1))[0].scrollHeight
                 }, 500);
 
             }
