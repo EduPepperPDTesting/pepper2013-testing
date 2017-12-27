@@ -16,7 +16,7 @@ import datetime
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
@@ -220,7 +220,10 @@ a{
     background-color: #fff;
     padding-bottom: 50px;
 }
-.facilitator-info,.subcommunities, .trending{
+.facilitator-info{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.subcommunities, .trending{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
 .sub-title .btn-addsub{
@@ -241,7 +244,7 @@ a{
     width:100px;margin-top:15px;float:left;border:0px solid;
 }
 .community-left .user-name{
-    font-size:14px;font-weight:bold;
+    font-size:14px;font-weight:bold;padding-bottom:2px;
 }
 .community-left .btn-facilitator{
     cursor:pointer;float:left;border:0px solid #f00;margin-top:2px;
@@ -333,6 +336,7 @@ a{
     margin-left:27px;
     float:left;
     background-color: #fff;
+    /*height:632px;*/
     padding-bottom: 50px;
     
     border: 0px solid;
@@ -341,7 +345,7 @@ a{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
 .community-right .community-status{
-    width:224px;border:0px solid #ccc;height:180px;overflow-y:auto;
+    width:224px;border:0px solid #ccc;
 }
 .community-right .dis-count{
     width:85%;font-size:14px;margin:15px 10px 2px 15px;border:0px solid;
@@ -358,11 +362,15 @@ a{
 .community-right .members a{
     font-size:14px;color:#89C153;
 }
-.community-right .my-communities{
+.community-right .my-communities-all{
     width:85%;font-size:14px;margin:4px 10px 2px 15px;border:0px solid;
 }
 .community-right .my-communities-triangle{
     float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #000;border-right: 5px solid transparent;border-left: 5px solid transparent;
+}
+.community-right .my-communities{
+    overflow-y:auto;
+    height:110px;
 }
 .community-right .my-community{
     width:155px;margin-left:18px;border:0px solid #ccc;
@@ -380,10 +388,10 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:320px;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:290px;
 }
 .community-right .every-resource{
-    width:80%;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
+    width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
 }
 .community-right .community-resources a{
     font-size:13px;color:#000;
@@ -635,11 +643,13 @@ a{
                 <div class="sub-community-titles">
                     %for sc in subcommunities:
                         %if sc['member']:
-                        <div class="overflow-text joined-title">
-                            <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">8</div>
+                        <div class="joined">
+                            <div class="overflow-text joined-title">
+                                <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
+                            </div>
+                            <div style="display:table-cell">
+                                <div class="discussion-count overflow-text">8</div>
+                            </div>
                         </div>
                         %else:
                         <div class="unjoined overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>   
@@ -758,19 +768,21 @@ a{
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
-                    <div class="my-communities">
+                    <div class="my-communities-all">
                         <div style="font-size:14px;float:left;">My Communities</div>
                         <div class="my-communities-triangle"></div>
                         <div style="clear:both;"></div>
-                        %for c in my_communities:
-                            <div class="my-community">
-                                <div class="subject overflow-text">
-                                    <a href="${reverse('maincommunity', args=[c['id']])}">${c['name']}</a>
+                        <div class="my-communities">
+                            %for c in my_communities:
+                                <div class="my-community">
+                                    <div class="subject overflow-text">
+                                        <a href="${reverse('maincommunity', args=[c['id']])}">${c['name']}</a>
+                                    </div>
                                 </div>
+                            %endfor
+                            <div class="my-community">
+                                <span class="btn-seemore-cs">See More</span>
                             </div>
-                        %endfor
-                        <div class="my-community">
-                            <span class="btn-seemore-cs">See More</span>
                         </div>
                     </div>
                 </div>
@@ -780,27 +792,27 @@ a{
                 <div class="community-resources">
                     <% 
                         resources_count = resources.count() 
-                        resources_show = 4
+                        resources_show = 5
                     %>
                     %for k, resource in enumerate(resources):
                         %if resources_count <= resources_show:
                             %if k + 1 == resources_count:
-                                <div class="every-resource border-zero">
+                                <div class="every-resource border-zero overflow-text">
                             %else:
-                                <div class="every-resource">
+                                <div class="every-resource overflow-text">
                             %endif 
                         %else:
                             %if k + 1 <= resources_show:
                                 %if k + 1 == resources_show:
-                                    <div class="every-resource border-zero resource-removeline">
+                                    <div class="every-resource border-zero resource-removeline overflow-text">
                                 %else:
-                                    <div class="every-resource">
+                                    <div class="every-resource overflow-text">
                                 %endif
                             %else:
                                 %if k + 1 == resources_count:
-                                    <div class="every-resource every-resource-more border-zero">
+                                    <div class="every-resource every-resource-more border-zero overflow-text">
                                 %else:
-                                    <div class="every-resource every-resource-more">
+                                    <div class="every-resource every-resource-more overflow-text">
                                 %endif
                             %endif
                         %endif
@@ -1135,6 +1147,7 @@ a{
         $(".every-resource-more").show();
         $(this).hide();
         $(".resource-removeline").removeClass('border-zero');
+        $(".every-resource").removeClass('overflow-text');
     });
 
     //members modal send web inner message btn

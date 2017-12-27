@@ -16,7 +16,7 @@ import datetime
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
@@ -240,7 +240,7 @@ a{
     max-width:105px;
 }
 .facilitator-info{
-    width:226px;margin-left:13px;margin-top:10px;border:0px solid #f00;
+    width:226px;margin-left:13px;margin-top:12px;border:0px solid #f00;
 }
 .subcommunities, .trending{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
@@ -263,7 +263,7 @@ a{
     width:100px;margin-top:15px;float:left;border:0px solid;
 }
 .community-left .user-name{
-    font-size:14px;font-weight:bold;
+    font-size:14px;font-weight:bold;padding-bottom:2px;
 }
 .community-left .btn-facilitator{
     cursor:pointer;float:left;border:0px solid #f00;margin-top:2px;
@@ -402,7 +402,7 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:320px;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:290px;
 }
 .community-right .every-resource{
     width:80%;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
@@ -804,27 +804,27 @@ a{
                 <div class="community-resources">
                     <% 
                         resources_count = resources.count() 
-                        resources_show = 4
+                        resources_show = 5
                     %>
                     %for k, resource in enumerate(resources):
                         %if resources_count <= resources_show:
                             %if k + 1 == resources_count:
-                                <div class="every-resource border-zero">
+                                <div class="every-resource border-zero overflow-text">
                             %else:
-                                <div class="every-resource">
+                                <div class="every-resource overflow-text">
                             %endif 
                         %else:
                             %if k + 1 <= resources_show:
                                 %if k + 1 == resources_show:
-                                    <div class="every-resource border-zero resource-removeline">
+                                    <div class="every-resource border-zero resource-removeline overflow-text">
                                 %else:
-                                    <div class="every-resource">
+                                    <div class="every-resource overflow-text">
                                 %endif
                             %else:
                                 %if k + 1 == resources_count:
-                                    <div class="every-resource every-resource-more border-zero">
+                                    <div class="every-resource every-resource-more border-zero overflow-text">
                                 %else:
-                                    <div class="every-resource every-resource-more">
+                                    <div class="every-resource every-resource-more overflow-text">
                                 %endif
                             %endif
                         %endif
@@ -1159,6 +1159,7 @@ a{
         $(".every-resource-more").show();
         $(this).hide();
         $(".resource-removeline").removeClass('border-zero');
+        $(".every-resource").removeClass('overflow-text');
     });
 
     //members modal send web inner message btn

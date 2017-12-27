@@ -172,7 +172,7 @@ def get_add_user_rows(request, community_id):
 
     users = users.exclude(user__in=members)
     # users = users.exclude(activate_date__isnull=True)
-    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported')|Q(subscription_status='unregistered'))
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
@@ -456,212 +456,6 @@ def community(request, community_id):
     
     return render_to_response('communities/community.html', data)
 
-@login_required
-def maincommunity(request, community_id):
-    user = request.user
-    data = dict()
-
-    # Get dropdown data for create and edit community
-    courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
-    data = {'courses_drop': courses_drop}
-
-    # Get community info
-    community = CommunityCommunities.objects.get(id=community_id)
-    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
-    facilitator = ""
-    if facilitator_default:
-        facilitator = facilitator_default[0]
-
-    # Get request user info of the community
-    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
-    if ruser_in_commumity:
-        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
-        ruser_info['edit'] = ruser_in_commumity[0].community_edit
-        ruser_info['delete'] = ruser_in_commumity[0].community_delete
-        ruser_info['default'] = ruser_in_commumity[0].community_default
-        ruser_info['is_member'] = True
-
-    user_super = ""
-    if request.user.is_superuser:
-        user_super = "super"
-
-    '''
-    Get Subcommunities
-    '''
-    subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
-    for item in subcommunities:
-        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
-        if my_subcommunity:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
-        else:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
-
-    '''
-    Get Community Status
-    '''
-    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
-
-    # Get My Communities
-    my_communities_list = list()
-    # Just choose the last 2 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
-    if items:
-        for item in items:
-            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
-        if len(items) < 2:
-            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-            if itmes_all:
-                if itmes_all[0].id != items[0].community.id:
-                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
-                else:
-                    if len(itmes_all) > 1:
-                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
-
-    else:
-        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-        for item in items:
-            my_communities_list.append({'id': item.id, 'name': item.name})
-
-    '''
-    Get Resources
-    '''
-    resources = CommunityResources.objects.filter(community=community)
-
-    # Update all community info
-    community_other_info = {'state': community.state.id if community.state else '',
-                            'district': community.district.id if community.district else '',
-                            'user_super': user_super}
-    data.update(community_other_info)
-
-    community_info = {'community': community,
-                      'facilitator': facilitator,
-                      'ruser_info': ruser_info,
-                      'resources': resources,
-                      'users': users,
-                      'my_communities': my_communities_list,
-                      'subcommunities': subcommunities_list}
-    data.update(community_info)
-
-    return render_to_response('communities/community_new.html', data)
-
-@login_required
-def subcommunity(request, community_id):
-    user = request.user
-    data = dict()
-
-    # Get dropdown data for create and edit community
-    courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
-    data = {'courses_drop': courses_drop}
-
-    # Get subcommunity info
-    community = CommunityCommunities.objects.get(id=community_id)
-    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
-    facilitator = ""
-    if facilitator_default:
-        facilitator = facilitator_default[0]
-
-    # Get maincommunity
-    main_community = CommunityCommunities.objects.get(id=community.main_id)
-
-    # Get request user info of the community
-    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
-    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
-    if ruser_in_commumity:
-        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
-        ruser_info['edit'] = ruser_in_commumity[0].community_edit
-        ruser_info['delete'] = ruser_in_commumity[0].community_delete
-        ruser_info['default'] = ruser_in_commumity[0].community_default
-        ruser_info['is_member'] = True
-
-    user_super = ""
-    if request.user.is_superuser:
-        user_super = "super"
-
-    '''
-    Get Subcommunities
-    '''
-    subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('-id')
-    for item in subcommunities:
-        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
-        if my_subcommunity:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
-        else:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
-
-    '''
-    Get Community Status
-    '''
-    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
-
-    # Get My Communities
-    my_communities_list = list()
-    # Just choose the last 2 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
-    if items:
-        for item in items:
-            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
-        if len(items) < 2:
-            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-            if itmes_all:
-                if itmes_all[0].id != items[0].community.id:
-                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
-                else:
-                    if len(itmes_all) > 1:
-                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
-
-    else:
-        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-        for item in items:
-            my_communities_list.append({'id': item.id, 'name': item.name})
-
-    '''
-    Get Resources
-    '''
-    resources = CommunityResources.objects.filter(community=community)
-
-    # Update all community info
-    community_other_info = {'state': community.state.id if community.state else '',
-                            'district': community.district.id if community.district else '',
-                            'user_super': user_super}
-    data.update(community_other_info)
-
-    community_info = {'community': community,
-                      'main_community': main_community,
-                      'facilitator': facilitator,
-                      'ruser_info': ruser_info,
-                      'resources': resources,
-                      'users': users,
-                      'my_communities': my_communities_list,
-                      'subcommunities': subcommunities_list}
-    data.update(community_info)
-
-    return render_to_response('communities/subcommunity.html', data)
-
-@login_required
-def email_facilitator(request):
-    community_id = request.POST.get('community_id', '')
-    subject = request.POST.get('subject', '')
-    message = request.POST.get('message', '')
-    facilitator_receive_email = CommunityUsers.objects.select_related().filter(facilitator=True, receive_email=True, community=community_id)
-    email_list = list()
-    for f in facilitator_receive_email:
-        email_list.append(f.user.email)
-
-    result = "Mail sent successfully!"
-    mail_success = True
-    for email in email_list:
-        try:
-            send_mail(subject, message, request.user.email, [email], fail_silently=False)
-        except Exception as e:
-            mail_success = False
-            result = "There was a problem sending the message."
-            
-    return HttpResponse(json.dumps({'success': mail_success, 'result': result}), content_type='application/json')
 
 @login_required
 def discussion_list(request, community_id):
@@ -914,148 +708,6 @@ def communities(request):
     data = {'communities': sorted(community_list, key=itemgetter('name'))}
     return render_to_response('communities/communities.html', data)
 
-@login_required
-def newcommunities(request):
-    """
-    Returns the newcommunities page.
-    :param request: Request object.
-    :return: The NewCommunities page.
-    """
-    user = request.user
-    community_list = list()
-    filter_dict = {'main_id': 0}
-
-    # If this is a regular user, we only want to show public communities and private communities to which they belong.
-    if not user.is_superuser:
-        # Filter the normal query to only show public communities.
-        filter_dict.update({'private': False})
-
-        # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True, community__main_id=0)
-        for item in items:
-            community_list.append({'id': item.community.id,
-                                   'name': item.community.name,
-                                   'logo': item.community.logo.upload.url if item.community.logo else '',
-                                   'private': item.community.private})
-    # Query for the communities this user is allowed to see.
-    items = CommunityCommunities.objects.filter(**filter_dict)
-    for item in items:
-        community_list.append({'id': item.id,
-                               'name': item.name,
-                               'logo': item.logo.upload.url if item.logo else '',
-                               'private': item.private})
-
-    # Get dropdown data for create and edit community
-    courses_drop = list()
-    courses_drop = get_dropdown_data(user)
-
-    user_super = ''
-    if request.user.is_superuser:
-        user_super = "super"
-    community_other_info = {'user_super': user_super}
-
-    # Set up the data to send to the communities template, with the communities sorted by id.
-    data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
-            'courses_drop': courses_drop}
-    data.update(community_other_info)
-
-    return render_to_response('communities/communities_new.html', data)
-
-def get_dropdown_data(user, community_id=''):
-    # Step4, get courses list.
-    # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
-    courses_drop_full = list()
-    courses_drop = list()
-    if user.is_superuser:
-        courses_drop_full = get_courses(user)
-    else:
-        allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
-        communitycourses_id = ''
-        if community_id:
-            communitycourses_id = list(CommunityCourses.objects.filter(community=community_id).values_list('course', flat=True))
-        if communitycourses_id:
-            for cid in allowedcourses_id:
-                if cid in communitycourses_id:
-                    communitycourses_id.remove(cid)
-                    break
-            allowedcourses_id.extend(communitycourses_id)
-
-        for course_id in allowedcourses_id:
-            try:
-                # Exclude invalid courses.
-                c = course_from_id(course_id)
-                courses_drop_full.append(c)
-            except:
-                pass
-
-    for course in courses_drop_full:
-        courses_drop.append({'id': course.id,
-                             'number': course.display_number_with_default,
-                             'name': get_course_about_section(course, 'title'),
-                             'logo': course_image_url(course)})
-    return courses_drop
-
-@login_required
-def get_edit_community(request):
-    data = dict()
-    community_id = request.POST.get("id")
-    if community_id != 'new' and is_facilitator_edit(request.user, community_id):
-        # Grab the data from the DB.
-        community_object = CommunityCommunities.objects.get(id=community_id)
-        courses = CommunityCourses.objects.filter(community=community_object)
-        resources = CommunityResources.objects.filter(community=community_object)
-        facilitators = CommunityUsers.objects.filter(community=community_object, facilitator=True)
-
-        # Build the lists of facilitators.
-        facilitator_list = list()
-        for f in facilitators:
-            facilitator_list.append({'email': f.user.email,
-                                     'default': f.community_default,
-                                     'edit': f.community_edit,
-                                     'delete': f.community_delete,
-                                     'receive': f.receive_email
-                                     })
-
-        # Build the lists of courses.
-        course_list = list()
-        for course in courses:
-            course_list.append(course.course)
-        if not len(course_list):
-            course_list.append('')
-
-        # Build the lists of resources.
-        resource_list = list()
-        for resource in resources:
-            resource_simple = {'name': resource.name, 'link': resource.link, 'logo': get_file_url(resource.logo)}
-            if resource.logo:
-                resource_simple.update({'logo_id': resource.logo.id})
-            else:
-                resource_simple.update({'logo_id': ''})
-            resource_list.append(resource_simple)
-        if not len(resource_list):
-            resource_list.append({'name': '', 'link': '', 'logo': '', 'logo_id': ''})
-
-        # Put together the data to send to the template.
-        community_info = {'community_id': community_object.id,
-                          'name': community_object.name,
-                          'motto': community_object.motto,
-                          'logo': community_object.logo.upload.url if community_object.logo else '',
-                          'facilitators': facilitator_list,
-                          'state': community_object.state.id if community_object.state else '',
-                          'district': community_object.district.id if community_object.district else '',
-                          'private': community_object.private,
-                          'courses': course_list,
-                          'resources': resource_list}
-    return HttpResponse(json.dumps(community_info), content_type="application/json")
-
-def is_facilitator_edit(user, community_id):
-    return True
-
-def save_last_subaccess_time(request):
-    testinfo = request.POST.get("testinfo", "noget testinfo")
-    log.debug("================")
-    log.debug(testinfo)
-    return HttpResponse(json.dumps({"success": True}), content_type="application/json")
 
 @login_required
 def community_delete(request, community_id):
@@ -1158,280 +810,6 @@ def community_edit(request, community_id='new'):
 
     # If neither of the other tests worked, the user isn't allowed to do this.
     return HttpResponseForbidden()
-
-@login_required
-@ensure_csrf_cookie
-def community_edit_process_new(request):
-    """
-    Processes the form data from the community add/edit form.
-    :param request: Request object.
-    :return: JSON response.
-    """
-    try:
-        # Get all of the form data.
-        domain_name = request.META['HTTP_HOST']
-        community_id = request.POST.get('community_id', '')
-        name = request.POST.get('name', '')
-        motto = request.POST.get('motto', '')
-        log.debug("community_id==========")
-        log.debug(community_id)
-
-        try:
-            district_id = request.POST.get('district', False)
-            if district_id:
-                district = District.objects.get(id=int(district_id))
-            else:
-                district = None
-        except:
-            district = None
-        try:
-            state_id = request.POST.get('state', False)
-            if state_id:
-                state = State.objects.get(id=int(state_id))
-            else:
-                state = None
-        except:
-            state = None
-
-        # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
-        logo_img = request.POST.get('logo', '')
-        if logo_img[:-3] == 'jpg':
-            logo = None
-        else:
-            try:
-                logo = FileUploads()
-                logo.type = 'community_logos'
-                logo.sub_type = community_id
-                logo_img = logo_img.split(',')[1]
-                imgData = base64.b64decode(logo_img)
-                now = int(time.time())
-                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
-                img_file = open(path, 'wb')
-                img_file.write(imgData)
-                img_file.close()
-                im = Image.open(path)
-                x, y = im.size
-                p = Image.new('RGBA', im.size, (255, 255, 255))
-                p.paste(im, (0, 0, x, y), im)
-                p.save(path)
-                location_path = '/static/uploads/img_out_community' + community_id + str(now) +'.jpg'
-                logo.upload = str(location_path)
-                logo.save()
-            except Exception as e:
-                logo = None
-                log.warning('Error uploading logo: {0}'.format(e))
-
-        facilitator_list = get_post_facilitators(request)
-
-        private = request.POST.get('private', 0)
-        priority_id = 0
-
-        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
-        courses = get_post_dict(request, 'courses')
-        resource_names = get_post_dict(request, 'resource_names')
-        resource_links = get_post_dict(request, 'resource_links')
-
-        '''
-        If this is a new community, create a new entry, otherwise, load from the DB.
-        '''
-        community_object = ''
-        if community_id == 'new':
-            community_object = CommunityCommunities()
-        else:
-            community_object = CommunityCommunities.objects.get(id=community_id)
-
-        # Set all the community values and save to the DB.
-        community_object.name = name
-        community_object.motto = motto
-        if logo:
-            community_object.logo = logo
-        community_object.hangout = ""
-        community_object.private = int(private)
-        community_object.district = district
-        community_object.state = state
-        community_object.discussion_priority = int(priority_id)
-
-        # Sub community, Save main community id to sub community
-        main_community_id = request.POST.get('main_community_id', '')
-        if main_community_id:
-            try:
-                main_community = CommunityCommunities.objects.get(id=main_community_id)
-                community_object.main_id = int(main_community_id)
-            except Exception as e:
-                pass
-        # Save the community
-        community_object.save()
-
-        # Facilitators
-        old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
-        for f in old_facilitators:
-            f.facilitator = False
-            f.community_default = False
-            f.community_edit = False
-            f.community_delete = False
-            f.receive_email = False
-            f.save()
-
-        new_facilitators_list = list() # facilitator not in this community
-        # Load the main user object for the facilitator user.
-        for f in facilitator_list:
-            user_object = False
-            try:
-                user_object = User.objects.get(email=f['email'])
-                f_default = f['default']
-                f_edit = f['edit']
-                f_delete = f['delete']
-                f_receive = f['receive']
-                try:
-                    community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
-                except:
-                    community_user = CommunityUsers()
-                    community_user.community = community_object
-                    community_user.user = user_object
-                    new_facilitators_list.append(community_user.user.id)
-                # Set the facilitator flag to true.
-                community_user.facilitator = True
-                community_user.community_default = f_default
-                community_user.community_edit = f_edit
-                community_user.community_delete = f_delete
-                community_user.receive_email = f_receive
-                community_user.save()
-            except Exception as e:
-                log.warning('Invalid email for facilitator: {0}'.format(e))
-
-        # My activity of add new facilitator(user not in this community) to this community
-        ma_db = myactivitystore()
-        for userid in new_facilitators_list:
-            my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": userid, 
-                           "URLValues": {"community_id": community_object.id},
-                           "TokenValues": {"community_id": community_object.id},
-                           "LogoValues": {"community_id": community_object.id}}
-            ma_db.insert_item(my_activity)
-
-        # Init lists for notification
-        courses_add = []
-        courses_cur = dict((x.course, get_course_by_id(x.course)) for x in CommunityCourses.objects.filter(community=community_object))
-        resources_add = []
-        resources_cur = dict((x.link, x) for x in CommunityResources.objects.filter(community=community_object))
-
-        # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
-        CommunityCourses.objects.filter(community=community_object).delete()
-        # Go through the courses and add them to the DB.
-        for key, course in courses.iteritems():
-            # We only want to save an entry if there's something in it.
-            if course:
-
-                # Assign properties
-                course_object = CommunityCourses()
-                course_object.community = community_object
-                course_object.course = course
-                course_object.save()
-
-                # Record notification about modify courses
-                if courses_cur.get(course):
-                    del courses_cur[course]
-                else:
-                    courses_add.append(get_course_by_id(course_object.course))
-
-        # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
-        CommunityResources.objects.filter(community=community_object).delete()
-        # Go through the resource links, with the index so we can directly access the names and logos.
-        for key, resource_link in resource_links.iteritems():
-            # We only want to save an entry if there's something in it.
-            if resource_link:
-                log.debug(resource_link)
-                # Assign properties
-                resource_object = CommunityResources()
-                resource_object.community = community_object
-                resource_object.link = resource_link
-                resource_object.name = resource_names[key]
-
-                # The logo needs special handling since we might need to upload the file. First we try the entry in the
-                # FILES and try to upload it.
-                postget = request.POST.get('resource_logo[{0}]'.format(key))
-                logo = None
-                if postget:
-                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
-                    logo = FileUploads.objects.get(id=file_id)
-                else:
-                    if postget == None:
-                        log.debug("---logo")
-                        try:
-                            logo = FileUploads()
-                            logo.type = 'community_resource_logos'
-                            logo.sub_type = community_id
-                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                            logo.save()
-                        except Exception as e:
-                            logo = None
-                            log.warning('Error uploading resource_logo: {0}'.format(e))
-
-                if logo:
-                    resource_object.logo = logo
-
-                resource_object.save()
-                # Record notification about modify resources
-                if resources_cur.get(resource_link):
-                    del resources_cur[resource_link]
-                else:
-                    resources_add.append(resource_object)
-
-        send_notification(request.user,
-                          community_object.id,
-                          courses_add=courses_add,
-                          courses_del=courses_cur.values(),
-                          resources_add=resources_add,
-                          resources_del=resources_cur.values(),
-                          domain_name=domain_name)
-
-        log.debug("fin=======================")
-        return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
-    except Exception as e:
-        data = {'error_title': 'Problem Saving Community',
-                'error_message': 'Error: {0}'.format(e),
-                'window_title': 'Problem Saving Community'}
-        return render_to_response('error.html', data)
-
-def get_post_dict(request, name):
-    output = dict()
-    value_str = request.POST.get(name, '')
-    if value_str:
-        value_list = value_str.split(',')
-        for k, v in enumerate(value_list):
-            output.update({str(k): v})
-    return output
-
-def get_post_facilitators(request):
-    output = list()
-    facilitators = request.POST.get('facilitators', '')
-    if facilitators:
-        facilitators_list = facilitators.split(',')
-        for f in facilitators_list:
-            f_info_list = f.split('::')
-            f_info = dict()
-            f_info['email'] = f_info_list[0]
-            if f_info_list[1] == '1':
-                f_info['default'] = True
-            else:
-                f_info['default'] = False
-
-            if f_info_list[2] == '1':
-                f_info['edit'] = True
-            else:
-                f_info['edit'] = False
-
-            if f_info_list[3] == '1':
-                f_info['delete'] = True
-            else:
-                f_info['delete'] = False
-
-            if f_info_list[4] == '1':
-                f_info['receive'] = True
-            else:
-                f_info['receive'] = False
-            output.append(f_info)
-    return output
-
 
 @login_required
 @ensure_csrf_cookie
@@ -2136,6 +1514,618 @@ def top_post(request):
 #@end
 
 
+# -------------------------------------------------------------------new community begin aaa
+@login_required
+def newcommunities(request):
+    """
+    Returns the newcommunities page.
+    :param request: Request object.
+    :return: The NewCommunities page.
+    """
+    user = request.user
+    community_list = list()
+    filter_dict = {'main_id': 0}
+
+    # If this is a regular user, we only want to show public communities and private communities to which they belong.
+    if not user.is_superuser:
+        # Filter the normal query to only show public communities.
+        filter_dict.update({'private': False})
+
+        # Do a separate filter to grab private communities this user belongs to.
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True, community__main_id=0)
+        for item in items:
+            community_list.append({'id': item.community.id,
+                                   'name': item.community.name,
+                                   'logo': item.community.logo.upload.url if item.community.logo else '',
+                                   'private': item.community.private})
+    # Query for the communities this user is allowed to see.
+    items = CommunityCommunities.objects.filter(**filter_dict)
+    for item in items:
+        community_list.append({'id': item.id,
+                               'name': item.name,
+                               'logo': item.logo.upload.url if item.logo else '',
+                               'private': item.private})
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(user)
+
+    user_super = ''
+    if request.user.is_superuser:
+        user_super = "super"
+    community_other_info = {'user_super': user_super}
+
+    # Set up the data to send to the communities template, with the communities sorted by id.
+    data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
+            'courses_drop': courses_drop}
+    data.update(community_other_info)
+
+    return render_to_response('communities/communities_new.html', data)
+
+@login_required
+def maincommunity(request, community_id):
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, community_id)
+    data = {'courses_drop': courses_drop}
+
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+    facilitator = ""
+    if facilitator_default:
+        facilitator = facilitator_default[0]
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
+    if items:
+        for item in items:
+            if item.community.main_id == 0:
+                my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
+    data.update(community_info)
+
+    return render_to_response('communities/community_new.html', data)
+
+@login_required
+def subcommunity(request, community_id):
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, community_id)
+    data = {'courses_drop': courses_drop}
+
+    # Get subcommunity info
+    community = CommunityCommunities.objects.get(id=community_id)
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+    facilitator = ""
+    if facilitator_default:
+        facilitator = facilitator_default[0]
+
+    # Get maincommunity
+    main_community = CommunityCommunities.objects.get(id=community.main_id)
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    '''
+    Get Subcommunities
+    '''
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('-id')
+    for item in subcommunities:
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    '''
+    Get Community Status
+    '''
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    # Get My Communities
+    my_communities_list = list()
+    # Just choose the last 2 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    if items:
+        for item in items:
+            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+        if len(items) < 2:
+            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+            if itmes_all:
+                if itmes_all[0].id != items[0].community.id:
+                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
+                else:
+                    if len(itmes_all) > 1:
+                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
+
+    else:
+        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
+        for item in items:
+            my_communities_list.append({'id': item.id, 'name': item.name})
+
+    '''
+    Get Resources
+    '''
+    resources = CommunityResources.objects.filter(community=community)
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'main_community': main_community,
+                      'facilitator': facilitator,
+                      'ruser_info': ruser_info,
+                      'resources': resources,
+                      'users': users,
+                      'my_communities': my_communities_list,
+                      'subcommunities': subcommunities_list}
+    data.update(community_info)
+
+    return render_to_response('communities/subcommunity.html', data)
+
+def get_dropdown_data(user, community_id=''):
+    # Step4, get courses list.
+    # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
+    courses_drop_full = list()
+    courses_drop = list()
+    if user.is_superuser:
+        courses_drop_full = get_courses(user)
+    else:
+        allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+        communitycourses_id = ''
+        if community_id:
+            communitycourses_id = list(CommunityCourses.objects.filter(community=community_id).values_list('course', flat=True))
+        if communitycourses_id:
+            for cid in allowedcourses_id:
+                if cid in communitycourses_id:
+                    communitycourses_id.remove(cid)
+                    break
+            allowedcourses_id.extend(communitycourses_id)
+
+        for course_id in allowedcourses_id:
+            try:
+                # Exclude invalid courses.
+                c = course_from_id(course_id)
+                courses_drop_full.append(c)
+            except:
+                pass
+
+    for course in courses_drop_full:
+        courses_drop.append({'id': course.id,
+                             'number': course.display_number_with_default,
+                             'name': get_course_about_section(course, 'title'),
+                             'logo': course_image_url(course)})
+    return courses_drop
+
+@login_required
+def email_facilitator(request):
+    community_id = request.POST.get('community_id', '')
+    subject = request.POST.get('subject', '')
+    message = request.POST.get('message', '')
+    facilitator_receive_email = CommunityUsers.objects.select_related().filter(facilitator=True, receive_email=True, community=community_id)
+    email_list = list()
+    for f in facilitator_receive_email:
+        email_list.append(f.user.email)
+
+    result = "Mail sent successfully!"
+    mail_success = True
+    for email in email_list:
+        try:
+            send_mail(subject, message, request.user.email, [email], fail_silently=False)
+        except Exception as e:
+            mail_success = False
+            result = "There was a problem sending the message."
+
+    return HttpResponse(json.dumps({'success': mail_success, 'result': result}), content_type='application/json')
+
+@login_required
+def get_edit_community(request):
+    data = dict()
+    community_id = request.POST.get("id")
+    if community_id != 'new' and is_facilitator_edit(request.user, community_id):
+        # Grab the data from the DB.
+        community_object = CommunityCommunities.objects.get(id=community_id)
+        courses = CommunityCourses.objects.filter(community=community_object)
+        resources = CommunityResources.objects.filter(community=community_object)
+        facilitators = CommunityUsers.objects.filter(community=community_object, facilitator=True)
+
+        # Build the lists of facilitators.
+        facilitator_list = list()
+        for f in facilitators:
+            facilitator_list.append({'email': f.user.email,
+                                     'default': f.community_default,
+                                     'edit': f.community_edit,
+                                     'delete': f.community_delete,
+                                     'receive': f.receive_email
+                                     })
+
+        # Build the lists of courses.
+        course_list = list()
+        for course in courses:
+            course_list.append(course.course)
+        if not len(course_list):
+            course_list.append('')
+
+        # Build the lists of resources.
+        resource_list = list()
+        for resource in resources:
+            resource_simple = {'name': resource.name, 'link': resource.link, 'logo': get_file_url(resource.logo)}
+            if resource.logo:
+                resource_simple.update({'logo_id': resource.logo.id})
+            else:
+                resource_simple.update({'logo_id': ''})
+            resource_list.append(resource_simple)
+        if not len(resource_list):
+            resource_list.append({'name': '', 'link': '', 'logo': '', 'logo_id': ''})
+
+        # Put together the data to send to the template.
+        community_info = {'community_id': community_object.id,
+                          'name': community_object.name,
+                          'motto': community_object.motto,
+                          'logo': community_object.logo.upload.url if community_object.logo else '',
+                          'facilitators': facilitator_list,
+                          'state': community_object.state.id if community_object.state else '',
+                          'district': community_object.district.id if community_object.district else '',
+                          'private': community_object.private,
+                          'courses': course_list,
+                          'resources': resource_list}
+    return HttpResponse(json.dumps(community_info), content_type="application/json")
+
+@login_required
+@ensure_csrf_cookie
+def community_edit_process_new(request):
+    """
+    Processes the form data from the community add/edit form.
+    :param request: Request object.
+    :return: JSON response.
+    """
+    try:
+        # Get all of the form data.
+        domain_name = request.META['HTTP_HOST']
+        community_id = request.POST.get('community_id', '')
+        name = request.POST.get('name', '')
+        motto = request.POST.get('motto', '')
+        log.debug("community_id==========")
+        log.debug(community_id)
+
+        try:
+            district_id = request.POST.get('district', False)
+            if district_id:
+                district = District.objects.get(id=int(district_id))
+            else:
+                district = None
+        except:
+            district = None
+        try:
+            state_id = request.POST.get('state', False)
+            if state_id:
+                state = State.objects.get(id=int(state_id))
+            else:
+                state = None
+        except:
+            state = None
+
+        # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
+            try:
+                logo = FileUploads()
+                logo.type = 'community_logos'
+                logo.sub_type = community_id
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
+                img_file.close()
+                im = Image.open(path)
+                x, y = im.size
+                p = Image.new('RGBA', im.size, (255, 255, 255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(path)
+                location_path = '/static/uploads/img_out_community' + community_id + str(now) +'.jpg'
+                logo.upload = str(location_path)
+                logo.save()
+            except Exception as e:
+                logo = None
+                log.warning('Error uploading logo: {0}'.format(e))
+
+        facilitator_list = get_post_facilitators(request)
+
+        private = request.POST.get('private', 0)
+        priority_id = 0
+
+        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
+        courses = get_post_dict(request, 'courses')
+        resource_names = get_post_dict(request, 'resource_names')
+        resource_links = get_post_dict(request, 'resource_links')
+
+        '''
+        If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        community_object = ''
+        if community_id == 'new':
+            community_object = CommunityCommunities()
+        else:
+            community_object = CommunityCommunities.objects.get(id=community_id)
+
+        # Set all the community values and save to the DB.
+        community_object.name = name
+        community_object.motto = motto
+        if logo:
+            community_object.logo = logo
+        community_object.hangout = ""
+        community_object.private = int(private)
+        community_object.district = district
+        community_object.state = state
+        community_object.discussion_priority = int(priority_id)
+
+        # Sub community, Save main community id to sub community
+        main_community_id = request.POST.get('main_community_id', '')
+        if main_community_id:
+            try:
+                main_community = CommunityCommunities.objects.get(id=main_community_id)
+                community_object.main_id = int(main_community_id)
+            except Exception as e:
+                pass
+        # Save the community
+        community_object.save()
+
+        # Facilitators
+        old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+        for f in old_facilitators:
+            f.facilitator = False
+            f.community_default = False
+            f.community_edit = False
+            f.community_delete = False
+            f.receive_email = False
+            f.save()
+
+        new_facilitators_list = list() # facilitator not in this community
+        # Load the main user object for the facilitator user.
+        for f in facilitator_list:
+            user_object = False
+            try:
+                user_object = User.objects.get(email=f['email'])
+                f_default = f['default']
+                f_edit = f['edit']
+                f_delete = f['delete']
+                f_receive = f['receive']
+                try:
+                    community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+                except:
+                    community_user = CommunityUsers()
+                    community_user.community = community_object
+                    community_user.user = user_object
+                    new_facilitators_list.append(community_user.user.id)
+                # Set the facilitator flag to true.
+                community_user.facilitator = True
+                community_user.community_default = f_default
+                community_user.community_edit = f_edit
+                community_user.community_delete = f_delete
+                community_user.receive_email = f_receive
+                community_user.save()
+            except Exception as e:
+                log.warning('Invalid email for facilitator: {0}'.format(e))
+
+        # My activity of add new facilitator(user not in this community) to this community
+        ma_db = myactivitystore()
+        for userid in new_facilitators_list:
+            my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": userid, 
+                           "URLValues": {"community_id": community_object.id},
+                           "TokenValues": {"community_id": community_object.id},
+                           "LogoValues": {"community_id": community_object.id}}
+            ma_db.insert_item(my_activity)
+
+        # Init lists for notification
+        courses_add = []
+        courses_cur = dict((x.course, get_course_by_id(x.course)) for x in CommunityCourses.objects.filter(community=community_object))
+        resources_add = []
+        resources_cur = dict((x.link, x) for x in CommunityResources.objects.filter(community=community_object))
+
+        # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
+        CommunityCourses.objects.filter(community=community_object).delete()
+        # Go through the courses and add them to the DB.
+        for key, course in courses.iteritems():
+            # We only want to save an entry if there's something in it.
+            if course:
+
+                # Assign properties
+                course_object = CommunityCourses()
+                course_object.community = community_object
+                course_object.course = course
+                course_object.save()
+
+                # Record notification about modify courses
+                if courses_cur.get(course):
+                    del courses_cur[course]
+                else:
+                    courses_add.append(get_course_by_id(course_object.course))
+
+        # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
+        CommunityResources.objects.filter(community=community_object).delete()
+        # Go through the resource links, with the index so we can directly access the names and logos.
+        for key, resource_link in resource_links.iteritems():
+            # We only want to save an entry if there's something in it.
+            if resource_link:
+                log.debug(resource_link)
+                # Assign properties
+                resource_object = CommunityResources()
+                resource_object.community = community_object
+                resource_object.link = resource_link
+                resource_object.name = resource_names[key]
+
+                # The logo needs special handling since we might need to upload the file. First we try the entry in the
+                # FILES and try to upload it.
+                postget = request.POST.get('resource_logo[{0}]'.format(key))
+                logo = None
+                if postget:
+                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                    logo = FileUploads.objects.get(id=file_id)
+                else:
+                    if postget == None:
+                        log.debug("---logo")
+                        try:
+                            logo = FileUploads()
+                            logo.type = 'community_resource_logos'
+                            logo.sub_type = community_id
+                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                            logo.save()
+                        except Exception as e:
+                            logo = None
+                            log.warning('Error uploading resource_logo: {0}'.format(e))
+
+                if logo:
+                    resource_object.logo = logo
+
+                resource_object.save()
+                # Record notification about modify resources
+                if resources_cur.get(resource_link):
+                    del resources_cur[resource_link]
+                else:
+                    resources_add.append(resource_object)
+
+        send_notification(request.user,
+                          community_object.id,
+                          courses_add=courses_add,
+                          courses_del=courses_cur.values(),
+                          resources_add=resources_add,
+                          resources_del=resources_cur.values(),
+                          domain_name=domain_name)
+
+        log.debug("fin=======================")
+        return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
+    except Exception as e:
+        data = {'error_title': 'Problem Saving Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Saving Community'}
+        return render_to_response('error.html', data)
+
+def get_post_dict(request, name):
+    output = dict()
+    value_str = request.POST.get(name, '')
+    if value_str:
+        value_list = value_str.split(',')
+        for k, v in enumerate(value_list):
+            output.update({str(k): v})
+    return output
+
+def get_post_facilitators(request):
+    output = list()
+    facilitators = request.POST.get('facilitators', '')
+    if facilitators:
+        facilitators_list = facilitators.split(',')
+        for f in facilitators_list:
+            f_info_list = f.split('::')
+            f_info = dict()
+            f_info['email'] = f_info_list[0]
+            if f_info_list[1] == '1':
+                f_info['default'] = True
+            else:
+                f_info['default'] = False
+
+            if f_info_list[2] == '1':
+                f_info['edit'] = True
+            else:
+                f_info['edit'] = False
+
+            if f_info_list[3] == '1':
+                f_info['delete'] = True
+            else:
+                f_info['delete'] = False
+
+            if f_info_list[4] == '1':
+                f_info['receive'] = True
+            else:
+                f_info['receive'] = False
+            output.append(f_info)
+    return output
+
+def is_facilitator_edit(user, community_id):
+    return True
+
+def save_last_subaccess_time(request):
+    testinfo = request.POST.get("testinfo", "noget testinfo")
+    log.debug("================")
+    log.debug(testinfo)
+    return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+
 def community_user_email_completion(request):
     r = list()
     user_district = request.user.profile.district
@@ -2149,7 +2139,6 @@ def community_user_email_completion(request):
         for item in data:
             r.append(item.email)
     return render_json_response(r)
-
 
 def community_user_email_valid(request):
     exists = False
@@ -2172,7 +2161,6 @@ def community_user_email_valid(request):
         check_result['info'] = 'The user you are trying to add is not in your district.'
 
     return render_json_response(check_result)
-
 
 def subcommunity_user_email_completion(request):
     r = list()
@@ -2211,6 +2199,8 @@ def subcommunity_user_email_valid(request):
         check_result['info'] = 'The user you are trying to add is not the member of this community.'
 
     return render_json_response(check_result)
+# -------------------------------------------------------------------end
+
 
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
