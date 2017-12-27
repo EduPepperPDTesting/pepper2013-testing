@@ -177,7 +177,7 @@ $(document).ready(function(){
         if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
-            if((window.innerWidth - leftX) == 308){
+            if($('#pep_title_tab').css('right') != "0px"){
                 $("#pep_container").animate({right:'-256px'});
 				$("#pep_title_tab").animate({right:'0px'});
                 slPos='out';
