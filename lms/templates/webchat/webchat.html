@@ -74,6 +74,10 @@ $(document).ready(function(){
                     }
                 }
 
+                $("#textchat_"+getId).animate({
+                    scrollTop: $("#textchat_"+getId).find(".pepchat_hr").last().offset().top
+                }, 500);
+
             }
             sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         }else{
