@@ -351,6 +351,13 @@ $(document).ready(function(){
                                             e.preventDefault();
                                             $(this).css("display", "none");
                                             $(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+                                            if($("#pep_slider_list").children().length==0){
+                                                $("#pep_slider_list").css("display", "block");
+                                                $("#pep_slider_icons").css("display", "inline-block");
+                                                $("#pep_container").css("height","430px");
+                                            }
+				}
                                             var uclass = $(this).closest("td").attr("class");
                                             var userName = $(this).siblings(".pep_contact_name").text();
                                             var idUser = $(this).siblings(".pep_contact_name").attr("id");
@@ -386,6 +393,8 @@ $(document).ready(function(){
 
                                             if($("#pep_slider_list").children().length==0){
                                                 $("#pep_list_clear").css("display", "none");
+                                                $("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					                            $("#pep_container").css("height","345px");
                                             }
 
                                             var uclass = $(this).closest("td").attr("class");
