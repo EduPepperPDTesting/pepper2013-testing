@@ -263,6 +263,9 @@
 					}
 				}
 				getMessage(id);
+				$("#textchat_"+id).animate({
+					scrollTop: $("#textchat_"+id)[0].scrollHeight
+				}, 500);
 			}
 			$link.data('lockedAt', +new Date());
             $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
@@ -306,6 +309,13 @@
 				e.preventDefault();
 				$(this).css("display", "none");
 				$(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_slider_list").css("display", "block");
+					$("#pep_slider_icons").css("display", "inline-block");
+					$("#pep_container").css("height","430px");
+				}
+
 				var uclass = $(this).closest("td").attr("class");
 				var userName = $(this).siblings(".pep_contact_name").text();
 				var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
@@ -362,6 +372,8 @@
 
 				if($("#pep_slider_list").children().length==0){
 					$("#pep_list_clear").css("display", "none");
+					$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					$("#pep_container").css("height","345px");
 				}
 
 				var uclass = $(this).closest("td").attr("class");
@@ -443,6 +455,8 @@
 			$("#pep_list_clear").css("display", "none");
 			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
 			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
+			$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+			$("#pep_container").css("height","345px");
 		});
 	});
 

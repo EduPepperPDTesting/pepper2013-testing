@@ -1,6 +1,10 @@
+from django.core.urlresolvers import reverse
+
+from mitxmako.shortcuts import render_to_response
 from student.models import State, District, School, Cohort, User
-from .utils import render_json_response
+from .utils import render_json_response, get_request_array
 from permissions.utils import check_access_level, check_user_perms
+
 
 def drop_states(request):
     r = list()
@@ -70,10 +74,11 @@ def drop_schools(request):
 
 def drop_cohorts(request):
     r = list()
-    district = request.GET.get('district', False)
+    s = request.GET.get('district', '').strip()
+    district = s.split(',') if s != "" else []
     state = request.GET.get('state', False)
     if district:
-        data = Cohort.objects.filter(district=district).order_by('code')
+        data = Cohort.objects.filter(district__in=district).order_by('code')
     elif state:
         data = Cohort.objects.filter(district__state=state).order_by('code')
     else:
@@ -81,6 +86,7 @@ def drop_cohorts(request):
 
     for item in data:
         r.append({'id': item.id, 'code': item.code})
+        
     return render_json_response(r)
 
 
@@ -110,3 +116,12 @@ def user_email_exists(request):
         exists = User.objects.filter(email=lookup).exists()
     return render_json_response(exists)
 
+
+def js_url_lookup(request):
+    arguments = get_request_array(request.GET, 'arguments')
+    url = reverse(request.GET.get('signature'), kwargs=arguments)
+    return render_json_response({'url': url})
+
+
+def js_url_lookup_js(request):
+    return render_to_response('js_url_resolver.js')
