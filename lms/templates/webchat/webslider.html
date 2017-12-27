@@ -67,11 +67,6 @@ $(document).ready(function(){
             console.log(getIdString);
             console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id));
             getMessage(chat_id);
-            if(chatMini == "0"){
-                $("#textchat_"+chat_id).animate({
-                    scrollTop: $("#textchat_"+chat_id)[0].scrollHeight
-                }, 500);
-            }
             leftX-=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
         }
