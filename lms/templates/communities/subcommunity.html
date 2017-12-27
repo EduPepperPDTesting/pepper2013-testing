@@ -229,6 +229,10 @@ a{
     display:inline-block;
     max-width:105px;
 }
+.sub-community-info .main-name a{
+    color:#aaa;
+    font-size:13px;
+}
 .sub-community-info .name-divide{
     display:inline-block;
     width:6px;
@@ -355,6 +359,7 @@ a{
     margin-left:27px;
     float:left;
     background-color: #fff;
+    /*height:632px;*/
     padding-bottom: 50px;
     
     border: 0px solid;
@@ -363,7 +368,7 @@ a{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
 .community-right .community-status{
-    width:224px;border:0px solid #ccc;height:180px;overflow-y:auto;
+    width:224px;border:0px solid #ccc;
 }
 .community-right .dis-count{
     width:85%;font-size:14px;margin:15px 10px 2px 15px;border:0px solid;
@@ -380,32 +385,38 @@ a{
 .community-right .members a{
     font-size:14px;color:#89C153;
 }
-.community-right .my-communities{
+.community-right .my-communities-all{
     width:85%;font-size:14px;margin:4px 10px 2px 15px;border:0px solid;
+    height:121px;
 }
 .community-right .my-communities-triangle{
     float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #000;border-right: 5px solid transparent;border-left: 5px solid transparent;
 }
-.community-right .my-community{
-    width:155px;margin-left:18px;border:0px solid #ccc;
+.community-right .my-communities{
+    overflow-y:auto;
+    height:100px;
+    margin-top:5px;
 }
-.community-right .my-community .subject{
-    padding:10px 0 10px 0;border-bottom:1px solid #ccc;
+.community-right .every-community{
+    width:80%;margin-left:18px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
 }
-.community-right .my-community:nth-last-child(2) .subject{
-    border:0;
-}
-.community-right .my-community a{
+.community-right .every-community a{
     color: #000;cursor: pointer;
 }
-.community-right .my-community .btn-seemore-cs{
+.community-right .every-community-more{
+    display:none;
+}
+.community-right .mycommunities-seemore{
+    width:80%;margin-left:18px;padding:0px 0 5px 0;
+}
+.community-right .mycommunities-seemore .btn-seemore-mc{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
     width:224px;border:0px solid #ccc;overflow-y:auto;height:290px;
 }
 .community-right .every-resource{
-    width:80%;margin-left:20px;padding:15px 0 15px 0;border-bottom:1px solid #ccc;
+    width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
 }
 .community-right .community-resources a{
     font-size:13px;color:#000;
@@ -612,9 +623,11 @@ a{
         <!--Communities-My Trending Topics-->
         <div class="community-left">
             <div class="sub-community-info">
-                <div class="main-name overflow-text">Test Community By Lvzh</div>
+                <div class="main-name overflow-text">
+                    <a href="/maincommunity/${main_community.id}">${main_community.name}</a>
+                </div>
                 <div class="name-divide overflow-text">/</div>
-                <div class="sub-name overflow-text">sub gingjer 2017dec26 1012wertyhu</div>
+                <div class="sub-name overflow-text">${community.name}</div>
             </div>
             %if facilitator:
             <div class="facilitator-info">
@@ -782,20 +795,48 @@ a{
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
-                    <div class="my-communities">
-                        <div style="font-size:14px;float:left;">My Communities</div>
+                    <div class="my-communities-all">
+                        %if my_subcommunities:
+                        <div style="font-size:14px;float:left;">My Subommunities</div>
                         <div class="my-communities-triangle"></div>
                         <div style="clear:both;"></div>
-                        %for c in my_communities:
-                            <div class="my-community">
-                                <div class="subject overflow-text">
-                                    <a href="${reverse('maincommunity', args=[c['id']])}">${c['name']}</a>
+                        <div class="my-communities">
+                            <% 
+                                my_com_count = len(my_subcommunities) 
+                                my_com_show = 2
+                            %>
+                            %for k, mc in enumerate(my_subcommunities):
+                                %if my_com_count <= my_com_show:
+                                    %if k + 1 == my_com_count:
+                                        <div class="every-community border-zero overflow-text">
+                                    %else:
+                                        <div class="every-community overflow-text">
+                                    %endif 
+                                %else:
+                                    %if k + 1 <= my_com_show:
+                                        %if k + 1 == my_com_show:
+                                            <div class="every-community border-zero mycommunity-removeline overflow-text">
+                                        %else:
+                                            <div class="every-community overflow-text">
+                                        %endif
+                                    %else:
+                                        %if k + 1 == my_com_count:
+                                            <div class="every-community every-community-more border-zero overflow-text">
+                                        %else:
+                                            <div class="every-community every-community-more overflow-text">
+                                        %endif
+                                    %endif
+                                %endif
+                                    <a href="${reverse('subcommunity', args=[mc['id']])}">${mc['name']}</a>
                                 </div>
+                            %endfor
+                            %if my_com_count > my_com_show and my_com_count > 0:    
+                            <div class="mycommunities-seemore">
+                                <span class="btn-seemore-mc">See More</span>
                             </div>
-                        %endfor
-                        <div class="my-community">
-                            <span class="btn-seemore-cs">See More</span>
+                            %endif
                         </div>
+                        %endif
                     </div>
                 </div>
             </div>
@@ -1153,6 +1194,13 @@ a{
             }
         });
     }
+
+    //mycommunities see more btn
+    $(".btn-seemore-mc").click(function(){
+        $(".every-community-more").show();
+        $(this).hide();
+        $(".mycommunity-removeline").removeClass('border-zero');
+    });
 
     //resources see more btn
     $(".btn-seemore-r").click(function(){

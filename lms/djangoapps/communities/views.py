@@ -1564,6 +1564,14 @@ def newcommunities(request):
 
 @login_required
 def maincommunity(request, community_id):
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    if community.main_id != 0:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper.'}
+        return render_to_response('error.html', error_context)
+
     user = request.user
     data = dict()
 
@@ -1572,8 +1580,6 @@ def maincommunity(request, community_id):
     courses_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop}
 
-    # Get community info
-    community = CommunityCommunities.objects.get(id=community_id)
     facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
     facilitator = ""
     if facilitator_default:
@@ -1609,10 +1615,8 @@ def maincommunity(request, community_id):
     Get Community Status
     '''
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
-
     # Get My Communities
     my_communities_list = list()
-    # Just choose the last 2 communities the user belongs to.
     items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
     if items:
         for item in items:
@@ -1643,6 +1647,14 @@ def maincommunity(request, community_id):
 
 @login_required
 def subcommunity(request, community_id):
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    if community.main_id == 0:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper.'}
+        return render_to_response('error.html', error_context)
+
     user = request.user
     data = dict()
 
@@ -1651,8 +1663,6 @@ def subcommunity(request, community_id):
     courses_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop}
 
-    # Get subcommunity info
-    community = CommunityCommunities.objects.get(id=community_id)
     facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
     facilitator = ""
     if facilitator_default:
@@ -1691,27 +1701,13 @@ def subcommunity(request, community_id):
     Get Community Status
     '''
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
-
-    # Get My Communities
-    my_communities_list = list()
-    # Just choose the last 2 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=user).order_by('-id')[0:2]
+    # Get My Subcommunities
+    my_subcommunities_list = list()
+    items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
     if items:
         for item in items:
-            my_communities_list.append({'id': item.community.id, 'name': item.community.name})
-        if len(items) < 2:
-            itmes_all = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-            if itmes_all:
-                if itmes_all[0].id != items[0].community.id:
-                    my_communities_list.append({'id': itmes_all[0].id, 'name': itmes_all[0].name})
-                else:
-                    if len(itmes_all) > 1:
-                        my_communities_list.append({'id': itmes_all[1].id, 'name': itmes_all[1].name})
-
-    else:
-        items = CommunityCommunities.objects.select_related().filter().order_by('name')[0:2]
-        for item in items:
-            my_communities_list.append({'id': item.id, 'name': item.name})
+            if item.community.main_id != 0:
+                my_subcommunities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
     Get Resources
@@ -1730,7 +1726,7 @@ def subcommunity(request, community_id):
                       'ruser_info': ruser_info,
                       'resources': resources,
                       'users': users,
-                      'my_communities': my_communities_list,
+                      'my_subcommunities': my_subcommunities_list,
                       'subcommunities': subcommunities_list}
     data.update(community_info)
 
