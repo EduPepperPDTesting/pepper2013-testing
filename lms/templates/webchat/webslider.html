@@ -302,6 +302,7 @@ $(document).ready(function(){
                                 $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                                 if(networkData.success){
+                                    networkRows=[];
                                     for(i=0; i<networkData.rows.length; i++){
                                         networkRows.push(networkData.rows[i]);
                                     }
