@@ -177,11 +177,26 @@ $(document).ready(function(){
         if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
-            if((window.innerWidth - leftX) == 308){
+            if($('#pep_title_tab').css('right') != "0px"){
                 $("#pep_container").animate({right:'-256px'});
 				$("#pep_title_tab").animate({right:'0px'});
                 slPos='out';
             }
+        }
+
+        if(el.className!='pep_textchat_block' && el.className!='pep_contact_name' && $(el).closest('.pep_textchat_block').length==0 && $(".pep_text_container[data-chat_mini='0']").length > 0){
+            console.log("hide chat");
+            $(".pep_text_container").find(".pep_text_chat").css("display","none");
+            $(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
+            $(".pep_text_container").css("bottom","-210px");
+            $(".pep_text_container").attr("data-chat_mini", "1");//[data-chat_mini='0']
+            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+            for (var arrInd in chatHeads){
+                if(chatHeads[arrInd].substr(-1, 1) == "0"){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")+2) + "1";
+                }
+            }
+            sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         }
     });
 
@@ -287,6 +302,7 @@ $(document).ready(function(){
                                 $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                                 if(networkData.success){
+                                    networkRows=[];
                                     for(i=0; i<networkData.rows.length; i++){
                                         networkRows.push(networkData.rows[i]);
                                     }
@@ -336,6 +352,13 @@ $(document).ready(function(){
                                             e.preventDefault();
                                             $(this).css("display", "none");
                                             $(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+                                            if($("#pep_slider_list").children().length==0){
+                                                $("#pep_slider_list").css("display", "block");
+                                                $("#pep_slider_icons").css("display", "inline-block");
+                                                $("#pep_container").css("height","430px");
+                                            }
+
                                             var uclass = $(this).closest("td").attr("class");
                                             var userName = $(this).siblings(".pep_contact_name").text();
                                             var idUser = $(this).siblings(".pep_contact_name").attr("id");
@@ -371,6 +394,8 @@ $(document).ready(function(){
 
                                             if($("#pep_slider_list").children().length==0){
                                                 $("#pep_list_clear").css("display", "none");
+                                                $("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					                            $("#pep_container").css("height","345px");
                                             }
 
                                             var uclass = $(this).closest("td").attr("class");

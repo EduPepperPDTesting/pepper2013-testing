@@ -103,6 +103,7 @@
 							function getRowsData(allUsersSource, user_ids){
 								$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 										if(networkData.success){
+											networkRows = [];
 											for(i=0; i<networkData.rows.length; i++){
 												networkRows.push(networkData.rows[i]);
 											}
@@ -263,6 +264,9 @@
 					}
 				}
 				getMessage(id);
+				$("#textchat_"+id).animate({
+					scrollTop: $("#textchat_"+id)[0].scrollHeight
+				}, 500);
 			}
 			$link.data('lockedAt', +new Date());
             $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
@@ -293,142 +297,9 @@
                     sendVideoRequest(request_user_id, link, 0);
                 });
             });
-			if(!$link.data('lockedAt') || +new Date() - $link.data('lockedAt') > 300) {
-				var uname = $(this).prev().text();
-				if($(".pep_videochat_block").find(".pep_uname:contains('" + uname + "')").length == 0){
-					var uname = uname.replace(/ /g, "_");
-
-					var elCountAll = $(".pep_video_container:has(.pep_video_panel)").length;
-					if(elCountAll <= 9){
-						elCountStatic = $(".pep_video_container:not(.moved):has(.pep_video_panel)").length;
-						var leftMin =  (elCountStatic > 0)? $('.pep_video_container:not(.moved):has(.pep_video_panel):last').offset().left - 450: 0;
-						if(leftMin < 0){
-							$(".pep_video_container:not(.moved)").each(function(i, el){
-								if(i > 0){
-									var pos = $(el).offset();
-									var leftX = pos.left + (i * 2 * 450) / elCountStatic;
-									if(leftX + 450 <= window.innerWidth){
-										$(el).css({"right": "", "left": leftX + "px"});
-									}
-								}
-							});
-						}
-						var leftX = ($(".pep_video_container:not(.moved):has(.pep_video_panel)").length > 0)?parseInt($(".pep_video_container:not(.moved):has(.pep_video_panel):last").css("left")) - 450: window.innerWidth - 450;
-						$(".pep_video_container:last").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCountAll + 1}).load("/videochat/"+uname+" .pep_video_panel");
-						leftX-=450;
-						$(".pep_videochat_block").append("<div class='pep_video_container' style='left: " + leftX + "px !important; z-index :0'></div>");
-					}
-				}
-			}
-			$link.data('lockedAt', +new Date());
 		});
 
-		$(".pep_contact_block .pep_add_im").each(function(){
-			var $elem = $(this)
-
-			if ($elem.data('click-init')) return true;
-
-			$elem.data('click-init', true);
-
-			$elem.on('click', function (e) {
-				e.preventDefault();
-				$(this).css("display", "none");
-				$(this).siblings(".pep_remove_im").css("display", "inline-block");
-				var uclass = $(this).closest("td").attr("class");
-				var userName = $(this).siblings(".pep_contact_name").text();
-				var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
-				//console.log(userName);
-				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
-				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-				$("#pep_list_clear").css("display", "inline-block");
-				var elems = document.getElementsByClassName(uclass);
-				for(n = 0; n < elems.length; n++){
-					addTag = elems[n].getElementsByClassName("pep_add_im");
-					addTag[0].style.display="none";
-					removeTag = elems[n].getElementsByClassName("pep_remove_im");
-					removeTag[0].style.display="inline-block";
-				}
-        	});
-		});
-        /*$(".pep_contact_block").on("click", ".pep_add_im", function(e){
-			e.preventDefault();
-			$(this).css("display", "none");
-			$(this).siblings(".pep_remove_im").css("display", "inline-block");
-			var uclass = $(this).closest("td").attr("class");
-			var userName = $(this).siblings(".pep_contact_name").text();
-			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
-			//console.log(userName);
-			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
-			$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-			$("#pep_list_clear").css("display", "block");
-			var elems = document.getElementsByClassName(uclass);
-			for(n = 0; n < elems.length; n++){
-				addTag = elems[n].getElementsByClassName("pep_add_im");
-				addTag[0].style.display="none";
-				removeTag = elems[n].getElementsByClassName("pep_remove_im");
-				removeTag[0].style.display="inline-block";
-			}
-		});*/
-
-		$(".pep_contact_block .pep_remove_im").each(function(){
-			var $elem = $(this)
-
-			if ($elem.data('click-init')) return true;
-
-			$elem.data('click-init', true);
-
-			$elem.on('click', function (e) {
-				e.preventDefault();
-				$(this).css("display", "none");
-				$(this).siblings(".pep_add_im").css("display", "inline-block");
-				var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
-				//console.log(idUser);
-
-				var parent = document.getElementById("pep_slider_list");
-				var child = document.getElementById("ul" + idUser);
-				parent.removeChild(child);
-
-				if($("#pep_slider_list").children().length==0){
-					$("#pep_list_clear").css("display", "none");
-				}
-
-				var uclass = $(this).closest("td").attr("class");
-
-				var elems = document.getElementsByClassName(uclass);
-				for(n = 0; n < elems.length; n++){
-					addTag = elems[n].getElementsByClassName("pep_add_im");
-					addTag[0].style.display="inline-block";
-					removeTag = elems[n].getElementsByClassName("pep_remove_im");
-					removeTag[0].style.display="none";
-				}
-			});
-		});
-        /*$(".pep_contact_block").on("click", ".pep_remove_im", function(e){
-			e.preventDefault();
-			$(this).css("display", "none");
-			$(this).siblings(".pep_add_im").css("display", "inline-block");
-			var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
-			//console.log(idUser);
-
-			var parent = document.getElementById("pep_slider_list");
-			var child = document.getElementById("ul" + idUser);
-			parent.removeChild(child);
-
-			if($("#pep_slider_list").children().length==0){
-				$("#pep_list_clear").css("display", "none");
-			}
-
-			var uclass = $(this).closest("td").attr("class");
-
-			var elems = document.getElementsByClassName(uclass);
-			for(n = 0; n < elems.length; n++){
-				addTag = elems[n].getElementsByClassName("pep_add_im");
-				addTag[0].style.display="inline-block";
-				removeTag = elems[n].getElementsByClassName("pep_remove_im");
-				removeTag[0].style.display="none";
-			}
-
-		});*/
+		showUserList()
 
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
@@ -471,12 +342,90 @@
 			$("#pep_list_clear").css("display", "none");
 			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
 			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
+			$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+			$("#pep_container").css("height","345px");
 		});
 	});
 
 		$("table:not(#community_network, #community_allptusers) thead").on('click', 'th', function(){
 			$(this).closest('table').find('tbody').toggle();
+			if($(this).closest('table').find('tbody').find('tr').is(':visible')) showUserList();
 		});
+
+	function showUserList(){
+		//add users to list
+		$(".pep_contact_block .pep_add_im").each(function(){
+			var $elem = $(this)
+
+			if ($elem.data('click-init')) return true;
+
+			$elem.data('click-init', true);
+
+			$elem.on('click', function (e) {
+				e.preventDefault();
+				$(this).css("display", "none");
+				$(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_slider_list").css("display", "block");
+					$("#pep_slider_icons").css("display", "inline-block");
+					$("#pep_container").css("height","430px");
+				}
+
+				var uclass = $(this).closest("td").attr("class");
+				var userName = $(this).siblings(".pep_contact_name").text();
+				var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
+				//console.log(userName);
+				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
+				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+				$("#pep_list_clear").css("display", "inline-block");
+				var elems = document.getElementsByClassName(uclass);
+				for(n = 0; n < elems.length; n++){
+					addTag = elems[n].getElementsByClassName("pep_add_im");
+					addTag[0].style.display="none";
+					removeTag = elems[n].getElementsByClassName("pep_remove_im");
+					removeTag[0].style.display="inline-block";
+				}
+        	});
+		});
+
+		//remove users from list
+		$(".pep_contact_block .pep_remove_im").each(function(){
+			var $elem = $(this)
+
+			if ($elem.data('click-init')) return true;
+
+			$elem.data('click-init', true);
+
+			$elem.on('click', function (e) {
+				e.preventDefault();
+				$(this).css("display", "none");
+				$(this).siblings(".pep_add_im").css("display", "inline-block");
+				var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
+				//console.log(idUser);
+
+				var parent = document.getElementById("pep_slider_list");
+				var child = document.getElementById("ul" + idUser);
+				parent.removeChild(child);
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_list_clear").css("display", "none");
+					$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					$("#pep_container").css("height","345px");
+				}
+
+				var uclass = $(this).closest("td").attr("class");
+
+				var elems = document.getElementsByClassName(uclass);
+				for(n = 0; n < elems.length; n++){
+					addTag = elems[n].getElementsByClassName("pep_add_im");
+					addTag[0].style.display="inline-block";
+					removeTag = elems[n].getElementsByClassName("pep_remove_im");
+					removeTag[0].style.display="none";
+				}
+			});
+		});
+	}
 
     function getMessage (id) {
         $.post("${reverse('get_message')}", {
