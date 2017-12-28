@@ -103,6 +103,7 @@
 							function getRowsData(allUsersSource, user_ids){
 								$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 										if(networkData.success){
+											networkRows = [];
 											for(i=0; i<networkData.rows.length; i++){
 												networkRows.push(networkData.rows[i]);
 											}
@@ -299,7 +300,7 @@
 		});
 
 		showUserList()
-		
+
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 
