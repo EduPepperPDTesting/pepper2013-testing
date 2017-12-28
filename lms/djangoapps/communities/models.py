@@ -25,7 +25,7 @@ class CommunityUsers(models.Model):
     class Meta:
         db_table = 'community_users'
     community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='communityuser')
     facilitator = models.BooleanField(blank=False, default=0)
     community_edit = models.BooleanField(blank=False, default=0)
     community_delete = models.BooleanField(blank=False, default=0)
