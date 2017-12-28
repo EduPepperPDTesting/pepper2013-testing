@@ -220,8 +220,31 @@ a{
     background-color: #fff;
     padding-bottom: 50px;
 }
+.sub-community-info{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid;
+    color:#aaa;
+    font-size:13px;
+}
+.sub-community-info .main-name{
+    display:inline-block;
+    max-width:105px;
+}
+.sub-community-info .main-name a{
+    color:#aaa;
+    font-size:13px;
+}
+.sub-community-info .name-divide{
+    display:inline-block;
+    width:6px;
+    text-align:center;
+}
+.sub-community-info .sub-name{
+    display:inline-block;
+    font-weight:bold;
+    max-width:105px;
+}
 .facilitator-info{
-    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+    width:226px;margin-left:13px;margin-top:12px;border:0px solid #f00;
 }
 .subcommunities, .trending{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
@@ -292,22 +315,43 @@ a{
     display:none;
 }
 .community-left .unjoined{
-    width:85%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
+    width:85%;margin:10px;padding: 1px 0 1px 0;color: #ccc;border:0px solid;
 }
 .community-left .unjoined a{
-    color: #000;font-size:13px;cursor: pointer;
+    color: #ccc;font-size:13px;
+}
+.community-left .unjoined-active{
+    width:85%;margin:10px;padding: 1px 0 1px 0;color:#2CBAEC;border:0px solid;
+}
+.community-left .unjoined-active a{
+    font-size:13px;
+    font-weight:bold;
+    color:#2CBAEC;
 }
 .community-left .joined{
     width:90%;font-size:13px;margin:10px;border:0px solid;
 }
-.community-left .joined a{
-    color: #000;font-size:13px;cursor: pointer;font-weight: bold;
-}
 .community-left .joined-title{
-    display:table-cell;padding:1px 5px 1px 0;max-width:160px;
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#ccc;
+}
+.community-left .joined-title a{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .joined-title-active{
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#2CBAEC;
+}
+.community-left .joined-title-active a{
+    font-size:13px;
+    font-weight:bold;
+    color:#2CBAEC;
 }
 .community-left .discussion-count{
     padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+}
+.community-left .discussion-count-unactive{
+    padding:1px 8px 1px 8px;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+    background-color:#ccc;
 }
 .community-left .seemore-sc{
     width:212px;padding:0 10px 0 0;text-align:right;border:0px solid;
@@ -602,7 +646,13 @@ a{
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
         <!--Communities-My Trending Topics-->
         <div class="community-left">
-            <div class="sub-community-info"></div>
+            <div class="sub-community-info">
+                <div class="main-name overflow-text">
+                    <a href="/maincommunity/${main_community.id}">${main_community.name}</a>
+                </div>
+                <div class="name-divide overflow-text">/</div>
+                <div class="sub-name overflow-text">${community.name}</div>
+            </div>
             %if facilitator:
             <div class="facilitator-info">
                 <div class="user-photo">
@@ -618,7 +668,7 @@ a{
                         <div class="f-menu-triangle"></div>
                             <div class="f-lines">
                                 %if ruser_info['edit'] or user_super:
-                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
+                                <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
                                 <div class="f-rights-line">Delete Community</div>
@@ -640,11 +690,7 @@ a{
             </div>
             %endif
             <div class="subcommunities">
-                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;
-                    %if user_super or ruser_info['facilitator'] and ruser_info['default']:
-                    <span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span>
-                    %endif
-                </div>
+                <div class="sub-title">Subcommunities</div>
                 <div class="sub-community-titles">
                     <% 
                         sc_count = len(subcommunities) 
@@ -657,16 +703,29 @@ a{
                             %else:
                             <div class="joined subcommunity-more">
                             %endif
-                                <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                            %if sc['id'] == community.id:
+                                <div class="overflow-text joined-title-active"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
                                 <div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>
+                            %else:
+                                <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                <div style="display:table-cell"><div class="discussion-count-unactive overflow-text">8</div></div>
+                            %endif
                             </div>
                         %else:
                             %if k + 1 <= sc_show:
-                            <div class="unjoined overflow-text">
-                            %else: 
-                            <div class="unjoined overflow-text subcommunity-more">
+                                %if sc['id'] == community.id:
+                                <div class="unjoined-active overflow-text">
+                                %else:
+                                <div class="unjoined overflow-text">
+                                %endif
+                            %else:
+                                %if sc['id'] == community.id:
+                                <div class="unjoined-active overflow-text subcommunity-more">
+                                %else:
+                                <div class="unjoined overflow-text subcommunity-more">
+                                %endif
                             %endif
-                                <a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>  
+                                    <a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>   
                         %endif
                     %endfor 
                     %if sc_count > sc_show and sc_count > 0:
@@ -765,7 +824,7 @@ a{
                                             <span id="btn-leave-facilitator">Member</span>
                                         %endif
                                     %else:
-                                        %if not community.private:
+                                        %if not community.private and is_main_member:
                                             <span id="btn-join" onclick="joinMe()">Join</span>
                                         %endif
                                     %endif
@@ -785,16 +844,16 @@ a{
                     <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities-all">
-                        %if my_communities:
-                        <div style="font-size:14px;float:left;">My Communities</div>
+                        %if my_subcommunities:
+                        <div style="font-size:14px;float:left;">My Subommunities</div>
                         <div class="my-communities-triangle"></div>
                         <div style="clear:both;"></div>
                         <div class="my-communities">
                             <% 
-                                my_com_count = len(my_communities) 
+                                my_com_count = len(my_subcommunities) 
                                 my_com_show = 2
                             %>
-                            %for k, mc in enumerate(my_communities):
+                            %for k, mc in enumerate(my_subcommunities):
                                 %if my_com_count <= my_com_show:
                                     %if k + 1 == my_com_count:
                                         <div class="every-community border-zero overflow-text">
@@ -816,7 +875,7 @@ a{
                                         %endif
                                     %endif
                                 %endif
-                                    <a href="${reverse('maincommunity', args=[mc['id']])}">${mc['name']}</a>
+                                    <a href="${reverse('subcommunity', args=[mc['id']])}">${mc['name']}</a>
                                 </div>
                             %endfor
                             %if my_com_count > my_com_show and my_com_count > 0:    
@@ -966,18 +1025,18 @@ a{
             <div class="" style="width:100%;height:100%;overflow:hidden;">
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 1 of 5</h5>
+                        <h5>Create Subcommunity: Step 1 of 5</h5>
                         <h4>General Information</h4>
                         <div class="form-row">
                             <label id="community-name">
                                 <span>Name:</span></br>
-                                <input type="text" name="name" value="" placeholder="The name of the community">
+                                <input type="text" name="name" value="" placeholder="The name of the subcommunity">
                             </label>
                         </div>
                         <div class="form-row">
                             <label id="community-motto">
                                 <span>Description (Motto):</span></br>
-                                <input type="text" name="motto" value="" placeholder="A description or motto for this community">
+                                <input type="text" name="motto" value="" placeholder="A description or motto for this Subcommunity">
                             </label>
                         </div>
                         <div class="form-row">
@@ -991,7 +1050,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 2 of 5</h5>
+                        <h5>Create Subcommunity: Step 2 of 5</h5>
                         <h4>Organization Information</h4>
                         <div class="form-row" style="font-size:14px;">
                             %if request.user.is_superuser:
@@ -1019,7 +1078,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 3 of 5</h5>
+                        <h5>Create Subcommunity: Step 3 of 5</h5>
                         <h4>Add Courses</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>courses:</span></label></br>
@@ -1032,7 +1091,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 4 of 5</h5>
+                        <h5>Create Subcommunity: Step 4 of 5</h5>
                         <h4>Add resources</h4>
                         <div class="form-row" style="font-size:14px;">
                             <label><span>Resources:</span></label></br>
@@ -1045,7 +1104,7 @@ a{
                 </div>
                 <div class="step-page">
                     <div class="step-content">
-                        <h5>Create Community: Step 5 of 5</h5>
+                        <h5>Create Subcommunity: Step 5 of 5</h5>
                         <h4>Add/Remove Facilitators</h4>
                         <div class="form-row" style="font-size:14px;">
                             <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
@@ -1076,7 +1135,7 @@ a{
                             </div>
                         </div>
                         <div class="form-row" style="font-size:14px;">
-                            <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
+                            <i>Select a <b>Subcommunity Facilitator</b> by searching email (start typing and select email of
                                 <b>Facilitator</b>):</i>
                             <div style="margin:5px 0 5px 0;">
                                 <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
@@ -1183,7 +1242,7 @@ a{
             }
         });
     }
-    
+
     //subcommunities see more btn
     $(".btn-seemore-sc").click(function(){
         $(".subcommunity-more").show();
@@ -1298,7 +1357,6 @@ a{
         //this.initContent();
         this.formdata = '';
         this.community_id = '';
-        this.edit_type = '';
         this.courses_drop = new Array();
         $('.coursesdropdata').each(function(){
             var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
@@ -1306,85 +1364,8 @@ a{
         });
     }
 
-    PepReg.prototype.addTraining = function () {
+    PepReg.prototype.editSubTraining = function (id) {
         var self = this;
-        self.edit_type = 'main';
-        var community_data = '';
-        var steps = self.initForm(community_data, function (data) {          
-            //submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            self.createFormdata(data);
-            /*
-            $.post("${reverse('community_edit_process_new')}", data, function (r) {
-                if (r.success) {
-                    $("#dlg-add-training").hide();
-                    $(".lean-overlay").hide();
-                    //self.reloadTable();
-                }
-            });
-            */
-            $.ajax({
-                url: "${reverse('community_edit_process_new')}",
-                type: 'POST',
-                success: function(r){
-                    console.log("ok");
-                    //$("#dlg-add-training").hide();
-                    //$(".lean-overlay").hide();
-                    window.location.href = "/newcommunities";
-                },
-                error: function(r){},
-                // Form data
-                data: self.formdata,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-        return false;
-    };
-
-    PepReg.prototype.addSubTraining = function (id) {
-        var self = this;
-        self.edit_type = 'sub';
-        var community_data = '';
-        var steps = self.initForm(community_data, function (data) {          
-            //submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            self.createFormdata(data, id);
-            
-            $.ajax({
-                url: "${reverse('community_edit_process_new')}",
-                type: 'POST',
-                success: function(r){
-                    console.log("ok");
-                    //$("#dlg-add-training").hide();
-                    //$(".lean-overlay").hide();
-                    window.location.href = "/maincommunity/${community_id}";
-                },
-                error: function(r){},
-                // Form data
-                data: self.formdata,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-        return false;
-    };
-
-    PepReg.prototype.editTraining = function (id) {
-        var self = this;
-        self.edit_type = 'main';
         $.post("${reverse('get_edit_community')}", {id: id}, function (d) {
             
             self.initForm(d, function (data) {
@@ -1402,7 +1383,7 @@ a{
                         console.log("ajax ok");
                         //$("#dlg-add-training").hide();
                         //$(".lean-overlay").hide();
-                        window.location.href = "/maincommunity/" + r.community_id;
+                        window.location.href = "/subcommunity/" + r.community_id;
                     },
                     error: function(r){},
                     // Form data
@@ -1467,17 +1448,7 @@ a{
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
-            var check_url = '';
-            var post_data = {};
-            if(self.edit_type == 'sub'){
-                check_url = "${reverse('subcommunity_user_email_valid')}";
-                post_data = {email: email, main_id: '${community.id}'};
-            }
-            else{
-                check_url = "${reverse('community_user_email_valid')}";
-                post_data = {email: email};
-            }
-            $.get(check_url, post_data, function (result) {
+            $.get("${reverse('subcommunity_user_email_valid')}", {email: email, main_id: '${community.main_id}'}, function (result) {
                 if (result.success){
                     self.addFacilitator(email);
                     $("#complete-email").val("");
@@ -1825,11 +1796,11 @@ a{
         if (page == 0) {
             if (!data.name) {
                 $('#community-name input').addClass('community-error-box');
-                return ["name", "Community Name is required."];
+                return ["name", "Subcommunity Name is required."];
             }
             else if(!/[A-Za-z]/.test(data.name)){
                 $('#community-name input').addClass('community-error-box');
-                return ["name", "Community Name format wrong."];
+                return ["name", "Subcommunity Name format wrong."];
             }
         }
         else if (page == 1) {
@@ -1989,13 +1960,7 @@ a{
 
         $('#complete-email').autocomplete({
             source: function (request, response) {
-                if(pepreg.edit_type == 'sub'){
-                    $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${community.id}'}, response);
-                }
-                else{
-                    $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
-                }
-                
+                $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${community.main_id}'}, response);
             }
         });
 
@@ -2004,5 +1969,27 @@ a{
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();
         });
+
+        /*
+        $(window).on('beforeunload',function(){
+            console.log("window_close");
+            $.post("${reverse('save_last_subaccess_time')}",{"testinfo":"last access sub community time11"},function(r){
+                if(r.success)
+                    console.log("window_click_end");
+            });
+            //return'Your own message goes here...';
+        });
+        */
+        
+        /*
+        var window_click = 0;
+        $(window).click(function(){
+            if(!window_click){
+                window_click = 1;
+                console.log("window_click");
+            }
+        });
+        //$(window).trigger("click");
+        */
     });
 </script>

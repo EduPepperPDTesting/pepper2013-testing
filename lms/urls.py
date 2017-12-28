@@ -457,9 +457,12 @@ urlpatterns = (
     url(r'^communities/$', 'communities.views.communities', name="communities"),
     url(r'^newcommunities/$', 'communities.views.newcommunities', name="newcommunities"),
     url(r'^maincommunity/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.maincommunity', name='maincommunity'),
+    url(r'^subcommunity/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.subcommunity', name='subcommunity'),
     url(r'^community/get_edit_community$', 'communities.views.get_edit_community', name='get_edit_community'),
     url(r'^community/user/email-completion', 'communities.views.community_user_email_completion', name='community_user_email_completion'),
     url(r'^community/user/email-valid', 'communities.views.community_user_email_valid', name='community_user_email_valid'),
+    url(r'^subcommunity/user/email-completion', 'communities.views.subcommunity_user_email_completion', name='subcommunity_user_email_completion'),
+    url(r'^subcommunity/user/email-valid', 'communities.views.subcommunity_user_email_valid', name='subcommunity_user_email_valid'),
     url(r'^community/email-facilitator', 'communities.views.email_facilitator', name='community_email_facilitator'),
     url(r'^community/save_last_subaccess_time', 'communities.views.save_last_subaccess_time', name='save_last_subaccess_time'),
 

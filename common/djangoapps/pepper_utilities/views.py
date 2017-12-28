@@ -74,10 +74,11 @@ def drop_schools(request):
 
 def drop_cohorts(request):
     r = list()
-    district = request.GET.get('district', False)
+    s = request.GET.get('district', '').strip()
+    district = s.split(',') if s != "" else []
     state = request.GET.get('state', False)
     if district:
-        data = Cohort.objects.filter(district=district).order_by('code')
+        data = Cohort.objects.filter(district__in=district).order_by('code')
     elif state:
         data = Cohort.objects.filter(district__state=state).order_by('code')
     else:
@@ -85,6 +86,7 @@ def drop_cohorts(request):
 
     for item in data:
         r.append({'id': item.id, 'code': item.code})
+        
     return render_json_response(r)
 
 
