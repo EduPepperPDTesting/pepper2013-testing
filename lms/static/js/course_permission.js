@@ -517,9 +517,6 @@ CoursePermission.prototype.initUI = function(){
         }else if(this.id == "lst-user-filter-district"){
             var sele = ("#lst-user-filter-school");
             self.dropSchoolMu(sele, $(this).get_selection());
-            
-            var sele = ("#lst-user-filter-cohort");
-            self.dropCohortMu(sele, $(this).get_selection());
         }else if(this.id == "lst-course-filter-state"){
             var sele = ("#lst-course-filter-district");
             self.dropDistrictMu(sele, $(this).get_selection());
