@@ -1671,6 +1671,12 @@ def subcommunity(request, community_id):
     # Get maincommunity
     main_community = CommunityCommunities.objects.get(id=community.main_id)
 
+    # Wether is the member of main community
+    is_main_member = False
+    main_community_user = CommunityUsers.objects.select_related().filter(community=main_community, user=request.user)
+    if main_community_user:
+        is_main_member = True
+
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
     ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
@@ -1727,7 +1733,8 @@ def subcommunity(request, community_id):
                       'resources': resources,
                       'users': users,
                       'my_subcommunities': my_subcommunities_list,
-                      'subcommunities': subcommunities_list}
+                      'subcommunities': subcommunities_list,
+                      'is_main_member': is_main_member}
     data.update(community_info)
 
     return render_to_response('communities/subcommunity.html', data)

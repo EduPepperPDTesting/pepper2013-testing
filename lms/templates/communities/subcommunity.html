@@ -309,34 +309,58 @@ a{
     float:left;margin:15px 0 0 5px;border:0px solid;cursor:pointer;
 }
 .community-left .sub-community-titles{
-    width:224px;border:1px solid #ccc;height:163px;overflow-y:auto;
+    width:224px;border:1px solid #ccc;height:160px;overflow-y:auto;
+}
+.community-left .subcommunity-more{
+    display:none;
 }
 .community-left .unjoined{
-    width:85%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
+    width:85%;margin:10px;padding: 1px 0 1px 0;color: #ccc;border:0px solid;
 }
 .community-left .unjoined a{
-    color: #000;font-size:13px;cursor: pointer;
+    color: #ccc;font-size:13px;
+}
+.community-left .unjoined-active{
+    width:85%;margin:10px;padding: 1px 0 1px 0;color:#2CBAEC;border:0px solid;
+}
+.community-left .unjoined-active a{
+    font-size:13px;
+    font-weight:bold;
+    color:#2CBAEC;
 }
 .community-left .joined{
     width:90%;font-size:13px;margin:10px;border:0px solid;
 }
-.community-left .joined a{
-    color: #000;font-size:13px;cursor: pointer;font-weight: bold;
-}
 .community-left .joined-title{
-    display:table-cell;padding:1px 5px 1px 0;max-width:160px;
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#ccc;
+}
+.community-left .joined-title a{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .joined-title-active{
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#2CBAEC;
+}
+.community-left .joined-title-active a{
+    font-size:13px;
+    font-weight:bold;
+    color:#2CBAEC;
 }
 .community-left .discussion-count{
     padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
 }
+.community-left .discussion-count-unactive{
+    padding:1px 8px 1px 8px;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+    background-color:#ccc;
+}
 .community-left .seemore-sc{
-    width:212px;padding:10px 10px 0 0;text-align:right;border:0px solid;
+    width:212px;padding:0 10px 0 0;text-align:right;border:0px solid;
 }
 .community-left .btn-seemore-sc,.community-left .btn-seemore-t{
    font-size:13px;color:#999;cursor: pointer; 
 }
 .community-left .trendings{
-    width:224px;border:1px solid #ccc;height:145px;overflow-y:auto;
+    width:224px;border:1px solid #ccc;height:152px;overflow-y:auto;
 }
 .community-left .every-discussion{
     width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
@@ -668,23 +692,47 @@ a{
             <div class="subcommunities">
                 <div class="sub-title">Subcommunities</div>
                 <div class="sub-community-titles">
-                    %for sc in subcommunities:
+                    <% 
+                        sc_count = len(subcommunities) 
+                        sc_show = 4
+                    %>
+                    %for k, sc in enumerate(subcommunities):
                         %if sc['member']:
-                        <div class="joined">
-                            <div class="overflow-text joined-title">
-                                <a>${sc['name']}</a>
+                            %if k + 1 <= sc_show:
+                            <div class="joined">
+                            %else:
+                            <div class="joined subcommunity-more">
+                            %endif
+                            %if sc['id'] == community.id:
+                                <div class="overflow-text joined-title-active"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                <div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>
+                            %else:
+                                <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                <div style="display:table-cell"><div class="discussion-count-unactive overflow-text">8</div></div>
+                            %endif
                             </div>
-                            <div style="display:table-cell">
-                                <div class="discussion-count overflow-text">8</div>
-                            </div>
-                        </div>
                         %else:
-                        <div class="unjoined overflow-text"><a>${sc['name']}</a></div>   
+                            %if k + 1 <= sc_show:
+                                %if sc['id'] == community.id:
+                                <div class="unjoined-active overflow-text">
+                                %else:
+                                <div class="unjoined overflow-text">
+                                %endif
+                            %else:
+                                %if sc['id'] == community.id:
+                                <div class="unjoined-active overflow-text subcommunity-more">
+                                %else:
+                                <div class="unjoined overflow-text subcommunity-more">
+                                %endif
+                            %endif
+                                    <a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>   
                         %endif
                     %endfor 
+                    %if sc_count > sc_show and sc_count > 0:
                     <div class="seemore-sc">
                         <span class="btn-seemore-sc">See More</span>
                     </div>
+                    %endif
                     <!--
                     <div class="joined">
                         <div class="overflow-text joined-title">
@@ -776,7 +824,7 @@ a{
                                             <span id="btn-leave-facilitator">Member</span>
                                         %endif
                                     %else:
-                                        %if not community.private:
+                                        %if not community.private and is_main_member:
                                             <span id="btn-join" onclick="joinMe()">Join</span>
                                         %endif
                                     %endif
@@ -1194,6 +1242,12 @@ a{
             }
         });
     }
+
+    //subcommunities see more btn
+    $(".btn-seemore-sc").click(function(){
+        $(".subcommunity-more").show();
+        $(this).hide();
+    });
 
     //mycommunities see more btn
     $(".btn-seemore-mc").click(function(){
