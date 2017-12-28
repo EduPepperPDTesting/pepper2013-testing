@@ -263,6 +263,9 @@
 					}
 				}
 				getMessage(id);
+				$("#textchat_"+id).animate({
+					scrollTop: $("#textchat_"+id)[0].scrollHeight
+				}, 500);
 			}
 			$link.data('lockedAt', +new Date());
             $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
@@ -295,113 +298,8 @@
             });
 		});
 
-		$(".pep_contact_block .pep_add_im").each(function(){
-			var $elem = $(this)
-
-			if ($elem.data('click-init')) return true;
-
-			$elem.data('click-init', true);
-
-			$elem.on('click', function (e) {
-				e.preventDefault();
-				$(this).css("display", "none");
-				$(this).siblings(".pep_remove_im").css("display", "inline-block");
-				var uclass = $(this).closest("td").attr("class");
-				var userName = $(this).siblings(".pep_contact_name").text();
-				var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
-				//console.log(userName);
-				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
-				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-				$("#pep_list_clear").css("display", "inline-block");
-				var elems = document.getElementsByClassName(uclass);
-				for(n = 0; n < elems.length; n++){
-					addTag = elems[n].getElementsByClassName("pep_add_im");
-					addTag[0].style.display="none";
-					removeTag = elems[n].getElementsByClassName("pep_remove_im");
-					removeTag[0].style.display="inline-block";
-				}
-        	});
-		});
-        /*$(".pep_contact_block").on("click", ".pep_add_im", function(e){
-			e.preventDefault();
-			$(this).css("display", "none");
-			$(this).siblings(".pep_remove_im").css("display", "inline-block");
-			var uclass = $(this).closest("td").attr("class");
-			var userName = $(this).siblings(".pep_contact_name").text();
-			var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
-			//console.log(userName);
-			userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
-			$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
-			$("#pep_list_clear").css("display", "block");
-			var elems = document.getElementsByClassName(uclass);
-			for(n = 0; n < elems.length; n++){
-				addTag = elems[n].getElementsByClassName("pep_add_im");
-				addTag[0].style.display="none";
-				removeTag = elems[n].getElementsByClassName("pep_remove_im");
-				removeTag[0].style.display="inline-block";
-			}
-		});*/
-
-		$(".pep_contact_block .pep_remove_im").each(function(){
-			var $elem = $(this)
-
-			if ($elem.data('click-init')) return true;
-
-			$elem.data('click-init', true);
-
-			$elem.on('click', function (e) {
-				e.preventDefault();
-				$(this).css("display", "none");
-				$(this).siblings(".pep_add_im").css("display", "inline-block");
-				var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
-				//console.log(idUser);
-
-				var parent = document.getElementById("pep_slider_list");
-				var child = document.getElementById("ul" + idUser);
-				parent.removeChild(child);
-
-				if($("#pep_slider_list").children().length==0){
-					$("#pep_list_clear").css("display", "none");
-				}
-
-				var uclass = $(this).closest("td").attr("class");
-
-				var elems = document.getElementsByClassName(uclass);
-				for(n = 0; n < elems.length; n++){
-					addTag = elems[n].getElementsByClassName("pep_add_im");
-					addTag[0].style.display="inline-block";
-					removeTag = elems[n].getElementsByClassName("pep_remove_im");
-					removeTag[0].style.display="none";
-				}
-			});
-		});
-        /*$(".pep_contact_block").on("click", ".pep_remove_im", function(e){
-			e.preventDefault();
-			$(this).css("display", "none");
-			$(this).siblings(".pep_add_im").css("display", "inline-block");
-			var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
-			//console.log(idUser);
-
-			var parent = document.getElementById("pep_slider_list");
-			var child = document.getElementById("ul" + idUser);
-			parent.removeChild(child);
-
-			if($("#pep_slider_list").children().length==0){
-				$("#pep_list_clear").css("display", "none");
-			}
-
-			var uclass = $(this).closest("td").attr("class");
-
-			var elems = document.getElementsByClassName(uclass);
-			for(n = 0; n < elems.length; n++){
-				addTag = elems[n].getElementsByClassName("pep_add_im");
-				addTag[0].style.display="inline-block";
-				removeTag = elems[n].getElementsByClassName("pep_remove_im");
-				removeTag[0].style.display="none";
-			}
-
-		});*/
-
+		showUserList()
+		
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 
@@ -443,12 +341,90 @@
 			$("#pep_list_clear").css("display", "none");
 			$(".pep_contact_block").find(".pep_remove_im").css("display", "none");
 			$(".pep_contact_block").find(".pep_add_im").css("display", "inline-block");
+			$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+			$("#pep_container").css("height","345px");
 		});
 	});
 
 		$("table:not(#community_network, #community_allptusers) thead").on('click', 'th', function(){
 			$(this).closest('table').find('tbody').toggle();
+			if($(this).closest('table').find('tbody').find('tr').is(':visible')) showUserList();
 		});
+
+	function showUserList(){
+		//add users to list
+		$(".pep_contact_block .pep_add_im").each(function(){
+			var $elem = $(this)
+
+			if ($elem.data('click-init')) return true;
+
+			$elem.data('click-init', true);
+
+			$elem.on('click', function (e) {
+				e.preventDefault();
+				$(this).css("display", "none");
+				$(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_slider_list").css("display", "block");
+					$("#pep_slider_icons").css("display", "inline-block");
+					$("#pep_container").css("height","430px");
+				}
+
+				var uclass = $(this).closest("td").attr("class");
+				var userName = $(this).siblings(".pep_contact_name").text();
+				var idUser = $(this).siblings(".pep_contact_name").attr("id");//userName.replace(/ /g, "_");
+				//console.log(userName);
+				userNameShort = (userName.length>15)?userName.substr(0, 15).trim()+'...':userName.trim(); //, '+idUser:userName.trim()+', '+idUser;
+				$("#pep_slider_list").append("<div id='ul" + idUser + "' style='padding-left:10px;'><div class='pep_remove_from_list'>x</div><div style='display:inline-block' title='" + userName + "'>"+userNameShort+"</div></div>");
+				$("#pep_list_clear").css("display", "inline-block");
+				var elems = document.getElementsByClassName(uclass);
+				for(n = 0; n < elems.length; n++){
+					addTag = elems[n].getElementsByClassName("pep_add_im");
+					addTag[0].style.display="none";
+					removeTag = elems[n].getElementsByClassName("pep_remove_im");
+					removeTag[0].style.display="inline-block";
+				}
+        	});
+		});
+
+		//remove users from list
+		$(".pep_contact_block .pep_remove_im").each(function(){
+			var $elem = $(this)
+
+			if ($elem.data('click-init')) return true;
+
+			$elem.data('click-init', true);
+
+			$elem.on('click', function (e) {
+				e.preventDefault();
+				$(this).css("display", "none");
+				$(this).siblings(".pep_add_im").css("display", "inline-block");
+				var idUser = $(this).siblings(".pep_contact_name").attr("id");//.text().replace(/ /g, "_");
+				//console.log(idUser);
+
+				var parent = document.getElementById("pep_slider_list");
+				var child = document.getElementById("ul" + idUser);
+				parent.removeChild(child);
+
+				if($("#pep_slider_list").children().length==0){
+					$("#pep_list_clear").css("display", "none");
+					$("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					$("#pep_container").css("height","345px");
+				}
+
+				var uclass = $(this).closest("td").attr("class");
+
+				var elems = document.getElementsByClassName(uclass);
+				for(n = 0; n < elems.length; n++){
+					addTag = elems[n].getElementsByClassName("pep_add_im");
+					addTag[0].style.display="inline-block";
+					removeTag = elems[n].getElementsByClassName("pep_remove_im");
+					removeTag[0].style.display="none";
+				}
+			});
+		});
+	}
 
     function getMessage (id) {
         $.post("${reverse('get_message')}", {
