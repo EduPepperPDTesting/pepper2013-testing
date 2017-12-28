@@ -808,6 +808,9 @@ f.close()
 
               % if user.is_superuser:
               <select id="lst-user-filter-cohort" name="" autocomplate="off" class="mu" label="Cohort">
+                %for item in Cohort.objects.all().order_by('code'):
+                <option value="${item.id}">${item.code}</option>
+                %endfor
               </select>
               % endif
               
