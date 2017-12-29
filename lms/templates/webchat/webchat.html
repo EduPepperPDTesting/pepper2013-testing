@@ -124,28 +124,27 @@ $(document).ready(function(){
         var textcont = $(this).parents(".pep_text_container");
         var ind = textcont.index();
         var elCount = $(".pep_text_container:has(.pep_text_panel)").length - 1;
-        ind = elCount - ind;
+        ind = elCount - ind;    //move chats after the one being deleted one spot to the right.
         $($(".pep_text_container:has(.pep_text_panel)").get().reverse()).each(function(i, el){
             if(i < ind){
-                var posPrev = $(el).prev().offset();
-                var leftX = posPrev.left;
-                $(el).css({"right": "", "left": leftX + "px", "z-index": $(el).css("z-index") - 1});
+                var rightX = $(el).prev().css("right");
+                $(el).css({"right": rightX, "left": "", "z-index": $(el).css("z-index") - 1});
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
         var headData;
-        var leftX;
+        var rightX;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(0, headData.indexOf("`"));
             if(headData == getId){
-                leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
+                rightX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
                 chatHeads.splice(arrInd, 1);
                 break;
             }
         }
-        var movedHeads=[];
+        var movedHeads=[]; //update positions of chats in session storage
         var itemStart, itemEnd;
         for(var i=0; i<arrInd; i++){
             movedHeads[i]=chatHeads[i];
@@ -153,8 +152,8 @@ $(document).ready(function(){
         for(i - 1; i<chatHeads.length; i++){
             itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
-            movedHeads[i] = itemStart + leftX + itemEnd;
-            leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
+            movedHeads[i] = itemStart + rightX + itemEnd;
+            rightX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
         }
         sessionStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();
