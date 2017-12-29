@@ -58,18 +58,16 @@ $(document).ready(function(){
     if(getChatHeads) {
         for (var arrInd in getChatHeads){
             getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
-            var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
-            var rightX = (leftX == 0)? "0px":"";
-            var leftX = (leftX == 0)? "": leftX+"px";
+            var rightX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
             var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
             var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
             var getIdString = getChatHead.substring(getChatHead.indexOf("`") + 1);
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
-            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX , "right": rightX, "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
+            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": "" , "right": rightX + "px", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
             console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id));
             getMessage(chat_id);
-            leftX-=235;
+            rightX+=235;
             $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
         }
     }
