@@ -246,7 +246,8 @@
 							});
 						}
 						//var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: "";//window.innerWidth - (235 + 40);
-						var rightX = (elCount > 0)?window.innerWidth-$('.pep_text_container:has(.pep_text_panel):last').offset().left - 15:"0";
+						var prevRightX = parseInt($('.pep_text_container:has(.pep_text_panel):last').css("right"));
+						var rightX = (elCount > 0)?prevRightX + 235:"0";
 						//console.log("leftX="+leftX);
 						//console.log("nameTitle="+nameTitle);
 						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
