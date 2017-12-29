@@ -265,9 +265,13 @@
 					}
 				}
 				getMessage(id);
-				$("#textchat_"+id).animate({
-					scrollTop: $("#textchat_"+id)[0].scrollHeight
-				}, 500);
+				try{
+					$("#textchat_"+id).animate({
+						scrollTop: $("#textchat_"+id)[0].scrollHeight
+					}, 500);
+				}catch(e){
+					console.log("error:"+e+" #textchat_"+id);
+				}
 			}
 			$link.data('lockedAt', +new Date());
             $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
