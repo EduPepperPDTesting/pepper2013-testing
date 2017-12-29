@@ -258,6 +258,7 @@
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
+						if(rightX != "") leftX=0;
 						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
     					sessionStorage.setItem('chatHeads', JSON.stringify(headsList));
 						leftX-=235;
@@ -265,12 +266,10 @@
 					}
 				}
 				getMessage(id);
-				try{
+				if($("#textchat_"+id)[0] !== undefined){
 					$("#textchat_"+id).animate({
 						scrollTop: $("#textchat_"+id)[0].scrollHeight
 					}, 500);
-				}catch(e){
-					console.log("error:"+e+" #textchat_"+id);
 				}
 			}
 			$link.data('lockedAt', +new Date());
