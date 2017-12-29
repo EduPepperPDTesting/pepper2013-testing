@@ -245,12 +245,13 @@
 								}
 							});
 						}
-						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
+						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: "";//window.innerWidth - (235 + 40);
+						var rightX = (elCount > 0)?"";"0px"
 						//console.log("leftX="+leftX);
 						//console.log("nameTitle="+nameTitle);
 						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
 
-						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
+						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  rightX, "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
 
 						var headsList = [];
 						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
