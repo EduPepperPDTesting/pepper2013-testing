@@ -178,8 +178,8 @@ $(document).ready(function(){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
             if($('#pep_title_tab').css('right') != "0px"){
-                $("#pep_container").animate({right:'-256px'});
-				$("#pep_title_tab").animate({right:'0px'});
+                $("#pep_container").animate({right:'-256px'}, 200);
+				$("#pep_title_tab").animate({right:'0px'}, 200);
                 slPos='out';
             }
         }
