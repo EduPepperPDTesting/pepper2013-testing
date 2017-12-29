@@ -252,7 +252,7 @@
 						//console.log("nameTitle="+nameTitle);
 						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
 
-						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": "", right:  rightX + "px", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
+						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": "", right:  rightX + "px", "bottom": "0px", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
 
 						var headsList = [];
 						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
