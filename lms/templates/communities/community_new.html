@@ -1203,7 +1203,8 @@ a{
             if(ans){
                 $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
                     if(r.success)
-                       window.location.replace("${reverse('newcommunities')}");
+                        window.location.replace("${reverse('maincommunity', args=[community.id])}");
+                       //window.location.replace("${reverse('newcommunities')}");
                        //window.location.replace("${reverse('dashboard',args=[user.id])}");
                        //return redirect(reverse('dashboard'));
                 });
