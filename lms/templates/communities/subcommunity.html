@@ -653,14 +653,14 @@ a{
                 <div class="name-divide overflow-text">/</div>
                 <div class="sub-name overflow-text">${community.name}</div>
             </div>
-            %if facilitator:
             <div class="facilitator-info">
+                %if facilitator_d:
                 <div class="user-photo">
-                    <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
+                    <img src="${reverse('user_photo', args=[facilitator_d.user.id])}"/>
                 </div>
                 <div class="user-info">
                     %if user_super or ruser_info['edit'] or ruser_info['delete']:
-                    <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
+                    <div class="user-name overflow-text">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
                         <div class="facilitator-triangle"></div>
@@ -680,15 +680,42 @@ a{
                         </div>
                     </div> 
                     %else:
-                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
+                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
                     %endif
                 </div>
                 <div class="user-email user-email-btn">
                     <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
                 </div>
+                %else:
+                <div class="user-photo">
+                    <img src="${reverse('user_photo', args=[0])}"/>
+                </div>
+                <div class="user-info">
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
+                    <div class="btn-facilitator" style="margin-top:8px;">
+                        <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
+                        <div class="facilitator-triangle"></div>
+                        <div class="facilitator-menu">
+                        <div class="f-menu-triangle"></div>
+                            <div class="f-lines">
+                                %if ruser_info['edit'] or user_super:
+                                <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
+                                %endif
+                                %if ruser_info['delete'] or user_super:
+                                <div class="f-rights-line">Delete Community</div>
+                                %endif
+                                %if ruser_info['default'] or user_super:
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
+                                %endif
+                            </div>
+                        </div>
+                    </div> 
+                    %endif
+                </div>
+                %endif
                 <div style="clear:both;"></div>
             </div>
-            %endif
+        
             <div class="subcommunities">
                 <div class="sub-title">Subcommunities</div>
                 <div class="sub-community-titles">

@@ -372,6 +372,9 @@ def community_join(request, community_id):
 def community_leave(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
+    sub_communities = ''
+    if community.main_id == 0:
+        sub_communities = CommunityCommunities.objects.filter(main_id=community.id)
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -379,8 +382,14 @@ def community_leave(request, community_id):
         try:
             user = User.objects.get(id=int(user_id))
             users.append(user)
+            # Leave main community
             mems = CommunityUsers.objects.filter(user=user, community=community)
             mems.delete()
+
+            # Leave sub community
+            for sc in sub_communities:
+                sub_mems = CommunityUsers.objects.filter(user=user, community=sc)
+                sub_mems.delete()
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
     send_notification(request.user, community.id, members_del=users, domain_name=domain_name)
@@ -682,7 +691,7 @@ def communities(request):
     :return: The Communities page.
     """
     community_list = list()
-    filter_dict = dict()
+    filter_dict = {'main_id': 0}
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not request.user.is_superuser:
@@ -690,7 +699,7 @@ def communities(request):
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True, community__main_id=0)
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
@@ -1580,10 +1589,8 @@ def maincommunity(request, community_id):
     courses_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop}
 
+    # Get default facilitator
     facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
-    facilitator = ""
-    if facilitator_default:
-        facilitator = facilitator_default[0]
 
     # Get request user info of the community
     ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
@@ -1603,7 +1610,7 @@ def maincommunity(request, community_id):
     Get Subcommunities
     '''
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('-id')
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
     for item in subcommunities:
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
@@ -1635,7 +1642,7 @@ def maincommunity(request, community_id):
     data.update(community_other_info)
 
     community_info = {'community': community,
-                      'facilitator': facilitator,
+                      'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
                       'resources': resources,
                       'users': users,
@@ -1663,10 +1670,8 @@ def subcommunity(request, community_id):
     courses_drop = get_dropdown_data(request.user, community_id)
     data = {'courses_drop': courses_drop}
 
+    # Get default facilitator
     facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
-    facilitator = ""
-    if facilitator_default:
-        facilitator = facilitator_default[0]
 
     # Get maincommunity
     main_community = CommunityCommunities.objects.get(id=community.main_id)
@@ -1695,7 +1700,7 @@ def subcommunity(request, community_id):
     Get Subcommunities
     '''
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('-id')
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')
     for item in subcommunities:
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
@@ -1728,7 +1733,7 @@ def subcommunity(request, community_id):
 
     community_info = {'community': community,
                       'main_community': main_community,
-                      'facilitator': facilitator,
+                      'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
                       'resources': resources,
                       'users': users,
