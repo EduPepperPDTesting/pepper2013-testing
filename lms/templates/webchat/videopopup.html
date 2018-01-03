@@ -157,10 +157,13 @@ function initializeSession() {
 }
 $(document).ready(function() {
     $(".screenshare").click(function() {
-        if (!screensharing) {
-            if (!chrome.app.isInstalled) {
-                chrome.webstore.install();
-            }
+        if (!chrome.app.isInstalled) {
+            chrome.webstore.install(undefined, function() {
+                screenshare();
+            }, function(error, errorCode) {
+                alert('PeppTalk Extension Not Installed.\nError: ' + error);
+            });
+        } else if (!screensharing()) {
             screenshare();
         }
     });
