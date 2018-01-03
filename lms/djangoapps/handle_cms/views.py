@@ -8,6 +8,7 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
+from web_client.request import WebRequest
 
 
 @login_required
@@ -16,11 +17,10 @@ def get_cms_popup(request):
 
 def get_cms_api(request):
     url = request.POST.get("url")
-    uname = 'restuser'
-    passwd = 'wK%yDJMqT?7GnBZK'
-    r = requests.get(url, auth=(uname, passwd), verify=False)
-    r = r.json()
-    return JsonResponse(r)
+    r = WebRequest(url)
+    res = r.do_request('', 'get', None, "auth_required")
+    rjs = res.json();
+    return JsonResponse(rjs)
 
 def get_libraries (request):
     libraries = '[{"id": "1869","uuid": "f8757adb-9555-4433-bcad-b881c9ead36b","name": "Paths to College and Career","description": "Paths to College and Career","image_url": "https://cms-dev.edplancms.com/sites/default/files/paths.jpg","url": "https://cms-dev.edplancms.com/bookshelf/","organizations": ["1870"],"oer": "0"},{"id": "1869","uuid": "f8757adb-9555-4433-bcad-b881c9ead36b","name": "Paths to College and Career","description": "Paths to College and Career","image_url": "https://cms-dev.edplancms.com/sites/default/files/paths.jpg","url": "https://cms-dev.edplancms.com/bookshelf/","organizations": ["1870"],"oer": "0"}]'
