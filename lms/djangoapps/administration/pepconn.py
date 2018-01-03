@@ -2366,7 +2366,7 @@ def course_permission_download_excel(request):
 def course_permission_tasks(request):
     tasks = []
     for t in AsyncTask.objects.filter(group="course permission", readed=False, create_user=request.user):
-        task = {"type": "Course Permission " + t.type, "id": t.id, "progress": t.progress, "error": t.status == "error"}
+        task = {"type": "Course Permission " + t.type, "id": t.id, "progress": t.progress, "error": (t.status == "error" or t.status == "")}
         tasks.append(task)
 
     return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
