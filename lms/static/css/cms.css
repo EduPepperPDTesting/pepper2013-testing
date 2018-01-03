@@ -20,7 +20,7 @@
 }
 #popup_views {
     width:100%;
-    height:400px;
+    height:64%;
     overflow:scroll;
     text-align: left;
 }
@@ -45,6 +45,12 @@
     bottom: 10% !important;
     margin-left: -20% !important;
     left: 50%;
+}
+#cms_dialog.inner-wrapper{
+    height:100%;
+}
+#cms_dialog.content {
+    height:80%;
 }
 #cms_popup {
     float:left;
