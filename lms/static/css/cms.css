@@ -39,6 +39,7 @@
     color:black;
 }
 #cms_dialog {
-    width:480px !important;
-    margin-left: 0px !important;
+    width: 40% !important;
+    margin-left: -20% !important;
+    left: 50%;
 }
