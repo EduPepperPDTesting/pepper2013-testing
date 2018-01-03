@@ -1,11 +1,16 @@
 #view_type {
     float: left;
+    border-bottom: 1px solid black;
+    width: 100%;
 }
 #view_type span {
     border: 1px solid black;
-    border-radius:4px;
-    font-size: 24px;
-    padding: 3px;
+    border-bottom: 0;
+    font-size: 22px;
+    /* padding: 3px; */
+    margin-bottom: 0px;
+    left: 0px;
+    padding-bottom: 3px;
 }
 #view_type span:hover{
     cursor:pointer;
@@ -21,7 +26,7 @@
 }
 .expandable_tree:hover {
     cursor:pointer;
-    color:darkgray;
+    font-weight:bold;
 }
 .tree-level{
     display:none;
@@ -32,4 +37,7 @@
 }
 #cms_dialog.hr{
     color:black;
+}
+#cms_dialog {
+    width:480px !important;
 }

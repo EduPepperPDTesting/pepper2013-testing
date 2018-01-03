@@ -34,14 +34,19 @@ $(document).ready(function() {
    librariesSelector();
    setupTree ();
 });
+$("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
     $("#search_view").hide();
     $("#tree_view").show();
+    $(this).css("background-color", "lightgray");
+    $("#search_view_head").css("background-color", "white");
 });
 
 $("#search_view_head").click(function() {
     $("#tree_view").hide();
-    $("#search_view").show();
+    $("#search_view").show()
+    $(this).css("background-color", "lightgray");
+    $("#tree_view_head").css("background-color", "white");
 });
 
 function setupTree() {
