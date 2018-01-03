@@ -40,6 +40,12 @@
 }
 #cms_dialog {
     width: 40% !important;
+    height: 80% !important;
+    top: 10% !important;
+    bottom: 10% !important;
     margin-left: -20% !important;
     left: 50%;
+}
+#cms_popup {
+    float:left;
 }
