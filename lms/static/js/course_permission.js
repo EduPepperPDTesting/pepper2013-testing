@@ -99,6 +99,10 @@ CoursePermission.prototype.save = function(send_notification){
     $.post(self.sys.url.update_course_permission, filter, function(r){
         if(r.success){
             self.checkTaskProgress(r.taskId);
+            $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
+                $(this).find("td:nth-child(7) .toggle").toggleSwitch().val("0");
+                $(this).find("td:nth-child(8) .toggle").toggleSwitch().val("0");
+            });
         }else{
             new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
         }
