@@ -11,24 +11,30 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-    $(".pep_textchat_block").on("click", ".pep_textchatheader_container", function(e){
+    $(".pep_textchat_block").on("click", ".pep_text_panel", function(e){
+
+        var needIndex = $(".pep_text_container").length + 1;
+        var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
         if(e.target.className === "pep_textchatheader_container" || e.target.className === "pep_header_left"){
-
-            var getId = $(this).find(".pep_header_left").attr("id");
-            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 
             if($(this).parents(".pep_text_container").css("bottom") !== "-210px"){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","none");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
                 $(this).parents(".pep_text_container").css("bottom","-210px");
+                $(this).parents(".pep_text_container").attr("data-chat_mini", "1");
+
+                var getId = $(this).find(".pep_header_left").attr("id");
 
                 for (var arrInd in chatHeads){
+                    console.log(chatHeads[arrInd]);
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
                     if(headData == getId){
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``1";
+
+                        $(this).parents(".pep_text_container").css("z-index",arrInd);
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + arrInd + "``1";
                         break;
                     }
                 }
@@ -36,47 +42,109 @@ $(document).ready(function(){
                 $(this).parents(".pep_text_container").find(".pep_text_chat").css("display","inline-block");
                 $(this).parents(".pep_text_container").find(".pep_textchatfooter_container").css("display","block");
                 $(this).parents(".pep_text_container").css("bottom","0px");
+                $(this).parents(".pep_text_container").attr("data-chat_mini", "0");
+
+                var getId = $(this).find(".pep_header_left").attr("id");
+
+                $(".pep_text_container").filter(function(){
+                    return $(this).css("z-index") == needIndex;
+                }).each(function(){
+                    $(this).css("z-index", $(this).index() + 1);
+
+                    var getId = $(this).find(".pep_header_left").attr("id");
+
+                    for (var arrInd in chatHeads){
+                        headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                        headData = headData.substring(0, headData.indexOf("`"));
+                        if(headData == getId){
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + ($(this).index() + 1) + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
+
+                            break;
+                        }
+                    }
+                });
+                $(this).parents(".pep_text_container").css("z-index", needIndex);
 
                 for (var arrInd in chatHeads){
                     headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
                     headData = headData.substring(0, headData.indexOf("`"));
                     if(headData == getId){
-                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")) + "``0";
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + "``0";
                         break;
                     }
                 }
 
+                $("#textchat_"+getId.substr(getId.indexOf(",")+1)).animate({
+                    scrollTop: $("#textchat_"+getId.substr(getId.indexOf(",")+1))[0].scrollHeight
+                }, 500);
+
             }
             sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
-        }
+        }else{
+            console.log("needIndex="+needIndex+" "+$(this).closest(".pep_text_container").css("z-index"));
+            if(parseInt($(this).closest(".pep_text_container").css("z-index")) != needIndex){
+
+                $(".pep_text_container").filter(function(){
+                    return $(this).css("z-index") == needIndex;
+                }).each(function(){
+                    $(this).css("z-index", $(this).index() + 1);
+
+                    var getId = $(this).find(".pep_header_left").attr("id");
+
+                    for (var arrInd in chatHeads){
+                        headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                        headData = headData.substring(0, headData.indexOf("`"));
+                        if(headData == getId){
+                            chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + ($(this).index() + 1) + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
+                            break;
+                        }
+                    }
+                });
+
+                $(this).parents(".pep_text_container").css("z-index", needIndex);
+
+                var getId = $(this).find(".pep_header_left").attr("id");
+
+                for (var arrInd in chatHeads){
+                    console.log(chatHeads[arrInd]);
+                    headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
+                    headData = headData.substring(0, headData.indexOf("`"));
+                    if(headData == getId){
+                    console.log("headData="+headData+" getId="+getId+" " +(headData == getId));
+                        chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("||")+2) + needIndex + chatHeads[arrInd].substr(chatHeads[arrInd].indexOf("``"));
+                        break;
+                    }
+                }
+                sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
+            }
+    }
     });
 
     $(".pep_textchat_block").on("click", ".close-chat", function(){
         var textcont = $(this).parents(".pep_text_container");
         var ind = textcont.index();
         var elCount = $(".pep_text_container:has(.pep_text_panel)").length - 1;
-        ind = elCount - ind;
+        ind = elCount - ind;    //move chats after the one being deleted one spot to the right.
         $($(".pep_text_container:has(.pep_text_panel)").get().reverse()).each(function(i, el){
             if(i < ind){
-                var posPrev = $(el).prev().offset();
-                var leftX = posPrev.left;
-                $(el).css({"right": "", "left": leftX + "px"});
+                var rightX = $(el).prev().css("right");
+                $(el).css({"right": rightX, "left": "", "z-index": $(el).css("z-index") - 1});
             }
         });
         var getId = $(this).parents(".pep_textchatheader_container").find(".pep_header_left").attr("id");
         var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
         var headData;
-        var leftX;
+        var rightX;
         for (var arrInd in chatHeads){
             headData = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("|")).replace("`", ",");
             headData = headData.substring(0, headData.indexOf("`"));
             if(headData == getId){
-                leftX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
+                rightX = chatHeads[arrInd].substring(chatHeads[arrInd].indexOf("|")+1, chatHeads[arrInd].indexOf("||"));
                 chatHeads.splice(arrInd, 1);
                 break;
             }
         }
-        var movedHeads=[];
+        var movedHeads=[]; //update positions of chats in session storage
         var itemStart, itemEnd;
         for(var i=0; i<arrInd; i++){
             movedHeads[i]=chatHeads[i];
@@ -84,8 +152,8 @@ $(document).ready(function(){
         for(i - 1; i<chatHeads.length; i++){
             itemStart = chatHeads[i].substring(0, chatHeads[i].indexOf("|")+1);
             itemEnd = chatHeads[i].substring(chatHeads[i].indexOf("||"));
-            movedHeads[i] = itemStart + leftX + itemEnd;
-            leftX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
+            movedHeads[i] = itemStart + rightX + itemEnd;
+            rightX = chatHeads[i].substring(chatHeads[i].indexOf("|")+1, chatHeads[i].indexOf("||"));
         }
         sessionStorage.setItem('chatHeads', JSON.stringify(movedHeads));
         $(this).parents(".pep_text_container").remove();

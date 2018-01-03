@@ -437,5 +437,13 @@ def _send_notification(action_user, receive_user, type_name, values):
 
 
 def send_course_notification(request, action_user, course, notification_type, user_id):
-    values = {"Course Link": full_reverse('courseware', request, course.id), "Course Name": course.display_name, "Course Number": course.id}
-    _send_notification(action_user, User.objects.get(id=user_id), notification_type, values)
+    user = User.objects.get(id=user_id)
+    values = {"Course Link": full_reverse('courseware', request, course.id),
+              "Course Name": course.display_name,
+              "Course URL ID": course.id,
+              "Course Number": course.number,
+              "Sender First Name": action_user.first_name,
+              "Sender Last Name": action_user.last_name,
+              "Receiver First Name": user.first_name,
+              "Receiver Last Name": user.last_name}
+    _send_notification(action_user, user, notification_type, values)

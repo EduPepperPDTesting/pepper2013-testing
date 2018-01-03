@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <style type="text/css" media="screen">
 a.district-button, a.school-button, a.user-button {
@@ -612,7 +612,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                         <h4>General Information</h4>
                         <div class="form-row">
                             <label id="community-name">
-                                <span>Community Name:</span></br>
+                                <span>Name:</span></br>
                                 <input type="text" name="name" value="" placeholder="The name of the community">
                             </label>
                         </div>
@@ -859,72 +859,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         return false;
     };
 
-    PepReg.prototype.addSubTraining = function (id) {
-        var self = this;
-        var community_data = '';
-        var steps = self.initForm(community_data, function (data) {          
-            //submit
-            if (einfo = self.validateAllPage(data)) {
-                self.warning(einfo.error[1], self.dlgForm);
-                self.steps.switchTo(einfo.id);
-                return;
-            }
-            self.createFormdata(data, id);
-            
-            $.ajax({
-                url: "${reverse('community_edit_process_new')}",
-                type: 'POST',
-                success: function(r){
-                    console.log("ok");
-                    //$("#dlg-add-training").hide();
-                    //$(".lean-overlay").hide();
-                    window.location.href = "/newcommunities";
-                },
-                error: function(r){},
-                // Form data
-                data: self.formdata,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-        return false;
-    };
-
-    PepReg.prototype.editTraining = function (id) {
-        var self = this;
-        $.post("${reverse('get_edit_community')}", {id: id}, function (d) {
-            
-            self.initForm(d, function (data) {
-                if (einfo = self.validateAllPage(data)) {
-                    self.warning(einfo.error[1], self.dlgForm);
-                    self.steps.switchTo(einfo.id);
-                    return;
-                } 
-                self.createFormdata(data);
-                
-                $.ajax({
-                    url: "${reverse('community_edit_process_new')}",
-                    type: 'POST',
-                    success: function(r){
-                        console.log("ajax ok");
-                        //$("#dlg-add-training").hide();
-                        //$(".lean-overlay").hide();
-                        window.location.href = "/maincommunity/" + r.community_id;
-                    },
-                    error: function(r){},
-                    // Form data
-                    data: self.formdata,
-                    //Options to tell JQuery not to process data or worry about content-type
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                });
-            });
-        });
-    };
-
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -977,15 +911,12 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
             $.get("${reverse('community_user_email_valid')}", {email: email}, function (result) {
-                if (result == "1"){
+                if (result.success){
                     self.addFacilitator(email);
                     $("#complete-email").val("");
                 } 
-                else if(result == "2"){
-                    self.warning("User not exists.", self.dlgForm);
-                }
                 else{
-                    self.warning("The user you are trying to add is not in your district.", self.dlgForm);
+                    self.warning(result.info, self.dlgForm);
                 }
             });
         });

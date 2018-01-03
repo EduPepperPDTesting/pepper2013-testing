@@ -58,17 +58,17 @@ $(document).ready(function(){
     if(getChatHeads) {
         for (var arrInd in getChatHeads){
             getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
-            var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
+            var rightX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
             var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
             var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
             var getIdString = getChatHead.substring(getChatHead.indexOf("`") + 1);
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
-            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
+            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": "" , "right": rightX + "px", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
             console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id));
             getMessage(chat_id);
-            leftX-=235;
-            $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+            rightX+=235;
+            $(".pep_textchat_block").append("<div class='pep_text_container' style='right: " + rightX + "px !important; z-index :0'></div>");
         }
     }
 
@@ -139,12 +139,12 @@ $(document).ready(function(){
     var slPos='out';
     $("#pep_title_tab").click(function(){
         if(slPos=='in'){
-            $("#pep_container").animate({right:'-256px'});
-            $("#pep_title_tab").animate({right:'0px'});
+            $("#pep_container").animate({right:'-256px'}, 200);
+            $("#pep_title_tab").animate({right:'0px'}, 200);
             slPos='out';
         }else{
-            $("#pep_container").animate({right:'40px'});
-            $("#pep_title_tab").animate({right:'291px'});
+            $("#pep_container").animate({right:'40px'}, 200);
+            $("#pep_title_tab").animate({right:'291px'}, 200);
             slPos='in';
 
             $(".pep_contact_name").tooltip({
@@ -177,11 +177,26 @@ $(document).ready(function(){
         if(el.id!='pep_title_tab' && el.className!='pep_remove_from_list' && $(el).closest('#pep_container').length==0 && $(el).closest('#pep_title_tab').length==0){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
-            if((window.innerWidth - leftX) == 308){
-                $("#pep_container").animate({right:'-256px'});
-				$("#pep_title_tab").animate({right:'0px'});
+            if($('#pep_title_tab').css('right') != "0px"){
+                $("#pep_container").animate({right:'-256px'}, 200);
+				$("#pep_title_tab").animate({right:'0px'}, 200);
                 slPos='out';
             }
+        }
+
+        if(el.className!='pep_textchat_block' && el.className!='pep_contact_name' && $(el).closest('.pep_textchat_block').length==0 && $(".pep_text_container[data-chat_mini='0']").length > 0){
+            console.log("hide chat");
+            $(".pep_text_container").find(".pep_text_chat").css("display","none");
+            $(".pep_text_container").find(".pep_textchatfooter_container").css("display","none");
+            $(".pep_text_container").css("bottom","-210px");
+            $(".pep_text_container").attr("data-chat_mini", "1");//[data-chat_mini='0']
+            var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
+            for (var arrInd in chatHeads){
+                if(chatHeads[arrInd].substr(-1, 1) == "0"){
+                    chatHeads[arrInd] = chatHeads[arrInd].substring(0, chatHeads[arrInd].indexOf("``")+2) + "1";
+                }
+            }
+            sessionStorage.setItem('chatHeads', JSON.stringify(chatHeads));
         }
     });
 
@@ -287,6 +302,7 @@ $(document).ready(function(){
                                 $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                                 if(networkData.success){
+                                    networkRows=[];
                                     for(i=0; i<networkData.rows.length; i++){
                                         networkRows.push(networkData.rows[i]);
                                     }
@@ -322,7 +338,7 @@ $(document).ready(function(){
                                         var netIconTag, commIconTag;
                                         if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
                                         if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div><div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div></td><tr>");//<div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div></td><tr>");//<div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
                                     }
 
                                     $("#user_search .pep_add_im").each(function(){
@@ -336,6 +352,13 @@ $(document).ready(function(){
                                             e.preventDefault();
                                             $(this).css("display", "none");
                                             $(this).siblings(".pep_remove_im").css("display", "inline-block");
+
+                                            if($("#pep_slider_list").children().length==0){
+                                                $("#pep_slider_list").css("display", "block");
+                                                $("#pep_slider_icons").css("display", "inline-block");
+                                                $("#pep_container").css("height","430px");
+                                            }
+
                                             var uclass = $(this).closest("td").attr("class");
                                             var userName = $(this).siblings(".pep_contact_name").text();
                                             var idUser = $(this).siblings(".pep_contact_name").attr("id");
@@ -371,6 +394,8 @@ $(document).ready(function(){
 
                                             if($("#pep_slider_list").children().length==0){
                                                 $("#pep_list_clear").css("display", "none");
+                                                $("#pep_slider_list, #pep_slider_icons").css("display", "none");
+					                            $("#pep_container").css("height","345px");
                                             }
 
                                             var uclass = $(this).closest("td").attr("class");
