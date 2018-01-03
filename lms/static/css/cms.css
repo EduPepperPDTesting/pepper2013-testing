@@ -46,10 +46,10 @@
     margin-left: -20% !important;
     left: 50%;
 }
-#cms_dialog.inner-wrapper{
+.inner-wrapper{
     height:100%;
 }
-#cms_dialog.content {
+.content {
     height:80%;
 }
 #cms_popup {
