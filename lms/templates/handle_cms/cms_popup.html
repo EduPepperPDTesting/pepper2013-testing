@@ -1,0 +1,111 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.utils import html
+    from django.core.urlresolvers import reverse
+%>
+<link rel="stylesheet" type="text/css" href="/static/css/cms.css" />
+<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+        <h3 class="dialog-title">CMS Resource</h3>
+        <div class="close-modal" id="cms_close">✕</div>
+    </div>
+    <div class="content">
+        <div id = "library_selection">
+
+        </div>
+        <hr>
+        <div id = "view_type">
+            <span id = "tree_view_head">Tree</span>
+            <span id = "search_view_head">Search</span>
+        </div><br><br>
+        <hr>
+        <div id= "popup_views">
+            <span id="tree_view">
+            </span>
+            <span id="search_view">
+                Search
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+   librariesSelector();
+   setupTree ();
+});
+$("#tree_view_head").click(function() {
+    $("#search_view").hide();
+    $("#tree_view").show();
+});
+
+$("#search_view_head").click(function() {
+    $("#tree_view").hide();
+    $("#search_view").show();
+});
+
+function setupTree() {
+    base = "https://cms-dev.edplancms.com/api/v1/";
+
+    $.post("${reverse('cms_library')}", {"url": base+"library/1679"}, function (data) {
+        console.log(data);
+        tree = "";
+        $.each(data, function(row) {
+            tree += makeTree(data[row].grade, data[row].book_id);
+        });
+        $("#tree_view").html(tree);
+        $(".expandable_tree").on("click", function() {
+            $(this).next().slideToggle();
+        });
+    });
+}
+
+function librariesSelector() {
+    base = "https://cms-dev.edplancms.com/api/v1/";
+    $.post("${reverse('cms_libraries')}", {"url": base+"library"}, function (data) {
+        html = '';
+        $.each(data, function (row) {
+           lib = data[row];
+           html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
+        });
+        $("#library_selection").html(html);
+        return html;
+    });
+}
+
+function makeTree (header, book_id, struct=0, offset=0) {
+    html = "";
+    if (struct == 0) {
+        html = "<div data-book_id='" + book_id + "' class='expandable_tree'>" + header + "</div>";
+        $.ajax({
+          type: 'POST',
+          url: "${reverse('cms_book')}",
+          data:  {id:book_id},
+          success: function(data) {
+            data = data["" + book_id + ""];
+            console.log(data.name);
+
+            html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + data.name + "</div>";
+            html += makeTree(header, book_id, data.structure, offset=2);
+            html += "</div>"
+          },
+          async:false
+        });
+
+    } else {
+        console.log("hit");
+        html += "<div class='tree-level'>";
+        $.each(struct, function(i) {
+            if (struct[i].children !== undefined) {
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
+                html += makeTree(header, book_id, struct[i].children, offset+1);
+            } else {
+                html += "<div style='margin-left: "+(10*offset)+"px' class = ''>"+struct[i].title +"</div>";
+            }
+        });
+        html += "</div>"
+    }
+    return html;
+}
+
+</script>

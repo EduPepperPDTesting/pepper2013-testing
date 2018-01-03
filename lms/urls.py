@@ -114,6 +114,14 @@ urlpatterns = (
     url(r'^js_url_resolver.js$', 'pepper_utilities.views.js_url_lookup_js', name='pepper_utilities_js_url_lookup_js'),
     url(r'^js_url_resolver$', 'pepper_utilities.views.js_url_lookup', name='pepper_utilities_js_url_lookup'),
 
+    # === CMS 2.1 === #
+    url(r'^cmspopup/$', 'handle_cms.views.get_cms_popup', name='cms_popup'),
+    url(r'^cmsapi/$', 'handle_cms.views.get_cms_api', name='cms_api'),
+    url(r'^cms_libraries/$', 'handle_cms.views.get_libraries', name='cms_libraries'),
+    url(r'^cms_library/$', 'handle_cms.views.get_library', name='cms_library'),
+    url(r'^cms_book/$', 'handle_cms.views.get_book', name='cms_book'),
+    # === CMS 2.1 end === #
+
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
     url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
