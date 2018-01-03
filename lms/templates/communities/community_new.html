@@ -441,8 +441,14 @@ a{
     padding:5px 0 5px 0;
     text-align:center;
 }
-.con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
+.con-main-all .top-chat-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-like-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-activeusers-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-chat-count,.top-like-count{
     padding-right:8px;
@@ -773,15 +779,15 @@ a{
                                 <div style="height:102px;">
                                     <div class="top-activeusers-count">${active_users_count}</div>
                                     <div class="top-activeusers-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>
                                     <div class="top-like-count">83</div>
                                     <div class="top-like-ico">
-                                        <img src="/static/images/community_new/newcommunity-like.png" height="20">
+                                        <img src="/static/images/like.png" height="15">
                                     </div>
-                                    <div class="top-chat-count">88</div>
+                                    <div class="top-chat-count">988</div>
                                     <div class="top-chat-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
@@ -809,7 +815,7 @@ a{
             <div class="communitystatus">
                 <div class="sub-title">Community Status</div>
                 <div class="community-status">
-                    <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
+                    <div class="dis-count">Discussions:&nbsp;<span>331</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities-all">
                         %if my_communities:

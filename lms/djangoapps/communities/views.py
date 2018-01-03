@@ -1621,8 +1621,12 @@ def maincommunity(request, community_id):
     '''
     Get Community Status
     '''
-    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+    # Get discussions count
+    # mongo3_store = community_discussions_store()
+    # discussions_count = mongo3_store.get_community_discussions(int('133'), 0, 0).count()
+
     # Get My Communities
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
     my_communities_list = list()
     items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
     if items:
