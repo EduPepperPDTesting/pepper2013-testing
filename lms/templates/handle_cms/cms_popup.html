@@ -33,6 +33,7 @@ base = "https://cms-dev.edplancms.com/api/v1/";
 $(document).ready(function() {
    librariesSelector();
    setupTree ();
+    callAPI("libraries", "");
 });
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
