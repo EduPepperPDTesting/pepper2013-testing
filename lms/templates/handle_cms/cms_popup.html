@@ -29,6 +29,7 @@
 </div>
 
 <script>
+base = "https://cms-dev.edplancms.com/api/v1/";
 $(document).ready(function() {
    librariesSelector();
    setupTree ();
@@ -51,6 +52,25 @@ $("#search_view_head").click(function() {
 function setupTree() {
     base = "https://cms-dev.edplancms.com/api/v1/";
 
+
+}
+
+function librariesSelector() {
+    $.post("${reverse('cms_libraries')}", {"url": base+"library"}, function (data) {
+        html = '';
+        $.each(data, function (row) {
+           lib = data[row];
+           html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
+        });
+        $("#library_selection").html(html);
+        $(".lib-image").click(function() {
+            loadLibrary ($(this).attr("id"));
+        });
+        return html;
+    });
+}
+
+function loadLibrary(lib_id) {
     $.post("${reverse('cms_library')}", {"url": base+"library/1679"}, function (data) {
         console.log(data);
         tree = "";
@@ -64,16 +84,19 @@ function setupTree() {
     });
 }
 
-function librariesSelector() {
-    base = "https://cms-dev.edplancms.com/api/v1/";
-    $.post("${reverse('cms_libraries')}", {"url": base+"library"}, function (data) {
-        html = '';
-        $.each(data, function (row) {
-           lib = data[row];
-           html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
-        });
-        $("#library_selection").html(html);
-        return html;
+function callAPI (endpoint, data) {
+    console.log ("Calling: " + base + endpoint);
+    console.log ("Sending data: " + data);
+    $.ajax({
+        url: base+endpoint,
+        data: data,
+        type: 'GET',
+        headers: {Authorization: 'Basic cmVzdHVzZXI6d0sleURKTXFUPzdHbkJaSw=='},
+        jsonp: false,
+        xhrFields: {withCredentials: true},
+        success: function (data) {
+            console.log(data);
+        }
     });
 }
 
@@ -110,6 +133,22 @@ function makeTree (header, book_id, struct=0, offset=0) {
         html += "</div>"
     }
     return html;
+}
+
+function apiTest() {
+    $.ajax({
+      type: 'GET',
+      url: 'https://cms-dev.edplancms.com/api/v1/libraries',
+      dataType: 'jsonp',
+      async: false,
+      headers: {
+          'Authorization': "Basic " + btoa('restuser' + ":" + 'wK%yDJMqT?7GnBZK')
+      },
+      data: "",
+      success: function(result) {
+          alert(result);
+      }
+    });
 }
 
 </script>
