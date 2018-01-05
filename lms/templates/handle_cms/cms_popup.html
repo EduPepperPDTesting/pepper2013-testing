@@ -66,10 +66,10 @@ function librariesSelector() {
     org_list = org_list.slice(0,-1);
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
-    loadLibrary(libraries[0].id);
+    loadLibrary(libraries[0].organizations[0]);
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
-        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
+        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.organizations[0] + "'></img>";
     }
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
