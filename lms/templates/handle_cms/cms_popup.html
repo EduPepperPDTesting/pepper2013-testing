@@ -101,6 +101,7 @@ function callAPI (endpoint, data) {
         headers: {Authorization: 'Basic cmVzdHVzZXI6d0sleURKTXFUPzdHbkJaSw=='},
         jsonp: false,
         xhrFields: {withCredentials: true},
+        async: false,
         success: function (data) {
             return data;
         }
