@@ -328,15 +328,45 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             }
             $check.change(function(){
                 self.user_selection[this.value] = (this.checked);
-                //console.log(self.user_selection)
-                // var all_checked = $(this_table).find("tbody tr td:nth-child(1) input:checked").length == $(this_table).find("tbody tr td:nth-child(1) input").length;
-                // //console.log(all_checked)
-                // $check_all.attr("checked", all_checked);
-            })
-            $check.click(function(){
+                if ($(this).prop('checked')){
+                    var $tr = $(this).parent().parent();
+                    var $table = $('#course_permission_user .tablesorter-blue');
+                    var $thead = $table.find("thead");
+                    // courses assigned
+                    var course_assign = "";
+                    $tr.find("td:gt(6)").each(function(i){
+                        var assign = $(this).html();
+                        if(assign == "P" || assign == "E"){
+                            var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
+                            course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
+                        }
+                    });
+                    var $item = $("<div class='email' email="+ $tr.find('td:nth-child(4)').html() +"><input type='checkbox' checked> <label>" + $tr.find('td:nth-child(4)').html() + "</label></div>").appendTo($("#float-users-win"));
+                    var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
+                    $detail.hide();
+                    /** change checked eath other */
+                    $item.find("input").on("change", function(){
+                        $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+                        $(this).parent().remove();
+                        $(this).parent().next().remove();
+                    });
+                    $item.find("label").click(function(){
+                        if($detail.is(":visible"))
+                            $detail.hide();
+                        else
+                            $detail.show();
+                    });
+                }else{
+                    var $tr = $(this).parent().parent();
+                    var email = $tr.find('td:nth-child(4)').html()
+                    $("#float-users-win label").each(function(){
+                        if (email == $(this).html()){
+                            $(this).parent().next().remove()
+                            $(this).parent().remove()
+                        }
+                    })
+                }
             });
-            $check.trigger("change");
-        });
         // self.user_selection = {};
         /** hide headers only for filter  */
         $(this).find("th:nth-child(5)").hide();
@@ -358,44 +388,50 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         });
         /** float user window */
         var $thead = $(this).find("thead");
-        $("#float-users-win").html("");
-        $(this).find("tbody tr td:nth-child(4)").each(function(){ // each email.
-            var $tr = $(this).parent();
-            // courses assigned
-            var course_assign = "";
-            $tr.find("td:gt(6)").each(function(i){
-                var assign = $(this).html();
-                if(assign == "P" || assign == "E"){
-                    var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
-                    course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
-                }
-            });
-            var $item = $("<div class='email'><input type='checkbox'> <label>" + $(this).html() + "</label></div>").appendTo($("#float-users-win"));
-            $item.find("input").prop("checked", $tr.find("td:eq(0) input").prop("checked"));
-            var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
-            $detail.hide();
-            /** change checked eath other */
-            $item.find("input").on("change", function(){
-                $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
-            });
-            $tr.find("td:eq(0) input").on("change", function(){
-                $item.find("input").prop("checked", $(this).prop("checked"))
-            });
-            $item.find("label").click(function(){
-                if($detail.is(":visible"))
-                    $detail.hide();
-                else
-                    $detail.show();
-            });
-        });
+        // $("#float-users-win").html("");
+        // $(this).find("tbody tr td:nth-child(4)").each(function(){ // each email.
+        //     var $tr = $(this).parent();
+        //     // courses assigned
+        //     var course_assign = "";
+        //     $tr.find("td:gt(6)").each(function(i){
+        //         var assign = $(this).html();
+        //         if(assign == "P" || assign == "E"){
+        //             var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
+        //             course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
+        //         }
+        //     });
+        //     var $item = $("<div class='email'><input type='checkbox'> <label>" + $(this).html() + "</label></div>").appendTo($("#float-users-win"));
+        //     $item.find("input").prop("checked", $tr.find("td:eq(0) input").prop("checked"));
+        //     var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
+        //     $detail.hide();
+        //     /** change checked eath other */
+        //     $item.find("input").on("change", function(){
+        //         $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+        //     });
+        //     $tr.find("td:eq(0) input").on("change", function(){
+        //         $item.find("input").prop("checked", $(this).prop("checked"))
+        //     });
+        //     $item.find("label").click(function(){
+        //         if($detail.is(":visible"))
+        //             $detail.hide();
+        //         else
+        //             $detail.show();
+        //     });
+        // });
         // begin ------- end checks control
         var $checks = $(this).find("tbody tr td:nth-child(1) input");
         $("input[name=user-select]").change(function(e){
             var v = $(this).val(); 
             if(v == "manual"){
                 $checks.prop("checked", false);
+                $checks.each(function(){
+                    $(this).trigger('change')
+                })
             }else if(v == "current-page"){
                 $checks.prop("checked", true);
+                $checks.each(function(){
+                    $(this).trigger('change')
+                })
             }else if(v == "all"){
                 $checks.prop("checked", true);
             }
