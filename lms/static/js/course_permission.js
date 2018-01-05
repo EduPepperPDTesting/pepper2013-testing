@@ -436,6 +436,9 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         $("input[name=user-select]").change(function(e){
             var v = $(this).val();
             if(v == "manual"){
+                if ($("#float-users-win").find("input[type=hidden]").length>0){
+                    $("#float-users-win").html("")
+                }
                 $checks.each(function(){
                     if ($(this).prop("checked")){
                         $(this).prop("checked", false);
