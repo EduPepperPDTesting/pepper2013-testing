@@ -49,13 +49,21 @@ CoursePermission.prototype.save = function(send_notification){
     var global_all_user = $('#course_permission_user .tablesorter-blue .check-all').is(":checked");
     var select_user_manual = $('#course_permission_user .tablesorter-blue .check-manual').is(":checked");
     var select_user_current_page = $('#course_permission_user .tablesorter-blue .check-current-page').is(":checked");
-    $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input").each(function(){
-        if(select_user_manual){
-            if($(this).is(":checked"))users.push(this.value);
-        }else if(select_user_current_page){
-            users.push(this.value);
-        }
-    });
+
+    // $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input").each(function(){
+    //     if(select_user_manual){
+    //         if($(this).is(":checked"))users.push(this.value);
+    //     }else if(select_user_current_page){
+    //         users.push(this.value);
+    //     }
+    // });
+
+    $("#float-users-win").find("div.email").each(function(){
+        users.push($(this).attr("value"));
+    })
+    if(global_all_user){
+        users = [];
+    }
     if(!users.length && !global_all_user){
         new Dialog($('#dialog')).show("Warn", "No user selected");
         return;
@@ -328,6 +336,9 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             }
             $check.change(function(){
                 self.user_selection[this.value] = (this.checked);
+                if ($("#float-users-win").find("input[type=hidden]").length>0){
+                    $("#float-users-win").html("")
+                }
                 if ($(this).prop('checked')){
                     var $tr = $(this).parent().parent();
                     var $table = $('#course_permission_user .tablesorter-blue');
@@ -341,14 +352,15 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                             course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
                         }
                     });
-                    var $item = $("<div class='email' email="+ $tr.find('td:nth-child(4)').html() +"><input type='checkbox' checked> <label>" + $tr.find('td:nth-child(4)').html() + "</label></div>").appendTo($("#float-users-win"));
+                    var $item = $("<div class='email'value="+this.value+" email="+ $tr.find('td:nth-child(4)').html() +"><input type='checkbox' checked> <label>" + $tr.find('td:nth-child(4)').html() + "</label></div>").appendTo($("#float-users-win"));
                     var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
                     $detail.hide();
                     /** change checked eath other */
                     $item.find("input").on("change", function(){
-                        $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+                    self.user_selection[$(this).parent().attr("value")] = false;
+                    $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+                    $(this).parent().next().remove();
                         $(this).parent().remove();
-                        $(this).parent().next().remove();
                     });
                     $item.find("label").click(function(){
                         if($detail.is(":visible"))
@@ -367,6 +379,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                     })
                 }
             });
+    });
         // self.user_selection = {};
         /** hide headers only for filter  */
         $(this).find("th:nth-child(5)").hide();
@@ -421,29 +434,40 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         // begin ------- end checks control
         var $checks = $(this).find("tbody tr td:nth-child(1) input");
         $("input[name=user-select]").change(function(e){
-            var v = $(this).val(); 
+            var v = $(this).val();
             if(v == "manual"){
-                $checks.prop("checked", false);
                 $checks.each(function(){
-                    $(this).trigger('change')
+                    if ($(this).prop("checked")){
+                        $(this).prop("checked", false);
+                        $(this).trigger('change')
+                    }
                 })
             }else if(v == "current-page"){
-                $checks.prop("checked", true);
                 $checks.each(function(){
-                    $(this).trigger('change')
+                    if (!$(this).prop("checked")){
+                        $(this).prop("checked", true);
+                        $(this).trigger('change')
+                    }
                 })
             }else if(v == "all"){
-                $checks.prop("checked", true);
+                $("#float-users-win").html("<input style='display:none' type='checkbox' checked><input type='hidden' name='alluser'>All Users are selected.");
+                $checks.prop("checked",false)
             }
         });
-        if(all_user_on){
-            $checks.prop("checked", true);
-        }else{
-            $("input[name=user-select].check-manual").prop("checked", true);
-        }
-        // end ------- checks control
         $checks.change(function(){
-            $("input[name=user-select].check-manual").prop("checked", true);
+            var flag = "";
+            $checks.each(function(){
+                if (!$(this).prop("checked")){
+                    flag = "manual";
+                }else{
+                    flag = "current-page";
+                }
+            })
+            if (flag == "manual"){
+                $("input[name=user-select].check-manual").prop("checked", true);
+            }else if(flag == "current-page"){
+                $("input[name=user-select].check-current-page").prop("checked", true);
+            }
         });
     });
 }
