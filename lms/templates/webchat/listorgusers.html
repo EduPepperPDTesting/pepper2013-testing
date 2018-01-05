@@ -198,7 +198,7 @@
             $.post ("${reverse('get_community_session')}",{"community_id": community_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token)
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, '', 'postwindow')
                 });
             });
         });
@@ -281,8 +281,8 @@
                     $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                         var session = data.session;
                         $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                            window.open ('/webchat/videopopup?session='+session+'&token='+data.token)
-                            link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"')\">Video Chat</a>";
+                            window.open ('/webchat/videopopup?session='+session+'&token='+data.token, '', 'postwindow')
+                            link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', '', 'postwindow')\">Video Chat</a>";
                             sendVideoRequest(request_user_id, link, 0);
                         });
                     });
@@ -296,8 +296,8 @@
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token);
-                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"')\">Video Chat</a>";
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, '', 'postwindow')
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', '', 'postwindow')\">Video Chat</a>";
                     sendVideoRequest(request_user_id, link, 0);
                 });
             });
@@ -326,8 +326,8 @@
             $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
                 var session = data.session;
                 $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token);
-                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+")\">Video Chat</a>";
+                    window.open ('/webchat/videopopup?session='+session+'&token='+data.token, '', 'postwindow');
+                    link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', '', 'postwindow')\">Video Chat</a>";
 
                     $("#pep_slider_list").children().each(function() {
                         sendVideoRequest ($(this).attr("id").slice(2), link, 1);
