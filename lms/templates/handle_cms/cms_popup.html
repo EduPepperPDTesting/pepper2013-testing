@@ -94,6 +94,7 @@ function loadLibrary(lib_id) {
 function callAPI (endpoint, data) {
     console.log ("Calling: " + base + endpoint);
     console.log ("Sending data: " + data);
+    var struct = null;
     $.ajax({
         url: base+endpoint,
         data: data,
@@ -103,9 +104,10 @@ function callAPI (endpoint, data) {
         xhrFields: {withCredentials: true},
         async: false,
         success: function (data) {
-            return data;
+            struct = data;
         }
     });
+    return struct;
 }
 
 function makeTree (header, book_id, struct=0, offset=0) {
