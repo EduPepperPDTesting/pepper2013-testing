@@ -441,8 +441,14 @@ a{
     padding:5px 0 5px 0;
     text-align:center;
 }
-.con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
+.con-main-all .top-chat-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-like-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-activeusers-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-chat-count,.top-like-count{
     padding-right:8px;
@@ -603,14 +609,14 @@ a{
         <!--Communities-My Trending Topics-->
         <div class="community-left">
             <div class="sub-community-info"></div>
-            %if facilitator:
             <div class="facilitator-info">
+                %if facilitator_d:
                 <div class="user-photo">
-                    <img src="${reverse('user_photo', args=[facilitator.user.id])}"/>
+                    <img src="${reverse('user_photo', args=[facilitator_d.user.id])}"/>
                 </div>
                 <div class="user-info">
                     %if user_super or ruser_info['edit'] or ruser_info['delete']:
-                    <div class="user-name overflow-text">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
+                    <div class="user-name overflow-text">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
                     <div class="btn-facilitator">
                         <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
                         <div class="facilitator-triangle"></div>
@@ -630,15 +636,42 @@ a{
                         </div>
                     </div> 
                     %else:
-                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator.user.first_name} ${facilitator.user.last_name}</div>
+                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
                     %endif
                 </div>
                 <div class="user-email user-email-btn">
                     <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
                 </div>
+                %else:
+                <div class="user-photo">
+                    <img src="${reverse('user_photo', args=[0])}"/>
+                </div>
+                <div class="user-info">
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
+                    <div class="btn-facilitator" style="margin-top:8px;">
+                        <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
+                        <div class="facilitator-triangle"></div>
+                        <div class="facilitator-menu">
+                        <div class="f-menu-triangle"></div>
+                            <div class="f-lines">
+                                %if ruser_info['edit'] or user_super:
+                                <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
+                                %endif
+                                %if ruser_info['delete'] or user_super:
+                                <div class="f-rights-line">Delete Community</div>
+                                %endif
+                                %if ruser_info['default'] or user_super:
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
+                                %endif
+                            </div>
+                        </div>
+                    </div> 
+                    %endif
+                </div>
+                %endif
                 <div style="clear:both;"></div>
             </div>
-            %endif
+            
             <div class="subcommunities">
                 <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;
                     %if user_super or ruser_info['facilitator'] and ruser_info['default']:
@@ -746,15 +779,15 @@ a{
                                 <div style="height:102px;">
                                     <div class="top-activeusers-count">${active_users_count}</div>
                                     <div class="top-activeusers-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>
                                     <div class="top-like-count">83</div>
                                     <div class="top-like-ico">
-                                        <img src="/static/images/community_new/newcommunity-like.png" height="20">
+                                        <img src="/static/images/like.png" height="15">
                                     </div>
-                                    <div class="top-chat-count">88</div>
+                                    <div class="top-chat-count">988</div>
                                     <div class="top-chat-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
@@ -782,7 +815,7 @@ a{
             <div class="communitystatus">
                 <div class="sub-title">Community Status</div>
                 <div class="community-status">
-                    <div class="dis-count">Discussions:&nbsp;<span>3</span></div>
+                    <div class="dis-count">Discussions:&nbsp;<span>331</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities-all">
                         %if my_communities:
@@ -1176,7 +1209,8 @@ a{
             if(ans){
                 $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
                     if(r.success)
-                       window.location.replace("${reverse('newcommunities')}");
+                        window.location.replace("${reverse('maincommunity', args=[community.id])}");
+                       //window.location.replace("${reverse('newcommunities')}");
                        //window.location.replace("${reverse('dashboard',args=[user.id])}");
                        //return redirect(reverse('dashboard'));
                 });

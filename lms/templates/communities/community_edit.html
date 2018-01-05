@@ -269,6 +269,7 @@
             </div>
         %endfor
         </label>
+        <input id="cms_popup" type ="button" value="CMS Resource">
         <input type="hidden" value="${community_id}" name="community_id">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
         <div id="community-form-buttons">
@@ -472,7 +473,24 @@
     </div>
     </div>
 </section>
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
+$(document).ready(function() {
+   $.post("${reverse('cms_popup')}",{}, function(e){
+        $("#cms_dialog").html(e);
+    });
+    $("#cms_popup").click(function() {
+        $("#cms_dialog").show();
+        $.post("${reverse('cms_api')}", {"url":"https://cms-dev.edplancms.com/api/v1/libraries"}, function(data) {
+            console.log(data);
+        })
+    });
+    $("#cms_close").click(function () {
+        $("#cms_dialog").hide();
+    })
+});
 function close_modal(modal_id){
     $(modal_id).hide();
     $('#lean_overlay').css({

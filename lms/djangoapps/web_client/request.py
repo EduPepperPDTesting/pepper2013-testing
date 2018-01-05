@@ -38,7 +38,7 @@ class WebRequest:
         else:
             self.content_type = 'text/plain'
 
-    def do_request(self, endpoint, method, data):
+    def do_request(self, endpoint, method, data, auth=None):
         """
         Makes the request to specified endpoint. Returns parsed JSON object on success. Raises exceptions on error.
         """
@@ -53,6 +53,10 @@ class WebRequest:
                 kwargs.update({'data': data})
             else:
                 kwargs.update({'params': data})
+            if auth is not None:
+                uname = 'restuser'
+                passwd = 'wK%yDJMqT?7GnBZK'
+                kwargs.update({"auth": (uname, passwd)})
             # Patch the httplib send for debugging purposes.
             if self.debug:
                 patch_send()
