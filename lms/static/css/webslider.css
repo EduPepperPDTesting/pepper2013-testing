@@ -81,8 +81,8 @@ border-top-right-radius: 15px;
 }
 #pep_search {
     border: 0px;
-    border-radius: 15px 0 0;
-    width: 253px;
+    border-radius: 15px 15px 0 0;
+    width: 100%; /*253px;*/
     height: 25px;
     padding-right: 10px;
     padding-left: 10px;
@@ -241,7 +241,7 @@ border-top-right-radius: 15px;
     top: 0px;
 }
 .pep_contact_name{
-    font-size: 1em;
+    font-size: .8em; /*1em;*/
     max-width: 190px;
     height: 20px;
     position: relative;
