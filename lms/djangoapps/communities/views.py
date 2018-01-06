@@ -1607,11 +1607,15 @@ def maincommunity(request, community_id):
         user_super = "super"
 
     '''
-    Get Subcommunities
+    Get Subcommunities for init show
     '''
+    sc_show_count = 4
     subcommunities_list = list()
     subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
-    for item in subcommunities:
+    sc_count = subcommunities.count()
+    for k, item in enumerate(subcommunities):
+        if k + 1 > sc_show_count:
+            break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
@@ -1624,20 +1628,30 @@ def maincommunity(request, community_id):
     # Get discussions count
     # mongo3_store = community_discussions_store()
     # discussions_count = mongo3_store.get_community_discussions(int('133'), 0, 0).count()
+    discussions_count = 221
 
-    # Get My Communities
+    # Get My Main Communities for init show
+    mc_show_count = 2
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
     my_communities_list = list()
-    items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
-    if items:
-        for item in items:
-            if item.community.main_id == 0:
-                my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+    items = CommunityUsers.objects.select_related().filter(user=user, community__main_id=0).order_by('community__name')
+    mc_count = items.count()
+    for k, item in enumerate(items):
+        if k + 1 > mc_show_count:
+            break
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Resources
+    Get Resources for init show
     '''
-    resources = CommunityResources.objects.filter(community=community)
+    re_show_count = 4
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
+    resources_list = list()
+    for k, r in enumerate(resources):
+        if k + 1 > re_show_count:
+            break
+        resources_list.append({'name': r.name, 'link': r.link})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
@@ -1648,10 +1662,18 @@ def maincommunity(request, community_id):
     community_info = {'community': community,
                       'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
-                      'resources': resources,
+                      'sc_show_count': sc_show_count,
+                      'sc_count': sc_count,
+                      'subcommunities_list': subcommunities_list,
+                      'discussions_count': discussions_count,
                       'users': users,
-                      'my_communities': my_communities_list,
-                      'subcommunities': subcommunities_list}
+                      'mc_show_count': mc_show_count,
+                      'mc_count': mc_count,
+                      'my_communities_list': my_communities_list,
+                      're_show_count': re_show_count,
+                      're_count': re_count,
+                      'resources_list': resources_list
+                      }
     data.update(community_info)
 
     return render_to_response('communities/community_new.html', data)
@@ -1701,11 +1723,15 @@ def subcommunity(request, community_id):
         user_super = "super"
 
     '''
-    Get Subcommunities
+    Get Subcommunities for init show
     '''
+    sc_show_count = 4
     subcommunities_list = list()
     subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')
-    for item in subcommunities:
+    sc_count = subcommunities.count()
+    for k, item in enumerate(subcommunities):
+        if k + 1 > sc_show_count:
+            break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
@@ -1715,19 +1741,33 @@ def subcommunity(request, community_id):
     '''
     Get Community Status
     '''
+    # Get discussions count
+    # mongo3_store = community_discussions_store()
+    # discussions_count = mongo3_store.get_community_discussions(int('133'), 0, 0).count()
+    discussions_count = 328
+
+    # Get My Sub Communities for init show
+    mc_show_count = 2
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
-    # Get My Subcommunities
-    my_subcommunities_list = list()
-    items = CommunityUsers.objects.select_related().filter(user=user).order_by('community__name')
-    if items:
-        for item in items:
-            if item.community.main_id != 0:
-                my_subcommunities_list.append({'id': item.community.id, 'name': item.community.name})
+    my_communities_list = list()
+    items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')
+    mc_count = items.count()
+    for k, item in enumerate(items):
+        if k + 1 > mc_show_count:
+            break
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Resources
+    Get Resources for init show
     '''
-    resources = CommunityResources.objects.filter(community=community)
+    re_show_count = 4
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
+    resources_list = list()
+    for k, r in enumerate(resources):
+        if k + 1 > re_show_count:
+            break
+        resources_list.append({'name': r.name, 'link': r.link})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
@@ -1737,13 +1777,21 @@ def subcommunity(request, community_id):
 
     community_info = {'community': community,
                       'main_community': main_community,
+                      'is_main_member': is_main_member,
                       'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
-                      'resources': resources,
+                      'sc_show_count': sc_show_count,
+                      'sc_count': sc_count,
+                      'subcommunities_list': subcommunities_list,
+                      'discussions_count': discussions_count,
                       'users': users,
-                      'my_subcommunities': my_subcommunities_list,
-                      'subcommunities': subcommunities_list,
-                      'is_main_member': is_main_member}
+                      'mc_show_count': mc_show_count,
+                      'mc_count': mc_count,
+                      'my_communities_list': my_communities_list,
+                      're_show_count': re_show_count,
+                      're_count': re_count,
+                      'resources_list': resources_list
+                      }
     data.update(community_info)
 
     return render_to_response('communities/subcommunity.html', data)
@@ -2212,7 +2260,59 @@ def subcommunity_user_email_valid(request):
 
     return render_json_response(check_result)
 
+@login_required
+@ensure_csrf_cookie
+def get_resources_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
 
+    # Get Resources
+    resources_list = list()
+    resources = CommunityResources.objects.select_related().filter(community=int(community_id))
+    for k, r in enumerate(resources):
+        resources_list.append({'name': r.name, 'link': r.link})
+    return HttpResponse(json.dumps({'success': True, 'resources': resources_list}), content_type='application/json')
+
+@login_required
+@ensure_csrf_cookie
+def get_mycommunities_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    # Get My Communities
+    get_sub = request.POST.get('get_sub', False)
+    users = CommunityUsers.objects.filter(community=int(community_id), user__profile__subscription_status='Registered')
+    my_communities_list = list()
+    items = ''
+    if get_sub:
+        items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=request.user).order_by('community__name')
+    else:
+        items = CommunityUsers.objects.select_related().filter(user=request.user, community__main_id=0).order_by('community__name')
+
+    for item in items:
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+    return HttpResponse(json.dumps({'success': True, 'my_communities': my_communities_list}), content_type='application/json')
+
+@login_required
+@ensure_csrf_cookie
+def get_subcommunities_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    # Get Subommunities
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
+    sc_count = subcommunities.count()
+    for k, item in enumerate(subcommunities):
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+    return HttpResponse(json.dumps({'success': True, 'subcommunities': subcommunities_list}), content_type='application/json')
 # -------------------------------------------------------------------end
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
