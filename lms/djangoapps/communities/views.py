@@ -2347,7 +2347,9 @@ def get_subcommunities_process(request):
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
     return HttpResponse(json.dumps({'success': True, 'subcommunities': subcommunities_list}), content_type='application/json')
-# -------------------------------------------------------------------end
+
+
+# -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
     post_flag = request.POST.get("flag")
@@ -2412,7 +2414,7 @@ def new_process_get_discussions(request):
                 discussions_json_2['child'] = []
 
                 tmp_reply_next = ""
-                for itemx_2 in mongo3_store.find_size_sort({"community_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, 0, "date_create", 1):
+                for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, 0, "date_create", 1):
                     user_2 = User.objects.get(id=itemx_2['user'])
                     discussions_json_3 = {}
 
@@ -2447,6 +2449,7 @@ def new_process_get_discussions(request):
                         like_reply_next_size = str(like_reply_next_data['like_size'])
 
                     discussions_json_3['_id'] = str(itemx_2['_id'])
+                    discussions_json_3['community_id'] = str(itemx_2['community_id'])
                     discussions_json_3['user'] = itemx_2['user']
                     discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
                     discussions_json_3['post'] = itemx_2['post']
@@ -2495,6 +2498,7 @@ def new_process_get_discussions(request):
                     like_reply_size = str(like_reply_data['like_size'])
 
                 discussions_json_2['_id'] = str(itemx_1['_id'])
+                discussions_json_2['community_id'] = str(itemx_1['community_id'])
                 discussions_json_2['user'] = itemx_1['user']
                 discussions_json_2['user_photo'] = reverse('user_photo', args=[str(itemx_1['user'])])
                 discussions_json_2['post'] = itemx_1['post']
@@ -2551,6 +2555,7 @@ def new_process_get_discussions(request):
                 like_last = like_data['like_last']
 
             discussions_json_1['_id'] = str(disc['_id'])
+            discussions_json_1['community_id'] = str(disc['community_id'])
             discussions_json_1['user'] = disc['user']
             discussions_json_1['user_photo'] = reverse('user_photo', args=[str(disc['user'])])
             discussions_json_1['subject'] = disc['subject']
@@ -2604,15 +2609,16 @@ def new_process_discussions_pin_change(request):
 # -------------------------------------------------------------------new_process_discussions_like
 @login_required
 def new_process_discussions_like(request):
+    community_id = request.POST.get("community_id", "")
     did = request.POST.get("did", "")
     cid = request.POST.get("comment_id", "")
     mongo3_store = community_discussions_store()
     data = {'Success': False}
 
-    if did:
+    if did and community_id:
         result = mongo3_store.find_one({"db_table": "community_like", "did": ObjectId(did), "user": request.user.id})
         if not result:
-            itemx = {"db_table": "community_like", "did": ObjectId(did), "user": request.user.id, "date_create": datetime.datetime.now(UTC())}
+            itemx = {"db_table": "community_like", "did": ObjectId(did), "user": request.user.id, "community_id": long(community_id), "date_create": datetime.datetime.now(UTC())}
             mongo3_store.insert(itemx)
         else:
             mongo3_store.remove({"db_table": "community_like", "did": ObjectId(did), "user": request.user.id})
@@ -2648,7 +2654,13 @@ def new_process_get_like_info(did, uid):
 @login_required
 def new_process_submit_comment(request):
     try:
+        disc_id = request.POST.get("disc_id", "")
         did = request.POST.get("did", "")
+        fid = request.POST.get("fid", "")
+        fid_level = request.POST.get("fid_level", "")
+        fid_attr_isdel = request.POST.get("fid_attr_isdel", "")
+        fid_pict_isdel = request.POST.get("fid_pict_isdel", "")
+        community_id = request.POST.get("community_id", "")
         content = request.POST.get("content", "")
         level = request.POST.get("level", "")
         data = {'Success': False, 'did': did, 'content': content, 'level': level}
@@ -2659,10 +2671,11 @@ def new_process_submit_comment(request):
         # --"date_create": replies.date_create,
         # ----"attachment": replies.attachment_id,
         # --"db_table": "community_discussion_replies"
-        if did and content and level:
+        if did and level and community_id:
             tmp_date_create = datetime.datetime.now(UTC())
             if level == "1":
                 my_discussion_post = {
+                    "community_id": long(community_id),
                     "discussion_id": ObjectId(did),
                     "post": content,
                     "user": request.user.id,
@@ -2703,14 +2716,35 @@ def new_process_submit_comment(request):
 
                 mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
             else:
-                my_discussion_post = {
-                    "community_id": ObjectId(did),
-                    "post": content,
-                    "user": request.user.id,
-                    "date_create": tmp_date_create,
-                    "db_table": "community_discussion_replies_next"
-                }
-                replies_id = mongo3_store.insert(my_discussion_post)
+                if fid and fid_level:
+                    if fid_level == "2":
+                        mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"post": content}})
+
+                        if fid_attr_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$unset": {"attachment": ""}})
+
+                        if fid_pict_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$unset": {"attachment_pict": ""}})
+
+                    elif fid_level == "3":
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"post": content}})
+
+                        if fid_attr_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$unset": {"attachment": ""}})
+
+                        if fid_pict_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$unset": {"attachment_pict": ""}})
+                else:
+                    my_discussion_post = {
+                        "discussion_id": ObjectId(disc_id),
+                        "community_id": long(community_id),
+                        "replies_id": ObjectId(did),
+                        "post": content,
+                        "user": request.user.id,
+                        "date_create": tmp_date_create,
+                        "db_table": "community_discussion_replies_next"
+                    }
+                    replies_id = mongo3_store.insert(my_discussion_post)
 
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
                     try:
@@ -2725,7 +2759,13 @@ def new_process_submit_comment(request):
                     attachment = None
 
                 if attachment:
-                    mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
+                    if fid and fid_level:
+                        if fid_level == "2":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"attachment": attachment.id}})
+                        elif fid_level == "3":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"attachment": attachment.id}})
+                    else:
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
 
                 if request.FILES.get('upload_pict') is not None and request.FILES.get('upload_pict').size:
                     try:
@@ -2740,13 +2780,21 @@ def new_process_submit_comment(request):
                     attachment_pict = None
 
                 if attachment_pict:
-                    mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment_pict": attachment_pict.id}})
-
-                mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
+                    if fid and fid_level:
+                        if fid_level == "2":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                        elif fid_level == "3":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                    else:
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                if fid and fid_level:
+                    pass
+                else:
+                    mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
             # rs = myactivitystore()
             # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
             # "URLValues": {"discussion_id": discussion.id},
-            # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
+            # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id},
             # "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
             # rs.insert_item(my_activity)
 
@@ -2754,7 +2802,7 @@ def new_process_submit_comment(request):
             # discussion.date_reply = reply.date_create
             # discussion.save()
 
-            data = {'Success': True, 'replies_id': str(replies_id)}
+            data = {'Success': True}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -2805,19 +2853,20 @@ def new_process_discussions_delete(request):
         typex = request.POST.get("type", "")
         data = {'Success': False}
         # log.debug("================")
-        # log.debug("================================================" + typex)
 
-        if did and cid and typex:
+        if did and typex:
             mongo3_store = community_discussions_store()
             if typex == "main":
-                pass
-            elif typex == "reply":
+                mongo3_store.remove({"db_table": "community_discussion_replies_next", "discussion_id": ObjectId(did)})
+                mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
+                mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
+
+            elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
-                # log.debug("================================================" + level)
 
                 if level == "2":
-                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "community_id": ObjectId(cid)})
-                    mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid), "user": request.user.id})
+                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
+                    mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})
 
                     have_reply = True
                     for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)}, 0, 0, "date_create", -1):
@@ -2828,10 +2877,10 @@ def new_process_discussions_delete(request):
                         mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
 
                 elif level == "3":
-                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "_id": ObjectId(cid), "user": request.user.id})
+                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "_id": ObjectId(cid)})
 
                     have_reply = True
-                    for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "community_id": ObjectId(did)}, 0, 0, "date_create", -1):
+                    for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(did)}, 0, 0, "date_create", -1):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": itemx['date_create']}})
                         have_reply = False
                         break
@@ -2839,59 +2888,6 @@ def new_process_discussions_delete(request):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
 
             data = {'Success': True}
-
-    except Exception as e:
-        data = {'Success': False, 'Error': '{0}'.format(e)}
-
-    return render_json_response(data)
-
-
-# -------------------------------------------------------------------new_process_community_upload
-@login_required
-def new_process_community_upload(request):
-    try:
-        data = {'Success': False}
-        file_type = request.POST.get("file_type", "")
-
-        if(file_type):
-            if file_type == "top_main_logo":
-                imgx = request.FILES.get("organizational_base_top_main_logo", None)
-
-            elif file_type == "bottom_main_logo":
-                imgx = request.FILES.get("organizational_base_bottom_main_logo", None)
-
-            elif file_type == "main_page_bottom_image":
-                imgx = request.FILES.get("organizational_base_main_page_bottom_image", None)
-
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
-            if not os.path.exists(path):
-                os.mkdir(path)
-
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/main_page/'
-            if not os.path.exists(path):
-                os.mkdir(path)
-
-            if imgx:
-                ext = os.path.splitext(imgx.name)[1]
-                destination = open(path + file_type + ext, 'wb+')
-                for chunk in imgx.chunks():
-                    destination.write(chunk)
-                destination.close()
-
-                for mainpage in MainPageConfiguration.objects.prefetch_related().all():
-                    if file_type == "top_main_logo":
-                        mainpage.TopMainLogo = file_type + ext
-
-                    elif file_type == "bottom_main_logo":
-                        mainpage.BottomMainLogo = file_type + ext
-
-                    elif file_type == "main_page_bottom_image":
-                        mainpage.MainPageBottomImage = file_type + ext
-
-                    mainpage.save()
-                    break
-
-                data = {'Success': True, 'name': file_type + ext}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
