@@ -292,7 +292,7 @@ a{
     display:none;
 }
 .community-left .unjoined{
-    width:85%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
+    width:90%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
 }
 .community-left .unjoined a{
     color: #000;font-size:13px;cursor: pointer;
@@ -304,7 +304,7 @@ a{
     color: #000;font-size:13px;cursor: pointer;font-weight: bold;
 }
 .community-left .joined-title{
-    display:table-cell;padding:1px 5px 1px 0;max-width:160px;
+    display:table-cell;padding:1px 5px 1px 0;max-width:155px;
 }
 .community-left .discussion-count{
     padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
@@ -682,8 +682,12 @@ a{
                     %for k, sc in enumerate(subcommunities_list):
                         %if sc['member']:
                             <div class="joined">
+                                %if sc['count_new']:
                                 <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
-                                <div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>
+                                <div style="display:table-cell"><div class="discussion-count overflow-text">${sc['count_new']}</div></div>
+                                %else:
+                                <div class="overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                %endif
                             </div>
                         %else:
                             <div class="unjoined overflow-text">
@@ -766,15 +770,15 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-activeusers-count">${active_users_count}</div>
+                                    <div class="top-activeusers-count">xx</div>
                                     <div class="top-activeusers-ico">
                                         <img src="/static/images/comment.png" height="15">
                                     </div>
-                                    <div class="top-like-count">83</div>
+                                    <div class="top-like-count">xx</div>
                                     <div class="top-like-ico">
                                         <img src="/static/images/like.png" height="15">
                                     </div>
-                                    <div class="top-chat-count">988</div>
+                                    <div class="top-chat-count">xxx</div>
                                     <div class="top-chat-ico">
                                         <img src="/static/images/comment.png" height="15">
                                     </div>  
@@ -1236,8 +1240,13 @@ a{
                 for(var i=0;i<d.subcommunities.length;i++){
                     if(d.subcommunities[i].member){
                         html += '<div class="joined">';
-                        html += '<div class="overflow-text joined-title"><a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
-                        html += '<div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>';
+                        if(d.subcommunities[i].count_new){
+                            html += '<div class="overflow-text joined-title"><a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
+                            html += '<div style="display:table-cell"><div class="discussion-count overflow-text">'+d.subcommunities[i].count_new+'</div></div>';
+                        }
+                        else{
+                            html += '<div class="overflow-text"><a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
+                        }
                         html += '</div>';    
                     }
                     else{

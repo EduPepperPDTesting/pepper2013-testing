@@ -315,7 +315,7 @@ a{
     display:none;
 }
 .community-left .unjoined{
-    width:85%;margin:10px;padding: 1px 0 1px 0;color: #ccc;border:0px solid;
+    width:90%;margin:10px;padding: 1px 0 1px 0;color: #ccc;border:0px solid;
 }
 .community-left .unjoined a{
     color: #ccc;font-size:13px;
@@ -325,14 +325,17 @@ a{
 }
 .community-left .unjoined-active a{
     font-size:13px;
-    font-weight:bold;
+    /*font-weight:bold;*/
     color:#2CBAEC;
 }
 .community-left .joined{
     width:90%;font-size:13px;margin:10px;border:0px solid;
 }
+.community-left .joined a{
+    font-weight:bold;
+}
 .community-left .joined-title{
-    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#ccc;
+    display:table-cell;padding:1px 5px 1px 0;max-width:155px;color:#ccc;
 }
 .community-left .joined-title a{
     font-size:13px;
@@ -343,8 +346,24 @@ a{
 }
 .community-left .joined-title-active a{
     font-size:13px;
+    color:#2CBAEC;
+}
+.community-left .joined-now-no-newdis{
+    font-size:13px;
     font-weight:bold;
     color:#2CBAEC;
+}
+.community-left .joined-now-no-newdis a{
+    font-size:13px;
+    color:#2CBAEC;
+}
+.community-left .joined-no-newdis{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .joined-no-newdis a{
+    font-size:13px;
+    color:#ccc;
 }
 .community-left .discussion-count{
     padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
@@ -485,8 +504,14 @@ a{
     padding:5px 0 5px 0;
     text-align:center;
 }
-.con-main-all .top-chat-ico,.top-like-ico,.top-activeusers-ico{
+.con-main-all .top-chat-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-like-ico{
     padding-right:2px;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-activeusers-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-chat-count,.top-like-count{
     padding-right:8px;
@@ -723,21 +748,26 @@ a{
                         %if sc['member']:
                             <div class="joined">
                                 %if sc['id'] == community_id:
-                                    <div class="overflow-text joined-title-active"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
-                                    <div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>
+                                    <div class="overflow-text joined-now-no-newdis"><a style="cursor:auto;">${sc['name']}</a></div>
                                 %else:
+                                    %if sc['count_new']:
                                     <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
-                                    <div style="display:table-cell"><div class="discussion-count-unactive overflow-text">8</div></div>
+                                    <div style="display:table-cell"><div class="discussion-count-unactive overflow-text">${sc['count_new']}</div></div>
+                                    %else:
+                                    <div class="joined-no-newdis overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                    %endif
                                 %endif
                             </div>
                         %else:
                             %if sc['id'] == community_id:
                             <div class="unjoined-active overflow-text">
+                                <a style="cursor:auto;">${sc['name']}</a>
+                            </div> 
                             %else:
                             <div class="unjoined overflow-text">
-                            %endif
                                 <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
-                            </div>  
+                            </div> 
+                            %endif
                         %endif
                     %endfor 
                     %if sc_count > sc_show_count and sc_count > 0 and sc_show_count > 0:
@@ -815,17 +845,17 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-activeusers-count">${active_users_count}</div>
+                                    <div class="top-activeusers-count">xx</div>
                                     <div class="top-activeusers-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>
-                                    <div class="top-like-count">83</div>
+                                    <div class="top-like-count">xx</div>
                                     <div class="top-like-ico">
-                                        <img src="/static/images/community_new/newcommunity-like.png" height="20">
+                                        <img src="/static/images/like.png" height="15">
                                     </div>
-                                    <div class="top-chat-count">88</div>
+                                    <div class="top-chat-count">xx</div>
                                     <div class="top-chat-ico">
-                                        <img src="/static/images/community_new/newcommunity-chat.png" height="20">
+                                        <img src="/static/images/comment.png" height="15">
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
@@ -1259,26 +1289,33 @@ a{
                     if(d.subcommunities[i].member){
                         html += '<div class="joined">';
                         if(d.subcommunities[i].id==${community_id}){
-                            html += '<div class="overflow-text joined-title-active">';
-                            html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
-                            html += '<div style="display:table-cell"><div class="discussion-count overflow-text">8</div></div>';
-                            html += '</div>'; 
+                            html += '<div class="overflow-text joined-now-no-newdis">';
+                            html += '<a style="cursor:auto;">'+d.subcommunities[i].name+'</a></div>';
                         }
                         else{
-                            html += '<div class="overflow-text joined-title">';
-                            html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
-                            html += '<div style="display:table-cell"><div class="discussion-count-unactive overflow-text">8</div></div>';
-                            html += '</div>'; 
+                            if(d.subcommunities[i].count_new){
+                                html += '<div class="overflow-text joined-title">';
+                                html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
+                                html += '<div style="display:table-cell">';
+                                html += '<div class="discussion-count-unactive overflow-text">'+d.subcommunities[i].count_new+'</div></div>';
+                            }
+                            else{
+                                html += '<div class="joined-no-newdis overflow-text">'; 
+                                html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
+                                html += '</div>';
+                            }
                         }
+                         html += '</div>'; 
                     }
                     else{
                         if(d.subcommunities[i].id==${community_id}){
                             html += '<div class="unjoined-active overflow-text">'; 
+                            html += '<a style="cursor:auto;">'+d.subcommunities[i].name+'</a>';
                         }
                         else{
                             html += '<div class="unjoined overflow-text">'; 
+                            html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
                         }
-                        html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
                         html += '</div>';  
                     }
                 }
@@ -2010,16 +2047,16 @@ a{
             $(".lean-overlay").remove();
         });
 
-        /*
+        
         $(window).on('beforeunload',function(){
             console.log("window_close");
-            $.post("${reverse('save_last_subaccess_time')}",{"testinfo":"last access sub community time11"},function(r){
+            $.post("${reverse('save_last_subaccess_time')}",{community_id:${community_id}},function(r){
                 if(r.success)
                     console.log("window_click_end");
             });
             //return'Your own message goes here...';
         });
-        */
+        
         
         /*
         var window_click = 0;

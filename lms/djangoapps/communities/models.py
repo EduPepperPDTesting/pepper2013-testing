@@ -31,6 +31,7 @@ class CommunityUsers(models.Model):
     community_delete = models.BooleanField(blank=False, default=0)
     community_default = models.BooleanField(blank=False, default=0)
     receive_email = models.BooleanField(blank=False, default=0)
+    last_access = models.DateTimeField(null=True)
 
 
 class CommunityCourses(models.Model):

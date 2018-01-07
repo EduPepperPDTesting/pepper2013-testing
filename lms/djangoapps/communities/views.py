@@ -35,6 +35,7 @@ from file_uploader.utils import get_file_url, get_file_name
 from pepper_utilities.utils import render_json_response
 from django.utils.timezone import UTC
 from bson import ObjectId
+from datetime import timedelta
 
 log = logging.getLogger("tracking")
 
@@ -1606,6 +1607,15 @@ def maincommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
+    # Get discussions count for Community Status
+    mongo3_store = community_discussions_store()
+    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    # Get all discussion and reply count
+    #log.debug("==============================")
+    #for cd in community_discussions:
+    #    discussion_replies = mongo3_store.find({"db_table": "community_discussion_replies", })
+    #    log.debug(cd['_id'])
+
     '''
     Get Subcommunities for init show
     '''
@@ -1618,18 +1628,20 @@ def maincommunity(request, community_id):
             break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99+'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
     '''
-    Get Community Status
+    Get My Communities
     '''
-    # Get discussions count
-    # mongo3_store = community_discussions_store()
-    # discussions_count = mongo3_store.get_community_discussions(int('133'), 0, 0).count()
-    discussions_count = 221
-
     # Get My Main Communities for init show
     mc_show_count = 2
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
@@ -1718,9 +1730,17 @@ def subcommunity(request, community_id):
         ruser_info['default'] = ruser_in_commumity[0].community_default
         ruser_info['is_member'] = True
 
+        # Save last access time
+        ruser_in_commumity[0].last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
+        ruser_in_commumity[0].save()
+
     user_super = ""
     if request.user.is_superuser:
         user_super = "super"
+
+    # Get discussions count for Community Status
+    mongo3_store = community_discussions_store()
+    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
 
     '''
     Get Subcommunities for init show
@@ -1734,18 +1754,20 @@ def subcommunity(request, community_id):
             break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99+'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
     '''
     Get Community Status
     '''
-    # Get discussions count
-    # mongo3_store = community_discussions_store()
-    # discussions_count = mongo3_store.get_community_discussions(int('133'), 0, 0).count()
-    discussions_count = 328
-
     # Get My Sub Communities for init show
     mc_show_count = 2
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
@@ -2180,10 +2202,14 @@ def get_post_facilitators(request):
 def is_facilitator_edit(user, community_id):
     return True
 
+@login_required
+@ensure_csrf_cookie
 def save_last_subaccess_time(request):
-    testinfo = request.POST.get("testinfo", "noget testinfo")
-    log.debug("================")
-    log.debug(testinfo)
+    community_id = request.POST.get("community_id", 0)
+    community_user = CommunityUsers.objects.filter(user=request.user, community=community_id)
+    if community_user:
+        community_user[0].last_access = datetime.datetime.now(UTC())
+        community_user[0].save()
     return HttpResponse(json.dumps({"success": True}), content_type="application/json")
 
 def community_user_email_completion(request):
@@ -2303,13 +2329,21 @@ def get_subcommunities_process(request):
         return HttpResponse(json.dumps({'success': False}), content_type='application/json')
 
     # Get Subommunities
+    mongo3_store = community_discussions_store()
     subcommunities_list = list()
     subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
     sc_count = subcommunities.count()
     for k, item in enumerate(subcommunities):
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
-            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True})
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99+'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
     return HttpResponse(json.dumps({'success': True, 'subcommunities': subcommunities_list}), content_type='application/json')
