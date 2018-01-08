@@ -336,20 +336,22 @@ def community_join(request, community_id):
                 cu = CommunityUsers()
                 cu.user = user
                 cu.community = community
+                # save last access time
+                cu.last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
                 cu.save()
-                
+
                 if manage == "1":
                     ma_db = myactivitystore()
                     my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
                     "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id":community.id}, 
-                    "LogoValues": {"community_id": community.id}}    
-                    ma_db.insert_item(my_activity)                    
+                    "TokenValues": {"community_id": community.id},
+                    "LogoValues": {"community_id": community.id}}
+                    ma_db.insert_item(my_activity)
                 else:
                     ma_db = myactivitystore()
                     my_activity = {"GroupType": "Community", "EventType": "community_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
                     "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id":community.id}, 
+                    "TokenValues": {"community_id": community.id},
                     "LogoValues": {"community_id": community.id}}
                     ma_db.insert_item(my_activity)
 
@@ -2066,6 +2068,7 @@ def community_edit_process_new(request):
                     community_user = CommunityUsers()
                     community_user.community = community_object
                     community_user.user = user_object
+                    community_user.last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
                     new_facilitators_list.append(community_user.user.id)
                 # Set the facilitator flag to true.
                 community_user.facilitator = True
