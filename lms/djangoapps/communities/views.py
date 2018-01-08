@@ -574,6 +574,19 @@ def discussion_add(request):
         discussion.post = request.POST.get('post')
         discussion.subject = request.POST.get('subject')
         discussion.save()
+
+        mongo3_store = community_discussions_store()
+        my_discussion_post = {
+            # "mysql_id": discussion.id,
+            "community_id": long(request.POST.get('community_id')),
+            "subject": request.POST.get('subject'),
+            "post": request.POST.get('post'),
+            "user": long(request.user.id),
+            "date_create": datetime.datetime.now(UTC()),
+            "db_table": "community_discussions"
+        }
+        disc_id = mongo3_store.insert(my_discussion_post)
+
         if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
             try:
                 attachment = FileUploads()
@@ -588,6 +601,10 @@ def discussion_add(request):
         if attachment:
             discussion.attachment = attachment
             discussion.save()
+
+        if attachment:
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
+
         success = True
 
         rs = myactivitystore()
@@ -603,7 +620,7 @@ def discussion_add(request):
         error = e
         success = False
         discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': discussion_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
 
 
 @login_required
@@ -2391,6 +2408,9 @@ def new_discussion_process(request):
         elif post_flag == "discussions_delete":
             return new_process_discussions_delete(request)
 
+        elif post_flag == "discussion_add":
+            return new_process_discussion_add(request)
+
 
 # -------------------------------------------------------------------new_process_get_discussions
 @login_required
@@ -2902,6 +2922,46 @@ def new_process_discussions_delete(request):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
 
             data = {'Success': True}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+
+# -------------------------------------------------------------------new_process_discussions_delete
+@login_required
+def new_process_discussion_add(request):
+    data = {'Success': False}
+    try:
+        mongo3_store = community_discussions_store()
+        my_discussion_post = {
+            # "mysql_id": discussion.id,
+            "community_id": request.POST.get('community_id'),
+            "subject": request.POST.get('subject'),
+            "post": request.POST.get('post'),
+            "user": request.user.id,
+            "date_create": datetime.datetime.now(UTC()),
+            "db_table": "community_discussions"
+        }
+        disc_id = mongo3_store.insert(my_discussion_post)
+
+        if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+            try:
+                attachment = FileUploads()
+                attachment.type = 'discussion_attachment'
+                attachment.sub_type = disc_id
+                attachment.upload = request.FILES.get('attachment')
+                attachment.save()
+            except:
+                attachment = None
+        else:
+            attachment = None
+
+        if attachment:
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
+
+        data = {'Success': True, 'disc_id': disc_id}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
