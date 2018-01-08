@@ -1610,11 +1610,12 @@ def maincommunity(request, community_id):
     # Get discussions count for Community Status
     mongo3_store = community_discussions_store()
     discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
-    # Get all discussion and reply count
-    #log.debug("==============================")
-    #for cd in community_discussions:
-    #    discussion_replies = mongo3_store.find({"db_table": "community_discussion_replies", })
-    #    log.debug(cd['_id'])
+    # Get all discussion and all reply count
+    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
+    # Get all likes count
+    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
 
     '''
     Get Subcommunities for init show
@@ -1677,14 +1678,16 @@ def maincommunity(request, community_id):
                       'sc_show_count': sc_show_count,
                       'sc_count': sc_count,
                       'subcommunities_list': subcommunities_list,
-                      'discussions_count': discussions_count,
                       'users': users,
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
                       're_show_count': re_show_count,
                       're_count': re_count,
-                      'resources_list': resources_list
+                      'resources_list': resources_list,
+                      'discussions_count': discussions_count,
+                      'd_and_r_count': d_and_r_count,
+                      'likes_count': likes_count
                       }
     data.update(community_info)
 
@@ -1741,6 +1744,12 @@ def subcommunity(request, community_id):
     # Get discussions count for Community Status
     mongo3_store = community_discussions_store()
     discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    # Get all discussion and all reply count
+    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
+    # Get all likes count
+    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
 
     '''
     Get Subcommunities for init show
@@ -1805,14 +1814,16 @@ def subcommunity(request, community_id):
                       'sc_show_count': sc_show_count,
                       'sc_count': sc_count,
                       'subcommunities_list': subcommunities_list,
-                      'discussions_count': discussions_count,
                       'users': users,
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
                       're_show_count': re_show_count,
                       're_count': re_count,
-                      'resources_list': resources_list
+                      'resources_list': resources_list,
+                      'discussions_count': discussions_count,
+                      'd_and_r_count': d_and_r_count,
+                      'likes_count': likes_count
                       }
     data.update(community_info)
 
