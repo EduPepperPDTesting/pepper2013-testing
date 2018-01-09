@@ -30,10 +30,10 @@
 
 <script>
 base = "https://cms-dev.edplancms.com/api/v1/";
+working_lib = 0;
 $(document).ready(function() {
    librariesSelector();
    setupTree ();
-    callAPI("libraries", "");
 });
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
@@ -57,37 +57,44 @@ function setupTree() {
 }
 
 function librariesSelector() {
-    $.post("${reverse('cms_libraries')}", {"url": base+"library"}, function (data) {
-        html = '';
-        $.each(data, function (row) {
-           lib = data[row];
-           html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
-        });
-        $("#library_selection").html(html);
-        $(".lib-image").click(function() {
-            loadLibrary ($(this).attr("id"));
-        });
-        return html;
+    user = callAPI("users", {"email":"${request.user.email}"});
+    orgs = user[0].orgs;
+    org_list = "1870,";
+    for (var i = 0; i < orgs.length; i++) {
+        org_list += orgs[i] + ",";
+    }
+    org_list = org_list.slice(0,-1);
+    libraries = callAPI("libraries/"+org_list, "");
+    html = "";
+    loadLibrary(libraries[0].id);
+    for (var i = 0; i < libraries.length; i++) {
+        lib = libraries[i];
+        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.organizations[0] + "'></img>";
+    }
+    $("#library_selection").html(html);
+    $(".lib-image").click(function() {
+        loadLibrary ($(this).attr("id"));
     });
+    return html;
 }
 
 function loadLibrary(lib_id) {
-    $.post("${reverse('cms_library')}", {"url": base+"library/1679"}, function (data) {
-        console.log(data);
-        tree = "";
-        $.each(data, function(row) {
-            tree += makeTree(data[row].grade, data[row].book_id);
-        });
-        $("#tree_view").html(tree);
-        $(".expandable_tree").on("click", function() {
-            $(this).next().slideToggle();
-        });
+    working_lib = lib_id;
+    lib = callAPI ("library/" + lib_id, "");
+    tree = "";
+    $.each(lib, function(row) {
+        tree += makeTree(lib[row].grade, lib[row].book_id);
+    });
+    $("#tree_view").html(tree);
+    $(".expandable_tree").on("click", function() {
+        $(this).next().slideToggle();
     });
 }
 
 function callAPI (endpoint, data) {
     console.log ("Calling: " + base + endpoint);
     console.log ("Sending data: " + data);
+    var struct = null;
     $.ajax({
         url: base+endpoint,
         data: data,
@@ -95,31 +102,23 @@ function callAPI (endpoint, data) {
         headers: {Authorization: 'Basic cmVzdHVzZXI6d0sleURKTXFUPzdHbkJaSw=='},
         jsonp: false,
         xhrFields: {withCredentials: true},
+        async: false,
         success: function (data) {
-            console.log(data);
+            struct = data;
         }
     });
+    return struct;
 }
 
 function makeTree (header, book_id, struct=0, offset=0) {
     html = "";
     if (struct == 0) {
         html = "<div data-book_id='" + book_id + "' class='expandable_tree'>" + header + "</div>";
-        $.ajax({
-          type: 'POST',
-          url: "${reverse('cms_book')}",
-          data:  {id:book_id},
-          success: function(data) {
-            data = data["" + book_id + ""];
-            console.log(data.name);
-
-            html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + data.name + "</div>";
-            html += makeTree(header, book_id, data.structure, offset=2);
-            html += "</div>"
-          },
-          async:false
-        });
-
+        book_struct = callAPI("library/book/"+book_id, "");
+        book = book_struct[book_id];
+        html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
+        html += makeTree(header, book_id, book.structure, offset=2);
+        html += "</div>";
     } else {
         console.log("hit");
         html += "<div class='tree-level'>";
