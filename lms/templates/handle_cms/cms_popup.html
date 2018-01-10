@@ -68,22 +68,6 @@ function librariesSelector() {
     return html;
 }
 
-function loadLibrary(lib_id) {
-    working_lib = lib_id;
-    lib = callAPI ("library/" + lib_id, "");
-    tree = "";
-    $.each(lib, function(row) {
-        tree += makeTree(lib[row].grade, lib[row].book_id);
-    });
-    $("#tree_view").html(tree);
-    $(".expandable_tree").on("click", function() {
-        $(this).next().slideToggle();
-    });
-    $(".selectable_resource").click(function(e) {
-        console.log($(this).data("url"));
-    })
-}
-
 function callAPI (endpoint, data) {
     console.log ("Calling: " + base + endpoint);
     console.log ("Sending data: " + data);
@@ -103,25 +87,62 @@ function callAPI (endpoint, data) {
     return struct;
 }
 
+function loadLibrary(lib_id) {
+    working_lib = lib_id;
+    lib = callAPI ("library/" + lib_id, "");
+    tree = "";
+    $.each(lib, function(row) {
+        tree += makeTree(lib[row].grade, lib[row].book_id);
+    });
+    $("#tree_view").html(tree);
+    $(".expandable_tree").on("click", function() {
+        $(this).next().slideToggle();
+    });
+    $("#book_header").click(function (e) {
+        if ($(this).next().hasClass("tree_level")) {
+            $(this).next().slideToggle();
+        } else {
+            console.log("Loading book...");
+            book_id = $(this).data("book_id");
+            struct = callAPI ("library/book/" + book_id);
+            book = struct[book_id];
+            book_html = ""
+            book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
+            book_html += makeTree(header, book_id, book.structure, offset=2);
+            book_html += "</div>";
+            console.log(book_html);
+            $(this).append(book_html);
+            $(this).next().slideToggle();
+        }
+    });
+
+    $(".selectable_resource").on("click", function(e) {
+        console.log($(this).data("url"));
+    });
+}
+
+function makeBookTree (header, book_id) {
+    html += "";
+    html = "<div data-book_id='" + book_id + "' class='expandable_tree book_header'>" + header + "</div>";
+    return html;
+}
 function makeTree (header, book_id, struct=0, offset=0) {
     html = "";
     if (struct == 0) {
-        html = "<div data-book_id='" + book_id + "' class='expandable_tree'>" + header + "</div>";
-        book_struct = callAPI("library/book/"+book_id, "");
-        book = book_struct[book_id];
-        html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
-        html += makeTree(header, book_id, book.structure, offset=2);
-        html += "</div>";
+        return "";
     } else {
-        console.log("hit");
         html += "<div class='tree-level'>";
         $.each(struct, function(i) {
             if (struct[i].children !== undefined) {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = ''>"+struct[i].title +"</div>";
-                html += makeResourceTree(struct[i].id, offset+1);
+                resource_html += makeResourceTree(struct[i].id, offset+1);
+                var res_class = "";
+                if (resource_html == "") res_class = "";
+                else res_class = "expandable_tree";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = '" + res_class + "'>"+struct[i].title +"</div>";
+                html += resource_html;
             }
         });
         html += "</div>"
@@ -129,11 +150,11 @@ function makeTree (header, book_id, struct=0, offset=0) {
     return html;
 }
 function makeResourceTree (package_id, offset) {
-    html = "<div class='tree-level'>";
     resources = callAPI("resources", {"package_id": package_id});
     if (resources.length < 1) {
         return "";
     }
+    html = "<div class='tree-level'>";
     $.each(resources, function(i) {
        html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
     });
