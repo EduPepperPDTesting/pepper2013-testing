@@ -47,6 +47,12 @@ $("#search_view_head").click(function() {
     $("#tree_view_head").css("background-color", "white");
 });
 
+var send_to;
+function initializeCMSPopup (callback) {
+    send_to = callback;
+    librariesSelector();
+}
+
 function librariesSelector() {
     user = callAPI("users", {"email":"${request.user.email}"});
     orgs = user[0].orgs;
@@ -80,7 +86,13 @@ function librariesSelector() {
         }
     });
     $("body").on("click", ".selectable_resource", function(e) {
-        console.log($(this).data("url"));
+        url = $(this).data("url");
+        title = $(this).data("title");
+        data = {
+            "url": url,
+            "title": title
+        }
+        send_to.fire(data);
     });
     $("body").on("click", "#sub_search", function () {
         search_terms = encodeURIComponent($("#search_term").val());
@@ -183,7 +195,7 @@ function makeResourceTree (package_id, offset) {
         return html;
     }
     $.each(resources, function(i) {
-       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
+       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-title='"+resources[i].title+"' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
     });
     html += "</div>";
     return html;

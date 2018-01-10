@@ -483,12 +483,24 @@ $(document).ready(function() {
     });
     $("#cms_popup").click(function() {
         $("#cms_dialog").show();
-        librariesSelector();
+        var callback = $.Callbacks();
+        callback.add(new_cms_resource);
+        initializeCMSPopup(callback);
     });
     $("body").on("click", "#cms_close", function () {
         $("#cms_dialog").hide();
     })
 });
+
+function new_cms_resource(data) {
+    newResource();
+    var this_block = $(".community-resource:last");
+    var title = $(this_block).children()[0];
+    var url   = $(this_block).children()[1];
+    $(title).val(data.title);
+    $(url).val(data.url);
+}
+
 function close_modal(modal_id){
     $(modal_id).hide();
     $('#lean_overlay').css({
