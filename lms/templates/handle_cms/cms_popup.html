@@ -92,13 +92,13 @@ function loadLibrary(lib_id) {
     lib = callAPI ("library/" + lib_id, "");
     tree = "";
     $.each(lib, function(row) {
-        tree += makeTree(lib[row].grade, lib[row].book_id);
+        tree += makeBookTree(lib[row].grade, lib[row].book_id);
     });
     $("#tree_view").html(tree);
-    $(".expandable_tree").on("click", function() {
+    $(".expandable_tree:not(.book_header)").on("click", function() {
         $(this).next().slideToggle();
     });
-    $("#book_header").click(function (e) {
+    $(".book_header").click(function (e) {
         if ($(this).next().hasClass("tree_level")) {
             $(this).next().slideToggle();
         } else {
