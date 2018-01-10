@@ -82,6 +82,22 @@ function librariesSelector() {
     $("body").on("click", ".selectable_resource", function(e) {
         console.log($(this).data("url"));
     });
+    $("body").on("click", "#sub_search", function () {
+        search_terms = encodeURIComponent($("#search_term").val());
+        library      = encodeURIComponent($("#search_term").data("lib"));
+        page = 0;
+        data = {
+            "search": search_terms,
+            "f[0]": library,
+            "page": page
+        };
+        results = callAPI ("library", data);
+        res_html = "";
+        $.each(results, function(i) {
+            res_html += "<div>" + results[i].title + "</div>";
+        });
+        $(this).parent().after(res_html);
+    });
     return html;
 }
 
@@ -129,6 +145,9 @@ function loadLibrary(lib_id) {
             $(this).next().slideToggle();
         }
     });
+    //Setup Search Tab
+    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div>";
+    $("#search_view").html(html);
 
 }
 

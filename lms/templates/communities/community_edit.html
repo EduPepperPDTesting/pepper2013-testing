@@ -485,7 +485,7 @@ $(document).ready(function() {
         $("#cms_dialog").show();
         librariesSelector();
     });
-    $("#cms_close").click(function () {
+    $("body").on("click", "#cms_close", function () {
         $("#cms_dialog").hide();
     })
 });
