@@ -91,7 +91,7 @@ function librariesSelector() {
             "f[0]": library,
             "page": page
         };
-        results = callAPI ("library", data);
+        results = callAPI ("search", data);
         res_html = "";
         $.each(results, function(i) {
             res_html += "<div>" + results[i].title + "</div>";
