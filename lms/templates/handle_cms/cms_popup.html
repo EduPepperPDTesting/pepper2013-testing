@@ -95,10 +95,8 @@ function loadLibrary(lib_id) {
         tree += makeBookTree(lib[row].grade, lib[row].book_id);
     });
     $("#tree_view").html(tree);
-    $(".expandable_tree:not(.book_header)").on("click", function() {
-        $(this).next().slideToggle();
-    });
     $(".book_header").click(function (e) {
+        e.preventDefault();
         if ($(this).next().hasClass("tree_level")) {
             $(this).next().slideToggle();
         } else {
@@ -112,7 +110,9 @@ function loadLibrary(lib_id) {
             book_html += "</div>";
             $(this).after(book_html);
             $(this).next().slideToggle();
-
+            $(this).on("click", ".expandable_class", function(e){
+                $(this).next().slideToggle();
+            })
         }
     });
 
