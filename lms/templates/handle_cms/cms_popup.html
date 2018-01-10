@@ -110,14 +110,25 @@ function loadLibrary(lib_id) {
             book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
             book_html += makeTree("", book_id, book.structure, offset=2);
             book_html += "</div>";
-            console.log(book_html);
-            $(this).append(book_html);
+            $(this).after(book_html);
             $(this).next().slideToggle();
+
         }
     });
 
     $(".selectable_resource").on("click", function(e) {
         console.log($(this).data("url"));
+    });
+    $(".has_resource").on("click", function(e) {
+        if ($(this).next().hasClass("resource_level")) {
+            $(this).next().slideToggle();
+        } else {
+            package_id = $(this).data("package_id");
+            offset     = $(this).data("offset");
+            res_html = makeResourceTree(package_id, offset);
+            $(this).after(res_html);
+            $(this).next().slideToggle();
+        }
     });
 }
 
@@ -137,24 +148,21 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                resource_html = makeResourceTree(struct[i].id, offset+1);
-                var res_class = "";
-                if (resource_html == "") res_class = "";
-                else res_class = "expandable_tree";
-                html += "<div style='margin-left: "+(10*offset)+"px' class = '" + res_class + "'>"+struct[i].title +"</div>";
-                html += resource_html;
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'>"+struct[i].title +"</div>";
             }
         });
         html += "</div>"
     }
     return html;
 }
+
 function makeResourceTree (package_id, offset) {
     resources = callAPI("resources", {"package_id": package_id});
+    html = "<div class='tree-level resource_level'>";
     if (resources.length < 1) {
-        return "";
+       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource'>No Resources Available</div></div>";
+        return html;
     }
-    html = "<div class='tree-level'>";
     $.each(resources, function(i) {
        html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
     });
