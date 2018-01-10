@@ -483,9 +483,7 @@ $(document).ready(function() {
     });
     $("#cms_popup").click(function() {
         $("#cms_dialog").show();
-        $.post("${reverse('cms_api')}", {"url":"https://cms-dev.edplancms.com/api/v1/libraries"}, function(data) {
-            console.log(data);
-        })
+        librariesSelector();
     });
     $("#cms_close").click(function () {
         $("#cms_dialog").hide();
