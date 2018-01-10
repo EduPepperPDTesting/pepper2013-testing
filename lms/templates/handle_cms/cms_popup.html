@@ -96,7 +96,7 @@ function librariesSelector() {
         $.each(results, function(i) {
             res_html += "<div>" + results[i].title + "</div>";
         });
-        $(this).parent().after(res_html);
+        $(this).parent().next().html(res_html);
     });
     return html;
 }
@@ -146,7 +146,7 @@ function loadLibrary(lib_id) {
         }
     });
     //Setup Search Tab
-    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div>";
+    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results'></div>";
     $("#search_view").html(html);
 
 }
