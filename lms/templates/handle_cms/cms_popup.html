@@ -31,10 +31,7 @@
 <script>
 base = "https://cms-dev.edplancms.com/api/v1/";
 working_lib = 0;
-$(document).ready(function() {
-   librariesSelector();
-   setupTree ();
-});
+
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
     $("#search_view").hide();
@@ -50,12 +47,6 @@ $("#search_view_head").click(function() {
     $("#tree_view_head").css("background-color", "white");
 });
 
-function setupTree() {
-    base = "https://cms-dev.edplancms.com/api/v1/";
-
-
-}
-
 function librariesSelector() {
     user = callAPI("users", {"email":"${request.user.email}"});
     orgs = user[0].orgs;
@@ -66,10 +57,9 @@ function librariesSelector() {
     org_list = org_list.slice(0,-1);
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
-    loadLibrary(libraries[0].id);
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
-        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.organizations[0] + "'></img>";
+        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
     }
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
@@ -89,6 +79,9 @@ function loadLibrary(lib_id) {
     $(".expandable_tree").on("click", function() {
         $(this).next().slideToggle();
     });
+    $(".selectable_resource").click(function(e) {
+        console.log($(this).data("url"));
+    })
 }
 
 function callAPI (endpoint, data) {
@@ -128,10 +121,23 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = ''>"+struct[i].title +"</div>";
+                html += makeResourceTree(package_id, offset+1);
             }
         });
         html += "</div>"
     }
+    return html;
+}
+function makeResourceTree (package_id, offset) {
+    html = "<div class='tree-level'>";
+    resources = callAPI("resources", {"package_id": package_id});
+    if (resources.length < 1) {
+        return "";
+    }
+    $.each(resources, function(i) {
+       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
+    });
+    html += "</div>";
     return html;
 }
 

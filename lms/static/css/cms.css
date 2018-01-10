@@ -28,12 +28,19 @@
     cursor:pointer;
     font-weight:bold;
 }
+.selectable_resource:hover {
+    cursor:pointer;
+    text-decoration:underline;
+}
 .tree-level{
     display:none;
 }
 .lib-image {
     width:120px;
     padding: 15px;
+}
+.lib-image:hover {
+    cursor:pointer;
 }
 #cms_dialog.hr{
     color:black;
