@@ -121,7 +121,7 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = ''>"+struct[i].title +"</div>";
-                html += makeResourceTree(package_id, offset+1);
+                html += makeResourceTree(struct[i].id, offset+1);
             }
         });
         html += "</div>"
