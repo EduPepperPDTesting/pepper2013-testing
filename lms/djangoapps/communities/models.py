@@ -31,6 +31,7 @@ class CommunityUsers(models.Model):
     community_delete = models.BooleanField(blank=False, default=0)
     community_default = models.BooleanField(blank=False, default=0)
     receive_email = models.BooleanField(blank=False, default=0)
+    last_access = models.DateTimeField(null=True)
 
 
 class CommunityCourses(models.Model):
@@ -222,11 +223,11 @@ class CommunityDiscussionsStore(MongoBaseStore):
     # def get_community_discussion_replies_next(self, parent_id):
     #     return self.collection.find({"community_id": ObjectId(parent_id), "db_table": "community_discussion_replies_next"}).sort("date_create", 1)
 
-    def get_poll(self, identifier):
-        return self.collection.find({"identifier": identifier, "db_table": "poll"})
+    # def get_poll(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll"})
 
-    def get_poll_ansers(self, identifier):
-        return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
+    # def get_poll_ansers(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
 
 
 def community_discussions_store():

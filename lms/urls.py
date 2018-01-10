@@ -473,6 +473,9 @@ urlpatterns = (
     url(r'^subcommunity/user/email-valid', 'communities.views.subcommunity_user_email_valid', name='subcommunity_user_email_valid'),
     url(r'^community/email-facilitator', 'communities.views.email_facilitator', name='community_email_facilitator'),
     url(r'^community/save_last_subaccess_time', 'communities.views.save_last_subaccess_time', name='save_last_subaccess_time'),
+    url(r'^community/get_community_resources', 'communities.views.get_resources_process', name='get_community_resources'),
+    url(r'^community/get_mycommunities', 'communities.views.get_mycommunities_process', name='get_mycommunities'),
+    url(r'^community/get_subcommunities', 'communities.views.get_subcommunities_process', name='get_subcommunities'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 
