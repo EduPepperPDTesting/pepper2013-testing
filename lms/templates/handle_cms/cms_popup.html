@@ -108,7 +108,7 @@ function loadLibrary(lib_id) {
             book = struct[book_id];
             book_html = ""
             book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
-            book_html += makeTree(header, book_id, book.structure, offset=2);
+            book_html += makeTree("", book_id, book.structure, offset=2);
             book_html += "</div>";
             console.log(book_html);
             $(this).append(book_html);
@@ -160,22 +160,6 @@ function makeResourceTree (package_id, offset) {
     });
     html += "</div>";
     return html;
-}
-
-function apiTest() {
-    $.ajax({
-      type: 'GET',
-      url: 'https://cms-dev.edplancms.com/api/v1/libraries',
-      dataType: 'jsonp',
-      async: false,
-      headers: {
-          'Authorization': "Basic " + btoa('restuser' + ":" + 'wK%yDJMqT?7GnBZK')
-      },
-      data: "",
-      success: function(result) {
-          alert(result);
-      }
-    });
 }
 
 </script>
