@@ -65,6 +65,23 @@ function librariesSelector() {
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
     });
+    $("body").on("click", ".expandable_tree", function() {
+        $(this).next().slideToggle();
+    });
+    $("body").on("click", ".has_resource", function(e) {
+        if ($(this).next().hasClass("resource_level")) {
+            $(this).next().slideToggle();
+        } else {
+            package_id = $(this).data("package_id");
+            offset     = $(this).data("offset");
+            res_html = makeResourceTree(package_id, offset+1);
+            $(this).after(res_html);
+            $(this).next().slideToggle();
+        }
+    });
+    $("body").on("click", ".selectable_resource", function(e) {
+        console.log($(this).data("url"));
+    });
     return html;
 }
 
@@ -97,7 +114,7 @@ function loadLibrary(lib_id) {
     $("#tree_view").html(tree);
     $(".book_header").click(function (e) {
         e.preventDefault();
-        if ($(this).next().hasClass("tree_level")) {
+        if ($(this).next().hasClass("tree-level")) {
             $(this).next().slideToggle();
         } else {
             console.log("Loading book...");
@@ -110,31 +127,14 @@ function loadLibrary(lib_id) {
             book_html += "</div>";
             $(this).after(book_html);
             $(this).next().slideToggle();
-            $(this).on("click", ".expandable_class", function(e){
-                $(this).next().slideToggle();
-            })
         }
     });
 
-    $(".selectable_resource").on("click", function(e) {
-        console.log($(this).data("url"));
-    });
-    $(".has_resource").on("click", function(e) {
-        if ($(this).next().hasClass("resource_level")) {
-            $(this).next().slideToggle();
-        } else {
-            package_id = $(this).data("package_id");
-            offset     = $(this).data("offset");
-            res_html = makeResourceTree(package_id, offset);
-            $(this).after(res_html);
-            $(this).next().slideToggle();
-        }
-    });
 }
 
 function makeBookTree (header, book_id) {
     html += "";
-    html = "<div data-book_id='" + book_id + "' class='expandable_tree book_header'>" + header + "</div>";
+    html = "<div data-book_id='" + book_id + "' class='book_header'>" + header + "</div>";
     return html;
 }
 function makeTree (header, book_id, struct=0, offset=0) {
@@ -148,7 +148,7 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'>"+struct[i].title +"</div>";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'>"+struct[i].title +"</div>";
             }
         });
         html += "</div>"

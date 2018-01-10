@@ -24,10 +24,11 @@
     overflow:scroll;
     text-align: left;
 }
-.expandable_tree:hover {
+.expandable_tree:hover, .book_header:hover, .has_resource:hover {
     cursor:pointer;
     font-weight:bold;
 }
+
 .selectable_resource:hover {
     cursor:pointer;
     text-decoration:underline;
