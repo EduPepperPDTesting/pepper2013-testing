@@ -16,6 +16,7 @@ import datetime
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+<script src="/static/js/datetime/moment.js"></script>
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <!--autocomplete-->
@@ -390,7 +391,7 @@ a{
 .community-left .discussion-date .posted{
     font-size: 13px;color:#F58221;font-style:italic;
 }
-.community-left .discussion-date .date{
+.community-left .discussion-date .td-postdate{
     font-size: 13px;font-style:italic;
 }
 .community-left .seemore-t{
@@ -669,7 +670,7 @@ a{
 <section class="content-wrapper-community">
     <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
-        <!--Communities-My Trending Topics-->
+        <!--community-left-->
         <div class="community-left">
             <div class="sub-community-info">
                 <div class="main-name overflow-text">
@@ -775,48 +776,28 @@ a{
                         <span class="btn-seemore-sc">See More</span>
                     </div>
                     %endif
-                    <!--
-                    <div class="joined">
-                        <div class="overflow-text joined-title">
-                            <a>Community Chat</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">8</div>
-                        </div>
-                    </div>
-                    <div class="unjoined overflow-text"><a>Februay Workshop Februay Workshop</a></div>
-                    <div class="unjoined overflow-text"><a>General</a></div>
-                    <div class="joined">
-                        <div class="overflow-text joined-title">
-                            <a>Random affdf sadfa asdfaasdfa sdfa</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">3</div>
-                        </div>
-                    </div>
-                    -->
                 </div>
             </div>
             <div class="trending">
                 <div class="sub-title">Trending</div>
                 <div class="trendings">
-                    <div class="every-discussion">
-                        <div class="discussion-subject overflow-text">Welcome to the O Nieill sdfsdfa sadf</div>
-                        <div class="discussion-date">
-                            <span class="posted">Posted:</span>
-                            <span class="date">Sep 7,2016</span>
-                        </div>
-                    </div>
-                    <div class="every-discussion" style="border-bottom:0;padding-bottom:0">
-                        <div class="discussion-subject overflow-text">Test post</div>
-                        <div class="discussion-date">
-                            <span class="posted">Posted:</span>
-                            <span class="date">Aug 7,2016</span>
-                        </div>
-                    </div>
+                    %for k, td in enumerate(td_list):
+                        %if k + 1 == len(td_list):
+                        <div class="every-discussion border-zero">
+                        %else:
+                        <div class="every-discussion">
+                        %endif
+                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-date">
+                                <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
+                            </div>
+                        </div>   
+                    %endfor
+                    %if discussions_count > td_show_count and discussions_count > 0 and td_show_count > 0:
                     <div class="seemore-t">
                         <span class="btn-seemore-t">See More</span>
                     </div>
+                    %endif
                 </div>
             </div>
         </div>
@@ -878,7 +859,7 @@ a{
             </div>
         </div>
         
-        <!--Courses-My Learning Plan-->
+        <!--community-right-->
         <div class="community-right">
             <div class="communitystatus">
                 <div class="sub-title">Community Status</div>
@@ -1253,6 +1234,7 @@ a{
         message_board(userInfo);
     }
 
+    //get resources
     function get_resources_ajax(community_id){
         var updata = {'community_id': community_id};
         $.post("${reverse('get_community_resources')}", updata, function (d) {
@@ -1279,6 +1261,7 @@ a{
         get_resources_ajax(${community_id})
     });
 
+    //get subcommunities
     function get_subcommunities_ajax(community_id){
         var updata = {'community_id': community_id};
         $.post("${reverse('get_subcommunities')}", updata, function (d) {
@@ -1329,6 +1312,7 @@ a{
         get_subcommunities_ajax(${main_community.id});
     });
 
+    //get my subcommunities
     function get_mycommunities_ajax(community_id){
         var updata = {'community_id': community_id, 'get_sub': 1};
         $.post("${reverse('get_mycommunities')}", updata, function (d) {
@@ -1353,6 +1337,35 @@ a{
     $(".btn-seemore-mc").click(function(){
         $(this).hide();
         get_mycommunities_ajax(${community_id});
+    });
+
+    //get trending
+    function get_trending_ajax(community_id){
+        var updata = {'community_id': community_id};
+        $.post("${reverse('get_trending')}", updata, function (d) {
+            if(d.success){
+                var html = '';
+                for(var i=0;i<d.trending.length;i++){
+                    if(i+1==d.trending.length){
+                        html += '<div class="every-discussion border-zero">';
+                    }
+                    else{
+                        html += '<div class="every-discussion">';
+                    }
+                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-date">';
+                    html += '<span class="posted">Posted: </span>';
+                    html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
+                    html += '</div></div>';
+                }
+                $('.trendings').html(html);
+            }
+        });
+    }
+    //trending see more btn
+    $(".btn-seemore-t").click(function(){
+        $(this).hide();
+        get_trending_ajax(${community_id});
     });
 </script>
 <script type="text/javascript">
@@ -1426,7 +1439,6 @@ a{
         });
     }
 </script>
-
 <script type="text/javascript">
     function PepReg($content) {
         var self = this;
@@ -1966,11 +1978,48 @@ a{
         $("#dlg-upload_picture").hide();
         $(".lean-overlay").remove();
     });
+</script>
+<script type="text/javascript">
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        var displayDate = ""
 
+        if(isToday(time)) {
+            displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
+</script>
+<script type="text/javascript">
     $(document).ready(function () {
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+
+        //Format Trending posted date
+        $(".td-postdate").each(function(){
+            var postdate = $(this).attr('postdate');
+            if(postdate){
+                $(this).html(time_to_local(postdate));
+            }
+        });
 
         %if user_super:
             var access_level = 'System';
