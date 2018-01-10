@@ -137,7 +137,7 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                resource_html += makeResourceTree(struct[i].id, offset+1);
+                resource_html = makeResourceTree(struct[i].id, offset+1);
                 var res_class = "";
                 if (resource_html == "") res_class = "";
                 else res_class = "expandable_tree";
