@@ -143,6 +143,7 @@ function reloadPage () {
     $.each(results, function(i) {
         res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "</div>";
     });
+    $("#search_results").html(res_html);
 }
 
 function callAPI (endpoint, data) {
