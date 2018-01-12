@@ -15,8 +15,8 @@
         </div>
         <hr>
         <div id = "view_type">
-            <span id = "tree_view_head">Tree</span>
-            <span id = "search_view_head">Search</span>
+            <span id = "tree_view_head">Please Select A Library</span>
+            <span id = "search_view_head">Please Select A Library</span>
         </div><br>
         <div id= "popup_views">
             <span id="tree_view">
@@ -97,7 +97,8 @@ function librariesSelector() {
     $("body").on("click", "#sub_search", function () {
         search_terms = encodeURIComponent($("#search_term").val());
         library      = encodeURIComponent($("#search_term").data("lib"));
-        page = 0;
+        $("#search_results").data("page", 0);
+        page = $("#search_results").data("page");
         data = {
             "search": search_terms,
             "f[0]": library,
@@ -106,11 +107,41 @@ function librariesSelector() {
         results = callAPI ("search", data);
         res_html = "";
         $.each(results, function(i) {
-            res_html += "<div>" + results[i].title + "</div>";
+            res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "</div>";
         });
         $(this).parent().next().html(res_html);
     });
+    $("body").on("click", "#prev_button", function() {
+        page = $("#search_results").data("page");
+        if (page > 0) {
+            page --;
+        }
+        $("#search_results").data("page", page);
+        reloadPage();
+    });
+    $("body").on("click", "#next_button", function() {
+        page = $("#search_results").data("page");
+        page ++;
+        $("#search_results").data("page", page);
+        reloadPage();
+    });
     return html;
+}
+
+function reloadPage () {
+    search_terms = encodeURIComponent($("#search_term").val());
+    library      = encodeURIComponent($("#search_term").data("lib"));
+    page = $("#search_results").data("page");
+    data = {
+        "search": search_terms,
+        "f[0]": library,
+        "page": page
+    };
+    results = callAPI ("search", data);
+    res_html = "";
+    $.each(results, function(i) {
+        res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "</div>";
+    });
 }
 
 function callAPI (endpoint, data) {
@@ -158,7 +189,8 @@ function loadLibrary(lib_id) {
         }
     });
     //Setup Search Tab
-    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results'></div>";
+    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
+    html += "<span id='prev_button'>Previous</span><span id='next_button'>Next</span>";
     $("#search_view").html(html);
 
 }

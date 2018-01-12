@@ -29,6 +29,17 @@
     font-weight:bold;
 }
 
+#prev_button, #next_button {
+    font-weight:bold;
+}
+#prev_button:hover, #next_button:hover {
+    text-decoration: underline;
+}
+#next_button {
+    float:right;
+    margin-right: 10px;
+}
+
 .selectable_resource:hover {
     cursor:pointer;
     text-decoration:underline;

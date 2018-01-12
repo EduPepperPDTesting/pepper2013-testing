@@ -499,6 +499,7 @@ function new_cms_resource(data) {
     var url   = $(this_block).children()[1];
     $(title).val(data.title);
     $(url).val(data.url);
+    $("#cms_dialog").hide();
 }
 
 function close_modal(modal_id){
