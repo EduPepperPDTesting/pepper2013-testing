@@ -47,7 +47,7 @@ $("#search_view_head").click(function() {
     $(this).css("background-color", "lightgray");
     $("#tree_view_head").css("background-color", "white");
 });
-
+var initialize_listeners = true;
 var send_to;
 function initializeCMSPopup (callback) {
     send_to = callback;
@@ -72,60 +72,63 @@ function librariesSelector() {
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
     });
-    $("body").on("click", ".expandable_tree", function() {
-        $(this).next().slideToggle();
-    });
-    $("body").on("click", ".has_resource", function(e) {
-        if ($(this).next().hasClass("resource_level")) {
+    if (initialize_listeners) {
+        $("body").on("click", ".expandable_tree", function () {
             $(this).next().slideToggle();
-        } else {
-            package_id = $(this).data("package_id");
-            offset     = $(this).data("offset");
-            res_html = makeResourceTree(package_id, offset+1);
-            $(this).after(res_html);
-            $(this).next().slideToggle();
-        }
-    });
-    $("body").on("click", ".selectable_resource", function(e) {
-        url = $(this).data("url");
-        title = $(this).data("title");
-        data = {
-            "url": url,
-            "title": title
-        }
-        send_to.fire(data);
-    });
-    $("body").on("click", "#sub_search", function () {
-        search_terms = encodeURIComponent($("#search_term").val());
-        library      = encodeURIComponent($("#search_term").data("lib"));
-        $("#search_results").data("page", 0);
-        page = $("#search_results").data("page");
-        data = {
-            "search": search_terms,
-            "f[0]": library,
-            "page": page
-        };
-        results = callAPI ("search", data);
-        res_html = "";
-        $.each(results, function(i) {
-            res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "</div>";
         });
-        $(this).parent().next().html(res_html);
-    });
-    $("body").on("click", "#prev_button", function() {
-        page = $("#search_results").data("page");
-        if (page > 0) {
-            page --;
-        }
-        $("#search_results").data("page", page);
-        reloadPage();
-    });
-    $("body").on("click", "#next_button", function() {
-        page = $("#search_results").data("page");
-        page ++;
-        $("#search_results").data("page", page);
-        reloadPage();
-    });
+        $("body").on("click", ".has_resource", function (e) {
+            if ($(this).next().hasClass("resource_level")) {
+                $(this).next().slideToggle();
+            } else {
+                package_id = $(this).data("package_id");
+                offset = $(this).data("offset");
+                res_html = makeResourceTree(package_id, offset + 1);
+                $(this).after(res_html);
+                $(this).next().slideToggle();
+            }
+        });
+        $("body").on("click", ".selectable_resource", function (e) {
+            url = $(this).data("url");
+            title = $(this).data("title");
+            data = {
+                "url": url,
+                "title": title
+            }
+            send_to.fire(data);
+        });
+        $("body").on("click", "#sub_search", function () {
+            search_terms = encodeURIComponent($("#search_term").val());
+            library = encodeURIComponent($("#search_term").data("lib"));
+            $("#search_results").data("page", 0);
+            page = $("#search_results").data("page");
+            data = {
+                "search": search_terms,
+                "f[0]": library,
+                "page": page
+            };
+            results = callAPI("search", data);
+            res_html = "";
+            $.each(results, function (i) {
+                res_html += "<div class='selectable_resource' data-title='" + results[i].title + "' data-url='" + results[i].url + "'>" + results[i].title + "</div>";
+            });
+            $(this).parent().next().html(res_html);
+        });
+        $("body").on("click", "#prev_button", function () {
+            page = $("#search_results").data("page");
+            if (page > 0) {
+                page--;
+            }
+            $("#search_results").data("page", page);
+            reloadPage();
+        });
+        $("body").on("click", "#next_button", function () {
+            page = $("#search_results").data("page");
+            page++;
+            $("#search_results").data("page", page);
+            reloadPage();
+        });
+        initialize_listeners = false;
+    }
     return html;
 }
 
