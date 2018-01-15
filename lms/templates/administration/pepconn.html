@@ -1035,23 +1035,17 @@ f.close()
     // this.show();
   }
   LoadingWin.prototype.show = function () {
-    // if (!this.$loader) {
-    //   this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
-    //   this.$loader.appendTo(document.body);
-    // }
-    // this.$loader.css('display','block');
-    if($(".lean-overlay").length < 1){
+    if (!this.$loader) {
       this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
       this.$loader.appendTo(document.body);
-      this.$loader.css('display','block');
     }
+    this.$loader.css('display','block');
   };
   LoadingWin.prototype.hide = function () {
-    // if (this.$loader) {
-    //   this.$loader.remove();
-    //   this.$loader = null;
-    // }
-    $(".lean-overlay").remove()
+    if (this.$loader) {
+      this.$loader.remove();
+      this.$loader = null;
+    }
   };
   new CoursePermission({url: {
     download_excel: "${reverse('pepconn_course_permission_download_excel')}?",
