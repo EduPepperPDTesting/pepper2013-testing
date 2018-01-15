@@ -21,7 +21,7 @@ AggregationConfig = {
     },
     "AggregateGradesView": {
         "collection": "student_courseenrollment"
-    },""
+    },
     "AggregateTimerView": {
         "collection": "user_info"
     },
