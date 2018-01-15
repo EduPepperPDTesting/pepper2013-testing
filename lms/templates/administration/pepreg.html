@@ -2232,7 +2232,7 @@
             if(val != ""){
                 $.ajax({type: "post" url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                     if (data.success) {
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name=' + suborder + ' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'>");
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'>");
                         $("#advanced_select_" + suborder).next("div").append("<option value=''>Select</option>");
                         var optValue;
                         $.each(data.rows, function(k, v){
@@ -2345,7 +2345,7 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name")) + 1;
             if(val != ""){
-                if($("#advanced_select_" + suborder").length == 0){
+                if($("#advanced_select_" + suborder).length == 0){
 
                     $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete="off" class="advanced_search">);
                     $("#advanced_search").append("<option value=''>Select Field</option>");
