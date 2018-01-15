@@ -18,11 +18,17 @@
 #search_view {
     display:none;
 }
+#search_results {
+    padding-left: 6px;
+    padding-top: 4px;
+}
 #popup_views {
     width:100%;
     height:64%;
     overflow:scroll;
     text-align: left;
+    padding-left: 8px;
+    padding-top: 4px;
 }
 .expandable_tree:hover, .book_header:hover, .has_resource:hover {
     cursor:pointer;
