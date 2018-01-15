@@ -1626,8 +1626,8 @@ def maincommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
-    # Get discussions count for Community Status
     mongo3_store = community_discussions_store()
+    # Get discussions count for Community Status
     discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
     # Get all discussion and all reply count
     replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
@@ -1637,20 +1637,31 @@ def maincommunity(request, community_id):
     likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
 
     '''
+    Get Trending discussions for init show
+    '''
+    td_show_count = 2
+    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+
+    '''
     Get Subcommunities for init show
     '''
     sc_show_count = 4
+    # default_last_access when last_access is null
+    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
-    sc_count = subcommunities.count()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.select_related().filter(main_id=community_id).count()
     for k, item in enumerate(subcommunities):
-        if k + 1 > sc_show_count:
-            break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
-                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
+                last_access_time = default_last_access
             filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
@@ -1659,30 +1670,27 @@ def maincommunity(request, community_id):
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
-    '''
-    Get My Communities
-    '''
-    # Get My Main Communities for init show
-    mc_show_count = 2
+    # Get  Community users for Community Status
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    '''
+    Get My Main Communities for init show
+    '''
+    mc_show_count = 2
     my_communities_list = list()
-    items = CommunityUsers.objects.select_related().filter(user=user, community__main_id=0).order_by('community__name')
-    mc_count = items.count()
+    items = CommunityUsers.objects.select_related().filter(user=user, community__main_id=0).order_by('community__name')[0:mc_show_count]
+    mc_count = CommunityUsers.objects.filter(user=user, community__main_id=0).count()
     for k, item in enumerate(items):
-        if k + 1 > mc_show_count:
-            break
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
     Get Resources for init show
     '''
     re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)
-    re_count = resources.count()
+    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
+    re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        if k + 1 > re_show_count:
-            break
         resources_list.append({'name': r.name, 'link': r.link})
 
     # Update all community info
@@ -1694,6 +1702,9 @@ def maincommunity(request, community_id):
     community_info = {'community': community,
                       'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
+                      'td_show_count': td_show_count,
+                      'discussions_count': discussions_count,
+                      'td_list': td_list,
                       'sc_show_count': sc_show_count,
                       'sc_count': sc_count,
                       'subcommunities_list': subcommunities_list,
@@ -1704,7 +1715,6 @@ def maincommunity(request, community_id):
                       're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
-                      'discussions_count': discussions_count,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count
                       }
@@ -1760,8 +1770,8 @@ def subcommunity(request, community_id):
     if request.user.is_superuser:
         user_super = "super"
 
-    # Get discussions count for Community Status
     mongo3_store = community_discussions_store()
+    # Get discussions count for Community Status
     discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
     # Get all discussion and all reply count
     replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
@@ -1771,20 +1781,31 @@ def subcommunity(request, community_id):
     likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
 
     '''
+    Get Trending discussions for init show
+    '''
+    td_show_count = 2
+    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+
+    '''
     Get Subcommunities for init show
     '''
     sc_show_count = 4
+    # default_last_access when last_access is null
+    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')
-    sc_count = subcommunities.count()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.filter(main_id=community.main_id).count()
     for k, item in enumerate(subcommunities):
-        if k + 1 > sc_show_count:
-            break
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
-                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
+                last_access_time = default_last_access
             filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
@@ -1793,30 +1814,27 @@ def subcommunity(request, community_id):
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
 
-    '''
-    Get Community Status
-    '''
-    # Get My Sub Communities for init show
-    mc_show_count = 2
+    # Get community users for Community Status
     users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    '''
+    Get My Main Communities for init show
+    '''
+    mc_show_count = 2
     my_communities_list = list()
-    items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')
-    mc_count = items.count()
+    items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')[0:mc_show_count]
+    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0),user=user).count()
     for k, item in enumerate(items):
-        if k + 1 > mc_show_count:
-            break
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
     Get Resources for init show
     '''
     re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)
-    re_count = resources.count()
+    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
+    re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        if k + 1 > re_show_count:
-            break
         resources_list.append({'name': r.name, 'link': r.link})
 
     # Update all community info
@@ -1830,6 +1848,9 @@ def subcommunity(request, community_id):
                       'is_main_member': is_main_member,
                       'facilitator_d': facilitator_default[0] if facilitator_default else '',
                       'ruser_info': ruser_info,
+                      'td_show_count': td_show_count,
+                      'discussions_count': discussions_count,
+                      'td_list': td_list,
                       'sc_show_count': sc_show_count,
                       'sc_count': sc_count,
                       'subcommunities_list': subcommunities_list,
@@ -1840,7 +1861,6 @@ def subcommunity(request, community_id):
                       're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
-                      'discussions_count': discussions_count,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count
                       }
@@ -2362,7 +2382,7 @@ def get_subcommunities_process(request):
     # Get Subommunities
     mongo3_store = community_discussions_store()
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=int(community_id)).order_by('name')
     sc_count = subcommunities.count()
     for k, item in enumerate(subcommunities):
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
@@ -2379,6 +2399,21 @@ def get_subcommunities_process(request):
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
     return HttpResponse(json.dumps({'success': True, 'subcommunities': subcommunities_list}), content_type='application/json')
 
+@login_required
+@ensure_csrf_cookie
+def get_trending_discussions_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    mongo3_store = community_discussions_store()
+    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "date_create", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+    return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
 # -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
