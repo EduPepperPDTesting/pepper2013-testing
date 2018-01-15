@@ -167,83 +167,88 @@
             <div class="icon"></div>
         </div>
         <div class="expand_div" style="padding:10px;">
+            <a href="#" id="switch_search">Advanced Search</a>
             <div class="table-filter">
-                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                    <select id="state_select" autocomplate="off" class="search" data-column="1">
-                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                            <option value="">Select State</option>
-                        %for item in State.objects.all().order_by("name"):
-                            <option class="${item.id}" value="${item.name}">${item.name}</option>
-                        %endfor
-                        %else:
-                            <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>
-                        %endif
+                <div id="regular_search">
+                    %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                        <select id="state_select" autocomplate="off" class="search" data-column="1">
+                            %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                                <option value="">Select State</option>
+                            %for item in State.objects.all().order_by("name"):
+                                <option class="${item.id}" value="${item.name}">${item.name}</option>
+                            %endfor
+                            %else:
+                                <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>
+                            %endif
+                        </select>
+                        <select id="district_select" autocomplate="off" class="search" data-column="2">
+                            %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                                <option value="">Select District</option>
+                            %for item in District.objects.all().order_by("name"):
+                                <option value="${item.name}" class="${item.state.id}">${item.name}</option>
+                            %endfor
+                            %else:
+                                <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>
+                            %endif
+                        </select>
+                    %endif
+                    <select id="filter-suject-drop" name="" autocomplete="off" class="search" data-column="3">
+                        <option value="">Select Subject</option>
+                        <option value="AR">Assessments and Reporting</option>
+                        <option value="DC">Digital Citizenship</option>
+                        <option value="ELA">English Language Arts</option>
+                        <option value="ELL">English Language Learners</option>
+                        <option value="MA">Mathematics</option>
+                        <option value="PEP">Pepper</option>
+                        <option value="POW">Pepper's Online Workshops!</option>
+                        <option value="SC">Science</option>
+                        <option value="SE">Special Education</option>
+                        <option value="TECH">Technology</option>
+                        <option value="WR">Writing and Poetry</option>
+                        <option value="Other">Other</option>
                     </select>
-                    <select id="district_select" autocomplate="off" class="search" data-column="2">
-                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                            <option value="">Select District</option>
-                        %for item in District.objects.all().order_by("name"):
-                            <option value="${item.name}" class="${item.state.id}">${item.name}</option>
-                        %endfor
-                        %else:
-                            <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>
-                        %endif
-                    </select>
-                %endif
-                <select id="filter-suject-drop" name="" autocomplete="off" class="search" data-column="3">
-                    <option value="">Select Subject</option>
-                    <option value="AR">Assessments and Reporting</option>
-                    <option value="DC">Digital Citizenship</option>
-                    <option value="ELA">English Language Arts</option>
-                    <option value="ELL">English Language Learners</option>
-                    <option value="MA">Mathematics</option>
-                    <option value="PEP">Pepper</option>
-                    <option value="POW">Pepper's Online Workshops!</option>
-                    <option value="SC">Science</option>
-                    <option value="SE">Special Education</option>
-                    <option value="TECH">Technology</option>
-                    <option value="WR">Writing and Poetry</option>
-                    <option value="Other">Other</option>
-                </select>
-                <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
-                    <option value="">Select</option>
-                    %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
-                        <script type="text/javascript">
-                            var option = '${item.subjectother}';
+                    <select id="subject-other-drop" name="" autocomplete="off" style="display:none;min-width:235px;" class="search" data-column="16">
+                        <option value="">Select</option>
+                        %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False, training_date__gte=datetime.date.today()).order_by("subjectother"):
+                            <script type="text/javascript">
+                                var option = '${item.subjectother}';
 
-                            if($("#subject-other-drop option[value='"+option.toLowerCase()+"']").length==0 && $("#subject-other-drop option[value='"+option+"']").length==0){
-                                $("#subject-other-drop").append('<option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>');
-                            }
-                        </script>
-                    %endfor
-                </select>
-                <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
-                       style="display:none;"/-->
-                %if check_user_perms(request.user, 'pepreg'):
-                    <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
+                                if($("#subject-other-drop option[value='"+option.toLowerCase()+"']").length==0 && $("#subject-other-drop option[value='"+option+"']").length==0){
+                                    $("#subject-other-drop").append('<option class="${item.id}" value="${item.subjectother}">${item.subjectother}</option>');
+                                }
+                            </script>
+                        %endfor
+                    </select>
+                    <!--input type="" name="" value="" class="search" data-column="3" autocomplete="off"
+                           style="display:none;"/-->
+                    %if check_user_perms(request.user, 'pepreg'):
+                        <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
+                            <a href="#">
+                                <div class="icon"></div>
+                                <div>Add New</div>
+                            </a>
+                        </div>
+                    %endif
+                    %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
+                    <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
                         <a href="#">
                             <div class="icon"></div>
-                            <div>Add New</div>
+                            <div>My Calendar</div>
                         </a>
                     </div>
-                %endif
-                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
-                <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
-                    <a href="#">
-                        <div class="icon"></div>
-                        <div>My Calendar</div>
-                    </a>
+                    %endif
+                    <br>
+                    <select id="" name="" autocomplate="off" class="search" data-column="4">
+                        <option value="">Select Pepper Courses</option>
+                        %for item in courses:
+                            <option value="${item.id}">${item.display_name}</option>
+                        %endfor
+                    </select>
+                    <input type="text" name="training_data" value="" class="search" data-column="7"
+                           placeholder="Select Date" readonly='true'/>
                 </div>
-                %endif
-                <br>
-                <select id="" name="" autocomplate="off" class="search" data-column="4">
-                    <option value="">Select Pepper Courses</option>
-                    %for item in courses:
-                        <option value="${item.id}">${item.display_name}</option>
-                    %endfor
-                </select>
-                <input type="text" name="training_data" value="" class="search" data-column="7"
-                       placeholder="Select Date" readonly='true'/>
+                <div id="advanced_search" style="display: none;">
+                <div>
             </div>
             <div class="add_table-section table-section clearfix">
                 <table id="data-table" class="tablesorter-blue user_table_init"
@@ -2194,6 +2199,186 @@
             }
             //$input.change();
         });
+
+        var filters = [];
+
+        $(".switch_search").click(function(){
+            if($("#switch_search").text()=="Regular Search"){
+                $("#switch_search").innerHTML="Advanced Search";
+                $("#regular_search").css("display": "none");
+                $("#advanced_search").css("display": "block");
+
+                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete="off" class="advanced_search">);
+                $("#advanced_search").append("<option value=''>Select Field</option>");
+                $.ajax({type: "post" url: "${reverse('getfielddata')}", success: function(data){
+                    if (data.success) {
+                        $.each(data.rows, function(k, v){
+                            $("#advanced_select_1").append("<option value="'+ v +'">" + v + "</option>");
+                        })
+                    }
+                }
+                $("#advanced_search").append("</select><div style="display: inline-block"></div>");
+            }else{
+                $("#switch_search").innerHTML="Regular Search";
+                $("#advanced_search").empty().css("display": "none");
+                $("#regular_search").css("display": "block");
+            }
+        })
+
+        $(".advanced_select").change(function (){
+            var val = $(this).val();
+            var suborder = $(this).attr("name");
+            $(this).next("div").empty();
+            if(val != ""){
+                $.ajax({type: "post" url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
+                    if (data.success) {
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name=' + suborder + ' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'>");
+                        $("#advanced_select_" + suborder).next("div").append("<option value=''>Select</option>");
+                        var optValue;
+                        $.each(data.rows, function(k, v){
+                            if(val == "Subject"){
+                                switch (v){
+                                    case "Assessments and Reporting":
+                                        optValue = "AR";
+                                        break;
+                                    case "Digital Citizenship":
+                                        optValue = "DC";
+                                        break;
+                                    case "English Language Arts":
+                                        optValue = "ELA";
+                                        break;
+                                    default:
+                                        optValue = "";
+                                }
+                            }else{
+                                optValue = v;
+                            }
+                            $("#advanced_select_" + suborder).next("div").append("<option value="'+ optValue +'">" + v + "</option>");
+                        })
+                        $("#advanced_select_" + suborder).next("div").append("</select>");
+                        $("#advanced_select_" + suborder).next("div").append(" + ");
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'>");
+                        $("#advanced_select_" + suborder).next("div").append("<option value=''>Select</option>");
+                        $("#advanced_select_" + suborder).next("div").append("<option value='and'>AND</option>");
+                        $("#advanced_select_" + suborder).next("div").append("<option value='or'>OR</option>");
+                        $("#advanced_select_" + suborder).next("div").append("</select>");
+                    }
+                }
+                });
+            }
+        });
+
+        $(".subselect").change(function () {
+            var val = $(this).val();
+            var suborder = parseInt($(this).attr("name"));
+
+            if(val != ""){
+                if($("#subcondition_" + (suborder - 1)).val() == "and"){
+                    filters[suborder] = $(this).val();
+                }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
+                    /*filters[suborder - 1] = "*";
+                    filters[suborder] = $(this).val();*/
+
+                    var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
+                    var col_2 = $("#subselect_" + suborder).attr("data-column");
+
+                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
+                }
+            }else{
+                filters[suborder] = "*";
+            }
+            $.tablesorter.setFilters($("#data-table"), filters, true);
+        })
+
+        //filtering records with OR condition
+        function OrFilter(tablesorterOptions, col_1, col_2, suborder){
+            $(".or_filter_1").removeClass("or_filter_1");
+            $(".or_filter_2").removeClass("or_filter_2");
+            $("#subselect_" + (suborder - 1)).addClass("or_filter_1");
+            $("#subselect_" + suborder).addClass("or_filter_2");
+
+            var filters = [], $table = $('find("#data-table")'),
+
+            //get 'OR'-condition column indexes
+            orColumns = [col_1, col_2],
+            //show row if one of given columns has corresponding cell with required value
+            filterfxn = function (e, n, f, i, $r, c) {
+                console.log("filterfxn");
+                var v, showRow = false;
+                $r.children().filter(function (indx) {
+                    console.log(orColumns.indexOf(indx)+ " " + indx);
+                    if (orColumns.indexOf(indx) > -1) {
+                        console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
+                        v = (c.$filters.eq(indx).find('.tablesorter-filter').val() || '').toLowerCase();
+                        console.log(v);
+                        showRow = showRow || $(this).text().toLowerCase() === v;
+                    }
+                });
+                return showRow;
+            },
+
+            setFilters = function () {
+                $.tablesorter.setFilters($('find("#data-table")'), filters, true);
+            };
+            console.log(orColumns);
+
+            var filter_functions = {
+                ".or_filter_1": filterfxn
+                },
+                ".or_filter_2": filterfxn
+                }
+            };
+
+            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
+
+            $("#data-table").tablesorter(tablesorterOptions);
+
+            filters[col_1] = $("#subselect_" + (suborder - 1));
+            filters[col_2] = $("#subselect_" + suborder);
+            setFilters();
+            $("tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
+
+            console.log("filterfxn");
+        };
+
+        $(".subcondition").change(function () {
+            var val = $(this).val();
+            var suborder = parseInt($(this).attr("name")) + 1;
+            if(val != ""){
+                if($("#advanced_select_" + suborder").length == 0){
+
+                    $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete="off" class="advanced_search">);
+                    $("#advanced_search").append("<option value=''>Select Field</option>");
+                    $("#advanced_search").append("</select><div style="display: inline-block"></div>");
+
+                    $.ajax({type: "post" url: "${reverse('getfielddata')}", data: {search_data: val}, success: function(data){
+                        if (data.success) {
+                            $.each(data.rows, function(k, v){
+                                $("#advanced_select_" + suborder).append("<option value="'+ v +'">" + v + "</option>");
+                            })
+                        }
+                    }
+                }else if($("#subselect_" + suborder).length > 0 && $("#subselect_" + suborder).val() != ""){
+
+                    if(val == "and") {
+                        filters[suborder] = $("#subselect_" + suborder).val();
+                    }else if(val == "or"){
+                        /*filters[suborder - 1] = "*";
+                        filters[suborder] = $(this).val();*/
+
+                        var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
+                        var col_2 = $("#subselect_" + suborder).attr("data-column");
+
+                        OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
+                    }
+                     $.tablesorter.setFilters($("#data-table"), filters, true);
+                }
+            }else{
+                $("#advanced_select_" + suborder).remove();
+                filters[suborder] ="*";
+                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }
+        });
     };
     PepReg.prototype.showStudents = function (training_id) {
         var self = this;
@@ -2297,6 +2482,10 @@
                     });
                     return $row;
                 }
+
+
+
+
 
                 $.each(r.rows, function (i, data) {
                     fillRow(null, data).appendTo($tbody);

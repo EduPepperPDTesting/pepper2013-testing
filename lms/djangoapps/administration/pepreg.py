@@ -2016,3 +2016,46 @@ def download_students_pdf(request):
     workbook.close()
     response.write(output.getvalue())
     return response
+
+
+def getfielddata(request):
+    success = False
+    rows = list()
+    data_column = ""
+    org_id = request.user.profile.school.id
+
+    rows = [State, District, Subject]
+    success = True
+
+    data = {'success': success, 'rows': rows}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+def getsearchdata(request):
+    success = False
+    rows = list()
+    data_column = ""
+    search_data = request.POST.get('search_data')
+
+    if search_data == "State":
+        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+            data_column = "1"
+            success = True
+            for item in State.objects.all().order_by("name"):
+                rows.append(item.name)
+
+    elif  search_data == "District":
+        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+            data_column = "2"
+            success = True
+            for item in District.objects.all().order_by("name"):
+                rows.append(item.name)
+
+    elif search_data == "Subject":
+        data_column = "3"
+        success = True
+        rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+
+    data = {'success': success, 'rows': rows, 'datacolumn': data_column}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
