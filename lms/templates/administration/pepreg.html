@@ -2230,7 +2230,7 @@
             var suborder = $(this).attr("name");
             $(this).next("div").empty();
             if(val != ""){
-                $.ajax({type: "post" url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
+                $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                     if (data.success) {
                         $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'>");
                         $("#advanced_select_" + suborder).next("div").append("<option value=''>Select</option>");
