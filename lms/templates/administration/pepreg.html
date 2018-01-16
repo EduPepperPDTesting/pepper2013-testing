@@ -2208,7 +2208,7 @@
                 $("#regular_search").css("display", "none");
                 $("#advanced_search").css("display", "block");
 
-                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_search'></select><div style='display: inline-block'></div>");
+                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_select'></select><div style='display: inline-block'></div>");
                 $("#advanced_select_1").append("<option value=''>Select Field</option>");
                 $.get("${reverse('getfielddata')}", {}, function(data) {
                     console.log("getfielddata: "+data.success);
