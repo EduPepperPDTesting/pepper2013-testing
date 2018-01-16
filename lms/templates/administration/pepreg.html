@@ -2232,8 +2232,8 @@
             if(val != ""){
                 $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                     if (data.success) {
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'>");
-                        $("#advanced_select_" + suborder).next("div").append("<option value=''>Select</option>");
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
+                        $("#subselect_" + suborder).append("<option value=''>Select</option>");
                         var optValue;
                         $.each(data.rows, function(k, v){
                             if(val == "Subject"){
@@ -2253,9 +2253,8 @@
                             }else{
                                 optValue = v;
                             }
-                            $("#advanced_select_" + suborder).next("div").append("<option value='"+ optValue +"'>" + v + "</option>");
+                            $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                         })
-                        $("#advanced_select_" + suborder).next("div").append("</select>");
                         $("#advanced_select_" + suborder).next("div").append(" + ");
                         $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
                         $("#subcondition_" + suborder).append("<option value=''>Select</option>");
@@ -2371,7 +2370,7 @@
                      $.tablesorter.setFilters($("#data-table"), filters, true);
                 }
             }else{
-                $("#advanced_select_" + suborder).next().remove();
+                $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
                 filters[suborder] ="*";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
