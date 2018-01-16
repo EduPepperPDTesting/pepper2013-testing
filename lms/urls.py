@@ -147,10 +147,10 @@ urlpatterns = (
     url(r'^readattachment/$', 'webchat.views.read_attachment', name='read_attachment'),
     # === webchat end ==(?P<community_id>[a-zA-Z0-9_]+) (?P<filePath>[\\\:\.w]+)/
 
-    # === advanced PD Search === #administration.pepreg.getfielddata
-    url(r'^getfielddata/$', 'webchat.views.get_users_org', name='getfielddata'),
-    url(r'^getsearchdata/$', 'webchat.views.get_users_org', name='getsearchdata'),
-    # === advanced PD Search end === #administration.pepreg.getsearchdata
+    # === advanced PD Search === #
+    url(r'^getfielddata/$', 'administration.pepreg.getfielddata', name='getfielddata'),
+    url(r'^getsearchdata/$', 'administration.pepreg.getsearchdata', name='getsearchdata'),
+    # === advanced PD Search end === #
 
     # === Portfolio Settings begin ==
     url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
