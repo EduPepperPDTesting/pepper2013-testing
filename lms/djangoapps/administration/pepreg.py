@@ -2024,7 +2024,7 @@ def getfielddata(request):
     data_column = ""
     org_id = request.user.profile.school.id
 
-    rows = [State, District, Subject]
+    rows = ["State", "District", "Subject"]
     success = True
 
     data = {'success': success, 'rows': rows}
