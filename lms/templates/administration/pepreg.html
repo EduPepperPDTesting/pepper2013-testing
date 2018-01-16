@@ -2287,7 +2287,7 @@
                 filters[suborder] = "*";
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
-        })
+        });
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, suborder){
@@ -2346,15 +2346,15 @@
             if(val != ""){
                 if($("#advanced_select_" + suborder).length == 0){
 
-                    $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete="off" class="advanced_search">);
+                    $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_search'>");
                     $("#advanced_search").append("<option value=''>Select Field</option>");
-                    $("#advanced_search").append("</select><div style="display: inline-block"></div>");
+                    $("#advanced_search").append("</select><div style='display: inline-block'></div>");
 
                     $.ajax({type: "post" url: "${reverse('getfielddata')}", data: {search_data: val}, success: function(data){
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + suborder).append("<option value="'+ v +'">" + v + "</option>");
-                            })
+                                $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
+                            });
                         }
                     }
                 }else if($("#subselect_" + suborder).length > 0 && $("#subselect_" + suborder).val() != ""){
