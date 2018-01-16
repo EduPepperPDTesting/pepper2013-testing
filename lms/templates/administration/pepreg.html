@@ -2210,7 +2210,7 @@
 
                 $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_search'>");
                 $("#advanced_search").append("<option value=''>Select Field</option>");
-                $.ajax({type: "post" url: "${reverse('getfielddata')}", success: function(data){
+                $.ajax({type: "post", url: "${reverse('getfielddata')}", success: function(data){
                     if (data.success) {
                         $.each(data.rows, function(k, v){
                             $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
@@ -2351,7 +2351,7 @@
                     $("#advanced_search").append("<option value=''>Select Field</option>");
                     $("#advanced_search").append("</select><div style='display: inline-block'></div>");
 
-                    $.ajax({type: "post" url: "${reverse('getfielddata')}", data: {search_data: val}, success: function(data){
+                    $.ajax({type: "post", url: "${reverse('getfielddata')}", data: {search_data: val}, success: function(data){
                         if (data.success) {
                             $.each(data.rows, function(k, v){
                                 $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
