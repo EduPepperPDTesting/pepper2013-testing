@@ -2210,13 +2210,13 @@
 
                 $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_search'></select><div style='display: inline-block'></div>");
                 $("#advanced_select_1").append("<option value=''>Select Field</option>");
-                $.ajax({type: "post", url: "${reverse('getfielddata')}", success: function(data){
+                $.get("${reverse('getfielddata')}", {}, function(data) {
+                    console.log("getfielddata: "+data.success);
                     if (data.success) {
                         $.each(data.rows, function(k, v){
                             $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
                         });
                     }
-                }
                 });
             }else{
                 $("#switch_search").text("Advanced Search");
@@ -2345,13 +2345,12 @@
                     $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_search'></select><div style='display: inline-block'></div>");
                     $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
 
-                    $.ajax({type: "post", url: "${reverse('getfielddata')}", data: {search_data: val}, success: function(data){
+                    $.get("${reverse('getfielddata')}", {}, function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
                                 $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
                             });
                         }
-                    }
                     });
                 }else if($("#subselect_" + suborder).length > 0 && $("#subselect_" + suborder).val() != ""){
 
