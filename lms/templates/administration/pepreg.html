@@ -2204,7 +2204,7 @@
 
         $("#switch_search").click(function(){
             if($("#switch_search").text()=="Advanced Search"){
-                $("#switch_search").innerHTML="Regular Search";
+                $("#switch_search").text("Regular Search");
                 $("#regular_search").css("display", "none");
                 $("#advanced_search").css("display", "block");
 
@@ -2220,7 +2220,7 @@
                 });
                 $("#advanced_search").append("</select><div style='display: inline-block'></div>");
             }else{
-                $("#switch_search").innerHTML="Advanced Search";
+                $("#switch_search").text("Advanced Search");
                 $("#advanced_search").empty().css("display", "none");
                 $("#regular_search").css("display", "block");
             }
