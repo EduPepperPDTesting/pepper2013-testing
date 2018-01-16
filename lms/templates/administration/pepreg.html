@@ -2224,7 +2224,7 @@
                 $("#regular_search").css("display", "block");
             }
         });
-        $(".advanced_select").change(function (){
+        $("#advanced_search").on("change", ".advanced_select", function (){
             var val = $(this).val();
             var suborder = $(this).attr("name");
             $(this).next("div").empty();
