@@ -2021,7 +2021,10 @@ def download_students_pdf(request):
 def getfielddata(request):
     success = 0
     rows = list()
-    org_id = request.user.profile.school.id
+    try:
+        org_id = request.user.profile.school.id
+    except:
+        org_id = 0
 
     rows = ["State", "District", "Subject"]
     success = 1
