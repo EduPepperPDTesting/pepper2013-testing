@@ -2208,7 +2208,7 @@
                 $("#regular_search").css("display", "none");
                 $("#advanced_search").css("display", "block");
 
-                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_select'></select><div style='display: inline-block'></div>");
+                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div>");
                 $("#advanced_select_1").append("<option value=''>Select Field</option>");
                 $.get("${reverse('getfielddata')}", {}, function(data) {
                     console.log("getfielddata: "+data.success);
@@ -2267,7 +2267,7 @@
             }
         });
 
-        $(".subselect").change(function () {
+        $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
 
@@ -2338,13 +2338,13 @@
             console.log("filterfxn");
         };
 
-        $(".subcondition").change(function () {
+        $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name")) + 1;
             if(val != ""){
                 if($("#advanced_select_" + suborder).length == 0){
 
-                    $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_search'></select><div style='display: inline-block'></div>");
+                    $("#advanced_search").append("<select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_search'></select><div style='display: inline-block; margin-left: 5px;'></div>");
                     $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
 
                     $.get("${reverse('getfielddata')}", {}, function(data) {
