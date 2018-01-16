@@ -2272,7 +2272,7 @@
             var suborder = parseInt($(this).attr("name"));
             console.log("subselect val: "+val);
             if(val != ""){
-                if($("#subcondition_" + (suborder - 1)).val() == "and"){
+                if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
                 }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
                     /*filters[suborder - 1] = "*";
