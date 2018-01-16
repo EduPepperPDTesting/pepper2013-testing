@@ -2270,7 +2270,7 @@
         $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
-
+            console.log("subselect val: "+val);
             if(val != ""){
                 if($("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
