@@ -2205,26 +2205,25 @@
         $(".switch_search").click(function(){
             if($("#switch_search").text()=="Regular Search"){
                 $("#switch_search").innerHTML="Advanced Search";
-                $("#regular_search").css("display": "none");
-                $("#advanced_search").css("display": "block");
+                $("#regular_search").css("display", "none");
+                $("#advanced_search").css("display", "block");
 
-                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete="off" class="advanced_search">);
+                $("#advanced_search").append("<select id='advanced_select_1' name='1' autocomplete='off' class='advanced_search'>");
                 $("#advanced_search").append("<option value=''>Select Field</option>");
                 $.ajax({type: "post" url: "${reverse('getfielddata')}", success: function(data){
                     if (data.success) {
                         $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option value="'+ v +'">" + v + "</option>");
-                        })
+                            $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
+                        });
                     }
                 }
-                $("#advanced_search").append("</select><div style="display: inline-block"></div>");
+                $("#advanced_search").append("</select><div style='display: inline-block'></div>");
             }else{
                 $("#switch_search").innerHTML="Regular Search";
-                $("#advanced_search").empty().css("display": "none");
-                $("#regular_search").css("display": "block");
+                $("#advanced_search").empty().css("display", "none");
+                $("#regular_search").css("display", "block");
             }
         })
-
         $(".advanced_select").change(function (){
             var val = $(this).val();
             var suborder = $(this).attr("name");
