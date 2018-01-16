@@ -2019,6 +2019,7 @@ def download_students_pdf(request):
 
 
 def getfielddata(request):
+    raise Exception("getfielddata")
     success = False
     rows = list()
     org_id = request.user.profile.school.id
