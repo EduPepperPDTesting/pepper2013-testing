@@ -2019,20 +2019,19 @@ def download_students_pdf(request):
 
 
 def getfielddata(request):
-    raise Exception("getfielddata")
-    success = False
+    success = 0
     rows = list()
     org_id = request.user.profile.school.id
 
     rows = ["State", "District", "Subject"]
-    success = True
+    success = 1
 
     data = {'success': success, 'rows': rows}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 def getsearchdata(request):
-    success = False
+    success = 0
     rows = list()
     data_column = ""
     search_data = request.POST.get('search_data')
@@ -2040,20 +2039,20 @@ def getsearchdata(request):
     if search_data == "State":
         if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
             data_column = "1"
-            success = True
+            success = 1
             for item in State.objects.all().order_by("name"):
                 rows.append(item.name)
 
     elif  search_data == "District":
         if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
             data_column = "2"
-            success = True
+            success = 1
             for item in District.objects.all().order_by("name"):
                 rows.append(item.name)
 
     elif search_data == "Subject":
         data_column = "3"
-        success = True
+        success = 1
         rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
 
     data = {'success': success, 'rows': rows, 'datacolumn': data_column}
