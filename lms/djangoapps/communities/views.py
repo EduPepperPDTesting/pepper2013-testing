@@ -1037,8 +1037,9 @@ def community_edit_process(request):
 
                 if logo:
                     resource_object.logo = logo
-                elif 'cms_resource_image[{0}]' in request.POST:
-                    resource_object.cms_logo = request.POST.get('cms_resource_image[{0}]')
+                elif 'cms_resource_image[{0}]'.format(key) in request.POST:
+                    log.debug("Has cms resource")
+                    resource_object.cms_logo = request.POST.get('cms_resource_image[{0}]'.format(key))
                 resource_object.save()
 
                 # Record notification about modify resources
