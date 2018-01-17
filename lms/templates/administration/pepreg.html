@@ -2402,7 +2402,7 @@
             widgets: ["zebra", "filter", "output", "columnSelector"],
             widgetOptions: {
                 filter_external: '',
-                filter_columnFilters: false,
+                filter_columnFilters: true,
                 filter_placeholder: {search: 'Search...'},
                 filter_saveFilters: false,
                 filter_reset: '.reset',
@@ -2671,6 +2671,7 @@
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
                 }
             }else{
+                filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "*";
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
@@ -2711,7 +2712,7 @@
             tablesorterOptions.widgetOptions.filter_functions = filter_functions;
 
             $("#data-table").tablesorter(tablesorterOptions);
- 
+
             $("tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
 
             console.log("filterfxn");
