@@ -2674,6 +2674,7 @@
             $(".or_filter_1").removeClass("or_filter_1");
             $(".or_filter_2").removeClass("or_filter_2");
             $("#subselect_" + (suborder - 1)).addClass("or_filter_1");
+            $("#subselect_" + suborder).addClass("or_filter_2");
 
             //get 'OR'-condition column indexes
             var orColumns = [col_1, col_2],
