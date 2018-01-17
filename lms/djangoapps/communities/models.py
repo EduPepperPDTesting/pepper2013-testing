@@ -48,6 +48,7 @@ class CommunityResources(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     link = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    cms_logo = models.CharField(blank=False, max_length=255, null=True)
 
 
 class CommunityDiscussions(models.Model):
