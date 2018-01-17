@@ -2417,6 +2417,7 @@
         pagerOptions.container = this.$content.find("#user-pager");
         pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
         this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        $(".tablesorter-filter-row").css("display", "none");
         console.log("tablesorter");
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
@@ -2598,17 +2599,11 @@
                         });
                     }
                 });
-
-                tablesorterOptions.widgetOptions.filter_columnFilters = true;
             }else{
                 $("#switch_search").text("Advanced Search");
                 $("#advanced_search").empty().css("display", "none");
                 $("#regular_search").css("display", "block");
-
-                tablesorterOptions.widgetOptions.filter_columnFilters = false;
             }
-
-            $("#data-table").tablesorter(tablesorterOptions);
             $(".tablesorter-filter-row").css("display", "none");
         });
         $("#advanced_search").on("change", ".advanced_select", function (){
