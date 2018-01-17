@@ -2674,10 +2674,11 @@
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, suborder){
-            $(".or_filter_1").removeClass("or_filter_1");
-            $(".or_filter_2").removeClass("or_filter_2");
-            $(".tablesorter-filter[data-column='" + col_1 + "']").val($("#subselect_" + (suborder - 1)).val()).addClass("or_filter_1");
-            $(".tablesorter-filter[data-column='" + col_2 + "']").val($("#subselect_" + suborder).val()).addClass("or_filter_2");
+            $(".or_filter").removeClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_1 + "']").val($("#subselect_" + (suborder - 1)).val()).addClass("or_filter");
+            console.log($("#subselect_" + (suborder - 1)).val());
+            $(".tablesorter-filter[data-column='" + col_2 + "']").val($("#subselect_" + suborder).val()).addClass("or_filter");
+            console.log($("#subselect_" + suborder).val());
 
             //get 'OR'-condition column indexes
             var orColumns = [col_1, col_2],
@@ -2700,8 +2701,7 @@
             console.log(orColumns);
 
             var filter_functions = {
-                ".or_filter_1": filterfxn,
-                ".or_filter_2": filterfxn
+                ".or_filter": filterfxn
             };
 
             tablesorterOptions.widgetOptions.filter_functions = filter_functions;
