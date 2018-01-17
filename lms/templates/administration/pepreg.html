@@ -2676,8 +2676,8 @@
         function OrFilter(tablesorterOptions, col_1, col_2, suborder){
             $(".or_filter_1").removeClass("or_filter_1");
             $(".or_filter_2").removeClass("or_filter_2");
-            $("tablesorter-filter[data-column='" + col_1 + "']").val($("#subselect_" + (suborder - 1)).val()).addClass("or_filter_1");
-            $("tablesorter-filter[data-column='" + col_2 + "']").val($("#subselect_" + suborder).val()).addClass("or_filter_2");
+            $(".tablesorter-filter[data-column='" + col_1 + "']").val($("#subselect_" + (suborder - 1)).val()).addClass("or_filter_1");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").val($("#subselect_" + suborder).val()).addClass("or_filter_2");
 
             //get 'OR'-condition column indexes
             var orColumns = [col_1, col_2],
@@ -2708,7 +2708,7 @@
 
             $("#data-table").tablesorter(tablesorterOptions);
 
-            $("tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
 
             console.log("filterfxn");
         };
