@@ -269,6 +269,7 @@
             </div>
         %endfor
         </label>
+        <input id="cms_popup" type ="button" value="CMS Resource">
         <input type="hidden" value="${community_id}" name="community_id">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
         <div id="community-form-buttons">
@@ -472,7 +473,38 @@
     </div>
     </div>
 </section>
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
+$(document).ready(function() {
+   $.post("${reverse('cms_popup')}",{}, function(e){
+        $("#cms_dialog").html(e);
+    });
+    $("#cms_popup").click(function() {
+        $("#cms_dialog").show();
+        var callback = $.Callbacks();
+        callback.add(new_cms_resource);
+        initializeCMSPopup(callback);
+    });
+    $("body").on("click", "#cms_close", function () {
+        $("#cms_dialog").hide();
+    })
+});
+
+function new_cms_resource(data) {
+    newResource();
+    var this_block = $(".community-resource:last");
+    var index = $(".community-resource").size() - 1;
+    var title = $(this_block).children()[0];
+    var url   = $(this_block).children()[1];
+    var img   = $(this_block).children()[2];
+    $(title).val(data.title);
+    $(url).val(data.url);
+    $(img).html("<img src = '"+data.img+"' width='150px'></img><input type='hidden' name='cms_resource_image["+index+"]' value='"+data.img+"' />");
+    $("#cms_dialog").hide();
+}
+
 function close_modal(modal_id){
     $(modal_id).hide();
     $('#lean_overlay').css({
