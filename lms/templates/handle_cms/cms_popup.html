@@ -14,7 +14,6 @@
         <div id = "library_selection">
 
         </div>
-        <hr>
         <div id = "view_type">
             <span id = "tree_view_head">Tree</span>
             <span id = "search_view_head">Search</span>
@@ -33,6 +32,7 @@
 <script>
 base = "https://cms-dev.edplancms.com/api/v1/";
 working_lib = 0;
+working_img = "";
 
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
@@ -72,6 +72,7 @@ function librariesSelector() {
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
+        working_img = $(this).attr("src");
     });
     if (initialize_listeners) {
         $("body").on("click", ".expandable_tree", function () {
@@ -93,7 +94,8 @@ function librariesSelector() {
             title = $(this).data("title");
             data = {
                 "url": url,
-                "title": title
+                "title": title,
+                "img": working_img
             }
             send_to.fire(data);
         });

@@ -495,10 +495,13 @@ $(document).ready(function() {
 function new_cms_resource(data) {
     newResource();
     var this_block = $(".community-resource:last");
+    var index = $(".community-resource").size() - 1;
     var title = $(this_block).children()[0];
     var url   = $(this_block).children()[1];
+    var img   = $(this_block).children()[2];
     $(title).val(data.title);
     $(url).val(data.url);
+    $(img).html("<img src = '"+data.img+"' width='150px'></img><input type='hidden' name='cms_resource_image["+index+"]' value='"+data.img+"' />");
     $("#cms_dialog").hide();
 }
 
