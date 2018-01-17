@@ -2674,12 +2674,9 @@
             $(".or_filter_1").removeClass("or_filter_1");
             $(".or_filter_2").removeClass("or_filter_2");
             $("#subselect_" + (suborder - 1)).addClass("or_filter_1");
-            $("#subselect_" + suborder).addClass("or_filter_2");
-
-            var filters = [], $table = $('find("#data-table")'),
 
             //get 'OR'-condition column indexes
-            orColumns = [col_1, col_2],
+            var orColumns = [col_1, col_2],
             //show row if one of given columns has corresponding cell with required value
             filterfxn = function (e, n, f, i, $r, c) {
                 console.log("filterfxn");
@@ -2688,17 +2685,14 @@
                     console.log(orColumns.indexOf(indx)+ " " + indx);
                     if (orColumns.indexOf(indx) > -1) {
                         console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
-                        v = (c.$filters.eq(indx).find('.tablesorter-filter').val() || '').toLowerCase();
+                        v = $("#subselect_" + indx).val().toLowerCase();
                         console.log(v);
                         showRow = showRow || $(this).text().toLowerCase() === v;
                     }
                 });
                 return showRow;
-            },
-
-            setFilters = function () {
-                $.tablesorter.setFilters($('find("#data-table")'), filters, true);
             };
+
             console.log(orColumns);
 
             var filter_functions = {
@@ -2710,12 +2704,6 @@
 
             $("#data-table").tablesorter(tablesorterOptions);
 
-            filters[col_1] = $("#subselect_" + (suborder - 1));
-            filters[col_2] = $("#subselect_" + suborder);
-            setFilters();
-            $("tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
-
-            console.log("filterfxn");
         };
 
         $("#advanced_search").on("change", ".subcondition", function () {
