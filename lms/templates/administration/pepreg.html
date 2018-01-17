@@ -2372,7 +2372,8 @@
             }else{
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
-                filters[(suborder + 1)] ="*";
+                filters = $.tablesorter.getFilters($("#data-table"));
+                filters[suborder] ="*";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
