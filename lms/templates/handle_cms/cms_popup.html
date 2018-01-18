@@ -179,10 +179,11 @@ function loadLibrary(lib_id) {
         tree += makeBookTree(lib[row].grade, lib[row].book_id);
     });
     $("#tree_view").html(tree);
-    $(".book_header").click(function (e) {
+    $(".book_header_section").click(function (e) {
         e.preventDefault();
         if ($(this).next().hasClass("tree-level")) {
             $(this).next().slideToggle();
+
         } else {
             console.log("Loading book...");
             book_id = $(this).data("book_id");
@@ -195,6 +196,7 @@ function loadLibrary(lib_id) {
             $(this).after(book_html);
             $(this).next().slideToggle();
         }
+        $(this).children()[1].toggleClass("down-arrow");
     });
     //Setup Search Tab
     html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
@@ -205,7 +207,7 @@ function loadLibrary(lib_id) {
 
 function makeBookTree (header, book_id) {
     html += "";
-    html = "<div data-book_id='" + book_id + "' class='book_header'>" + header + "</div>";
+    html = "<span class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></span>";
     return html;
 }
 function makeTree (header, book_id, struct=0, offset=0) {
