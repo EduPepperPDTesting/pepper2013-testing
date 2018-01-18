@@ -2658,14 +2658,10 @@
 
                     var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                     var col_2 = $("#subselect_" + suborder).attr("data-column");
-                    var val_1 = $("#subselect_" + (suborder - 1)).val()
+                    var val_1 = $("#subselect_" + (suborder - 1)).val();
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
                 }
-                $("#advanced_select_" + suborder).next("div").append("<a href='#' id="addNext" name='"+ suborder +"'> + </a>");
-
-                function  nextField(suborder){
-
-                }
+                $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "*";
@@ -2690,7 +2686,7 @@
                 filters[suborder] ="*";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
-        }
+        });
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
