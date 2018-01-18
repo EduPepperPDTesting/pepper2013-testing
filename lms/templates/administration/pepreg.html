@@ -2674,6 +2674,7 @@
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name")) + 1;
             if(addNext == " + "){
+                $(this).text(" - ");
                 $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
