@@ -2471,24 +2471,32 @@ def new_discussion_process(request):
 @login_required
 def new_process_get_discussions(request):
     try:
-        id = 0
+        # id = 0
+        community_id = int(request.POST.get('community_id', 0))
+        discussion_id = request.POST.get('discussion_id', '')
         size = int(request.POST.get('size', 0))
         reply_size = int(request.POST.get('reply_size', 0))
-        page = int(request.POST.get('page', 0))
+        # page = int(request.POST.get('page', 0))
         mongo3_store = community_discussions_store()
         data = {'Success': False}
-        skip = size * (page - 1)
-        total = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, 0).count()
-        if total > size * page:
-            all = "NO"
-        elif total == 0:
-            all = "DONE"
-        else:
-            all = "DONE"
+        # skip = size * (page - 1)
+        total = mongo3_store.get_community_discussions(community_id, 0, 0).count()
+        # if total > size * page:
+        #     all = "NO"
+        # elif total == 0:
+        #     all = "DONE"
+        # else:
+        #     all = "DONE"
 
-        discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), skip, size)
+        # return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
+        if discussion_id:
+            find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+        else:
+            find_sql = {"community_id": community_id, "db_table": "community_discussions"}
+
+        # discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, size)
         discussions_json = []
-        for disc in discussions:
+        for disc in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
             user = User.objects.get(id=disc['user'])
             discussions_json_1 = {}
             discussions_json_1['child'] = []
@@ -2500,12 +2508,12 @@ def new_process_get_discussions(request):
 
             # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
             total_2 = mongo3_store.find({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}).count(True)
-            if total_2 > reply_size:
-                all_2 = "NO"
-            elif total == 0:
-                all_2 = "DONE"
-            else:
-                all_2 = "DONE"
+            # if total_2 > reply_size:
+            #     all_2 = "NO"
+            # elif total_2 == 0:
+            #     all_2 = "DONE"
+            # else:
+            #     all_2 = "DONE"
 
             for itemx_1 in mongo3_store.find_size_sort({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}, 0, reply_size, "date_create", -1):
                 user_1 = User.objects.get(id=itemx_1['user'])
@@ -2516,7 +2524,7 @@ def new_process_get_discussions(request):
                 total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
                 if total_3 > int(reply_size):
                     all_3 = "NO"
-                elif total == 0:
+                elif total_3 == 0:
                     all_3 = "DONE"
                 else:
                     all_3 = "DONE"
@@ -2620,7 +2628,7 @@ def new_process_get_discussions(request):
                 discussions_json_2['attachment_pict'] = attachment_pict_reply
                 discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
                 discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
-                discussions_json_2['all'] = all_3
+                # discussions_json_2['all'] = all_3
                 discussions_json_2['total'] = total_3
 
                 discussions_json_1['child'].append(discussions_json_2)
@@ -2682,13 +2690,14 @@ def new_process_get_discussions(request):
             discussions_json_1['attachment_pict'] = attachment_pict
             discussions_json_1['attachment_pict_name'] = attachment_pict_name
             discussions_json_1['attachment_pict_url'] = attachment_pict_url
-            discussions_json_1['all'] = all_2
+            # discussions_json_1['all'] = all_2
             discussions_json_1['total'] = total_2
 
             discussions_json.append(discussions_json_1)
 
         data['Success'] = True
-        data['all'] = all
+        # data['all'] = all
+        data['total'] = total
         data['discussions_json'] = discussions_json
         data['community'] = request.POST.get('community_id')
 
@@ -2702,9 +2711,9 @@ def new_process_get_discussions(request):
 @login_required
 def new_process_get_discussion_reply(request):
     try:
-        id = 0
+        # id = 0
         size = int(request.POST.get('size', 10))
-        page = int(request.POST.get('page', 1))
+        # page = int(request.POST.get('page', 1))
         comment_id = request.POST.get('comment_id', '')
         pid = request.POST.get('pid', '')
         level = request.POST.get('level', '')
@@ -2712,18 +2721,18 @@ def new_process_get_discussion_reply(request):
             mongo3_store = community_discussions_store()
             data = {'Success': False}
 
-            skip = size * (page - 1)
+            # skip = size * (page - 1)
             if level == "1":
                 total = mongo3_store.find({"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}).count(True)
             else:
                 total = mongo3_store.find({"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}).count(True)
 
-            if total > size * page:
-                all = "NO"
-            elif total == 0:
-                all = "DONE"
-            else:
-                all = "DONE"
+            # if total > size * page:
+            #     all = "NO"
+            # elif total == 0:
+            #     all = "DONE"
+            # else:
+            #     all = "DONE"
 
             discussions_json = []
             if level == "1":
@@ -2738,13 +2747,14 @@ def new_process_get_discussion_reply(request):
                     discussions_json_2['child'] = []
 
                     tmp_reply_next = ""
+
                     total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
-                    if total_3 > size:
-                        all_3 = "NO"
-                    elif total == 0:
-                        all_3 = "DONE"
-                    else:
-                        all_3 = "DONE"
+                    # if total_3 > size:
+                    #     all_3 = "NO"
+                    # elif total_3 == 0:
+                    #     all_3 = "DONE"
+                    # else:
+                    #     all_3 = "DONE"
 
                     for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, size, "date_create", -1):
                         user_2 = User.objects.get(id=itemx_2['user'])
@@ -2845,7 +2855,7 @@ def new_process_get_discussion_reply(request):
                     discussions_json_2['attachment_pict'] = attachment_pict_reply
                     discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
                     discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
-                    discussions_json_2['all'] = all_3
+                    # discussions_json_2['all'] = all_3
                     discussions_json_2['total'] = total_3
 
                     discussions_json.append(discussions_json_2)
@@ -2853,7 +2863,7 @@ def new_process_get_discussion_reply(request):
                 if comment_id:
                     find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
                 else:
-                    find_sql = {"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    find_sql = {"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
 
                 for itemx_2 in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
                     user_2 = User.objects.get(id=itemx_2['user'])
@@ -2909,7 +2919,7 @@ def new_process_get_discussion_reply(request):
                     discussions_json.append(discussions_json_3)
 
             data['Success'] = True
-            data['all'] = all
+            # data['all'] = all
             data['total'] = total
             data['discussions_json'] = discussions_json
 

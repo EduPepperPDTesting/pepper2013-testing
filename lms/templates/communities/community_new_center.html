@@ -237,20 +237,20 @@ if is_new:
 </div>
 
 <script>
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------document click
 $(document).on('click', function(event) {
 	if ($(event.target).closest(".dis_more").length == 0) {
 		$(".community_new_center_menu").hide();
 	}
 });
 
-var get_discussion_page = 1;
-var get_discussion_size = 2;
-var get_discussion_reply_size = 2;
-var isSuperUser = 0;
+var dis_size = 2;
+var reply_size = 2;
 var sys_uid = "${request.user.id}";
 %if request.user.is_superuser:
-isSuperUser = 1;
+var isSuperUser = 1;
+%else:
+var isSuperUser = 0;
 %endif
 
 //-----------------------------------------------------------------------addNewDiscussion
@@ -307,6 +307,7 @@ function addNewDiscussion(fid, subject, post){
 				processData: false,
 				success: function (data) {
 					if (data.Success) {
+						var fid = $("#new-discussion-submit").find("input[name='fid']").val();
 						redirect_id = data.DiscussionID;
 						if ($('#new-discussion-submit .poll-add').is(':checked')) {
 							var pollData = formSelector.serializeArray();
@@ -319,7 +320,14 @@ function addNewDiscussion(fid, subject, post){
 								}
 							});
 						} else {
-							window.location.replace("/community/${community.id}");
+							if(fid != ""){
+								var tmp_block = $(".center_block[discussion_id='" + fid + "']");
+								tmp_block.find(".dis_subject:first").html($("#new-discussion-submit").find("input[name='subject']").val());
+								tmp_block.find(".dis_post:first").html($("#post").val());
+								discussion_dialog.hide();
+							}else{
+								window.location.replace("/community/${community.id}");
+							}
 						}
 
 					} else {
@@ -476,12 +484,14 @@ function reply_sort(x, y) {
 
 //-----------------------------------------------------------------------getCommunityDiscussions(isMask:1 append:1 prepend:1)
 function getCommunityDiscussions(json_obj){
-	var loadwin = null;
-	if(json_obj && json_obj.isMask == "1")	loadwin = new LoadingWin();
-
-	$.post("${reverse('new_discussion_process')}", {flag:"get_discussions", community_id:"${community.id}", size:get_discussion_size, page:get_discussion_page, reply_size:get_discussion_reply_size}, function(data){
+	var loadwin = null, discussion_id = "";
+	if(json_obj && json_obj.isMask == "1")	loadwin = new LoadingWin();	
+	if (json_obj && json_obj.discussion_id) discussion_id = json_obj.discussion_id;
+	
+	$.post("${reverse('new_discussion_process')}", {flag:"get_discussions", community_id:"${community.id}", discussion_id: discussion_id, size:dis_size, reply_size:reply_size}, function(data){
 		if (data.Success){
 			var html = "", tmp_reply = "";
+			//data.discussions_json.sort(reply_sort);
 			for(var index1 in data.discussions_json){
 				var disc = data.discussions_json[index1];
 				
@@ -532,7 +542,7 @@ function getCommunityDiscussions(json_obj){
 					tmp_reply += "            <span class='icon-aw icon-edit'> Edit</span>";
 					tmp_reply += "            <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||itemx_1.user==sys_uid)?"1":"0") + "'> More</span>";
 					tmp_reply += "        </div>";
-					tmp_reply += "        <div class='dis_reply' all='" + itemx_1.all + "' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
+					tmp_reply += "        <div class='dis_reply' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
 					tmp_reply += "        <div class='dis_row comment_row' style='width:450px;'>";
 					tmp_reply += "            <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + disc._id + "_" + itemx_1._id + "'>";
 					tmp_reply += "                <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
@@ -599,7 +609,7 @@ function getCommunityDiscussions(json_obj){
 				html += "                </form>";
 				html += "            </div>";
 				html += "        </div>";
-				html += "        <div class='dis_reply' all='" + disc.all + "' total='" + disc.total + "' level='1'>" + tmp_reply + "</div>";
+				html += "        <div class='dis_reply' total='" + disc.total + "' level='1'>" + tmp_reply + "</div>";
 				html += "    </span>";
 				html += "</div>";
 				html += "</div><div class='community-clear'></div></div>";
@@ -620,18 +630,22 @@ function getCommunityDiscussions(json_obj){
 					$(this).attr("iseach", "1");
 					var level = $(this).attr("level");
 					var all_flag = $(this).attr("all");
-					if(level == "1" || level == "2"){
-						//all_flag = 
-					}
-					if(all_flag != ""){
-						//---------------------------------------------------------Load More Previous reply
-						if(all_flag == "DONE"){
+					var total = Number($(this).attr("total"));
+					
+					if(total != ""){
+						var view_size = 0;
+						if(level == "1"){
+							view_size = $(this).find(".dis_reply_block").length;
+						}else if(level == "2"){
+							view_size = $(this).find(".dis_reply_next_block").length;
+						}
+						//-----------------------Load More Previous reply
+						if(total > view_size){
 							//$(this).find(".load_more").remove();
-						}else{
 							//var str = location.href;
 							//var num = str.indexOf("?")
 							//str = str.substr(num + 1);
-							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);" page="2">Load More Latest</a></div>');
+							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);">Load More Latest</a></div>');
 							$(this).prepend(go_down);
 							go_down.find("a").click(function(){
 								var pid = "";
@@ -648,16 +662,13 @@ function getCommunityDiscussions(json_obj){
 			});
 			
 			//---------------------------------------------------------Load More Previous Main
-			if(data.all != "DONE"){
-				//var str = location.href;
-				//var num = str.indexOf("?")
-				//str = str.substr(num + 1);
+			var total_dis = Number(data.total);
+			var size_dis = $(".community_new_center").find(".center_block").length;
+			if(total_dis > size_dis){
 				$(".community_new_center").append('<div class="load_more" id="load_more_main"><a href="javascript:void(0);">Load More Previous</a></div>');
-
 				$("#load_more_main").click(function(){
 					$("#load_more_main").remove();
-					get_discussion_page += 1;
-					getCommunityDiscussions({'isMask':'1', 'append':'1'});			
+					getCommunityDiscussions({'isMask':'1', 'append':'1', 'discussion_id': $(".community_new_center").find(".center_block:last").attr("discussion_id")});
 				});
 			}
 			
@@ -676,17 +687,17 @@ function getCommunityDiscussions(json_obj){
 //-----------------------------------------------------------------------getCommunityDiscussionReplies
 function getCommunityDiscussionReplies(el, level, pid){
 	var loadwin = new LoadingWin();
-	var pagex = el.attr("page");
 	var comment_id = "";
 	var right_el = null;
+	var parent_el = $(el).parent().parent();
 	if(level == "1"){
-		right_el = $(el).parent().parent().find(".dis_reply_block:first");
+		right_el = parent_el.find(".dis_reply_block:first");
 	}else{
-		right_el = $(el).parent().parent().find(".dis_reply_next_block:first");
+		right_el = parent_el.find(".dis_reply_next_block:first");
 	}
 	if(right_el.length > 0)		comment_id = right_el.attr("comment_id");
 	
-	$.post("${reverse('new_discussion_process')}", {flag:"get_discussion_reply", size:get_discussion_reply_size, level:level, pid:pid, comment_id:comment_id}, function(data){
+	$.post("${reverse('new_discussion_process')}", {flag:"get_discussion_reply", size:reply_size, level:level, pid:pid, comment_id:comment_id}, function(data){
 		if (data.Success){
 			var tmp_reply = "";
 			if(level == "1"){
@@ -794,21 +805,26 @@ function getCommunityDiscussionReplies(el, level, pid){
 					$(this).attr("iseach", "1");
 					var level = $(this).attr("level");
 					var all_flag = $(this).attr("all");
-					if(level == "1" || level == "2"){
-						//all_flag = 
-					}
-					if(all_flag != ""){
-						//---------------------------------------------------------Load More Previous reply
-						if(all_flag != "DONE"){
-							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);" page="2">Load More Latest</a></div>');
+					var total = Number($(this).attr("total"));
+					
+					if(total != ""){
+						var view_size = 0;
+						if(level == "1"){
+							view_size = $(this).find(".dis_reply_block").length;
+						}else if(level == "2"){
+							view_size = $(this).find(".dis_reply_next_block").length;
+						}
+						//-----------------------Load More Previous reply
+						if(total > view_size){
+							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);">Load More Latest</a></div>');
 							$(this).prepend(go_down);
 							go_down.find("a").click(function(){
 								var pid = "";
 								if(level == "1"){
-									pid = $(this).parent().parent().parent().parent().attr("discussion_id");
+									pid = $(this).parents(".center_block").attr("discussion_id");
 								}else{
-									pid = $(this).parent().parent().parent().find(".dis_reply_tool").attr("comment_id");
-								}							
+									pid = $(this).parents(".dis_reply_block").attr("comment_id");
+								}
 								getCommunityDiscussionReplies($(this), level, pid);	//el, level, pid
 							});
 						}
@@ -817,11 +833,17 @@ function getCommunityDiscussionReplies(el, level, pid){
 			});
 			
 			//---------------------------------------------------------
-			if(data.all == "DONE"){
+			var total = Number(data.total);
+			var view_size = 0;
+			if(level == "1"){
+				view_size = parent_el.find(".dis_reply_block").length;
+			}else if(level == "2"){
+				view_size = parent_el.find(".dis_reply_next_block").length;
+			}
+			//---------------------------------------------------------Load More Previous reply
+			if(total == view_size){
 				$(el).parent().remove();
-			}else{
-				$(el).attr("page", Number(pagex) + 1);
-			}			
+			}		
 			
 			//---------------------------------------------------------
 			addCommunityDiscussionEvent();		
@@ -1238,13 +1260,16 @@ $(document).ready(function(){
 			//--------------pin_change
 			$.post("${reverse('new_discussion_process')}", {flag:"discussions_delete", discussion_id: did, type: "main"}, function(data){
 				if(data.Success){
-					loadwin.hide();
-					get_discussion_page = 1;
-					//getCommunityDiscussions({"isMask":"1"});
+					var tmp_block = $(".center_block[discussion_id='" + did + "']");
+					tmp_block.remove();
+					
+					if($("#load_more_main").length > 0 && $(".center_block").length == 0){
+						$("#load_more_main").click();
+					}
 				}else{
 					alert(data.Error);
-					loadwin.hide();
 				}
+				loadwin.hide();
 			});
 		}
 	});
@@ -1268,19 +1293,18 @@ $(document).ready(function(){
 					var tmp_block_parent = tmp_block.parent();
 					tmp_block.remove();
 					if(level == "2"){
-						if(tmp_block_parent.find().length == 0){
-					
+						if(tmp_block_parent.find(".dis_reply_block").length == 0){
+							tmp_block_parent.find(".load_more_level1 a").click();
 						}
 					}else{
 						if(tmp_block_parent.find(".dis_reply_next_block").length == 0){
-							tmp_block_parent.find(".load_more_level2").click();
+							tmp_block_parent.find(".load_more_level2 a").click();
 						}
 					}
-					loadwin.hide();
 				}else{
 					alert(data.Error);
-					loadwin.hide();
 				}
+				loadwin.hide();
 			});
 		}
 	});
