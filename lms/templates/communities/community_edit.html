@@ -261,12 +261,6 @@
                         <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
                         <a href="#" class="remove"></a>
                     </div>
-                %elif resource['cms_logo']:
-                    <div class="community-resource-logo-wrap">
-                        <img src="${resource['cms_logo']}" class="community-logo-thumb">
-                        <input type='hidden' name='cms_resource_image[${idx}]' value='${resource["cms_logo"]}' />
-                        <a href="#" class="remove"></a>
-                    </div>
                 %else:
                     <input class="resource-logo" type="file" name="resource_logo[${idx}]">
                 %endif
