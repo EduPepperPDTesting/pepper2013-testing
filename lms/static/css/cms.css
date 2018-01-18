@@ -11,6 +11,8 @@
     margin-bottom: 0px;
     left: 0px;
     padding-bottom: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 #view_type span:hover{
     cursor:pointer;

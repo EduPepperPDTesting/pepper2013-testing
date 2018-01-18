@@ -196,7 +196,7 @@ function loadLibrary(lib_id) {
             $(this).after(book_html);
             $(this).next().slideToggle();
         }
-        $(this).children()[1].toggleClass("down-arrow");
+        $($(this).children()[1]).toggleClass("down-arrow");
     });
     //Setup Search Tab
     html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
