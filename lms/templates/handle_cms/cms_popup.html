@@ -207,7 +207,7 @@ function loadLibrary(lib_id) {
 
 function makeBookTree (header, book_id) {
     html += "";
-    html = "<span class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></span>";
+    html = "<div class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
     return html;
 }
 function makeTree (header, book_id, struct=0, offset=0) {
