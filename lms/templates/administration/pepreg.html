@@ -2660,8 +2660,10 @@
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
                 }
 
-                if("#addNext[name = '" + (suborder - 1) + "'].length == 0) $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
-            }else{
+              if($("#addNext[name = '" + (suborder + 1) + "']").length == 0){
+                 $("#advanced_select_" + (suborder + 1)).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
+        		}
+        }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "*";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
