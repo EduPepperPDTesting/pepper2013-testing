@@ -2661,23 +2661,10 @@
                     var val_1 = $("#subselect_" + (suborder - 1)).val()
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
                 }
-                $("#advanced_select_" + suborder).next("div").append("<a href='#' onclick='nextField(" + suborder + ")'> + </a>");
+                $("#advanced_select_" + suborder).next("div").append("<a href='#' id="addNext" name='"+ suborder +"'> + </a>");
 
                 function  nextField(suborder){
-                    var addNext = $(this).text();
-                    if(addNext == " + "){
-                        $(this).text(" - ");
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
-                        $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
-                        $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
-                    }else{
-                        $(this).text(" - ");
-                        $("#advanced_select_" + (suborder + 1)).next("div").remove();
-                        $("#advanced_select_" + (suborder + 1)).remove();
-                        filters = $.tablesorter.getFilters($("#data-table"));
-                        filters[suborder] ="*";
-                        $.tablesorter.setFilters($("#data-table"), filters, true);
-                    }
+
                 }
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
@@ -2686,6 +2673,23 @@
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
+        $("#advanced_search").on("click", "#addNext", function () {
+            var addNext = $(this).text();
+            var suborder = parseInt($(this).attr("name"));
+            if(addNext == " + "){
+                $(this).text(" - ");
+                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
+                $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
+                $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
+            }else{
+                $(this).text(" + ");
+                $("#advanced_select_" + (suborder + 1)).next("div").remove();
+                $("#advanced_select_" + (suborder + 1)).remove();
+                filters = $.tablesorter.getFilters($("#data-table"));
+                filters[suborder] ="*";
+                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }
+        }
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
