@@ -2662,9 +2662,9 @@
                     filters[suborder] = $(this).val();*/
 
                     var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                    var col_2 = $(this).attr("data-column");
-
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
+                    var col_2 = $("#subselect_" + suborder).attr("data-column");
+                    var val_1 = $("#subselect_" + (suborder - 1)).val()
+                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
                 }
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
@@ -2674,10 +2674,10 @@
         });
 
         //filtering records with OR condition
-        function OrFilter(tablesorterOptions, col_1, col_2, suborder){
+        function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
             $(".or_filter").removeClass("or_filter");
-            var valueCol_1 = $("#subselect_" + (suborder - 1)).val();
-            var valueCol_2 = $("#subselect_" + suborder).val();
+            var valueCol_1 = val_1;
+            var valueCol_2 = val;
             $(".tablesorter-filter[data-column='" + col_1 + "']").val(valueCol_1).addClass("or_filter");
             console.log(valueCol_1+" "+col_1);
             $(".tablesorter-filter[data-column='" + col_2 + "']").val(valueCol_2).addClass("or_filter");
