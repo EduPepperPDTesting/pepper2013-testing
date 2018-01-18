@@ -2662,7 +2662,7 @@
                     filters[suborder] = $(this).val();*/
 
                     var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                    var col_2 = $("#subselect_" + suborder).attr("data-column");
+                    var col_2 = $(this).attr("data-column");
 
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
                 }
