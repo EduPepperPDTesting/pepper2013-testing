@@ -69,6 +69,7 @@ function librariesSelector() {
         lib = libraries[i];
         html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
     }
+
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
@@ -77,6 +78,7 @@ function librariesSelector() {
     if (initialize_listeners) {
         $("body").on("click", ".expandable_tree", function () {
             $(this).next().slideToggle();
+            $($(this).children()[1]).toggleClass("down-arrow");
         });
         $("body").on("click", ".has_resource", function (e) {
             if ($(this).next().hasClass("resource_level")) {
@@ -88,6 +90,7 @@ function librariesSelector() {
                 $(this).after(res_html);
                 $(this).next().slideToggle();
             }
+            $($(this).children()[1]).toggleClass("down-arrow");
         });
         $("body").on("click", ".selectable_resource", function (e) {
             url = $(this).data("url");
@@ -190,7 +193,7 @@ function loadLibrary(lib_id) {
             struct = callAPI ("library/book/" + book_id);
             book = struct[book_id];
             book_html = ""
-            book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
+            book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'><span class='tree-name'>" + book.name + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
             book_html += makeTree("", book_id, book.structure, offset=2);
             book_html += "</div>";
             $(this).after(book_html);
@@ -218,10 +221,10 @@ function makeTree (header, book_id, struct=0, offset=0) {
         html += "<div class='tree-level'>";
         $.each(struct, function(i) {
             if (struct[i].children !== undefined) {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'><span class='tree-name'>"+struct[i].title +"</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = 'has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'>"+struct[i].title +"</div>";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'><span class='tree-name'>"+struct[i].title +"</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
             }
         });
         html += "</div>"
