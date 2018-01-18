@@ -63,7 +63,7 @@ function librariesSelector() {
         org_list += orgs[i] + ",";
     }
     org_list = org_list.slice(0,-1);
-    if (${request.user.is_superuser}) {
+    if ("${request.user.is_superuser}" == "True") {
         org_list = '';
     }
     libraries = callAPI("libraries/"+org_list, "");
