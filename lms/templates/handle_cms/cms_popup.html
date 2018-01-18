@@ -58,16 +58,22 @@ function initializeCMSPopup (callback) {
 function librariesSelector() {
     user = callAPI("users", {"email":"${request.user.email}"});
     orgs = user[0].orgs;
-    org_list = "1870,";
+    org_list = "";
     for (var i = 0; i < orgs.length; i++) {
         org_list += orgs[i] + ",";
     }
-    org_list = org_list.slice(0,-1);
+    if (orgs.length > 0) {
+        org_list = org_list.slice(0,-1);
+    }
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
         html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
+    }
+    console.log(${request.user.is_superuser});
+    if (orgs.length==0 && (${request.user.is_superuser}) != 1) {
+        html = "You don't have permission to access any libraries.";
     }
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
