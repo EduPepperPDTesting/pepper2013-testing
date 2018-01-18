@@ -2683,6 +2683,7 @@
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
             }else{
                 $(this).text(" + ");
+                $("#subcondition_" + suborder).remove();
                 $("#advanced_select_" + (suborder + 1)).next("div").remove();
                 $("#advanced_select_" + (suborder + 1)).remove();
                 filters = $.tablesorter.getFilters($("#data-table"));
