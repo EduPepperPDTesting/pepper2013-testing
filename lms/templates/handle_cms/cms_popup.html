@@ -62,18 +62,15 @@ function librariesSelector() {
     for (var i = 0; i < orgs.length; i++) {
         org_list += orgs[i] + ",";
     }
-    if (orgs.length > 0) {
-        org_list = org_list.slice(0,-1);
+    org_list = org_list.slice(0,-1);
+    if (${request.user.is_superuser}) {
+        org_list = '';
     }
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
         html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
-    }
-    console.log(${request.user.is_superuser});
-    if (orgs.length==0 && (${request.user.is_superuser}) != 1) {
-        html = "You don't have permission to access any libraries.";
     }
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
