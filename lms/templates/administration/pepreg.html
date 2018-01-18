@@ -2742,8 +2742,10 @@
 
                         var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                         var col_2 = $("#subselect_" + suborder).attr("data-column");
-
-                        OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
+                        val_1 = $("#subselect_" + suborder).val();
+                        val_2 = $("#subselect_" + (suborder - 1)).val();
+                        console.log("val_1="+val_1+" val_2="+val_2);
+                        OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
                     }
                      $.tablesorter.setFilters($("#data-table"), filters, true);
                 }
