@@ -1,0 +1,1312 @@
+<%!
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member, is_private
+from django.utils import timezone
+import datetime
+from student.models import User, People
+from file_uploader.utils import get_file_url, get_file_name
+
+import pymongo
+from django.contrib.auth.models import User
+from communities.models import CommunityDiscussions, CommunityDiscussionReplies, community_discussions_store
+from polls.models import poll_store
+from collections import OrderedDict
+from view_counter.models import view_counter_store
+from bson import ObjectId
+
+store = community_discussions_store()
+is_new = False
+if is_new:
+    store.del_collection()
+    
+    discussions = CommunityDiscussions.objects.all().order_by('id')
+    for disc in discussions:
+        my_discussion_post = {
+            "mysql_id": disc.id, 
+            "community_id": disc.community_id, 
+            "subject": disc.subject, 
+            "post": disc.post, 
+            "user": disc.user_id, 
+            "date_create": disc.date_create, 
+            "date_reply": disc.date_reply, 
+            "attachment": disc.attachment_id,
+            "db_table": "community_discussions"
+        }
+        disc_id = store.insert(my_discussion_post)
+
+        views_connect = view_counter_store()
+        views = views_connect.get_item('discussion', str(disc.id))
+        if views is None:
+            pass
+        else:
+            my_view_counter = {
+                "identifier": disc_id,
+                "metadata": views['metadata'], 
+                "type": views['type'], 
+                "views": views['views'], 
+                "db_table": "view_counter"
+            }
+            store.insert(my_view_counter)
+        
+        poll_connect = poll_store()
+        poll_s = poll_connect.find_poll({"identifier": str(disc.id), "type" : "discussion"})
+        for itemx in poll_s:
+            my_poll = {
+                "answers": itemx['answers'],
+                "expiration": itemx['expiration'],
+                "identifier_mongo2": itemx['identifier'],
+                "identifier": disc_id, 
+                "question": itemx['question'],
+                "type": itemx['type'],
+                "db_table": "poll"
+            }
+            store.insert(my_poll)
+        
+        poll_answers = poll_connect.find_poll_answers({"identifier": str(disc.id), "type" : "discussion"})        
+        for itemx in poll_answers:
+            my_poll_answers = {
+                "answer": itemx['answer'],
+                "identifier_mongo2": itemx['identifier'],
+                "identifier": disc_id, 
+                "type": itemx['type'],
+                "user": itemx['user'],
+                "db_table": "poll_answers"
+            }
+            store.insert(my_poll_answers)
+    
+    discussions_replies = CommunityDiscussionReplies.objects.all().order_by('id')
+    for replies in discussions_replies:
+        dis_one = store.get_item({"db_table":"community_discussions", "mysql_id":replies.discussion_id})
+        my_discussion_reply = {
+            "mysql_id": replies.id, 
+            "discussion_mysql_id": replies.discussion_id, 
+            "discussion_id": dis_one['_id'], 
+            "community_id": dis_one['community_id'], 
+            "subject": replies.subject, 
+            "post": replies.post, 
+            "user": replies.user_id, 
+            "date_create": replies.date_create,
+            "attachment": replies.attachment_id,
+            "db_table": "community_discussion_replies"
+        }
+        store.insert(my_discussion_reply)    
+
+#max_id = "store.get_community_discussions_id()"
+# tmp_list = store.update({"db_table" : "community_discussions", "did":398}, {"$set":{"subject":"1a____28"}})
+# max_id = store.get_community_discussions(133, 0, 2).count(True)
+# max_id = store.find({"db_table": "community_discussion_replies", "discussion_id": 422}).count()
+    
+#list1 = store.find_size_sort({"db_table": "community_discussion_replies"}, 0, 0, "date_create", -1)
+#for itemx in list1:
+#    max_id += itemx['subject']
+    
+# views = store.find_one({"type":"discussion", "identifier": "422"})
+# if views is None:13050363738
+#     max_id = 0
+# else:
+#    max_id = views['views']
+%>
+<script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
+<script type="text/javascript" src="/static/js/vendor/jquery.form.js"></script>
+<style type="text/css" media="screen">
+.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
+.icon-aw:before {font-family:FontAwesome; }
+/*.icon-comment:before {content: "\f075";}*/
+
+.community_new_center{float:left; width:680px; /*margin-left:27px; background-color:#eee; position: relative; height:500px; border: 1px solid;*/}
+.community_new_center .icon-aw{ cursor:pointer;}
+
+.community_new_center .center_block{float:left; width:680px; padding:5px 0; clear:both; }
+	 .center_block .center_block_left{float:left; width:80px;}
+		.center_block_left .user_phone{float: right; width: 64px; height:64px; border-radius:32px; -moz-border-radius: 32px;  -webkit-border-radius: 32px; }
+	.center_block .center_block_right{float:left; margin-left:20px; width:580px; padding-bottom:15px; border-bottom:solid 1px #ddd;}
+
+		.center_block_right .dis_row{float:left; width:100%; margin-bottom:2px;}
+		.center_block_right .dis_row span{float:left; }
+		.center_block_right .dis_subject{font-size:18px; font-weight:bold; color:#27BAEC;}
+		.center_block_right .dis_subject_pin{padding-top:7px; margin-left:20px; color:#F5821F; display:none;}
+		
+		.center_block_right .dis_post{color:#999 !important; padding:3px 0;}
+		.center_block_right .dis_posted_by{font-weight:bold; }
+		.center_block_right .dis_posted_by_first_name{width:180px; overflow:hidden; white-space:nowrap; text-overflow: ellipsis;}
+		.center_block_right .dis_posted_tool{margin-left:5px; font-size:14px;}
+		.center_block_right .dis_posted_tool .icon-aw{margin-left:10px; font-si1ze:14px; padding-top:4px;}
+		.center_block_right .dis_posted_tool .discussion_liked_txt{color:#25B8EB; cursor:default !important; display:none; }
+		.center_block_right .dis_posted_tool .like_t1{padding-to1p:2px; color:#25B8EB; max-width:60px; overflow:hidden; white-space:nowrap; text-overflow: ellipsis;}
+		.center_block_right .dis_posted_tool .like_t2{padding-t1op:2px; color:#25B8EB;}
+
+		.center_block_right .dis_reply{float:left; width:100%; background-color:#ECF7FB;}
+		.center_block_right .dis_reply *:not(.icon-aw){ font-siz1e:14px !important;}
+		
+		.dis_reply_block{float:left; width:100%;}
+				.dis_reply_block .dis_reply_left{float:left; width:70px;}
+				.dis_reply_block .dis_reply_left .user_phone{float: right; width: 56px; height:56px; border-radius:28px; -moz-border-radius: 28px;  -webkit-border-radius: 28px; }
+				.dis_reply_block .dis_reply_right{float:left; margin-left:20px; width:490px; padding-bottom:5px; }
+				.dis_reply_block .dis_reply_tool{width:90%; padding:5px 0; border-bottom:solid 1px #ddd;}
+				.dis_reply_block .dis_reply_tool span{margin-right:10px; font-size:14px;}
+		
+		.dis_reply_next_block{float:left; width:100%;}
+				.dis_reply_next_block .dis_reply_next_left{float:left; width:60px;}
+				.dis_reply_next_block .dis_reply_next_left .user_phone{float: right; width: 48px; height:48px; border-radius:24px; -moz-border-radius: 24px;  -webkit-border-radius: 24px; }	
+				.dis_reply_next_block .dis_reply_next_right{float:left; margin-left:20px; width:410px; padding-bottom:5px;}
+				.dis_reply_next_block .dis_reply_next_tool{width:100%; padding-top:5px;}
+		
+		.community_new_center_menu{position:absolute; width:110px; display:none;}
+		.community_new_center_menu .menu_triangle{float:left; margin-left:13px; width:0; height:0; border-bottom:6px solid #535456; border-right: 6px solid transparent; border-left: 6px solid transparent; clear:both;}
+		.community_new_center_menu .menu_lines{float:left; width:100%; background-color:#535456;}
+		.community_new_center_menu .menu_item{float:left; text-indent:5px; margin-left:10px; width:90px; padding:8px 0; font-size:14px; cursor:pointer;}
+		.community_new_center_menu .menu_item *{color:#FFFFFF;}		
+		.community_new_center_menu .menu_item:last-child{ border:0; padding-bottom1:12px;}
+		
+	/*	#community_new_center_menu_level2{width:110px !important;}
+		#community_new_center_menu_level2 .menu_item{width:90px !important;}*/
+		
+		.color_unpin{color:#F5821F !important;}
+		
+		.comment_row_parent{float:left; width:100%; background-color:#ECF7FB;}
+		.comment_row_parent .comment_row{width:500px;}
+		
+		.comment_row{margin:5px 10px; padding:5px 5px 0 5px; background-color:#ffffff; display:none;}
+		.comment_row .user_phone{float:left; width: 32px; height:32px; border-radius:16px; -moz-border-radius: 16px;  -webkit-border-radius: 16px; }
+		.comment_row .comment_text{float:left; font: normal 300 16px sans-serif !important; height: 30px; margin:0 5px;}
+		.comment_row .icon-aw{float:left; font-size:20px; margin:5px 10px 0 0;}
+		.comment_row .attr_div{float:left; clear:both; margin-left:40px;}
+		.comment_row .attr_div .ad_c{float:left; overflow:hidden; white-space:nowrap; text-overflow: ellipsis; margin:2px 5px;}
+		.comment_row .attr_div .icon-aw{font-size:16px !important;}
+		.comment_row .attr_div .ad_c .icon-paper-clip{cursor:default;}
+		
+#dialog_fix{position: fixed; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 40px;	background: none repeat scroll 0 0 rgba(255, 255, 255, 1);	border-radius: 5px;
+	box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);	padding: 0 0 8px 0;	width: 480px;	display: none;}
+#dialog_fix .close-modal {border-radius: 2px; cursor: pointer; display: inline-block; vertical-align: baseline; padding: 10px; position: absolute; right: 2px; top: 0; z-index: 3; color: #333;}
+.modal .titlebar {height: 70px;	background: #ccc;}
+.modal .dialog-title {margin: 0; padding: 20px 0 0 30px; color: #666;}
+.modal .content {color: #333; text-align: center; font-size: 16px; padding: 20px; line-height: 20px;}
+#selectableLink{width:75%;}
+.discussion-download{width:90%;}
+.discussion-download span {font-weight: bold;}
+.attachment_pict_1{ float:left; clear:both; max-width: 580px;}
+.attachment_pict_2{ float:left; clear:both; max-width: 480px;}
+.attachment_pict_3{ float:left; clear:both; max-width: 380px;}
+.btn_new_discussion{float:right; background-color:#89C153; border-radius: 5px; text-align: center; padding: 6px 25px 7px 25px; color:#FFFFFF; cursor:pointer; }
+
+.load_more{float:left; width:680px; clear:both; padding:10px 0; text-align:center;}
+.load_more a{background-color:#2CBAEC; border-radius: 5px;padding: 2px 20px 3px 20px; color:#FFFFFF; cursor:pointer; }
+.load_more a:hover{ text-decoration:none; }
+.load_more_level1{width:580px; padding:6px 0; font-size:13px;}
+.load_more_level1 a{padding: 1px 14px 2px 14px; }
+.load_more_level2{width:480px; padding:2px 0; font-size:11px ;}
+.load_more_level2 a{padding: 1px 8px 2px 8px;}
+</style>
+
+<!--Main content-->
+<div style="float:left; width:680px; clear:both; padding:20px 0;">
+	<span onclick="addNewDiscussion()" class="btn_new_discussion">New Discussion</span>
+</div>
+<div class="community_new_center"></div>
+<div style="clear:both;"></div>
+
+<div class="community_new_center_menu" id="community_new_center_menu_level1">
+    <div class="menu_triangle"></div>
+    <div class="menu_lines">
+        <div class="menu_item"><span id="menu_btn_unpin" class='icon-aw icon-pushpin'> Unpin</span></div>
+        <div class="menu_item" style="border-top:1px solid #a4a4a5;"><span id="menu_btn_hyperlink" class='icon-aw icon-link'> Hyperlink</span></div>
+        <div class="menu_item" style="border-top:1px solid #a4a4a5;"><span id="menu_btn_delete1" class='icon-aw icon-trash'> Delete</span></div>
+    </div>
+</div>
+
+<div class="community_new_center_menu" id="community_new_center_menu_level2">
+    <div class="menu_triangle"></div>
+    <div class="menu_lines">
+        <div class="menu_item" style="border-bottom:1px solid #a4a4a5;"><span id="menu_btn_delete2" class='icon-aw icon-trash'> Delete</span></div>
+        <div class="menu_item"><span id="menu_btn_hyperlink" class='icon-aw icon-link'> Hyperlink</span></div>
+    </div>
+</div>
+
+<div style="" id="dialog_fix" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">&times;</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+
+<script>
+//-----------------------------------------------------------------------
+$(document).on('click', function(event) {
+	if ($(event.target).closest(".dis_more").length == 0) {
+		$(".community_new_center_menu").hide();
+	}
+});
+
+var get_discussion_page = 1;
+var get_discussion_size = 2;
+var get_discussion_reply_size = 2;
+var isSuperUser = 0;
+var sys_uid = "${request.user.id}";
+%if request.user.is_superuser:
+isSuperUser = 1;
+%endif
+
+//-----------------------------------------------------------------------addNewDiscussion
+function addNewDiscussion(fid, subject, post){
+	if(!subject) subject = "";
+	if(!post) post = "";
+	if(!fid) fid = "";
+	
+	window.scrollTo(0, 10);
+	var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
+	content += '<label class="discussion-subject">Subject:<input type="text" name="subject" value="' + subject + '"></label>';
+	content += '<label class="discussion-post">Discussion:<textarea name="post" id="post">' + post + '</textarea></label>';
+	if(fid == ""){
+		content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
+		content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
+		content += '<div id="poll-form">';
+		content += '<label>Question: <input class="poll-question" type="text" name="question"></label>';
+		content += '<label>Answers: <ol id="poll-answers">';
+		content += '<li class="poll-answer">';
+		content += '<input class="poll-answer-input" type="text" name="answers[0]">';
+		content += '</li>';
+		content += '<li class="poll-answer">';
+		content += '<input class="poll-answer-input" type="text" name="answers[1]"> <input type="button" class="add operation" value="+">';
+		content += '</li>';
+		content += '</ol></label>';
+		content += '<label>Expiration Date: <input class="poll-expiration" type="text" name="expiration" placeholder="mm/dd/yyyy"></label>';
+		content += '</div>';
+	}
+	content += '<input type="hidden" value="${community.id}" name="community_id">';
+	content += '<input type="hidden" value="' + fid + '" name="fid">';
+	content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+	content += '<div class="community-clear"></div><br/>';
+	content += '<input type="submit" name="submit" value="SUBMIT">';
+	content += '</form><div class="discussion-error"></div>';
+	var discussion_dialog = new Dialog($('#dialog'));
+	discussion_dialog.show('New Discussion', content);
+	CKEDITOR.replace('post');
+
+	$('#new-discussion-submit').submit(function(event) {
+		event.preventDefault();
+		for (var instanceName in CKEDITOR.instances) {
+			CKEDITOR.instances[instanceName].updateElement();
+		}
+		if (validateDiscussionForm()) {
+			var formData = new FormData($(this)[0]);
+			var formSelector = $(this);
+			$.ajax({
+				url: '${reverse('community_discussion_add')}',
+				type: 'POST',
+				data: formData,
+				async: false,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function (data) {
+					if (data.Success) {
+						redirect_id = data.DiscussionID;
+						if ($('#new-discussion-submit .poll-add').is(':checked')) {
+							var pollData = formSelector.serializeArray();
+							pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+							$.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
+								if (data.Success) {
+									window.location.replace("/community/${community.id}");
+								} else {
+									$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data.Error)
+								}
+							});
+						} else {
+							window.location.replace("/community/${community.id}");
+						}
+
+					} else {
+						$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data.Error)
+					}
+				}
+			});
+		}
+	});
+
+	$('.poll-add').click(function() {
+		$('#poll-form').toggle();
+	});
+	$('.poll-answer .add').click(function() {
+		newAnswer();
+	});
+}
+
+//-----------------------------------------------------------------------getFileName
+function getFileName(file){
+	var strFileName = file.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1");
+ 	var FileExt = file.replace(/.+\./, "");
+	return strFileName + "." + FileExt;
+}
+
+//-----------------------------------------------------------------------upload_attr_change
+function upload_attr_change(did, cid){
+	if(did && cid){
+		var tmp1 = $("#reply_form_" + did + "_" + cid).find("input[name='upload_attr']").val();
+		$("#reply_form_" + did + "_" + cid).find(".attr_div").find(".ad_c:first").html("<span class='icon-aw icon-paper-clip'> " + getFileName(tmp1) + "</span> <span class='icon-aw icon-remove-sign'></span>");
+		
+	}else if(did && !cid){
+		var tmp1 = $("#reply_form_" + did).find("input[name='upload_attr']").val();
+		$("#reply_form_" + did).find(".attr_div").find(".ad_c:first").html("<span class='icon-aw icon-paper-clip'> " + getFileName(tmp1) + "</span> <span class='icon-aw icon-remove-sign'></span>");
+	}
+	addUploadRemoveEvent_attr(did, cid);
+}
+
+//-----------------------------------------------------------------------upload_pict_change
+function upload_pict_change(did, cid){
+	if(did && cid){
+		var tmp1 = $("#reply_form_" + did + "_" + cid).find("input[name='upload_pict']").val();
+		$("#reply_form_" + did + "_" + cid).find(".attr_div").find(".ad_c:last").html("<span class='icon-aw icon-picture'> " + getFileName(tmp1) + "</span> <span class='icon-aw icon-remove-sign'></span>");
+			
+	}else if(did && !cid){
+		var tmp1 = $("#reply_form_" + did).find("input[name='upload_pict']").val();
+		$("#reply_form_" + did).find(".attr_div").find(".ad_c:last").html("<span class='icon-aw icon-picture'> " + getFileName(tmp1) + "</span> <span class='icon-aw icon-remove-sign'></span>");
+	}
+	addUploadRemoveEvent_pict(did, cid);
+}
+
+//-----------------------------------------------------------------------addUploadRemoveEvent_attr
+function addUploadRemoveEvent_attr(did, cid){
+	if(did && cid){
+		$("#reply_form_" + did + "_" + cid).find(".attr_div").find(".ad_c:first").find(".icon-remove-sign").unbind("click").click(function(){
+			$(this).parent().empty();
+			$("#reply_form_" + did + "_" + cid).find(".btn_upload_attr").empty();
+			$("#reply_form_" + did + "_" + cid).find(".btn_upload_attr").append("<input type='file' name='upload_attr' onchange='upload_attr_change(\"" + did + "\",\"" + cid + "\")' style='display:none'>");
+			$("#reply_form_" + did + "_" + cid).find("input[name='fid_attr_isdel']").val("1");
+		});
+			
+	}else if(did && !cid){
+		$("#reply_form_" + did).find(".attr_div").find(".ad_c:first").find(".icon-remove-sign").unbind("click").click(function(){
+			$(this).parent().empty();
+			$("#reply_form_" + did).find(".btn_upload_attr").empty();
+			$("#reply_form_" + did).find(".btn_upload_attr").append("<input type='file' name='upload_attr' onchange='upload_attr_change(\"" + did + "\")' style='display:none'>");
+			$("#reply_form_" + did).find("input[name='fid_attr_isdel']").val("1");
+		});
+	}
+}
+
+//-----------------------------------------------------------------------addUploadRemoveEvent_pict
+function addUploadRemoveEvent_pict(did, cid){
+	if(did && cid){
+		$("#reply_form_" + did + "_" + cid).find(".attr_div").find(".ad_c:last").find(".icon-remove-sign").unbind("click").click(function(){
+			$(this).parent().empty();
+			$("#reply_form_" + did + "_" + cid).find(".btn_upload_pict").empty();
+			$("#reply_form_" + did + "_" + cid).find(".btn_upload_pict").append("<input type='file' name='upload_attr' onchange='upload_pict_change(\"" + did + "\",\"" + cid + "\")' style='display:none'>");
+			$("#reply_form_" + did + "_" + cid).find("input[name='fid_pict_isdel']").val("1");
+		});
+			
+	}else if(did && !cid){
+		$("#reply_form_" + did).find(".attr_div").find(".ad_c:last").find(".icon-remove-sign").unbind("click").click(function(){
+			$(this).parent().empty();
+			$("#reply_form_" + did).find(".btn_upload_pict").empty();
+			$("#reply_form_" + did).find(".btn_upload_pict").append("<input type='file' name='upload_pict' onchange='upload_pict_change(\"" + did + "\")' style='display:none'>");
+			$("#reply_form_" + did).find("input[name='fid_pict_isdel']").val("1");
+		});
+	}
+}
+
+//-----------------------------------------------------------------------resetFileField
+function resetFileField(did, cid){
+	if(did && cid){
+		$("#reply_form_" + did + "_" + cid).find(".btn_upload_attr").empty();
+		$("#reply_form_" + did + "_" + cid).find(".btn_upload_pict").empty();		
+		$("#reply_form_" + did + "_" + cid).find(".ad_c").empty();
+		$("#reply_form_" + did + "_" + cid).find(".btn_upload_attr").append("<input type='file' name='upload_attr' onchange='upload_attr_change(\"" + did + "\",\"" + cid + "\")' style='display:none'>");
+		$("#reply_form_" + did + "_" + cid).find(".btn_upload_pict").append("<input type='file' name='upload_pict' onchange='upload_pict_change(\"" + did + "\",\"" + cid + "\")' style='display:none'>");
+			
+	}else if(did && !cid){
+		$("#reply_form_" + did).find(".btn_upload_attr").empty();
+		$("#reply_form_" + did).find(".btn_upload_pict").empty();		
+		$("#reply_form_" + did).find(".ad_c").empty();
+		$("#reply_form_" + did).find(".btn_upload_attr").append("<input type='file' name='upload_attr' onchange='upload_attr_change(\"" + did + "\")' style='display:none'>");
+		$("#reply_form_" + did).find(".btn_upload_pict").append("<input type='file' name='upload_pict' onchange='upload_pict_change(\"" + did + "\")' style='display:none'>");
+	}
+}
+
+//-----------------------------------------------------------------------getAttachmentHtml
+function getAttachmentHtml(json, level_sn){
+	var html = "";
+	if(json.attachment != "" && json.attachment_name != ""){
+		html += "<div class='dis_row upload_attr_" + level_sn + "' upload_name='" + json.attachment_name + "'>";
+		html += "    <div class='discussion-download'><span>Attachment:&nbsp;&nbsp;</span>";
+		html += "        <a href='" + json.attachment_url + "' target='_blank'>";
+		html += "            <img src='/static/images/document-download.png'> " + json.attachment_name + "";
+		html += "        </a>";
+		html += "    </div>";
+		html += "</div>";
+	}
+	return html;
+}
+
+//-----------------------------------------------------------------------getAttachmentPictHtml
+function getAttachmentPictHtml(json, level_sn){
+	var html = "";
+	if(json.attachment_pict != "" && json.attachment_pict_name != ""){
+		html += "<div class='dis_row upload_pict_" + level_sn + "' upload_name='" + json.attachment_pict_name + "'>";
+		var FileExt = json.attachment_pict_name.replace(/.+\./, "");
+		if(FileExt == "gif" || FileExt == "jpg" || FileExt == "jpeg" || FileExt == "png"){
+			html += "<img class='attachment_pict_" + level_sn + "' src='" + json.attachment_pict_url + "'>";
+				
+		}else if(FileExt == "mp4" || FileExt == "ogv" || FileExt == "webm"){
+			html += "<video class='attachment_pict_" + level_sn + "' src='" + json.attachment_pict_url + "' controls='controls'>";
+			html += "    Your browser does not support the video tag.";
+			html += "</video>";
+		}else{
+			html += "<div class='discussion-download'><span>Attachment:&nbsp;&nbsp;</span>";
+			html += "    <a href='" + json.attachment_pict_url + "' target='_blank'>";
+			html += "        <img src='/static/images/document-download.png'> " + json.attachment_pict_name + "";
+			html += "    </a>";
+			html += "</div>";
+		}
+		html += "</div>";
+	}
+	return html;
+}
+
+//-----------------------------------------------------------------------reply_sort
+function reply_sort(x, y) {
+	return (x.date_create < y.date_create) ? -1 : 1;
+}
+
+//-----------------------------------------------------------------------getCommunityDiscussions(isMask:1 append:1 prepend:1)
+function getCommunityDiscussions(json_obj){
+	var loadwin = null;
+	if(json_obj && json_obj.isMask == "1")	loadwin = new LoadingWin();
+
+	$.post("${reverse('new_discussion_process')}", {flag:"get_discussions", community_id:"${community.id}", size:get_discussion_size, page:get_discussion_page, reply_size:get_discussion_reply_size}, function(data){
+		if (data.Success){
+			var html = "", tmp_reply = "";
+			for(var index1 in data.discussions_json){
+				var disc = data.discussions_json[index1];
+				
+				tmp_reply = ""
+				disc.child.sort(reply_sort);
+				for(var index2 in disc.child){
+					var itemx_1 = disc.child[index2];
+					
+					tmp_reply_next = ""
+					itemx_1.child.sort(reply_sort);
+					for(var index3 in itemx_1.child){
+						var itemx_2 = itemx_1.child[index3];
+						
+						tmp_reply_next += "<div class='dis_reply_next_block' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + disc.community_id + "'>";
+						tmp_reply_next += "    <span class='dis_reply_next_left'>";
+						tmp_reply_next += "        <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
+						tmp_reply_next += "    </span>";
+						tmp_reply_next += "    <span class='dis_reply_next_right'>";
+						tmp_reply_next += "        <div class='dis_row'>";
+						tmp_reply_next += "            <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
+						tmp_reply_next += "        </div>";
+						tmp_reply_next += "        <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
+						tmp_reply_next += getAttachmentPictHtml(itemx_2, 3);
+						tmp_reply_next += getAttachmentHtml(itemx_2, 3);
+						tmp_reply_next += "        <div class='dis_row dis_reply_tool'>";
+						tmp_reply_next += "            <span class='icon-aw icon-comment'> Comment</span>";
+						tmp_reply_next += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
+						tmp_reply_next += "            <span class='icon-aw icon-edit'> Edit</span>";
+						tmp_reply_next += "            <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
+						tmp_reply_next += "        </div>";							
+						tmp_reply_next += "    </span>";
+						tmp_reply_next += "</div>";
+					}
+					tmp_reply += "<div class='dis_reply_block' discussion_id='" + disc._id + "'  comment_id='" + itemx_1._id + "' community_id='" + disc.community_id + "'>";
+					tmp_reply += "    <span class='dis_reply_left'>";
+					tmp_reply += "        <img class='user_phone' src ='" + itemx_1.user_photo + "' />";
+					tmp_reply += "    </span>";
+					tmp_reply += "    <span class='dis_reply_right'>";
+					tmp_reply += "        <div class='dis_row'>";
+					tmp_reply += "            <span class='dis_subject'>" + itemx_1.first_name + " " + itemx_1.last_name + "</span>";
+					tmp_reply += "        </div>";
+					tmp_reply += "        <div class='dis_row'><div class='dis_post'>" + itemx_1.post + "</div></div>";					
+					tmp_reply += getAttachmentPictHtml(itemx_1, 2);
+					tmp_reply += getAttachmentHtml(itemx_1, 2);
+					tmp_reply += "        <div class='dis_row dis_reply_tool'>";
+					tmp_reply += "            <span class='icon-aw icon-comment'> Comment</span>";
+					tmp_reply += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_1.is_reply_liked + "' like_size='" + itemx_1.like_reply_size + "'></span>";
+					tmp_reply += "            <span class='icon-aw icon-edit'> Edit</span>";
+					tmp_reply += "            <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||itemx_1.user==sys_uid)?"1":"0") + "'> More</span>";
+					tmp_reply += "        </div>";
+					tmp_reply += "        <div class='dis_reply' all='" + itemx_1.all + "' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
+					tmp_reply += "        <div class='dis_row comment_row' style='width:450px;'>";
+					tmp_reply += "            <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + disc._id + "_" + itemx_1._id + "'>";
+					tmp_reply += "                <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
+					tmp_reply += "                <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:350px;'></textarea>";
+					tmp_reply += "                <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + disc._id + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
+					tmp_reply += "                <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + disc._id + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
+					tmp_reply += "                <div class='attr_div'><span class='ad_c' style='width:350px;'></span><span class='ad_c' style='width:350px;'></span></div>";
+					tmp_reply += "                <input type='hidden' name='level' value='2'/>";
+					tmp_reply += "                <input type='hidden' name='disc_id' value='" + disc._id + "'/>";
+					tmp_reply += "                <input type='hidden' name='did' value='" + itemx_1._id + "'/>";
+					tmp_reply += "                <input type='hidden' name='fid' value=''/>";
+					tmp_reply += "                <input type='hidden' name='fid_level' value=''/>";
+					tmp_reply += "                <input type='hidden' name='fid_attr_isdel' value=''/>";
+					tmp_reply += "                <input type='hidden' name='fid_pict_isdel' value=''/>";
+					tmp_reply += "                <input type='hidden' name='flag' value='submit_comment'/>";
+					tmp_reply += "                <input type='hidden' name='community_id' value='" + disc.community_id + "'/>";
+					tmp_reply += "                <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
+					tmp_reply += "            </form>";
+					tmp_reply += "        </div>";
+					tmp_reply += "    </span>";
+					tmp_reply += "</div>";
+				}
+				html += "<div class='center_block' discussion_id='" + disc._id + "' community_id='" + disc.community_id + "'>";
+				html += "    <span class='center_block_left'><img class='user_phone' src ='" + disc.user_photo + "' /></span>";
+				html += "    <span class='center_block_right'>";
+				html += "        <div class='dis_row'>";
+				html += "            <span class='dis_subject'>" + disc.subject + "</span>";
+				html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + disc.pin + "' title='Unpin'></span>";
+				html += "        </div>";
+				html += "        <div class='dis_row'><div class='dis_post'>" + disc.post + "</div></div>";
+				html += getAttachmentPictHtml(disc, 1);
+				html += getAttachmentHtml(disc, 1);
+				html += "        <div class='dis_row'>";
+				html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>";
+				html += "            <span class='dis_posted_by_first_name'>" + disc.first_name + "</span>";
+				html += "            <span class='dis_posted_tool'>";
+				html += "                <span class='icon-aw icon-comment'> Comment</span>";
+				html += "                <span class='icon-aw icon-thumbs-up discussion_liked' is_liked='" + disc.is_liked + "'> Like</span>";
+				html += "                <span class='icon-aw icon-edit'> Edit</span>";
+				html += "                <span class='icon-aw icon-reorder dis_more' levelx='1' isDel='" + ((isSuperUser||disc.user==sys_uid)?"1":"0") + "'> More</span>";
+				html += "            </span>";
+				html += "        </div>";
+				html += "        <div class='dis_row'>";
+				html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>";
+				html += "            <span class='dis_posted_by_first_name'>" + disc.date_create + "</span>";
+				html += "            <span class='dis_posted_tool'>";
+				html += "                <span class='discussion_liked_txt' like_size='" + disc.like_size + "' like_first='" + disc.like_first + "' like_last='" + disc.like_last + "'></span>";
+				html += "            </span>";
+				html += "        </div>";
+				html += "        <div class='comment_row_parent'>";
+				html += "            <div class='dis_row comment_row'>";
+				html += "                <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + disc._id + "'>";
+				html += "                    <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
+				html += "                    <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:400px;'></textarea>";
+				html += "                    <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + disc._id + "\")' style='display:none'></span>";
+				html += "                    <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + disc._id + "\")' style='display:none'></span>";
+				html += "                    <div class='attr_div'><span class='ad_c' style='width:400px;'></span><span class='ad_c' style='width:400px;'></span></div>";
+				html += "                    <input type='hidden' name='level' value='1'/>";
+				html += "                    <input type='hidden' name='did' value='" + disc._id + "'/>";
+				html += "                    <input type='hidden' name='fid' value=''/>";
+				html += "                    <input type='hidden' name='flag' value='submit_comment'/>";
+				html += "                    <input type='hidden' name='community_id' value='" + disc.community_id + "'/>";
+				html += "                    <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
+				html += "                </form>";
+				html += "            </div>";
+				html += "        </div>";
+				html += "        <div class='dis_reply' all='" + disc.all + "' total='" + disc.total + "' level='1'>" + tmp_reply + "</div>";
+				html += "    </span>";
+				html += "</div>";
+				html += "</div><div class='community-clear'></div></div>";
+			}
+
+			if(json_obj && json_obj.append == "1"){
+				$(".community_new_center").append(html);
+			}else if(json_obj && json_obj.prepend == "1"){
+				$(".community_new_center").prepend(html);
+			}else{
+				$(".community_new_center").empty();
+				$(".community_new_center").append(html);
+			}
+			
+			//---------------------------------------------------------dis_reply each
+			$(".dis_reply").each(function(){
+				if($(this).attr("iseach") != "1"){
+					$(this).attr("iseach", "1");
+					var level = $(this).attr("level");
+					var all_flag = $(this).attr("all");
+					if(level == "1" || level == "2"){
+						//all_flag = 
+					}
+					if(all_flag != ""){
+						//---------------------------------------------------------Load More Previous reply
+						if(all_flag == "DONE"){
+							//$(this).find(".load_more").remove();
+						}else{
+							//var str = location.href;
+							//var num = str.indexOf("?")
+							//str = str.substr(num + 1);
+							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);" page="2">Load More Latest</a></div>');
+							$(this).prepend(go_down);
+							go_down.find("a").click(function(){
+								var pid = "";
+								if(level == "1"){
+									pid = $(this).parents(".center_block").attr("discussion_id");
+								}else{
+									pid = $(this).parents(".dis_reply_block").attr("comment_id");
+								}
+								getCommunityDiscussionReplies($(this), level, pid);	//el, level, pid
+							});
+						}
+					}
+				}
+			});
+			
+			//---------------------------------------------------------Load More Previous Main
+			if(data.all != "DONE"){
+				//var str = location.href;
+				//var num = str.indexOf("?")
+				//str = str.substr(num + 1);
+				$(".community_new_center").append('<div class="load_more" id="load_more_main"><a href="javascript:void(0);">Load More Previous</a></div>');
+
+				$("#load_more_main").click(function(){
+					$("#load_more_main").remove();
+					get_discussion_page += 1;
+					getCommunityDiscussions({'isMask':'1', 'append':'1'});			
+				});
+			}
+			
+			//---------------------------------------------------------addCommunityDiscussionEvent
+			addCommunityDiscussionEvent();
+			
+			//------------
+			if(loadwin != null)	loadwin.hide();
+		
+		}else{
+			alert("Error: " + data.Error);
+		}
+	});
+}
+
+//-----------------------------------------------------------------------getCommunityDiscussionReplies
+function getCommunityDiscussionReplies(el, level, pid){
+	var loadwin = new LoadingWin();
+	var pagex = el.attr("page");
+	var comment_id = "";
+	var right_el = null;
+	if(level == "1"){
+		right_el = $(el).parent().parent().find(".dis_reply_block:first");
+	}else{
+		right_el = $(el).parent().parent().find(".dis_reply_next_block:first");
+	}
+	if(right_el.length > 0)		comment_id = right_el.attr("comment_id");
+	
+	$.post("${reverse('new_discussion_process')}", {flag:"get_discussion_reply", size:get_discussion_reply_size, level:level, pid:pid, comment_id:comment_id}, function(data){
+		if (data.Success){
+			var tmp_reply = "";
+			if(level == "1"){
+				data.discussions_json.sort(reply_sort);
+				for(var index2 in data.discussions_json){
+					var itemx_1 = data.discussions_json[index2];
+					
+					tmp_reply_next = ""
+					itemx_1.child.sort(reply_sort);
+					for(var index3 in itemx_1.child){
+						var itemx_2 = itemx_1.child[index3];
+						
+						tmp_reply_next += "<div class='dis_reply_next_block' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
+						tmp_reply_next += "<span class='dis_reply_next_left'>";
+						tmp_reply_next += "    <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
+						tmp_reply_next += "</span>";
+						tmp_reply_next += "<span class='dis_reply_next_right'>";
+						tmp_reply_next += "    <div class='dis_row'>";
+						tmp_reply_next += "        <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
+						tmp_reply_next += "    </div>";
+						tmp_reply_next += "    <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
+						tmp_reply_next += getAttachmentPictHtml(itemx_2, 3);
+						tmp_reply_next += getAttachmentHtml(itemx_2, 3);
+						tmp_reply_next += "    <div class='dis_row dis_reply_tool' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
+						tmp_reply_next += "        <span class='icon-aw icon-comment'> Comment</span>";
+						tmp_reply_next += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
+						tmp_reply_next += "        <span class='icon-aw icon-edit'> Edit</span>";
+						tmp_reply_next += "        <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
+						tmp_reply_next += "    </div>";							
+						tmp_reply_next += "</span>";
+						tmp_reply_next += "</div>";	
+					}
+					tmp_reply += "<div class='dis_reply_block' discussion_id='" + pid + "'  comment_id='" + itemx_1._id + "' community_id='" + itemx_1.community_id + "'>";
+					tmp_reply += "<span class='dis_reply_left'>";
+					tmp_reply += "    <img class='user_phone' src ='" + itemx_1.user_photo + "' />";
+					tmp_reply += "</span>";
+					tmp_reply += "<span class='dis_reply_right'>";
+					tmp_reply += "    <div class='dis_row'>";
+					tmp_reply += "        <span class='dis_subject'>" + itemx_1.first_name + " " + itemx_1.last_name + "</span>";
+					tmp_reply += "    </div>";
+					tmp_reply += "    <div class='dis_row'><div class='dis_post'>" + itemx_1.post + "</div></div>";					
+					tmp_reply += getAttachmentPictHtml(itemx_1, 2);
+					tmp_reply += getAttachmentHtml(itemx_1, 2);
+					tmp_reply += "    <div class='dis_row dis_reply_tool'>";
+					tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>";
+					tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_1.is_reply_liked + "' like_size='" + itemx_1.like_reply_size + "'></span>";
+					tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>";
+					tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||itemx_1.user==sys_uid)?"1":"0") + "'> More</span>";
+					tmp_reply += "    </div>";
+					tmp_reply += "    <div class='dis_reply' all='" + itemx_1.all + "' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
+					tmp_reply += "    <div class='dis_row comment_row' style='width:450px;'>";
+					tmp_reply += "        <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + pid + "_" + itemx_1._id + "'>";
+					tmp_reply += "            <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
+					tmp_reply += "            <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:350px;'></textarea>";
+					tmp_reply += "            <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + pid + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
+					tmp_reply += "            <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + pid + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
+					tmp_reply += "            <div class='attr_div'><span class='ad_c' style='width:350px;'></span><span class='ad_c' style='width:350px;'></span></div>";
+					tmp_reply += "            <input type='hidden' name='level' value='2'/>";
+					tmp_reply += "            <input type='hidden' name='disc_id' value='" + pid + "'/>";
+					tmp_reply += "            <input type='hidden' name='did' value='" + itemx_1._id + "'/>";
+					tmp_reply += "            <input type='hidden' name='fid' value=''/>";
+					tmp_reply += "            <input type='hidden' name='fid_level' value=''/>";
+					tmp_reply += "            <input type='hidden' name='fid_attr_isdel' value=''/>";
+					tmp_reply += "            <input type='hidden' name='fid_pict_isdel' value=''/>";
+					tmp_reply += "            <input type='hidden' name='flag' value='submit_comment'/>";
+					tmp_reply += "            <input type='hidden' name='community_id' value='" + itemx_1.community_id + "'/>";
+					tmp_reply += "            <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
+					tmp_reply += "        </form>";
+					tmp_reply += "    </div>";
+					tmp_reply += "</span>";	
+					tmp_reply += "</div>";				
+				}
+			}else{
+				data.discussions_json.sort(reply_sort);
+				for(var index3 in data.discussions_json){
+					var itemx_2 = data.discussions_json[index3];
+					tmp_reply += "<div class='dis_reply_next_block' discussion_id='" + pid + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
+					tmp_reply += "<span class='dis_reply_next_left'>";
+					tmp_reply += "    <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
+					tmp_reply += "</span>";
+					tmp_reply += "<span class='dis_reply_next_right'>";
+					tmp_reply += "    <div class='dis_row'>";
+					tmp_reply += "        <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
+					tmp_reply += "    </div>";
+					tmp_reply += "    <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
+					tmp_reply += getAttachmentPictHtml(itemx_2, 3);
+					tmp_reply += getAttachmentHtml(itemx_2, 3);
+					tmp_reply += "    <div class='dis_row dis_reply_tool'>";
+					tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>";
+					tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
+					tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>";
+					tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
+					tmp_reply += "    </div>";							
+					tmp_reply += "</span>";
+					tmp_reply += "</div>";
+				}
+			}
+			//---------------------------------------------------------
+			var tmp_el = $(tmp_reply);
+			$(el).parent().after(tmp_el);
+			
+			//---------------------------------------------------------dis_reply each
+			tmp_el.find(".dis_reply").each(function(){
+				if($(this).attr("iseach") != "1"){
+					$(this).attr("iseach", "1");
+					var level = $(this).attr("level");
+					var all_flag = $(this).attr("all");
+					if(level == "1" || level == "2"){
+						//all_flag = 
+					}
+					if(all_flag != ""){
+						//---------------------------------------------------------Load More Previous reply
+						if(all_flag != "DONE"){
+							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);" page="2">Load More Latest</a></div>');
+							$(this).prepend(go_down);
+							go_down.find("a").click(function(){
+								var pid = "";
+								if(level == "1"){
+									pid = $(this).parent().parent().parent().parent().attr("discussion_id");
+								}else{
+									pid = $(this).parent().parent().parent().find(".dis_reply_tool").attr("comment_id");
+								}							
+								getCommunityDiscussionReplies($(this), level, pid);	//el, level, pid
+							});
+						}
+					}
+				}
+			});
+			
+			//---------------------------------------------------------
+			if(data.all == "DONE"){
+				$(el).parent().remove();
+			}else{
+				$(el).attr("page", Number(pagex) + 1);
+			}			
+			
+			//---------------------------------------------------------
+			addCommunityDiscussionEvent();		
+			
+			//---------------------------------------------------------
+			loadwin.hide();
+		}else{
+			alert("Error: " + data.Error);
+		}
+	});
+}
+
+//-----------------------------------------------------------------------addCommunityDiscussionEvent
+function addCommunityDiscussionEvent(){
+	//---------------------------------------------------------comment_text keypress
+	$(".comment_text").unbind("keypress").keypress(function(event){
+		var keycode = (event.keyCode ? event.keyCode : event.which);  
+		//if(!event.ctrlKey && keycode == '13'){  
+		if(keycode == '13'){
+			event.preventDefault();
+			var form_el = $(this).parent();
+			
+			var content = $(this).val();
+			var upload_attr = form_el.find("input[name='upload_attr']").val();
+			var upload_pict = form_el.find("input[name='upload_pict']").val();
+			var fid = form_el.find("input[name='fid']").val();
+			var fid_level = form_el.find("input[name='fid_level']").val();
+			var level = form_el.find("input[name='level']").val();
+			
+			if(content != "" || upload_attr != "" || upload_pict != "" || fid != ""){
+				$(this).css("borderColor", "#c8c8c8");
+				var did = form_el.find("input[name='did']").val();
+				var loadwin = new LoadingWin();
+				form_el.ajaxSubmit({
+					type:"post",
+					url:"${reverse('new_discussion_process')}",
+					success:function(data){
+						if(data.Success){
+							//-----------edit
+							if(fid != ""){
+								if(fid_level == "2"){
+									var tmp_block = $(".dis_reply_block[comment_id='" + fid + "']");
+									var tmp_attr = getAttachmentHtml(data, 2);
+									var tmp_pict = getAttachmentPictHtml(data, 2);
+									
+									//---post
+									tmp_block.find(".dis_post").html(content);
+									
+									//---upload
+									if(form_el.find("input[name='fid_attr_isdel']").val() == "1" || tmp_attr != ""){
+										tmp_block.find(".upload_attr_2").remove();
+									}
+									if(form_el.find("input[name='fid_pict_isdel']").val() == "1" || tmp_pict != ""){
+										tmp_block.find(".upload_pict_2").remove();
+									}
+									if(tmp_pict != ""){
+										if(tmp_block.find(".upload_attr_2").length > 0){
+											tmp_block.find(".upload_attr_2").before(tmp_pict);
+										}else{
+											tmp_block.find(".dis_reply_tool").before(tmp_pict);
+										}
+									}
+									if(tmp_attr != ""){
+										tmp_block.find(".dis_reply_tool").before(tmp_attr);
+									}
+									
+								}else if(fid_level == "3"){
+									var tmp_block = $(".dis_reply_next_block[comment_id='" + fid + "']");
+									var tmp_attr = getAttachmentHtml(data, 3);
+									var tmp_pict = getAttachmentPictHtml(data, 3);
+									
+									//---post
+									tmp_block.find(".dis_post").html(content);
+									
+									//---upload
+									if(form_el.find("input[name='fid_attr_isdel']").val() == "1" || tmp_attr != ""){
+										tmp_block.find(".upload_attr_3").remove();
+									}
+									if(form_el.find("input[name='fid_pict_isdel']").val() == "1" || tmp_pict != ""){
+										tmp_block.find(".upload_pict_3").remove();
+									}
+									if(tmp_pict != ""){
+										if(tmp_block.find(".upload_attr_3").length > 0){
+											tmp_block.find(".upload_attr_3").before(tmp_pict);
+										}else{
+											tmp_block.find(".dis_reply_tool").before(tmp_pict);
+										}
+									}
+									if(tmp_attr != ""){
+										tmp_block.find(".dis_reply_tool").before(tmp_attr);
+									}
+								}
+							}
+							form_el.parent().hide();
+						}else{
+							alert(data.Error);
+						}
+						loadwin.hide();
+					},
+					error:function(XmlHttpRequest,textStatus,errorThrown){
+						loadwin.hide();
+					}
+				});
+			}else{
+				$(this).css("borderColor", "#ff0000");
+			}
+		}
+	});
+	
+	//---------------------------------------------------------btn_upload_attr btn_upload_pict click
+	$(".btn_upload_attr, .btn_upload_pict").unbind("click").click(function(){
+		try{
+			$(this).find("input[type='file']:first").click();
+		}catch(e){}
+	});
+	
+	//---------------------------------------------------------icon-comment click
+	$(".icon-comment").unbind("click").click(function(){
+		var levelx = $(this).parent().find(".dis_more").attr("levelx");
+		var tmp_row = null, tmp_val = "";		
+		if(levelx == "1"){
+			tmp_row = $(this).parents(".center_block").find(".comment_row_parent:first");
+			resetFileField($(this).parents(".center_block").attr("discussion_id"), "");
+			
+		}else if(levelx == "2"){
+			var tmp_parent = $(this).parents(".dis_reply_block");
+			tmp_row = tmp_parent.find(".comment_row:first");
+			tmp_row.find("input[name='fid']:first").val("");
+			resetFileField(tmp_parent.attr("discussion_id"), tmp_parent.attr("comment_id"));
+			
+		}else if(levelx == "3"){
+			var tmp_parent = $(this).parents(".dis_reply_block");
+			tmp_row = tmp_parent.find(".comment_row:first");
+			tmp_row.find("input[name='fid']:first").val("");
+			tmp_val = "@${request.user.first_name} ${request.user.last_name} ";						
+			
+			resetFileField(tmp_parent.attr("discussion_id"), tmp_parent.attr("comment_id"));
+		}
+		if(tmp_row != null){
+			tmp_row.show();
+			tmp_row.find(".comment_text").focus();
+			tmp_row.find(".comment_text").val(tmp_val);
+		}
+	});
+	
+	//---------------------------------------------------------icon-edit click
+	$(".icon-edit").unbind("click").click(function(){
+		var levelx = $(this).parent().find(".dis_more").attr("levelx");
+		var tmp_row = null, tmp_val = "";
+		if(levelx == "1"){
+			var tmp_el = $(this).parents(".center_block");
+			var tmp_did = tmp_el.attr("discussion_id");
+			var tmp_subject = tmp_el.find(".dis_subject:first").html();
+			var tmp_post = tmp_el.find(".dis_post:first").html();
+			
+			addNewDiscussion(tmp_did, tmp_subject, tmp_post);
+			
+		}else if(levelx == "2"){
+			var tmp_el = $(this).parents(".dis_reply_block");
+			var tmp_did = tmp_el.attr("discussion_id");
+			var tmp_cid = tmp_el.attr("comment_id");
+			resetFileField(tmp_did, tmp_cid);
+			
+			//------------------			
+			tmp_row = tmp_el.find(".comment_row:first");
+			tmp_row.find("input[name='fid']:first").val($(this).parent().parent().find("input[name='did']:first").val());
+			tmp_row.find("input[name='fid_level']:first").val("2");
+			tmp_row.find("input[name='fid_attr_isdel']:first").val("");
+			tmp_row.find("input[name='fid_pict_isdel']:first").val("");
+			
+			tmp_val = tmp_el.find(".dis_post").html();
+			
+			//------------------						
+			if(tmp_el.find(".upload_attr_2").length > 0){
+				var upload_name_attr = tmp_el.find(".upload_attr_2").attr("upload_name");
+				$("#reply_form_" + tmp_did + "_" + tmp_cid).find(".attr_div").find(".ad_c:first").html("<span class='icon-aw icon-paper-clip'> " + upload_name_attr + "</span> <span class='icon-aw icon-remove-sign'></span>");
+				addUploadRemoveEvent_attr(tmp_did, tmp_cid);
+			}
+			if(tmp_el.find(".upload_pict_2").length > 0){
+				var upload_name_pict = tmp_el.find(".upload_pict_2").attr("upload_name");
+				$("#reply_form_" + tmp_did + "_" + tmp_cid).find(".attr_div").find(".ad_c:last").html("<span class='icon-aw icon-picture'> " + upload_name_pict + "</span> <span class='icon-aw icon-remove-sign'></span>");
+				addUploadRemoveEvent_pict(tmp_did, tmp_cid);
+			}
+			
+		}else if(levelx == "3"){
+			var tmp_el = $(this).parents(".dis_reply_block");
+			var tmp_did = tmp_el.attr("discussion_id");
+			var tmp_cid = tmp_el.attr("comment_id");
+			resetFileField(tmp_did, tmp_cid);
+			
+			//------------------
+			tmp_row = $(this).parents(".dis_reply_block").find(".comment_row:first");
+			tmp_row.find("input[name='fid']:first").val($(this).parents(".dis_reply_next_block").attr("comment_id"));
+			tmp_row.find("input[name='fid_level']:first").val("3");
+			tmp_row.find("input[name='fid_attr_isdel']:first").val("");
+			tmp_row.find("input[name='fid_pict_isdel']:first").val("");
+			
+			tmp_val = $(this).parent().parent().find(".dis_post").html();	
+
+			//------------------
+			if($(this).parent().parent().find(".upload_attr_3").length > 0){
+				var upload_name_attr = $(this).parent().parent().find(".upload_attr_3").attr("upload_name");
+				$("#reply_form_" + tmp_did + "_" + tmp_cid).find(".attr_div").find(".ad_c:first").html("<span class='icon-aw icon-paper-clip'> " + upload_name_attr + "</span> <span class='icon-aw icon-remove-sign'></span>");
+				addUploadRemoveEvent_attr(tmp_did, tmp_cid);
+			}
+			if($(this).parent().parent().find(".upload_pict_3").length > 0){
+				var upload_name_pict = $(this).parent().parent().find(".upload_pict_3").attr("upload_name");
+				$("#reply_form_" + tmp_did + "_" + tmp_cid).find(".attr_div").find(".ad_c:last").html("<span class='icon-aw icon-picture'> " + upload_name_pict + "</span> <span class='icon-aw icon-remove-sign'></span>");
+				addUploadRemoveEvent_pict(tmp_did, tmp_cid);
+			}
+		}
+		if(tmp_row != null){
+			tmp_row.show();
+			tmp_row.find(".comment_text").focus();
+			tmp_row.find(".comment_text").val(tmp_val);
+		}
+	});
+	
+	//---------------------------------------------------------discussion_liked_txt each
+	$(".discussion_liked_txt").each(function(){
+		if($(this).attr("like_size") != ""){
+			$(this).addClass("icon-aw").addClass("icon-thumbs-up");
+			$(this).parent().find(".like_t1").remove();
+			$(this).parent().find(".like_t2").remove();
+			
+			if($(this).attr("like_size") == "1"){
+				$(this).parent().append("<span class='like_t1'>&nbsp;" + $(this).attr("like_first") + "</span><span class='like_t1'>&nbsp;" + $(this).attr("like_last") + "</span><span class='like_t2'>&nbsp;liked this.</span>");
+			}else{
+				$(this).parent().append("<span class='like_t1'>&nbsp;" + $(this).attr("like_first") + "</span><span class='like_t1'>&nbsp;" + $(this).attr("like_last") + "</span><span class='like_t2'>&nbsp;and " + $(this).attr("like_size") + " others liked this.</span>");
+			}
+			$(this).show();
+		}
+	});
+	
+	//---------------------------------------------------------dis_subject_pin each			
+	$(".dis_subject_pin").each(function(){
+		if($(this).attr("pin") == "1")		$(this).show();
+	});
+	
+	//---------------------------------------------------------dis_subject_pin click
+	$(".icon-pushpin").unbind("click").click(function(){
+		var loadwin = new LoadingWin();
+		var pin_flag = ($(this).attr("pin") == "1") ? "0" : "pin";	//not			
+		var did = "";
+		if($(this).hasClass("dis_subject_pin")){
+			did = $(this).parents(".center_block").attr("discussion_id");
+		}else if($(this).attr("id") == "menu_btn_unpin"){
+			did = $(this).attr("did");
+		}
+		
+		//--------------pin_change
+		$.post("${reverse('new_discussion_process')}", {flag:"discussions_pin_change", discussion_id: did, pin_flag: pin_flag}, function(data){
+			if(data.Success){
+				if(pin_flag == "pin"){
+					$(".center_block[discussion_id='" + did + "']").find(".dis_subject_pin").show();
+					$(".center_block[discussion_id='" + did + "']").find(".dis_subject_pin").attr("pin", "1");
+					$("#menu_btn_unpin").addClass("color_unpin");
+					$("#menu_btn_unpin").attr("pin", "1");
+				}else{
+					$(".center_block[discussion_id='" + did + "']").find(".dis_subject_pin").hide();
+					$(".center_block[discussion_id='" + did + "']").find(".dis_subject_pin").attr("pin", "");
+					$("#menu_btn_unpin").removeClass("color_unpin");
+					$("#menu_btn_unpin").attr("pin", "");
+				}
+			}
+			loadwin.hide();
+		});
+	});
+	
+	//---------------------------------------------------------discussion_liked click
+	$(".discussion_liked").unbind("click").click(function(){
+		var loadwin = new LoadingWin();
+		var pin_el = $(this);
+		var parent_el = $(this).parents(".center_block");
+		
+		var did = $(parent_el).attr("discussion_id");
+		var community_id = $(parent_el).attr("community_id");
+		
+		//--------------
+		$.post("${reverse('new_discussion_process')}", {flag:"discussions_like", did: did, community_id: community_id}, function(data){
+			if(data.is_liked == "1")	
+				$(pin_el).css("color", "#8D8E41");
+			else
+				$(pin_el).css("color", "#3c3c3c;");
+				
+			txt_el = $(parent_el).find(".discussion_liked_txt");
+			$(txt_el).parent().find(".like_t1").remove();
+			$(txt_el).parent().find(".like_t2").remove();
+			$(txt_el).hide();
+			
+			if(data.Success){
+				$(txt_el).addClass("icon-aw").addClass("icon-thumbs-up");
+				
+				if(data.like_size == "1"){
+					$(txt_el).parent().append("<span class='like_t1'>&nbsp;" + data.like_first + "</span><span class='like_t1'>&nbsp;" + data.like_last + "</span><span class='like_t2'>&nbsp;liked this.</span>");
+				}else{
+					$(txt_el).parent().append("<span class='like_t1'>&nbsp;" + data.like_first + "</span><span class='like_t1'>&nbsp;" + data.like_last + "</span><span class='like_t2'>&nbsp;and " + data.like_size + " others liked this.</span>");
+				}
+				$(txt_el).show();
+			}
+			loadwin.hide();
+		});
+	});			
+	
+	//---------------------------------------------------------discussion_liked each
+	$(".discussion_liked").each(function(){
+		if($(this).attr("is_liked") == "1")	$(this).css("color", "#8D8E41");
+	});
+	
+	//---------------------------------------------------------reply_liked click
+	$(".reply_liked").unbind("click").click(function(){
+		var loadwin = new LoadingWin();
+		var pin_el = $(this);
+		var comment_id = $(this).parent().parent().parent().attr("comment_id");
+		var community_id = $(this).parent().parent().parent().attr("community_id");
+		
+		//--------------
+		$.post("${reverse('new_discussion_process')}", {flag:"discussions_like", did: comment_id, community_id: community_id}, function(data){
+			if(data.is_liked == "1")	
+				$(pin_el).css("color", "#8D8E41");
+			else
+				$(pin_el).css("color", "#3c3c3c;");
+
+			$(pin_el).html(" " + data.like_size);
+			
+			loadwin.hide();
+		});
+	});
+	
+	//---------------------------------------------------------reply_liked each
+	$(".reply_liked").each(function(){
+		if($(this).attr("is_liked") == "1")	$(this).css("color", "#8D8E41");
+		
+		var like_size = "0";
+		if($(this).attr("like_size") != "")	like_size = $(this).attr("like_size");
+		$(this).html(" " + like_size);
+	});
+	
+	//---------------------------------------------------------dis_more click
+	$(".dis_more").unbind("click").click(function(){
+		var level = $(this).attr("levelx");
+		
+		if(level == "1"){
+			if($(this).parents(".center_block").find(".dis_subject_pin").attr("pin") == "1"){
+				$("#menu_btn_unpin").addClass("color_unpin");
+				$("#menu_btn_unpin").attr("pin", "1");
+				$("#menu_btn_unpin").html(" Unpin");
+			}else{
+				$("#menu_btn_unpin").removeClass("color_unpin");
+				$("#menu_btn_unpin").attr("pin", "");
+				$("#menu_btn_unpin").html(" Pin");
+			}
+		}
+		
+		$(".community_new_center_menu").hide();
+		$(".community_new_center_menu").css("top", $(this).position().top + 20);
+		$(".community_new_center_menu").css("left", $(this).position().left);
+		
+		if(level == "1"){
+			var did = $(this).parents(".center_block").attr("discussion_id");
+			if($(this).attr("isdel") == "1"){
+				$("#menu_btn_delete1").parent().show();
+				$("#menu_btn_delete1").attr("did", did);
+			}else{
+				$("#menu_btn_delete1").parent().hide();
+				$("#menu_btn_delete1").attr("did", "");
+			}
+			$("#community_new_center_menu_level1").show();
+			$("#menu_btn_unpin").attr("did", did);
+			
+		}else if(level == "2" || level == "3"){
+			var did, cid;
+			if(level == "2"){
+				did = $(this).parents(".dis_reply_block").attr("discussion_id");
+				cid = $(this).parents(".dis_reply_block").attr("comment_id");
+			}else{
+				did = $(this).parents(".dis_reply_next_block").attr("discussion_id");
+				cid = $(this).parents(".dis_reply_next_block").attr("comment_id");
+			}
+			
+			if($(this).attr("isdel") == "1"){
+				$("#menu_btn_delete2").parent().show();
+				$("#menu_btn_delete2").attr("did", did);
+				$("#menu_btn_delete2").attr("cid", cid);
+				$("#menu_btn_delete2").attr("level", level);
+			}else{
+				$("#menu_btn_delete2").parent().hide();
+				$("#menu_btn_delete2").attr("did", "");
+				$("#menu_btn_delete2").attr("cid", "");
+				$("#menu_btn_delete2").attr("level", "");
+			}
+			$("#menu_btn_hyperlink").attr("cid", cid);
+			$("#community_new_center_menu_level2").show();
+		}
+	});
+}
+
+//-----------------------------------------------------------------------document ready
+$(document).ready(function(){
+	//---------------------------------------------------------menu_btn_hyperlink click
+	$("#menu_btn_hyperlink").click(function(e){
+		e.preventDefault();
+		new Dialog($('#dialog_fix')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
+		$("#selectableLink").val(window.location.hostname + "/community/${community.id}?" + $("#menu_btn_hyperlink").attr("cid"));
+		$("#selectableLink").select();
+	});
+	
+	//---------------------------------------------------------menu_btn_delete1 click
+	$("#menu_btn_delete1").click(function(e){
+		var did = $(this).attr("did");
+		if(did != ""){
+			var loadwin = new LoadingWin();
+			
+			//--------------pin_change
+			$.post("${reverse('new_discussion_process')}", {flag:"discussions_delete", discussion_id: did, type: "main"}, function(data){
+				if(data.Success){
+					loadwin.hide();
+					get_discussion_page = 1;
+					//getCommunityDiscussions({"isMask":"1"});
+				}else{
+					alert(data.Error);
+					loadwin.hide();
+				}
+			});
+		}
+	});
+	
+	//---------------------------------------------------------menu_btn_delete2 click
+	$("#menu_btn_delete2").click(function(e){
+		var did = $(this).attr("did");
+		var cid = $(this).attr("cid");
+		var level = $(this).attr("level");
+
+		if(did != "" && cid != "" && level != ""){
+			var loadwin = new LoadingWin();
+			$.post("${reverse('new_discussion_process')}", {flag:"discussions_delete", discussion_id: did, comment_id: cid, level: level, type: "reply"}, function(data){
+				if(data.Success){
+					var tmp_block;
+					if(level == "2"){
+						tmp_block = $(".dis_reply_block[comment_id='" + cid + "']");
+					}else{
+						tmp_block = $(".dis_reply_next_block[comment_id='" + cid + "']");
+					}
+					var tmp_block_parent = tmp_block.parent();
+					tmp_block.remove();
+					if(level == "2"){
+						if(tmp_block_parent.find().length == 0){
+					
+						}
+					}else{
+						if(tmp_block_parent.find(".dis_reply_next_block").length == 0){
+							tmp_block_parent.find(".load_more_level2").click();
+						}
+					}
+					loadwin.hide();
+				}else{
+					alert(data.Error);
+					loadwin.hide();
+				}
+			});
+		}
+	});
+	
+	//---------------------------------------------------------init
+	getCommunityDiscussions();
+});
+
+//-----------------------------------------------------------------------LoadingWin
+function LoadingWin(){
+	this.$loader = null;
+	this.show();
+}
+LoadingWin.prototype.show = function () {
+	if (!this.$loader) {
+		this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+		this.$loader.appendTo(document.body);
+	}
+	this.$loader.css('display','block');
+};
+LoadingWin.prototype.hide = function () {
+	if (this.$loader) {
+		this.$loader.remove();
+		this.$loader = null;
+	}
+};
+</script>
+
+
