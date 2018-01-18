@@ -2652,10 +2652,8 @@
             if(val != ""){
                 if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
+                    $.tablesorter.setFilters($("#data-table"), filters, true);
                 }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
-                    /*filters[suborder - 1] = "*";
-                    filters[suborder] = $(this).val();*/
-
                     var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                     var col_2 = $("#subselect_" + suborder).attr("data-column");
                     var val_1 = $("#subselect_" + (suborder - 1)).val();
@@ -2665,8 +2663,8 @@
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "*";
+                $.tablesorter.setFilters($("#data-table"), filters, true);
             }
-            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
         $("#advanced_search").on("click", "#addNext", function () {
