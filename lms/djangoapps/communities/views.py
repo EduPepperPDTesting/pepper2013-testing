@@ -567,25 +567,35 @@ def discussion_add(request):
     error = ''
 
     try:
-        community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
-        discussion = CommunityDiscussions()
-        discussion.community = community
-        discussion.user = request.user
-        discussion.post = request.POST.get('post')
-        discussion.subject = request.POST.get('subject')
-        discussion.save()
+        fid = request.POST.get("fid", "")
+        if not fid:
+            community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+            discussion = CommunityDiscussions()
+            discussion.community = community
+            discussion.user = request.user
+            discussion.post = request.POST.get('post')
+            discussion.subject = request.POST.get('subject')
+            discussion.save()
 
         mongo3_store = community_discussions_store()
-        my_discussion_post = {
-            # "mysql_id": discussion.id,
-            "community_id": long(request.POST.get('community_id')),
-            "subject": request.POST.get('subject'),
-            "post": request.POST.get('post'),
-            "user": long(request.user.id),
-            "date_create": datetime.datetime.now(UTC()),
-            "db_table": "community_discussions"
-        }
-        disc_id = mongo3_store.insert(my_discussion_post)
+        if fid:
+            disc_id = fid
+            my_discussion_post = {
+                "subject": request.POST.get('subject'),
+                "post": request.POST.get('post')
+            }
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(fid)}, {"$set": my_discussion_post})
+        else:
+            my_discussion_post = {
+                # "mysql_id": discussion.id,
+                "community_id": long(request.POST.get('community_id')),
+                "subject": request.POST.get('subject'),
+                "post": request.POST.get('post'),
+                "user": long(request.user.id),
+                "date_create": datetime.datetime.now(UTC()),
+                "db_table": "community_discussions"
+            }
+            disc_id = mongo3_store.insert(my_discussion_post)
 
         if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
             try:
@@ -598,24 +608,26 @@ def discussion_add(request):
                 attachment = None
         else:
             attachment = None
-        if attachment:
-            discussion.attachment = attachment
-            discussion.save()
+
+        if not fid:
+            if attachment:
+                discussion.attachment = attachment
+                discussion.save()
 
         if attachment:
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
 
         success = True
+        if not fid:
+            rs = myactivitystore()
+            my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"discussion_id": discussion.id},
+            "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
+            "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+            rs.insert_item(my_activity)
 
-        rs = myactivitystore()
-        my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-        "URLValues": {"discussion_id": discussion.id},
-        "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-        "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
-        rs.insert_item(my_activity)
-
-        discussion_id = discussion.id
-        send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
+            discussion_id = discussion.id
+            send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
         error = e
         success = False
@@ -2422,6 +2434,7 @@ def get_trending_discussions_process(request):
         td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
+
 # -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
@@ -2434,6 +2447,9 @@ def new_discussion_process(request):
     elif post_flag:
         if post_flag == "get_discussions":
             return new_process_get_discussions(request)
+
+        elif post_flag == "get_discussion_reply":
+            return new_process_get_discussion_reply(request)
 
         elif post_flag == "discussions_pin_change":
             return new_process_discussions_pin_change(request)
@@ -2450,30 +2466,37 @@ def new_discussion_process(request):
         elif post_flag == "discussions_delete":
             return new_process_discussions_delete(request)
 
-        elif post_flag == "discussion_add":
-            return new_process_discussion_add(request)
-
 
 # -------------------------------------------------------------------new_process_get_discussions
 @login_required
 def new_process_get_discussions(request):
     try:
-        id = 0
-        size = request.POST.get('size')
+        # id = 0
+        community_id = int(request.POST.get('community_id', 0))
+        discussion_id = request.POST.get('discussion_id', '')
+        size = int(request.POST.get('size', 0))
+        reply_size = int(request.POST.get('reply_size', 0))
+        # page = int(request.POST.get('page', 0))
         mongo3_store = community_discussions_store()
         data = {'Success': False}
+        # skip = size * (page - 1)
+        total = mongo3_store.get_community_discussions(community_id, 0, 0).count()
+        # if total > size * page:
+        #     all = "NO"
+        # elif total == 0:
+        #     all = "DONE"
+        # else:
+        #     all = "DONE"
 
-        total = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, 0).count()
-        if total >= int(size):
-            all = "NO"
-        elif total == 0:
-            all = "DONE"
+        # return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
+        if discussion_id:
+            find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
         else:
-            all = "DONE"
+            find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
-        discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, int(size))
+        # discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, size)
         discussions_json = []
-        for disc in discussions:
+        for disc in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
             user = User.objects.get(id=disc['user'])
             discussions_json_1 = {}
             discussions_json_1['child'] = []
@@ -2484,13 +2507,29 @@ def new_process_get_discussions(request):
             #     views = views_object['views']
 
             # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
-            for itemx_1 in mongo3_store.find_size_sort({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}, 0, 0, "date_create", 1):
+            total_2 = mongo3_store.find({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}).count(True)
+            # if total_2 > reply_size:
+            #     all_2 = "NO"
+            # elif total_2 == 0:
+            #     all_2 = "DONE"
+            # else:
+            #     all_2 = "DONE"
+
+            for itemx_1 in mongo3_store.find_size_sort({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}, 0, reply_size, "date_create", -1):
                 user_1 = User.objects.get(id=itemx_1['user'])
                 discussions_json_2 = {}
                 discussions_json_2['child'] = []
 
                 tmp_reply_next = ""
-                for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, 0, "date_create", 1):
+                total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
+                if total_3 > int(reply_size):
+                    all_3 = "NO"
+                elif total_3 == 0:
+                    all_3 = "DONE"
+                else:
+                    all_3 = "DONE"
+
+                for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, reply_size, "date_create", -1):
                     user_2 = User.objects.get(id=itemx_2['user'])
                     discussions_json_3 = {}
 
@@ -2589,6 +2628,8 @@ def new_process_get_discussions(request):
                 discussions_json_2['attachment_pict'] = attachment_pict_reply
                 discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
                 discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
+                # discussions_json_2['all'] = all_3
+                discussions_json_2['total'] = total_3
 
                 discussions_json_1['child'].append(discussions_json_2)
 
@@ -2649,13 +2690,238 @@ def new_process_get_discussions(request):
             discussions_json_1['attachment_pict'] = attachment_pict
             discussions_json_1['attachment_pict_name'] = attachment_pict_name
             discussions_json_1['attachment_pict_url'] = attachment_pict_url
+            # discussions_json_1['all'] = all_2
+            discussions_json_1['total'] = total_2
 
             discussions_json.append(discussions_json_1)
 
         data['Success'] = True
-        data['all'] = all
+        # data['all'] = all
+        data['total'] = total
         data['discussions_json'] = discussions_json
         data['community'] = request.POST.get('community_id')
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+
+# -------------------------------------------------------------------new_process_get_discussion_reply
+@login_required
+def new_process_get_discussion_reply(request):
+    try:
+        # id = 0
+        size = int(request.POST.get('size', 10))
+        # page = int(request.POST.get('page', 1))
+        comment_id = request.POST.get('comment_id', '')
+        pid = request.POST.get('pid', '')
+        level = request.POST.get('level', '')
+        if level and pid:
+            mongo3_store = community_discussions_store()
+            data = {'Success': False}
+
+            # skip = size * (page - 1)
+            if level == "1":
+                total = mongo3_store.find({"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}).count(True)
+            else:
+                total = mongo3_store.find({"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}).count(True)
+
+            # if total > size * page:
+            #     all = "NO"
+            # elif total == 0:
+            #     all = "DONE"
+            # else:
+            #     all = "DONE"
+
+            discussions_json = []
+            if level == "1":
+                if comment_id:
+                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                else:
+                    find_sql = {"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+
+                for itemx_1 in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+                    user_1 = User.objects.get(id=itemx_1['user'])
+                    discussions_json_2 = {}
+                    discussions_json_2['child'] = []
+
+                    tmp_reply_next = ""
+
+                    total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
+                    # if total_3 > size:
+                    #     all_3 = "NO"
+                    # elif total_3 == 0:
+                    #     all_3 = "DONE"
+                    # else:
+                    #     all_3 = "DONE"
+
+                    for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, size, "date_create", -1):
+                        user_2 = User.objects.get(id=itemx_2['user'])
+                        discussions_json_3 = {}
+
+                        attachment_next_reply = ""
+                        attachment_next_reply_url = ""
+                        attachment_next_reply_name = ""
+                        if 'attachment' in itemx_2:
+                            attachment_next_reply = str(itemx_2['attachment'])
+                            try:
+                                tmp_file = FileUploads.objects.get(id=itemx_2['attachment'])
+                                attachment_next_reply_name = get_file_name(tmp_file)
+                                attachment_next_reply_url = get_file_url(tmp_file)
+                            except Exception as e1:
+                                pass
+
+                        attachment_pict_next_reply = ""
+                        attachment_pict_next_reply_url = ""
+                        attachment_pict_next_reply_name = ""
+                        if 'attachment_pict' in itemx_2:
+                            attachment_pict_next_reply = str(itemx_2['attachment_pict'])
+                            try:
+                                tmp_file = FileUploads.objects.get(id=itemx_2['attachment_pict'])
+                                attachment_pict_next_reply_name = get_file_name(tmp_file)
+                                attachment_pict_next_reply_url = get_file_url(tmp_file)
+                            except Exception as e1:
+                                pass
+
+                        like_reply_next_size = ""
+                        like_reply_next_data = new_process_get_like_info(itemx_2['_id'], request.user.id)
+                        is_reply_next_liked = like_reply_next_data['is_liked']
+                        if like_reply_next_data['Success']:
+                            like_reply_next_size = str(like_reply_next_data['like_size'])
+
+                        discussions_json_3['_id'] = str(itemx_2['_id'])
+                        discussions_json_3['community_id'] = str(itemx_2['community_id'])
+                        discussions_json_3['user'] = itemx_2['user']
+                        discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
+                        discussions_json_3['post'] = itemx_2['post']
+                        discussions_json_3['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_2['date_create'])
+                        discussions_json_3['like_reply_next_size'] = like_reply_next_size
+                        discussions_json_3['is_reply_next_liked'] = is_reply_next_liked
+                        discussions_json_3['first_name'] = user_2.first_name
+                        discussions_json_3['last_name'] = user_2.last_name
+                        discussions_json_3['attachment'] = attachment_next_reply
+                        discussions_json_3['attachment_name'] = attachment_next_reply_name
+                        discussions_json_3['attachment_url'] = attachment_next_reply_url
+                        discussions_json_3['attachment_pict'] = attachment_pict_next_reply
+                        discussions_json_3['attachment_pict_name'] = attachment_pict_next_reply_name
+                        discussions_json_3['attachment_pict_url'] = attachment_pict_next_reply_url
+
+                        discussions_json_2['child'].append(discussions_json_3)
+
+                    attachment_reply = ""
+                    attachment_reply_url = ""
+                    attachment_reply_name = ""
+                    if 'attachment' in itemx_1:
+                        attachment_reply = str(itemx_1['attachment'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_1['attachment'])
+                            attachment_reply_name = get_file_name(tmp_file)
+                            attachment_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    attachment_pict_reply = ""
+                    attachment_pict_reply_url = ""
+                    attachment_pict_reply_name = ""
+                    if 'attachment_pict' in itemx_1:
+                        attachment_pict_reply = str(itemx_1['attachment_pict'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_1['attachment_pict'])
+                            attachment_pict_reply_name = get_file_name(tmp_file)
+                            attachment_pict_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    like_reply_size = ""
+                    like_reply_data = new_process_get_like_info(itemx_1['_id'], request.user.id)
+                    is_reply_liked = like_reply_data['is_liked']
+                    if like_reply_data['Success']:
+                        like_reply_size = str(like_reply_data['like_size'])
+
+                    discussions_json_2['_id'] = str(itemx_1['_id'])
+                    discussions_json_2['community_id'] = str(itemx_1['community_id'])
+                    discussions_json_2['user'] = itemx_1['user']
+                    discussions_json_2['user_photo'] = reverse('user_photo', args=[str(itemx_1['user'])])
+                    discussions_json_2['post'] = itemx_1['post']
+                    discussions_json_2['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_1['date_create'])
+                    discussions_json_2['like_reply_size'] = like_reply_size
+                    discussions_json_2['is_reply_liked'] = is_reply_liked
+                    discussions_json_2['first_name'] = user_1.first_name
+                    discussions_json_2['last_name'] = user_1.last_name
+                    discussions_json_2['attachment'] = attachment_reply
+                    discussions_json_2['attachment_name'] = attachment_reply_name
+                    discussions_json_2['attachment_url'] = attachment_reply_url
+                    discussions_json_2['attachment_pict'] = attachment_pict_reply
+                    discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
+                    discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
+                    # discussions_json_2['all'] = all_3
+                    discussions_json_2['total'] = total_3
+
+                    discussions_json.append(discussions_json_2)
+            else:
+                if comment_id:
+                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                else:
+                    find_sql = {"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+
+                for itemx_2 in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+                    user_2 = User.objects.get(id=itemx_2['user'])
+                    discussions_json_3 = {}
+
+                    attachment_next_reply = ""
+                    attachment_next_reply_url = ""
+                    attachment_next_reply_name = ""
+                    if 'attachment' in itemx_2:
+                        attachment_next_reply = str(itemx_2['attachment'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment'])
+                            attachment_next_reply_name = get_file_name(tmp_file)
+                            attachment_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    attachment_pict_next_reply = ""
+                    attachment_pict_next_reply_url = ""
+                    attachment_pict_next_reply_name = ""
+                    if 'attachment_pict' in itemx_2:
+                        attachment_pict_next_reply = str(itemx_2['attachment_pict'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment_pict'])
+                            attachment_pict_next_reply_name = get_file_name(tmp_file)
+                            attachment_pict_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    like_reply_next_size = ""
+                    like_reply_next_data = new_process_get_like_info(itemx_2['_id'], request.user.id)
+                    is_reply_next_liked = like_reply_next_data['is_liked']
+                    if like_reply_next_data['Success']:
+                        like_reply_next_size = str(like_reply_next_data['like_size'])
+
+                    discussions_json_3['_id'] = str(itemx_2['_id'])
+                    discussions_json_3['community_id'] = str(itemx_2['community_id'])
+                    discussions_json_3['user'] = itemx_2['user']
+                    discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
+                    discussions_json_3['post'] = itemx_2['post']
+                    discussions_json_3['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_2['date_create'])
+                    discussions_json_3['like_reply_next_size'] = like_reply_next_size
+                    discussions_json_3['is_reply_next_liked'] = is_reply_next_liked
+                    discussions_json_3['first_name'] = user_2.first_name
+                    discussions_json_3['last_name'] = user_2.last_name
+                    discussions_json_3['attachment'] = attachment_next_reply
+                    discussions_json_3['attachment_name'] = attachment_next_reply_name
+                    discussions_json_3['attachment_url'] = attachment_next_reply_url
+                    discussions_json_3['attachment_pict'] = attachment_pict_next_reply
+                    discussions_json_3['attachment_pict_name'] = attachment_pict_next_reply_name
+                    discussions_json_3['attachment_pict_url'] = attachment_pict_next_reply_url
+
+                    discussions_json.append(discussions_json_3)
+
+            data['Success'] = True
+            # data['all'] = all
+            data['total'] = total
+            data['discussions_json'] = discussions_json
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -2822,6 +3088,9 @@ def new_process_submit_comment(request):
                     }
                     replies_id = mongo3_store.insert(my_discussion_post)
 
+                attachment_id = ""
+                attachment_url = ""
+                attachment_name = ""
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
                     try:
                         attachment = FileUploads()
@@ -2829,10 +3098,18 @@ def new_process_submit_comment(request):
                         attachment.sub_type = did
                         attachment.upload = request.FILES.get('upload_attr')
                         attachment.save()
+
+                        attachment_id = str(attachment.id)
+                        attachment_url = get_file_url(attachment)
+                        attachment_name = get_file_name(attachment)
                     except:
                         attachment = None
                 else:
                     attachment = None
+
+                data["attachment"] = attachment_id
+                data["attachment_url"] = attachment_url
+                data["attachment_name"] = attachment_name
 
                 if attachment:
                     if fid and fid_level:
@@ -2843,6 +3120,9 @@ def new_process_submit_comment(request):
                     else:
                         mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
 
+                attachment_pict_id = ""
+                attachment_pict_url = ""
+                attachment_pict_name = ""
                 if request.FILES.get('upload_pict') is not None and request.FILES.get('upload_pict').size:
                     try:
                         attachment_pict = FileUploads()
@@ -2850,10 +3130,18 @@ def new_process_submit_comment(request):
                         attachment_pict.sub_type = did
                         attachment_pict.upload = request.FILES.get('upload_pict')
                         attachment_pict.save()
+
+                        attachment_pict_id = str(attachment_pict.id)
+                        attachment_pict_url = get_file_url(attachment_pict)
+                        attachment_pict_name = get_file_name(attachment_pict)
                     except:
                         attachment_pict = None
                 else:
                     attachment_pict = None
+
+                data["attachment_pict"] = attachment_pict_id
+                data["attachment_pict_url"] = attachment_pict_url
+                data["attachment_pict_name"] = attachment_pict_name
 
                 if attachment_pict:
                     if fid and fid_level:
@@ -2877,8 +3165,7 @@ def new_process_submit_comment(request):
             # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
             # discussion.date_reply = reply.date_create
             # discussion.save()
-
-            data = {'Success': True}
+            data["Success"] = True
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -2937,6 +3224,10 @@ def new_process_discussions_delete(request):
                 mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
 
+                poll_connect = poll_store()
+                if poll_connect.poll_exists('discussion', did):
+                    poll_connect.delete_poll('discussion', did)
+
             elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
 
@@ -2964,46 +3255,6 @@ def new_process_discussions_delete(request):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
 
             data = {'Success': True}
-
-    except Exception as e:
-        data = {'Success': False, 'Error': '{0}'.format(e)}
-
-    return render_json_response(data)
-
-
-# -------------------------------------------------------------------new_process_discussions_delete
-@login_required
-def new_process_discussion_add(request):
-    data = {'Success': False}
-    try:
-        mongo3_store = community_discussions_store()
-        my_discussion_post = {
-            # "mysql_id": discussion.id,
-            "community_id": request.POST.get('community_id'),
-            "subject": request.POST.get('subject'),
-            "post": request.POST.get('post'),
-            "user": request.user.id,
-            "date_create": datetime.datetime.now(UTC()),
-            "db_table": "community_discussions"
-        }
-        disc_id = mongo3_store.insert(my_discussion_post)
-
-        if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
-            try:
-                attachment = FileUploads()
-                attachment.type = 'discussion_attachment'
-                attachment.sub_type = disc_id
-                attachment.upload = request.FILES.get('attachment')
-                attachment.save()
-            except:
-                attachment = None
-        else:
-            attachment = None
-
-        if attachment:
-            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
-
-        data = {'Success': True, 'disc_id': disc_id}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}

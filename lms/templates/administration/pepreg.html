@@ -2200,182 +2200,7 @@
             //$input.change();
         });
 
-        var filters = [];
 
-        $("#switch_search").click(function(){
-            if($("#switch_search").text()=="Advanced Search"){
-                $("#switch_search").text("Regular Search");
-                $("#regular_search").css("display", "none");
-                $("#advanced_search").css("display", "block");
-
-                $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_1' name='1' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
-                $("#advanced_select_1").append("<option value=''>Select Field</option>");
-                $.get("${reverse('getfielddata')}", {}, function(data) {
-                    console.log("getfielddata: "+data.success);
-                    if (data.success) {
-                        $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
-                        });
-                    }
-                });
-            }else{
-                $("#switch_search").text("Advanced Search");
-                $("#advanced_search").empty().css("display", "none");
-                $("#regular_search").css("display", "block");
-            }
-        });
-        $("#advanced_search").on("change", ".advanced_select", function (){
-            var val = $(this).val();
-            var suborder = $(this).attr("name");
-            $(this).next("div").empty();
-            console.log("advanced_select val: "+val);
-            if(val != ""){
-                $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
-                    console.log("advanced_select data.success: "+data.success);
-                    if (data.success) {
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
-                        $("#subselect_" + suborder).append("<option value=''>Select</option>");
-                        var optValue;
-                        $.each(data.rows, function(k, v){
-                            if(val == "Subject"){
-                                switch (v){
-                                    case "Assessments and Reporting":
-                                        optValue = "AR";
-                                        break;
-                                    case "Digital Citizenship":
-                                        optValue = "DC";
-                                        break;
-                                    case "English Language Arts":
-                                        optValue = "ELA";
-                                        break;
-                                    default:
-                                        optValue = "";
-                                }
-                            }else{
-                                optValue = v;
-                            }
-                            $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
-                        })
-                        $("#advanced_select_" + suborder).next("div").append(" + ");
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
-                        $("#subcondition_" + suborder).append("<option value=''>AND / OR</option>");
-                        $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
-                        $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
-                    }
-                }
-                });
-            }
-        });
-
-        $("#advanced_search").on("change", ".subselect", function () {
-            var val = $(this).val();
-            var suborder = parseInt($(this).attr("name"));
-            console.log("subselect val: "+val);
-            if(val != ""){
-                if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
-                    filters[suborder] = $(this).val();
-                }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
-                    /*filters[suborder - 1] = "*";
-                    filters[suborder] = $(this).val();*/
-
-                    var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                    var col_2 = $("#subselect_" + suborder).attr("data-column");
-
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
-                }
-            }else{
-                filters[suborder] = "*";
-            }
-            $.tablesorter.setFilters($("#data-table"), filters, true);
-        });
-
-        //filtering records with OR condition
-        function OrFilter(tablesorterOptions, col_1, col_2, suborder){
-            $(".or_filter_1").removeClass("or_filter_1");
-            $(".or_filter_2").removeClass("or_filter_2");
-            $("#subselect_" + (suborder - 1)).addClass("or_filter_1");
-            $("#subselect_" + suborder).addClass("or_filter_2");
-
-            var filters = [], $table = $('find("#data-table")'),
-
-            //get 'OR'-condition column indexes
-            orColumns = [col_1, col_2],
-            //show row if one of given columns has corresponding cell with required value
-            filterfxn = function (e, n, f, i, $r, c) {
-                console.log("filterfxn");
-                var v, showRow = false;
-                $r.children().filter(function (indx) {
-                    console.log(orColumns.indexOf(indx)+ " " + indx);
-                    if (orColumns.indexOf(indx) > -1) {
-                        console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
-                        v = (c.$filters.eq(indx).find('.tablesorter-filter').val() || '').toLowerCase();
-                        console.log(v);
-                        showRow = showRow || $(this).text().toLowerCase() === v;
-                    }
-                });
-                return showRow;
-            },
-
-            setFilters = function () {
-                $.tablesorter.setFilters($('find("#data-table")'), filters, true);
-            };
-            console.log(orColumns);
-
-            var filter_functions = {
-                ".or_filter_1": filterfxn,
-                ".or_filter_2": filterfxn
-            };
-
-            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
-
-            $("#data-table").tablesorter(tablesorterOptions);
-
-            filters[col_1] = $("#subselect_" + (suborder - 1));
-            filters[col_2] = $("#subselect_" + suborder);
-            setFilters();
-            $("tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
-
-            console.log("filterfxn");
-        };
-
-        $("#advanced_search").on("change", ".subcondition", function () {
-            var val = $(this).val();
-            var suborder = parseInt($(this).attr("name")) + 1;
-            if(val != ""){
-                if($("#advanced_select_" + suborder).length == 0){
-
-                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
-                    $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
-
-                    $.get("${reverse('getfielddata')}", {}, function(data) {
-                        if (data.success) {
-                            $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
-                            });
-                        }
-                    });
-                }else if($("#subselect_" + suborder).length > 0 && $("#subselect_" + suborder).val() != ""){
-
-                    if(val == "and") {
-                        filters[suborder] = $("#subselect_" + suborder).val();
-                    }else if(val == "or"){
-                        /*filters[suborder - 1] = "*";
-                        filters[suborder] = $(this).val();*/
-
-                        var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                        var col_2 = $("#subselect_" + suborder).attr("data-column");
-
-                        OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), suborder);
-                    }
-                     $.tablesorter.setFilters($("#data-table"), filters, true);
-                }
-            }else{
-                $("#advanced_select_" + suborder).next("div").remove();
-                $("#advanced_select_" + suborder).remove();
-                filters[suborder] ="*";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
-            }
-        });
     };
     PepReg.prototype.showStudents = function (training_id) {
         var self = this;
@@ -2577,7 +2402,7 @@
             widgets: ["zebra", "filter", "output", "columnSelector"],
             widgetOptions: {
                 filter_external: '',
-                filter_columnFilters: false,
+                filter_columnFilters: true,
                 filter_placeholder: {search: 'Search...'},
                 filter_saveFilters: false,
                 filter_reset: '.reset',
@@ -2585,13 +2410,15 @@
                 output_saveFileName: 'data.csv',
                 columnSelector_container: $('#columnSelector'),
                 columnSelector_columns: {0: 'disable', 15: 'disable'},
-                columnSelector_mediaqueryName: 'All: '
+                columnSelector_mediaqueryName: 'All: ',
+                filter_functions: {}
             }
         };
         tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
         pagerOptions.container = this.$content.find("#user-pager");
         pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
         this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        $(".tablesorter-filter-row").css("display", "none");
         console.log("tablesorter");
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
@@ -2752,6 +2579,200 @@
                 });  
             });
         });
+
+
+        /* advanced filtering */
+        var filters = [];
+
+        $("#switch_search").click(function(){
+            if($("#switch_search").text()=="Advanced Search"){
+                $("#switch_search").text("Regular Search");
+                $("#regular_search").css("display", "none");
+                $("#advanced_search").css("display", "block");
+
+                $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_1' name='1' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
+                $("#advanced_select_1").append("<option value=''>Select Field</option>");
+                $.get("${reverse('getfielddata')}", {}, function(data) {
+                    console.log("getfielddata: "+data.success);
+                    if (data.success) {
+                        $.each(data.rows, function(k, v){
+                            $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
+                        });
+                    }
+                });
+            }else{
+                $("#switch_search").text("Advanced Search");
+                $("#advanced_search").empty().css("display", "none");
+                $("#regular_search").css("display", "block");
+            }
+            $(".tablesorter-filter-row").css("display", "none");
+        });
+        $("#advanced_search").on("change", ".advanced_select", function (){
+            var val = $(this).val();
+            var suborder = $(this).attr("name");
+            $(this).next("div").empty();
+            console.log("advanced_select val: "+val);
+            if(val != ""){
+                $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
+                    console.log("advanced_select data.success: "+data.success);
+                    if (data.success) {
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
+                        $("#subselect_" + suborder).append("<option value=''>Select</option>");
+                        var optValue;
+                        $.each(data.rows, function(k, v){
+                            if(val == "Subject"){
+                                switch (v){
+                                    case "Assessments and Reporting":
+                                        optValue = "AR";
+                                        break;
+                                    case "Digital Citizenship":
+                                        optValue = "DC";
+                                        break;
+                                    case "English Language Arts":
+                                        optValue = "ELA";
+                                        break;
+                                    default:
+                                        optValue = "";
+                                }
+                            }else{
+                                optValue = v;
+                            }
+                            $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
+                        })
+                    }
+                }
+                });
+            }
+        });
+
+        $("#advanced_search").on("change", ".subselect", function () {
+            var val = $(this).val();
+            var suborder = parseInt($(this).attr("name"));
+            console.log("subselect val: "+val);
+            if(val != ""){
+                if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
+                    filters[suborder] = $(this).val();
+                }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
+                    /*filters[suborder - 1] = "*";
+                    filters[suborder] = $(this).val();*/
+
+                    var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
+                    var col_2 = $("#subselect_" + suborder).attr("data-column");
+                    var val_1 = $("#subselect_" + (suborder - 1)).val()
+                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
+                }
+                $("#advanced_select_" + suborder).next("div").append("<a href='#' onclick='nextField(" + suborder + ")'> + </a>");
+
+                function  nextField(suborder){
+                    var addNext = $(this).text();
+                    if(addNext == " + "){
+                        $(this).text(" - ");
+                        $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
+                        $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
+                        $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
+                    }else{
+                        $(this).text(" - ");
+                        $("#advanced_select_" + (suborder + 1)).next("div").remove();
+                        $("#advanced_select_" + (suborder + 1)).remove();
+                        filters = $.tablesorter.getFilters($("#data-table"));
+                        filters[suborder] ="*";
+                        $.tablesorter.setFilters($("#data-table"), filters, true);
+                    }
+                }
+            }else{
+                filters = $.tablesorter.getFilters($("#data-table"));
+                filters[suborder] = "*";
+            }
+            $.tablesorter.setFilters($("#data-table"), filters, true);
+        });
+
+
+        //filtering records with OR condition
+        function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
+            $(".or_filter").removeClass("or_filter");
+            var valueCol_1 = val_1;
+            var valueCol_2 = val;
+            $(".tablesorter-filter[data-column='" + col_1 + "']").val(valueCol_1).addClass("or_filter");
+            console.log(valueCol_1+" "+col_1);
+            $(".tablesorter-filter[data-column='" + col_2 + "']").val(valueCol_2).addClass("or_filter");
+            console.log(valueCol_2+" "+col_2);
+
+            //get 'OR'-condition column indexes
+            var orColumns = [col_1, col_2],
+            //show row if one of given columns has corresponding cell with required value
+            filterfxn = function (e, n, f, i, $r, c) {
+                console.log("filterfxn");
+                var v, showRow = false;
+                $r.children().filter(function (indx) {
+                    console.log(orColumns.indexOf(indx)+ " " + indx);
+                    if (orColumns.indexOf(indx) > -1) {
+                        console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
+                        v = $("#subselect_" + indx).val().toLowerCase();
+                        console.log(v);
+                        showRow = showRow || $(this).text().toLowerCase() === v;
+                    }
+                });
+                return showRow;
+            };
+
+            console.log(orColumns);
+
+            var filter_functions = {
+                ".or_filter": filterfxn
+            };
+
+            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
+
+            $("#data-table").tablesorter(tablesorterOptions);
+
+            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
+
+            console.log("filterfxn");
+        };
+
+        $("#advanced_search").on("change", ".subcondition", function () {
+            var val = $(this).val();
+            var suborder = parseInt($(this).attr("name")) + 1;
+            if(val != ""){
+                if($("#advanced_select_" + suborder).length == 0){
+
+                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + suborder + "' name='"+ suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
+                    $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
+
+                    $.get("${reverse('getfielddata')}", {}, function(data) {
+                        if (data.success) {
+                            $.each(data.rows, function(k, v){
+                                $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
+                            });
+                        }
+                    });
+                }else if($("#subselect_" + suborder).length > 0 && $("#subselect_" + suborder).val() != ""){
+
+                    if(val == "and") {
+                        filters[suborder] = $("#subselect_" + suborder).val();
+                    }else if(val == "or"){
+                        /*filters[suborder - 1] = "*";
+                        filters[suborder] = $(this).val();*/
+
+                        var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
+                        var col_2 = $("#subselect_" + suborder).attr("data-column");
+                        val_1 = $("#subselect_" + suborder).val();
+                        val_2 = $("#subselect_" + (suborder - 1)).val();
+                        console.log("val_1="+val_1+" val_2="+val_2);
+                        OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+                    }
+                     $.tablesorter.setFilters($("#data-table"), filters, true);
+                }
+            }else{
+                $("#advanced_select_" + suborder).next("div").remove();
+                $("#advanced_select_" + suborder).remove();
+                filters = $.tablesorter.getFilters($("#data-table"));
+                filters[suborder] ="*";
+                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }
+        });
+        /* advanced filtering */
+
     };
     PepReg.prototype.reloadTable = function () {
         var t = this.$content.find('#data-table')[0];
