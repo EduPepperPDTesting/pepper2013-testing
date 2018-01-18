@@ -58,20 +58,18 @@ function initializeCMSPopup (callback) {
 function librariesSelector() {
     user = callAPI("users", {"email":"${request.user.email}"});
     orgs = user[0].orgs;
-    org_list = "";
+    org_list = "1870,";
     for (var i = 0; i < orgs.length; i++) {
         org_list += orgs[i] + ",";
     }
     org_list = org_list.slice(0,-1);
-    if ("${request.user.is_superuser}" == "True") {
-        org_list = '';
-    }
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
         html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
     }
+
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
