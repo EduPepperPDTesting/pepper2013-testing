@@ -47,8 +47,6 @@ import datetime
                      <h4>Community Facilitator</h4>
                  </div>
              %endif
-
-
             <div class="community-clear"></div>
         </div>
 
@@ -97,9 +95,8 @@ import datetime
                 </div>
                 <div id="community_content_discussions" class="community-content-section">
                     <div class="discussions">
-                    <div id="discussion_list"></div>
-                                                <center><img id="disc_loading_image" src="../static/images/posts-loading.gif"></img></center>
-
+                    	<div id="discussion_list"></div>
+                        <center><img id="disc_loading_image" src="../static/images/posts-loading.gif"></img></center>
                     </div>
                 </div>
             </div>
@@ -131,6 +128,10 @@ import datetime
                 </div>
             </div>
         </div>
+        
+        %if community.id == 133:
+        <%include file="community_new_center.html" />
+        %endif
 
     </section>
     <section id="community-main-sidebar">
