@@ -2659,7 +2659,8 @@
                     var val_1 = $("#subselect_" + (suborder - 1)).val();
                     OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
                 }
-                $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
+
+                if("#addNext[name = '" + (suborder - 1) + "'].length == 0) $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "*";
