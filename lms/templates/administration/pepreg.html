@@ -34,6 +34,18 @@
 <!-- AddEvent script -->
 <script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
 
+<!-- AddEvent Settings -->
+<script type="text/javascript">
+window.addeventasync = function(){
+    addeventatc.settings({
+        appleical  : {show:true, text:"Apple Calendar"},
+        google     : {show:true, text:"Google <em>(online)</em>"},
+        outlook    : {show:true, text:"Outlook"},
+        outlookcom : {show:true, text:"Outlook.com <em>(online)</em>"},
+        yahoo      : {show:true, text:"Yahoo <em>(online)</em>"}
+    });
+};
+</script>
 
 <!-- href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/ -->
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
