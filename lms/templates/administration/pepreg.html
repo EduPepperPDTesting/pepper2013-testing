@@ -803,14 +803,7 @@
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 				console.log("~7");
 					if (reg){
-					    var DataRow = $(this).closest("tr");
-                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
-                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
-                        warningData += DataRow.find("td:eq(5)").text() + "|";
-                        warningData += DataRow.find("td:eq(6)").text() + "|";
-                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
-
-                        pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+					    pepreg.warning("Thank you for registering/recording attendance for this training!");
 					}else{
 						pepreg.warning("Thank you! You are no longer registered for this training.");
                     }
@@ -828,14 +821,7 @@
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
                 console.log("~6");
                     if (reg){
-                        var DataRow = $(this).closest("tr");
-                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
-                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
-                        warningData += DataRow.find("td:eq(5)").text() + "|";
-                        warningData += DataRow.find("td:eq(6)").text() + "|";
-                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
-
-                        pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                         pepreg.warning("Thank you for registering/recording attendance for this training!");
                     }else{
                         pepreg.warning("Thank you! You are no longer registered for this training.");
                     }
@@ -868,14 +854,7 @@
 								button.hide();
 								console.log("~5");
 
-                                var DataRow = $(this).closest("tr");
-                                warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
-                                warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
-                                warningData += DataRow.find("td:eq(5)").text() + "|";
-                                warningData += DataRow.find("td:eq(6)").text() + "|";
-                                warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
-
-                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                pepreg.warning("Thank you for registering/recording attendance for this training!");
 								
 								pepreg.reloadTable();
 								calendarOpen();
@@ -914,14 +893,7 @@
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
 					console.log("~4");
 						if (data && data.is_attended){
-						    var DataRow = $(this).closest("tr");
-                            warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
-                            warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
-                            warningData += DataRow.find("td:eq(5)").text() + "|";
-                            warningData += DataRow.find("td:eq(6)").text() + "|";
-                            warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
-
-							pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+							pepreg.warning("Thank you for registering/recording attendance for this training!");
 						}else{
 							pepreg.warning("Thank you! You are no longer registered for this training.");
 						}
@@ -2554,11 +2526,12 @@
                             }
                             $check.prop('checked', status == "Registered");
                             $check.click(function () {
+                                var thisCheck = $(this);
                                 self.registerUser(training_id, this.checked, function (reg) {
                                     // self.reloadTable();
                                     console.log("~3");
                                     if (reg){
-                                        var DataRow = $(this).closest("tr");
+                                        var DataRow = thisCheck.closest("tr");
                                         warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
                                         warningData += DataRow.find("td:eq(5)").text() + "|";
@@ -2599,12 +2572,13 @@
                             /// $input.val(attendancel_id);
                             var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
                             $button.click(function () {
+                                var thisCheck = $(this);
                                 if (attendancel_id == $input.val()) {
                                     self.setStudentAttended(${request.user.id}, training_id, true, function () {
                                         $input.hide();
                                         $button.hide();
                                         console.log("~1");
-                                        var DataRow = $(this).closest("tr");
+                                        var DataRow = thisCheck.closest("tr");
                                         warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
                                         warningData += DataRow.find("td:eq(5)").text() + "|";
@@ -2619,10 +2593,11 @@
                             });
                         } else {
                             $check.change(function () {
+                                var thisCheck = $(this);
                                 self.setStudentAttended(${request.user.id}, training_id, this.checked, function (data) {
                                     if (data && data.is_attended){
                                         console.log("~2");
-                                        var DataRow = $(this).closest("tr");
+                                        var DataRow = thisCheck.closest("tr");
                                         warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
                                         warningData += DataRow.find("td:eq(5)").text() + "|";
