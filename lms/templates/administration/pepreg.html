@@ -31,6 +31,11 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
+
+    <script src="https://github.com/nwcell/ics.js/blob/master/ics.js"></script>
+    <script src="https://github.com/eligrey/FileSaver.js/blob/master/FileSaver.js"></script>
+
+
 <!-- AddEvent script -->
 <script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
 
@@ -1732,17 +1737,20 @@
         }
         if(s && s.indexOf("|")>-1){
             t = s.substring(0, s.indexOf("!") + 1);
-            t += '<br/><br/><div title="Add to Calendar" class="addeventatc" data-direct="outlook">';
-            t += 'Add to Calendar';
-            t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
-            t += '<span class="end">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+
+            eventStart = s.substring(s.indexOf("!") + 1, s.indexOf("|"));
+            eventEnd = s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1);
             s = s.replace("|", "");
-            t += '<span class="title">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+            eventTitle = s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1);
             s = s.replace("|", "");
-            t += '<span class="description">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+            eventDescription = s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1);
             s = s.replace("|", "");
-            t += '<span class="location">' + s.substr(s.indexOf("|")).substring(1) + '</span>';
+            eventLocation = s.substr(s.indexOf("|")).substring(1);
+            t += '<br/><br/><button id="getICS">Add to Calendar</button>';
             s = t;
+             $("#getICS").onlick(function(eventTitle, eventDescription, eventLocation, eventStart, eventEnd){
+                downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)
+             });
             console.log("s="+s);
         }
         dlg.show(dailogTitle, s);
@@ -3059,4 +3067,11 @@
         $(this).removeClass("on");
     });
 
+</script>
+<script type="text/javascript">//for ics download (outlook)
+    function downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {
+        var cal = ics();
+        cal.addEvent(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);
+        cal.download();
+    }
 </script>
