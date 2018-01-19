@@ -3646,10 +3646,10 @@
 				$(".org_assignment_course_select").eq(i).val(tmp2[0].split("|")[0].replace("(", "").replace(")", ""));
 				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].split("|")[0].replace("(", "").replace(")", ""));
 				var access = tmp2[0].split("|")[0].replace("(", "").replace(")", "");
-				if (access){
-				    $(".access").eq(i).prop("checked",false);
+				if (access == "true"){
+				    $(".access").eq(i).prop("checked",true);
 				}else{
-					$(".access").eq(i).prop("checked",true);
+					$(".access").eq(i).prop("checked",false);
 				}
 				var tmp3 = tmp2[1].split(",");
 				for(var j = 0; j < tmp3.length; j++){
