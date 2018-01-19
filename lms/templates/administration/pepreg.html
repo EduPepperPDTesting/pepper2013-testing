@@ -818,7 +818,7 @@
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
-					if (reg)
+                    if (reg){
 					    var DataRow = $(this).closest("tr");
 					    warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
 					    warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
@@ -826,8 +826,9 @@
 					    warningData += DataRow.find("td:eq(6)").text() + "|";
 					    warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
 						pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
-					else
-						pepreg.warning("Thank you! You are no longer registered for this training.");
+                    }else{
+                        pepreg.warning("Thank you! You are no longer registered for this training.");
+                    }
                     console.log("calendar_check_would pre -" + $("this").prop("checked"));
                     $("this").prop("checked", !$("this").prop("checked"));
                     console.log("calendar_check_would post -" + $("this").prop("checked"));
