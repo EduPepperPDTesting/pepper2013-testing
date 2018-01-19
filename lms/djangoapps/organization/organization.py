@@ -5,7 +5,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
-
+from django.http import HttpResponseForbidden
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
