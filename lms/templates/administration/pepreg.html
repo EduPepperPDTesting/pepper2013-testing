@@ -1751,13 +1751,13 @@
             t += '<br/><br/><div title="Add to Calendar" class="addeventatc">';
             t += 'Add to Calendar';
             t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
-            t += '<span class="end">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
-            s.replace("|", "");
-            t += '<span class="title">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
-            s.replace("|", "");
-            t += '<span class="description">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
-            s.replace("|", "");
-            t += '<span class="location">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+            t += '<span class="end">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+            s = s.replace("|", "");
+            t += '<span class="title">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+            s = s.replace("|", "");
+            t += '<span class="description">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
+            s = s.replace("|", "");
+            t += '<span class="location">' + s.substr(s.indexOf("|")).substring(1) + '</span>';
             s = t;
             console.log("s="+s);
         }
