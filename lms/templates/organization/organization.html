@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
+	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
 	.preview_view1,.editor_view1{width:900px;}
@@ -1109,6 +1110,7 @@
                     <select class="org_assignment_course_select" style="width:500px;">
                         <option value="">Select a Course</option>
                     </select>
+                    <input type='checkbox' class='access'> Access Only
                     <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
                 </div>
                 <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>
@@ -3641,9 +3643,14 @@
 			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
 				var tmp2 = tmp1[i].split("<");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));
-				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].replace("(", "").replace(")", ""));				
-
+				$(".org_assignment_course_select").eq(i).val(tmp2[0].split("|")[0].replace("(", "").replace(")", ""));
+				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].split("|")[0].replace("(", "").replace(")", ""));
+				var access = tmp2[0].split("|")[0].replace("(", "").replace(")", "");
+				if (access){
+				    $(".access").eq(i).prop("checked",false);
+				}else{
+					$(".access").eq(i).prop("checked",true);
+				}
 				var tmp3 = tmp2[1].split(",");
 				for(var j = 0; j < tmp3.length; j++){
 					var parent2 = parent1.find(".org_assignment_qualifications_item").eq(j);
@@ -4782,6 +4789,7 @@
 			$(".org_assignment_course_item").each(function(){
 		        var course_id = $(this).find(".org_assignment_course_select").val();
 		        if(course_id != ""){
+		        	var access = $(this).find(".access").prop("checked");
 	                var course_assignment_child = "";
 	                $(this).find(".org_assignment_qualifications_item").each(function(){
                         var course_assignment_child_1 = "";
@@ -4808,7 +4816,7 @@
                         course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
                 	});
 	                if(course_assignment_content != "")     course_assignment_content += ";";
-	                course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
+	                course_assignment_content += "(" + course_id + ")("+ access +")<" + course_assignment_child;
 		        }
 			});
 
