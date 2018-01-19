@@ -801,6 +801,7 @@
 			/*$(".calendar_check_would").change(function(event){
 			    event.preventDefault();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+				console.log("~7");
 					if (reg)
 					    pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
@@ -818,6 +819,7 @@
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
+                console.log("~6");
                     if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
                     else
@@ -849,6 +851,7 @@
 							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
 								input.hide();
 								button.hide();
+								console.log("~5");
 								pepreg.warning("Thank you for registering/recording attendance for this training!");
 								
 								pepreg.reloadTable();
@@ -886,6 +889,7 @@
 					}
 				}else{
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
+					console.log("~4");
 						if (data && data.is_attended)
 							pepreg.warning("Thank you for registering/recording attendance for this training!");
 						else
@@ -2522,6 +2526,7 @@
                             $check.click(function () {
                                 self.registerUser(training_id, this.checked, function (reg) {
                                     // self.reloadTable();
+                                    console.log("~3");
                                     if (reg)
                                         self.warning("Thank you for registering/recording attendance for this training!");
                                     else
@@ -2560,13 +2565,13 @@
                                     self.setStudentAttended(${request.user.id}, training_id, true, function () {
                                         $input.hide();
                                         $button.hide();
-
+                                        console.log("~1");
                                         var DataRow = $(this).closest("tr");
                                         warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
                                         warningData += DataRow.find("td:eq(5)").text() + "|";
                                         warningData += DataRow.find("td:eq(6)").text() + "|";
-                                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
+                                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
                                         self.warning("Thank you for registering/recording attendance for this training!" + warningData);
                                     });
@@ -2578,6 +2583,7 @@
                             $check.change(function () {
                                 self.setStudentAttended(${request.user.id}, training_id, this.checked, function (data) {
                                     if (data && data.is_attended){
+                                        console.log("~2");
                                         var DataRow = $(this).closest("tr");
                                         warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
