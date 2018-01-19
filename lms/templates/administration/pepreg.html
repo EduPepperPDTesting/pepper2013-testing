@@ -1712,16 +1712,18 @@
         }else{
             dailogTitle = "Warning";
         }
-        if(s && s.indexOf("Thank you for registering")===0){
+        if(s && s.indexOf("|")>-1){
             t = s.substring(0, s.indexOf("!") + 1);
             t += '<br/><br/><div title="Add to Calendar" class="addeventatc">';
-            t += "Add to Calendar"
+            t += 'Add to Calendar';
             t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
-            while (s.indexOf("|") > -1){
-                t += '<span class="end">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
-                s.replace("|", "");
-
-            }
+            t += '<span class="end">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+            s.replace("|", "");
+            t += '<span class="title">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+            s.replace("|", "");
+            t += '<span class="description">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+            s.replace("|", "");
+            t += '<span class="location">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
             s = t;
             console.log("s="+s);
         }
