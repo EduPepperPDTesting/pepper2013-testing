@@ -565,7 +565,7 @@ def discussion(request, discussion_id):
 def discussion_add(request):
     domain_name = request.META['HTTP_HOST']
     error = ''
-
+    back_data = {}
     try:
         fid = request.POST.get("fid", "")
         if not fid:
@@ -586,16 +586,35 @@ def discussion_add(request):
             }
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(fid)}, {"$set": my_discussion_post})
         else:
+            tmp_datetime = datetime.datetime.now(UTC())
             my_discussion_post = {
                 # "mysql_id": discussion.id,
                 "community_id": long(request.POST.get('community_id')),
                 "subject": request.POST.get('subject'),
                 "post": request.POST.get('post'),
                 "user": long(request.user.id),
-                "date_create": datetime.datetime.now(UTC()),
+                "date_create": tmp_datetime,
                 "db_table": "community_discussions"
             }
             disc_id = mongo3_store.insert(my_discussion_post)
+
+            back_data['_id'] = str(disc_id)
+            back_data['community_id'] = long(request.POST.get('community_id'))
+            back_data['user'] = request.user.id
+            back_data['subject'] = request.POST.get('subject')
+            back_data['post'] = request.POST.get('post')
+            back_data['first_name'] = request.user.first_name
+            back_data['last_name'] = request.user.last_name
+            back_data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+            back_data['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_datetime)
+            back_data['pin'] = ""
+            back_data['like_size'] = "0"
+            back_data['like_first'] = ""
+            back_data['like_last'] = ""
+            back_data['is_liked'] = ""
+            back_data['first_name'] = request.user.first_name
+            back_data["total"] = 0
+            back_data["Success"] = True
 
         if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
             try:
@@ -604,10 +623,21 @@ def discussion_add(request):
                 attachment.sub_type = discussion.id
                 attachment.upload = request.FILES.get('attachment')
                 attachment.save()
+
+                back_data['attachment'] = str(attachment.id)
+                tmp_file = FileUploads.objects.get(id=attachment.id)
+                back_data['attachment_name'] = get_file_name(tmp_file)
+                back_data['attachment_url'] = get_file_url(tmp_file)
             except:
                 attachment = None
+                back_data['attachment'] = ""
+                back_data['attachment_name'] = ""
+                back_data['attachment_url'] = ""
         else:
             attachment = None
+            back_data['attachment'] = ""
+            back_data['attachment_name'] = ""
+            back_data['attachment_url'] = ""
 
         if not fid:
             if attachment:
@@ -628,6 +658,7 @@ def discussion_add(request):
 
             discussion_id = discussion.id
             send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
+
     except Exception as e:
         error = e
         success = False
@@ -2713,7 +2744,6 @@ def new_process_get_discussion_reply(request):
     try:
         # id = 0
         size = int(request.POST.get('size', 10))
-        # page = int(request.POST.get('page', 1))
         comment_id = request.POST.get('comment_id', '')
         pid = request.POST.get('pid', '')
         level = request.POST.get('level', '')
@@ -2721,18 +2751,10 @@ def new_process_get_discussion_reply(request):
             mongo3_store = community_discussions_store()
             data = {'Success': False}
 
-            # skip = size * (page - 1)
             if level == "1":
                 total = mongo3_store.find({"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}).count(True)
             else:
                 total = mongo3_store.find({"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}).count(True)
-
-            # if total > size * page:
-            #     all = "NO"
-            # elif total == 0:
-            #     all = "DONE"
-            # else:
-            #     all = "DONE"
 
             discussions_json = []
             if level == "1":
@@ -2749,12 +2771,6 @@ def new_process_get_discussion_reply(request):
                     tmp_reply_next = ""
 
                     total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
-                    # if total_3 > size:
-                    #     all_3 = "NO"
-                    # elif total_3 == 0:
-                    #     all_3 = "DONE"
-                    # else:
-                    #     all_3 = "DONE"
 
                     for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, size, "date_create", -1):
                         user_2 = User.objects.get(id=itemx_2['user'])
@@ -2855,7 +2871,6 @@ def new_process_get_discussion_reply(request):
                     discussions_json_2['attachment_pict'] = attachment_pict_reply
                     discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
                     discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
-                    # discussions_json_2['all'] = all_3
                     discussions_json_2['total'] = total_3
 
                     discussions_json.append(discussions_json_2)
@@ -2919,7 +2934,6 @@ def new_process_get_discussion_reply(request):
                     discussions_json.append(discussions_json_3)
 
             data['Success'] = True
-            # data['all'] = all
             data['total'] = total
             data['discussions_json'] = discussions_json
 
@@ -3007,14 +3021,17 @@ def new_process_submit_comment(request):
         level = request.POST.get("level", "")
         data = {'Success': False, 'did': did, 'content': content, 'level': level}
         mongo3_store = community_discussions_store()
-        # --"discussion_id": dis_one['_id'],
-        # --"post": replies.post,
-        # --"user": replies.user_id,
-        # --"date_create": replies.date_create,
-        # ----"attachment": replies.attachment_id,
-        # --"db_table": "community_discussion_replies"
+        new_json = {}
+
         if did and level and community_id:
             tmp_date_create = datetime.datetime.now(UTC())
+            attachment_id = ""
+            attachment_url = ""
+            attachment_name = ""
+            attachment_pict_id = ""
+            attachment_pict_url = ""
+            attachment_pict_name = ""
+
             if level == "1":
                 my_discussion_post = {
                     "community_id": long(community_id),
@@ -3033,6 +3050,10 @@ def new_process_submit_comment(request):
                         attachment.sub_type = did
                         attachment.upload = request.FILES.get('upload_attr')
                         attachment.save()
+
+                        attachment_id = str(attachment.id)
+                        attachment_url = get_file_url(attachment)
+                        attachment_name = get_file_name(attachment)
                     except:
                         attachment = None
                 else:
@@ -3045,6 +3066,10 @@ def new_process_submit_comment(request):
                         attachment_pict.sub_type = did
                         attachment_pict.upload = request.FILES.get('upload_pict')
                         attachment_pict.save()
+
+                        attachment_pict_id = str(attachment_pict.id)
+                        attachment_pict_url = get_file_url(attachment_pict)
+                        attachment_pict_name = get_file_name(attachment_pict)
                     except:
                         attachment_pict = None
                 else:
@@ -3057,6 +3082,15 @@ def new_process_submit_comment(request):
                     mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(replies_id)}, {"$set": {"attachment_pict": attachment_pict.id}})
 
                 mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
+
+                data['_id'] = str(replies_id)
+                data['pid'] = did
+                data['post'] = content
+                data['first_name'] = request.user.first_name
+                data['last_name'] = request.user.last_name
+                data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+                data['is_reply_liked'] = ""
+                data['like_reply_size'] = "0"
             else:
                 if fid and fid_level:
                     if fid_level == "2":
@@ -3088,9 +3122,6 @@ def new_process_submit_comment(request):
                     }
                     replies_id = mongo3_store.insert(my_discussion_post)
 
-                attachment_id = ""
-                attachment_url = ""
-                attachment_name = ""
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
                     try:
                         attachment = FileUploads()
@@ -3107,10 +3138,6 @@ def new_process_submit_comment(request):
                 else:
                     attachment = None
 
-                data["attachment"] = attachment_id
-                data["attachment_url"] = attachment_url
-                data["attachment_name"] = attachment_name
-
                 if attachment:
                     if fid and fid_level:
                         if fid_level == "2":
@@ -3120,9 +3147,6 @@ def new_process_submit_comment(request):
                     else:
                         mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
 
-                attachment_pict_id = ""
-                attachment_pict_url = ""
-                attachment_pict_name = ""
                 if request.FILES.get('upload_pict') is not None and request.FILES.get('upload_pict').size:
                     try:
                         attachment_pict = FileUploads()
@@ -3139,10 +3163,6 @@ def new_process_submit_comment(request):
                 else:
                     attachment_pict = None
 
-                data["attachment_pict"] = attachment_pict_id
-                data["attachment_pict_url"] = attachment_pict_url
-                data["attachment_pict_name"] = attachment_pict_name
-
                 if attachment_pict:
                     if fid and fid_level:
                         if fid_level == "2":
@@ -3155,6 +3175,15 @@ def new_process_submit_comment(request):
                     pass
                 else:
                     mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
+
+                    data['_id'] = str(replies_id)
+                    data['pid'] = did
+                    data['post'] = content
+                    data['first_name'] = request.user.first_name
+                    data['last_name'] = request.user.last_name
+                    data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+                    data['is_reply_next_liked'] = ""
+                    data['like_reply_next_size'] = "0"
             # rs = myactivitystore()
             # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
             # "URLValues": {"discussion_id": discussion.id},
@@ -3165,6 +3194,13 @@ def new_process_submit_comment(request):
             # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
             # discussion.date_reply = reply.date_create
             # discussion.save()
+
+            data["attachment"] = attachment_id
+            data["attachment_url"] = attachment_url
+            data["attachment_name"] = attachment_name
+            data["attachment_pict"] = attachment_pict_id
+            data["attachment_pict_url"] = attachment_pict_url
+            data["attachment_pict_name"] = attachment_pict_name
             data["Success"] = True
 
     except Exception as e:
