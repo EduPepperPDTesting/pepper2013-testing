@@ -1732,7 +1732,7 @@
         }
         if(s && s.indexOf("|")>-1){
             t = s.substring(0, s.indexOf("!") + 1);
-            t += '<br/><br/><div title="Add to Calendar" class="addeventatc">';
+            t += '<br/><br/><div title="Add to Calendar" class="addeventatc" data-direct="outlook">';
             t += 'Add to Calendar';
             t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
             t += '<span class="end">' + s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1) + '</span>';
