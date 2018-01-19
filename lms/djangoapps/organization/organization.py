@@ -5,7 +5,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
-
+from django.http import HttpResponseForbidden
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -128,8 +128,15 @@ def main(request):
         elif post_flag == "organization_register_save":
             return organization_register_save(request)
     else:
-        tmp = "organization/organization.html"
-        return render_to_response(tmp)
+        if request.user.is_superuser:
+            tmp = "organization/organization.html"
+            return render_to_response(tmp)
+        else:
+            error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper,\
+                          please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
+            return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 
 # -------------------------------------------------------------------organization_register_save
