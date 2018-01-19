@@ -1742,11 +1742,8 @@
             eventDescription = s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1);
             s = s.replace("|", "");
             eventLocation = s.substr(s.indexOf("|")).substring(1);
-            t += '<br/><br/><button id="getICS">Add to Calendar</button>';
+            t += '<br/><br/><button id="getICS" onclick="function(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)">Add to Calendar</button>';
             s = t;
-             $("#getICS").onlick(function(eventTitle, eventDescription, eventLocation, eventStart, eventEnd){
-                downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)
-             });
             console.log("s="+s);
         }
         dlg.show(dailogTitle, s);
