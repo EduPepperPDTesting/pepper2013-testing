@@ -31,6 +31,10 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
+<!-- AddEvent script -->
+<script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
+
+
 <!-- href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/ -->
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
 
@@ -798,7 +802,7 @@
 			    event.preventDefault();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 					if (reg)
-						pepreg.warning("Thank you for registering/recording attendance for this training!");
+					    pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
 						
@@ -815,7 +819,13 @@
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg)
-						pepreg.warning("Thank you for registering/recording attendance for this training!");
+					    var DataRow = $(this).closest("tr");
+					    warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+					    warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+					    warningData += DataRow.find("td:eq(5)").text() + "|";
+					    warningData += DataRow.find("td:eq(6)").text() + "|";
+					    warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
+						pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
                     console.log("calendar_check_would pre -" + $("this").prop("checked"));
@@ -1707,6 +1717,21 @@
             dailogTitle = "Confirmation";
         }else{
             dailogTitle = "Warning";
+        }
+        if(s && s.indexOf("Thank you for registering")===0){
+            t = substring(0, s.indexOf("!") + 1);
+            t += '<div title="Add to Calendar" class="addeventatc">';
+            t += "Add to Calendar"
+            t += '<span class="start">' + substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
+            s.replace("|", "");
+            t += '<span class="end">' + substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+            s.replace("|", "");
+            t += '<span class="title">s.replace("|", "");</span>';
+            s.replace("|", "");
+            t += '<span class="description">s.replace("|", "");</span>';
+            s.replace("|", "");
+            t += '<span class="location">s.replace("|", "");</span>';
+            s = t;
         }
         dlg.show(dailogTitle, s);
         dlg.lift(100);
