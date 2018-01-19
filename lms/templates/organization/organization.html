@@ -963,6 +963,7 @@
                 <td class="org_td1">CMS Items: </td>
                 <td></td>
                 <td></td>
+                <input id="cms_popup" type ="button" value="CMS Resource">
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
@@ -1278,6 +1279,9 @@
     </div>
 </div>
 
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
 	var org_current_id = "";
 	var design_current_id = ""
@@ -1547,6 +1551,10 @@
 		}
 	};
 	
+    function new_cms_resource(data) {
+        console.log(data);
+    }
+
 	//-----------------------------------------------------------------------checkOrganization
 	function checkOrganization(name, oid) {
 		var valid = true;
@@ -3690,6 +3698,18 @@
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
+        $.post("${reverse('cms_popup')}",{}, function(e){
+            $("#cms_dialog").html(e);
+        });
+        $("#cms_popup").click(function() {
+            $("#cms_dialog").show();
+            var callback = $.Callbacks();
+            callback.add(new_cms_resource);
+            initializeCMSPopup(callback);
+        });
+        $("body").on("click", "#cms_close", function () {
+            $("#cms_dialog").hide();
+        })
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
