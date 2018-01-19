@@ -5,7 +5,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
-
+from django.http import HttpResponseForbidden
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -129,8 +129,15 @@ def main(request):
         elif post_flag == "organization_register_save":
             return organization_register_save(request)
     else:
-        tmp = "organization/organization.html"
-        return render_to_response(tmp)
+        if request.user.is_superuser:
+            tmp = "organization/organization.html"
+            return render_to_response(tmp)
+        else:
+            error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper,\
+                          please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
+            return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 
 # -------------------------------------------------------------------organization_register_save
@@ -2260,7 +2267,12 @@ def organization_qualifications(specific_items, course_assignment_content):
         for tmp1 in assignments:
             qualification = {}
             qualification['filters'] = []
-            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            temp = tmp1.split('<')[0].split('|')
+            if len(temp) > 1:
+                qualification['access'] = temp[1].replace('(','').replace(')','')
+            else:
+                qualification['access'] = 'false'
+            qualification['course_id'] = tmp1.split('<')[0].split('|')[0].replace('(','').replace(')','')
             qualifications_items = tmp1.split('<')[1].split(',')
             for tmp2 in qualifications_items:
                 tmp3 = tmp2.split('>')
@@ -2327,9 +2339,10 @@ def course_assign(qualifications, data):
             user = User.objects.get(email=data['email'])
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
             cea.is_active = True
-            cea.auto_enroll = True
+            cea.auto_enroll = False
             cea.save()
-            CourseEnrollment.enroll(user, tmp2['course_id'])
+            if not tmp2['access'] == 'true':
+                CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
             my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
             "URLValues": {"course_id": tmp2['course_id']},    

@@ -244,6 +244,7 @@ $(document).on('click', function(event) {
 	}
 });
 
+var sys_community_id = "${community.id}";
 var dis_size = 2;
 var reply_size = 2;
 var sys_uid = "${request.user.id}";
@@ -314,7 +315,7 @@ function addNewDiscussion(fid, subject, post){
 							pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
 							$.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
 								if (data.Success) {
-									window.location.replace("/community/${community.id}");
+									//window.location.replace("/community/${community.id}");
 								} else {
 									$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data.Error)
 								}
@@ -326,7 +327,7 @@ function addNewDiscussion(fid, subject, post){
 								tmp_block.find(".dis_post:first").html($("#post").val());
 								discussion_dialog.hide();
 							}else{
-								window.location.replace("/community/${community.id}");
+								//window.location.replace("/community/${community.id}");
 							}
 						}
 
@@ -477,6 +478,134 @@ function getAttachmentPictHtml(json, level_sn){
 	return html;
 }
 
+//-----------------------------------------------------------------------getDiscussionsHtml
+function getDiscussionsHtml(json, tmp_reply){
+	var html = "";
+	html += "<div class='center_block' discussion_id='" + json._id + "' community_id='" + sys_community_id + "'>";
+	html += "    <span class='center_block_left'><img class='user_phone' src ='" + json.user_photo + "' /></span>";
+	html += "    <span class='center_block_right'>";
+	html += "        <div class='dis_row'>";
+	html += "            <span class='dis_subject'>" + json.subject + "</span>";
+	html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + json.pin + "' title='Unpin'></span>";
+	html += "        </div>";
+	html += "        <div class='dis_row'><div class='dis_post'>" + json.post + "</div></div>";
+	html += getAttachmentPictHtml(json, 1);
+	html += getAttachmentHtml(json, 1);
+	html += "        <div class='dis_row'>";
+	html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>";
+	html += "            <span class='dis_posted_by_first_name'>" + json.first_name + "</span>";
+	html += "            <span class='dis_posted_tool'>";
+	html += "                <span class='icon-aw icon-comment'> Comment</span>";
+	html += "                <span class='icon-aw icon-thumbs-up discussion_liked' is_liked='" + json.is_liked + "'> Like</span>";
+	html += "                <span class='icon-aw icon-edit'> Edit</span>";
+	html += "                <span class='icon-aw icon-reorder dis_more' levelx='1' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
+	html += "            </span>";
+	html += "        </div>";
+	html += "        <div class='dis_row'>";
+	html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>";
+	html += "            <span class='dis_posted_by_first_name'>" + json.date_create + "</span>";
+	html += "            <span class='dis_posted_tool'>";
+	html += "                <span class='discussion_liked_txt' like_size='" + json.like_size + "' like_first='" + json.like_first + "' like_last='" + json.like_last + "'></span>";
+	html += "            </span>";
+	html += "        </div>";
+	html += "        <div class='comment_row_parent'>";
+	html += "            <div class='dis_row comment_row'>";
+	html += "                <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + json._id + "'>";
+	html += "                    <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
+	html += "                    <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:400px;'></textarea>";
+	html += "                    <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + json._id + "\")' style='display:none'></span>";
+	html += "                    <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + json._id + "\")' style='display:none'></span>";
+	html += "                    <div class='attr_div'><span class='ad_c' style='width:400px;'></span><span class='ad_c' style='width:400px;'></span></div>";
+	html += "                    <input type='hidden' name='level' value='1'/>";
+	html += "                    <input type='hidden' name='did' value='" + json._id + "'/>";
+	html += "                    <input type='hidden' name='fid' value=''/>";
+	html += "                    <input type='hidden' name='flag' value='submit_comment'/>";
+	html += "                    <input type='hidden' name='community_id' value='" + sys_community_id + "'/>";
+	html += "                    <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
+	html += "                </form>";
+	html += "            </div>";
+	html += "        </div>";
+	html += "        <div class='dis_reply' total='" + json.total + "' level='1'>" + tmp_reply + "</div>";
+	html += "    </span>";
+	html += "</div>";
+	html += "</div><div class='community-clear'></div></div>";
+	return html;
+}
+
+//-----------------------------------------------------------------------getRepliesHtml
+function getRepliesHtml(json, pid, reply_next){
+	var tmp_reply = "";
+	tmp_reply += "<div class='dis_reply_block' discussion_id='" + pid + "'  comment_id='" + json._id + "' community_id='" + sys_community_id + "'>";
+	tmp_reply += "    <span class='dis_reply_left'>";
+	tmp_reply += "        <img class='user_phone' src ='" + json.user_photo + "' />";
+	tmp_reply += "    </span>";
+	tmp_reply += "    <span class='dis_reply_right'>";
+	tmp_reply += "        <div class='dis_row'>";
+	tmp_reply += "            <span class='dis_subject'>" + json.first_name + " " + json.last_name + "</span>";
+	tmp_reply += "        </div>";
+	tmp_reply += "        <div class='dis_row'><div class='dis_post'>" + json.post + "</div></div>";					
+	tmp_reply += getAttachmentPictHtml(json, 2);
+	tmp_reply += getAttachmentHtml(json, 2);
+	tmp_reply += "        <div class='dis_row dis_reply_tool'>";
+	tmp_reply += "            <span class='icon-aw icon-comment'> Comment</span>";
+	tmp_reply += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + json.is_reply_liked + "' like_size='" + json.like_reply_size + "'></span>";
+	tmp_reply += "            <span class='icon-aw icon-edit'> Edit</span>";
+	tmp_reply += "            <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
+	tmp_reply += "        </div>";
+	tmp_reply += "        <div class='dis_reply' total='" + json.total + "' level='2'>" + reply_next + "</div>"
+	tmp_reply += "        <div class='dis_row comment_row' style='width:450px;'>";
+	tmp_reply += "            <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + pid + "_" + json._id + "'>";
+	tmp_reply += "                <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
+	tmp_reply += "                <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:350px;'></textarea>";
+	tmp_reply += "                <span class='icon-aw icon-paper-clip btn_upload_attr'>";
+	tmp_reply += "                    <input type='file' name='upload_attr' onchange='upload_attr_change(\"" + pid + "\",\"" + json._id + "\")' style='display:none'>";
+	tmp_reply += "                </span>";
+	tmp_reply += "                <span class='icon-aw icon-picture btn_upload_pict'>";
+	tmp_reply += "                    <input type='file' name='upload_pict' onchange='upload_pict_change(\"" + pid + "\",\"" + json._id + "\")' style='display:none'>";
+	tmp_reply += "                </span>";
+	tmp_reply += "                <div class='attr_div'><span class='ad_c' style='width:350px;'></span><span class='ad_c' style='width:350px;'></span></div>";
+	tmp_reply += "                <input type='hidden' name='level' value='2'/>";
+	tmp_reply += "                <input type='hidden' name='disc_id' value='" + pid + "'/>";
+	tmp_reply += "                <input type='hidden' name='did' value='" + json._id + "'/>";
+	tmp_reply += "                <input type='hidden' name='fid' value=''/>";
+	tmp_reply += "                <input type='hidden' name='fid_level' value=''/>";
+	tmp_reply += "                <input type='hidden' name='fid_attr_isdel' value=''/>";
+	tmp_reply += "                <input type='hidden' name='fid_pict_isdel' value=''/>";
+	tmp_reply += "                <input type='hidden' name='flag' value='submit_comment'/>";
+	tmp_reply += "                <input type='hidden' name='community_id' value='" + sys_community_id + "'/>";
+	tmp_reply += "                <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
+	tmp_reply += "            </form>";
+	tmp_reply += "        </div>";
+	tmp_reply += "    </span>";
+	tmp_reply += "</div>";
+	return tmp_reply;
+}
+
+//-----------------------------------------------------------------------getRepliesNextHtml
+function getRepliesNextHtml(json, pid){
+	var html = "";
+	html += "<div class='dis_reply_next_block' discussion_id='" + pid + "' comment_id='" + json._id + "' community_id='" + sys_community_id + "'>";
+	html += "    <span class='dis_reply_next_left'>";
+	html += "        <img class='user_phone' src ='" + json.user_photo + "' />";
+	html += "    </span>";
+	html += "    <span class='dis_reply_next_right'>";
+	html += "        <div class='dis_row'>";
+	html += "            <span class='dis_subject'>" + json.first_name + " " + json.last_name + "</span>";
+	html += "        </div>";
+	html += "        <div class='dis_row'><div class='dis_post'>" + json.post + "</div></div>";					
+	html += getAttachmentPictHtml(json, 3);
+	html += getAttachmentHtml(json, 3);
+	html += "        <div class='dis_row dis_reply_tool'>";
+	html += "            <span class='icon-aw icon-comment'> Comment</span>";
+	html += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + json.is_reply_next_liked + "' like_size='" + json.like_reply_next_size + "'></span>";
+	html += "            <span class='icon-aw icon-edit'> Edit</span>";
+	html += "            <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
+	html += "        </div>";							
+	html += "    </span>";
+	html += "</div>";
+	return html;
+}
+
 //-----------------------------------------------------------------------reply_sort
 function reply_sort(x, y) {
 	return (x.date_create < y.date_create) ? -1 : 1;
@@ -505,114 +634,11 @@ function getCommunityDiscussions(json_obj){
 					for(var index3 in itemx_1.child){
 						var itemx_2 = itemx_1.child[index3];
 						
-						tmp_reply_next += "<div class='dis_reply_next_block' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + disc.community_id + "'>";
-						tmp_reply_next += "    <span class='dis_reply_next_left'>";
-						tmp_reply_next += "        <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
-						tmp_reply_next += "    </span>";
-						tmp_reply_next += "    <span class='dis_reply_next_right'>";
-						tmp_reply_next += "        <div class='dis_row'>";
-						tmp_reply_next += "            <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
-						tmp_reply_next += "        </div>";
-						tmp_reply_next += "        <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
-						tmp_reply_next += getAttachmentPictHtml(itemx_2, 3);
-						tmp_reply_next += getAttachmentHtml(itemx_2, 3);
-						tmp_reply_next += "        <div class='dis_row dis_reply_tool'>";
-						tmp_reply_next += "            <span class='icon-aw icon-comment'> Comment</span>";
-						tmp_reply_next += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
-						tmp_reply_next += "            <span class='icon-aw icon-edit'> Edit</span>";
-						tmp_reply_next += "            <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
-						tmp_reply_next += "        </div>";							
-						tmp_reply_next += "    </span>";
-						tmp_reply_next += "</div>";
+						tmp_reply_next += getRepliesNextHtml(itemx_2, itemx_1._id);		//reply next html
 					}
-					tmp_reply += "<div class='dis_reply_block' discussion_id='" + disc._id + "'  comment_id='" + itemx_1._id + "' community_id='" + disc.community_id + "'>";
-					tmp_reply += "    <span class='dis_reply_left'>";
-					tmp_reply += "        <img class='user_phone' src ='" + itemx_1.user_photo + "' />";
-					tmp_reply += "    </span>";
-					tmp_reply += "    <span class='dis_reply_right'>";
-					tmp_reply += "        <div class='dis_row'>";
-					tmp_reply += "            <span class='dis_subject'>" + itemx_1.first_name + " " + itemx_1.last_name + "</span>";
-					tmp_reply += "        </div>";
-					tmp_reply += "        <div class='dis_row'><div class='dis_post'>" + itemx_1.post + "</div></div>";					
-					tmp_reply += getAttachmentPictHtml(itemx_1, 2);
-					tmp_reply += getAttachmentHtml(itemx_1, 2);
-					tmp_reply += "        <div class='dis_row dis_reply_tool'>";
-					tmp_reply += "            <span class='icon-aw icon-comment'> Comment</span>";
-					tmp_reply += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_1.is_reply_liked + "' like_size='" + itemx_1.like_reply_size + "'></span>";
-					tmp_reply += "            <span class='icon-aw icon-edit'> Edit</span>";
-					tmp_reply += "            <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||itemx_1.user==sys_uid)?"1":"0") + "'> More</span>";
-					tmp_reply += "        </div>";
-					tmp_reply += "        <div class='dis_reply' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
-					tmp_reply += "        <div class='dis_row comment_row' style='width:450px;'>";
-					tmp_reply += "            <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + disc._id + "_" + itemx_1._id + "'>";
-					tmp_reply += "                <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
-					tmp_reply += "                <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:350px;'></textarea>";
-					tmp_reply += "                <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + disc._id + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
-					tmp_reply += "                <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + disc._id + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
-					tmp_reply += "                <div class='attr_div'><span class='ad_c' style='width:350px;'></span><span class='ad_c' style='width:350px;'></span></div>";
-					tmp_reply += "                <input type='hidden' name='level' value='2'/>";
-					tmp_reply += "                <input type='hidden' name='disc_id' value='" + disc._id + "'/>";
-					tmp_reply += "                <input type='hidden' name='did' value='" + itemx_1._id + "'/>";
-					tmp_reply += "                <input type='hidden' name='fid' value=''/>";
-					tmp_reply += "                <input type='hidden' name='fid_level' value=''/>";
-					tmp_reply += "                <input type='hidden' name='fid_attr_isdel' value=''/>";
-					tmp_reply += "                <input type='hidden' name='fid_pict_isdel' value=''/>";
-					tmp_reply += "                <input type='hidden' name='flag' value='submit_comment'/>";
-					tmp_reply += "                <input type='hidden' name='community_id' value='" + disc.community_id + "'/>";
-					tmp_reply += "                <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
-					tmp_reply += "            </form>";
-					tmp_reply += "        </div>";
-					tmp_reply += "    </span>";
-					tmp_reply += "</div>";
+					tmp_reply += getRepliesHtml(itemx_1, disc._id, tmp_reply_next);		//reply html
 				}
-				html += "<div class='center_block' discussion_id='" + disc._id + "' community_id='" + disc.community_id + "'>";
-				html += "    <span class='center_block_left'><img class='user_phone' src ='" + disc.user_photo + "' /></span>";
-				html += "    <span class='center_block_right'>";
-				html += "        <div class='dis_row'>";
-				html += "            <span class='dis_subject'>" + disc.subject + "</span>";
-				html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + disc.pin + "' title='Unpin'></span>";
-				html += "        </div>";
-				html += "        <div class='dis_row'><div class='dis_post'>" + disc.post + "</div></div>";
-				html += getAttachmentPictHtml(disc, 1);
-				html += getAttachmentHtml(disc, 1);
-				html += "        <div class='dis_row'>";
-				html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>";
-				html += "            <span class='dis_posted_by_first_name'>" + disc.first_name + "</span>";
-				html += "            <span class='dis_posted_tool'>";
-				html += "                <span class='icon-aw icon-comment'> Comment</span>";
-				html += "                <span class='icon-aw icon-thumbs-up discussion_liked' is_liked='" + disc.is_liked + "'> Like</span>";
-				html += "                <span class='icon-aw icon-edit'> Edit</span>";
-				html += "                <span class='icon-aw icon-reorder dis_more' levelx='1' isDel='" + ((isSuperUser||disc.user==sys_uid)?"1":"0") + "'> More</span>";
-				html += "            </span>";
-				html += "        </div>";
-				html += "        <div class='dis_row'>";
-				html += "            <span class='dis_posted_by'>Posted On:&nbsp;</span>";
-				html += "            <span class='dis_posted_by_first_name'>" + disc.date_create + "</span>";
-				html += "            <span class='dis_posted_tool'>";
-				html += "                <span class='discussion_liked_txt' like_size='" + disc.like_size + "' like_first='" + disc.like_first + "' like_last='" + disc.like_last + "'></span>";
-				html += "            </span>";
-				html += "        </div>";
-				html += "        <div class='comment_row_parent'>";
-				html += "            <div class='dis_row comment_row'>";
-				html += "                <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + disc._id + "'>";
-				html += "                    <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
-				html += "                    <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:400px;'></textarea>";
-				html += "                    <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + disc._id + "\")' style='display:none'></span>";
-				html += "                    <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + disc._id + "\")' style='display:none'></span>";
-				html += "                    <div class='attr_div'><span class='ad_c' style='width:400px;'></span><span class='ad_c' style='width:400px;'></span></div>";
-				html += "                    <input type='hidden' name='level' value='1'/>";
-				html += "                    <input type='hidden' name='did' value='" + disc._id + "'/>";
-				html += "                    <input type='hidden' name='fid' value=''/>";
-				html += "                    <input type='hidden' name='flag' value='submit_comment'/>";
-				html += "                    <input type='hidden' name='community_id' value='" + disc.community_id + "'/>";
-				html += "                    <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
-				html += "                </form>";
-				html += "            </div>";
-				html += "        </div>";
-				html += "        <div class='dis_reply' total='" + disc.total + "' level='1'>" + tmp_reply + "</div>";
-				html += "    </span>";
-				html += "</div>";
-				html += "</div><div class='community-clear'></div></div>";
+				html += getDiscussionsHtml(disc, tmp_reply);	//reply discussions html
 			}
 
 			if(json_obj && json_obj.append == "1"){
@@ -654,7 +680,7 @@ function getCommunityDiscussions(json_obj){
 								}else{
 									pid = $(this).parents(".dis_reply_block").attr("comment_id");
 								}
-								getCommunityDiscussionReplies($(this), level, pid);	//el, level, pid
+								getCommunityDiscussionReplies($(this), level, pid);	//getCommunityDiscussionReplies: el, level, pid
 							});
 						}
 					}
@@ -710,89 +736,15 @@ function getCommunityDiscussionReplies(el, level, pid){
 					for(var index3 in itemx_1.child){
 						var itemx_2 = itemx_1.child[index3];
 						
-						tmp_reply_next += "<div class='dis_reply_next_block' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
-						tmp_reply_next += "<span class='dis_reply_next_left'>";
-						tmp_reply_next += "    <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
-						tmp_reply_next += "</span>";
-						tmp_reply_next += "<span class='dis_reply_next_right'>";
-						tmp_reply_next += "    <div class='dis_row'>";
-						tmp_reply_next += "        <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
-						tmp_reply_next += "    </div>";
-						tmp_reply_next += "    <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
-						tmp_reply_next += getAttachmentPictHtml(itemx_2, 3);
-						tmp_reply_next += getAttachmentHtml(itemx_2, 3);
-						tmp_reply_next += "    <div class='dis_row dis_reply_tool' discussion_id='" + itemx_1._id + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
-						tmp_reply_next += "        <span class='icon-aw icon-comment'> Comment</span>";
-						tmp_reply_next += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
-						tmp_reply_next += "        <span class='icon-aw icon-edit'> Edit</span>";
-						tmp_reply_next += "        <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
-						tmp_reply_next += "    </div>";							
-						tmp_reply_next += "</span>";
-						tmp_reply_next += "</div>";	
+						tmp_reply_next += getRepliesNextHtml(itemx_2, itemx_1._id);	//reply next html
 					}
-					tmp_reply += "<div class='dis_reply_block' discussion_id='" + pid + "'  comment_id='" + itemx_1._id + "' community_id='" + itemx_1.community_id + "'>";
-					tmp_reply += "<span class='dis_reply_left'>";
-					tmp_reply += "    <img class='user_phone' src ='" + itemx_1.user_photo + "' />";
-					tmp_reply += "</span>";
-					tmp_reply += "<span class='dis_reply_right'>";
-					tmp_reply += "    <div class='dis_row'>";
-					tmp_reply += "        <span class='dis_subject'>" + itemx_1.first_name + " " + itemx_1.last_name + "</span>";
-					tmp_reply += "    </div>";
-					tmp_reply += "    <div class='dis_row'><div class='dis_post'>" + itemx_1.post + "</div></div>";					
-					tmp_reply += getAttachmentPictHtml(itemx_1, 2);
-					tmp_reply += getAttachmentHtml(itemx_1, 2);
-					tmp_reply += "    <div class='dis_row dis_reply_tool'>";
-					tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>";
-					tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_1.is_reply_liked + "' like_size='" + itemx_1.like_reply_size + "'></span>";
-					tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>";
-					tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||itemx_1.user==sys_uid)?"1":"0") + "'> More</span>";
-					tmp_reply += "    </div>";
-					tmp_reply += "    <div class='dis_reply' all='" + itemx_1.all + "' total='" + itemx_1.total + "' level='2'>" + tmp_reply_next + "</div>"
-					tmp_reply += "    <div class='dis_row comment_row' style='width:450px;'>";
-					tmp_reply += "        <form action='${reverse('new_discussion_process')}' method='post' enctype='multipart/form-data' id='reply_form_" + pid + "_" + itemx_1._id + "'>";
-					tmp_reply += "            <img src='${reverse('user_photo', args=[request.user.id])}' class='user_phone'>";
-					tmp_reply += "            <textarea class='comment_text' name='content' placeholder='Add a comment...' style='width:350px;'></textarea>";
-					tmp_reply += "            <span class='icon-aw icon-paper-clip btn_upload_attr'><input type='file' name='upload_attr' onchange='upload_attr_change(\"" + pid + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
-					tmp_reply += "            <span class='icon-aw icon-picture btn_upload_pict'><input type='file' name='upload_pict' onchange='upload_pict_change(\"" + pid + "\",\"" + itemx_1._id + "\")' style='display:none'></span>";
-					tmp_reply += "            <div class='attr_div'><span class='ad_c' style='width:350px;'></span><span class='ad_c' style='width:350px;'></span></div>";
-					tmp_reply += "            <input type='hidden' name='level' value='2'/>";
-					tmp_reply += "            <input type='hidden' name='disc_id' value='" + pid + "'/>";
-					tmp_reply += "            <input type='hidden' name='did' value='" + itemx_1._id + "'/>";
-					tmp_reply += "            <input type='hidden' name='fid' value=''/>";
-					tmp_reply += "            <input type='hidden' name='fid_level' value=''/>";
-					tmp_reply += "            <input type='hidden' name='fid_attr_isdel' value=''/>";
-					tmp_reply += "            <input type='hidden' name='fid_pict_isdel' value=''/>";
-					tmp_reply += "            <input type='hidden' name='flag' value='submit_comment'/>";
-					tmp_reply += "            <input type='hidden' name='community_id' value='" + itemx_1.community_id + "'/>";
-					tmp_reply += "            <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
-					tmp_reply += "        </form>";
-					tmp_reply += "    </div>";
-					tmp_reply += "</span>";	
-					tmp_reply += "</div>";				
+					tmp_reply += getRepliesHtml(itemx_1, pid, tmp_reply_next);	//reply html
 				}
 			}else{
 				data.discussions_json.sort(reply_sort);
 				for(var index3 in data.discussions_json){
 					var itemx_2 = data.discussions_json[index3];
-					tmp_reply += "<div class='dis_reply_next_block' discussion_id='" + pid + "' comment_id='" + itemx_2._id + "' community_id='" + itemx_2.community_id + "'>";
-					tmp_reply += "<span class='dis_reply_next_left'>";
-					tmp_reply += "    <img class='user_phone' src ='" + itemx_2.user_photo + "' />";
-					tmp_reply += "</span>";
-					tmp_reply += "<span class='dis_reply_next_right'>";
-					tmp_reply += "    <div class='dis_row'>";
-					tmp_reply += "        <span class='dis_subject'>" + itemx_2.first_name + " " + itemx_2.last_name + "</span>";
-					tmp_reply += "    </div>";
-					tmp_reply += "    <div class='dis_row'><div class='dis_post'>" + itemx_2.post + "</div></div>";					
-					tmp_reply += getAttachmentPictHtml(itemx_2, 3);
-					tmp_reply += getAttachmentHtml(itemx_2, 3);
-					tmp_reply += "    <div class='dis_row dis_reply_tool'>";
-					tmp_reply += "        <span class='icon-aw icon-comment'> Comment</span>";
-					tmp_reply += "        <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + itemx_2.is_reply_next_liked + "' like_size='" + itemx_2.like_reply_next_size + "'></span>";
-					tmp_reply += "        <span class='icon-aw icon-edit'> Edit</span>";
-					tmp_reply += "        <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||itemx_2.user==sys_uid)?"1":"0") + "'> More</span>";
-					tmp_reply += "    </div>";							
-					tmp_reply += "</span>";
-					tmp_reply += "</div>";
+					tmp_reply += getRepliesNextHtml(itemx_2, pid);	//reply next html
 				}
 			}
 			//---------------------------------------------------------
@@ -909,7 +861,6 @@ function addCommunityDiscussionEvent(){
 									if(tmp_attr != ""){
 										tmp_block.find(".dis_reply_tool").before(tmp_attr);
 									}
-									
 								}else if(fid_level == "3"){
 									var tmp_block = $(".dis_reply_next_block[comment_id='" + fid + "']");
 									var tmp_attr = getAttachmentHtml(data, 3);
@@ -937,9 +888,18 @@ function addCommunityDiscussionEvent(){
 									}
 								}
 							}
+							//-----------new
+							else{
+								if(level == "1"){
+									form_el.parent().parent().next().append(getRepliesHtml(data, data.pid, ""));
+								}else{
+									form_el.parent().prev().append(getRepliesNextHtml(data, data.pid));
+								}
+								addCommunityDiscussionEvent();
+							}
 							form_el.parent().hide();
 						}else{
-							alert(data.Error);
+							alert("Error: " + data.Error);
 						}
 						loadwin.hide();
 					},
@@ -965,7 +925,7 @@ function addCommunityDiscussionEvent(){
 		var levelx = $(this).parent().find(".dis_more").attr("levelx");
 		var tmp_row = null, tmp_val = "";		
 		if(levelx == "1"){
-			tmp_row = $(this).parents(".center_block").find(".comment_row_parent:first");
+			tmp_row = $(this).parents(".center_block").find(".comment_row_parent").find(".comment_row");
 			resetFileField($(this).parents(".center_block").attr("discussion_id"), "");
 			
 		}else if(levelx == "2"){
