@@ -825,7 +825,7 @@
 					    warningData += DataRow.find("td:eq(5)").text() + "|";
 					    warningData += DataRow.find("td:eq(6)").text() + "|";
 					    warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
-						pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+						pepreg.warning("Thank you for registering/recording attendance for this training!~3" + warningData);
                     }else{
                         pepreg.warning("Thank you! You are no longer registered for this training.");
                     }
@@ -856,7 +856,7 @@
 							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
 								input.hide();
 								button.hide();
-								pepreg.warning("Thank you for registering/recording attendance for this training!");
+								pepreg.warning("Thank you for registering/recording attendance for this training!~2");
 								
 								pepreg.reloadTable();
 								calendarOpen();
@@ -894,7 +894,7 @@
 				}else{
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
 						if (data && data.is_attended)
-							pepreg.warning("Thank you for registering/recording attendance for this training!");
+							pepreg.warning("Thank you for registering/recording attendance for this training!~1");
 						else
 							pepreg.warning("Thank you! You are no longer registered for this training.");
 						
@@ -1721,7 +1721,7 @@
         }
         if(s && s.indexOf("Thank you for registering")===0){
             t = s.substring(0, s.indexOf("!") + 1);
-            t += '<div title="Add to Calendar" class="addeventatc">';
+            t += '<br/><br/><div title="Add to Calendar" class="addeventatc">';
             t += "Add to Calendar"
             t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
             while (s.indexOf("|") > -1){
@@ -2527,7 +2527,7 @@
                                 self.registerUser(training_id, this.checked, function (reg) {
                                     // self.reloadTable();
                                     if (reg)
-                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                        self.warning("Thank you for registering/recording attendance for this training!~6");
                                     else
                                         self.warning("Thank you! You are no longer registered for this training.");
                                 });
@@ -2564,7 +2564,7 @@
                                     self.setStudentAttended(${request.user.id}, training_id, true, function () {
                                         $input.hide();
                                         $button.hide();
-                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                        self.warning("Thank you for registering/recording attendance for this training!~5");
                                     });
                                 } else {
                                     self.warning("It's a wrong ID.");
@@ -2574,7 +2574,7 @@
                             $check.change(function () {
                                 self.setStudentAttended(${request.user.id}, training_id, this.checked, function (data) {
                                     if (data && data.is_attended)
-                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                        self.warning("Thank you for registering/recording attendance for this training!~4");
                                     else
                                         self.warning("Thank you! You are no longer registered for this training.");
                                 });
