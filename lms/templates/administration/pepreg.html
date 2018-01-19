@@ -1720,18 +1720,14 @@
             dailogTitle = "Warning";
         }
         if(s && s.indexOf("Thank you for registering")===0){
-            t = substring(0, s.indexOf("!") + 1);
+            t = s.substring(0, s.indexOf("!") + 1);
             t += '<div title="Add to Calendar" class="addeventatc">';
             t += "Add to Calendar"
-            t += '<span class="start">' + substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
-            s.replace("|", "");
-            t += '<span class="end">' + substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
-            s.replace("|", "");
-            t += '<span class="title">s.replace("|", "");</span>';
-            s.replace("|", "");
-            t += '<span class="description">s.replace("|", "");</span>';
-            s.replace("|", "");
-            t += '<span class="location">s.replace("|", "");</span>';
+            t += '<span class="start">' + s.substring(s.indexOf("!") + 1, s.indexOf("|")) + '</span>';
+            while (s.indexOf("|") > -1){
+                t += '<span class="end">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
+                s.replace("|", "");
+            }
             s = t;
         }
         dlg.show(dailogTitle, s);
