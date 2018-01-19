@@ -1720,9 +1720,10 @@
             while (s.indexOf("|") > -1){
                 t += '<span class="end">' + s.substring(s.indexOf("|") + 1, s.indexOf("|")) + '</span>';
                 s.replace("|", "");
-                console.log(t);
+
             }
             s = t;
+            console.log("s="+s);
         }
         dlg.show(dailogTitle, s);
         dlg.lift(100);
