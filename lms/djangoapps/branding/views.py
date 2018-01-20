@@ -116,21 +116,26 @@ def intro_faq(request):
 def contact(request):
     return render_to_response('contact.html', {})
 
+@ensure_csrf_cookie
+@cache_if_anonymous
+def helpandsupport(request):
+    return render_to_response('helpandsupport.html', {})
+
 def contact_us_submit(request):
     ret = {"success":True}
-    
+
     if request.POST.get("send_by_js") != 'true':
         ret['success'] = False
         return HttpResponse(json.dumps(ret))
-    
+
     email = request.POST.get("email")
     fullname = request.POST.get("fullname")
     phone = request.POST.get("phone")
     inquiry_type = request.POST.get("inquiry_type")
     message = request.POST.get("message")
     district_lea = request.POST.get("district_lea")
-    content_collection = request.POST.get("content_collection")
-    
+    content_collection = request.POST.get("content_collection", "")
+
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
     from smtplib import SMTPException

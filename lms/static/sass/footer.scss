@@ -8,7 +8,7 @@
   width: 100%;
   box-shadow: 0 -1px 5px 0 rgba(0,0,0, 0.1);
   border-top: 1px solid tint($m-gray,50%);
-  padding: 20px ($baseline/2) 0 ($baseline/2);
+  padding: 6px ($baseline/2) 0 ($baseline/2);
   background: $footer-bg;
   border-top: 1px solid #8a8c8f;
   z-index: 11;
@@ -69,11 +69,12 @@
 
         li {
           float: left;
-          margin-right: ($baseline*0.75);
+          margin-right: ($baseline*2);
           line-height: 45px;
           list-style: none;
 
           a {
+            font-weight:bold;
             font-size: 16px !important;
             color: tint($black, 20%);
 
