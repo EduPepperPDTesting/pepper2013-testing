@@ -3081,12 +3081,8 @@
           var ddate = calDate.substr(0, 10).split("/");
           var dtime = calDate.substr(11, 5).split(":");
           var dmid = calDate.substr(-2, 2);
-          var dyear = ddate[2];
-          var dmonth = ddate[0];
-          var dday = ddate[1];
-          var ddatestr = dyear+dmonth+dday
-          dtime[0] = (dmid == "PM" && dtime[0] != "12")?parseInt(dtime[0])+12:dtime[0];
-          return dtime[0] + dtime[1] + "00Z";
+          if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
+          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1] + "00Z";
     }
 </script>
 <script type="text/javascript">//for ics download (outlook)
