@@ -3084,7 +3084,7 @@
           var dtime = calDate.substr(11, 5).split(":");
           var dmid = calDate.substr(-2, 2);
           if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
-          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
+          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1] + "00";
     }
 </script>
 <script type="text/javascript">//for ics download (outlook)
