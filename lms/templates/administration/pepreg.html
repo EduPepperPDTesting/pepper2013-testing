@@ -3072,10 +3072,21 @@
 </script>
 <script type="text/javascript">//for iCal (google)
     function getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {
-        var dtStart = eventStart.toISOString().replace(/-|:|\.\d\d\d/g,"");
-        var dtEnd = eventEnd.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        var dtStart = buildDate(eventStart);
+        var dtEnd = buildDate(eventEnd);
         var iCal_url = 'http://www.google.com/calendar/event?action=TEMPLATE&text=' + eventTitle + '&dates=' + dtStart + '/' + dtEnd + '&details=' + eventDescription + '&location=' + eventLocation;
         $(location).attr('href', iCal_url);
+    }
+    function buildDate(calDate) {
+          var ddate = calDate.substr(0, 10).split("/");
+          var dtime = calDate.substr(11, 5).split(":");
+          var dmid = calDate.substr(-2, 2);
+          var dyear = ddate[2];
+          var dmonth = ddate[0];
+          var dday = ddate[1];
+          var ddatestr = dyear+dmonth+dday
+          dtime[0] = (dmid == "PM" && dtime[0] != "12")?parseInt(dtime[0])+12:dtime[0];
+          return dtime[0] + dtime[1] + "00Z";
     }
 </script>
 <script type="text/javascript">//for ics download (outlook)
