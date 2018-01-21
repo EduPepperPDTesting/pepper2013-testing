@@ -3075,14 +3075,16 @@
         var dtStart = buildDate(eventStart);
         var dtEnd = buildDate(eventEnd);
         var iCal_url = 'http://www.google.com/calendar/event?action=TEMPLATE&text=' + eventTitle + '&dates=' + dtStart + '/' + dtEnd + '&details=' + eventDescription + '&location=' + eventLocation;
-        $(location).attr('href', iCal_url);
+        //$(location).attr('href', iCal_url);
+        window.open(iCal_url);
+        return false;
     }
     function buildDate(calDate) {
           var ddate = calDate.substr(0, 10).split("/");
           var dtime = calDate.substr(11, 5).split(":");
           var dmid = calDate.substr(-2, 2);
           if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
-          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1] + "00Z";
+          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
     }
 </script>
 <script type="text/javascript">//for ics download (outlook)
