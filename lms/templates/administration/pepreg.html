@@ -1742,7 +1742,16 @@
             eventDescription = s.substr(s.indexOf("|")).substring(1, s.substr(s.indexOf("|") + 1).indexOf("|")+1);
             s = s.replace("|", "");
             eventLocation = s.substr(s.indexOf("|")).substring(1);
-            t += '<br/><br/><button id="getICS" onclick="downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)">Add to Calendar</button>';
+            t += '<div class="save_event">';
+            t += '<div class="imgBtn imgBtn_add_outlook" onclick="downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);" style="float:right;"><a href="#">';
+            t += '<div class="icon"></div>';
+            t += '<div>Add Event to Outlook Calendar</div>';
+            t += '</a></div>';
+            t += '<div class="imgBtn imgBtn_add_google" onclick="getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)"><a href="#">';
+            t += '<div class="icon"></div>';
+            t += '<div>Add Event to Google Calendar</div>';
+            t += '</a></div></div>';
+
             s = t;
             console.log("s="+s);
         }
@@ -3060,6 +3069,14 @@
         $(this).removeClass("on");
     });
 
+</script>
+<script type="text/javascript">//for iCal (google)
+    function getICAL(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {
+        var dtStart = eventStart.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        var dtEnd = eventEnd.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        var iCal_url = 'http://www.google.com/calendar/event?action=TEMPLATE&text=' + eventTitle + '&dates=' + dtStart + '/' + dtEnd + '&details=' + eventDescription + '&location=' + eventLocation;
+        $(location).attr('href', iCal_url);
+    }
 </script>
 <script type="text/javascript">//for ics download (outlook)
     function downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {

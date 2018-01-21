@@ -333,6 +333,30 @@ div.filter {
 .imgBtn_my_calendar .icon {
     background-image:url(../images/icons/my_calendar.png);
 }
+
+.save_event {
+    margin-top: 10px;
+    width: 80%;
+}
+
+.imgBtn_add_outlook {
+    display: inline-block;
+    float: left;
+}
+
+.imgBtn_add_google {
+    display: inline-block;
+    float: right;
+}
+
+.imgBtn_add_outlook .icon {
+    background-image:url(../images/icons/Outlook-icon-300x300.png);
+}
+
+.imgBtn_add_google .icon {
+    background-image:url(../images/icons/google-calendar.png);
+}
+
 .imgBtn .icon {
     width:auto;
     height:40px;
