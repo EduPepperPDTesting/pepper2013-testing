@@ -123,43 +123,43 @@ span.red{
             <form method="" id="form" action="">
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 <table class="connect_us_table _body_content_font" width="520" border="0" cellpadding="0" cellspacing="0">
-                	<tr>
-                		<td width="140">Your Email: <span class="red">*</span></td>
-                		<td><input class="connect_input" name="email" size="60" chkType="Email" chkMsg="Email is invalid."></td>
-                	</tr>
-                	<tr>
-                		<td>Full Name:<span class="red"> *</span></td>
-                		<td><input class="connect_input" name="fullname" size="60" chkType="Require" chkMsg="Full Name is required."></td>
-                	</tr>
-                	<tr>
-                		<td>District/LEA: </td>
-                		<td><input class="connect_input" name="district_lea" size="60"></td>
-                	</tr>          
-                	<tr>
-                		<td>Phone: </td>
-                		<td><input class="connect_input" name="phone" size="60"></td>
-                	</tr>
-                	<tr>
-                		<td>Inquiry Type: <span class="red">*</span></td>
-                		<td>
-                			<select id="edit-submitted-inquiry-type-student" name="inquiry_type" class="connect_us_select" chkType="Require" chkMsg="Inquiry Type is required.">
-                			    <option value="" selected="selected">- Select -</option>
-                				<option>Account Question</option>
-                				<option>Sales Question</option>
-                				<option>Technical Support Question</option>
-                				<option>Idea to Share</option>
-                				<option>General / Other Question</option>
-                			</select>
-                		</td>
-                	</tr>
-                	<tr>
-                		<td>Message: <span class="red"> *</span></td>
-                		<td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea" chkType="Require" chkMsg="Message is required."></textarea></td>
-                	</tr>
-                	<tr style="">
-                		<td style="vertical-align:middle;color:#f00;">* Required Field</td>
-                		<td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="submit" value="Submit" autocomplate="off"/></td>
-                	</tr>
+                    <tr>
+                        <td width="140">Your Email: <span class="red">*</span></td>
+                        <td><input class="connect_input" name="email" size="60" chkType="Email" chkMsg="Email is invalid."></td>
+                    </tr>
+                    <tr>
+                        <td>Full Name:<span class="red"> *</span></td>
+                        <td><input class="connect_input" name="fullname" size="60" chkType="Require" chkMsg="Full Name is required."></td>
+                    </tr>
+                    <tr>
+                        <td>District/LEA: </td>
+                        <td><input class="connect_input" name="district_lea" size="60"></td>
+                    </tr>          
+                    <tr>
+                        <td>Phone: </td>
+                        <td><input class="connect_input" name="phone" size="60"></td>
+                    </tr>
+                    <tr>
+                        <td>Inquiry Type: <span class="red">*</span></td>
+                        <td>
+                            <select id="edit-submitted-inquiry-type-student" name="inquiry_type" class="connect_us_select" chkType="Require" chkMsg="Inquiry Type is required.">
+                                <option value="" selected="selected">- Select -</option>
+                                <option>Account Question</option>
+                                <option>Sales Question</option>
+                                <option>Technical Support Question</option>
+                                <option>Idea to Share</option>
+                                <option>General / Other Question</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Message: <span class="red"> *</span></td>
+                        <td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea" chkType="Require" chkMsg="Message is required."></textarea></td>
+                    </tr>
+                    <tr style="">
+                        <td style="vertical-align:middle;color:#f00;">* Required Field</td>
+                        <td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="submit" value="Submit" autocomplate="off"/></td>
+                    </tr>
                 </table>
             </form>
         </div>
@@ -256,7 +256,8 @@ form.submit(function(){
     this.submit.disabled=true;
     var flds=["email","fullname","district_lea","phone","inquiry_type","message","csrfmiddlewaretoken"];
     var data=easy.form.getFormData(this,flds);
-    data['send_by_js']='true'
+    data['send_by_js']='true';
+    data['subject_info'] = 'Help and Support';
     if(!data['message']){
         alert("Can't send form, please contact us. ")
     }
@@ -295,7 +296,8 @@ form.submit(function(){
         this.submit.disabled = true;
         var flds = ["fullname_modal","email_modal","state_modal","district_modal","csrfmiddlewaretoken"];
         var data = easy.form.getFormData(this,flds);
-        data['send_by_js'] = 'true'
+        data['send_by_js'] = 'true';
+        data['subject_info'] = 'Help and Support';
         //if(!data['message']){
         //    alert("Can't send form, please contact us. ")
         //}

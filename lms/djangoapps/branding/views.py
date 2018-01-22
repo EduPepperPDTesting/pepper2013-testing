@@ -56,9 +56,9 @@ def courses(request):
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
     return courseware.views.courses(request)
-	
-#20151203 add for dipcourses	
-#begin	
+    
+#20151203 add for dipcourses    
+#begin  
 @ensure_csrf_cookie
 @cache_if_anonymous
 def newgroup_courses(request):
@@ -78,7 +78,7 @@ def newgroup_courses(request):
     #  marketing and edge are enabled
     return courseware.views.newgroup_courses(request)
 #end
-	
+    
 #@begin:View of the new added page
 #@date:2013-11-02        
 @ensure_csrf_cookie
@@ -135,23 +135,28 @@ def contact_us_submit(request):
     message = request.POST.get("message")
     district_lea = request.POST.get("district_lea")
     content_collection = request.POST.get("content_collection", "")
+    subject_info = request.POST.get("subject_info", "")
+    if subject_info:
+        subject_info = "Help and Support"
+    else:
+        subject_info = "Contact Us"
 
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
     from smtplib import SMTPException
     from mail import send_html_mail
 
-    d = {"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "content_collection":content_collection, "message":message, "district_lea":district_lea}
-    subject = "PepperPd Contact Us From " + request.META['HTTP_HOST']
+    d = {"email": email, "fullname": fullname, "phone": phone, "inquiry_type": inquiry_type, "content_collection":content_collection, "message":message, "district_lea":district_lea}
+    subject = "PepperPd " + subject_info + " From " + request.META['HTTP_HOST']
     body = render_to_string('emails/contact_us_body.txt', d)
 
     # todo: catch SMTPAuthenticationError and SMTPException
 
     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [
         settings.SUPPORT_EMAIL,
-        "gingerj@education2000.com",  
+        "gingerj@education2000.com",
         "mailfcl@126.com",
-        "ashardonofsky@pcgus.com", 
+        "ashardonofsky@pcgus.com",
         "jmclaughlin@pcgus.com",
         "mmullen@pcgus.com"
         ])
@@ -172,14 +177,19 @@ def contact_us_modal_submit(request):
     email = request.POST.get("email_modal")
     state = request.POST.get("state_modal")
     district = request.POST.get("district_modal")
-    
+    subject_info = request.POST.get("subject_info", "")
+    if subject_info:
+        subject_info = "Help and Support"
+    else:
+        subject_info = "Contact Us"
+
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
     from smtplib import SMTPException
     from mail import send_html_mail
 
-    d = {"email":email, "fullname":fullname, "state":state, "district":district}
-    subject = "PepperPd Contact Us From " + request.META['HTTP_HOST']
+    d = {"email": email, "fullname": fullname, "state": state, "district": district}
+    subject = "PepperPd " + subject_info + " From " + request.META['HTTP_HOST']
     body = render_to_string('emails/contact_us_modal_body.txt', d)
 
     # todo: catch SMTPAuthenticationError and SMTPException
