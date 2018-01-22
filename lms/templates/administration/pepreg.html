@@ -2497,9 +2497,16 @@
                 if ($(this).find("span.geo_location").html()) {
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
-                    $(this).click(function () {
+                    var mapEl;
+                    if($(this).find("a").length > 0){
+                        mapEl = $(this).find(":not(a)");
+                    }else{
+                        mapEl = $(this);
+                    }
+                    mapEl.click(function () {
 						window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
                     });
+                    }
                 }
             });
             // each row
