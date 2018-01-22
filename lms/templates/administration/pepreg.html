@@ -1658,6 +1658,9 @@
     };
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
+        var classroom = $.trim($form.find("input[name=classroom]").val());
+        var ifURL = RegExp("(http|https)://[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
+        if(ifURL.test(classroom)) classroom = "<a href = '" + classroom + "'>" + classroom + "</a>";
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
@@ -1670,7 +1673,7 @@
             training_date: $form.find("input[name=training_date]").val(),
             training_time_start: ($form.find("input[name=training_time_start]").val()),
             training_time_end: ($form.find("input[name=training_time_end]").val()),
-            classroom: $.trim($form.find("input[name=classroom]").val()),
+            classroom: classroom,
             geo_location: $form.find("input[name=geo_location]").val(),
             geo_destination: $form.find("input[name=geo_destination]").val(),
             geo_props: $form.find("input[name=geo_props]").val(),
