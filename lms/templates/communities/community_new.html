@@ -19,6 +19,10 @@ import datetime
 <script src="/static/js/datetime/moment.js"></script>
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/community.css" />
+
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 
@@ -194,7 +198,7 @@ a{
 .content-wrapper-community{
     margin-top:0px;
     background-color:#e7e7e8;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 .sub-title{
     background-color: #2CBAEC;
@@ -211,7 +215,7 @@ a{
     margin-left:27px;
     float:left;
     
-    height:500px;
+    /*height:500px;*/
     border: 0px solid;
 }
 /*--------------community left--------------*/
@@ -728,7 +732,7 @@ a{
         </div>
 
         <!--Main content-->
-        <div class="con-main-all" style="background-color:#fff;border:0px solid;">
+        <div class="con-main-all" style="background-color:#fff;">
             <div class="" style="position:relative;left:0px;top:0px;">
                 <div class="email-facilitator">
                     <div class="email-facilitator-title">Email Facilitator</div>
@@ -782,6 +786,7 @@ a{
                     </table>
                 </div>
             </div>
+           	<%include file="community_new_center.html" /> 
         </div>
         
         <!--community-right-->
@@ -1150,6 +1155,51 @@ a{
                 });
             }
         });
+    }
+
+    function validateDiscussionForm() {
+        $('.discussion-error-box').removeClass('discussion-error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        if (!/[A-Za-z]/.test($('.discussion-subject input').val())) {
+            valid = false;
+            errors.push('Subject is required.');
+            $('.discussion-subject input').addClass('discussion-error-box');
+        }
+        if (!/[A-Za-z]/.test($('.discussion-post textarea').val())) {
+            valid = false;
+            errors.push('Discussion is required.');
+            $('.discussion-post textarea').addClass('discussion-error-box');
+        }
+        if ($('#new-discussion-submit .poll-add').is(':checked')) {
+            if (!/[A-Za-z]/.test($('.poll-question').val())) {
+                valid = false;
+                errors.push('Question is required.');
+                $('.poll-question').addClass('discussion-error-box');
+            }
+            if ($('.poll-answer-input').length < 2) {
+                valid = false;
+                errors.push('You need at least two answers to choose from.');
+            }
+            $('.poll-answer-input').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    errors.push('Answers must be filled out.');
+                    $(this).addClass('discussion-error-box');
+                    return false;
+                }
+            });
+            if ($('.poll-expiration').val() != '' && !/^\d?\d\/\d?\d\/\d\d\d\d$/.test($('.poll-expiration').val())) {
+                valid = false;
+                errors.push('Expiration date must be in the format mm/dd/yyyy.');
+                $('.poll-expiration').addClass('discussion-error-box');
+            }
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
     }
     
     //members modal send web inner message btn

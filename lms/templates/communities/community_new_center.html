@@ -34,6 +34,7 @@ if is_new:
             "date_create": disc.date_create, 
             "date_reply": disc.date_reply, 
             "attachment": disc.attachment_id,
+            "view_counter": 0,
             "db_table": "community_discussions"
         }
         disc_id = store.insert(my_discussion_post)
@@ -91,24 +92,10 @@ if is_new:
             "user": replies.user_id, 
             "date_create": replies.date_create,
             "attachment": replies.attachment_id,
+            "view_counter": 0,
             "db_table": "community_discussion_replies"
         }
-        store.insert(my_discussion_reply)    
-
-#max_id = "store.get_community_discussions_id()"
-# tmp_list = store.update({"db_table" : "community_discussions", "did":398}, {"$set":{"subject":"1a____28"}})
-# max_id = store.get_community_discussions(133, 0, 2).count(True)
-# max_id = store.find({"db_table": "community_discussion_replies", "discussion_id": 422}).count()
-    
-#list1 = store.find_size_sort({"db_table": "community_discussion_replies"}, 0, 0, "date_create", -1)
-#for itemx in list1:
-#    max_id += itemx['subject']
-    
-# views = store.find_one({"type":"discussion", "identifier": "422"})
-# if views is None:13050363738
-#     max_id = 0
-# else:
-#    max_id = views['views']
+        store.insert(my_discussion_reply)  
 %>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/static/js/vendor/jquery.form.js"></script>
@@ -123,7 +110,7 @@ if is_new:
 .community_new_center .center_block{float:left; width:680px; padding:5px 0; clear:both; }
 	 .center_block .center_block_left{float:left; width:80px;}
 		.center_block_left .user_phone{float: right; width: 64px; height:64px; border-radius:32px; -moz-border-radius: 32px;  -webkit-border-radius: 32px; }
-	.center_block .center_block_right{float:left; margin-left:20px; width:580px; padding-bottom:15px; border-bottom:solid 1px #ddd;}
+	.center_block .center_block_right{float:left; margin-left:20px; width:565px; padding-bottom:15px; border-bottom:solid 1px #ddd;}
 
 		.center_block_right .dis_row{float:left; width:100%; margin-bottom:2px;}
 		.center_block_right .dis_row span{float:left; }
@@ -188,7 +175,7 @@ if is_new:
 #selectableLink{width:75%;}
 .discussion-download{width:90%;}
 .discussion-download span {font-weight: bold;}
-.attachment_pict_1{ float:left; clear:both; max-width: 580px;}
+.attachment_pict_1{ float:left; clear:both; max-width: 565px;}
 .attachment_pict_2{ float:left; clear:both; max-width: 480px;}
 .attachment_pict_3{ float:left; clear:both; max-width: 380px;}
 .btn_new_discussion{float:right; background-color:#89C153; border-radius: 5px; text-align: center; padding: 6px 25px 7px 25px; color:#FFFFFF; cursor:pointer; }
@@ -196,14 +183,14 @@ if is_new:
 .load_more{float:left; width:680px; clear:both; padding:10px 0; text-align:center;}
 .load_more a{background-color:#2CBAEC; border-radius: 5px;padding: 2px 20px 3px 20px; color:#FFFFFF; cursor:pointer; }
 .load_more a:hover{ text-decoration:none; }
-.load_more_level1{width:580px; padding:6px 0; font-size:13px;}
+.load_more_level1{width:565px; padding:6px 0; font-size:13px;}
 .load_more_level1 a{padding: 1px 14px 2px 14px; }
 .load_more_level2{width:480px; padding:2px 0; font-size:11px ;}
 .load_more_level2 a{padding: 1px 8px 2px 8px;}
 </style>
 
 <!--Main content-->
-<div style="float:left; width:680px; clear:both; padding:20px 0;">
+<div style="float:left; width:665px; clear:both; padding:20px 20px 20px 0;border:0px solid;">
 	<span onclick="addNewDiscussion()" class="btn_new_discussion">New Discussion</span>
 </div>
 <div class="community_new_center"></div>
@@ -213,7 +200,7 @@ if is_new:
     <div class="menu_triangle"></div>
     <div class="menu_lines">
         <div class="menu_item"><span id="menu_btn_unpin" class='icon-aw icon-pushpin'> Unpin</span></div>
-        <div class="menu_item" style="border-top:1px solid #a4a4a5;"><span id="menu_btn_hyperlink" class='icon-aw icon-link'> Hyperlink</span></div>
+        <div class="menu_item" style="border-top:1px solid #a4a4a5;"><span class='icon-aw icon-link menu_btn_hyperlink'> Hyperlink</span></div>
         <div class="menu_item" style="border-top:1px solid #a4a4a5;"><span id="menu_btn_delete1" class='icon-aw icon-trash'> Delete</span></div>
     </div>
 </div>
@@ -222,7 +209,7 @@ if is_new:
     <div class="menu_triangle"></div>
     <div class="menu_lines">
         <div class="menu_item" style="border-bottom:1px solid #a4a4a5;"><span id="menu_btn_delete2" class='icon-aw icon-trash'> Delete</span></div>
-        <div class="menu_item"><span id="menu_btn_hyperlink" class='icon-aw icon-link'> Hyperlink</span></div>
+        <div class="menu_item"><span class='icon-aw icon-link menu_btn_hyperlink'> Hyperlink</span></div>
     </div>
 </div>
 
@@ -235,7 +222,7 @@ if is_new:
         <div class="content"></div>
     </div>
 </div>
-
+<div style="clear:both;"></div>
 <script>
 //-----------------------------------------------------------------------document click
 $(document).on('click', function(event) {
@@ -245,8 +232,8 @@ $(document).on('click', function(event) {
 });
 
 var sys_community_id = "${community.id}";
-var dis_size = 2;
-var reply_size = 2;
+var dis_size = 5;
+var reply_size = 10;
 var sys_uid = "${request.user.id}";
 %if request.user.is_superuser:
 var isSuperUser = 1;
@@ -613,11 +600,16 @@ function reply_sort(x, y) {
 
 //-----------------------------------------------------------------------getCommunityDiscussions(isMask:1 append:1 prepend:1)
 function getCommunityDiscussions(json_obj){
-	var loadwin = null, discussion_id = "";
-	if(json_obj && json_obj.isMask == "1")	loadwin = new LoadingWin();	
-	if (json_obj && json_obj.discussion_id) discussion_id = json_obj.discussion_id;
-	
-	$.post("${reverse('new_discussion_process')}", {flag:"get_discussions", community_id:"${community.id}", discussion_id: discussion_id, size:dis_size, reply_size:reply_size}, function(data){
+	var loadwin = null, discussion_id = "",  hyperlink_v = "", hyperlink_d = "", hyperlink_c = "", hyperlink_nc = "";
+	if(json_obj){
+		if(json_obj.isMask == "1")	loadwin = new LoadingWin();			
+		if(json_obj.discussion_id)	discussion_id = json_obj.discussion_id;	//load more 
+		if(json_obj.v)	hyperlink_v = json_obj.v;
+		if(json_obj.d)	hyperlink_d = json_obj.d;
+		if(json_obj.c)	hyperlink_c = json_obj.c;
+		if(json_obj.nc)	hyperlink_nc = json_obj.nc;
+	}
+	$.post("${reverse('new_discussion_process')}", {flag:"get_discussions", community_id:"${community.id}", hyperlink_v: hyperlink_v, hyperlink_d: hyperlink_d, hyperlink_c: hyperlink_c, hyperlink_nc: hyperlink_nc, discussion_id: discussion_id, size:dis_size, reply_size:reply_size}, function(data){
 		if (data.Success){
 			var html = "", tmp_reply = "";
 			//data.discussions_json.sort(reply_sort);
@@ -667,10 +659,6 @@ function getCommunityDiscussions(json_obj){
 						}
 						//-----------------------Load More Previous reply
 						if(total > view_size){
-							//$(this).find(".load_more").remove();
-							//var str = location.href;
-							//var num = str.indexOf("?")
-							//str = str.substr(num + 1);
 							var go_down = $('<div class="load_more load_more_level' + level + '"><a href="javascript:void(0);">Load More Latest</a></div>');
 							$(this).prepend(go_down);
 							go_down.find("a").click(function(){
@@ -701,6 +689,24 @@ function getCommunityDiscussions(json_obj){
 			//---------------------------------------------------------addCommunityDiscussionEvent
 			addCommunityDiscussionEvent();
 			
+			//---------------------------------------------------------hyperlink go
+			var hyperlink_el = null;
+			var v = GetQueryString("v");
+			var d = GetQueryString("d");
+			var c = GetQueryString("c");
+			var nc = GetQueryString("nc");
+			if(v == "1" && d){
+				hyperlink_el = $(".center_block[discussion_id='" + d + "']");
+			}
+			else if(v == "2" && d && c){
+				hyperlink_el = $(".dis_reply_block[comment_id='" + c + "']");
+			}
+			else if(v == "3" && d && c && nc){
+				hyperlink_el = $(".dis_reply_next_block[comment_id='" + nc + "']");
+			}
+			if(hyperlink_el != null){
+				$("html,body").animate({scrollTop: $(hyperlink_el).offset().top}, 1000);
+			}
 			//------------
 			if(loadwin != null)	loadwin.hide();
 		
@@ -1172,16 +1178,26 @@ function addCommunityDiscussionEvent(){
 				$("#menu_btn_delete1").attr("did", "");
 			}
 			$("#community_new_center_menu_level1").show();
-			$("#menu_btn_unpin").attr("did", did);
+			$("#menu_btn_unpin").attr("did", did);			
+			$(".menu_btn_hyperlink:first").attr("did", did);
+			$(".menu_btn_hyperlink:first").attr("level", "1");
 			
 		}else if(level == "2" || level == "3"){
 			var did, cid;
 			if(level == "2"){
 				did = $(this).parents(".dis_reply_block").attr("discussion_id");
 				cid = $(this).parents(".dis_reply_block").attr("comment_id");
+				
+				$(".menu_btn_hyperlink:last").attr("did", did);
+				$(".menu_btn_hyperlink:last").attr("cid", cid);
+				$(".menu_btn_hyperlink:last").attr("level", level);
 			}else{
 				did = $(this).parents(".dis_reply_next_block").attr("discussion_id");
 				cid = $(this).parents(".dis_reply_next_block").attr("comment_id");
+				$(".menu_btn_hyperlink:last").attr("did", $(this).parents(".center_block").attr("discussion_id"));
+				$(".menu_btn_hyperlink:last").attr("cid", did);
+				$(".menu_btn_hyperlink:last").attr("ncid", cid);
+				$(".menu_btn_hyperlink:last").attr("level", level);
 			}
 			
 			if($(this).attr("isdel") == "1"){
@@ -1195,7 +1211,6 @@ function addCommunityDiscussionEvent(){
 				$("#menu_btn_delete2").attr("cid", "");
 				$("#menu_btn_delete2").attr("level", "");
 			}
-			$("#menu_btn_hyperlink").attr("cid", cid);
 			$("#community_new_center_menu_level2").show();
 		}
 	});
@@ -1204,10 +1219,20 @@ function addCommunityDiscussionEvent(){
 //-----------------------------------------------------------------------document ready
 $(document).ready(function(){
 	//---------------------------------------------------------menu_btn_hyperlink click
-	$("#menu_btn_hyperlink").click(function(e){
+	$(".menu_btn_hyperlink").click(function(e){
 		e.preventDefault();
 		new Dialog($('#dialog_fix')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
-		$("#selectableLink").val(window.location.hostname + "/community/${community.id}?" + $("#menu_btn_hyperlink").attr("cid"));
+		var v = $(this).attr("level");
+		var d = $(this).attr("did");
+		var c = $(this).attr("cid");
+		var nc = $(this).attr("ncid");
+		if(v == "1"){
+			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=1&d=" + d);
+		}else if(v == "2"){
+			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=" + v + "&d=" + d + "&c=" + c);
+		}else if(v == "3"){
+			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=" + v + "&d=" + d + "&c=" + c + "&nc=" + nc);
+		}
 		$("#selectableLink").select();
 	});
 	
@@ -1270,8 +1295,22 @@ $(document).ready(function(){
 	});
 	
 	//---------------------------------------------------------init
-	getCommunityDiscussions();
+	var v = GetQueryString("v");
+	var d = GetQueryString("d");
+	var c = GetQueryString("c");
+	var nc = GetQueryString("nc");
+	if(v == "1" && d)					getCommunityDiscussions({'v':'1', 'd':d});
+	else if(v == "2" && d && c)		getCommunityDiscussions({'v':'2', 'd':d, 'c':c});
+	else if(v == "3" && d && c && nc)	getCommunityDiscussions({'v':'3', 'd':d, 'c':c, 'nc':nc});
+	else								getCommunityDiscussions();
 });
+
+//-----------------------------------------------------------------------GetQueryString
+function GetQueryString(name){
+	var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if(r!=null)return  unescape(r[2]); return null;
+}
 
 //-----------------------------------------------------------------------LoadingWin
 function LoadingWin(){
