@@ -336,6 +336,7 @@ div.filter {
 
 .save_event {
     margin-top: 10px;
+    margin-left: 50px;
     width: 80%;
 }
 
@@ -351,10 +352,12 @@ div.filter {
 
 .imgBtn_add_outlook .icon {
     background-image:url(../images/icons/Outlook-icon-300x300.png);
+    background-size: contain;
 }
 
 .imgBtn_add_google .icon {
     background-image:url(../images/icons/google-calendar.png);
+    background-size: contain;
 }
 
 .imgBtn .icon {
