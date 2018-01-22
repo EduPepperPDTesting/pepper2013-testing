@@ -2499,8 +2499,7 @@
                     $(this).css("cursor", "pointer");
                     var mapEl;
                     if($(this).find("a").length > 0){
-                        mapEl = $(this).find(":not(a)");
-                        console.log(mapEl);
+                        mapEl = $(this).find("span.geo_location");
                     }else{
                         mapEl = $(this);
                     }
