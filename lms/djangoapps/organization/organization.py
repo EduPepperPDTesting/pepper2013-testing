@@ -2266,7 +2266,12 @@ def organization_qualifications(specific_items, course_assignment_content):
         for tmp1 in assignments:
             qualification = {}
             qualification['filters'] = []
-            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            temp = tmp1.split('<')[0].split('|')
+            if len(temp) > 1:
+                qualification['access'] = temp[1].replace('(','').replace(')','')
+            else:
+                qualification['access'] = 'false'
+            qualification['course_id'] = tmp1.split('<')[0].split('|')[0].replace('(','').replace(')','')
             qualifications_items = tmp1.split('<')[1].split(',')
             for tmp2 in qualifications_items:
                 tmp3 = tmp2.split('>')
@@ -2333,9 +2338,10 @@ def course_assign(qualifications, data):
             user = User.objects.get(email=data['email'])
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
             cea.is_active = True
-            cea.auto_enroll = True
+            cea.auto_enroll = False
             cea.save()
-            CourseEnrollment.enroll(user, tmp2['course_id'])
+            if not tmp2['access'] == 'true':
+                CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
             my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
             "URLValues": {"course_id": tmp2['course_id']},    
