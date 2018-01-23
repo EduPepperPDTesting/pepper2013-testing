@@ -2998,6 +2998,7 @@
 			var clonex = $(el).parent().parent().clone(true);
 			clonex.find(".org_assignment_course_select").val("");
 			clonex.find(".small_btn").val("+");
+			clonex.find(".access").prop("checked",false);
 			clonex.find(".org_assignment_qualifications_item").each(function(){
 				$(this).find(".oaq_item").each(function(i){
 					if(i > 0){
@@ -3650,7 +3651,7 @@
 		if(content){
 			var tmp1 = content.split(";");
 			for(var i = 0; i < tmp1.length; i++){
-				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next().next()[0]);
 			}			
 			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
