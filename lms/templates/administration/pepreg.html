@@ -1752,12 +1752,14 @@
             t += '<div class="icon"></div>';
             t += '<div>Add Event to<br>Outlook Calendar</div>';
             t += '</a></div>';
-            %if has_hangout_perms(request.user):
+            console.log(${has_hangout_perms(request.user));
+            if(${has_hangout_perms(request.user)}){
+                console.log("-"+${has_hangout_perms(request.user));
                 t += '<div class="imgBtn imgBtn_add_google" onclick="getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)"><a href="#">';
                 t += '<div class="icon"></div>';
                 t += '<div>Add Event to<br>Google Calendar</div>';
                 t += '</a></div></div>';
-            %endif
+            }
             t += '</div>';
             s = t;
             console.log("s="+s);
