@@ -2533,7 +2533,7 @@ def new_process_get_discussions(request):
                 find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
         discussions_json = []
-        for disc in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+        for disc in mongo3_store.get_community_discussions_cond(find_sql, 0, size):
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc['_id'])}, {"$inc": {"view_counter": 1}})
 
             user = User.objects.get(id=disc['user'])
