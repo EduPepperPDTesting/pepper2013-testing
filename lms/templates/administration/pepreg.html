@@ -1738,8 +1738,8 @@
             dailogTitle = "Warning";
         }
         if(s && s.indexOf("|")>-1){
+            var googlePerm = ${has_hangout_perms(request.user)};
             var t = s.substring(0, s.indexOf("!") + 1);
-
             var eventString = s.substr(s.indexOf("!") + 1).split("|");
             eventStart = eventString[0];
             eventEnd = eventString[1];
@@ -1752,14 +1752,16 @@
             t += '<div class="icon"></div>';
             t += '<div>Add Event to<br>Outlook Calendar</div>';
             t += '</a></div>';
-            console.log(${has_hangout_perms(request.user));
-            if(${has_hangout_perms(request.user)}){
-                console.log("-"+${has_hangout_perms(request.user));
+            console.log(googlePerm);
+
+            if(googlePerm){
+                console.log("-"+googlePerm);
                 t += '<div class="imgBtn imgBtn_add_google" onclick="getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)"><a href="#">';
                 t += '<div class="icon"></div>';
                 t += '<div>Add Event to<br>Google Calendar</div>';
                 t += '</a></div></div>';
             }
+            
             t += '</div>';
             s = t;
             console.log("s="+s);
