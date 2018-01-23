@@ -141,10 +141,10 @@ if is_new:
 				.dis_reply_next_block .dis_reply_next_right{float:left; margin-left:20px; width:420px; padding-bottom:5px;}
 				.dis_reply_next_block .dis_reply_next_tool{width:100%; padding-top:5px;}
 		
-		.community_new_center_menu{position:absolute; width:110px; display:none;}
+		.community_new_center_menu{position:absolute; width:118px; display:none;}
 		.community_new_center_menu .menu_triangle{float:left; margin-left:13px; width:0; height:0; border-bottom:6px solid #535456; border-right: 6px solid transparent; border-left: 6px solid transparent; clear:both;}
 		.community_new_center_menu .menu_lines{float:left; width:100%; background-color:#535456;}
-		.community_new_center_menu .menu_item{float:left; text-indent:5px; margin-left:10px; width:90px; padding:8px 0; font-size:14px; cursor:pointer;}
+		.community_new_center_menu .menu_item{float:left; text-indent:5px; margin-left:10px; width:95px; padding:8px 0; font-size:14px; cursor:pointer;}
 		.community_new_center_menu .menu_item *{color:#FFFFFF;}		
 		.community_new_center_menu .menu_item:last-child{ border:0; padding-bottom1:12px;}
 		
@@ -185,7 +185,69 @@ if is_new:
 .load_more_level2 a{padding: 1px 8px 2px 8px;}
 .icon-editx::before {content: "\f044";}
 </style>
+<style>
+div.cke {
+    width: 580px;
+}
+.modal-discussion {
+    position: absolute;
+    opacity: 1;
+    z-index: 101;
+    left: 50%;
+    margin-left: -349px !important;
+    top: 40px;
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    width: 680px !important;
+    display: none;
+}
+#fixed-dialog, #fixed-dialog-likes, #fixed-dialog-share, #skype-dialog {
+    position: fixed;
+}
+#fixed-dialog-likes {
+    width: 300px;
+    margin-left: -153px;
+}
+.modal .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0;
+    z-index: 3;
+    color: #333;
+}
 
+#poll-form {
+    display: none;
+    margin-top: 15px;
+    clear: both;
+}
+.poll-answer-input {
+    width: 80% !important;
+    display: inline !important;
+}
+.discussion-attachment {
+    float: left;
+    padding-top: 16px;
+}
+.discussion-poll {
+    float: right;
+    display: block;
+    vertical-align: middle;
+    padding-top: 16px;
+}
+.community-clear {
+    clear: both;
+    height: 1px;
+    margin-top: -1px;
+}
+</style>
 <!--Main content-->
 <div style="float:left; width:665px; clear:both; padding:20px 20px 20px 0;">
 	<span onclick="addNewDiscussion()" class="btn_new_discussion">New Discussion</span>
@@ -219,7 +281,17 @@ if is_new:
         <div class="content"></div>
     </div>
 </div>
+<div style="" id="dialog-newdiscussion" class="modal modal-discussion">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
 <div style="clear:both;"></div>
+
 <script>
 //-----------------------------------------------------------------------document click
 $(document).on('click', function(event) {
@@ -270,7 +342,7 @@ function addNewDiscussion(fid, subject, post){
 	content += '<div class="community-clear"></div><br/>';
 	content += '<input type="submit" name="submit" value="SUBMIT">';
 	content += '</form><div class="discussion-error"></div>';
-	var discussion_dialog = new Dialog($('#dialog'));
+	var discussion_dialog = new Dialog($('#dialog-newdiscussion'));
 	discussion_dialog.show('New Discussion', content);
 	CKEDITOR.replace('post');
 
@@ -297,11 +369,13 @@ function addNewDiscussion(fid, subject, post){
 						if ($('#new-discussion-submit .poll-add').is(':checked')) {
 							var pollData = formSelector.serializeArray();
 							pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
-							$.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
-								if (data.Success) {
+							$.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data1) {
+								if (data1.Success) {
+									$(".community_new_center").prepend(getDiscussionsHtml(data.back_data, ""));
+									discussion_dialog.hide();
 									//window.location.replace("/community/${community.id}");
 								} else {
-									$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data.Error)
+									$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data1.Error)
 								}
 							});
 						} else {
@@ -309,10 +383,11 @@ function addNewDiscussion(fid, subject, post){
 								var tmp_block = $(".center_block[discussion_id='" + fid + "']");
 								tmp_block.find(".dis_subject:first").html($("#new-discussion-submit").find("input[name='subject']").val());
 								tmp_block.find(".dis_post:first").html($("#post").val());
-								discussion_dialog.hide();
 							}else{
+								$(".community_new_center").prepend(getDiscussionsHtml(data.back_data, ""));
 								//window.location.replace("/community/${community.id}");
 							}
+							discussion_dialog.hide();
 						}
 
 					} else {
@@ -473,7 +548,6 @@ function getDiscussionsHtml(json, tmp_reply){
 	html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + json.pin + "' title='Unpin'></span>";
 	html += "        </div>";
 	html += "        <div class='dis_row'><div class='dis_post'>" + json.post + "</div></div>";
-	html += getAttachmentPictHtml(json, 1);
 	html += getAttachmentHtml(json, 1);
 	html += "        <div class='dis_row'>";
 	html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>";
@@ -1331,6 +1405,53 @@ LoadingWin.prototype.hide = function () {
 		this.$loader = null;
 	}
 };
+</script>
+
+<script type="text/javascript">
+function validateDiscussionForm() {
+        $('.discussion-error-box').removeClass('discussion-error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        if (!/[A-Za-z]/.test($('.discussion-subject input').val())) {
+            valid = false;
+            errors.push('Subject is required.');
+            $('.discussion-subject input').addClass('discussion-error-box');
+        }
+        if (!/[A-Za-z]/.test($('.discussion-post textarea').val())) {
+            valid = false;
+            errors.push('Discussion is required.');
+            $('.discussion-post textarea').addClass('discussion-error-box');
+        }
+        if ($('#new-discussion-submit .poll-add').is(':checked')) {
+            if (!/[A-Za-z]/.test($('.poll-question').val())) {
+                valid = false;
+                errors.push('Question is required.');
+                $('.poll-question').addClass('discussion-error-box');
+            }
+            if ($('.poll-answer-input').length < 2) {
+                valid = false;
+                errors.push('You need at least two answers to choose from.');
+            }
+            $('.poll-answer-input').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    errors.push('Answers must be filled out.');
+                    $(this).addClass('discussion-error-box');
+                    return false;
+                }
+            });
+            if ($('.poll-expiration').val() != '' && !/^\d?\d\/\d?\d\/\d\d\d\d$/.test($('.poll-expiration').val())) {
+                valid = false;
+                errors.push('Expiration date must be in the format mm/dd/yyyy.');
+                $('.poll-expiration').addClass('discussion-error-box');
+            }
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
+    }
 </script>
 
 
