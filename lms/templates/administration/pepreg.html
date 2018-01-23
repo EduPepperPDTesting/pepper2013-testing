@@ -1747,21 +1747,21 @@
             eventDescription = eventString[3];
             eventLocation = eventString[4];
 
+            icsStyle = (!googlePerm) ? 'style="float: none !important;"':'';
+
             t += '<div class="save_event">';
-            t += '<div class="imgBtn imgBtn_add_outlook" onclick="downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);"><a href="#">';
+            t += '<div class="imgBtn imgBtn_add_outlook" onclick="downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);"' + icsStyle +'><a href="#">';
             t += '<div class="icon"></div>';
             t += '<div>Add Event to<br>Outlook Calendar</div>';
             t += '</a></div>';
-            console.log(googlePerm);
 
             if(googlePerm){
-                console.log("-"+googlePerm);
                 t += '<div class="imgBtn imgBtn_add_google" onclick="getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)"><a href="#">';
                 t += '<div class="icon"></div>';
                 t += '<div>Add Event to<br>Google Calendar</div>';
-                t += '</a></div></div>';
+                t += '</a></div>';
             }
-            
+
             t += '</div>';
             s = t;
             console.log("s="+s);
