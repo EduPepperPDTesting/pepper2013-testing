@@ -10,19 +10,20 @@
         <div class="close-modal" id="cms_close">✕</div>
     </div>
     <div class="content">
+        <h3 style="margin-top:0px; margin-bottom:0px;">Select A Library</h3>
         <div id = "library_selection">
 
         </div>
-        <hr>
         <div id = "view_type">
             <span id = "tree_view_head">Tree</span>
             <span id = "search_view_head">Search</span>
         </div><br>
         <div id= "popup_views">
             <span id="tree_view">
+                Please Select A Library
             </span>
             <span id="search_view">
-                Search
+                Please Select A Library
             </span>
         </div>
     </div>
@@ -31,10 +32,8 @@
 <script>
 base = "https://cms-dev.edplancms.com/api/v1/";
 working_lib = 0;
-$(document).ready(function() {
-   librariesSelector();
-   setupTree ();
-});
+working_img = "";
+
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
     $("#search_view").hide();
@@ -49,11 +48,11 @@ $("#search_view_head").click(function() {
     $(this).css("background-color", "lightgray");
     $("#tree_view_head").css("background-color", "white");
 });
-
-function setupTree() {
-    base = "https://cms-dev.edplancms.com/api/v1/";
-
-
+var initialize_listeners = true;
+var send_to;
+function initializeCMSPopup (callback) {
+    send_to = callback;
+    librariesSelector();
 }
 
 function librariesSelector() {
@@ -66,29 +65,94 @@ function librariesSelector() {
     org_list = org_list.slice(0,-1);
     libraries = callAPI("libraries/"+org_list, "");
     html = "";
-    loadLibrary(libraries[0].id);
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
-        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.organizations[0] + "'></img>";
+        html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
     }
+
     $("#library_selection").html(html);
     $(".lib-image").click(function() {
         loadLibrary ($(this).attr("id"));
+        working_img = $(this).attr("src");
     });
+    if (initialize_listeners) {
+        $("body").on("click", ".expandable_tree", function () {
+            $(this).next().slideToggle();
+            $($(this).children()[1]).toggleClass("down-arrow");
+        });
+        $("body").on("click", ".has_resource", function (e) {
+            if ($(this).next().hasClass("resource_level")) {
+                $(this).next().slideToggle();
+            } else {
+                package_id = $(this).data("package_id");
+                offset = $(this).data("offset");
+                res_html = makeResourceTree(package_id, offset + 1);
+                $(this).after(res_html);
+                $(this).next().slideToggle();
+            }
+            $($(this).children()[1]).toggleClass("down-arrow");
+        });
+        $("body").on("click", ".selectable_resource", function (e) {
+            url = $(this).data("url");
+            title = $(this).data("title");
+            data = {
+                "url": url,
+                "title": title,
+                "img": working_img
+            }
+            send_to.fire(data);
+        });
+        $("body").on("click", "#sub_search", function () {
+            search_terms = encodeURIComponent($("#search_term").val());
+            library = encodeURIComponent($("#search_term").data("lib"));
+            $("#search_results").data("page", 0);
+            page = $("#search_results").data("page");
+            data = {
+                "search": search_terms,
+                "f[0]": library,
+                "page": page
+            };
+            results = callAPI("search", data);
+            res_html = "";
+            $.each(results, function (i) {
+                res_html += "<div class='selectable_resource' data-title='" + results[i].title + "' data-url='" + results[i].url + "'>" + results[i].title + "</div>";
+            });
+            $(this).parent().next().html(res_html);
+        });
+        $("body").on("click", "#prev_button", function () {
+            page = $("#search_results").data("page");
+            if (page > 0) {
+                page--;
+            }
+            $("#search_results").data("page", page);
+            reloadPage();
+        });
+        $("body").on("click", "#next_button", function () {
+            page = $("#search_results").data("page");
+            page++;
+            $("#search_results").data("page", page);
+            reloadPage();
+        });
+        initialize_listeners = false;
+    }
     return html;
 }
 
-function loadLibrary(lib_id) {
-    working_lib = lib_id;
-    lib = callAPI ("library/" + lib_id, "");
-    tree = "";
-    $.each(lib, function(row) {
-        tree += makeTree(lib[row].grade, lib[row].book_id);
+function reloadPage () {
+    search_terms = encodeURIComponent($("#search_term").val());
+    library      = encodeURIComponent($("#search_term").data("lib"));
+    page = $("#search_results").data("page");
+    data = {
+        "search": search_terms,
+        "f[0]": library,
+        "page": page
+    };
+    results = callAPI ("search", data);
+    res_html = "";
+    $.each(results, function(i) {
+        res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "</div>";
     });
-    $("#tree_view").html(tree);
-    $(".expandable_tree").on("click", function() {
-        $(this).next().slideToggle();
-    });
+    $("#search_results").html(res_html);
 }
 
 function callAPI (endpoint, data) {
@@ -110,24 +174,57 @@ function callAPI (endpoint, data) {
     return struct;
 }
 
+function loadLibrary(lib_id) {
+    working_lib = lib_id;
+    lib = callAPI ("library/" + lib_id, "");
+    tree = "";
+    $.each(lib, function(row) {
+        tree += makeBookTree(lib[row].grade, lib[row].book_id);
+    });
+    $("#tree_view").html(tree);
+    $(".book_header_section").click(function (e) {
+        e.preventDefault();
+        if ($(this).next().hasClass("tree-level")) {
+            $(this).next().slideToggle();
+
+        } else {
+            console.log("Loading book...");
+            book_id = $(this).data("book_id");
+            struct = callAPI ("library/book/" + book_id);
+            book = struct[book_id];
+            book_html = ""
+            book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'><span class='tree-name'>" + book.name + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
+            book_html += makeTree("", book_id, book.structure, offset=2);
+            book_html += "</div>";
+            $(this).after(book_html);
+            $(this).next().slideToggle();
+        }
+        $($(this).children()[1]).toggleClass("down-arrow");
+    });
+    //Setup Search Tab
+    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
+    html += "<span id='prev_button'>Previous</span><span id='next_button'>Next</span>";
+    $("#search_view").html(html);
+
+}
+
+function makeBookTree (header, book_id) {
+    html += "";
+    html = "<div class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
+    return html;
+}
 function makeTree (header, book_id, struct=0, offset=0) {
     html = "";
     if (struct == 0) {
-        html = "<div data-book_id='" + book_id + "' class='expandable_tree'>" + header + "</div>";
-        book_struct = callAPI("library/book/"+book_id, "");
-        book = book_struct[book_id];
-        html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'>" + book.name + "</div>";
-        html += makeTree(header, book_id, book.structure, offset=2);
-        html += "</div>";
+        return "";
     } else {
-        console.log("hit");
         html += "<div class='tree-level'>";
         $.each(struct, function(i) {
             if (struct[i].children !== undefined) {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'>"+struct[i].title +"</div>";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'expandable_tree'><span class='tree-name'>"+struct[i].title +"</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
                 html += makeTree(header, book_id, struct[i].children, offset+1);
             } else {
-                html += "<div style='margin-left: "+(10*offset)+"px' class = ''>"+struct[i].title +"</div>";
+                html += "<div style='margin-left: "+(10*offset)+"px' class = 'has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'><span class='tree-name'>"+struct[i].title +"</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
             }
         });
         html += "</div>"
@@ -135,20 +232,18 @@ function makeTree (header, book_id, struct=0, offset=0) {
     return html;
 }
 
-function apiTest() {
-    $.ajax({
-      type: 'GET',
-      url: 'https://cms-dev.edplancms.com/api/v1/libraries',
-      dataType: 'jsonp',
-      async: false,
-      headers: {
-          'Authorization': "Basic " + btoa('restuser' + ":" + 'wK%yDJMqT?7GnBZK')
-      },
-      data: "",
-      success: function(result) {
-          alert(result);
-      }
+function makeResourceTree (package_id, offset) {
+    resources = callAPI("resources", {"package_id": package_id});
+    html = "<div class='tree-level resource_level'>";
+    if (resources.length < 1) {
+       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource'>No Resources Available</div></div>";
+        return html;
+    }
+    $.each(resources, function(i) {
+       html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource' data-title='"+resources[i].title+"' data-url='"+resources[i].url+"'>"+resources[i].title+"</div>";
     });
+    html += "</div>";
+    return html;
 }
 
 </script>

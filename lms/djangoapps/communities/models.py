@@ -48,6 +48,7 @@ class CommunityResources(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     link = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    cms_logo = models.CharField(blank=False, max_length=255, null=True)
 
 
 class CommunityDiscussions(models.Model):
@@ -208,6 +209,9 @@ class CommunityDiscussionsStore(MongoBaseStore):
     def get_community_discussions(self, community_id, page=0, size=0):
         return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
 
+    def get_community_discussions_cond(self, cond, page=0, size=0):
+        return self.collection.find(cond).limit(size).skip(page).sort([("pin", -1), ("date_create", -1)])
+
     def get_community_discussions_id(self):    
         max_id = 0
         for itemx in self.collection.find({"db_table": "community_discussions"}).limit(1).sort("did", -1):
@@ -223,11 +227,11 @@ class CommunityDiscussionsStore(MongoBaseStore):
     # def get_community_discussion_replies_next(self, parent_id):
     #     return self.collection.find({"community_id": ObjectId(parent_id), "db_table": "community_discussion_replies_next"}).sort("date_create", 1)
 
-    def get_poll(self, identifier):
-        return self.collection.find({"identifier": identifier, "db_table": "poll"})
+    # def get_poll(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll"})
 
-    def get_poll_ansers(self, identifier):
-        return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
+    # def get_poll_ansers(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
 
 
 def community_discussions_store():

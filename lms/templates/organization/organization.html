@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
+	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
 	.preview_view1,.editor_view1{width:900px;}
@@ -964,6 +965,11 @@
                 <td></td>
             </tr>
             <tr>
+                <td>
+                    <input id="cms_popup" type ="button" value="CMS Resource">
+                </td>
+            </tr>
+            <tr>
                 <td colspan="3" class="org_td1">
                 	<div class="organizational_dashboard_cms_div">
                     	<div class="organizational_dashboard_cms_head1">
@@ -1109,6 +1115,7 @@
                     <select class="org_assignment_course_select" style="width:500px;">
                         <option value="">Select a Course</option>
                     </select>
+                    <input type='checkbox' class='access'> Access Only
                     <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
                 </div>
                 <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>
@@ -1276,6 +1283,9 @@
     </div>
 </div>
 
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
 	var org_current_id = "";
 	var design_current_id = ""
@@ -1545,6 +1555,10 @@
 		}
 	};
 	
+    function new_cms_resource(data) {
+        console.log(data);
+    }
+
 	//-----------------------------------------------------------------------checkOrganization
 	function checkOrganization(name, oid) {
 		var valid = true;
@@ -2984,6 +2998,7 @@
 			var clonex = $(el).parent().parent().clone(true);
 			clonex.find(".org_assignment_course_select").val("");
 			clonex.find(".small_btn").val("+");
+			clonex.find(".access").prop("checked",false);
 			clonex.find(".org_assignment_qualifications_item").each(function(){
 				$(this).find(".oaq_item").each(function(i){
 					if(i > 0){
@@ -3636,14 +3651,24 @@
 		if(content){
 			var tmp1 = content.split(";");
 			for(var i = 0; i < tmp1.length; i++){
-				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next().next()[0]);
 			}			
 			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
 				var tmp2 = tmp1[i].split("<");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));
-				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].replace("(", "").replace(")", ""));				
-
+				var course_access = tmp2[0].split("|")
+				$(".org_assignment_course_select").eq(i).val(course_access[0].replace("(", "").replace(")", ""));
+				$(".org_assignment_course_select").eq(i).attr("bak_val", course_access[0].replace("(", "").replace(")", ""));
+				if (course_access.length >1){
+					if (course_access[1] == "(true)"){
+					    $(".access").eq(i).prop("checked",true);
+					}else{
+						$(".access").eq(i).prop("checked",false);
+					}
+				}else{
+					$(".access").eq(i).prop("checked",false);
+				}
+				
 				var tmp3 = tmp2[1].split(",");
 				for(var j = 0; j < tmp3.length; j++){
 					var parent2 = parent1.find(".org_assignment_qualifications_item").eq(j);
@@ -3678,6 +3703,18 @@
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
+        $.post("${reverse('cms_popup')}",{}, function(e){
+            $("#cms_dialog").html(e);
+        });
+        $("#cms_popup").click(function() {
+            $("#cms_dialog").show();
+            var callback = $.Callbacks();
+            callback.add(new_cms_resource);
+            initializeCMSPopup(callback);
+        });
+        $("body").on("click", "#cms_close", function () {
+            $("#cms_dialog").hide();
+        })
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
@@ -4782,6 +4819,7 @@
 			$(".org_assignment_course_item").each(function(){
 		        var course_id = $(this).find(".org_assignment_course_select").val();
 		        if(course_id != ""){
+		        	var access = $(this).find(".access").prop("checked");
 	                var course_assignment_child = "";
 	                $(this).find(".org_assignment_qualifications_item").each(function(){
                         var course_assignment_child_1 = "";
@@ -4808,7 +4846,7 @@
                         course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
                 	});
 	                if(course_assignment_content != "")     course_assignment_content += ";";
-	                course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
+	                course_assignment_content += "(" + course_id + ")|("+ access +")<" + course_assignment_child;
 		        }
 			});
 

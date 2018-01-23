@@ -2185,6 +2185,7 @@ def activate_imported_account(post_vars):
         profile.percent_eng_learner = post_vars.get('percent_eng_learner', '')
         profile.bio = post_vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
+        profile.save()
 
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:

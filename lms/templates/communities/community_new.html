@@ -15,8 +15,11 @@ import datetime
 <%block name="title"><title>community</title></%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
-<link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+<script src="/static/js/datetime/moment.js"></script>
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
@@ -145,6 +148,7 @@ font: normal 1.2em/1.2em;
         text-align: left;
         /*position: relative;*/
     }
+
 /*-----------create community form-----------*/
 #community-name input{
     padding:5px 12px;
@@ -189,11 +193,14 @@ a{
 .border-zero{
     border:0 !important;
 }
+.modal{
+    padding: 0 0 8px 0;
+}
 /*--------------community all--------------*/
 .content-wrapper-community{
     margin-top:0px;
     background-color:#e7e7e8;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 .sub-title{
     background-color: #2CBAEC;
@@ -210,7 +217,7 @@ a{
     margin-left:27px;
     float:left;
     
-    height:500px;
+    /*height:500px;*/
     border: 0px solid;
 }
 /*--------------community left--------------*/
@@ -327,7 +334,7 @@ a{
 .community-left .discussion-date .posted{
     font-size: 13px;color:#F58221;font-style:italic;
 }
-.community-left .discussion-date .date{
+.community-left .discussion-date .td-postdate{
     font-size: 13px;font-style:italic;
 }
 .community-left .seemore-t{
@@ -548,6 +555,124 @@ a{
     display:none
 }
 </style>
+<style>
+.modal-stepform {
+    display: block;
+    opacity: 1;
+    z-index: 999;
+    left: 50%;
+    background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);
+    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+    width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;
+}
+.modal-stepform .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+    z-index: 3;
+    color: #333;
+}
+.modal-stepform .content {
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px 20px;
+    line-height: 20px;
+}
+.step-page{
+    background:#fff;
+    position:absolute;
+    height:100%;
+    text-align:left;
+}
+.step-content{
+    padding:10px 25px;
+    width:630px;
+    position:relative;
+}
+.switch{
+    width:20px;
+    height:100%;
+    float:right;
+    vertical-align:bottom;
+    text-align:left;
+    cursor:pointer;
+}
+.switch i{
+    width:20px;
+    position:absolute;
+    bottom:5px;
+    font-style:normal;
+    text-align:center;
+    font-weight:bold;
+    color:#fff;
+}
+.step-page span.label{
+    width:100px;
+    text-align:right;
+    display:inline-block;
+    font-size:12px;
+}
+.step-page div.form-row{
+    margin-top:10px;
+    position:relative;
+}
+.step-page input[type=checkbox],
+.step-page input[type=radio],
+.step-page input[type=text],
+.step-page select{
+    vertical-align:middle;
+    max-width:500px;
+}
+.step-page h5{
+    font-size:14px;
+    color:#999;
+    margin-bottom:15px;
+}
+.step-page h4{
+    margin-bottom:15px;
+}
+.step-page .move{
+    position:absolute;
+    bottom:20px;
+    right:30px;
+}
+.step-page .prev{
+    background-image: url(/static/images/common_control/left_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .next{
+    background-image: url(/static/images/common_control/right_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .finish{
+    background-image: url(/static/images/common_control/finish.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.icon-edit{
+    color:#8DBF42 !important;
+}
+.icon-remove{
+    color:#F18101 !important;
+    margin-left:10px;
+}
+</style>
 
 <%
     district_id = district
@@ -606,7 +731,7 @@ a{
 <section class="content-wrapper-community">
     <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
         <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
-        <!--Communities-My Trending Topics-->
+        <!--community-left-->
         <div class="community-left">
             <div class="sub-community-info"></div>
             <div class="facilitator-info">
@@ -700,54 +825,34 @@ a{
                         <span class="btn-seemore-sc">See More</span>
                     </div>
                     %endif
-                    <!--
-                    <div class="joined">
-                        <div class="overflow-text joined-title">
-                            <a>Community Chat</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">8</div>
-                        </div>
-                    </div>
-                    <div class="unjoined overflow-text"><a>Februay Workshop Februay Workshop</a></div>
-                    <div class="unjoined overflow-text"><a>General</a></div>
-                    <div class="joined">
-                        <div class="overflow-text joined-title">
-                            <a>Random affdf sadfa asdfaasdfa sdfa</a>
-                        </div>
-                        <div style="display:table-cell">
-                            <div class="discussion-count overflow-text">3</div>
-                        </div>
-                    </div>
-                    -->
                 </div>
             </div>
             <div class="trending">
                 <div class="sub-title">Trending</div>
                 <div class="trendings">
-                    <div class="every-discussion">
-                        <div class="discussion-subject overflow-text">Welcome to the O Nieill sdfsdfa sadf</div>
-                        <div class="discussion-date">
-                            <span class="posted">Posted:</span>
-                            <span class="date">Sep 7,2016</span>
-                        </div>
-                    </div>
-                    <div class="every-discussion" style="border-bottom:0;padding-bottom:0">
-                        <div class="discussion-subject overflow-text">Test post</div>
-                        <div class="discussion-date">
-                            <span class="posted">Posted:</span>
-                            <span class="date">Aug 7,2016</span>
-                        </div>
-                    </div>
+                    %for k, td in enumerate(td_list):
+                        %if k + 1 == len(td_list):
+                        <div class="every-discussion border-zero">
+                        %else:
+                        <div class="every-discussion">
+                        %endif
+                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-date">
+                                <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
+                            </div>
+                        </div>   
+                    %endfor
+                    %if discussions_count > td_show_count and discussions_count > 0 and td_show_count > 0:
                     <div class="seemore-t">
                         <span class="btn-seemore-t">See More</span>
                     </div>
+                    %endif
                 </div>
             </div>
         </div>
 
         <!--Main content-->
-        <div class="con-main-all" style="background-color:#fff;border:0px solid;">
+        <div class="con-main-all" style="background-color:#fff;">
             <div class="" style="position:relative;left:0px;top:0px;">
                 <div class="email-facilitator">
                     <div class="email-facilitator-title">Email Facilitator</div>
@@ -770,7 +875,7 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-activeusers-count">xx</div>
+                                    <div class="top-activeusers-count">${d_top5_view_count}</div>
                                     <div class="top-activeusers-ico">
                                         <img src="/static/images/comment.png" height="15">
                                     </div>
@@ -801,9 +906,10 @@ a{
                     </table>
                 </div>
             </div>
+           	<%include file="community_new_center.html" /> 
         </div>
         
-        <!--Courses-My Learning Plan-->
+        <!--community-right-->
         <div class="community-right">
             <div class="communitystatus">
                 <div class="sub-title">Community Status</div>
@@ -941,7 +1047,7 @@ a{
         </div>
     </div>
 </div>
-<div  id="dlg-add-training" class=" modal bootstrap-iso" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div  id="dlg-add-training" class=" modal-stepform bootstrap-iso" style="">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
@@ -1179,6 +1285,7 @@ a{
         message_board(userInfo);
     }
 
+    //get resources
     function get_resources_ajax(community_id){
         var updata = {'community_id': community_id};
         $.post("${reverse('get_community_resources')}", updata, function (d) {
@@ -1205,32 +1312,7 @@ a{
         get_resources_ajax(${community_id})
     });
 
-    function get_mycommunities_ajax(community_id){
-        var updata = {'community_id': community_id};
-        $.post("${reverse('get_mycommunities')}", updata, function (d) {
-            if(d.success){
-                var html = '';
-
-                for(var i=0;i<d.my_communities.length;i++){
-                    if(i+1==d.my_communities.length){
-                        html += '<div class="every-community border-zero overflow-text">';
-                    }
-                    else{
-                        html += '<div class="every-community overflow-text">';
-                    }
-                    html += '<a href="/maincommunity/'+d.my_communities[i].id+'">'+d.my_communities[i].name+'</a>'
-                    html += '</div>';
-                }
-                $('.my-communities').html(html);
-            }
-        });
-    }
-    //mycommunities see more btn
-    $(".btn-seemore-mc").click(function(){
-        $(this).hide();
-        get_mycommunities_ajax(${community_id});
-    });
-
+    //get subcommunities
     function get_subcommunities_ajax(community_id){
         var updata = {'community_id': community_id};
         $.post("${reverse('get_subcommunities')}", updata, function (d) {
@@ -1263,6 +1345,62 @@ a{
     $(".btn-seemore-sc").click(function(){
         $(this).hide();
         get_subcommunities_ajax(${community_id});
+    });
+
+    //get my maincommunities
+    function get_mycommunities_ajax(community_id){
+        var updata = {'community_id': community_id};
+        $.post("${reverse('get_mycommunities')}", updata, function (d) {
+            if(d.success){
+                var html = '';
+
+                for(var i=0;i<d.my_communities.length;i++){
+                    if(i+1==d.my_communities.length){
+                        html += '<div class="every-community border-zero overflow-text">';
+                    }
+                    else{
+                        html += '<div class="every-community overflow-text">';
+                    }
+                    html += '<a href="/maincommunity/'+d.my_communities[i].id+'">'+d.my_communities[i].name+'</a>'
+                    html += '</div>';
+                }
+                $('.my-communities').html(html);
+            }
+        });
+    }
+    //mycommunities see more btn
+    $(".btn-seemore-mc").click(function(){
+        $(this).hide();
+        get_mycommunities_ajax(${community_id});
+    });
+
+    //get trending
+    function get_trending_ajax(community_id){
+        var updata = {'community_id': community_id};
+        $.post("${reverse('get_trending')}", updata, function (d) {
+            if(d.success){
+                var html = '';
+                for(var i=0;i<d.trending.length;i++){
+                    if(i+1==d.trending.length){
+                        html += '<div class="every-discussion border-zero">';
+                    }
+                    else{
+                        html += '<div class="every-discussion">';
+                    }
+                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-date">';
+                    html += '<span class="posted">Posted: </span>';
+                    html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
+                    html += '</div></div>';
+                }
+                $('.trendings').html(html);
+            }
+        });
+    }
+    //trending see more btn
+    $(".btn-seemore-t").click(function(){
+        $(this).hide();
+        get_trending_ajax(${community_id});
     });
 </script>
 <script type="text/javascript">
@@ -1336,7 +1474,6 @@ a{
         });
     }
 </script>
-
 <script type="text/javascript">
     function PepReg($content) {
         var self = this;
@@ -1964,11 +2101,48 @@ a{
         $("#dlg-upload_picture").hide();
         $(".lean-overlay").remove();
     });
+</script>
+<script type="text/javascript">
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        var displayDate = ""
 
+        if(isToday(time)) {
+            displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
+</script>
+<script type="text/javascript">
     $(document).ready(function () {
         //** init controller
         //window.pepreg = new PepReg($(".expand_div").eq(0));
         window.pepreg = new PepReg();
+
+        //Format Trending posted date
+        $(".td-postdate").each(function(){
+            var postdate = $(this).attr('postdate');
+            if(postdate){
+                $(this).html(time_to_local(postdate));
+            }
+        });
 
         %if user_super:
             var access_level = 'System';
@@ -2051,5 +2225,4 @@ a{
             $(".lean-overlay").remove();
         });
     });
-
 </script>

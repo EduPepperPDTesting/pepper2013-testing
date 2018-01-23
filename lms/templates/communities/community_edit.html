@@ -483,14 +483,28 @@ $(document).ready(function() {
     });
     $("#cms_popup").click(function() {
         $("#cms_dialog").show();
-        $.post("${reverse('cms_api')}", {"url":"https://cms-dev.edplancms.com/api/v1/libraries"}, function(data) {
-            console.log(data);
-        })
+        var callback = $.Callbacks();
+        callback.add(new_cms_resource);
+        initializeCMSPopup(callback);
     });
-    $("#cms_close").click(function () {
+    $("body").on("click", "#cms_close", function () {
         $("#cms_dialog").hide();
     })
 });
+
+function new_cms_resource(data) {
+    newResource();
+    var this_block = $(".community-resource:last");
+    var index = $(".community-resource").size() - 1;
+    var title = $(this_block).children()[0];
+    var url   = $(this_block).children()[1];
+    var img   = $(this_block).children()[2];
+    $(title).val(data.title);
+    $(url).val(data.url);
+    $(img).html("<img src = '"+data.img+"' width='150px'></img><input type='hidden' name='cms_resource_image["+index+"]' value='"+data.img+"' />");
+    $("#cms_dialog").hide();
+}
+
 function close_modal(modal_id){
     $(modal_id).hide();
     $('#lean_overlay').css({
