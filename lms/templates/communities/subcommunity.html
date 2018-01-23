@@ -393,6 +393,10 @@ a{
 .community-left .discussion-subject{
     font-size: 13px;
 }
+.community-left .discussion-subject a{
+    font-size: 13px;
+    color:#000;
+}
 .community-left .discussion-date .posted{
     font-size: 13px;color:#F58221;font-style:italic;
 }
@@ -910,7 +914,7 @@ a{
                         %else:
                         <div class="every-discussion">
                         %endif
-                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-subject overflow-text"><a href="/subcommunity/${td['hyperlink']}">${td['subject']}</a></div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
@@ -1476,7 +1480,7 @@ a{
                     else{
                         html += '<div class="every-discussion">';
                     }
-                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-subject overflow-text"><a href="/subcommunity/'+d.trending[i].hyperlink+'">'+d.trending[i].subject+'</a></div>';
                     html += '<div class="discussion-date">';
                     html += '<span class="posted">Posted: </span>';
                     html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
