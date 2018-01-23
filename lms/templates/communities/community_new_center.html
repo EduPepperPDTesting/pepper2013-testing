@@ -102,15 +102,14 @@ if is_new:
 <style type="text/css" media="screen">
 .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 .icon-aw:before {font-family:FontAwesome; }
-/*.icon-comment:before {content: "\f075";}*/
 
-.community_new_center{float:left; width:680px; /*margin-left:27px; background-color:#eee; position: relative; height:500px; border: 1px solid;*/}
+.community_new_center{float:left; width:660px; padding:10px; /*margin-left:27px; background-color:#eee; position: relative; height:500px; border: 1px solid;*/}
 .community_new_center .icon-aw{ cursor:pointer;}
 
-.community_new_center .center_block{float:left; width:680px; padding:5px 0; clear:both; }
-	 .center_block .center_block_left{float:left; width:80px;}
+.community_new_center .center_block{float:left; width:100%; padding:5px 0; clear:both; }
+	 .center_block .center_block_left{float:left; width:70px;}
 		.center_block_left .user_phone{float: right; width: 64px; height:64px; border-radius:32px; -moz-border-radius: 32px;  -webkit-border-radius: 32px; }
-	.center_block .center_block_right{float:left; margin-left:20px; width:565px; padding-bottom:15px; border-bottom:solid 1px #ddd;}
+	.center_block .center_block_right{float:left; margin-left:20px; width:570px; padding-bottom:15px; border-bottom:solid 1px #ddd;}
 
 		.center_block_right .dis_row{float:left; width:100%; margin-bottom:2px;}
 		.center_block_right .dis_row span{float:left; }
@@ -130,16 +129,16 @@ if is_new:
 		.center_block_right .dis_reply *:not(.icon-aw){ font-siz1e:14px !important;}
 		
 		.dis_reply_block{float:left; width:100%;}
-				.dis_reply_block .dis_reply_left{float:left; width:70px;}
+				.dis_reply_block .dis_reply_left{float:left; width:60px;}
 				.dis_reply_block .dis_reply_left .user_phone{float: right; width: 56px; height:56px; border-radius:28px; -moz-border-radius: 28px;  -webkit-border-radius: 28px; }
 				.dis_reply_block .dis_reply_right{float:left; margin-left:20px; width:490px; padding-bottom:5px; }
 				.dis_reply_block .dis_reply_tool{width:90%; padding:5px 0; border-bottom:solid 1px #ddd;}
 				.dis_reply_block .dis_reply_tool span{margin-right:10px; font-size:14px;}
 		
 		.dis_reply_next_block{float:left; width:100%;}
-				.dis_reply_next_block .dis_reply_next_left{float:left; width:60px;}
+				.dis_reply_next_block .dis_reply_next_left{float:left; width:50px;}
 				.dis_reply_next_block .dis_reply_next_left .user_phone{float: right; width: 48px; height:48px; border-radius:24px; -moz-border-radius: 24px;  -webkit-border-radius: 24px; }	
-				.dis_reply_next_block .dis_reply_next_right{float:left; margin-left:20px; width:410px; padding-bottom:5px;}
+				.dis_reply_next_block .dis_reply_next_right{float:left; margin-left:20px; width:420px; padding-bottom:5px;}
 				.dis_reply_next_block .dis_reply_next_tool{width:100%; padding-top:5px;}
 		
 		.community_new_center_menu{position:absolute; width:110px; display:none;}
@@ -148,9 +147,6 @@ if is_new:
 		.community_new_center_menu .menu_item{float:left; text-indent:5px; margin-left:10px; width:90px; padding:8px 0; font-size:14px; cursor:pointer;}
 		.community_new_center_menu .menu_item *{color:#FFFFFF;}		
 		.community_new_center_menu .menu_item:last-child{ border:0; padding-bottom1:12px;}
-		
-	/*	#community_new_center_menu_level2{width:110px !important;}
-		#community_new_center_menu_level2 .menu_item{width:90px !important;}*/
 		
 		.color_unpin{color:#F5821F !important;}
 		
@@ -187,10 +183,11 @@ if is_new:
 .load_more_level1 a{padding: 1px 14px 2px 14px; }
 .load_more_level2{width:480px; padding:2px 0; font-size:11px ;}
 .load_more_level2 a{padding: 1px 8px 2px 8px;}
+.icon-editx::before {content: "\f044";}
 </style>
 
 <!--Main content-->
-<div style="float:left; width:665px; clear:both; padding:20px 20px 20px 0;border:0px solid;">
+<div style="float:left; width:665px; clear:both; padding:20px 20px 20px 0;">
 	<span onclick="addNewDiscussion()" class="btn_new_discussion">New Discussion</span>
 </div>
 <div class="community_new_center"></div>
@@ -484,7 +481,7 @@ function getDiscussionsHtml(json, tmp_reply){
 	html += "            <span class='dis_posted_tool'>";
 	html += "                <span class='icon-aw icon-comment'> Comment</span>";
 	html += "                <span class='icon-aw icon-thumbs-up discussion_liked' is_liked='" + json.is_liked + "'> Like</span>";
-	html += "                <span class='icon-aw icon-edit'> Edit</span>";
+	html += "                <span class='icon-aw icon-editx'> Edit</span>";
 	html += "                <span class='icon-aw icon-reorder dis_more' levelx='1' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
 	html += "            </span>";
 	html += "        </div>";
@@ -536,7 +533,7 @@ function getRepliesHtml(json, pid, reply_next){
 	tmp_reply += "        <div class='dis_row dis_reply_tool'>";
 	tmp_reply += "            <span class='icon-aw icon-comment'> Comment</span>";
 	tmp_reply += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + json.is_reply_liked + "' like_size='" + json.like_reply_size + "'></span>";
-	tmp_reply += "            <span class='icon-aw icon-edit'> Edit</span>";
+	tmp_reply += "            <span class='icon-aw icon-editx'> Edit</span>";
 	tmp_reply += "            <span class='icon-aw icon-reorder dis_more' levelx='2' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
 	tmp_reply += "        </div>";
 	tmp_reply += "        <div class='dis_reply' total='" + json.total + "' level='2'>" + reply_next + "</div>"
@@ -585,7 +582,7 @@ function getRepliesNextHtml(json, pid){
 	html += "        <div class='dis_row dis_reply_tool'>";
 	html += "            <span class='icon-aw icon-comment'> Comment</span>";
 	html += "            <span class='icon-aw icon-thumbs-up reply_liked' is_liked='" + json.is_reply_next_liked + "' like_size='" + json.like_reply_next_size + "'></span>";
-	html += "            <span class='icon-aw icon-edit'> Edit</span>";
+	html += "            <span class='icon-aw icon-editx'> Edit</span>";
 	html += "            <span class='icon-aw icon-reorder dis_more' levelx='3' isDel='" + ((isSuperUser||json.user==sys_uid)?"1":"0") + "'> More</span>";
 	html += "        </div>";							
 	html += "    </span>";
@@ -956,7 +953,7 @@ function addCommunityDiscussionEvent(){
 	});
 	
 	//---------------------------------------------------------icon-edit click
-	$(".icon-edit").unbind("click").click(function(){
+	$(".icon-editx").unbind("click").click(function(){
 		var levelx = $(this).parent().find(".dis_more").attr("levelx");
 		var tmp_row = null, tmp_val = "";
 		if(levelx == "1"){
@@ -1226,12 +1223,16 @@ $(document).ready(function(){
 		var d = $(this).attr("did");
 		var c = $(this).attr("cid");
 		var nc = $(this).attr("ncid");
+		var url = window.location.href;
+		var url_index = url.indexOf("?");
+        if(url_index > 0)	url = url.substring(0, url_index);
+		
 		if(v == "1"){
-			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=1&d=" + d);
+			$("#selectableLink").val(url + "?v=1&d=" + d);
 		}else if(v == "2"){
-			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=" + v + "&d=" + d + "&c=" + c);
+			$("#selectableLink").val(url + "?v=" + v + "&d=" + d + "&c=" + c);
 		}else if(v == "3"){
-			$("#selectableLink").val(window.location.hostname + "/community/${community.id}?v=" + v + "&d=" + d + "&c=" + c + "&nc=" + nc);
+			$("#selectableLink").val(url + "?v=" + v + "&d=" + d + "&c=" + c + "&nc=" + nc);
 		}
 		$("#selectableLink").select();
 	});

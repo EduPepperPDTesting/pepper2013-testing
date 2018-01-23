@@ -1652,12 +1652,13 @@ def maincommunity(request, community_id):
                          'error_message': 'You do not have access to this view in Pepper.'}
         return render_to_response('error.html', error_context)
 
+    communityID = community.id
     user = request.user
     data = dict()
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
+    courses_drop = get_dropdown_data(request.user, communityID)
     data = {'courses_drop': courses_drop}
 
     # Get default facilitator
@@ -1679,20 +1680,26 @@ def maincommunity(request, community_id):
 
     mongo3_store = community_discussions_store()
     # Get discussions count for Community Status
-    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
     # Get all discussion and all reply count
-    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
-    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
     d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
     # Get all likes count
-    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = 1
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
 
     '''
     Get Trending discussions for init show
     '''
     td_show_count = 2
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
@@ -1703,17 +1710,17 @@ def maincommunity(request, community_id):
     '''
     sc_show_count = 4
     # default_last_access when last_access is null
-    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')[0:sc_show_count]
-    sc_count = CommunityCommunities.objects.select_related().filter(main_id=community_id).count()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=communityID).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.select_related().filter(main_id=communityID).count()
     for k, item in enumerate(subcommunities):
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
                 last_access_time = default_last_access
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -1767,7 +1774,8 @@ def maincommunity(request, community_id):
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
-                      'likes_count': likes_count
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count
                       }
     data.update(community_info)
 
@@ -1783,12 +1791,13 @@ def subcommunity(request, community_id):
                          'error_message': 'You do not have access to this view in Pepper.'}
         return render_to_response('error.html', error_context)
 
+    communityID = community.id
     user = request.user
     data = dict()
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
+    courses_drop = get_dropdown_data(request.user, communityID)
     data = {'courses_drop': courses_drop}
 
     # Get default facilitator
@@ -1823,20 +1832,26 @@ def subcommunity(request, community_id):
 
     mongo3_store = community_discussions_store()
     # Get discussions count for Community Status
-    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
     # Get all discussion and all reply count
-    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
-    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
     d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
     # Get all likes count
-    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = 1
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
 
     '''
     Get Trending discussions for init show
     '''
     td_show_count = 2
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
@@ -1847,7 +1862,7 @@ def subcommunity(request, community_id):
     '''
     sc_show_count = 4
     # default_last_access when last_access is null
-    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
     subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')[0:sc_show_count]
     sc_count = CommunityCommunities.objects.filter(main_id=community.main_id).count()
@@ -1857,7 +1872,7 @@ def subcommunity(request, community_id):
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
                 last_access_time = default_last_access
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -1874,7 +1889,7 @@ def subcommunity(request, community_id):
     mc_show_count = 2
     my_communities_list = list()
     items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')[0:mc_show_count]
-    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0),user=user).count()
+    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0), user=user).count()
     for k, item in enumerate(items):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
@@ -1913,7 +1928,8 @@ def subcommunity(request, community_id):
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
-                      'likes_count': likes_count
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count
                       }
     data.update(community_info)
 
@@ -2440,8 +2456,8 @@ def get_subcommunities_process(request):
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
-                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+                last_access_time = datetime.datetime(2018, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -2458,8 +2474,8 @@ def get_trending_discussions_process(request):
         return HttpResponse(json.dumps({'success': False}), content_type='application/json')
 
     mongo3_store = community_discussions_store()
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "date_create", -1)
+    trending_cond = {"community_id": int(community_id), "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
@@ -2533,7 +2549,7 @@ def new_process_get_discussions(request):
                 find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
         discussions_json = []
-        for disc in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+        for disc in mongo3_store.get_community_discussions_cond(find_sql, 0, size):
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc['_id'])}, {"$inc": {"view_counter": 1}})
 
             user = User.objects.get(id=disc['user'])
