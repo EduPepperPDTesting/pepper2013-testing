@@ -11,6 +11,7 @@
     from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
     from permissions.utils import check_access_level, check_user_perms
     from administration.models import PepRegTraining
+    from administration.configuration import has_hangout_perms
     import datetime
     from django.db.models import Q
 %>
