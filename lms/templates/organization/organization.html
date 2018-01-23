@@ -3638,7 +3638,7 @@
 		if(content){
 			var tmp1 = content.split(";");
 			for(var i = 0; i < tmp1.length; i++){
-				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next().next()[0]);
 			}			
 			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
