@@ -1017,22 +1017,29 @@ def community_edit_process(request):
                 resource_object.name = resource_names[key]
                 # The logo needs special handling since we might need to upload the file. First we try the entry in the
                 # FILES and try to upload it.
-                if request.POST.get('resource_logo[{0}]'.format(key)):
-                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
-                    logo = FileUploads.objects.get(id=file_id)
-                else:
-                    try:
-                        logo = FileUploads()
-                        logo.type = 'community_resource_logos'
-                        logo.sub_type = community_id
-                        logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                        logo.save()
-                    except Exception as e:
-                        logo = None
-                        log.warning('Error uploading logo: {0}'.format(e))
+                try:
+                    if request.POST.get('resource_logo[{0}]'.format(key)):
+                        file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                        logo = FileUploads.objects.get(id=file_id)
+                    else:
+                        try:
+                            logo = FileUploads()
+                            logo.type = 'community_resource_logos'
+                            logo.sub_type = community_id
+                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                            logo.save()
+                        except Exception as e:
+                            logo = None
+                            log.warning('Error uploading logo: {0}'.format(e))
+                except Exception as e:
+                    log.warning("No logo to upload!")
+
 
                 if logo:
                     resource_object.logo = logo
+                if 'cms_resource_image[{0}]'.format(key) in request.POST:
+                    log.debug("Has cms resource")
+                    resource_object.cms_logo = request.POST.get('cms_resource_image[{0}]'.format(key))
                 resource_object.save()
 
                 # Record notification about modify resources

@@ -1,0 +1,95 @@
+#view_type {
+    float: left;
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+#view_type span {
+    border: 1px solid black;
+    border-bottom: 0;
+    font-size: 22px;
+    /* padding: 3px; */
+    margin-bottom: 0px;
+    left: 0px;
+    padding-bottom: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+#view_type span:hover{
+    cursor:pointer;
+}
+#search_view {
+    display:none;
+}
+#search_results {
+    padding-left: 6px;
+    padding-top: 4px;
+}
+#popup_views {
+    width:100%;
+    height:64%;
+    overflow:scroll;
+    text-align: left;
+    padding-left: 8px;
+    padding-top: 4px;
+}
+.expandable_tree:hover, .book_header:hover, .has_resource:hover, .book_header_section:hover, .tree-name:hover {
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#prev_button, #next_button {
+    font-weight:bold;
+}
+#prev_button:hover, #next_button:hover {
+    text-decoration: underline;
+}
+#next_button {
+    float:right;
+    margin-right: 10px;
+}
+
+.selectable_resource:hover {
+    cursor:pointer;
+    text-decoration:underline;
+}
+.tree-level{
+    display:none;
+}
+.lib-image {
+    width:120px;
+    padding: 15px;
+}
+.lib-image:hover {
+    cursor:pointer;
+}
+#cms_dialog.hr{
+    color:black;
+}
+#cms_dialog {
+    width: 40% !important;
+    height: 80% !important;
+    top: 10% !important;
+    bottom: 10% !important;
+    margin-left: -20% !important;
+    left: 50%;
+}
+.inner-wrapper{
+    height:100%;
+}
+.content {
+    height:80%;
+}
+#cms_popup {
+    float:left;
+}
+.section-arrow {
+    width: 15px;
+    margin-left: 5px;
+}
+.down-arrow {
+  transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+}

@@ -310,10 +310,9 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         this.config.pager.data.user_filter_last_name_fuzzy=f[2];
         this.config.pager.data.user_filter_email_fuzzy=f[3];
     });
-    var loadwin;
+    var loadwin = new LoadingWin();
     $table.bind("movingPage", function(a){
-        loadwin = new LoadingWin();
-        loadwin.show();  
+        loadwin.show();
     });
     $table.bind("pagerComplete", function (a) {
         $('#course_permission_user table.tablesorter-blue thead').off("click");
