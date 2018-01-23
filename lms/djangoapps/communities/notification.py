@@ -219,12 +219,12 @@ def save_other_config(request):
         for d in data:
             for u in users:
                 config, created = CommunityNotificationConfig.objects.get_or_create(type_id=d["type_id"], user=u)
-                if created or (not config.self_config):
-                    config.type_id = d["type_id"]
-                    config.via_pepper = d["via_pepper"]
-                    config.via_email = d["via_email"]
-                    config.frequency = d["frequency"]
-                    config.save()
+                # if created or (not config.self_config):
+                config.type_id = d["type_id"]
+                config.via_pepper = d["via_pepper"]
+                config.via_email = d["via_email"]
+                config.frequency = d["frequency"]
+                config.save()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
