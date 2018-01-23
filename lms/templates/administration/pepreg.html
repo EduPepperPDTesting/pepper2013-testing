@@ -1633,7 +1633,7 @@
     PepReg.prototype.getInput = function () {
         var $form = $("#dlg-add-training");
         var classroom = $.trim($form.find("input[name=classroom]").val());
-        var ifURL = RegExp("(http|https)://[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
+        var ifURL = RegExp("[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
         if(ifURL.test(classroom)) classroom = "<a href = '" + classroom + "' target='_blank'>" + classroom + "</a>";
         var json = {
             id: $form.find("input[name=id]").val(),
