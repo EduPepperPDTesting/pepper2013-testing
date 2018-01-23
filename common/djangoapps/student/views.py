@@ -82,24 +82,16 @@ from reporting.models import reporting_store
 from administration.models import UserLoginInfo
 from datetime import timedelta
 
-# @begin:Add for Dashboard Posts
-# @date:2016-12-29
-from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
-# @end
-
-from student.models import State, District, School, User, UserProfile
+from student.models import State,District,School,User,UserProfile
 from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem, OrganizationMoreText, OrganizationDataitems, course_assignment_store
 from organization.organization import organization_qualifications, course_assign
 from django.http import HttpResponseRedirect
-
 from collections import OrderedDict
 from administration.usage_report import password_format_check
 from django.template.response import TemplateResponse
 
 log = logging.getLogger("mitx.student")
-# log = logging.getLogger("tracking")
 AUDIT_LOG = logging.getLogger("audit")
-
 
 Article = namedtuple('Article', 'title url author image deck publication publish_date')
 
@@ -503,7 +495,7 @@ def dashboard(request, user_id=None):
         data["org_id"] = organization_obj.id;
         for tmp1 in OrganizationDashboard.objects.filter(organization=organization_obj):
             data[tmp1.itemType] = tmp1.itemValue
-    
+
     # --------------course_enroll
         course_assignment_content = ""
         specific_items = ""
@@ -537,7 +529,7 @@ def dashboard(request, user_id=None):
                 course_assign(qualifications, user_org_profile)
 
             course_assignment_record.create_course_record(user.id, course_assignment_id, datetime.datetime.utcnow())
-
+            
     if OrganizationOK and data["Dashboard option etc"] != "0":
         return HttpResponseRedirect('/newdashboard/')
 
@@ -803,6 +795,7 @@ def change_enrollment(request):
 
         if not has_access(user, course, 'enroll'):
             return HttpResponseBadRequest(_("Enrollment is closed"))
+
         org, course_num, run = course_id.split("/")
         statsd.increment("common.student.enrollment",
                          tags=["org:{0}".format(org),
@@ -810,13 +803,14 @@ def change_enrollment(request):
                                "run:{0}".format(run)])
 
         CourseEnrollment.enroll(user, course.id)
-        
+
         ma_db = myactivitystore()
         my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
         "URLValues": {"course_id": course.id},    
         "TokenValues": {"course_id": course.id}, 
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
+
         return HttpResponse("course_enroll_ok")
 
     elif action == "unenroll":
@@ -841,6 +835,212 @@ def accounts_login(request, error=""):
         return redirect(reverse('cas-login'))
     return render_to_response('login.html', {'error': error})
 
+def login_error(message):
+    error_context = {'window_title': 'Login Error',
+                     'error_title': 'Login Error',
+                     'error_message': message}
+    return render_to_response('error.html', error_context)
+
+def update_sso_usr(user, json, update_first_name=True):
+    profile = user.profile
+
+    sso_user = json.get('User')
+    sso_id = sso_user.get('ID', '')
+    sso_district_code = json.get('SchoolSystemCode')
+    sso_email = sso_user.get('Email', '')
+    sso_usercode = sso_user.get('UserCode', '')
+    sso_unique = str(sso_usercode) + '--' + str(sso_id)
+
+    try:
+        sso_state = State.objects.get(name=json.get('State'))
+    except State.DoesNotExist as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
+                          .format(e))
+        return login_error('''An error occurred while updating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    try:
+        validate_email(sso_email)
+    except ValidationError as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format(e, json))
+        return login_error('''The supplied email is invalid. Please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    # user
+    user.set_password('EasyIEPSSO')
+    user.email = sso_email
+    # if update_first_name:
+    #     user.first_name = sso_user.get('FirstName', '')
+    # user.last_name = sso_user.get('LastName', '')
+    user.save()
+
+    # district
+    # profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
+
+    # school
+    # safe_state = re.sub(' ', '', sso_state.name)
+    # multi_school_id = 'pepper' + safe_state + str(sso_district_code)
+    # if len(sso_user['SchoolCodes']) == 1:
+    #     try:
+    #         school = School.objects.get(code=sso_user['SchoolCodes'][0], district=profile.district.id)
+    #     except School.DoesNotExist:
+    #         school = School.objects.get(code=multi_school_id)
+    # else:
+    #     school = School.objects.get(code=multi_school_id)
+
+    # profile.school = school
+
+    # unique ID for our records
+    profile.sso_idp = sso_unique
+
+    # save
+    profile.save()
+
+def sso(request, error=""):
+    method = 'post'
+
+    token = request.GET.get('easyieptoken')
+    url = request.GET.get('auth_link')
+    debug = request.GET.get('debug')
+
+    # request json
+    data_or_params = {'token': token}
+
+    try:
+        if method == 'post':
+            response = requests.request(method, url, data=data_or_params, timeout=15)
+        else:
+            response = requests.request(method, url, params=data_or_params, timeout=15)
+
+        text = response.text
+    except Exception as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
+                          .format(e))
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    if debug == 'true':
+        return HttpResponse(text)
+
+    # parse json
+    parsed = json.loads(text)
+
+    sso_error = parsed.get('lErrors')
+    if sso_error:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format("EasyIEP returned an error", text))
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    sso_user = parsed.get('User')
+    sso_id = sso_user.get('ID', '')
+    sso_email = sso_user.get('Email', '')
+    sso_usercode = sso_user.get('UserCode', '')
+    sso_unique = str(sso_usercode) + '--' + str(sso_id)
+
+    request.session['idp'] = sso_usercode
+
+    if not sso_user:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format("No SSO User loaded", text))
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    try:
+        validate_email(sso_email)
+    except ValidationError as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format(e, text))
+        return login_error('''The supplied email is invalid. Please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    try:
+        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
+        user = profile.user
+    except UserProfile.DoesNotExist:
+        user = None
+            
+    if not user:
+        try:
+            username = "EasyIEP%s" % random.randint(10000000000, 99999999999)
+
+            # user
+            user = User(username=username, email=sso_email, is_active=False)
+            user.save()
+
+            # registration
+            registration = Registration()
+            registration.register(user)
+
+            # profile
+            profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_unique)
+            user.profile = profile
+
+            # update user
+            update_sso_usr(user, parsed)
+
+            # allow courses
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=sso_email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+
+            # add courses above (cause user will not finish registration himself to trigger auto course enroll)
+            CourseEnrollment.enroll(user, 'PCG_Education/PEP101.1/S2016')
+
+        except Exception as e:
+            db.transaction.rollback()
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return login_error('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+        return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+
+    elif not user.is_active:
+        try:
+            update_sso_usr(user, parsed)
+        except Exception as e:
+            db.transaction.rollback()
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return login_error('''An error occurred while updating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        registration = Registration.objects.get(user_id=user.id)
+        return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
+    else:
+        # update user
+        try:
+            # update_sso_usr(user, parsed, False)
+            pass
+        except Exception as e:
+            db.transaction.rollback()
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return login_error('''An error occurred while updating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    # user = authenticate(username=post_vars['username'], password=post_vars['password'])
+    login(request, user)
+    return redirect(reverse('dashboard'))
+    # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
+
+@ensure_csrf_cookie
+def register_user_easyiep(request, activation_key):
+
+    registration = Registration.objects.get(activation_key=activation_key)
+    user_id = registration.user_id
+
+    profile = UserProfile.objects.get(user_id=user_id)
+
+    context = {
+        'profile': profile,
+        'activation_key': activation_key
+    }
+
+    return render_to_response('register_easyiep.html', context)
 
 # Need different levels of logging
 @ensure_csrf_cookie
@@ -866,7 +1066,7 @@ def login_user(request, error=""):
     try:
         user = authenticate(username=username, password=password, request=request)
 
-        ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get').split(',')[0]
         login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=True, login_or_logout_time=datetime.datetime.utcnow())
         login_info.save()
     # this occurs when there are too many attempts from the same IP address
@@ -910,9 +1110,6 @@ def login_user(request, error=""):
                 log.debug("Setting user session to never expire")
             else:
                 request.session.set_expiry(0)
-
-            user.profile.force_logout = None
-            user.profile.save()
         except Exception as e:
             AUDIT_LOG.critical("Login failed - Could not create session. Is memcached running?")
             log.critical("Login failed - Could not create session. Is memcached running?")
@@ -998,8 +1195,8 @@ def record_logout(user_id):
         user_log_info[0].logout_press = 1
         user_log_info[0].save()
 
-    
-# @ensure_csrf_cookie
+
+@ensure_csrf_cookie
 def logout_user(request):
     """
     HTTP request to log out the user. Redirects to marketing page.
@@ -1008,10 +1205,10 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
-    from sso.idp import slo_request_send
+    # from sso.idp import slo_request_send
 
-    if request.session.get("sso_participants"):
-        return slo_request_send(request)
+    # if request.session.get("sso_participants"):
+    #     return slo_request_send(request)
 
     record_logout(request.user.id)
     logout(request)
@@ -1021,7 +1218,7 @@ def logout_user(request):
     else:
         target = '/'
     username = request.user.username if request.user else ""
-    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
+    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get').split(',')[0]
     login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=False, login_or_logout_time=datetime.datetime.utcnow())
     login_info.save()
     response = redirect(target)
@@ -1160,7 +1357,7 @@ def create_account(request, post_override=None):
     # TODO: Confirm e-mail is not from a generic domain (mailinator, etc.)? Not sure if
     # this is a good idea
     # TODO: Check password is sane
-    
+
     # @begin:check the password format
     # @date:2017-09-20
     psw_format_check = password_format_check(post_vars['password'])
@@ -1193,27 +1390,7 @@ def create_account(request, post_override=None):
         js['field'] = 'password'
         return HttpResponse(json.dumps(js))
 
-    # required_post_vars_dropdown = ['major_subject_area_id', 'grade_level_id', 'district_id',
-    #                                'school_id', 'years_in_education_id',
-    #                                'percent_lunch', 'percent_iep', 'percent_eng_learner'
-    #                                ]
     required_post_vars_dropdown = ['district_id', 'school_id']
-
-    # for a in required_post_vars_dropdown:
-    #     if len(post_vars[a]) < 1:
-    #         error_str = {
-    #             'major_subject_area_id': 'Major Subject Area is required',
-    #             'grade_level_id': 'Grade Level-Check is required',
-    #             'district_id': 'District is required',
-    #             'school_id': 'School is required',
-    #             'years_in_education_id': 'Number of Years in Education is required',
-    #             'percent_lunch': 'Free/Reduced Lunch is required',
-    #             'percent_iep': 'IEPs is required',
-    #             'percent_eng_learner': 'English Learners is required'
-    #         }
-    #         js['value'] = error_str[a]
-    #         js['field'] = a
-    #         return HttpResponse(json.dumps(js))
 
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
@@ -2008,7 +2185,6 @@ def activate_imported_account(post_vars):
         profile.percent_eng_learner = post_vars.get('percent_eng_learner', '')
         profile.bio = post_vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
-        profile.save()
 
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
@@ -2038,13 +2214,13 @@ def activate_imported_account(post_vars):
         try:
             profile.user.save()
             registration.activate()
+            profile.save()
         except Exception as e:
             if "for key 'username'" in "%s" % e:
                 ret['value'] = "Username '%s' already exists" % profile.user.username
                 ret['field'] = 'username'
             raise e
 
-        # upload_user_photo(profile.user.id, photo)
         photo_str = post_vars.get('photo','')
         if photo_str:
             photo_str = photo_str.split(',')[1]
@@ -2229,6 +2405,7 @@ def upload_user_photo(user_id, file_img):
 
         us.save(_id,file.getvalue())
 
+
 def upload_photo(request):
     photo_str = request.POST.get('photo')
     photo_str = photo_str.split(',')[1]
@@ -2364,6 +2541,7 @@ def drop_schools(request):
 
 @login_required
 def get_pepper_stats(request):
+
     user = User.objects.get(id=request.POST.get('user_id'))
     courses = []
 
@@ -2414,8 +2592,8 @@ def get_pepper_stats(request):
         total_time_in_pepper = 0
         
     else:
-        # course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
         course_times = {course.id:study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
@@ -2426,8 +2604,8 @@ def get_pepper_stats(request):
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
         #@end
 
-        # @begin:change to current year course time and total_time
-        # @date:2016-06-21
+        #@begin:change to current year course time and total_time
+        #@date:2016-06-21
         rs = reporting_store()
         rs.set_collection('UserCourseView')
         for course in courses:
@@ -2437,7 +2615,7 @@ def get_pepper_stats(request):
                 total_time_user = total_time_user + v['total_time']
            
             total_course_times[course.id] = study_time_format(total_time_user) 
-        # @end
+        #@end
 
     context = {
         'all_course_time': study_time_format(all_course_time),
