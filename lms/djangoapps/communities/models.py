@@ -210,7 +210,7 @@ class CommunityDiscussionsStore(MongoBaseStore):
         return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
 
     def get_community_discussions_cond(self, cond, page=0, size=0):
-        return self.collection.find(cond).limit(size).skip(page).sort("date_create", -1).sort("pin", -1)
+        return self.collection.find(cond).limit(size).skip(page).sort([("pin", -1), ("date_create", -1)])
 
     def get_community_discussions_id(self):    
         max_id = 0
