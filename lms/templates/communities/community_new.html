@@ -15,13 +15,11 @@ import datetime
 <%block name="title"><title>community</title></%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
-<link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
 <script src="/static/js/datetime/moment.js"></script>
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/css/community.css" />
 
 <!--autocomplete-->
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
@@ -150,6 +148,7 @@ font: normal 1.2em/1.2em;
         text-align: left;
         /*position: relative;*/
     }
+
 /*-----------create community form-----------*/
 #community-name input{
     padding:5px 12px;
@@ -193,6 +192,9 @@ a{
 }
 .border-zero{
     border:0 !important;
+}
+.modal{
+    padding: 0 0 8px 0;
 }
 /*--------------community all--------------*/
 .content-wrapper-community{
@@ -328,6 +330,10 @@ a{
 }
 .community-left .discussion-subject{
     font-size: 13px;
+}
+.community-left .discussion-subject a{
+    font-size: 13px;
+    color:#000;
 }
 .community-left .discussion-date .posted{
     font-size: 13px;color:#F58221;font-style:italic;
@@ -553,6 +559,124 @@ a{
     display:none
 }
 </style>
+<style>
+.modal-stepform {
+    display: block;
+    opacity: 1;
+    z-index: 999;
+    left: 50%;
+    background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);
+    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+    width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;
+}
+.modal-stepform .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+    z-index: 3;
+    color: #333;
+}
+.modal-stepform .content {
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px 20px;
+    line-height: 20px;
+}
+.step-page{
+    background:#fff;
+    position:absolute;
+    height:100%;
+    text-align:left;
+}
+.step-content{
+    padding:10px 25px;
+    width:630px;
+    position:relative;
+}
+.switch{
+    width:20px;
+    height:100%;
+    float:right;
+    vertical-align:bottom;
+    text-align:left;
+    cursor:pointer;
+}
+.switch i{
+    width:20px;
+    position:absolute;
+    bottom:5px;
+    font-style:normal;
+    text-align:center;
+    font-weight:bold;
+    color:#fff;
+}
+.step-page span.label{
+    width:100px;
+    text-align:right;
+    display:inline-block;
+    font-size:12px;
+}
+.step-page div.form-row{
+    margin-top:10px;
+    position:relative;
+}
+.step-page input[type=checkbox],
+.step-page input[type=radio],
+.step-page input[type=text],
+.step-page select{
+    vertical-align:middle;
+    max-width:500px;
+}
+.step-page h5{
+    font-size:14px;
+    color:#999;
+    margin-bottom:15px;
+}
+.step-page h4{
+    margin-bottom:15px;
+}
+.step-page .move{
+    position:absolute;
+    bottom:20px;
+    right:30px;
+}
+.step-page .prev{
+    background-image: url(/static/images/common_control/left_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .next{
+    background-image: url(/static/images/common_control/right_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .finish{
+    background-image: url(/static/images/common_control/finish.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.icon-edit{
+    color:#8DBF42 !important;
+}
+.icon-remove{
+    color:#F18101 !important;
+    margin-left:10px;
+}
+</style>
 
 <%
     district_id = district
@@ -716,7 +840,7 @@ a{
                         %else:
                         <div class="every-discussion">
                         %endif
-                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-subject overflow-text"><a href="/maincommunity/${td['hyperlink']}">${td['subject']}</a></div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
@@ -755,7 +879,7 @@ a{
                             </td>
                             <td>
                                 <div style="height:102px;">
-                                    <div class="top-activeusers-count">xx</div>
+                                    <div class="top-activeusers-count">${d_top5_view_count}</div>
                                     <div class="top-activeusers-ico">
                                         <img src="/static/images/comment.png" height="15">
                                     </div>
@@ -927,7 +1051,7 @@ a{
         </div>
     </div>
 </div>
-<div  id="dlg-add-training" class=" modal bootstrap-iso" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+<div  id="dlg-add-training" class=" modal-stepform bootstrap-iso" style="">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
         <h3 class="dialog-title">Add Training</h3>
@@ -1156,51 +1280,6 @@ a{
             }
         });
     }
-
-    function validateDiscussionForm() {
-        $('.discussion-error-box').removeClass('discussion-error-box');
-        var valid = true;
-        var errors = ['The following errors occurred:\n'];
-        if (!/[A-Za-z]/.test($('.discussion-subject input').val())) {
-            valid = false;
-            errors.push('Subject is required.');
-            $('.discussion-subject input').addClass('discussion-error-box');
-        }
-        if (!/[A-Za-z]/.test($('.discussion-post textarea').val())) {
-            valid = false;
-            errors.push('Discussion is required.');
-            $('.discussion-post textarea').addClass('discussion-error-box');
-        }
-        if ($('#new-discussion-submit .poll-add').is(':checked')) {
-            if (!/[A-Za-z]/.test($('.poll-question').val())) {
-                valid = false;
-                errors.push('Question is required.');
-                $('.poll-question').addClass('discussion-error-box');
-            }
-            if ($('.poll-answer-input').length < 2) {
-                valid = false;
-                errors.push('You need at least two answers to choose from.');
-            }
-            $('.poll-answer-input').each(function() {
-                if (!/[A-Za-z]/.test($(this).val())) {
-                    valid = false;
-                    errors.push('Answers must be filled out.');
-                    $(this).addClass('discussion-error-box');
-                    return false;
-                }
-            });
-            if ($('.poll-expiration').val() != '' && !/^\d?\d\/\d?\d\/\d\d\d\d$/.test($('.poll-expiration').val())) {
-                valid = false;
-                errors.push('Expiration date must be in the format mm/dd/yyyy.');
-                $('.poll-expiration').addClass('discussion-error-box');
-            }
-        }
-        if (!valid) {
-            var error = errors.join('\n');
-            alert(error);
-        }
-        return valid;
-    }
     
     //members modal send web inner message btn
     function imessage_click(obj){
@@ -1312,7 +1391,7 @@ a{
                     else{
                         html += '<div class="every-discussion">';
                     }
-                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-subject overflow-text"><a href="/maincommunity/'+d.trending[i].hyperlink+'">'+d.trending[i].subject+'</a></div>';
                     html += '<div class="discussion-date">';
                     html += '<span class="posted">Posted: </span>';
                     html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
