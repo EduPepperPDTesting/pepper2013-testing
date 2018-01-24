@@ -3221,16 +3221,6 @@ def new_process_submit_comment(request):
                     data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
                     data['is_reply_next_liked'] = ""
                     data['like_reply_next_size'] = "0"
-            # rs = myactivitystore()
-            # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
-            # "URLValues": {"discussion_id": discussion.id},
-            # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id},
-            # "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
-            # rs.insert_item(my_activity)
-
-            # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
-            # discussion.date_reply = reply.date_create
-            # discussion.save()
 
             data["attachment"] = attachment_id
             data["attachment_url"] = attachment_url
@@ -3244,40 +3234,6 @@ def new_process_submit_comment(request):
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type='application/json')
-
-    # domain_name = request.META['HTTP_HOST']
-    # discussion = CommunityDiscussions.objects.get(id=discussion_id)
-    # reply = CommunityDiscussionReplies()
-    # reply.discussion = discussion
-    # reply.user = request.user
-    # reply.post = request.POST.get('post')
-    # reply.subject = request.POST.get('subject')
-    # if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
-    #     try:
-    #         attachment = FileUploads()
-    #         attachment.type = 'discussion_attachment'
-    #         attachment.sub_type = discussion_id
-    #         attachment.upload = request.FILES.get('attachment')
-    #         attachment.save()
-    #     except:
-    #         attachment = None
-    # else:
-    #     attachment = None
-    # if attachment:
-    #     reply.attachment = attachment
-    # reply.save()
-
-    # rs = myactivitystore()
-    # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-    # "URLValues": {"discussion_id": discussion.id},
-    # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
-    # "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
-    # rs.insert_item(my_activity)
-
-    # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
-    # discussion.date_reply = reply.date_create
-    # discussion.save()
-    # return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
 
 
 # -------------------------------------------------------------------new_process_discussions_delete
