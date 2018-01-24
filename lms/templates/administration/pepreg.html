@@ -1664,12 +1664,13 @@
         this.initTable();
     };
     PepReg.prototype.getInput = function () {
+        console.log("input");
         var $form = $("#dlg-add-training");
         var description = $form.find("textarea[name=description]").val();
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
-               while(description.indexOf(" " + descItem > -1)){
+               while(description.indexOf(" " + descItem) > -1){
                     description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
