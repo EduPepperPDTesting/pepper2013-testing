@@ -1709,7 +1709,7 @@ def download_students_excel(request):
                 else:
                     event_save += "Please add this training event to your Outlook Calendar."
 
-                param_dict["event_save"] = event_save
+                param_dict["event_save_prompt"] = event_save
 
                 subject = render_to_string(subject_template, param_dict)
                 message = render_to_string(message_template, param_dict)
