@@ -264,17 +264,17 @@ xmp{
     organization_id = ""
     
     if request.user.is_authenticated():
-    	c_email = request.user.email
+    	c_email = curr_user.email
         try:
-            state_id = request.user.profile.district.state.id
+            state_id = curr_user.profile.district.state.id
         except:
             state_id = -1
         try:
-            district_id = request.user.profile.district.id
+            district_id = curr_user.profile.district.id
         except:
             district_id = -1
         try:
-            school_id = request.user.profile.school.id
+            school_id = curr_user.profile.school.id
         except:
             school_id = -1
             
