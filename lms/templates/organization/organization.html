@@ -4008,7 +4008,7 @@
 			var errors = ['The following errors occurred:\n'];
 			var name1 = $("#organizational_option_name");
 			var description1 = $("#organizational_option_description");
-			var name2 = filterStr2(name1.val());
+			var name2 = filterStr2($.trim(name1.val()));
 			
 			if (!/[A-Za-z0-9]+/.test(name2)) {
 				valid = false;

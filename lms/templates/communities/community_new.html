@@ -331,6 +331,10 @@ a{
 .community-left .discussion-subject{
     font-size: 13px;
 }
+.community-left .discussion-subject a{
+    font-size: 13px;
+    color:#000;
+}
 .community-left .discussion-date .posted{
     font-size: 13px;color:#F58221;font-style:italic;
 }
@@ -452,7 +456,7 @@ a{
     padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
 }
 .con-main-all .top-like-ico{
-    padding-right:2px;height:20px;float:right;border:0px solid;
+    padding-right:2px;height:20px;float:right;padding-top:2px;border:0px solid;
 }
 .con-main-all .top-activeusers-ico{
     padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
@@ -836,7 +840,7 @@ a{
                         %else:
                         <div class="every-discussion">
                         %endif
-                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-subject overflow-text"><a href="/maincommunity/${td['hyperlink']}">${td['subject']}</a></div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
@@ -877,15 +881,15 @@ a{
                                 <div style="height:102px;">
                                     <div class="top-activeusers-count">${d_top5_view_count}</div>
                                     <div class="top-activeusers-ico">
-                                        <img src="/static/images/comment.png" height="15">
+                                        <span class='icon-aw icon-eye-open'></span>
                                     </div>
                                     <div class="top-like-count">${likes_count}</div>
                                     <div class="top-like-ico">
-                                        <img src="/static/images/like.png" height="15">
+                                        <span class='icon-aw icon-thumbs-up'></span>
                                     </div>
                                     <div class="top-chat-count">${d_and_r_count}</div>
                                     <div class="top-chat-ico">
-                                        <img src="/static/images/comment.png" height="15">
+                                        <span class='icon-aw icon-comments'></span>
                                     </div>  
                                 </div>
                                 <div style="text-align:right;">
@@ -1387,7 +1391,7 @@ a{
                     else{
                         html += '<div class="every-discussion">';
                     }
-                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-subject overflow-text"><a href="/maincommunity/'+d.trending[i].hyperlink+'">'+d.trending[i].subject+'</a></div>';
                     html += '<div class="discussion-date">';
                     html += '<span class="posted">Posted: </span>';
                     html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';

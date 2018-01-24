@@ -359,7 +359,7 @@ div.filter {
 
 .imgBtn_add_google .icon {
     background-image:url(../images/icons/google-calendar.png);
-    background-size: contain;
+    background-size: 90px 85px;
 }
 
 .imgBtn .icon {
