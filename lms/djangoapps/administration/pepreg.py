@@ -1705,9 +1705,9 @@ def download_students_excel(request):
                 google_save = request.GET.get("google_save")
                 event_save = ''
                 if google_save:
-                    event_save += 'Please add this training event to your <img src="https://miapple.me/wp-content/uploads/2015/04/Outlook-icon-300x300.png" alt="Smiley face" width="30" height="30"> Outlook Calendar or your <img src="https://www.seeklogo.net/wp-content/uploads/2017/03/Google-Calendar-icon.png" width="35" height="35"> Google Calendar.'
+                    event_save += "Please add this training event to your Outlook Calendar or your Google Calendar."
                 else:
-                    event_save += 'Please add this training event to your <img src="https://miapple.me/wp-content/uploads/2015/04/Outlook-icon-300x300.png" alt="Smiley face" width="30" height="30"> Outlook Calendar.'
+                    event_save += "Please add this training event to your Outlook Calendar."
 
                 param_dict["event_save_prompt"] = event_save
 
