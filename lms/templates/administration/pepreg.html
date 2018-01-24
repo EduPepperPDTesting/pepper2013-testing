@@ -3122,7 +3122,8 @@
           if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
           var eventData = ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
           console.log(eventData);
-          eventData += "00".trim();
+          eventData = eventData.trim();
+          eventData += "00";
           console.log(eventData);
           return eventData;
     }
