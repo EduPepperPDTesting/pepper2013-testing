@@ -1667,11 +1667,13 @@
         var $form = $("#dlg-add-training");
         var description = $form.find("textarea[name=description]").val();
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
-        descArr.forEach(function(descItem){
-           while(description.indexOf(" " + descItem > -1)){
-                description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
-           }
-        });
+        if(descArr){
+            descArr.forEach(function(descItem){
+               while(description.indexOf(" " + descItem > -1)){
+                    description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+               }
+            });
+        }
         var classroom = $.trim($form.find("input[name=classroom]").val());
         var ifURL = RegExp("[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
         if(ifURL.test(classroom)) classroom = "<a href = '" + classroom + "' target='_blank'>" + classroom + "</a>";
