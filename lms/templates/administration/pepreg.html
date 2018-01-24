@@ -2276,7 +2276,7 @@
 
 
     };
-    PepReg.prototype.showStudents = function (training_id, warningData) {
+    PepReg.prototype.showStudents = function (training_id, google_save) {
         var self = this;
 
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
@@ -2314,7 +2314,7 @@
 
                     $("#reminder_mail_btn").unbind("click").click(function () {
                         last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
-                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, event_data, warningData, }, function (r) {
+                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, google_save, google_save, }, function (r) {
                             if(r._res == "1"){
                                 alert("Sent successfully!");
                             }else{
@@ -2678,14 +2678,8 @@
                         $(this).css("color", "#1d9dd9");
                         $(this).css("cursor", "pointer");
                         $(this).click(function () {
-                            var DataRow = thisCheck.closest("tr");
-                            warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
-                            warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
-                            warningData += DataRow.find("td:eq(5)").text() + "|";
-                            warningData += DataRow.find("td:eq(6)").text() + "|";
-                            warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
-
-                            self.showStudents(training_id, warningData);
+                            var google_save = (${has_hangout_perms(request.user)})? true: false;
+                            self.showStudents(training_id, google_save);
                         });
                     });
                 }
