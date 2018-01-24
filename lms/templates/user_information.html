@@ -350,7 +350,7 @@ xmp{
                             organization_default_7_visible = "display:none;"
                     else:
                         organization_default_content += '<div style="line-height:30px;" class="org_field">'
-                        organization_default_content += '<b>' + item["name"] + ':</b>'
+                        organization_default_content += '<b>' + item["name"] + ': </b>'
                         tmp_item_value = ""
                         
                         if register_organization_structure != "":
@@ -359,6 +359,8 @@ xmp{
                                 tmp_item_value = register_organization_structure_json[item["name"]]
                                 if item["field_type"] != "6" and item["field_type"] != "7" and tmp_item_value == "null":
                                     tmp_item_value = ""
+                                if item["field_type"] == "4":
+                                    tmp_item_value = tmp_item_value.replace(',',", ")
                             except:
                                 pass
                                 
@@ -416,7 +418,7 @@ xmp{
 	 
 	//-----------------------------------------------orgFieldEditClick
 	function orgFieldEditClick(el){
-		var tmp_span_name = $(el).parent().find("b").html().replace(":","");
+		var tmp_span_name = $.trim($(el).parent().find("b").html().replace(":",""));
 		var tmp_span_el = $(el).parent().find("span");
 		var tmp_span_val = $(el).parent().find("span").html();
 		var tmp_span_type = tmp_span_el.attr("field_type");
@@ -510,7 +512,7 @@ xmp{
 	function orgSaveChange(){
 		var org_field_name = $("#change_org_dialog_title").html() + ":";
 		$(".org_field").each(function(){			
-			var tmp_name = $(this).find("b").html();
+			var tmp_name = $.trim($(this).find("b").html());
 			if(org_field_name == tmp_name){
 				var tmp_type = $("#change_org_dialog_title").attr("field_type");
 				if(tmp_type == "2"){
@@ -563,7 +565,7 @@ xmp{
 		var org_content = '"email":"${request.user.email}"';
 		$(".org_field").each(function(){
 			var tmp_type = $(this).find("span").attr("field_type");
-			var tmp_name = $(this).find("b").html().replace(":", "");
+			var tmp_name = $.trim($(this).find("b").html().replace(":", ""));
 			var tmp_val = $(this).find("span").html();
 			if(tmp_type == "7") 		tmp_val = escape($(this).find("xmp").html());
 			else if(tmp_type == "6")	tmp_val = escape(tmp_val);
