@@ -664,7 +664,8 @@ def discussion_add(request):
         error = e
         success = False
         discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+
 
 
 @login_required
@@ -1690,7 +1691,7 @@ def maincommunity(request, community_id):
     likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
     # Get discussion view count
     discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
-    d_top5_view_count = 1
+    d_top5_view_count = discussion_top5.count()
     for dt in discussion_top5:
         d_top5_view_count += dt['view_counter']
 
@@ -1703,7 +1704,8 @@ def maincommunity(request, community_id):
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
 
     '''
     Get Subcommunities for init show
@@ -1842,7 +1844,7 @@ def subcommunity(request, community_id):
     likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
     # Get discussion view count
     discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
-    d_top5_view_count = 1
+    d_top5_view_count = discussion_top5.count()
     for dt in discussion_top5:
         d_top5_view_count += dt['view_counter']
 
@@ -1855,7 +1857,8 @@ def subcommunity(request, community_id):
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
 
     '''
     Get Subcommunities for init show
@@ -2479,7 +2482,8 @@ def get_trending_discussions_process(request):
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(community_id) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
 
