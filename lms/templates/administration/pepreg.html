@@ -2314,7 +2314,7 @@
 
                     $("#reminder_mail_btn").unbind("click").click(function () {
                         last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
-                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, google_save, google_save, }, function (r) {
+                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, google_save: google_save}, function (r) {
                             if(r._res == "1"){
                                 alert("Sent successfully!");
                             }else{
