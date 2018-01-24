@@ -1702,6 +1702,8 @@ def download_students_excel(request):
                     param_dict["classroom"] = training.classroom + ", ";
                     param_dict["geo_location"] = training.geo_location;
 
+                param_dict["event_data"] = request.GET.get("event_data")
+
                 subject = render_to_string(subject_template, param_dict)
                 message = render_to_string(message_template, param_dict)
 
