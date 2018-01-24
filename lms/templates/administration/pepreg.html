@@ -3121,7 +3121,7 @@
           var dmid = calDate.substr(-2, 2);
           if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
           var eventData = ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
-          eventData += "00";
+          eventData.concat("00");
           return eventData;
     }
 </script>
