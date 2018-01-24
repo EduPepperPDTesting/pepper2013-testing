@@ -1702,6 +1702,15 @@ def download_students_excel(request):
                     param_dict["classroom"] = training.classroom + ", ";
                     param_dict["geo_location"] = training.geo_location;
 
+                google_save = request.GET.get("google_save")
+                event_save = ''
+                if google_save:
+                    event_save += "Please add this training event to your Outlook Calendar or your Google Calendar."
+                else:
+                    event_save += "Please add this training event to your Outlook Calendar."
+
+                param_dict["event_save"] = event_save
+
                 subject = render_to_string(subject_template, param_dict)
                 message = render_to_string(message_template, param_dict)
 
