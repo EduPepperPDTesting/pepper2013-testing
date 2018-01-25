@@ -90,6 +90,10 @@ def del_interactive_update(request):
     list1 = []
     list2 = []
     if request.POST.get('_id'):
+        message_id = rs.get_item_message_id(list2[0])
+        if message_id:
+            ms = messagestore()
+            ms.del_items(message_id)
         info = rs.del_item(request.POST.get('_id'),request.POST.get('_record_id'),request.POST.get('_user_id'),request.POST.get('_ismultiple'))
     elif request.POST.get('data_str'):
         list1 = request.POST.get('data_str').split('#')
