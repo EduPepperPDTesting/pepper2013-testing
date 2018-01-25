@@ -2783,6 +2783,7 @@
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name")) + 1;
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
                 $(this).text(" - ").css("top", "-1px !important");
                 $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
@@ -2801,16 +2802,15 @@
                         }
                     });
                 }
-
             }else{
                 $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + (suborder - 1)).remove();
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
-                filters = $.tablesorter.getFilters($("#data-table"));
+
                 filters[suborder] ="*";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
             }
+            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
         //filtering records with OR condition
