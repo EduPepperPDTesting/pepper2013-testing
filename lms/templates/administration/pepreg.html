@@ -461,7 +461,7 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-                <input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-grey"  class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/>
+                <input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/>
                 %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
                     <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
                 %endif
@@ -2276,7 +2276,7 @@
 
 
     };
-    PepReg.prototype.showStudents = function (training_id) {
+    PepReg.prototype.showStudents = function (training_id, google_save) {
         var self = this;
 
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
@@ -2314,7 +2314,7 @@
 
                     $("#reminder_mail_btn").unbind("click").click(function () {
                         last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
-                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, google_save: google_save}, function (r) {
                             if(r._res == "1"){
                                 alert("Sent successfully!");
                             }else{
@@ -2678,7 +2678,8 @@
                         $(this).css("color", "#1d9dd9");
                         $(this).css("cursor", "pointer");
                         $(this).click(function () {
-                            self.showStudents(training_id);
+                            var google_save = (${has_hangout_perms(request.user)})? true: false;
+                            self.showStudents(training_id, google_save);
                         });
                     });
                 }
@@ -3119,7 +3120,12 @@
           var dtime = calDate.substr(11, 5).split(":");
           var dmid = calDate.substr(-2, 2);
           if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
-          return ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1] + "00";
+          var eventData = ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
+          console.log(eventData);
+          eventData = eventData.trim();
+          eventData += "00";
+          console.log(eventData);
+          return eventData;
     }
 </script>
 <script type="text/javascript">//for ics download (outlook)
