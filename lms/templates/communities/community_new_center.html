@@ -116,7 +116,7 @@ if is_new:
 		.center_block_right .dis_subject{font-size:18px; font-weight:bold; color:#27BAEC;}
 		.center_block_right .dis_subject_pin{padding-top:7px; margin-left:20px; color:#F5821F; display:none;}
 		
-		.center_block_right .dis_post{color:#999 !important; padding:3px 0;}
+		.center_block_right .dis_post{color:#999 !important; padding:3px 0; height:26px; overflow:hidden; cursor:pointer;}
 		.center_block_right .dis_posted_by{font-weight:bold; }
 		.center_block_right .dis_posted_by_first_name{width:180px; overflow:hidden; white-space:nowrap; text-overflow: ellipsis;}
 		.center_block_right .dis_posted_tool{margin-left:5px; font-size:14px;}
@@ -184,6 +184,13 @@ if is_new:
 .load_more_level2{width:480px; padding:2px 0; font-size:11px ;}
 .load_more_level2 a{padding: 1px 8px 2px 8px;}
 .icon-editx::before {content: "\f044";}
+
+.discussion-poll-new {position: relative; color:#000000 !important; border: 2px solid #ddd; border-radius: 10px; padding: 15px 20px 15px 57px; background-color: #ddd; margin: 20px 0 5px 0;}
+.discussion-poll-new img {display: block; position: absolute; top: 10px; left: 15px;}
+.discussion-poll-new a {display: block;text-align: right;outline: none;}
+.discussion-poll-question-new {font-weight: bold;font-size: 120%;}
+.discussion-poll-votes-new {display: none;}
+.discussion-poll-vote-bar-new {height: 1em;background-color: #0A246A;display: inline-block;}
 </style>
 <style>
 div.cke {
@@ -365,7 +372,7 @@ function addNewDiscussion(fid, subject, post){
 				success: function (data) {
 					if (data.Success) {
 						var fid = $("#new-discussion-submit").find("input[name='fid']").val();
-						redirect_id = data.DiscussionID;
+						//redirect_id = data.DiscussionID;
 						if ($('#new-discussion-submit .poll-add').is(':checked')) {
 							var pollData = formSelector.serializeArray();
 							pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
@@ -547,7 +554,25 @@ function getDiscussionsHtml(json, tmp_reply){
 	html += "            <span class='dis_subject'>" + json.subject + "</span>";
 	html += "            <span class='dis_subject_pin icon-aw icon-pushpin' pin='" + json.pin + "' title='Unpin'></span>";
 	html += "        </div>";
-	html += "        <div class='dis_row'><div class='dis_post'>" + json.post + "</div></div>";
+	html += "        <div class='dis_row'><div class='dis_post' title='"+json.has_poll+"'>" + json.post;
+	if(json.has_poll){
+		html += "    <div class='discussion-poll-new' user_answered='" + json.poll_user_answered + "'>";
+		html += "        <img src='/static/images/poll-icon.png' alt='Poll'>";
+		html += "        <div class='discussion-poll-question-new'>" + json.poll_question + "</div>";
+		html += "        <ol class='discussion-poll-answers-new' poll_type='" + json.poll_type + "' poll_id='" + json.poll_id + "'>";	
+		for(var index1 in json.poll_answers_list){
+			var tmp11 = json.poll_answers_list[index1];
+			html += "        <li class='discussion-poll-answer-new'><label><input type='radio' value='" + tmp11.i + "' name='answers'> " + tmp11.answers + "</label></li>";
+			html += "        <li class='discussion-poll-votes-new'>";
+			html += "            " + tmp11.answers + ":<br>";
+			html += "            <div class='discussion-poll-vote-bar-new' style='width: " + tmp11.width + "px'></div> " + tmp11.percent + "%";
+			html += "        </li>";
+		}
+		html += "        </ol>";
+		html += "        <a href='javascript:void(0);' class='discussion-poll-toggle-new hide'>Show Results</a>";
+		html += "    </div>";
+	}
+	html += "        </div></div>";
 	html += getAttachmentHtml(json, 1);
 	html += "        <div class='dis_row'>";
 	html += "            <span class='dis_posted_by'>Posted By:&nbsp;</span>";
@@ -1210,6 +1235,13 @@ function addCommunityDiscussionEvent(){
 		});
 	});
 	
+	//---------------------------------------------------------dis_post click
+	$(".dis_post").unbind("click").click(function(){
+		$(this).css("height","auto");
+		$(this).css("overflow","auto");
+		$(this).css("cursor","default");
+	});
+	
 	//---------------------------------------------------------reply_liked each
 	$(".reply_liked").each(function(){
 		if($(this).attr("is_liked") == "1")	$(this).css("color", "#8D8E41");
@@ -1284,6 +1316,59 @@ function addCommunityDiscussionEvent(){
 			}
 			$("#community_new_center_menu_level2").show();
 		}
+	});
+	
+	//---------------------------------------------------------discussion-poll-toggle-new click
+	$('.discussion-poll-toggle-new').click(function() {
+		var parent_el = $(this).parents(".discussion-poll-new");
+		
+		parent_el.find('.discussion-poll-answer-new').toggle();
+		parent_el.find('.discussion-poll-votes-new').toggle();
+		$(this).empty();
+		if ($(this).hasClass('hide')) {
+			$(this).append('Vote');
+			$(this).removeClass('hide');
+			$(this).addClass('show');
+		} else {
+			$(this).append('Show Results');
+			$(this).removeClass('show');
+			$(this).addClass('hide');
+		}
+	});
+	
+	//---------------------------------------------------------discussion-poll-new each
+	$('.discussion-poll-new').each(function() {
+		if($(this).attr("user_answered") == "true"){
+			$(this).find('.discussion-poll-answer-new').hide();
+			$(this).find('.discussion-poll-votes-new').show();
+			$(this).find('.discussion-poll-toggle-new').hide();
+		}
+	});
+	
+	//---------------------------------------------------------discussion-poll-answer-new change
+	$('.discussion-poll-answer-new input[type=radio]').change(function() {
+		var parent_el = $(this).parents(".discussion-poll-new");
+	
+		var answer = $(this).val();
+		var poll_type = $(this).parents(".discussion-poll-answers-new").attr("poll_type");
+		var poll_id = $(this).parents(".discussion-poll-answers-new").attr("poll_id");
+		var loadwin = new LoadingWin();
+		$.post('${reverse('poll_vote')}', {'poll_type': poll_type, 'poll_id': poll_id, 'vote': answer}, function(data) {
+			if (data.Success) {
+				var content = '<ol class="discussion-poll-answers-new">';
+				for (var x = 0; x < Object.keys(data.Votes).length; x++){
+					content += '<li class="discussion-poll-votes-new">';
+					content += data.Answers[x] + ':<br>';
+					content += '<div class="discussion-poll-vote-bar-new" style="width: ' + (data.Votes[x]['percent'] * 2) + 'px"></div> ' + data.Votes[x]['percent'] + '%';
+					content += '</li>';
+				}
+				content += '</ol>';
+				parent_el.find('.discussion-poll-answers-new').replaceWith(content);
+				parent_el.find('.discussion-poll-toggle-new').remove();
+				parent_el.find('.discussion-poll-votes-new').toggle();
+			}
+			loadwin.hide();
+		});
 	});
 }
 
