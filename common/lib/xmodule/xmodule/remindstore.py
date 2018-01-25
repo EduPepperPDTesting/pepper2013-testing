@@ -112,6 +112,16 @@ class MongoRemindStore(object):
     def del_item(self,id,record_id,user_id,ismultiple):
         return self.collection_status.update({'_id':ObjectId(id)},{'$set':{'del_sign':'true'}})
 
+    def get_item_message_id(self,id):
+        result = self.collection_status.find({'_id':ObjectId(id)})
+        for d in result:
+            datas = self.collection.find({'_id':ObjectId(d['aid'])})
+            for data in datas:
+                if data.has_key('message_id'):
+                    return data['message_id']
+                else:
+                    return None
+
     def get_total(self,user_id):
         count=self.collection_status.find({'user_id':str(user_id),'del_sign':'false'}).count()
         return count
@@ -197,6 +207,9 @@ class MongoMessageStore(object):
 
     def get_total(self,id_1,id_2):
         return self.collection.find({'$or':[{'sender_id':id_1,'recipient_id':id_2},{'sender_id':id_2,'recipient_id':id_1},{'sender_id':id_1,'recipient_id':0},{'sender_id':id_2,'recipient_id':0}]}).count()
+
+    def del_items(self,id):
+        return self.collection.remove({"_id":ObjectId(id)})
 
 class MongoMyActivityStore(object):
 

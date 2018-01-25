@@ -1062,7 +1062,8 @@
 						'type': 'message',
 						'body': body,
 						'date': (new Date()).toISOString(),
-						'activate': 'false'
+						'activate': 'false',
+                        'message_id':rdata._id
 					})
 				};
 				$.post("${reverse('save_interactive_update')}", messageinfo, function() {});
