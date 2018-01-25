@@ -2802,13 +2802,14 @@
                         }
                     });
                 }
+
             }else{
                 $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + (suborder - 1)).remove();
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
-
-                filters[suborder] ="*";
+                console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
+                filters[suborder] = "*";
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });
