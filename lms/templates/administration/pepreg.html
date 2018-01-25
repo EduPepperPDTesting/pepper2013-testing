@@ -1670,13 +1670,16 @@
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
+               if(description.indexOf(descItem) == 0){
+                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+               }
                while(description.indexOf(" " + descItem) > -1){
                     description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
         }
         var classroom = $.trim($form.find("input[name=classroom]").val());
-        var ifURL = RegExp("[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
+        var ifURL = RegExp("[(http|https):\/\/]*[a-z0-9-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
         if(classroom.indexOf("<a href") == -1 && ifURL.test(classroom)) classroom = "<a href = '" + classroom + "' target='_blank'>" + classroom + "</a>";
         var json = {
             id: $form.find("input[name=id]").val(),
@@ -2498,7 +2501,7 @@
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
-                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else if (is_admin) {
                 $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else {
