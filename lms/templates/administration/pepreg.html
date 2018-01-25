@@ -2784,7 +2784,7 @@
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name")) + 1;
             if(addNext == " + "){
-                $(this).text(" - ");
+                $(this).text(" - ").css("top", "-1px !important");
                 $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
@@ -2803,7 +2803,7 @@
                 }
 
             }else{
-                $(this).text(" + ");
+                $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + (suborder - 1)).remove();
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
@@ -2859,6 +2859,7 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name")) + 1;
+            var filters = $.tablesorter.getFilters($("#data-table"));
             if(val == "and" && $("#subselect_" + suborder).val() != "") {
                 filters[suborder] = $("#subselect_" + suborder).val();
             }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
@@ -2869,9 +2870,7 @@
                 console.log("val_1="+val_1+" val_2="+val_2);
                 OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
             }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] ="*";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });

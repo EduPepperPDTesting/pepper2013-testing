@@ -605,3 +605,9 @@ table.students td{
     padding:5px 10px;
     font-size:20px !important;
 }
+
+#addNext {
+    position: relative;
+    font-size: 2em;
+    text-decoration: none;
+}
