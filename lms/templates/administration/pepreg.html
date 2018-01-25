@@ -1679,8 +1679,11 @@
             });
         }
         var classroom = $.trim($form.find("input[name=classroom]").val());
-        var ifURL = RegExp("[(http|https):\/\/]*[a-z0-9-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
-        if(classroom.indexOf("<a href") == -1 && ifURL.test(classroom)) classroom = "<a href = '" + classroom + "' target='_blank'>" + classroom + "</a>";
+        var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
+        if(classroom.indexOf("<a href") == -1 && classroomArr){
+            var href_classroom = classroomArr[0];
+            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+        }
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
