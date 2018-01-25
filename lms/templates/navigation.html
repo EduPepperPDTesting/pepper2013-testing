@@ -756,7 +756,7 @@
             var count = data.count > 999 ? 999 : data.count;
             $(".pepper-info_count_btn").find(".pepper-info_count").text(count);
         }
-        $('.pepper-info_list').empty();
+        $('.info_list').empty();
         for (var i = 0; i < data.results.length; i++) {
             interactive_update_createItem(data.results[i]);
         }
@@ -981,7 +981,8 @@
                         'type': 'message',
                         'body': body,
                         'date': (new Date()).toISOString(),
-                        'activate': 'false'
+                        'activate': 'false',
+                        'message_id':rdata._id
                     })
                 };
                 $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
