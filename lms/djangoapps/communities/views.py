@@ -2553,12 +2553,38 @@ def new_process_get_discussions(request):
                 find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
         discussions_json = []
+        poll_connect = poll_store()
         for disc in mongo3_store.get_community_discussions_cond(find_sql, 0, size):
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc['_id'])}, {"$inc": {"view_counter": 1}})
 
             user = User.objects.get(id=disc['user'])
             discussions_json_1 = {}
             discussions_json_1['child'] = []
+
+            has_poll = poll_connect.poll_exists('discussion', str(disc['_id']))
+            if has_poll:
+                tmp_data = poll_data('discussion', str(disc['_id']), request.user.id)
+                discussions_json_1['poll_str'] = str(tmp_data)
+                discussions_json_1['poll_question'] = tmp_data['question']
+                discussions_json_1['poll_answers'] = tmp_data['answers']
+                iterator = range(0, len(tmp_data['answers']))
+                discussions_json_1['poll_answers_list'] = []
+                for i in iterator:
+                    tmp_answer = {}
+                    tmp_answer['i'] = str(i)
+                    tmp_answer['answers'] = tmp_data['answers'][str(i)]
+                    tmp_answer['width'] = tmp_data['votes'][str(i)]['percent'] * 2
+                    tmp_answer['percent'] = tmp_data['votes'][str(i)]['percent']
+                    discussions_json_1['poll_answers_list'].append(tmp_answer)
+                    # discussions_json_1['poll_expiration'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_data['expiration'])
+
+                discussions_json_1['poll_expired'] = tmp_data['expired']
+                discussions_json_1['poll_user_answered'] = tmp_data['user_answered']
+                discussions_json_1['poll_votes'] = json.dumps(tmp_data['votes'])
+                discussions_json_1['poll_type'] = tmp_data['poll_type']
+                discussions_json_1['poll_id'] = str(tmp_data['poll_id'])
+
+            discussions_json_1['has_poll'] = has_poll
 
             total_2 = mongo3_store.find({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}).count(True)
 
