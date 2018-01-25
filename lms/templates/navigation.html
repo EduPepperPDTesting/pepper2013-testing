@@ -755,7 +755,7 @@
             var count = data.count > 999 ? 999 : data.count;
             $(".pepper-info_count_btn").find(".pepper-info_count").text(count);
         }
-        $('info_list').empty();
+        $('.info_list').empty();
         for (var i = 0; i < data.results.length; i++) {
             interactive_update_createItem(data.results[i]);
         }
