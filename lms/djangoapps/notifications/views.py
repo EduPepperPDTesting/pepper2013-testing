@@ -99,7 +99,7 @@ def del_interactive_update(request):
                 message_id = rs.get_item_message_id(list2[0])
                 if message_id:
                     ms = messagestore()
-
+                    ms.del_items(message_id)
                 info = rs.del_item(list2[0],list2[1],list2[2],list2[3])
     return utils.JsonResponse({})    
     

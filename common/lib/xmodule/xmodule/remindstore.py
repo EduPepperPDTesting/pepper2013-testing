@@ -115,7 +115,7 @@ class MongoRemindStore(object):
     def get_item_message_id(self,id):
         result = self.collection_status.find({'_id':ObjectId(id)})
         for d in result:
-            datas = self.collection.find_one({'_id':ObjectId(d['aid'])})
+            datas = self.collection.find({'_id':ObjectId(d['aid'])})
             for data in datas:
                 if data.has_key('message_id'):
                     return data['message_id']
