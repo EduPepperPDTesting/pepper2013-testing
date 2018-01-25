@@ -113,7 +113,7 @@ class MongoRemindStore(object):
         return self.collection_status.update({'_id':ObjectId(id)},{'$set':{'del_sign':'true'}})
 
     def get_item_message_id(self,id):
-        result = self.collection_status.find_one({'_id':ObjectId(id)})
+        result = self.collection_status.find({'_id':ObjectId(id)})
         for d in result:
             datas = self.collection.find_one({'_id':ObjectId(d['aid'])})
             for data in datas:
