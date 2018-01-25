@@ -2809,7 +2809,7 @@
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
                 console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
-                filters[suborder] = "*";
+                filters[suborder] = "";
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });
