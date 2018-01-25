@@ -2759,6 +2759,7 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
             console.log("subselect val: "+val);
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(val != ""){
                 if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
@@ -2773,9 +2774,9 @@
                 if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
                 }
-        }else{
+            }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] = "*";
+                filters[suborder] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
@@ -2816,6 +2817,7 @@
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
+            console.log("tablesorterOptions="+tablesorterOptions);
             $(".or_filter").removeClass("or_filter");
             var valueCol_1 = val_1;
             var valueCol_2 = val;
@@ -2863,17 +2865,18 @@
             var filters = $.tablesorter.getFilters($("#data-table"));
             if(val == "and" && $("#subselect_" + suborder).val() != "") {
                 filters[suborder] = $("#subselect_" + suborder).val();
+                $.tablesorter.setFilters($("#data-table"), filters, true);
             }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
                 var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                 var col_2 = $("#subselect_" + suborder).attr("data-column");
-                val_1 = $("#subselect_" + suborder).val();
-                val_2 = $("#subselect_" + (suborder - 1)).val();
+                val_1 = $("#subselect_" + (suborder - 1)).val();
+                val_2 = $("#subselect_" + suborder).val();
                 console.log("val_1="+val_1+" val_2="+val_2);
                 OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
             }else{
-                filters[suborder] ="*";
+                filters[suborder] ="";
+                $.tablesorter.setFilters($("#data-table"), filters, true);
             }
-            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
         /* advanced filtering */
 
