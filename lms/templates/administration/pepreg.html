@@ -1670,14 +1670,20 @@
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
+               if(description.indexOf(descItem) == 0){
+                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+               }
                while(description.indexOf(" " + descItem) > -1){
                     description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
         }
         var classroom = $.trim($form.find("input[name=classroom]").val());
-        var ifURL = RegExp("[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?");
-        if(classroom.indexOf("<a href") == -1 && ifURL.test(classroom)) classroom = "<a href = '" + classroom + "' target='_blank'>" + classroom + "</a>";
+        var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
+        if(classroom.indexOf("<a href") == -1 && classroomArr){
+            var href_classroom = classroomArr[0];
+            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+        }
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
@@ -2469,6 +2475,7 @@
             savePages: false,
             size: 10
         };
+        var filterfxn = function(){};
         var tablesorterOptions = {
             debug: false,
             theme: 'blue',
@@ -2485,7 +2492,7 @@
                 columnSelector_container: $('#columnSelector'),
                 columnSelector_columns: {0: 'disable', 15: 'disable'},
                 columnSelector_mediaqueryName: 'All: ',
-                filter_functions: {}
+                filter_functions: {".or_filter": filterfxn}
             }
         };
         tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
@@ -2497,7 +2504,7 @@
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
-                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else if (is_admin) {
                 $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else {
@@ -2759,6 +2766,7 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
             console.log("subselect val: "+val);
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(val != ""){
                 if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
@@ -2773,9 +2781,9 @@
                 if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
                 }
-        }else{
+            }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] = "*";
+                filters[suborder] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
@@ -2783,8 +2791,9 @@
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name")) + 1;
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                $(this).text(" - ");
+                $(this).text(" - ").css("top", "-1px !important");
                 $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
@@ -2803,18 +2812,19 @@
                 }
 
             }else{
-                $(this).text(" + ");
+                $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + (suborder - 1)).remove();
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] ="*";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+                console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
+                filters[suborder] = "";
             }
+            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
+            console.log("tablesorterOptions="+tablesorterOptions);
             $(".or_filter").removeClass("or_filter");
             var valueCol_1 = val_1;
             var valueCol_2 = val;
@@ -2843,13 +2853,13 @@
 
             console.log(orColumns);
 
-            var filter_functions = {
-                ".or_filter": filterfxn
-            };
+            //var filter_functions = {
+            //    ".or_filter": filterfxn
+            //};
 
-            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
+            //tablesorterOptions.widgetOptions.filter_functions = filter_functions;
 
-            $("#data-table").tablesorter(tablesorterOptions);
+            //$("#data-table").tablesorter(tablesorterOptions);
 
             $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
 
@@ -2859,21 +2869,21 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name")) + 1;
+            var filters = $.tablesorter.getFilters($("#data-table"));
             if(val == "and" && $("#subselect_" + suborder).val() != "") {
                 filters[suborder] = $("#subselect_" + suborder).val();
+                $.tablesorter.setFilters($("#data-table"), filters, true);
             }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
                 var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                 var col_2 = $("#subselect_" + suborder).attr("data-column");
-                val_1 = $("#subselect_" + suborder).val();
-                val_2 = $("#subselect_" + (suborder - 1)).val();
+                val_1 = $("#subselect_" + (suborder - 1)).val();
+                val_2 = $("#subselect_" + suborder).val();
                 console.log("val_1="+val_1+" val_2="+val_2);
                 OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
             }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] ="*";
+                filters[suborder] ="";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
-            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
         /* advanced filtering */
 
