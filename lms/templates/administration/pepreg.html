@@ -2874,11 +2874,11 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name")) + 1;
             var filters = $.tablesorter.getFilters($("#data-table"));
-            if(val == "and" && $("#subselect_" + suborder).val() != "") {
+            if(val == "and" && $("#subselect_" + suborder).val() !== "undefined" && $("#subselect_" + suborder).val() != "") {
                 console.log("->and");
                 filters[suborder] = $("#subselect_" + suborder).val();
                 $.tablesorter.setFilters($("#data-table"), filters, true);
-            }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
+            }else if(val == "or" && $("#subselect_" + suborder).val() !== "undefined" && $("#subselect_" + suborder).val() != ""){
                 var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
                 var col_2 = $("#subselect_" + suborder).attr("data-column");
                 val_1 = $("#subselect_" + (suborder - 1)).val();
