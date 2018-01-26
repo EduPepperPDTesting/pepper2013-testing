@@ -2873,11 +2873,12 @@
             var val = $(this).val();
 
             var suborder = parseInt($(this).attr("name"));
-            val_1 = $("#subselect_" + suborder).val();
-            val_2 = $("#subselect_" + (suborder + 1)).val();
+            var val_1 = $("#subselect_" + suborder).val();
+            var val_2 = $("#subselect_" + (suborder + 1)).val();
 
             var filters = $.tablesorter.getFilters($("#data-table"));
             if(!isNaN(val_2) && val_2 !== "undefined" && val_2 != ""){
+                console.log("in subcondition check");
                 if(val == "and") {
                     console.log("->and");
                     filters[suborder] = $("#subselect_" + suborder).val();
