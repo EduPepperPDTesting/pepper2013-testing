@@ -2853,13 +2853,15 @@
 
             console.log(orColumns);
 
-            //var filter_functions = {
-            //    ".or_filter": filterfxn
-            //};
+            var filter_functions = {
+                ".or_filter": filterfxn
+            };
 
-            //tablesorterOptions.widgetOptions.filter_functions = filter_functions;
+            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
 
-            //$("#data-table").tablesorter(tablesorterOptions);
+            $("#data-table").tablesorter(tablesorterOptions);
+
+            $(#data-table).trigger("update");
 
             $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
 
@@ -2871,6 +2873,7 @@
             var suborder = parseInt($(this).attr("name")) + 1;
             var filters = $.tablesorter.getFilters($("#data-table"));
             if(val == "and" && $("#subselect_" + suborder).val() != "") {
+                console.log("->and");
                 filters[suborder] = $("#subselect_" + suborder).val();
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
