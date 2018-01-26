@@ -684,6 +684,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
+                    classroom = item.classroom if item.classroom.find("<a href") == -1 else "Online"
+
                     if i > 0:
                         print_row.append([])
 
@@ -691,7 +693,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                     print_row[i].append(item.description)
                     print_row[i].append(item.training_date)
                     print_row[i].append(training_start_time)
-                    print_row[i].append(item.classroom)
+                    print_row[i].append(classroom)
                     print_row[i].append(item.geo_location)
 
                     if array_length > i + 1:
@@ -829,14 +831,14 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
-
+                        classroom = item.classroom if item.classroom.find("<a href") == -1 else "Online"
                         if not isday:
                             locTxt = "" #" Classroom: "
                         else:
                             locTxt = "<br/>\nLocation: "
-                            itemData += locTxt + item.classroom
+                            itemData += locTxt + classroom
 
-                        titlex = titlex + "::" + item.classroom
+                        titlex = titlex + "::" + classroom
 
                     if item.geo_location:
                         titlex = titlex + "::" + item.geo_location
@@ -1497,7 +1499,7 @@ def download_calendar_pdf(request):
 
                 training_time = training.training_time_start
 
-                training_room = training.classroom
+                training_room = training.classroom if training.classroom.find("<a href") == -1 else "Online"
                 training_geo = training.geo_location
                 loc_text_width = int(len(training_geo) / 2)
 
