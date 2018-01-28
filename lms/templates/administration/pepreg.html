@@ -2183,7 +2183,7 @@
         var self = this;
         $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function (r) {
             if (r.success) {
-                cb(join, trID);
+                cb(join, r.training_id);
                 //self.reloadTable();
                 trID=r.training_id;
                 regData={success: true, trID: trID};
