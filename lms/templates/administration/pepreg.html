@@ -814,8 +814,9 @@
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg) {
+					    warningData = '';
 					    $.get("${reverse('pepreg_training_json')}", {id: reg.training_id}, function (data) {
-                            warningData = '';
+                            console.log("data.success=" + data.success);
 					        if(data.success) {
 					            warningData += data.training_date + " " + data.training_time_start + "|";
                                 warningData += data.training_date + " " + data.training_time_end + "|";
