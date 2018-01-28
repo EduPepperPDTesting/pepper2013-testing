@@ -815,9 +815,9 @@
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg) {
 					    warningData = '';
-					    console.log("reg.training_id=" + reg.training_id);
-					    var training_id = reg.training_id;
-					    $.get("${reverse('pepreg_training_json')}", {id: reg.training_id}, function (data) {
+					    console.log("reg.training_id=" + reg.trID);
+					    var training_id = reg.trID;
+					    $.get("${reverse('pepreg_training_json')}", {id: training_id}, function (data) {
                             console.log("data.success=" + data.success);
 					        if(data.success) {
 					            warningData += data.training_date + " " + data.training_time_start + "|";
