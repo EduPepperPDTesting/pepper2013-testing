@@ -795,7 +795,7 @@
 			});
 			/*$(".calendar_check_would").change(function(event){
 			    event.preventDefault();
-				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg, trID) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
@@ -812,10 +812,10 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
+                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
 					if (reg) {
 					    warningData = '';
-					    console.log("reg=" + reg);
+					    console.log("trID=" + trID);
 					    var training_id = reg.trID;
 					    $.get("${reverse('pepreg_training_json')}", {id: training_id}, function (data) {
                             console.log("data.success=" + data.success);
@@ -2183,7 +2183,7 @@
         var self = this;
         $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function (r) {
             if (r.success) {
-                cb(join);
+                cb(join, trID);
                 //self.reloadTable();
                 trID=r.training_id;
                 regData={success: true, trID: trID};
@@ -2560,7 +2560,7 @@
                             $check.prop('checked', status == "Registered");
                             $check.click(function () {
                                 var thisCheck = $(this);
-                                self.registerUser(training_id, this.checked, function (reg) {
+                                self.registerUser(training_id, this.checked, function (reg, trID) {
                                     // self.reloadTable();
                                     console.log("~3");
                                     warningData = '';
