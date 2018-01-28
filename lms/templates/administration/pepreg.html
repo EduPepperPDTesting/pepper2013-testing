@@ -813,20 +813,21 @@
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
-					if (reg)
+					if (reg) {
 					    $.get("${reverse('pepreg_training_json')}", {id: reg.training_id}, function (data) {
-                            warningData == '';
+                            warningData = '';
 					        if(data.success) {
 					            warningData += data.training_date + " " + data.training_time_start + "|";
                                 warningData += data.training_date + " " + data.training_time_end + "|";
-                                warningData += data.name;
-                                warningData += data.description;
+                                warningData += data.name + "|";
+                                warningData += data.description + "|";
                                 warningData += data.classroom + " " + data.geo_location;
 					        }
 					    });
 						pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
-					else
+					} else {
 						pepreg.warning("Thank you! You are no longer registered for this training.");
+                    }
                     console.log("calendar_check_would pre -" + $("this").prop("checked"));
                     $("this").prop("checked", !$("this").prop("checked"));
                     console.log("calendar_check_would post -" + $("this").prop("checked"));
@@ -836,7 +837,7 @@
 					calendarOpen();
 					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					console.log(regData.trID);*/
-				})
+				});
 			});
 
 			$(".calendar_check_attended").each(function(){
