@@ -358,6 +358,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             $check.change(function(){
                 if (self.all_user_on){
                     alert('please cannel All Users');
+                    return;
                 }else{
                     self.user_selection[this.value] = (this.checked);
                     if ($("#float-users-win").find("input[type=hidden]").length>0){
@@ -432,6 +433,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         $("input[name=user-select]").change(function(e){
             var v = $(this).val();
             if(v == "manual"){
+                self.all_user_on = false;
                 if ($("#float-users-win").find("input[type=hidden]").length>0){
                     $("#float-users-win").html("")
                 }
@@ -442,6 +444,12 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                     }
                 })
             }else if(v == "current-page"){
+                if (self.all_user_on){
+                    self.all_user_on = false;
+                    $checks.each(function(){
+                        $(this).prop("checked", false);
+                    })
+                }
                 $checks.each(function(){
                     if (!$(this).prop("checked")){
                         $(this).prop("checked", true);
@@ -451,17 +459,20 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             }else if(v == "all"){
                 $("#float-users-win").html("<input style='display:none' type='checkbox' checked><input type='hidden' name='alluser'>All Users are selected.");
                 self.all_user_on = true;
-                $checks.each(function(){
-                    if (!$(this).prop("checked")){
-                        $(this).prop("checked", true);
-                        $(this).trigger('change')
-                    }
-                })
+                self.user_selection = null;
+                // $checks.each(function(){
+                //     if (!$(this).prop("checked")){
+                //         $(this).prop("checked", true);
+                //         $(this).trigger('change')
+                //     }
+                // })
+                $table.trigger('pagerComplete')
             }
         });
         $checks.change(function(){
             if (self.all_user_on){
-                alter('please cannel All Users')
+                alert('please cannel All Users');
+                return;
             }else{
                 var flag = "";
                 $checks.each(function(){
