@@ -814,7 +814,7 @@
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
 					if (reg) {
-					    warningData = '';
+					    var warningData = '';
 					    console.log("trID=" + trID);
 					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
                             console.log("data.name=" + data.name);
@@ -2562,7 +2562,6 @@
                                 self.registerUser(training_id, this.checked, function (reg, trID) {
                                     // self.reloadTable();
                                     console.log("~3");
-                                    warningData = '';
                                     if (reg){
                                         var DataRow = thisCheck.closest("tr");
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
