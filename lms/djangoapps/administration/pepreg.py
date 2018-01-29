@@ -409,7 +409,6 @@ def delete_training(request):
 
 
 def training_json(request):
-    raise Exception(request.GET.get("id"))
     item = PepRegTraining.objects.get(id=request.GET.get("id"))
 
     instructor_emails = []
