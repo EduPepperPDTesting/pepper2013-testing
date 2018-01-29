@@ -2782,7 +2782,6 @@
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
                 }
             }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
                 filters[suborder] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
@@ -2828,9 +2827,11 @@
             $(".or_filter").removeClass("or_filter");
             var valueCol_1 = val_1;
             var valueCol_2 = val;
-            $(".tablesorter-filter[data-column='" + col_1 + "']").val(valueCol_1).addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").val(valueCol_1)
             console.log(valueCol_1+" "+col_1);
-            $(".tablesorter-filter[data-column='" + col_2 + "']").val(valueCol_2).addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").val(valueCol_2)
             console.log(valueCol_2+" "+col_2);
 
             //get 'OR'-condition column indexes
@@ -2853,35 +2854,43 @@
 
             console.log(orColumns);
 
-            //var filter_functions = {
-            //    ".or_filter": filterfxn
-            //};
+            var filter_functions = {
+                ".or_filter": filterfxn
+            };
 
-            //tablesorterOptions.widgetOptions.filter_functions = filter_functions;
+            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
 
-            //$("#data-table").tablesorter(tablesorterOptions);
+            $("#data-table").tablesorter(tablesorterOptions);
 
-            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
+            $("#data-table").trigger("update");
+
+            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").trigger("change");
 
             console.log("filterfxn");
         };
 
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
-            var suborder = parseInt($(this).attr("name")) + 1;
+
+            var suborder = parseInt($(this).attr("name"));
+            var val_1 = $("#subselect_" + suborder).val();
+            var val_2 = $("#subselect_" + (suborder + 1)).val();
+
             var filters = $.tablesorter.getFilters($("#data-table"));
-            if(val == "and" && $("#subselect_" + suborder).val() != "") {
-                filters[suborder] = $("#subselect_" + suborder).val();
-                $.tablesorter.setFilters($("#data-table"), filters, true);
-            }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
-                var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                var col_2 = $("#subselect_" + suborder).attr("data-column");
-                val_1 = $("#subselect_" + (suborder - 1)).val();
-                val_2 = $("#subselect_" + suborder).val();
-                console.log("val_1="+val_1+" val_2="+val_2);
-                OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+            if(!isNaN(val_2) && val_2 !== "undefined" && val_2 != ""){
+                console.log("in subcondition check");
+                if(val == "and") {
+                    console.log("->and");
+                    filters[suborder] = $("#subselect_" + suborder).val();
+                    $.tablesorter.setFilters($("#data-table"), filters, true);
+                }else if(val == "or"){
+                    var col_1 = $("#subselect_" + suborder).attr("data-column");
+                    var col_2 = $("#subselect_" + (suborder + 1)).attr("data-column");
+                    console.log("val_1="+val_1+" val_2="+val_2);
+                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+                }
             }else{
-                filters[suborder] ="";
+                filters[(suborder + 1)] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
