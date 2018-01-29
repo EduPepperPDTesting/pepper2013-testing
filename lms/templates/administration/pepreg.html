@@ -816,8 +816,7 @@
 					if (reg) {
 					    warningData = '';
 					    console.log("trID=" + trID);
-					    var training_id = reg.trID;
-					    $.get("${reverse('pepreg_training_json')}", {id: training_id}, function (data) {
+					    $.get("${reverse('pepreg_training_json')}", {id: reg.trID}, function (data) {
                             console.log("data.success=" + data.success);
 					        if(data.success) {
 					            warningData += data.training_date + " " + data.training_time_start + "|";

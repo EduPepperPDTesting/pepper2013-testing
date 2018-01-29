@@ -410,7 +410,7 @@ def delete_training(request):
 
 def training_json(request):
     item = PepRegTraining.objects.get(id=request.GET.get("id"))
-
+    raise Exception("id="+request.GET.get("id"))
     instructor_emails = []
     for pi in PepRegInstructor.objects.filter(training=item):
         all_edit = "1" if pi.all_edit else "0"
