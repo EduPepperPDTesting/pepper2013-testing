@@ -429,14 +429,14 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         /** float user window */
         var $thead = $(this).find("thead");
         // begin ------- end checks control
-        var $checks = $(this).find("tbody tr td:nth-child(1) input");
         $("input[name=user-select]").change(function(e){
+            var $checks = $table.find("tbody tr td:nth-child(1) input");
             var v = $(this).val();
             if(v == "manual"){
                 if (self.all_user_on){
                     self.all_user_on = false;
                     $checks.each(function(){
-                        $(this).prop("disabled",false);
+                        $(this).removeAttr("disabled");
                         $(this).prop("checked",false);
                     })
                 }else{
@@ -455,7 +455,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                     $("#float-users-win").html("")
                     self.all_user_on = false;
                     $checks.each(function(){
-                        $(this).reoveAttr("disabled");
+                        $(this).removeAttr("disabled");
                         $(this).prop("checked", false);
                     })
                 }
@@ -469,13 +469,14 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                 $("#float-users-win").html("<input style='display:none' type='checkbox' checked><input type='hidden' name='alluser'>All Users are selected.");
                 self.all_user_on = true;
                 self.user_selection = {};
-                // $checks.each(function(){
-                //     if (!$(this).prop("checked")){
-                //         $(this).prop("checked", true);
-                //         $(this).trigger('change')
-                //     }
-                // })
-                $table.trigger('pagerComplete')
+                $checks.each(function(){
+                    // if (!$(this).prop("checked")){
+                        $(this).prop("checked", true);
+                        $(this).prop("disabled", true);
+                        // $(this).trigger('change')
+                    // }
+                })
+                // $table.trigger('pagerComplete')
             }
         });
         $checks.change(function(){
