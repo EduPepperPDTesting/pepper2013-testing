@@ -2877,8 +2877,8 @@
             var val_2 = $("#subselect_" + (suborder + 1)).val();
 
             var filters = $.tablesorter.getFilters($("#data-table"));
-            console.log(!isNaN(val_2) + " " + (val_2 !== "undefined") + " " + (val_2 != ""));
-            if(!isNaN(val_2) && val_2 !== "undefined" && val_2 != ""){
+            console.log((isNaN(val_2) && typeof val_2 == "srting") + " " + (val_2 !== "undefined") + " " + (val_2 != ""));
+            if(((isNaN(val_2) && typeof val_2 == "srting") || val_2 !== "undefined") && val_2 != ""){
                 console.log("in subcondition check");
                 if(val == "and") {
                     console.log("->and");
