@@ -2829,11 +2829,9 @@
             $(".or_filter").removeClass("or_filter");
             var valueCol_1 = val_1;
             var valueCol_2 = val;
-            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter");
-            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").val(valueCol_1)
+            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter").val(valueCol_1);
             console.log(valueCol_1+" "+col_1);
-            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter");
-            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").val(valueCol_2)
+            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter").val(valueCol_2);
             console.log(valueCol_2+" "+col_2);
 
             //get 'OR'-condition column indexes
