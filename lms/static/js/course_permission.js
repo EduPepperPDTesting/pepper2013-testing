@@ -404,6 +404,21 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                             }
                         })
                     }
+
+                    var flag = "";
+                    $checks.each(function(){
+                        if (!$(this).prop("checked")){
+                            flag = "manual";
+                        }else{
+                            flag = "current-page";
+                        }
+                    })
+                    if (flag == "manual"){
+                        $("input[name=user-select].check-manual").prop("checked", true);
+                    }else if(flag == "current-page"){
+                        $("input[name=user-select].check-current-page").prop("checked", true);
+                    }
+                    
                 }
             });
     });
@@ -479,26 +494,26 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                 // $table.trigger('pagerComplete')
             }
         });
-        $checks.change(function(){
-            if (self.all_user_on){
-                alert('please cannel All Users');
-                return;
-            }else{
-                var flag = "";
-                $checks.each(function(){
-                    if (!$(this).prop("checked")){
-                        flag = "manual";
-                    }else{
-                        flag = "current-page";
-                    }
-                })
-                if (flag == "manual"){
-                    $("input[name=user-select].check-manual").prop("checked", true);
-                }else if(flag == "current-page"){
-                    $("input[name=user-select].check-current-page").prop("checked", true);
-                }
-            }
-        });
+        // $checks.change(function(){
+        //     if (self.all_user_on){
+        //         alert('please cannel All Users');
+        //         return;
+        //     }else{
+        //         var flag = "";
+        //         $checks.each(function(){
+        //             if (!$(this).prop("checked")){
+        //                 flag = "manual";
+        //             }else{
+        //                 flag = "current-page";
+        //             }
+        //         })
+        //         if (flag == "manual"){
+        //             $("input[name=user-select].check-manual").prop("checked", true);
+        //         }else if(flag == "current-page"){
+        //             $("input[name=user-select].check-current-page").prop("checked", true);
+        //         }
+        //     }
+        // });
     });
 }
 CoursePermission.prototype.dropDistrictMu = function(select, state_ids){
