@@ -283,7 +283,6 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             // all_user_on = $("input[name=user-select].check-all").is(":checked");
             if (self.all_user_on){
                 $($(".check-all")[0]).prop('checked',true)
-                $($(".check-all")[0]).prop('disabled',true)
             }else{
                 var user_selection = self.user_selection;
                 var users = data[1];
@@ -351,6 +350,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             var $check = $("<input type='checkbox'>").appendTo(this).val(v);
             if (self.all_user_on){
                 $check.prop('checked', true);
+                $check.attr('disabled', true);
             }else{
                 if(user_selection[v]){
                     $check.prop('checked', true);
@@ -405,7 +405,6 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                         })
                     }
                 }
-                
             });
     });
         // self.user_selection = {};
@@ -456,7 +455,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                     $("#float-users-win").html("")
                     self.all_user_on = false;
                     $checks.each(function(){
-                        $this.prop("disabled",false);
+                        $(this).reoveAttr("disabled");
                         $(this).prop("checked", false);
                     })
                 }
@@ -469,7 +468,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             }else if(v == "all"){
                 $("#float-users-win").html("<input style='display:none' type='checkbox' checked><input type='hidden' name='alluser'>All Users are selected.");
                 self.all_user_on = true;
-                self.user_selection = null;
+                self.user_selection = {};
                 // $checks.each(function(){
                 //     if (!$(this).prop("checked")){
                 //         $(this).prop("checked", true);
