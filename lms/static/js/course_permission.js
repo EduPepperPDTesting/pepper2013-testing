@@ -433,20 +433,29 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         $("input[name=user-select]").change(function(e){
             var v = $(this).val();
             if(v == "manual"){
-                self.all_user_on = false;
-                if ($("#float-users-win").find("input[type=hidden]").length>0){
-                    $("#float-users-win").html("")
-                }
-                $checks.each(function(){
-                    if ($(this).prop("checked")){
-                        $(this).prop("checked", false);
-                        $(this).trigger('change')
-                    }
-                })
-            }else if(v == "current-page"){
                 if (self.all_user_on){
                     self.all_user_on = false;
                     $checks.each(function(){
+                        $this.prop("disabled",false);
+                        $this.prop("checked",false);
+                    })
+                }else{
+                    $checks.each(function(){
+                        if ($(this).prop("checked")){
+                            $(this).prop("checked", false);
+                            $(this).trigger('change')
+                        }
+                    })
+                }
+                if ($("#float-users-win").find("input[type=hidden]").length>0){
+                    $("#float-users-win").html("")
+                }
+            }else if(v == "current-page"){
+                if (self.all_user_on){
+                    $("#float-users-win").html("")
+                    self.all_user_on = false;
+                    $checks.each(function(){
+                        $this.prop("disabled",false);
                         $(this).prop("checked", false);
                     })
                 }
