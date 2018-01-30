@@ -283,6 +283,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             // all_user_on = $("input[name=user-select].check-all").is(":checked");
             if (self.all_user_on){
                 $($(".check-all")[0]).prop('checked',true)
+                $($(".check-all")[0]).prop('disabled',true)
             }else{
                 var user_selection = self.user_selection;
                 var users = data[1];
@@ -436,8 +437,8 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
                 if (self.all_user_on){
                     self.all_user_on = false;
                     $checks.each(function(){
-                        $this.prop("disabled",false);
-                        $this.prop("checked",false);
+                        $(this).prop("disabled",false);
+                        $(this).prop("checked",false);
                     })
                 }else{
                     $checks.each(function(){
