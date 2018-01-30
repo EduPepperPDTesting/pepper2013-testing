@@ -379,6 +379,9 @@ function addNewDiscussion(fid, subject, post){
 							$.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data1) {
 								if (data1.Success) {
 									$(".community_new_center").prepend(getDiscussionsHtml(data.back_data, ""));
+									//---------------------------------------------------------addCommunityDiscussionEvent
+									addCommunityDiscussionEvent();
+									
 									discussion_dialog.hide();
 									//window.location.replace("/community/${community.id}");
 								} else {
@@ -392,11 +395,12 @@ function addNewDiscussion(fid, subject, post){
 								tmp_block.find(".dis_post:first").html($("#post").val());
 							}else{
 								$(".community_new_center").prepend(getDiscussionsHtml(data.back_data, ""));
+								//---------------------------------------------------------addCommunityDiscussionEvent
+								addCommunityDiscussionEvent();
 								//window.location.replace("/community/${community.id}");
 							}
 							discussion_dialog.hide();
 						}
-
 					} else {
 						$('.discussion-error').append('There was an error adding your discussion. Please try again later.' + data.Error)
 					}
