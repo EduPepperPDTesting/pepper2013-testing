@@ -3257,7 +3257,7 @@ def new_process_submit_comment(request):
             data["attachment_pict_url"] = attachment_pict_url
             data["attachment_pict_name"] = attachment_pict_name
             data["Success"] = True
-            send_notification(request.user, community_id, discussions_reply=[did], domain_name=domain_name)
+            send_notification(request.user, community_id, discussions_reply=[str(did)], domain_name=domain_name)
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -3278,7 +3278,7 @@ def new_process_discussions_delete(request):
             mongo3_store = community_discussions_store()
             if typex == "main":
                 discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
-                send_notification(request.user, discussion['community_id'], discussions_delete=[did], domain_name=domain_name)
+                send_notification(request.user, discussion['community_id'], discussions_delete=[str(did)], domain_name=domain_name)
                 mongo3_store.remove({"db_table": "community_discussion_replies_next", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
@@ -3290,7 +3290,7 @@ def new_process_discussions_delete(request):
             elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
                 discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
-                send_notification(request.user, discussion['community_id'], replies_delete=[did], domain_name=domain_name)
+                send_notification(request.user, discussion['community_id'], replies_delete=[str(did)], domain_name=domain_name)
                 if level == "2":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
                     mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})
