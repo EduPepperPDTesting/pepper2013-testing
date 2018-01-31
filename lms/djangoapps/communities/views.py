@@ -570,12 +570,12 @@ def discussion_add(request):
         fid = request.POST.get("fid", "")
         if not fid:
             community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
-            discussion = CommunityDiscussions()
-            discussion.community = community
-            discussion.user = request.user
-            discussion.post = request.POST.get('post')
-            discussion.subject = request.POST.get('subject')
-            discussion.save()
+            # discussion = CommunityDiscussions()
+            # discussion.community = community
+            # discussion.user = request.user
+            # discussion.post = request.POST.get('post')
+            # discussion.subject = request.POST.get('subject')
+            # discussion.save()
 
         mongo3_store = community_discussions_store()
         if fid:
@@ -597,9 +597,9 @@ def discussion_add(request):
                 "view_counter": 0,
                 "db_table": "community_discussions"
             }
-            disc_id = mongo3_store.insert(my_discussion_post)
+            disc_id = str(mongo3_store.insert(my_discussion_post))
 
-            back_data['_id'] = str(disc_id)
+            back_data['_id'] = disc_id
             back_data['community_id'] = long(request.POST.get('community_id'))
             back_data['user'] = request.user.id
             back_data['subject'] = request.POST.get('subject')
@@ -609,7 +609,7 @@ def discussion_add(request):
             back_data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
             back_data['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_datetime)
             back_data['pin'] = ""
-            back_data['like_size'] = "0"
+            back_data['like_size'] = ""
             back_data['like_first'] = ""
             back_data['like_last'] = ""
             back_data['is_liked'] = ""
@@ -621,7 +621,8 @@ def discussion_add(request):
             try:
                 attachment = FileUploads()
                 attachment.type = 'discussion_attachment'
-                attachment.sub_type = discussion.id
+                # attachment.sub_type = discussion.id
+                attachment.sub_type = disc_id
                 attachment.upload = request.FILES.get('attachment')
                 attachment.save()
 
@@ -640,10 +641,10 @@ def discussion_add(request):
             back_data['attachment_name'] = ""
             back_data['attachment_url'] = ""
 
-        if not fid:
-            if attachment:
-                discussion.attachment = attachment
-                discussion.save()
+        # if not fid:
+        #     if attachment:
+        #         discussion.attachment = attachment
+        #         discussion.save()
 
         if attachment:
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
@@ -651,20 +652,20 @@ def discussion_add(request):
         success = True
         if not fid:
             rs = myactivitystore()
-            my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-            "URLValues": {"discussion_id": discussion.id},
-            "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-            "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+            my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"discussion_id": disc_id},
+            "TokenValues": {"discussion_id": disc_id, "community_id": community.id},
+            "LogoValues": {"discussion_id": disc_id, "community_id": community.id}}
             rs.insert_item(my_activity)
 
-            discussion_id = discussion.id
+            # discussion_id = disc_id
             send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
 
     except Exception as e:
         error = e
         success = False
-        discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+        # discussion_id = None
+    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': disc_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
 
 
 
