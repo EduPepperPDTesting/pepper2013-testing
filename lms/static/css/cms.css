@@ -100,7 +100,6 @@
     width: 120px;
     background-color: #555;
     color: #fff;
-    text-align: center;
     border-radius: 6px;
     padding: 5px 0;
     position: absolute;
@@ -110,6 +109,7 @@
     margin-left: -60px;
     opacity: 0;
     transition: opacity 0.3s;
+    padding-left: 6px;
 }
 
 .selectable_resource .ttext::after {

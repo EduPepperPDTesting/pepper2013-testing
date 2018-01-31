@@ -2,6 +2,7 @@
     from django.utils.translation import ugettext as _
     from django.utils import html
     from django.core.urlresolvers import reverse
+    from django.conf import settings
 %>
 <link rel="stylesheet" type="text/css" href="/static/css/cms.css" />
 <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -30,7 +31,7 @@
 </div>
 
 <script>
-base = "https://cms-dev.edplancms.com/api/v1/";
+base = "${settings.CMS_API_BASE}";
 working_lib = 0;
 working_img = "";
 
