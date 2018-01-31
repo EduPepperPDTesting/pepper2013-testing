@@ -1527,7 +1527,10 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'state_id': 1,
         'attendancel_id': 1,
         'type': 1,
-        'school_id': {'$ifNull': [{'$arrayElemAt': ['$user_info.school_id', 0]}, '1']}
+        'school_id': {'$ifNull': [{'$arrayElemAt': ['$user_info.school_id', 0]}, '1']},
+        'first_name':{'$arrayElemAt': ['$user_info.first_name', 0]},
+        'last_name':{'$arrayElemAt': ['$user_info.last_name', 0]},
+        'username':{'$arrayElemAt': ['$user_info.username', 0]}
     }
 }, {
     '$project': {
@@ -1557,7 +1560,10 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'school': 1,
         'user_school': 1,
         'name': 1,
-        'training_id': 1
+        'training_id': 1,
+        'first_name': 1,
+        'last_name': 1,
+        'username': 1
     }
 }, {
     '$group': {
@@ -1588,6 +1594,9 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'user_school': {'$push': '$user_school'}, 
         'student_credit': {'$push': '$student_credit'},
         'training_id': {'$push': '$training_id'},
+        'first_name': {'$push': '$first_name'},
+        'last_name': {'$push': '$last_name'},
+        'username': {'$push': '$username'},
         '_id': {
             'training_time_end': '$training_time_end',
             'user_create_id': '$user_create_id',
@@ -1615,7 +1624,10 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
             'school': '$school', 
             'user_school': '$user_school',
             'student_credit': '$student_credit',
-            'training_id': '$training_id'
+            'training_id': '$training_id',
+            'first_name': '$first_name',
+            'last_name': '$last_name',
+            'username': '$username'
         }
     }
 }, {
@@ -1646,7 +1658,10 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'school': {'$arrayElemAt': ['$school', 0]}, 
         'user_school': {'$arrayElemAt': ['$user_school', 0]}, 
         'name': {'$substr': [{'$arrayElemAt': ['$name', 0]} , 0, -1] },
-        'training_id': {'$arrayElemAt': ['$training_id', 0]}
+        'training_id': {'$arrayElemAt': ['$training_id', 0]},
+        'first_name': {'$arrayElemAt': ['$first_name', 0]},
+        'last_name': {'$arrayElemAt': ['$last_name', 0]},
+        'username': {'$arrayElemAt': ['$username', 0]}
     }
 }, {
     '$out': '{collection}'

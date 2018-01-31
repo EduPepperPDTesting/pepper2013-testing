@@ -11,6 +11,7 @@
     from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
     from permissions.utils import check_access_level, check_user_perms
     from administration.models import PepRegTraining
+    from administration.configuration import has_hangout_perms
     import datetime
     from django.db.models import Q
 %>
@@ -30,6 +31,25 @@
 <script type="text/javascript" src="/static/js/timedropper/timedropper.js"></script>
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
+<script type="text/javascript" src="/static/js/ics.js"></script>
+<script type="text/javascript" src="/static/js/FileSaver.js"></script>
+
+
+<!-- AddEvent script -->
+<script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
+
+<!-- AddEvent Settings -->
+<script type="text/javascript">
+    window.addeventasync = function(){
+    addeventatc.settings({
+        appleical  : {show:true, text:"Apple Calendar"},
+        google     : {show:true, text:"Google <em>(online)</em>"},
+        outlook    : {show:true, text:"Outlook"},
+        outlookcom : {show:true, text:"Outlook.com <em>(online)</em>"},
+        yahoo      : {show:true, text:"Yahoo <em>(online)</em>"}
+    });
+};
+</script>
 
 <!-- href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/ -->
 <link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
@@ -441,12 +461,18 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
+                <input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/>
                 %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
                     <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
                 %endif
-                <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+                <div style="margin-top: 5px;">
+                    <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+                    <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
+                    <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
+                </div>
+                <!--span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
                 <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn" />
-                <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" />
+                <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" /-->
             </div>
         </div>
         <!--training registration - akogan-->
@@ -797,11 +823,12 @@
 			/*$(".calendar_check_would").change(function(event){
 			    event.preventDefault();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
-					if (reg)
-						pepreg.warning("Thank you for registering/recording attendance for this training!");
-					else
+				console.log("~7");
+					if (reg){
+					    pepreg.warning("Thank you for registering/recording attendance for this training!");
+					}else{
 						pepreg.warning("Thank you! You are no longer registered for this training.");
-						
+                    }
 					pepreg.reloadTable();
 					calendarOpen();
 				})
@@ -814,10 +841,12 @@
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
-					if (reg)
-						pepreg.warning("Thank you for registering/recording attendance for this training!");
-					else
-						pepreg.warning("Thank you! You are no longer registered for this training.");
+                console.log("~6");
+                    if (reg){
+                         pepreg.warning("Thank you for registering/recording attendance for this training!");
+                    }else{
+                        pepreg.warning("Thank you! You are no longer registered for this training.");
+                    }
                     console.log("calendar_check_would pre -" + $("this").prop("checked"));
                     $("this").prop("checked", !$("this").prop("checked"));
                     console.log("calendar_check_would post -" + $("this").prop("checked"));
@@ -845,7 +874,9 @@
 							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
 								input.hide();
 								button.hide();
-								pepreg.warning("Thank you for registering/recording attendance for this training!");
+								console.log("~5");
+
+                                pepreg.warning("Thank you for registering/recording attendance for this training!");
 								
 								pepreg.reloadTable();
 								calendarOpen();
@@ -882,11 +913,12 @@
 					}
 				}else{
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
-						if (data && data.is_attended)
+					console.log("~4");
+						if (data && data.is_attended){
 							pepreg.warning("Thank you for registering/recording attendance for this training!");
-						else
+						}else{
 							pepreg.warning("Thank you! You are no longer registered for this training.");
-						
+						}
 						pepreg.reloadTable()
 						calendarOpen();
 					});
@@ -1632,20 +1664,39 @@
         this.initTable();
     };
     PepReg.prototype.getInput = function () {
+        console.log("input");
         var $form = $("#dlg-add-training");
+        var description = $form.find("textarea[name=description]").val();
+        var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
+        if(descArr){
+            descArr.forEach(function(descItem){
+               if(description.indexOf(descItem) == 0){
+                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+               }
+               while(description.indexOf(" " + descItem) > -1){
+                    description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+               }
+            });
+        }
+        var classroom = $.trim($form.find("input[name=classroom]").val());
+        var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
+        if(classroom.indexOf("<a href") == -1 && classroomArr){
+            var href_classroom = classroomArr[0];
+            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+        }
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
             district_id: $form.find("select[name=district_id]").val(),
 			school_id: $form.find("select[name=school_id]").val(),
             name: $.trim($form.find("input[name=name]").val()),
-            description: $form.find("textarea[name=description]").val(),
+            description: description,
             pepper_course: $form.find("select[name=pepper_course]").val(),
             subject: $form.find("select[name=subject]").val(),
             training_date: $form.find("input[name=training_date]").val(),
             training_time_start: ($form.find("input[name=training_time_start]").val()),
             training_time_end: ($form.find("input[name=training_time_end]").val()),
-            classroom: $.trim($form.find("input[name=classroom]").val()),
+            classroom: classroom,
             geo_location: $form.find("input[name=geo_location]").val(),
             geo_destination: $form.find("input[name=geo_destination]").val(),
             geo_props: $form.find("input[name=geo_props]").val(),
@@ -1707,6 +1758,35 @@
             dailogTitle = "Confirmation";
         }else{
             dailogTitle = "Warning";
+        }
+        if(s && s.indexOf("|")>-1){
+            var googlePerm = ${has_hangout_perms(request.user)};
+            var t = s.substring(0, s.indexOf("!") + 1);
+            var eventString = s.substr(s.indexOf("!") + 1).split("|");
+            eventStart = eventString[0];
+            eventEnd = eventString[1];
+            eventTitle = eventString[2];
+            eventDescription = eventString[3];
+            eventLocation = eventString[4];
+
+            icsStyle = (!googlePerm) ? 'style="float: none !important;"':'';
+
+            t += '<div class="save_event">';
+            t += '<div class="imgBtn imgBtn_add_outlook" onclick="downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);"' + icsStyle +'><a href="#">';
+            t += '<div class="icon"></div>';
+            t += '<div>Add Event to<br>Outlook Calendar</div>';
+            t += '</a></div>';
+
+            if(googlePerm){
+                t += '<div class="imgBtn imgBtn_add_google" onclick="getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd)"><a href="#">';
+                t += '<div class="icon"></div>';
+                t += '<div>Add Event to<br>Google Calendar</div>';
+                t += '</a></div>';
+            }
+
+            t += '</div>';
+            s = t;
+            console.log("s="+s);
         }
         dlg.show(dailogTitle, s);
         dlg.lift(100);
@@ -2202,7 +2282,7 @@
 
 
     };
-    PepReg.prototype.showStudents = function (training_id) {
+    PepReg.prototype.showStudents = function (training_id, google_save) {
         var self = this;
 
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
@@ -2240,7 +2320,7 @@
 
                     $("#reminder_mail_btn").unbind("click").click(function () {
                         last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
-                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id, google_save: google_save}, function (r) {
                             if(r._res == "1"){
                                 alert("Sent successfully!");
                             }else{
@@ -2395,6 +2475,9 @@
             savePages: false,
             size: 10
         };
+        var filterfxn = function(){
+                console.log("init filterfxn");
+        };
         var tablesorterOptions = {
             debug: false,
             theme: 'blue',
@@ -2411,7 +2494,7 @@
                 columnSelector_container: $('#columnSelector'),
                 columnSelector_columns: {0: 'disable', 15: 'disable'},
                 columnSelector_mediaqueryName: 'All: ',
-                filter_functions: {}
+                filter_functions: {".or_filter": filterfxn}
             }
         };
         tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
@@ -2423,7 +2506,7 @@
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
-                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+                $(this).trigger('refreshColumnSelector', [[0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else if (is_admin) {
                 $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else {
@@ -2446,7 +2529,13 @@
                 if ($(this).find("span.geo_location").html()) {
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
-                    $(this).click(function () {
+                    var mapEl;
+                    if($(this).find("a").length > 0){
+                        mapEl = $(this).find("span.geo_location");
+                    }else{
+                        mapEl = $(this);
+                    }
+                    mapEl.click(function () {
 						window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
                     });
                 }
@@ -2501,12 +2590,22 @@
                             }
                             $check.prop('checked', status == "Registered");
                             $check.click(function () {
+                                var thisCheck = $(this);
                                 self.registerUser(training_id, this.checked, function (reg) {
                                     // self.reloadTable();
-                                    if (reg)
-                                        self.warning("Thank you for registering/recording attendance for this training!");
-                                    else
+                                    console.log("~3");
+                                    if (reg){
+                                        var DataRow = thisCheck.closest("tr");
+                                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+                                        warningData += DataRow.find("td:eq(5)").text() + "|";
+                                        warningData += DataRow.find("td:eq(6)").text() + "|";
+                                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
+
+                                        self.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                    }else{
                                         self.warning("Thank you! You are no longer registered for this training.");
+                                    }
                                 });
                             });
                         }
@@ -2537,10 +2636,19 @@
                             /// $input.val(attendancel_id);
                             var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
                             $button.click(function () {
+                                var thisCheck = $(this);
                                 if (attendancel_id == $input.val()) {
                                     self.setStudentAttended(${request.user.id}, training_id, true, function () {
                                         $input.hide();
                                         $button.hide();
+                                        console.log("~1");
+                                        var DataRow = thisCheck.closest("tr");
+                                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+                                        warningData += DataRow.find("td:eq(5)").text() + "|";
+                                        warningData += DataRow.find("td:eq(6)").text() + "|";
+                                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
+
                                         self.warning("Thank you for registering/recording attendance for this training!");
                                     });
                                 } else {
@@ -2549,11 +2657,21 @@
                             });
                         } else {
                             $check.change(function () {
+                                var thisCheck = $(this);
                                 self.setStudentAttended(${request.user.id}, training_id, this.checked, function (data) {
-                                    if (data && data.is_attended)
-                                        self.warning("Thank you for registering/recording attendance for this training!");
-                                    else
+                                    if (data && data.is_attended){
+                                        console.log("~2");
+                                        var DataRow = thisCheck.closest("tr");
+                                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+                                        warningData += DataRow.find("td:eq(5)").text() + "|";
+                                        warningData += DataRow.find("td:eq(6)").text() + "|";
+                                        warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
+
+                                        self.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                    }else{
                                         self.warning("Thank you! You are no longer registered for this training.");
+                                    }
                                 });
                             });
                         }
@@ -2569,7 +2687,8 @@
                         $(this).css("color", "#1d9dd9");
                         $(this).css("cursor", "pointer");
                         $(this).click(function () {
-                            self.showStudents(training_id);
+                            var google_save = (${has_hangout_perms(request.user)})? true: false;
+                            self.showStudents(training_id, google_save);
                         });
                     });
                 }
@@ -2649,6 +2768,7 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
             console.log("subselect val: "+val);
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(val != ""){
                 if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
                     filters[suborder] = $(this).val();
@@ -2663,9 +2783,8 @@
                 if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
                 }
-        }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] = "*";
+            }else{
+                filters[suborder] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
@@ -2673,8 +2792,9 @@
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name")) + 1;
+            filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                $(this).text(" - ");
+                $(this).text(" - ").css("top", "-1px !important");
                 $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
                 $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
@@ -2693,24 +2813,25 @@
                 }
 
             }else{
-                $(this).text(" + ");
+                $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + (suborder - 1)).remove();
                 $("#advanced_select_" + suborder).next("div").remove();
                 $("#advanced_select_" + suborder).remove();
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] ="*";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+                console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
+                filters[suborder] = "";
             }
+            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
         //filtering records with OR condition
         function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
+            console.log("tablesorterOptions="+tablesorterOptions);
             $(".or_filter").removeClass("or_filter");
             var valueCol_1 = val_1;
             var valueCol_2 = val;
-            $(".tablesorter-filter[data-column='" + col_1 + "']").val(valueCol_1).addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter").val(valueCol_1);
             console.log(valueCol_1+" "+col_1);
-            $(".tablesorter-filter[data-column='" + col_2 + "']").val(valueCol_2).addClass("or_filter");
+            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter").val(valueCol_2);
             console.log(valueCol_2+" "+col_2);
 
             //get 'OR'-condition column indexes
@@ -2741,29 +2862,38 @@
 
             $("#data-table").tablesorter(tablesorterOptions);
 
-            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
+            $("#data-table").trigger("update");
+
+            $(".tablesorter-filter[data-column='" + col_2 + "']").find("input").trigger("change");
 
             console.log("filterfxn");
         };
 
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
-            var suborder = parseInt($(this).attr("name")) + 1;
-            if(val == "and" && $("#subselect_" + suborder).val() != "") {
-                filters[suborder] = $("#subselect_" + suborder).val();
-            }else if(val == "or" && $("#subselect_" + suborder).val() != ""){
-                var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                var col_2 = $("#subselect_" + suborder).attr("data-column");
-                val_1 = $("#subselect_" + suborder).val();
-                val_2 = $("#subselect_" + (suborder - 1)).val();
-                console.log("val_1="+val_1+" val_2="+val_2);
-                OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+
+            var suborder = parseInt($(this).attr("name"));
+            var val_1 = $("#subselect_" + suborder).val();
+            var val_2 = $("#subselect_" + (suborder + 1)).val();
+
+            var filters = $.tablesorter.getFilters($("#data-table"));
+            console.log((isNaN(val_2) && typeof val_2 == "srting") + " " + (val_2 !== "undefined") + " " + (val_2 != ""));
+            if(((isNaN(val_2) && typeof val_2 == "srting") || val_2 !== "undefined") && val_2 != ""){
+                console.log("in subcondition check");
+                if(val == "and") {
+                    console.log("->and");
+                    filters[suborder] = $("#subselect_" + suborder).val();
+                    $.tablesorter.setFilters($("#data-table"), filters, true);
+                }else if(val == "or"){
+                    var col_1 = $("#subselect_" + suborder).attr("data-column");
+                    var col_2 = $("#subselect_" + (suborder + 1)).attr("data-column");
+                    console.log("val_1="+val_1+" val_2="+val_2);
+                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+                }
             }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] ="*";
+                filters[(suborder + 1)] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
-            $.tablesorter.setFilters($("#data-table"), filters, true);
         });
         /* advanced filtering */
 
@@ -2993,4 +3123,35 @@
         $(this).removeClass("on");
     });
 
+</script>
+<script type="text/javascript">//for iCal (google)
+    function getICal(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {
+        var dtStart = buildDate(eventStart);
+        var dtEnd = buildDate(eventEnd);
+        var iCal_url = 'http://www.google.com/calendar/event?action=TEMPLATE&text=' + eventTitle + '&dates=' + dtStart + '/' + dtEnd + '&details=' + eventDescription + '&location=' + eventLocation;
+        //$(location).attr('href', iCal_url);
+        window.open(iCal_url);
+        return false;
+
+
+    }
+    function buildDate(calDate) {
+          var ddate = calDate.substr(0, 10).split("/");
+          var dtime = calDate.substr(11, 5).split(":");
+          var dmid = calDate.substr(-2, 2);
+          if(dmid == "PM" && dtime[0] != "12") dtime[0] = parseInt(dtime[0]) + 12;
+          var eventData = ddate[2] + ddate[0] + ddate[1] + "T" + dtime[0] + dtime[1];
+          console.log(eventData);
+          eventData = eventData.trim();
+          eventData += "00";
+          console.log(eventData);
+          return eventData;
+    }
+</script>
+<script type="text/javascript">//for ics download (outlook)
+    function downloadICS(eventTitle, eventDescription, eventLocation, eventStart, eventEnd) {
+        var cal = ics();
+        cal.addEvent(eventTitle, eventDescription, eventLocation, eventStart, eventEnd);
+        cal.download();
+    }
 </script>

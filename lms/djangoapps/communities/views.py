@@ -594,6 +594,7 @@ def discussion_add(request):
                 "post": request.POST.get('post'),
                 "user": long(request.user.id),
                 "date_create": tmp_datetime,
+                "view_counter": 0,
                 "db_table": "community_discussions"
             }
             disc_id = mongo3_store.insert(my_discussion_post)
@@ -663,7 +664,8 @@ def discussion_add(request):
         error = e
         success = False
         discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+
 
 
 @login_required
@@ -1651,12 +1653,13 @@ def maincommunity(request, community_id):
                          'error_message': 'You do not have access to this view in Pepper.'}
         return render_to_response('error.html', error_context)
 
+    communityID = community.id
     user = request.user
     data = dict()
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
+    courses_drop = get_dropdown_data(request.user, communityID)
     data = {'courses_drop': courses_drop}
 
     # Get default facilitator
@@ -1678,41 +1681,48 @@ def maincommunity(request, community_id):
 
     mongo3_store = community_discussions_store()
     # Get discussions count for Community Status
-    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
     # Get all discussion and all reply count
-    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
-    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
     d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
     # Get all likes count
-    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = discussion_top5.count()
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
 
     '''
     Get Trending discussions for init show
     '''
     td_show_count = 2
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
 
     '''
     Get Subcommunities for init show
     '''
     sc_show_count = 4
     # default_last_access when last_access is null
-    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
-    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community_id).order_by('name')[0:sc_show_count]
-    sc_count = CommunityCommunities.objects.select_related().filter(main_id=community_id).count()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=communityID).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.select_related().filter(main_id=communityID).count()
     for k, item in enumerate(subcommunities):
         my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
                 last_access_time = default_last_access
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -1766,7 +1776,8 @@ def maincommunity(request, community_id):
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
-                      'likes_count': likes_count
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count
                       }
     data.update(community_info)
 
@@ -1782,12 +1793,13 @@ def subcommunity(request, community_id):
                          'error_message': 'You do not have access to this view in Pepper.'}
         return render_to_response('error.html', error_context)
 
+    communityID = community.id
     user = request.user
     data = dict()
 
     # Get dropdown data for create and edit community
     courses_drop = list()
-    courses_drop = get_dropdown_data(request.user, community_id)
+    courses_drop = get_dropdown_data(request.user, communityID)
     data = {'courses_drop': courses_drop}
 
     # Get default facilitator
@@ -1822,31 +1834,38 @@ def subcommunity(request, community_id):
 
     mongo3_store = community_discussions_store()
     # Get discussions count for Community Status
-    discussions_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussions"}).count()
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
     # Get all discussion and all reply count
-    replies_level1_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies"}).count()
-    replies_level2_count = mongo3_store.find({"community_id": 133, "db_table": "community_discussion_replies_next"}).count()
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
     d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
     # Get all likes count
-    likes_count = mongo3_store.find({"community_id": 133, "db_table": "community_like"}).count()
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = discussion_top5.count()
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
 
     '''
     Get Trending discussions for init show
     '''
     td_show_count = 2
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "date_create", -1)
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
 
     '''
     Get Subcommunities for init show
     '''
     sc_show_count = 4
     # default_last_access when last_access is null
-    default_last_access = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
     subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')[0:sc_show_count]
     sc_count = CommunityCommunities.objects.filter(main_id=community.main_id).count()
@@ -1856,7 +1875,7 @@ def subcommunity(request, community_id):
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
                 last_access_time = default_last_access
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -1873,7 +1892,7 @@ def subcommunity(request, community_id):
     mc_show_count = 2
     my_communities_list = list()
     items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')[0:mc_show_count]
-    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0),user=user).count()
+    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0), user=user).count()
     for k, item in enumerate(items):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
@@ -1912,7 +1931,8 @@ def subcommunity(request, community_id):
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
-                      'likes_count': likes_count
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count
                       }
     data.update(community_info)
 
@@ -2439,8 +2459,8 @@ def get_subcommunities_process(request):
         if my_subcommunity:
             last_access_time = my_subcommunity[0].last_access
             if not last_access_time:
-                last_access_time = datetime.datetime(2017, 1, 1, 0, 0, 0)
-            filter_cond = {"community_id": 133, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+                last_access_time = datetime.datetime(2018, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
                 count_new = '99+'
@@ -2457,12 +2477,13 @@ def get_trending_discussions_process(request):
         return HttpResponse(json.dumps({'success': False}), content_type='application/json')
 
     mongo3_store = community_discussions_store()
-    trending_cond = {"community_id": 133, "db_table": "community_discussions"}
-    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "date_create", -1)
+    trending_cond = {"community_id": int(community_id), "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "view_counter", -1)
     td_list = list()
     for td in trending_discussions:
         date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
-        td_list.append({"subject": td['subject'], "date_create": date_create_str, "jumpto": ""})
+        hyperlink = str(community_id) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
 
@@ -2502,65 +2523,108 @@ def new_discussion_process(request):
 @login_required
 def new_process_get_discussions(request):
     try:
-        # id = 0
+        hyperlink_v = request.POST.get('hyperlink_v', '')
+        hyperlink_d = request.POST.get('hyperlink_d', '')
+        hyperlink_c = request.POST.get('hyperlink_c', '')
+        hyperlink_nc = request.POST.get('hyperlink_nc', '')
         community_id = int(request.POST.get('community_id', 0))
         discussion_id = request.POST.get('discussion_id', '')
         size = int(request.POST.get('size', 0))
         reply_size = int(request.POST.get('reply_size', 0))
-        # page = int(request.POST.get('page', 0))
         mongo3_store = community_discussions_store()
         data = {'Success': False}
-        # skip = size * (page - 1)
         total = mongo3_store.get_community_discussions(community_id, 0, 0).count()
-        # if total > size * page:
-        #     all = "NO"
-        # elif total == 0:
-        #     all = "DONE"
-        # else:
-        #     all = "DONE"
 
-        # return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
-        if discussion_id:
-            find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+        hyperlink_find_sql = ""
+        if hyperlink_d:
+            hy_tmp1_view = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(hyperlink_d)})
+            if hy_tmp1_view is not None:
+                hy_total = mongo3_store.find_size_sort({"db_table": "community_discussions", "community_id": community_id, "date_create": {"$gte": hy_tmp1_view['date_create']}}, 0, 0, "date_create", -1).count()
+                if hy_total > size:
+                    hyperlink_find_sql = {"date_create": {"$gte": hy_tmp1_view['date_create']}, "community_id": community_id, "db_table": "community_discussions"}
+
+        if hyperlink_find_sql != "":
+            find_sql = hyperlink_find_sql
+            size = 0
         else:
-            find_sql = {"community_id": community_id, "db_table": "community_discussions"}
+            if discussion_id:
+                find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+            else:
+                find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
-        # discussions = mongo3_store.get_community_discussions(int(request.POST.get('community_id')), 0, size)
         discussions_json = []
-        for disc in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+        poll_connect = poll_store()
+        for disc in mongo3_store.get_community_discussions_cond(find_sql, 0, size):
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc['_id'])}, {"$inc": {"view_counter": 1}})
+
             user = User.objects.get(id=disc['user'])
             discussions_json_1 = {}
             discussions_json_1['child'] = []
-            # views_object = mongo3_store.find_one({"db_table": "view_counter", "type": "discussion", "identifier": str(disc["did"])})
-            # if views_object is None:
-            #     views = 0
-            # else:
-            #     views = views_object['views']
 
-            # re = mongo3_store.find({"db_table": "community_discussion_replies", "discussion_id": disc["did"]}).count(True)
+            has_poll = poll_connect.poll_exists('discussion', str(disc['_id']))
+            if has_poll:
+                tmp_data = poll_data('discussion', str(disc['_id']), request.user.id)
+                discussions_json_1['poll_str'] = str(tmp_data)
+                discussions_json_1['poll_question'] = tmp_data['question']
+                discussions_json_1['poll_answers'] = tmp_data['answers']
+                iterator = range(0, len(tmp_data['answers']))
+                discussions_json_1['poll_answers_list'] = []
+                for i in iterator:
+                    tmp_answer = {}
+                    tmp_answer['i'] = str(i)
+                    tmp_answer['answers'] = tmp_data['answers'][str(i)]
+                    tmp_answer['width'] = tmp_data['votes'][str(i)]['percent'] * 2
+                    tmp_answer['percent'] = tmp_data['votes'][str(i)]['percent']
+                    discussions_json_1['poll_answers_list'].append(tmp_answer)
+                    # discussions_json_1['poll_expiration'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_data['expiration'])
+
+                discussions_json_1['poll_expired'] = tmp_data['expired']
+                discussions_json_1['poll_user_answered'] = tmp_data['user_answered']
+                discussions_json_1['poll_votes'] = json.dumps(tmp_data['votes'])
+                discussions_json_1['poll_type'] = tmp_data['poll_type']
+                discussions_json_1['poll_id'] = str(tmp_data['poll_id'])
+
+            discussions_json_1['has_poll'] = has_poll
+
             total_2 = mongo3_store.find({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}).count(True)
-            # if total_2 > reply_size:
-            #     all_2 = "NO"
-            # elif total_2 == 0:
-            #     all_2 = "DONE"
-            # else:
-            #     all_2 = "DONE"
 
-            for itemx_1 in mongo3_store.find_size_sort({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}, 0, reply_size, "date_create", -1):
+            find_sql2 = {"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}
+            size2 = reply_size
+            if str(disc['_id']) == hyperlink_d:
+                if hyperlink_c:
+                    hy_tmp1_view2 = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(hyperlink_c)})
+                    if hy_tmp1_view2 is not None:
+                        hy_total2 = mongo3_store.find_size_sort({"db_table": "community_discussion_replies", "discussion_id": ObjectId(hyperlink_d), "date_create": {"$gte": hy_tmp1_view2['date_create']}}, 0, 0, "date_create", -1).count()
+
+                        if hy_total2 > reply_size:
+                            find_sql2 = {"date_create": {"$gte": hy_tmp1_view2['date_create']}, "discussion_id": ObjectId(hyperlink_d), "db_table": "community_discussion_replies"}
+                            size2 = 0
+
+            for itemx_1 in mongo3_store.find_size_sort(find_sql2, 0, size2, "date_create", -1):
+                mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(itemx_1['_id'])}, {"$inc": {"view_counter": 1}})
+
                 user_1 = User.objects.get(id=itemx_1['user'])
                 discussions_json_2 = {}
                 discussions_json_2['child'] = []
 
                 tmp_reply_next = ""
                 total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
-                if total_3 > int(reply_size):
-                    all_3 = "NO"
-                elif total_3 == 0:
-                    all_3 = "DONE"
-                else:
-                    all_3 = "DONE"
 
-                for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, reply_size, "date_create", -1):
+                find_sql3 = {"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}
+                size3 = reply_size
+                if str(itemx_1['_id']) == hyperlink_c:
+                    if hyperlink_nc:
+                        hy_tmp1_view3 = mongo3_store.find_one({"db_table": "community_discussion_replies_next", "_id": ObjectId(hyperlink_nc)})
+                        if hy_tmp1_view3 is not None:
+                            hy_total3 = mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(hyperlink_c), "date_create": {"$gte": hy_tmp1_view3['date_create']}}, 0, 0, "date_create", -1).count()
+
+                            if hy_total3 > reply_size:
+                                find_sql3 = {"date_create": {"$gte": hy_tmp1_view3['date_create']}, "replies_id": ObjectId(hyperlink_c), "db_table": "community_discussion_replies_next"}
+                                size3 = 0
+
+                for itemx_2 in mongo3_store.find_size_sort(find_sql3, 0, size3, "date_create", -1):
+                    mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(itemx_2['_id'])}, {"$inc": {"view_counter": 1}})
+
                     user_2 = User.objects.get(id=itemx_2['user'])
                     discussions_json_3 = {}
 
@@ -2659,7 +2723,6 @@ def new_process_get_discussions(request):
                 discussions_json_2['attachment_pict'] = attachment_pict_reply
                 discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
                 discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
-                # discussions_json_2['all'] = all_3
                 discussions_json_2['total'] = total_3
 
                 discussions_json_1['child'].append(discussions_json_2)
@@ -2721,13 +2784,11 @@ def new_process_get_discussions(request):
             discussions_json_1['attachment_pict'] = attachment_pict
             discussions_json_1['attachment_pict_name'] = attachment_pict_name
             discussions_json_1['attachment_pict_url'] = attachment_pict_url
-            # discussions_json_1['all'] = all_2
             discussions_json_1['total'] = total_2
 
             discussions_json.append(discussions_json_1)
 
         data['Success'] = True
-        # data['all'] = all
         data['total'] = total
         data['discussions_json'] = discussions_json
         data['community'] = request.POST.get('community_id')
@@ -3039,6 +3100,7 @@ def new_process_submit_comment(request):
                     "post": content,
                     "user": request.user.id,
                     "date_create": tmp_date_create,
+                    "view_counter": 0,
                     "db_table": "community_discussion_replies"
                 }
                 replies_id = mongo3_store.insert(my_discussion_post)
@@ -3118,6 +3180,7 @@ def new_process_submit_comment(request):
                         "post": content,
                         "user": request.user.id,
                         "date_create": tmp_date_create,
+                        "view_counter": 0,
                         "db_table": "community_discussion_replies_next"
                     }
                     replies_id = mongo3_store.insert(my_discussion_post)
@@ -3184,16 +3247,6 @@ def new_process_submit_comment(request):
                     data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
                     data['is_reply_next_liked'] = ""
                     data['like_reply_next_size'] = "0"
-            # rs = myactivitystore()
-            # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
-            # "URLValues": {"discussion_id": discussion.id},
-            # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id},
-            # "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
-            # rs.insert_item(my_activity)
-
-            # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
-            # discussion.date_reply = reply.date_create
-            # discussion.save()
 
             data["attachment"] = attachment_id
             data["attachment_url"] = attachment_url
@@ -3207,40 +3260,6 @@ def new_process_submit_comment(request):
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type='application/json')
-
-    # domain_name = request.META['HTTP_HOST']
-    # discussion = CommunityDiscussions.objects.get(id=discussion_id)
-    # reply = CommunityDiscussionReplies()
-    # reply.discussion = discussion
-    # reply.user = request.user
-    # reply.post = request.POST.get('post')
-    # reply.subject = request.POST.get('subject')
-    # if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
-    #     try:
-    #         attachment = FileUploads()
-    #         attachment.type = 'discussion_attachment'
-    #         attachment.sub_type = discussion_id
-    #         attachment.upload = request.FILES.get('attachment')
-    #         attachment.save()
-    #     except:
-    #         attachment = None
-    # else:
-    #     attachment = None
-    # if attachment:
-    #     reply.attachment = attachment
-    # reply.save()
-
-    # rs = myactivitystore()
-    # my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-    # "URLValues": {"discussion_id": discussion.id},
-    # "TokenValues": {"discussion_id": discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
-    # "LogoValues": {"discussion_id": discussion.id, "community_id": discussion.community.id}}
-    # rs.insert_item(my_activity)
-
-    # send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
-    # discussion.date_reply = reply.date_create
-    # discussion.save()
-    # return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
 
 
 # -------------------------------------------------------------------new_process_discussions_delete

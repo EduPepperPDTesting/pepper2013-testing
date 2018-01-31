@@ -333,6 +333,35 @@ div.filter {
 .imgBtn_my_calendar .icon {
     background-image:url(../images/icons/my_calendar.png);
 }
+
+.save_event {
+    margin-top: 10px;
+    margin-left: 50px;
+    width: 80%;
+}
+
+.imgBtn_add_outlook {
+    display: inline-block;
+    float: left;
+    font-size: .8em;
+}
+
+.imgBtn_add_google {
+    display: inline-block;
+    float: right;
+    font-size: .8em;
+}
+
+.imgBtn_add_outlook .icon {
+    background-image:url(../images/icons/Outlook-icon-300x300.png);
+    background-size: contain;
+}
+
+.imgBtn_add_google .icon {
+    background-image:url(../images/icons/google-calendar.png);
+    background-size: 90px 85px;
+}
+
 .imgBtn .icon {
     width:auto;
     height:40px;
@@ -575,4 +604,10 @@ table.students td{
     color:#fff !important;
     padding:5px 10px;
     font-size:20px !important;
+}
+
+#addNext {
+    position: relative;
+    font-size: 2em;
+    text-decoration: none;
 }
