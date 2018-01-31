@@ -49,6 +49,8 @@
 }
 
 .selectable_resource:hover {
+    position: relative;
+    display: inline-block;
     cursor:pointer;
     text-decoration:underline;
 }
@@ -93,13 +95,7 @@
   -webkit-transform: rotate(180deg);
   -o-transform: rotate(180deg);
 }
-.ttip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
-}
-
-.ttip .ttext {
+.selectable_resource .ttext {
     visibility: hidden;
     width: 120px;
     background-color: #555;
@@ -116,7 +112,7 @@
     transition: opacity 0.3s;
 }
 
-.ttip .ttext::after {
+.selectable_resource .ttext::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -127,7 +123,7 @@
     border-color: #555 transparent transparent transparent;
 }
 
-.ttip:hover .ttext {
+.selectable_resource:hover .ttext {
     visibility: visible;
     opacity: 1;
 }
