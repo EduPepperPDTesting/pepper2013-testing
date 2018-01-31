@@ -1557,6 +1557,8 @@
 	
     function new_cms_resource(data) {
         console.log(data);
+        $(".cms_items_cms_item:last").val(data.title);
+        $(".organizational_dashboard_cms_url:last").val(data.url);
     }
 
 	//-----------------------------------------------------------------------checkOrganization
