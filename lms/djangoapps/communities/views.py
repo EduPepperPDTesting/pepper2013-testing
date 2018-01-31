@@ -570,12 +570,12 @@ def discussion_add(request):
         fid = request.POST.get("fid", "")
         if not fid:
             community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
-            discussion = CommunityDiscussions()
-            discussion.community = community
-            discussion.user = request.user
-            discussion.post = request.POST.get('post')
-            discussion.subject = request.POST.get('subject')
-            discussion.save()
+            # discussion = CommunityDiscussions()
+            # discussion.community = community
+            # discussion.user = request.user
+            # discussion.post = request.POST.get('post')
+            # discussion.subject = request.POST.get('subject')
+            # discussion.save()
 
         mongo3_store = community_discussions_store()
         if fid:
@@ -597,9 +597,9 @@ def discussion_add(request):
                 "view_counter": 0,
                 "db_table": "community_discussions"
             }
-            disc_id = mongo3_store.insert(my_discussion_post)
+            disc_id = str(mongo3_store.insert(my_discussion_post))
 
-            back_data['_id'] = str(disc_id)
+            back_data['_id'] = disc_id
             back_data['community_id'] = long(request.POST.get('community_id'))
             back_data['user'] = request.user.id
             back_data['subject'] = request.POST.get('subject')
@@ -609,7 +609,7 @@ def discussion_add(request):
             back_data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
             back_data['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_datetime)
             back_data['pin'] = ""
-            back_data['like_size'] = "0"
+            back_data['like_size'] = ""
             back_data['like_first'] = ""
             back_data['like_last'] = ""
             back_data['is_liked'] = ""
@@ -621,7 +621,8 @@ def discussion_add(request):
             try:
                 attachment = FileUploads()
                 attachment.type = 'discussion_attachment'
-                attachment.sub_type = discussion.id
+                # attachment.sub_type = discussion.id
+                attachment.sub_type = disc_id
                 attachment.upload = request.FILES.get('attachment')
                 attachment.save()
 
@@ -640,10 +641,10 @@ def discussion_add(request):
             back_data['attachment_name'] = ""
             back_data['attachment_url'] = ""
 
-        if not fid:
-            if attachment:
-                discussion.attachment = attachment
-                discussion.save()
+        # if not fid:
+        #     if attachment:
+        #         discussion.attachment = attachment
+        #         discussion.save()
 
         if attachment:
             mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
@@ -651,20 +652,20 @@ def discussion_add(request):
         success = True
         if not fid:
             rs = myactivitystore()
-            my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-            "URLValues": {"discussion_id": discussion.id},
-            "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-            "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+            my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"discussion_id": disc_id},
+            "TokenValues": {"discussion_id": disc_id, "community_id": community.id},
+            "LogoValues": {"discussion_id": disc_id, "community_id": community.id}}
             rs.insert_item(my_activity)
 
-            discussion_id = discussion.id
-            send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
+            # discussion_id = disc_id
+            send_notification(request.user, community.id, discussions_new=[disc_id], domain_name=domain_name)
 
     except Exception as e:
         error = e
         success = False
-        discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': str(disc_id), 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+        # discussion_id = None
+    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': disc_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
 
 
 
@@ -3071,6 +3072,7 @@ def new_process_get_like_info(did, uid):
 @login_required
 def new_process_submit_comment(request):
     try:
+        domain_name = request.META['HTTP_HOST']
         disc_id = request.POST.get("disc_id", "")
         did = request.POST.get("did", "")
         fid = request.POST.get("fid", "")
@@ -3255,7 +3257,7 @@ def new_process_submit_comment(request):
             data["attachment_pict_url"] = attachment_pict_url
             data["attachment_pict_name"] = attachment_pict_name
             data["Success"] = True
-
+            send_notification(request.user, community_id, discussions_reply=[str(did)], domain_name=domain_name)
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -3266,15 +3268,17 @@ def new_process_submit_comment(request):
 @login_required
 def new_process_discussions_delete(request):
     try:
+        domain_name = request.META['HTTP_HOST']
         did = request.POST.get("discussion_id", "")  # parent_id
         cid = request.POST.get("comment_id", "")
         typex = request.POST.get("type", "")
         data = {'Success': False}
         # log.debug("================")
-
         if did and typex:
             mongo3_store = community_discussions_store()
             if typex == "main":
+                discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                send_notification(request.user, discussion['community_id'], discussions_delete=[str(did)], domain_name=domain_name)
                 mongo3_store.remove({"db_table": "community_discussion_replies_next", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
@@ -3285,7 +3289,8 @@ def new_process_discussions_delete(request):
 
             elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
-
+                discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                send_notification(request.user, discussion['community_id'], replies_delete=[str(did)], domain_name=domain_name)
                 if level == "2":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
                     mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})

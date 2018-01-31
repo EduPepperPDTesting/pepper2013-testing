@@ -6,6 +6,8 @@ from django.conf import settings
 import pymongo
 from collections import OrderedDict
 from bson import ObjectId
+import logging
+log = logging.getLogger("tracking")
 
 class CommunityCommunities(models.Model):
     class Meta:
@@ -217,6 +219,37 @@ class CommunityDiscussionsStore(MongoBaseStore):
         for itemx in self.collection.find({"db_table": "community_discussions"}).limit(1).sort("did", -1):
             max_id = int(itemx['did']) + 1
         return max_id
+
+    def get_id_by_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": int_mysqlid})
+
+        try:
+            discussion_id = ObjectId(discussion['_id'])
+        except:
+            pass
+
+        return discussion_id
+
+    def get_community_discussions_subject(self, discussion_id):
+        subject = 'No subject'
+        discussion = self.collection.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+        '''
+        if len(str(discussion_id)) < 15:
+            discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": discussion_id})
+        else:
+            discussion = self.collection.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+        '''
+        try:
+            subject = discussion['subject']
+        except:
+            pass
+        return subject
 
     # def get_community_discussion_replies(self, cond, page=0, size=10):
     #     return self.collection.find(cond).limit(size).skip(page).sort("date_create", 1)

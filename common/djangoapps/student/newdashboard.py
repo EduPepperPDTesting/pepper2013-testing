@@ -35,14 +35,14 @@ from django.http import HttpResponse
 from datetime import timedelta
 from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfile
 from permissions.utils import check_access_level
-from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers
+from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers, community_discussions_store
 from xmodule.remindstore import myactivitystore, myactivitystaticstore, chunksstore
 from courseware.courses import get_course_by_id, course_image_url, get_course_about_section 
 import comment_client as cc
 from reporting.models import Reports
 from django.core.urlresolvers import reverse
 from student.models import State,District,School,User,UserProfile
-from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem   
+from organization.models import OrganizationMetadata, OrganizationDistricts, OrganizationDashboard, OrganizationMenu, OrganizationMenuitem
 from django.http import HttpResponseRedirect
 from communities.views import get_trending
 from mongo_user_store import MongoUserStore
@@ -549,7 +549,7 @@ def get_my_activities(request):
     filter_con["year"] = request.POST.get('filter_year')
     filter_con["month"] = request.POST.get('filter_month')
     filter_con["group"] = request.POST.get('filter_group')
-    
+
     filter_key = create_filter_key(filter_con)
     order_key = "ActivityDateTime"
     order_order = -1
@@ -564,8 +564,22 @@ def get_my_activities(request):
         ma_dict = {}
 
         #URL
-        ma_dict["URL"] =  re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
-       
+        if data["EventType"] in ["community_creatediscussion", "community_replydiscussion", "community_replydiscussion2"]:
+            newdiscussion_url_pre = "/maincommunity"
+            community = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
+            if community:
+                if community[0].main_id:
+                    newdiscussion_url_pre = "/subcommunity"
+            if len(str(data["TokenValues"]["discussion_id"])) < 15:
+                data["TokenValues"]["discussion_id"] = community_discussions_store().get_id_by_mysqlid(data["TokenValues"]["discussion_id"])
+            ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["URL"])
+            ma_dict["URL"] = newdiscussion_url_pre + ma_dict["URL"]
+            #log.debug("====================")
+            #log.debug(type(data["TokenValues"]["discussion_id"]))
+            #log.debug(ma_dict["URL"])
+        else:
+            ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
+
         #GroupType
         ma_dict["g_type"] = data["GroupType"]
 
@@ -574,7 +588,7 @@ def get_my_activities(request):
 
         ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#','href=' + ma_dict["URL"])
 
-        get_logoInfo(data,ma_dict)
+        get_logoInfo(data, ma_dict)
 
         ma_list.append(ma_dict)
     return HttpResponse(json.dumps({'data': ma_list,'data_count':my_activities_count,'Success': 'True'}), content_type='application/json')
@@ -596,7 +610,14 @@ def get_displayInfo(data):
             dt['getby'] = t22[0]
             dt['key'] = data['TokenValues'][t22[1]]
             dt['key_name'] = t1[3]
-
+            '''
+            log.debug("---------------------------")
+            log.debug(data['EventType'])
+            log.debug(dt['key'])
+            log.debug("---")
+            log.debug(dt['key_name'])
+            log.debug("===========================")
+            '''
             try:
                 value = data['LogoValues'][dt['key_name']]
             except:

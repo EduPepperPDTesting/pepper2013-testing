@@ -6,7 +6,7 @@ from django import db
 import json
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.contrib.auth.decorators import login_required
-from models import CommunityNotificationConfig, CommunityNotificationGroup, CommunityNotificationType, CommunityNotificationAudit
+from models import CommunityNotificationConfig, CommunityNotificationGroup, CommunityNotificationType, CommunityNotificationAudit, community_discussions_store
 from django.http import HttpResponse
 import re
 from .models import CommunityCommunities, CommunityUsers
@@ -16,6 +16,7 @@ import sys
 import logging
 from xmodule.course_module import CourseDescriptor
 from pepper_utilities.utils import full_reverse
+from bson import ObjectId
 
 log = logging.getLogger("tracking")
 
@@ -326,16 +327,31 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     values["Member List"] = item
 
                 if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
-                    values["Subject"] = item.subject
-                    values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
-                    if domain_name:
-                        if type_name == "New Discussion":
-                            discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.id)
-                            values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
-                        elif type_name in ["Reply Discussion", "Delete Reply"]:
-                            discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
-                            values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
-
+                    if isinstance(item,str):
+                        mongo3_store = community_discussions_store()
+                        discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(item)})
+                        user = User.objects.get(id=int(discussion['user']))
+                        subject = discussion['subject']
+                        values["Subject"] = subject
+                        values["Posted By"] = "%s %s" % (user.first_name, user.last_name)
+                        discussion['community_id']
+                        if domain_name:
+                            if type_name == "New Discussion":
+                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+                            elif type_name in ["Reply Discussion", "Delete Reply"]:
+                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+                    else:
+                        values["Subject"] = item.subject
+                        values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
+                        if domain_name:
+                            if type_name == "New Discussion":
+                                discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.id)
+                                values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
+                            elif type_name in ["Reply Discussion", "Delete Reply"]:
+                                discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
+                                values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
                 # Send the notification
                 body = replace_values(type.body or "", values)
                 subject = replace_values(type.subject or "", values)
