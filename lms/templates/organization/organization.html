@@ -172,6 +172,17 @@
 	.org_assignment_qualifications_item .oaq_title{font-weight:bold;}
 	
 	.ui-datepicker-current{display:none;}
+
+    .cms_items_url {
+        padding-right: 28px !important;
+    }
+    .cms_items_url_external img {
+        height: 18px;
+        width: 18px;
+        position: absolute;
+        right: 12px;
+        top: 8px;
+    }
 </style>
 
 <!--Main Page Configuration-->
@@ -212,7 +223,7 @@
                     <td colspan="2"><input type="text" id="organizational_base_main_page_button_link" ></td>
                 </tr>
             </table>
-			<div style="width:100%; text-align:right; height:30px;">
+            <div style="width:100%; text-align:right; height:30px;">
                 <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
             </div>
             <div class="design_main">
@@ -458,7 +469,8 @@
 			      	</div>
 			    </div>
 			</div>
-        </div>        
+			</div>
+        </div>
     </div>
 </div>
 
@@ -529,7 +541,7 @@
                                     <th><!--<input type="checkbox" value="" id="organization-table2_all">--></th>
                                 </tr>
                             </thead>
-                            <tbody>                      
+                            <tbody>
                                 <tr>
                                     <td><span class="org_table_menu1 org_icon_up" id="org_dataitems_profile">Profile</span></td>
                                     <td></td>
@@ -543,11 +555,11 @@
                     </td>
                 </tr>
             </table>
-            <div style="width:90%; text-align:right; height:30px;">	
+            <div style="width:90%; text-align:right; height:30px;">
 				<input type="button" value="REMOVE SELECTED" class="small_btn" id="btn_profile_remove" />
                 <input type="button" value="ADD" class="small_btn" id="btn_profile_add" />
             </div>
-            <div style="width:100%; text-align:right; height:30px;">	
+            <div style="width:100%; text-align:right; height:30px;">
 				<input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
                 <input type="button" value="Save" class="small_btn org_btn_last_save" />
             </div>
@@ -950,6 +962,11 @@
                 <td></td>
             </tr>
             <tr>
+                <td>
+                    <input id="cms_popup" type ="button" value="CMS Resource">
+                </td>
+            </tr>
+            <tr>
                 <td colspan="3" class="org_td1">
                 	<div class="organizational_dashboard_cms_div">
                     	<div class="organizational_dashboard_cms_head1">
@@ -963,7 +980,7 @@
                         </div>
                         <div class="organizational_dashboard_cms_body1">
                             <span class="organizational_dashboard_cms_item"><input type="text" class="cms_items_cms_item" /></span>
-                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /></span>
+                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /><a href="#" class="cms_items_url_external"><img src="/static/images/external-link.png" /></a></span>
                             <span class="organizational_dashboard_cms_icon"><input type="file" class="cms_items_icon" id="cms_items_icon_1" name="cms_items_icon_1"></span>
                             <span class="organizational_dashboard_cms_icon_view"></span>
                             <span class="organizational_dashboard_cms_grade"><input type="text" class="cms_items_grade" /></span>
@@ -1263,6 +1280,9 @@
     </div>
 </div>
 
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
 	var org_current_id = "";
 	var design_current_id = ""
@@ -1532,6 +1552,10 @@
 		}
 	};
 	
+    function new_cms_resource(data) {
+        console.log(data);
+    }
+
 	//-----------------------------------------------------------------------checkOrganization
 	function checkOrganization(name, oid) {
 		var valid = true;
@@ -3693,6 +3717,18 @@
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
+        $.post("${reverse('cms_popup')}",{}, function(e){
+            $("#cms_dialog").html(e);
+        });
+        $("#cms_popup").click(function() {
+            $("#cms_dialog").show();
+            var callback = $.Callbacks();
+            callback.add(new_cms_resource);
+            initializeCMSPopup(callback);
+        });
+        $("body").on("click", "#cms_close", function () {
+            $("#cms_dialog").hide();
+        })
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
