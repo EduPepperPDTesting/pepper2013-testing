@@ -93,13 +93,13 @@
   -webkit-transform: rotate(180deg);
   -o-transform: rotate(180deg);
 }
-.tooltip {
+.ttip {
     position: relative;
     display: inline-block;
     border-bottom: 1px dotted black;
 }
 
-.tooltip .tooltiptext {
+.ttip .ttext {
     visibility: hidden;
     width: 120px;
     background-color: #555;
@@ -116,7 +116,7 @@
     transition: opacity 0.3s;
 }
 
-.tooltip .tooltiptext::after {
+.ttip .ttext::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -127,7 +127,7 @@
     border-color: #555 transparent transparent transparent;
 }
 
-.tooltip:hover .tooltiptext {
+.ttip:hover .ttext {
     visibility: visible;
     opacity: 1;
 }

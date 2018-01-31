@@ -115,7 +115,7 @@ function librariesSelector() {
             results = callAPI("search", data);
             res_html = "";
             $.each(results, function (i) {
-                res_html += "<div class='selectable_resource tooltip' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='tooltiptext'>";
+                res_html += "<div class='selectable_resource ttip' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
                 res_html += results[i].subject_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
             });
             $(this).parent().next().html(res_html);
@@ -151,7 +151,7 @@ function reloadPage () {
     results = callAPI ("search", data);
     res_html = "";
     $.each(results, function(i) {
-        res_html += "<div class='selectable_resource tooltip' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='tooltiptext'>";
+        res_html += "<div class='selectable_resource ttip' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
         res_html += results[i].subject_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
 
     });
@@ -243,7 +243,7 @@ function makeResourceTree (package_id, offset) {
         return html;
     }
     $.each(resources, function(i) {
-        html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource tooltip' data-title='"+resources[i].title+"' data-url='"+resources[i].url+"'>"+resources[i].title+"<span class='tooltiptext'>";
+        html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource ttip' data-title='"+resources[i].title+"' data-url='"+resources[i].url+"'>"+resources[i].title+"<span class='ttext'>";
         html += resources[i].subject_area + "<br>" + resources[i].grades + "<br><a target='_blank' href='" + resources[i].url + "'>View Resource</a></span></div>";
     });
     html += "</div>";
