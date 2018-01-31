@@ -2861,7 +2861,7 @@
             tablesorterOptions.widgetOptions.filter_functions = filter_functions;
 
             $("#data-table").tablesorter(tablesorterOptions);
-
+            console.log(tablesorterOptions);
             $("#data-table").trigger("update");
 
             $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
