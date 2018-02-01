@@ -330,11 +330,10 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     if isinstance(item,str):
                         mongo3_store = community_discussions_store()
                         discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(item)})
-                        user = User.objects.get(id=int(discussion['user']))
+                        createuser = User.objects.get(id=int(discussion['user']))
                         subject = discussion['subject']
                         values["Subject"] = subject
-                        values["Posted By"] = "%s %s" % (user.first_name, user.last_name)
-                        discussion['community_id']
+                        values["Posted By"] = "%s %s" % (createuser.first_name, createuser.last_name)
                         if domain_name:
                             if type_name == "New Discussion":
                                 discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
