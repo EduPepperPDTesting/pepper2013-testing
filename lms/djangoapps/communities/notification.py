@@ -313,7 +313,10 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     "Receiver Last Name": user.last_name}
 
                 if domain_name:
-                    community_url = "https://" + domain_name + "/community/" + str(community.id)
+                    if community.main_id:
+                        community_url = "https://" + domain_name + "/subcommunity/" + str(community.id)
+                    else:
+                        community_url = "https://" + domain_name + "/maincommunity/" + str(community.id)
                     values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
 
                 if type_name == "Delete Course" or type_name == "Add Course":
@@ -330,17 +333,22 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     if isinstance(item,str):
                         mongo3_store = community_discussions_store()
                         discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(item)})
-                        user = User.objects.get(id=int(discussion['user']))
+                        createuser = User.objects.get(id=int(discussion['user']))
                         subject = discussion['subject']
                         values["Subject"] = subject
-                        values["Posted By"] = "%s %s" % (user.first_name, user.last_name)
-                        discussion['community_id']
+                        values["Posted By"] = "%s %s" % (createuser.first_name, createuser.last_name)
                         if domain_name:
                             if type_name == "New Discussion":
-                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                if community.main_id:
+                                    discussion_topic_url = "https://" + domain_name + "/subcommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                else:
+                                    discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
                                 values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
                             elif type_name in ["Reply Discussion", "Delete Reply"]:
-                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                if community.main_id:
+                                    discussion_topic_url = "https://" + domain_name + "/subcommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                else:
+                                    discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
                                 values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
                     else:
                         values["Subject"] = item.subject
