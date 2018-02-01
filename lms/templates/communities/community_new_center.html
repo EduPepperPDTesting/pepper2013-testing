@@ -12,7 +12,7 @@ from file_uploader.utils import get_file_url, get_file_name
 
 import pymongo
 from django.contrib.auth.models import User
-from communities.models import CommunityDiscussions, CommunityDiscussionReplies, community_discussions_store
+from communities.models import CommunityDiscussions, CommunityDiscussionReplies, community_discussions_store, CommunityPosts, CommunityComments
 from polls.models import poll_store
 from collections import OrderedDict
 from view_counter.models import view_counter_store
@@ -96,6 +96,37 @@ if is_new:
             "db_table": "community_discussion_replies"
         }
         store.insert(my_discussion_reply)  
+    
+    posts = CommunityPosts.objects.all().order_by('id')
+    for post in posts:
+        my_post_post = {
+            "mysql_id": post.id, 
+            "community_id": post.community_id, 
+            "subject": "", 
+            "post": post.post, 
+            "user": post.user_id, 
+            "date_create": post.date_create, 
+            "date_reply": post.date_update,
+            "view_counter": 0,
+            "db_table": "community_discussions"
+        }
+        store.insert(my_post_post)
+        
+    post_replies = CommunityComments.objects.all().order_by('id')
+    for replies in post_replies:
+        dis_one = store.get_item({"db_table":"community_discussions", "mysql_id":replies.post_id})
+        my_post_reply = {
+            "mysql_id": replies.id, 
+            "discussion_mysql_id": replies.post_id, 
+            "discussion_id": dis_one['_id'], 
+            "community_id": dis_one['community_id'],
+            "post": replies.comment,
+            "user": replies.user_id, 
+            "date_create": replies.date_create,
+            "view_counter": 0,
+            "db_table": "community_discussion_replies"
+        }
+        store.insert(my_post_reply)  
 %>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/static/js/vendor/jquery.form.js"></script>
@@ -197,7 +228,7 @@ div.cke {
     width: 580px;
 }
 .modal-discussion {
-    position: absolute;
+    position:fixed;
     opacity: 1;
     z-index: 101;
     left: 50%;
@@ -323,7 +354,7 @@ function addNewDiscussion(fid, subject, post){
 	if(!post) post = "";
 	if(!fid) fid = "";
 	
-	window.scrollTo(0, 10);
+	//window.scrollTo(0, 10);
 	var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
 	content += '<label class="discussion-subject">Subject:<input type="text" name="subject" value="' + subject + '"></label>';
 	content += '<label class="discussion-post">Discussion:<textarea name="post" id="post">' + post + '</textarea></label>';
@@ -1241,9 +1272,15 @@ function addCommunityDiscussionEvent(){
 	
 	//---------------------------------------------------------dis_post click
 	$(".dis_post").unbind("click").click(function(){
-		$(this).css("height","auto");
-		$(this).css("overflow","auto");
-		$(this).css("cursor","default");
+		if($(this).hasClass("isClicked")){
+			$(this).removeClass("isClicked");
+			$(this).css("height","26px");
+			//$(this).css("overflow","auto");
+			//$(this).css("cursor","default");
+		}else{
+			$(this).addClass("isClicked");
+			$(this).css("height","auto");
+		}
 	});
 	
 	//---------------------------------------------------------reply_liked each
