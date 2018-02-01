@@ -313,10 +313,10 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     "Receiver Last Name": user.last_name}
 
                 if domain_name:
-                    if isinstance(item,str):
-                        community_url = "https://" + domain_name + "/maincommunity/" + str(community.id)
+                    if community.main_id:
+                        community_url = "https://" + domain_name + "/subcommunity/" + str(community.id)
                     else:
-                        community_url = "https://" + domain_name + "/community/" + str(community.id)
+                        community_url = "https://" + domain_name + "/maincommunity/" + str(community.id)
                     values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
 
                 if type_name == "Delete Course" or type_name == "Add Course":
@@ -339,10 +339,16 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                         values["Posted By"] = "%s %s" % (createuser.first_name, createuser.last_name)
                         if domain_name:
                             if type_name == "New Discussion":
-                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                if community.main_id:
+                                    discussion_topic_url = "https://" + domain_name + "/subcommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                else:
+                                    discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
                                 values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
                             elif type_name in ["Reply Discussion", "Delete Reply"]:
-                                discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                if community.main_id:
+                                    discussion_topic_url = "https://" + domain_name + "/subcommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
+                                else:
+                                    discussion_topic_url = "https://" + domain_name + "/maincommunity/" + str(discussion['community_id']) + '?v=1&d=' + str(discussion['_id'])
                                 values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
                     else:
                         values["Subject"] = item.subject
