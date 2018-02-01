@@ -313,7 +313,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     "Receiver Last Name": user.last_name}
 
                 if domain_name:
-                    community_url = "https://" + domain_name + "/community/" + str(community.id)
+                    community_url = "https://" + domain_name + "/maincommunity/" + str(community.id)
                     values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
 
                 if type_name == "Delete Course" or type_name == "Add Course":
