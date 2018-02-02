@@ -49,6 +49,8 @@
 }
 
 .selectable_resource:hover {
+    position: relative;
+    display: inline-block;
     cursor:pointer;
     text-decoration:underline;
 }
@@ -66,6 +68,7 @@
     color:black;
 }
 #cms_dialog {
+    position: fixed;
     width: 40% !important;
     height: 80% !important;
     top: 10% !important;
@@ -92,4 +95,36 @@
   -moz-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
   -o-transform: rotate(180deg);
+}
+.selectable_resource .ttext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding-left: 6px;
+}
+
+.selectable_resource .ttext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.selectable_resource:hover .ttext {
+    visibility: visible;
+    opacity: 1;
 }

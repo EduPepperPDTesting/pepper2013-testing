@@ -1248,7 +1248,9 @@ def get_inital(request,now_utc):
         inital = []
         pepper = []
         for v2 in organization_id:
-            inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+            initial_button = OrganizationMenu.objects.get(organization=v2,itemType="Initial Pepper Announcement")
+            if initial_button.itemValue == '1':
+                inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
 
         inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
         
