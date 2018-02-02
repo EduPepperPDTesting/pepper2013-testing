@@ -814,7 +814,6 @@
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
 					if (reg) {
-					    var warningData = '';
 					    console.log("trID=" + trID);
 					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
                             console.log("data.name=" + data.name);
@@ -825,10 +824,11 @@
                                 warningData += data.name + "|";
                                 warningData += data.description + "|";
                                 warningData += data.classroom + " " + data.geo_location;
+                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+					        }else{
+						        pepreg.warning("Thank you for registering/recording attendance for this training!");
 					        }
 					    });
-					    console.log("warningData=" + warningData);
-						pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
 					} else {
 						pepreg.warning("Thank you! You are no longer registered for this training.");
                     }
