@@ -394,9 +394,6 @@ a{
 }
 .community-left .discussion-subject{
     font-size: 13px;
-}
-.community-left .discussion-subject a{
-    font-size: 13px;
     color:#000;
 }
 .community-left .discussion-date .posted{
@@ -916,10 +913,12 @@ a{
                         %else:
                         <div class="every-discussion">
                         %endif
-                            <div class="discussion-subject overflow-text"><a href="/subcommunity/${td['hyperlink']}">${td['subject']}</a></div>
+                            <a href="/subcommunity/${td['hyperlink']}">
+                            <div class="discussion-subject overflow-text">${td['subject']}</div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
+                            </a>
                         </div>   
                     %endfor
                     %if discussions_count > td_show_count and discussions_count > 0 and td_show_count > 0:
