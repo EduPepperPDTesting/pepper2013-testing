@@ -814,13 +814,13 @@
 			    $("#calendar_alert_title").hide();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
 					if (reg) {
+					    var warningData = '';
 					    console.log("trID=" + trID);
 					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
                             console.log("data.name=" + data.name);
                             console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
-                            var warningData = '';
 					        if(data.name !== "" && data.name !== "undefined") {
-					            warningData += data.training_date + " " + data.training_time_start + "|";
+					            warningData = data.training_date + " " + data.training_time_start + "|";
                                 warningData += data.training_date + " " + data.training_time_end + "|";
                                 warningData += data.name + "|";
                                 warningData += data.description + "|";
