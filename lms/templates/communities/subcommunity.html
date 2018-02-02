@@ -193,7 +193,9 @@ a{
     border:0 !important;
 }
 .modal{
-    padding: 0 0 8px 0;
+    /*padding: 0 0 8px 0;*/
+    padding:0px;
+    border-radius:5px;
 }
 /*--------------community all--------------*/
 .content-wrapper-community{
@@ -824,7 +826,7 @@ a{
                                 <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
-                                <div class="f-rights-line">Delete Community</div>
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
                                 <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
@@ -855,7 +857,7 @@ a{
                                 <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
-                                <div class="f-rights-line">Delete Community</div>
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
                                 <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
@@ -1045,7 +1047,7 @@ a{
 </section>
 
 <!--Windows modal-->
-<div style="" id="dialog" class="modal">
+<div id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -1495,6 +1497,24 @@ a{
         $(this).hide();
         get_trending_ajax(${community_id});
     });
+
+    function deleteCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Delete Community", "Are you sure delete this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                console.log("delete community");
+                /*
+                $.post("${reverse('community_leave',args=[community_id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                        window.location.replace("${reverse('maincommunity', args=[community_id])}");
+                });
+                */
+            }
+        });
+    }
 </script>
 <script type="text/javascript">
     function newCourse() {

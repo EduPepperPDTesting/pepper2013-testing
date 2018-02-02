@@ -2506,7 +2506,7 @@
         $("#data-table").bind("pagerComplete", function () {
             var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
             if (is_superuser) {
-                $(this).trigger('refreshColumnSelector', [[0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
+                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else if (is_admin) {
                 $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
             } else {
