@@ -822,8 +822,9 @@
 					            warningData = data.training_date + " " + data.training_time_start + "|";
                                 warningData += data.training_date + " " + data.training_time_end + "|";
                                 warningData += data.name + "|";
-                                warningData += (( data.description.indexOf("<a href") > -1 )? data.description.substring(data.description.indexOf("href = '") + 7, data.description.indexOf("' target")): data.description) + "|";
-                                warningData += data.classroom + " " + data.geo_location;
+                                warningData += data.description + "|";
+                                warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 7, data.classroom.indexOf("' target")): data.classroom;
+                                warningData += " " + data.geo_location;
                                 pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
 					        }else{
 						        pepreg.warning("Thank you for registering/recording attendance for this training!");
