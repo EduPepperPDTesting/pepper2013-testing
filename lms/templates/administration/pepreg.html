@@ -818,6 +818,7 @@
 					    console.log("trID=" + trID);
 					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
                             console.log("data.name=" + data.name);
+                            console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
 					        if(data.name !== "" && data.name !== "undefined") {
 					            warningData += data.training_date + " " + data.training_time_start + "|";
                                 warningData += data.training_date + " " + data.training_time_end + "|";
@@ -2565,7 +2566,7 @@
                                     console.log("~3");
                                     if (reg){
                                         var DataRow = thisCheck.closest("tr");
-                                        warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                        warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
                                         warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
                                         warningData += DataRow.find("td:eq(5)").text() + "|";
                                         warningData += DataRow.find("td:eq(6)").text() + "|";
