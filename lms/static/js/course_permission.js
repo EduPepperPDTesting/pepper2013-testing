@@ -82,7 +82,7 @@ CoursePermission.prototype.save = function(send_notification){
                 courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
             enroll.push(e);
-            closed.push(c);
+            course_closed.push(c);
         }
     });
     if(!courses.length && !global_all_course){
@@ -103,7 +103,7 @@ CoursePermission.prototype.save = function(send_notification){
         courses: courses.join(","),
         access: access.join(","),
         enroll: enroll.join(","),
-        closed: closed.join(",")
+        closed: course_closed.join(",")
     }
     filter = $.extend(filter, user_filter);
     filter = $.extend(filter, course_filter);
