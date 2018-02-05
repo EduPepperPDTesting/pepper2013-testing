@@ -45,7 +45,7 @@ CoursePermission.prototype.checkTaskProgress = function(taskId){
 CoursePermission.prototype.save = function(send_notification){
     var self = this;
     // make filter
-    var users = [], courses = [], access = [], enroll = [];
+    var users = [], courses = [], access = [], enroll = [], course_closed = [];
     var global_all_user = $('#course_permission_user .tablesorter-blue .check-all').is(":checked");
     var select_user_manual = $('#course_permission_user .tablesorter-blue .check-manual').is(":checked");
     var select_user_current_page = $('#course_permission_user .tablesorter-blue .check-current-page').is(":checked");

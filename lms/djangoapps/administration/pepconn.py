@@ -2089,22 +2089,12 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
 
     # ** enroll
     if enroll == 1:
-        if closed == 1:
-            enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-            if created or not enr.is_active:
-                enr.is_active = True
-                enr.closed = True
-                enr.save()
-                if send_notification:
-                    send_course_notification(request, user, course, "Add Course Enroll", user.id)
-        else:
-            enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-            if created or not enr.is_active:
-                enr.is_active = True
-                enr.closed = False
-                enr.save()
-                if send_notification:
-                    send_course_notification(request, user, course, "Add Course Enroll", user.id)
+        enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
+        if created or not enr.is_active:
+            enr.is_active = True
+            enr.save()
+            if send_notification:
+                send_course_notification(request, user, course, "Add Course Enroll", user.id)
     elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
@@ -2113,6 +2103,18 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
             enr.save()
             if send_notification:
                 send_course_notification(request, user, course, "Remove Course Enroll", user.id)
+
+    if closed == 1:
+        enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
+        if created or not enr.is_closed: 
+            enr.is_closed = True
+            enr.save()
+    else:
+        find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_closed=True)
+        if find.exists():
+            enr = find[0]
+            enr.is_closed = False
+            enr.save()
 
 
 @login_required
@@ -2271,12 +2273,18 @@ def course_permission_load_csv(request):
                 course = get_course_by_id(course_id)
                 e = 1 if (conf == "enrollment") else -1
                 a = 1 if (e == 1 or (conf == "access")) else -1
-                
+                if (conf == "closed"){
+                    a = 1
+                    e = 1
+                    c = 1
+                }else{
+                    c = -1
+                }
                 task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                 task.update_time = task.create_time
                 task.title = "update user %s" % user.email
 
-                _update_user_course_permission(request, user, course, a, e)
+                _update_user_course_permission(request, user, course, a, e, c)
                 
                 done_count += 1
                 task.status = "continue"
