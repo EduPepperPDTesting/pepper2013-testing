@@ -227,7 +227,7 @@ a{
     width: 250px;
     float:left;
     background-color: #fff;
-    padding-bottom: 50px;
+    padding-bottom: 35px;
 }
 .facilitator-info{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
@@ -325,7 +325,7 @@ a{
    font-size:13px;color:#999;cursor: pointer; 
 }
 .community-left .trendings{
-    width:224px;border:1px solid #ccc;height:152px;overflow-y:auto;
+    width:224px;border:1px solid #ccc;height:330px;overflow-y:auto;
 }
 .community-left .every-discussion{
     width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
@@ -350,7 +350,7 @@ a{
     float:left;
     background-color: #fff;
     /*height:632px;*/
-    padding-bottom: 50px;
+    padding-bottom: 35px;
     
     border: 0px solid;
 }
@@ -834,13 +834,18 @@ a{
                 <div class="sub-title">Trending</div>
                 <div class="trendings">
                     %for k, td in enumerate(td_list):
+                        <% 
+                            t_subject_show = td['subject']
+                            if not t_subject_show:
+                                t_subject_show = "[image/video]"
+                        %>
                         %if k + 1 == len(td_list):
                         <div class="every-discussion border-zero">
                         %else:
                         <div class="every-discussion">
                         %endif
                             <a href="/maincommunity/${td['hyperlink']}">
-                            <div class="discussion-subject overflow-text">${td['subject']}</div>
+                            <div class="discussion-subject overflow-text">${t_subject_show}</div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
@@ -955,7 +960,7 @@ a{
                         %else:
                         <div class="every-resource overflow-text">
                         %endif
-                            <a href="${resource['link']}" target="_blank">${resource['name']}</a>
+                            <div><a href="${resource['link']}" target="_blank">${resource['name']}</a></div>
                         </div>
                     %endfor
                     %if re_count > re_show_count and re_count > 0 and re_show_count > 0:
@@ -1392,11 +1397,12 @@ a{
                     else{
                         html += '<div class="every-discussion">';
                     }
-                    html += '<div class="discussion-subject overflow-text"><a href="/maincommunity/'+d.trending[i].hyperlink+'">'+d.trending[i].subject+'</a></div>';
+                    html += '<a href="/maincommunity/'+d.trending[i].hyperlink+'">';
+                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
                     html += '<div class="discussion-date">';
                     html += '<span class="posted">Posted: </span>';
                     html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
-                    html += '</div></div>';
+                    html += '</div></a></div>';
                 }
                 $('.trendings').html(html);
             }

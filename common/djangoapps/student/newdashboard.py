@@ -564,19 +564,20 @@ def get_my_activities(request):
         ma_dict = {}
 
         #URL
-        if data["EventType"] in ["community_creatediscussion", "community_replydiscussion", "community_replydiscussion2"]:
-            newdiscussion_url_pre = "/maincommunity"
-            community = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
-            if community:
-                if community[0].main_id:
-                    newdiscussion_url_pre = "/subcommunity"
+        if data["EventType"] in ["community_creatediscussion", "community_replydiscussion", "community_replydiscussion2",
+                                 "subcommunity_creatediscussion", "subcommunity_replydiscussion", "subcommunity_replydiscussion2"]:
             if len(str(data["TokenValues"]["discussion_id"])) < 15:
-                data["TokenValues"]["discussion_id"] = community_discussions_store().get_id_by_mysqlid(data["TokenValues"]["discussion_id"])
+                data["TokenValues"]["discussion_id"] = community_discussions_store().get_did_by_mysqlid(data["TokenValues"]["discussion_id"])
             ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["URL"])
-            ma_dict["URL"] = newdiscussion_url_pre + ma_dict["URL"]
             #log.debug("====================")
             #log.debug(type(data["TokenValues"]["discussion_id"]))
             #log.debug(ma_dict["URL"])
+        elif data["EventType"] in ["community_createPost", "community_commentPost"]:
+            if data["EventType"] == "community_createPost":
+                data["TokenValues"]["discussion_id"] = community_discussions_store().get_did_by_post_mysqlid(data["TokenValues"]["post_id"])
+            else:
+                data["TokenValues"]["discussion_id"] = community_discussions_store().get_did_by_postcomment_mysqlid(data["TokenValues"]["post_id"])
+            ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["URL"])
         else:
             ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
 

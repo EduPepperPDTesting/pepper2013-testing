@@ -220,7 +220,8 @@ class CommunityDiscussionsStore(MongoBaseStore):
             max_id = int(itemx['did']) + 1
         return max_id
 
-    def get_id_by_mysqlid(self, mysql_id):
+    # For old discussion
+    def get_did_by_mysqlid(self, mysql_id):
         discussion_id = '0'
 
         try:
@@ -231,6 +232,40 @@ class CommunityDiscussionsStore(MongoBaseStore):
 
         try:
             discussion_id = ObjectId(discussion['_id'])
+        except:
+            pass
+
+        return discussion_id
+
+    # For old post
+    def get_did_by_post_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": int_mysqlid, "subject": ""})
+
+        try:
+            discussion_id = ObjectId(discussion['_id'])
+        except:
+            pass
+
+        return discussion_id
+
+    # For old post comment
+    def get_did_by_postcomment_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussion_replies", "mysql_id": int_mysqlid, "subject": ""})
+
+        try:
+            discussion_id = discussion['discussion_id']
         except:
             pass
 

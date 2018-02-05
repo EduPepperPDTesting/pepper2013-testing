@@ -1699,7 +1699,7 @@ def maincommunity(request, community_id):
     '''
     Get Trending discussions for init show
     '''
-    td_show_count = 2
+    td_show_count = 5
     trending_cond = discussion_cond
     trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
@@ -1752,7 +1752,7 @@ def maincommunity(request, community_id):
     re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
@@ -1852,7 +1852,7 @@ def subcommunity(request, community_id):
     '''
     Get Trending discussions for init show
     '''
-    td_show_count = 2
+    td_show_count = 5
     trending_cond = discussion_cond
     trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
@@ -1905,7 +1905,7 @@ def subcommunity(request, community_id):
     re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
