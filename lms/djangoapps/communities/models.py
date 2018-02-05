@@ -262,7 +262,7 @@ class CommunityDiscussionsStore(MongoBaseStore):
             int_mysqlid = int(mysql_id)
         except:
             return discussion_id
-        discussion = self.collection.find_one({"db_table": "community_discussion_replies", "mysql_id": int_mysqlid, "subject": ""})
+        discussion = self.collection.find_one({"db_table": "community_discussion_replies", "mysql_id": int_mysqlid, "post_reply": "1"})
 
         try:
             discussion_id = discussion['discussion_id']
