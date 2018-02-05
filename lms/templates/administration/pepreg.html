@@ -2763,7 +2763,7 @@
                 });
             }else{
                 filters = $.tablesorter.getFilters($("#data-table"));
-                filters[suborder] = "";
+                filters[parseInt(suborder)] = "";
                 $.tablesorter.setFilters($("#data-table"), filters, true);
             }
         });
