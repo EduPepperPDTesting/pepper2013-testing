@@ -194,7 +194,9 @@ a{
     border:0 !important;
 }
 .modal{
-    padding: 0 0 8px 0;
+    /*padding: 0 0 8px 0;*/
+    padding:0px;
+    border-radius:5px;
 }
 /*--------------community all--------------*/
 .content-wrapper-community{
@@ -225,7 +227,7 @@ a{
     width: 250px;
     float:left;
     background-color: #fff;
-    padding-bottom: 50px;
+    padding-bottom: 35px;
 }
 .facilitator-info{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
@@ -323,15 +325,12 @@ a{
    font-size:13px;color:#999;cursor: pointer; 
 }
 .community-left .trendings{
-    width:224px;border:1px solid #ccc;height:152px;overflow-y:auto;
+    width:224px;border:1px solid #ccc;height:330px;overflow-y:auto;
 }
 .community-left .every-discussion{
     width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
 }
 .community-left .discussion-subject{
-    font-size: 13px;
-}
-.community-left .discussion-subject a{
     font-size: 13px;
     color:#000;
 }
@@ -351,7 +350,7 @@ a{
     float:left;
     background-color: #fff;
     /*height:632px;*/
-    padding-bottom: 50px;
+    padding-bottom: 35px;
     
     border: 0px solid;
 }
@@ -756,7 +755,7 @@ a{
                                 <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
-                                <div class="f-rights-line">Delete Community</div>
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
                                 <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
@@ -787,7 +786,7 @@ a{
                                 <div class="f-rights-line" onclick="return pepreg.editTraining(${community_id});">Edit Community</div>
                                 %endif
                                 %if ruser_info['delete'] or user_super:
-                                <div class="f-rights-line">Delete Community</div>
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
                                 <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
@@ -835,15 +834,22 @@ a{
                 <div class="sub-title">Trending</div>
                 <div class="trendings">
                     %for k, td in enumerate(td_list):
+                        <% 
+                            t_subject_show = td['subject']
+                            if not t_subject_show:
+                                t_subject_show = "[image/video]"
+                        %>
                         %if k + 1 == len(td_list):
                         <div class="every-discussion border-zero">
                         %else:
                         <div class="every-discussion">
                         %endif
-                            <div class="discussion-subject overflow-text"><a href="/maincommunity/${td['hyperlink']}">${td['subject']}</a></div>
+                            <a href="/maincommunity/${td['hyperlink']}">
+                            <div class="discussion-subject overflow-text">${t_subject_show}</div>
                             <div class="discussion-date">
                                 <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
                             </div>
+                            </a>
                         </div>   
                     %endfor
                     %if discussions_count > td_show_count and discussions_count > 0 and td_show_count > 0:
@@ -954,7 +960,7 @@ a{
                         %else:
                         <div class="every-resource overflow-text">
                         %endif
-                            <a href="${resource['link']}" target="_blank">${resource['name']}</a>
+                            <div><a href="${resource['link']}" target="_blank">${resource['name']}</a></div>
                         </div>
                     %endfor
                     %if re_count > re_show_count and re_count > 0 and re_show_count > 0:
@@ -971,7 +977,7 @@ a{
 </section>
 
 <!--Windows modal-->
-<div style="" id="dialog" class="modal">
+<div id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -1391,11 +1397,12 @@ a{
                     else{
                         html += '<div class="every-discussion">';
                     }
-                    html += '<div class="discussion-subject overflow-text"><a href="/maincommunity/'+d.trending[i].hyperlink+'">'+d.trending[i].subject+'</a></div>';
+                    html += '<a href="/maincommunity/'+d.trending[i].hyperlink+'">';
+                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
                     html += '<div class="discussion-date">';
                     html += '<span class="posted">Posted: </span>';
                     html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
-                    html += '</div></div>';
+                    html += '</div></a></div>';
                 }
                 $('.trendings').html(html);
             }
@@ -1406,6 +1413,24 @@ a{
         $(this).hide();
         get_trending_ajax(${community_id});
     });
+
+    function deleteCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Delete Community", "Are you sure delete this community? All the subcommunities will also be deleted.", function(ans){
+
+            this.hide();
+            if(ans){
+                console.log("delete community");
+                /*
+                $.post("${reverse('community_leave',args=[community_id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                        window.location.replace("${reverse('maincommunity', args=[community_id])}");
+                });
+                */
+            }
+        });
+    }
 </script>
 <script type="text/javascript">
     function newCourse() {

@@ -1699,7 +1699,7 @@ def maincommunity(request, community_id):
     '''
     Get Trending discussions for init show
     '''
-    td_show_count = 2
+    td_show_count = 5
     trending_cond = discussion_cond
     trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
@@ -1752,7 +1752,7 @@ def maincommunity(request, community_id):
     re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
@@ -1852,7 +1852,7 @@ def subcommunity(request, community_id):
     '''
     Get Trending discussions for init show
     '''
-    td_show_count = 2
+    td_show_count = 5
     trending_cond = discussion_cond
     trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
     td_list = list()
@@ -1905,7 +1905,7 @@ def subcommunity(request, community_id):
     re_count = CommunityResources.objects.filter(community=community).count()
     resources_list = list()
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
 
     # Update all community info
     community_other_info = {'state': community.state.id if community.state else '',
@@ -3107,6 +3107,13 @@ def new_process_submit_comment(request):
                 }
                 replies_id = mongo3_store.insert(my_discussion_post)
 
+                rs = myactivitystore()
+                my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                "URLValues": {"discussion_id": str(replies_id)},
+                "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
+                "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
+                rs.insert_item(my_activity)
+
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
                     try:
                         attachment = FileUploads()
@@ -3186,6 +3193,13 @@ def new_process_submit_comment(request):
                         "db_table": "community_discussion_replies_next"
                     }
                     replies_id = mongo3_store.insert(my_discussion_post)
+
+                    rs = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                    "URLValues": {"discussion_id": str(disc_id)},
+                    "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
+                    "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
+                    rs.insert_item(my_activity)
 
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
                     try:
