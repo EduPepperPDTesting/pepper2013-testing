@@ -98,6 +98,7 @@ CoursePermission.prototype.save = function(send_notification){
         global_all_course: global_all_course,
         global_course_access: global_course_access,
         global_course_enroll: global_course_enroll,
+        global_course_closed: global_course_closed,
         send_notification: send_notification,
         users: users.join(","),
         courses: courses.join(","),

@@ -2131,6 +2131,7 @@ def update_course_permission(request):
 
         global_course_access = request.POST.get('global_course_access', '')
         global_course_enroll = request.POST.get('global_course_enroll', '')
+        global_course_closed = request.POST.get('global_course_closed', '')
         
         global_all_course = request.POST.get('global_all_course', '') == 'true'
         send_notification = request.POST.get('send_notification', '') == 'true'
