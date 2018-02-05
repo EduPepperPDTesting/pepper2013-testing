@@ -2273,13 +2273,12 @@ def course_permission_load_csv(request):
                 course = get_course_by_id(course_id)
                 e = 1 if (conf == "enrollment") else -1
                 a = 1 if (e == 1 or (conf == "access")) else -1
-                if (conf == "closed"){
+                if conf == "closed":
                     a = 1
                     e = 1
                     c = 1
-                }else{
+                else:
                     c = -1
-                }
                 task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                 task.update_time = task.create_time
                 task.title = "update user %s" % user.email
