@@ -2775,6 +2775,7 @@
             filters = $.tablesorter.getFilters($("#data-table"));
             if(val != ""){
                 if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
+                    console.log("and "+suborder);
                     filters[suborder] = $(this).val();
                     $.tablesorter.setFilters($("#data-table"), filters, true);
                 }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
