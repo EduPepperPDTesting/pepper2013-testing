@@ -563,6 +563,7 @@ def dashboard(request, user_id=None):
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
+            c.is_closed = enrollment.is_closed
 
             if enrollment.course_id in allowed:
                 exists = exists - 1

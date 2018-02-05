@@ -2009,8 +2009,10 @@ def get_course_permission_user_rows(request):
         row.append(str(user_school))
 
         for c in courses:
-            if CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True).exists():
+            if CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True, is_closed=False).exists():
                 row.append("E")
+            elif CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True, is_closed=True).exists():
+                row.append("C")
             elif CourseEnrollmentAllowed.objects.filter(email=item.user.email, course_id=c.id, is_active=True).exists():
                 row.append("P")
             else:
@@ -2061,13 +2063,13 @@ def get_course_permission_course_rows(request):
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, c.display_coursenumber, "", ""])
+        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, c.display_coursenumber, "", "",""])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def _update_user_course_permission(request, user, course, access, enroll, send_notification=False):
+def _update_user_course_permission(request, user, course, access, enroll, closed,send_notification=False):
     # ** access
     if access == 1:
         cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=user.email, course_id=course.id)
@@ -2087,12 +2089,22 @@ def _update_user_course_permission(request, user, course, access, enroll, send_n
 
     # ** enroll
     if enroll == 1:
-        enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-        if created or not enr.is_active:
-            enr.is_active = True
-            enr.save()
-            if send_notification:
-                send_course_notification(request, user, course, "Add Course Enroll", user.id)
+        if closed == 1:
+            enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
+            if created or not enr.is_active:
+                enr.is_active = True
+                enr.closed = True
+                enr.save()
+                if send_notification:
+                    send_course_notification(request, user, course, "Add Course Enroll", user.id)
+        else:
+            enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
+            if created or not enr.is_active:
+                enr.is_active = True
+                enr.closed = False
+                enr.save()
+                if send_notification:
+                    send_course_notification(request, user, course, "Add Course Enroll", user.id)
     elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
@@ -2113,6 +2125,7 @@ def update_course_permission(request):
         
         access = to_list(request.POST.get('access', ''), [])
         enroll = to_list(request.POST.get('enroll', ''), [])
+        closed = to_list(request.POST.get('closed', ''), [])
 
         global_course_access = request.POST.get('global_course_access', '')
         global_course_enroll = request.POST.get('global_course_enroll', '')
@@ -2160,14 +2173,19 @@ def update_course_permission(request):
             try:
                 a = int(global_course_access) if global_all_course else int(access[i])
                 e = int(global_course_enroll) if global_all_course else int(enroll[i])
+                c = int(global_course_closed) if global_all_course else int(closed[i])
                 a = 1 if e == 1 else a
                 e = -1 if a == -1 else e
+                if c != 0 :
+                    a = 1
+                    e = 1
+
                 for profile in users:
                     user = profile.user
                     task.last_message = "updated, user=%s, course=%s" % (user.email, course.display_name)
                     task.update_time = task.create_time
                     task.title = "update user %s" % user.email
-                    _update_user_course_permission(request, user, course, a, e, send_notification)
+                    _update_user_course_permission(request, user, course, a, e, c,send_notification)
                     done_count += 1
                     task.progress = int(done_count / total_count * 100)
                     task.status = "continue"

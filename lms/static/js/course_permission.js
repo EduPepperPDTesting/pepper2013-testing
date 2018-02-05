@@ -71,15 +71,18 @@ CoursePermission.prototype.save = function(send_notification){
     var $filter_row = $('#course_permission_course .tablesorter-blue .tablesorter-filter-row');
     var global_course_access = $filter_row.find(".toggle.access").toggleSwitch().val();
     var global_course_enroll = $filter_row.find(".toggle.enroll").toggleSwitch().val();
-    var global_all_course = global_course_access != 0 || global_course_enroll != 0;
+    var global_course_closed = $filter_row.find(".toggle.closed").toggleSwitch().val();
+    var global_all_course = global_course_access != 0 || global_course_enroll != 0 || global_course_closed != 0;
     $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
         var a = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
         var e = $(this).find("td:nth-child(8) .toggle").toggleSwitch().val();
+        var c = $(this).find("td:nth-child(9) .toggle").toggleSwitch().val();
         if(a != 0 || e != 0){
             if(!global_all_course)
                 courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
             enroll.push(e);
+            closed.push(c);
         }
     });
     if(!courses.length && !global_all_course){
@@ -99,7 +102,8 @@ CoursePermission.prototype.save = function(send_notification){
         users: users.join(","),
         courses: courses.join(","),
         access: access.join(","),
-        enroll: enroll.join(",")
+        enroll: enroll.join(","),
+        closed: closed.join(",")
     }
     filter = $.extend(filter, user_filter);
     filter = $.extend(filter, course_filter);
@@ -192,9 +196,11 @@ CoursePermission.prototype.loadCourseTable = function(){
         // clean contents inside cells
         $(this).find("thead tr td:eq(4)").html("").css("text-align", "left");
         $(this).find("thead tr td:eq(5)").html("").css("text-align", "left");
+        $(this).find("thead tr td:eq(6)").html("").css("text-align", "left");
         // place toggles into cells
          var g_toggle1 = $("<div class='toggle access'/>").appendTo( $(this).find("thead tr td:eq(4)")).toggleSwitch();
          var g_toggle2 = $("<div class='toggle enroll'/>").appendTo( $(this).find("thead tr td:eq(5)")).toggleSwitch();
+         var g_toggle3 = $("<div class='toggle closed'/>").appendTo( $(this).find("thead tr td:eq(6)")).toggleSwitch();
         g_toggle2.change(function(){
             var v = this.val();
             if(v == 1) g_toggle1.val(1, true)
@@ -205,6 +211,13 @@ CoursePermission.prototype.loadCourseTable = function(){
             if(v == -1) g_toggle2.val(-1, true)
             $(this_table).find("tbody tr td:nth-child(7) .toggle").toggleSwitch().val(v, false);
         });
+        g_toggle3.change(function(){
+            var v = this.val();
+            if (v != 0){
+                g_toggle2.val(1,true);
+            }
+            $(this_table).find("tbody tr td:nth-child(9) .toggle").toggleSwitch().val(v, false);
+        })
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
             var displaynumber = $(this).find("td:nth-child(6)").text();
@@ -213,15 +226,27 @@ CoursePermission.prototype.loadCourseTable = function(){
             $(this).find("td:nth-child(4)").prop("title", displaynumber);
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
+            var toggle3 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(8)).toggleSwitch();
             toggle2.change(function(){
                 g_toggle2.val(0, false);
                 var v = this.val();
-                if(v == 1) toggle1.val(1)
+                if(v == 1) {
+                    toggle1.val(1);
+                }else{
+                    toggle3.val(0);
+                }
             });
             toggle1.change(function(){
                 g_toggle1.val(0, false);
                 var v = this.val();
                 if(v == -1) toggle2.val(-1)
+            });
+            toggle3.change(function(){
+                g_toggle3.val(0, false);
+                var v = this.val();
+                if (v != 0){
+                    toggle2.val(1)
+                }
             });
         });
     });

@@ -932,6 +932,7 @@ class CourseEnrollment(models.Model):
     # Represents the modes that are possible. We'll update this later with a
     # list of possible values.
     mode = models.CharField(default="honor", max_length=100)
+    is_closed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('user', 'course_id'),)
