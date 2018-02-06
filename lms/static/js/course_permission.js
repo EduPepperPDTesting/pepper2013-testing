@@ -212,6 +212,10 @@ CoursePermission.prototype.loadCourseTable = function(){
             if(v == -1) g_toggle2.val(-1, true)
             $(this_table).find("tbody tr td:nth-child(7) .toggle").toggleSwitch().val(v, false);
         });
+        g_toggle3.change(function(){
+            var v = this.val();
+            $(this_table).find("tbody tr td:nth-child(9) .toggle").toggleSwitch().val(v, false);
+        })
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
             var displaynumber = $(this).find("td:nth-child(6)").text();

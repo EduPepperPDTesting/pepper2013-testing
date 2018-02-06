@@ -2113,7 +2113,7 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
         elif not enr.is_closed:
             enr.is_closed = True
             enr.save()
-    else:
+    elif closed == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_closed=True)
         if find.exists():
             enr = find[0]
