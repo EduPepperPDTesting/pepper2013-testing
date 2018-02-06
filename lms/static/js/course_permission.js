@@ -115,6 +115,7 @@ CoursePermission.prototype.save = function(send_notification){
             $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
                 $(this).find("td:nth-child(7) .toggle").toggleSwitch().val("0");
                 $(this).find("td:nth-child(8) .toggle").toggleSwitch().val("0");
+                $(this).find("td:nth-child(9) .toggle").toggleSwitch().val("0");
             });
         }else{
             new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
