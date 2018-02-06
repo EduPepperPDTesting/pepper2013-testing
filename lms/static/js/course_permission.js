@@ -77,7 +77,7 @@ CoursePermission.prototype.save = function(send_notification){
         var a = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
         var e = $(this).find("td:nth-child(8) .toggle").toggleSwitch().val();
         var c = $(this).find("td:nth-child(9) .toggle").toggleSwitch().val();
-        if(a != 0 || e != 0){
+        if(a != 0 || e != 0 || c != 0){
             if(!global_all_course)
                 courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
