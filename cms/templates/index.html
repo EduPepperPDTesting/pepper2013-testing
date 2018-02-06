@@ -1,4 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
+<%! from permissions.utils import check_user_perms %>
 
 <%inherit file="base.html" />
 
@@ -46,7 +47,7 @@
       <h3 class="sr">${_("Page Actions")}</h3>
       <ul>
         <li class="nav-item">
-          % if user.is_superuser:
+          % if check_user_perms(request.user, 'create_course_in_studio','studio_create_course'):
           <a href="#" class="button new-button new-course-button"><i class="icon-plus icon-inline"></i>
               ${_("New Course")}</a>
           <!--<a href="#" class="button new-button course-list-modify-button"><i class="icon-wrench icon-inline"></i>
