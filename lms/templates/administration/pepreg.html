@@ -1652,11 +1652,12 @@
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
+               var URLrt = (descItem.indexOf("://") == -1) ? "https://" : "";
                if(description.indexOf(descItem) == 0){
-                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                     description = description.replace(descItem, "<a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
                while(description.indexOf(" " + descItem) > -1){
-                    description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                    description = description.replace(" " + descItem, " <a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
         }
@@ -1664,7 +1665,8 @@
         var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
         if(classroom.indexOf("<a href") == -1 && classroomArr){
             var href_classroom = classroomArr[0];
-            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+            var URLrt = (href_classroom.indexOf("://") == -1) ? "https://" : "";
+            classroom = classroom.replace(href_classroom, "<a href = '" + URLrt + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
         }
         var json = {
             id: $form.find("input[name=id]").val(),
