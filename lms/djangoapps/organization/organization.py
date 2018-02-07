@@ -835,6 +835,34 @@ def organization_remove_img(request):
                                 break
                             break
 
+                    elif column == "RegisterLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
+                    elif column == "RegisterMainLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Main Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -2063,7 +2091,7 @@ def organization_get_info(request):
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem
 
-                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Regitster Text Button'):
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Text Button'):
                         data['register_text_button'] = tmp2.itemValue
 
                     for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Logo'):
