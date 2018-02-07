@@ -1697,8 +1697,8 @@
         var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
         if(classroom.indexOf("<a href") == -1 && classroomArr){
             var href_classroom = classroomArr[0];
-            if(href_classroom.indexOf("://") == -1) href_classroom = "https://" + href_classroom;
-            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+            var URLrt = (href_classroom.indexOf("://") == -1) ? "https://" : "";
+            classroom = classroom.replace(href_classroom, "<a href = '" + URLrt + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
         }
         var json = {
             id: $form.find("input[name=id]").val(),
