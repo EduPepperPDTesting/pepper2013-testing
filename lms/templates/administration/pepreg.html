@@ -1694,8 +1694,9 @@
             });
         }
         var classroom = $.trim($form.find("input[name=classroom]").val());
-        var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
+        var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);console.log("classroomArr:"+classroomArr);
         if(classroom.indexOf("<a href") == -1 && classroomArr){
+            console.log("classroomArr:"+classroomArr);
             var href_classroom = classroomArr[0];
             if(href_classroom.indexOf("://") == -1) href_classroom = "//" + href_classroom;
             classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
