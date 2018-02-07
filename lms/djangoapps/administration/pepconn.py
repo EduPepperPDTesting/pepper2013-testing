@@ -2011,7 +2011,7 @@ def get_course_permission_user_rows(request):
         for c in courses:
             if CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True, is_closed=False).exists():
                 row.append("E")
-            elif CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_active=True, is_closed=True).exists():
+            elif CourseEnrollment.objects.filter(user_id=item.user.id, course_id=c.id, is_closed=True).exists():
                 row.append("C")
             elif CourseEnrollmentAllowed.objects.filter(email=item.user.email, course_id=c.id, is_active=True).exists():
                 row.append("P")
@@ -2106,10 +2106,14 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
 
     if closed == 1:
         enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
-        if created or not enr.is_closed: 
+        if created:
+            enr.is_active = False
             enr.is_closed = True
             enr.save()
-    else:
+        elif not enr.is_closed:
+            enr.is_closed = True
+            enr.save()
+    elif closed == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_closed=True)
         if find.exists():
             enr = find[0]
@@ -2179,9 +2183,6 @@ def update_course_permission(request):
                 c = int(global_course_closed) if global_all_course else int(closed[i])
                 a = 1 if e == 1 else a
                 e = -1 if a == -1 else e
-                if c != 0 :
-                    a = 1
-                    e = 1
 
                 for profile in users:
                     user = profile.user
@@ -2275,8 +2276,6 @@ def course_permission_load_csv(request):
                 e = 1 if (conf == "enrollment") else -1
                 a = 1 if (e == 1 or (conf == "access")) else -1
                 if conf == "closed":
-                    a = 1
-                    e = 1
                     c = 1
                 else:
                     c = -1

@@ -835,6 +835,34 @@ def organization_remove_img(request):
                                 break
                             break
 
+                    elif column == "RegisterLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
+                    elif column == "RegisterMainLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Main Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -1105,6 +1133,7 @@ def organizational_save_base(request):
         activities_txt_curr = request.POST.get("activities_txt_curr", "")
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
+        register_text_button = request.POST.get("register_text_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
@@ -1438,6 +1467,7 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
+            org_organizationdashboardsave(org_metadata, "Register Text Button", register_text_button)
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1614,6 +1644,12 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
 
+            elif file_type == "register_logo":
+                imgx = request.FILES.get("organizational_base_register_logo_curr", None)
+
+            elif file_type == "register_main_logo":
+                imgx = request.FILES.get("organizational_base_register_main_logo_curr", None)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -1669,6 +1705,26 @@ def org_upload(request):
 
                     org_dashboard.organization = organization
                     org_dashboard.itemType = "Profile Logo Curriculumn"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Logo"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_main_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Main Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Main Logo"
                     org_dashboard.itemValue = file_type + ext
                     org_dashboard.save()
 
@@ -2034,6 +2090,15 @@ def organization_get_info(request):
 
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Text Button'):
+                        data['register_text_button'] = tmp2.itemValue
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Logo'):
+                        data['register_logo'] = tmp2.itemValue
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Main Logo'):
+                        data['register_main_logo'] = tmp2.itemValue
 
                 data['Success'] = True
 
