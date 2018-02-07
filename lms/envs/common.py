@@ -895,9 +895,6 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
-    # web chat
-    'webchat',
-
     # Organization
     'organization',
 
