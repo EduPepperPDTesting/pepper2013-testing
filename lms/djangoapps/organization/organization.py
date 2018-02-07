@@ -2064,13 +2064,13 @@ def organization_get_info(request):
                         data['org_rg_data_items'] = tmp2.DataItem
 
                     for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Regitster Text Button'):
-                        data['register_text_button'] = tmp2.DataItem
+                        data['register_text_button'] = tmp2.itemValue
 
                     for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Logo'):
-                        data['register_logo'] = tmp2.DataItem
+                        data['register_logo'] = tmp2.itemValue
 
                     for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Main Logo'):
-                        data['register_main_logo'] = tmp2.DataItem
+                        data['register_main_logo'] = tmp2.itemValue
 
                 data['Success'] = True
 
