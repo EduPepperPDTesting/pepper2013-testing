@@ -1684,11 +1684,12 @@
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
+               var URLrt = (descItem.indexOf("://") == -1) ? "//" : "";
                if(description.indexOf(descItem) == 0){
-                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                     description = description.replace(descItem, "<a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
                while(description.indexOf(" " + descItem) > -1){
-                    description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                    description = description.replace(" " + descItem, " <a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
         }
