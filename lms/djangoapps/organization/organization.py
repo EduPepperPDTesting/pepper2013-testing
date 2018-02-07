@@ -1439,7 +1439,7 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
-            org_organizationdashboardsave(org_metadata, "Regitster Text Button", register_text_button)
+            org_organizationdashboardsave(org_metadata, "Register Text Button", register_text_button)
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -2062,6 +2062,15 @@ def organization_get_info(request):
 
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Regitster Text Button'):
+                        data['register_text_button'] = tmp2.DataItem
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Logo'):
+                        data['register_logo'] = tmp2.DataItem
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Main Logo'):
+                        data['register_main_logo'] = tmp2.DataItem
 
                 data['Success'] = True
 
