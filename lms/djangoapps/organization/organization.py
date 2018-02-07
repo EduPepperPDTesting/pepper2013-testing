@@ -1105,6 +1105,7 @@ def organizational_save_base(request):
         activities_txt_curr = request.POST.get("activities_txt_curr", "")
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
+        register_text_button = request.POST.get("register_text_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
@@ -1438,6 +1439,7 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
+            org_organizationdashboardsave(org_metadata, "Regitster Text Button", register_text_button)
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1614,6 +1616,12 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
 
+            elif file_type == "register_logo":
+                imgx = request.FILES.get("organizational_base_register_logo_curr", None)
+
+            elif file_type == "register_main_logo":
+                imgx = request.FILES.get("organizational_base_register_main_logo_curr", None)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -1669,6 +1677,26 @@ def org_upload(request):
 
                     org_dashboard.organization = organization
                     org_dashboard.itemType = "Profile Logo Curriculumn"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Logo"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_main_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Main Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Main Logo"
                     org_dashboard.itemValue = file_type + ext
                     org_dashboard.save()
 
