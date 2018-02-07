@@ -275,6 +275,46 @@ def signin_user(request):
     return render_to_response('login.html', context)
 
 @ensure_csrf_cookie
+def signin_user_ssda(request):
+    """
+    This view will display the non-modal login form
+    """
+    if request.user.is_authenticated():
+        return redirect(reverse('dashboard'))
+
+    email = request.GET.get('regcheck', None)
+    if email:
+        reg = registration_check(email)
+        if reg['status'] == 'unregistered':
+            next_page = request.GET.get('next', '')
+            return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
+        elif not reg['status']:
+            message = '''Your account has not been set up in our system. This means your district has not provided us
+                         with the necessary information. Please contact your district or school's professional
+                         development coordinator to have your account created in Pepper. You can also email
+                         <a href="mailto:pcgpepper@pcgus.com">pcgpepper@pcgus.com</a> for assistance. You will receive a
+                         response within two business days.'''
+            error_context = {'window_title': 'Missing Account',
+                             'error_title': 'Missing Account',
+                             'error_message': message}
+            return render_to_response('error.html', error_context)
+    elif email is not None:
+        message = '''Your email was not successfully sent by your PD system (TNL). This likely means that your email
+                     needs to be added in that system. Please contact your school or district PD coordinator or Data
+                     Administrator to fix your email in the source system for that information. Once that information is
+                     fixed, within 24 hours you should be able to access the course.'''
+        error_context = {'window_title': 'Missing Email',
+                         'error_title': 'Missing Email',
+                         'error_message': message}
+        return render_to_response('error.html', error_context)
+
+    context = {
+        'course_id': request.GET.get('course_id'),
+        'enrollment_action': request.GET.get('enrollment_action')
+    }
+    return render_to_response('login_ssda.html', context)
+    
+@ensure_csrf_cookie
 def cms_login_info(request):
     """
     """
@@ -2628,4 +2668,30 @@ def get_pepper_stats(request):
         'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
         'total_course_times':total_course_times
     }
+    return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+def check_ssda_email(request):
+    email = request.POST.get("email")
+
+    users = User.objects.filter(email=email)
+    activation_key = ""
+    
+    if len(users):
+        user = users[0]
+
+        activation_key = Registration.objects.get(user=user).activation_key
+        
+        if not user.profile.cohort_id \
+               or not user.profile.cohort.code == "SSDA" \
+               or user.profile.subscription_status == "Inactive":
+            status = "not ssda"
+        elif user.profile.subscription_status == "Unregistered" or user.profile.subscription_status == "Imported":
+            status = "need registration"
+        elif user.profile.subscription_status == "Registered":
+            status = "is ssda"
+    else:
+        status = "not found"
+
+    context = {'status': status, 'activation_key': activation_key}
     return HttpResponse(json.dumps(context), content_type="application/json")

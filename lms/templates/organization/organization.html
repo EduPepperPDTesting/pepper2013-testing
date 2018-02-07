@@ -767,6 +767,25 @@
                     </div>
                 </td>
             </tr>
+            <tr class='organization_pd_dashboard_set'>
+                <td colspan="3">Rgistration Page:</td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="register_logo_curr_tr">
+                <td class="org_td1" style='padding-left:30px;'>Registration Page Logo : </td>
+                <td id="organizational_base_register_logo_curr_p"></td>
+                <td></td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1" style='padding-left:30px;'>Button Text: </td>
+                <td colspan="2">
+                        <input type="text" id="organizational_base_register_button_text" />
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="register_main_logo_curr_tr">
+                <td class="org_td1" style='padding-left:30px;'>Main Logo : </td>
+                <td id="organizational_base_register_main_logo_curr_p"></td>
+                <td></td>
+            </tr>
             <tr>
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
@@ -1961,10 +1980,14 @@
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
 									organizationAddFileImg("organizational_base_profile_logo", r['Profile Logo']);
 									organizationAddFileImg("organizational_base_profile_logo_curr", r['Profile Logo Curriculumn']);
+									organizationAddFileImg("organizational_base_register_main_logo_curr", r['Register Main Logo']);
+									organizationAddFileImg("organizational_base_register_logo_curr", r['Register Logo']);
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
+									organizationAddFileImgInit("organizational_base_register_main_logo_curr");
+									organizationAddFileImgInit("organizational_base_register_logo_curr");
 									
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
@@ -2150,6 +2173,7 @@
 									$("#organizational_base_organization_my_learning_plan").val(r["my_learning_plan"]);
 									$("#organizational_base_organization_recommended_courses").val(r["recommended_courses"]);
 									$("#organizational_base_logo_url").val(r["Logo Url"]);
+									$("#organizational_base_register_button_text").val(r["Register Text Button"]);
 									
 									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
@@ -2865,6 +2889,10 @@
 			}else if(eid == "design_menu_logo"){
 				column = "Designlogo";
 				current_id = design_current_id;
+			}else if(eid == "organizational_base_register_main_logo_curr"){
+				column = "RegisterMainLogo";
+			}else if (eid == "organizational_base_register_logo_curr"){
+				column = "RegisterLogo";
 			}
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: current_id, column: column, db: db}, function (r) {	
@@ -3726,6 +3754,8 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+		organizationAddFileImgInit("organizational_base_register_logo_curr");
+		organizationAddFileImgInit("organizational_base_register_main_logo_curr");
 		
 		//--------------------------organization_manage_user
 		/*$('#organization_manage_user_email').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion", {remoteDataType: "json",
@@ -4646,6 +4676,16 @@
 				loadwin.hide();
 				return;
 			}
+			if($("#organizational_base_register_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_register_logo_curr").val())){				
+				alert("Register Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
+			if($("#organizational_base_register_main_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_register_main_logo_curr").val())){				
+				alert("Register Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
 			
 			var sid_did = "";
 			$(".organization-state-edit").each(function(){
@@ -4928,8 +4968,10 @@
 			var activities_txt_curr = $("#organizational_dashboard_activities_txt_curr").val();
 			var progress_txt_curr = $("#organizational_dashboard_progress_txt_curr").val();
 			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
+			var register_text_button = $("#organizational_base_register_button_text").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
+				register_text_button: register_text_button,
 				sid_did: sid_did,
 				course_assignment_content: course_assignment_content,
 				for_district: for_district,
@@ -5015,6 +5057,12 @@
 					}
 					if($("#organizational_base_profile_logo_curr").val() != ""){
 						organizationUploadFile("organizational_base_profile_logo_curr", "profile_logo_curr");
+					}
+					if($("#organizational_base_register_logo_curr").val() != ""){
+						organizationUploadFile("organizational_base_register_logo_curr", "register_logo");
+					}
+					if($("#organizational_base_register_main_logo_curr").val() != ""){
+						organizationUploadFile("organizational_base_register_main_logo_curr", "register_main_logo");
 					}
 					$(".organizational_dashboard_menu_body1").each(function(){
 						var menu_item = filterStr($(this).find(".menu_items_menu_item").val());

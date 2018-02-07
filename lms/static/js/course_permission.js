@@ -77,7 +77,7 @@ CoursePermission.prototype.save = function(send_notification){
         var a = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
         var e = $(this).find("td:nth-child(8) .toggle").toggleSwitch().val();
         var c = $(this).find("td:nth-child(9) .toggle").toggleSwitch().val();
-        if(a != 0 || e != 0){
+        if(a != 0 || e != 0 || c != 0){
             if(!global_all_course)
                 courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
@@ -115,6 +115,7 @@ CoursePermission.prototype.save = function(send_notification){
             $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
                 $(this).find("td:nth-child(7) .toggle").toggleSwitch().val("0");
                 $(this).find("td:nth-child(8) .toggle").toggleSwitch().val("0");
+                $(this).find("td:nth-child(9) .toggle").toggleSwitch().val("0");
             });
         }else{
             new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
@@ -214,9 +215,6 @@ CoursePermission.prototype.loadCourseTable = function(){
         });
         g_toggle3.change(function(){
             var v = this.val();
-            if (v != 0){
-                g_toggle2.val(1,true);
-            }
             $(this_table).find("tbody tr td:nth-child(9) .toggle").toggleSwitch().val(v, false);
         })
         $(this).find("tbody tr").each(function(){
@@ -231,23 +229,12 @@ CoursePermission.prototype.loadCourseTable = function(){
             toggle2.change(function(){
                 g_toggle2.val(0, false);
                 var v = this.val();
-                if(v == 1) {
-                    toggle1.val(1);
-                }else{
-                    toggle3.val(0);
-                }
+                if(v == 1) toggle1.val(1);
             });
             toggle1.change(function(){
                 g_toggle1.val(0, false);
                 var v = this.val();
                 if(v == -1) toggle2.val(-1)
-            });
-            toggle3.change(function(){
-                g_toggle3.val(0, false);
-                var v = this.val();
-                if (v != 0){
-                    toggle2.val(1)
-                }
             });
         });
     });
