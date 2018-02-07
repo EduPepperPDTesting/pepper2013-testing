@@ -2682,7 +2682,7 @@ def check_ssda_email(request):
 
         activation_key = Registration.objects.get(user=user).activation_key
         
-        if not user.profile.cohort \
+        if not user.profile.cohort_id \
                or not user.profile.cohort.code == "SSDA" \
                or user.profile.subscription_status == "Inactive":
             status = "not ssda"
