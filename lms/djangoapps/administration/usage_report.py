@@ -129,7 +129,24 @@ def get_user_login_info(request):
 			dict_tmp['total_session'] = ''
 
 		login_info_list.append(dict_tmp)
-	return HttpResponse(json.dumps({'rows': login_info_list, 'rows_count': total_rows_count, 'success': True}), content_type="application/json")
+	return HttpResponse(json.dumps({'rows': login_info_list, 
+		                            'rows_count': total_rows_count,
+                                    'sorts': sorts,
+                                    'filters': filters,
+                                    'search_con': request.GET.dict(),
+                                    'success': True}), content_type="application/json")
+
+@login_required
+def download_excel_allsearch_reasult(request):
+	search_con = request.POST
+	# Parse the filter data passed in.
+	filters = get_post_array(search_con, 'fcol', 12)
+	# Parse the sort data passed in.
+	sorts = get_post_array(search_con, 'col')
+	log.debug("00000000000000")
+	log.debug(filters)
+	log.debug(sorts)
+	return HttpResponse(json.dumps({'data': 'download_excel_allsearch_reasult', 'success': True}), content_type="application/json")
 
 def get_post_array(post, name, max=None):
     """
