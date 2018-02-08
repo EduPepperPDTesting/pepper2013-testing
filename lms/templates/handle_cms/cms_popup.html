@@ -102,8 +102,6 @@ function librariesSelector() {
                 "img": working_img
             }
             send_to.fire(data);
-        }).children().click(function (e) {
-            return false;
         });
         $("body").on("click", "#sub_search", function () {
             search_terms = encodeURIComponent($("#search_term").val());
