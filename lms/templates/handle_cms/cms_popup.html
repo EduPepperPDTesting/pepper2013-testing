@@ -94,7 +94,7 @@ function librariesSelector() {
             $($(this).children()[1]).toggleClass("down-arrow");
         });
         $("body").on("click", ".selectable_resource", function (e) {
-            if (!$(".ttext").is(":hover")) {
+            if (!$(this).children()[0].is(":hover")) {
                 url = $(this).data("url");
                 title = $(this).data("title");
                 data = {
