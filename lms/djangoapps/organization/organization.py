@@ -1062,7 +1062,7 @@ def organization_get_locations(request):
                 rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
 
             for org2 in Cohort.objects.all().order_by('code'):
-                rows_cohort.append({'id': org1.id, 'name': org1.code})
+                rows_cohort.append({'id': org2.id, 'name': org2.code})
 
         data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school, 'rows_cohort': rows_cohort}
     except Exception as e:
