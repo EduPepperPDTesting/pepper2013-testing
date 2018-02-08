@@ -96,6 +96,9 @@
   -webkit-transform: rotate(180deg);
   -o-transform: rotate(180deg);
 }
+.selectable_resource {
+    width: fit-content;
+}
 .selectable_resource .ttext {
     visibility: hidden;
     width: 120px;
@@ -127,4 +130,5 @@
 .selectable_resource:hover .ttext {
     visibility: visible;
     opacity: 1;
+    margin-bottom: -10px;
 }
