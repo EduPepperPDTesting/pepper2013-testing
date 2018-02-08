@@ -217,6 +217,7 @@ urlpatterns = (
     url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
     url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
     url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
+    url(r'^usage_report/download_excel_allsearch$', 'administration.usage_report.download_excel_allsearch_reasult', name="download_excel_allsearch"),
     
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
@@ -559,6 +560,8 @@ urlpatterns = (
     
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
+    url(r'^ssda$', 'student.views.signin_user_ssda', name="signin_user_ssda"),
+    url(r'^check_ssda_email$', 'student.views.check_ssda_email', name="check_ssda_email"),
 
     url(r'^user_profile$', 'student.newdashboard.user_information', name="user_information"),
     url(r'^user_profile/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),

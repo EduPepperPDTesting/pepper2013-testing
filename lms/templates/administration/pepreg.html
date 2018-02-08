@@ -840,12 +840,26 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
-                console.log("~6");
-                    if (reg){
-                         pepreg.warning("Thank you for registering/recording attendance for this training!");
-                    }else{
-                        pepreg.warning("Thank you! You are no longer registered for this training.");
+                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
+					if (reg) {
+					    console.log("trID=" + trID);
+					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
+                            console.log("data.name=" + data.name);
+                            console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
+					        if(data.name !== "" && data.name !== "undefined") {
+					            warningData = data.training_date + " " + data.training_time_start + "|";
+                                warningData += data.training_date + " " + data.training_time_end + "|";
+                                warningData += data.name + "|";
+                                warningData += data.description + "|";
+                                warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
+                                warningData += " " + data.geo_location;
+                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+					        }else{
+						        pepreg.warning("Thank you for registering/recording attendance for this training!");
+					        }
+					    });
+					} else {
+						pepreg.warning("Thank you! You are no longer registered for this training.");
                     }
                     console.log("calendar_check_would pre -" + $("this").prop("checked"));
                     $("this").prop("checked", !$("this").prop("checked"));
@@ -1670,11 +1684,12 @@
         var descArr = description.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/g);
         if(descArr){
             descArr.forEach(function(descItem){
+               var URLrt = (descItem.indexOf("://") == -1) ? "https://" : "";
                if(description.indexOf(descItem) == 0){
-                     description = description.replace(descItem, "<a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                     description = description.replace(descItem, "<a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
                while(description.indexOf(" " + descItem) > -1){
-                    description = description.replace(" " + descItem, " <a href = '" + descItem + "' target='_blank'>" + descItem + "</a>");
+                    description = description.replace(" " + descItem, " <a href = '" + URLrt + descItem + "' target='_blank'>" + descItem + "</a>");
                }
             });
         }
@@ -1682,7 +1697,8 @@
         var classroomArr = classroom.match(/[(http|https):\/\/]*[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/);
         if(classroom.indexOf("<a href") == -1 && classroomArr){
             var href_classroom = classroomArr[0];
-            classroom = classroom.replace(href_classroom, "<a href = '" + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
+            var URLrt = (href_classroom.indexOf("://") == -1) ? "https://" : "";
+            classroom = classroom.replace(href_classroom, "<a href = '" + URLrt + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
         }
         var json = {
             id: $form.find("input[name=id]").val(),
@@ -2203,7 +2219,7 @@
         var self = this;
         $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function (r) {
             if (r.success) {
-                cb(join);
+                cb(join, r.training_id);
                 //self.reloadTable();
                 trID=r.training_id;
                 regData={success: true, trID: trID};
@@ -2591,7 +2607,7 @@
                             $check.prop('checked', status == "Registered");
                             $check.click(function () {
                                 var thisCheck = $(this);
-                                self.registerUser(training_id, this.checked, function (reg) {
+                                self.registerUser(training_id, this.checked, function (reg, trID) {
                                     // self.reloadTable();
                                     console.log("~3");
                                     if (reg){

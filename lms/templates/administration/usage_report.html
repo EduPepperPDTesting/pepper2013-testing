@@ -185,8 +185,9 @@
                         <select class="gotoPage" title="Select page number"></select>
                     </span>
                     <span class="download">
-                      Download <span class="total"></span> User(s) As
-                      <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
+                      Download <span class="total"></span> User(s) As&nbsp;
+                      <input type="button" name="" value="Excel(current)" class="small" id="btnDownloadUserTimeExcel" style="margin-right:10px;"/>
+                      <input type="button" name="" value="Excel(all search)" class="small" id="btnExcelallsearch"/>
                     </span>
                 </div>
             </form>
@@ -243,6 +244,10 @@
 </div>
 <script>
 //-------------------------- Usage Report --------------------------//
+var return_sorts = {};
+var return_filters = {};
+var return_search_con = {};
+
 function safeJSON(j){
     j.csrfmiddlewaretoken="${csrf_token}";
     return j;
@@ -262,6 +267,9 @@ var pagerOptions = {
     cssGoto: '.gotoPage',
     ajaxUrl: '',
     ajaxProcessing: function(data){
+        return_sorts = data.sorts;
+        return_filters = data.filters;
+        return_search_con = data.search_con;
         userTimeReport.createTimeTable(data.rows);
         total = data.rows_count;
         return [total];
@@ -299,7 +307,7 @@ var tablesorterOptions = {
 };
 
 $(function() {
-     $(".pagesize").find("option[text='10']").attr("selected",true);
+    $(".pagesize").find("option[text='10']").attr("selected",true);
     //----------- tablesorter init----------//
     tablesorterOptions.widgetOptions.filter_external = '.search-users';
     pagerOptions.container = $("#user_pager");
@@ -342,6 +350,23 @@ $(function() {
        var id = $("#User_district_select :selected").attr("class");
         clearDropdown("#User_school_select");
         filterUserDropOptions('school', id, '#User_school_select');
+    });
+
+    $("#btnExcelallsearch").click(function(){
+        console.log("btnExcelallsearch");
+        console.log(return_filters);
+        console.log(return_sorts)
+        console.log(return_search_con);
+        console.log("---------------");
+
+        $.post("${reverse('download_excel_allsearch')}", return_search_con, 
+            function(data) {
+                if (data.success) {
+                    window.setTimeout(function () {
+                        console.log("okokok, ", data.data);
+                }, 100);
+            }
+        });
     });
 });
 function clearDropdown(dropdown){

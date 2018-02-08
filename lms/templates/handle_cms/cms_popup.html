@@ -117,7 +117,7 @@ function librariesSelector() {
             res_html = "";
             $.each(results, function (i) {
                 res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
-                res_html += results[i].subject_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
+                res_html += results[i].content_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
             });
             $(this).parent().next().html(res_html);
         });
