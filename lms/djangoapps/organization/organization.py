@@ -272,6 +272,10 @@ def organization_manage_user_info(request):
                                 if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
                                     is_add = False
                                     break
+                            elif tmp1.EntityType == "Cohort":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.cohort.id):
+                                    is_add = False
+                                    break
                             else:
                                 if int(tmp1.OrganizationEnity) == int(school_id):
                                     is_add = False
@@ -329,6 +333,10 @@ def org_manage_user_cvs_upload(request):
                                     break
                             elif tmp1.EntityType == "District":
                                 if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
+                                    is_add = True
+                                    break
+                            elif tmp1.EntityType == "Cohort":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.cohort.id):
                                     is_add = True
                                     break
                             else:
@@ -932,6 +940,10 @@ def organization_get(request):
                         elif tmp1.EntityType == "District":
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                break
+                        elif tmp1.EntityType == "Cohort":
+                            for tmp2 in Cohort.objects.filter(id=tmp1.OrganizationEnity):
+                                tmp1_text = tmp2.code
                                 break
                         else:
                             for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
@@ -2066,10 +2078,21 @@ def organization_get_info(request):
                 district = request.POST.get('district', False)
                 state = request.POST.get('state', False)
                 school = request.POST.get('school', False)
-
+                user = request.POST.get('user', False)
+                profile = UserProfile.objects.get(user=user)
+                try:
+                    cohort = profile.cohort.id
+                except:
+                    cohort = ""
                 data['OrganizationOK'] = False
 
-                if school:
+                if cohort:
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort, EntityType="Cohort"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break
+
+                if not(data['OrganizationOK']) and school:
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school, EntityType="School"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
@@ -2120,10 +2143,21 @@ def organization_get_info(request):
                         school = request.user.profile.school.id
                     except:
                         school = -1
+                    try:
+                        cohort = request.user.profile.cohort.id
+                    except:
+                        cohort = -1
 
                     data['OrganizationOK'] = False
 
-                    if school != -1:
+                    if cohort != -1:
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort,
+                                                                         EntityType="Cohort"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break
+
+                    if not (data['OrganizationOK']) and school != -1:
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school,
                                                                          EntityType="School"):
                             data['OrganizationOK'] = True

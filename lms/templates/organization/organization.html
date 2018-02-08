@@ -4517,6 +4517,8 @@
 		$("#org_cohort_select").change(function () {
 			if ($(this).val() == ""){
 				$("#org_state_select").prop("disabled",false)
+				$("#org_state_select").val("");
+				$("#org_state_select").change();
 				$("#org_district_select").prop("disabled",false)
 				$("#org_school_select").prop("disabled",false)
 			}else{
