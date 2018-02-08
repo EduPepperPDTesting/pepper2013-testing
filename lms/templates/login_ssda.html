@@ -1,0 +1,702 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%inherit file="main.html" />
+
+<%namespace name='static' file='static_content.html'/>
+<%! from django.core.urlresolvers import reverse %>
+<%! from django.utils.translation import ugettext as _ %>
+<!--@begin:New added page style-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+
+<style>
+ .ssda-check-success{
+   display:none;
+ }
+ .ssda-check-failed, #button-back{
+   display:none;
+ }
+#submit:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+#submit {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+#submit:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+.form-row{
+    overflow: hidden;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-row label{
+    font-size:13px;
+    font-style:normal;
+    font-weight:bold;
+    padding:3px 10px 0 0;
+    width:140px;
+    border:0px solid;
+    display:block;
+    float:left;
+}
+.form-row input{
+    font-size:13px !important;
+    height:25px;
+    width:200px;
+    margin-top:3px;
+}
+.error-info{
+    font-size:13px !important;
+    color:#f00;
+    margin-top:5px;
+    width:230px;
+    padding-left:150px;
+}
+#btn_change_password:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+#btn_change_password {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
+    padding:12px 0 12px 0; 
+    width: 418px;
+}
+#btn_change_password:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+.btn-change-password-lock{
+    background-image:linear-gradient(to bottom,#6e8194 0%,#6e8194 50%,#6e8194 50%,#6e8194 100%) !important; 
+    background-color:#6e8194;
+    /*
+    border:0px;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 0 #666;
+    */
+}
+</style>
+<!--@end-->
+
+<%block name="title"><title>${_("Log into your {platform_name} Account").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
+
+<%block name="js_extra">
+    <script type="text/javascript">
+        $(function() {
+
+            var view_name = 'view-login';
+
+            // adding js class for styling with accessibility in mind
+            $('body').addClass('js').addClass(view_name);
+
+            // new window/tab opening
+            $('a[rel="external"], a[class="new-vp"]')
+                    .click( function() {
+                        window.open( $(this).attr('href') );
+                        return false;
+                    });
+
+            // form field label styling on focus
+            $("form :input").focus(function() {
+                $("label[for='" + this.id + "']").parent().addClass("is-focused");
+            }).blur(function() {
+                $("label").parent().removeClass("is-focused");
+            });
+
+            /*
+            var dialog_change_psw;
+            $("#submit").click(function(event){
+                //dialog_change_psw = new Dialog($('#dialog_change_password'));
+                //dialog_change_psw.show('Password Reset');
+                //return false;
+            });
+            */
+        });
+
+        (function() {
+            var urlParams = {};
+            var searchString = window.location.search.substring(1);
+            if (searchString !== undefined) {
+                var pairs = searchString.split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var values = pairs[i].split('=');
+                    urlParams[values[0]] = values[1] === undefined ? false : decodeURIComponent(values[1]);
+                }
+            }
+
+            if (localStorage.pepperpd_login_email)
+            {
+                $("#email").val(localStorage.pepperpd_login_email);
+            }
+            toggleSubmitButton(true);
+
+            $('#login-form').on('submit', function() {
+                toggleSubmitButton(false);
+            });
+
+            $('#login-form').on('ajax:error', function() {
+                toggleSubmitButton(true);
+            });
+
+            var change_psw_press = 0;
+            $('#login-form').on('ajax:success', function(event, json, xhr) {
+                if (json.success) {
+                    if ($('#remember-yes').attr("checked"))
+                    {
+                        localStorage.pepperpd_login_email=$("#email").val();
+                    }
+
+                    if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
+                        var next = urlParams['next'];
+                        if (next.substring(0,1) != '/') {
+                            next = '/' + next;
+                        }
+                        location.href = next;
+                    } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next'])) {
+                        location.href = urlParams['next'];
+                    }  else {
+                        location.href = "${reverse('dashboard')}";
+                    }
+
+                } else {
+                    if(json.user_email && json.user_email !== undefined){
+                        toggleSubmitButton(true);
+
+                        $("#id_new_password1").val("");
+                        $("#id_new_password2").val("");
+                        $("#id_old_password").val("");
+                        $(".check-error-p1").html("");
+                        $(".check-error-p2").html("");
+                        $(".check-success").html("");
+                        $(".login-failed").html("");
+                        $("#id_new_password1").attr("user_email",json.user_email);
+
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        dialog_change_psw = new Dialog($('#dialog_change_password'));
+                        dialog_change_psw.show();
+                        $(".password-change-date-error").html(json.value);
+                    }
+                    else{
+                        toggleSubmitButton(true);
+                        $('.message.submission-error').addClass('is-shown').focus();
+                        $('.message.submission-error .message-copy').html(json.value);
+                    }
+                }
+            });
+            
+            //----------- click event change user password----------//
+            $("#btn_change_password").click(function(){
+                if(change_psw_press == 0){
+                    change_psw_press = 1;
+                    $("#btn_change_password").addClass("btn-change-password-lock");
+                    $(".check-success").html("");
+                    $(".login-failed").html("");
+
+                    var user_email = $("#id_new_password1").attr("user_email");
+                    var psw0 = $("#id_old_password").val().trim();
+                    var psw1 = $("#id_new_password1").val().trim();
+                    var psw2 = $("#id_new_password2").val().trim();
+                    
+                    var check_status = {};
+                    check_status = password_verify_local(psw0,psw1,psw2);
+                    if(check_status.type != 200){
+                        if(check_status.type == 6){
+                            $(".check-error-p0").html(check_status.info);
+                            $(".check-error-p1").html("");
+                            $(".check-error-p2").html("");
+                            $("#id_old_password").focus();
+                        }
+                        else if(check_status.type == 1 || check_status.type == 2 || check_status.type ==3){
+                            $(".check-error-p0").html("");
+                            $(".check-error-p1").html(check_status.info);
+                            $(".check-error-p2").html("");
+                            $("#id_new_password1").focus();
+                            
+                        }
+                        else if(check_status.type == 4 || check_status.type == 5){
+                            $(".check-error-p0").html("");
+                            $(".check-error-p1").html("");
+                            $(".check-error-p2").html(check_status.info);
+                            $("#id_new_password2").focus();
+                        }
+                        change_psw_press = 0;
+                        $("#btn_change_password").removeClass("btn-change-password-lock");
+                        return;
+                    }
+
+                    $(".check-error-p0").html("");
+                    $(".check-error-p1").html("");
+                    $(".check-error-p2").html("");
+                    $(".check-success").html("Now Saving......");
+                    $.post("${reverse('save_user_passwordold')}", {'user_email': user_email,'user_post_1': psw1,'user_post_2': psw2,'user_post_0': psw0}, 
+                        function(data) {
+                            if (data.success) {
+                                $(".password-change-date-error").html("");
+                                $(".check-success").html("User\'s password changes successfully.");
+
+                                $.post("/login_ajax", {'email': user_email,'password': psw2}, 
+                                    function(json) {
+                                        if(json.success){
+                                            window.setTimeout(function () {
+                                                location.href = "${reverse('dashboard')}";
+                                            }, 500);
+                                        }
+                                        else{
+                                            //dialog_change_psw.hide();
+                                            change_psw_press = 0;
+                                            $("#btn_change_password").removeClass("btn-change-password-lock");
+                                            login_failed_info = "But login failed. " + json.value;
+                                            $(".login-failed").html(login_failed_info);
+                                        }
+                                    }
+                                ); 
+                            }
+                            else{
+                                window.setTimeout(function () { 
+                                    change_psw_press = 0;
+                                    $("#btn_change_password").removeClass("btn-change-password-lock");
+                                    $(".check-success").html("");
+                                    if(data.value.grouptype == 'error1'){
+                                        $(".check-error-p0").html("");
+                                        if(data.value.type == 1 || data.value.type == 2 || data.value.type == 3){
+                                            $(".check-error-p1").html(data.value.info);
+                                            $(".check-error-p2").html("");
+                                            $("#id_new_password1").focus();
+                                        }
+                                        else{
+                                            $(".check-error-p1").html("");
+                                            $(".check-error-p2").html(data.value.info);
+                                            $("#id_new_password2").focus();
+                                        }
+                                    }
+                                    else if(data.value.grouptype == 'error2'){
+                                        $(".check-error-p0").html(data.value.info);
+                                        $(".check-error-p1").html("");
+                                        $(".check-error-p2").html("");
+                                        $("#id_old_password").focus();
+                                    }
+                                    else if(data.value.grouptype == 'error3'){
+                                        $(".check-error-p0").html("");
+                                        $(".check-error-p1").html(data.value.info);
+                                        $(".check-error-p2").html("");
+                                        $("#id_new_password1").focus();
+                                    }
+                                    else if(data.value.grouptype == 'error4'){
+                                        $(".check-error-p0").html("");
+                                        $(".check-error-p1").html("");
+                                        $(".check-error-p2").html(data.value.info);
+                                    }
+                                }, 100);
+                            }
+                    });
+                }
+            });
+
+            function password_verify_local(psw0,psw1,psw2){
+                var error_info = [{"type":200,"info":""},
+                                  {"type":1,"info":"Please fill in new password."},
+                                  {"type":2,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":3,"info":"New password must contain at least one of each: A-Z, a-z, 0-9 and one of the following special characters ~!@#$%^&* and must be 8-16 characters long."},
+                                  {"type":4,"info":"Confirm password is required."},
+                                  {"type":5,"info":"Your new and confirm password are different. Please enter again."},
+                                  {"type":6,"info":"Please fill in old password."}];
+                
+                if(psw0 == ""){
+                    return error_info[6];
+                }
+
+                if(psw1 == ""){
+                    return error_info[1];
+                }
+                if(psw1.length < 8 || psw1.length > 16){
+                     return error_info[2];  
+                }
+                if(psw1.length != 0){
+                    var regexp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/;
+                    var r = psw1.match(regexp);
+                    if(r == null){
+                         return error_info[3];
+                    }     
+                }
+                if(psw2 == ""){
+                    return error_info[4];
+                }
+
+                if(psw1 != psw2){
+                    return error_info[5];
+                }
+                return error_info[0];
+            }
+            
+        })(this);
+
+        function toggleSubmitButton(enable) {
+            var $submitButton = $('form .form-actions #submit');
+            if(enable) {
+                $submitButton.
+                removeClass('is-disabled').
+                removeProp('disabled').
+                html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
+            } else {
+                $submitButton.
+                addClass('is-disabled').
+                prop('disabled', true).
+                html(gettext('Processing your account information &hellip;'));
+            }
+
+        }
+
+        //------------- Clear time storage-------------------//
+
+        function clearTimeSessionStorage(){
+            var user_id = sessionStorage.getItem('user_id');
+            if(user_id != null){
+                sessionStorage.removeItem(user_id + '_course_id');
+                sessionStorage.removeItem(user_id + '_vertical_id');
+                sessionStorage.removeItem(user_id + '_type');
+                sessionStorage.removeItem(user_id + '_time');
+                sessionStorage.removeItem('user_id');
+            }
+        }
+
+      clearTimeSessionStorage();
+
+    </script>
+    </%block>
+
+<!-- dialog change password -->
+    <section id="dialog_change_password" class="modal">
+    <div class="inner-wrapper" style="background-color:#fff;">
+      <div style="width:418px;margin:auto;text-align:left;">
+
+   
+            <div style="border:0px solid #f00;padding:17px 0 18px 0;">
+                <span style="font-size:25px;color:#1580b9;font-weight:lighter;margin-top:15px;text-transform:uppercase;">${_("Password Reset")}</span>
+            </div>
+
+            <div class="password-change-date-error" style="font-size:15px;line-height:21px;color:#f00;">
+            </div>
+
+            <div>
+                <div style="margin-left:20px;width:400px;text-align:left;">
+                    <div class="form-row">
+                        <label for="id_old_password" class="required">Old Password:</label>
+                        <input type="password" name="old_password" id="id_old_password" maxlength="30">
+                        <div class="check-error-p0 error-info"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="id_new_password1" class="required">New Password:</label>
+                        <input type="password" name="new_password1" id="id_new_password1" maxlength="16">
+                        <div class="check-error-p1 error-info"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="id_new_password2" class="required">Confirm Password:</label>
+                        <input type="password" name="new_password2" id="id_new_password2" maxlength="16">
+                        <div class="check-error-p2 error-info"></div>
+                    </div>
+                </div>
+                <div class="check-success" style="color:#000;padding:8px;text-align:center;font-size:14px;"></div>
+                <div class="login-failed" style="color:#f00;padding:0 8px 8px 8px;text-align:center;font-size:14px;"></div>
+                <div style="margin:10px 0 10px 0;">
+                    <div id="btn_change_password">Change Password</div>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="close-modal" title="Close Modal">
+            <div class="inner">
+                <p>&#10005;</p>
+            </div>
+        </a>
+  </div>
+</section>
+
+<div style="width:960px;margin:0 auto;">
+  <section class="introduction">
+
+    <div style="line-height:30px;margin:30px 0 10px 0;" class="clearfix">
+      <img src="/static/images/ssda-banner.jpg" class="" alt="" width="20%"/>
+      <div style="width:70%;float:right;font-size:20px;margin-right:5%;">
+        <p style="font-weight:bold;">Welcome to the SSDA Membership Portal! All of the great resources from SSDA at your fingertips.</p>
+        <p>Debra Pearson, Executive Director</p>
+      </div>
+    </div>
+    
+        <!--@begin:use new image name(ppd-...); modify the style-->
+        <!--@date:2013-11-02-->
+        <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.jpg);border-bottom:1px solid #000;">
+            <!--@end-->
+
+            <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+            <!--@date:2013-11-02-->
+            <div style="width:580px;float:left">
+                <div class="_banner_whatis_title_font">
+                    PLEASE LOG IN
+                    <div class="_banner_whatis_title_content_font">
+                        to access your account
+                    </div>
+                </div>
+            </div>
+            <!--@end-->
+        </div>
+    </section>
+
+    <section class="login container">
+      <!-- <div style="float:right;width:30%;line-height:25px;">
+           Not a member? <a href="">Click here</a> for SSDA Membership and Benefits. 
+           <br><br>for SSDA Membership and Benefits.
+           </div>
+         -->
+      <section role="main" class="content">
+
+            <form role="form" id="login-form" method="post" data-remote="true" action="/login_ajax" novalidate>
+
+                <!-- status messages -->
+                <div role="alert" class="status message">
+                    <h3 class="message-title">${_("We're Sorry, {platform_name} accounts are unavailable currently").format(platform_name=settings.PLATFORM_NAME)}</h3>
+                    <p class="message-copy">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                </div>
+
+                <div role="alert" class="status message submission-error" tabindex="-1">
+                    <h3 class="message-title">${_("The following errors occured while logging you in:")} </h3>
+                    <ul class="message-copy">
+                        <li>${_("Your email or password is incorrect")}</li>
+                    </ul>
+                </div>
+
+                <p class="instructions sr">
+                    ${_('Please provide the following information to log into your {platform_name} account. Required fields are noted by <strong class="indicator">bold text and an asterisk (*)</strong>.').format(platform_name=settings.PLATFORM_NAME)}
+                </p>
+
+
+
+                <fieldset class="group group-form group-form-requiredinformation">
+                  <legend class="sr">${_('Required Information')}</legend>
+                  <ol class="list-input">
+                    <li class="field text" id="field-email">
+                      <label for="email" style="font-weight:bold;">${_('E-mail')}</label>
+                      <input id="email-check" type="email" name="email" value="" placeholder="example: username@domain.com" required aria-required="true" />
+                    </li>
+                  </ol>
+                </fieldset>
+
+                
+                <fieldset class="group group-form group-form-requiredinformation ssda-check-success">
+                    <legend class="sr">${_('Required Information')}</legend>
+
+                    <ol class="list-input">
+                        <!--@begin:Change the form-->
+                        <!--@date:2013-11-02-->
+                        <li class="field text" id="field-email">
+                            <label for="email" style="font-weight:bold;">${_('E-mail')}</label>
+                            <input class="" id="email" type="email" name="email" value="" placeholder="example: username@domain.com" required aria-required="true" />
+                        </li>
+                        <li class="field password ssda-check-success" id="field-password">
+                            <label for="password" style="font-weight:bold;">${_('Password')}</label>
+                            <input id="password" type="password" name="password" value="" required aria-required="true" />
+            <span class="tip tip-input">
+              <a href="/helpandsupport" class="blue pwd-reset action action-forgotpw">${_('Help Desk')}</a>
+                <!--@end-->
+            </span>
+                        </li>
+                    </ol>
+                </fieldset>
+
+                <fieldset class="group group-form group-form-secondary group-form-accountpreferences ssda-check-success">
+                    <legend class="sr">${_('Account Preferences')}</legend>
+
+                    <ol class="list-input">
+                        <!--@begin:Change the font of Remember me
+                        <!--@date:2013-11-02-->
+                        <li class="field checkbox" id="field-remember">
+                            <input id="remember-yes" type="checkbox" name="remember" value="true" />
+                            <label for="remember-yes" style="font-weight:bold;">${_('Remember me')}</label>
+                            <!--@end-->
+                        </li>
+                    </ol>
+                </fieldset>
+
+                % if course_id and enrollment_action:
+                    <input type="hidden" name="enrollment_action" value="${enrollment_action | h}" />
+                    <input type="hidden" name="course_id" value="${course_id | h}" />
+                % endif
+
+                    <div class="form-actions ssda-check-success">
+                    <button name="submit" type="submit" id="submit" class="action action-primary action-update"></button>
+                </div>
+
+                <input id="button-next" type="button" name="" value="Next" style="background-color:#DFEDD6;background-image:none;border-top-color:#555;box-shadow:none;"/>
+
+                <div class="ssda-check-failed" style="line-height:20px;margin-bottom:20px;font-size:16px;font-style:italic;">
+                  Account not found: Please check the email address. If your are not yet a SSDA member, and, would like more information, please click here:
+                  <a href="http://www.ssda.org/o/ssda/page/membership--3">SSDA Membership</a>.
+                </div>
+                <input id="button-back" type="button" name="" value="Back" style="background-color:#DFEDD6;background-image:none;border-top-color:#555;box-shadow:none;" class="ssda-check-failed"/>
+                
+            </form>
+        </section>
+
+        <aside role="complementary">
+            <header>
+                <h2 class="sr">${_("Helpful Information")}</h2>
+            </header>
+
+            % if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
+            <!-- <div class="cta cta-login-options-openid">
+                 <h3>${_("Login via OpenID")}</h3>
+                 <p>${_('You can now start learning with {platform_name} by logging in with your <a rel="external" href="http://openid.net/">OpenID account</a>.').format(platform_name=settings.PLATFORM_NAME)}</p>
+                 <a class="action action-login-openid" href="#">${_("Login via OpenID")}</a>
+                 </div> -->
+            % endif
+
+            <div class="cta cta-help" style="line-height:25px;color:#666;">
+                <!--@begin:delete the text-->
+                <!--@date:2013-11-15-->
+                <!--
+                  <h3 style="font-size:16px;color:#3461ad;">Not yet a member of pepper?<br>There are two ways to join.</h3><br>
+                 -->
+                <!--@end-->
+
+                <!--@begin:Removed for now and will implement when e-transaction works-->
+                <!--@date:2013-11-02-->
+                <!--
+                To sign up your teachers please<br> contact
+                <a href="mailto:info@pepperpd.com" class="blue-underline" style="text-decoration:underline !important;">info@pepperpd.com</a><br><br>
+                To sign up as an individual,<br> please
+                <a href="" class="blue-underline" style="text-decoration:underline !important;">Click Here</a>
+                -->
+                <!--@end-->
+            </div>
+        </aside>
+    </section>
+</div>
+
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var dlg = new Dialog($('#dialog'));
+  var $submitButton = $('form .form-actions #submit');
+  /* 
+   *   $('form').submit(function(){
+   *     return false;
+   *   });*/
+  
+  $("#button-next").click(function(){
+    var self = this;
+    var $email = $("#email-check");
+    $.post("${reverse('check_ssda_email')}", {'email': $email.val()}, function(r){
+      if(r.status){
+        if((r.status == "not found" || r.status == "not ssda")){
+          $(".ssda-check-failed").show();
+        }else if(r.status == "need registration"){
+          window.location = "${reverse('register_user')}" + r.activation_key;
+          /* $(".ssda-check-success").show();
+           * $submitButton.removeClass("is-disabled").removeProp('disabled');
+           * $submitButton.html("Register Me!").off("click").click(function(){
+           *   window.location = "${reverse('register_user')}" + r.activation_key;
+           *   return false;
+           * });*/
+        }else if(r.status == "is ssda"){
+          $(".ssda-check-success").show();
+          $submitButton.removeClass("is-disabled").removeProp('disabled');
+          $submitButton.html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
+        }
+        $(self).hide();
+        $email.closest("fieldset").hide();
+      }else{
+        dlg.show("Warning", "Error occured")
+      }
+    });
+  });
+
+  $("#button-back").click(function(){
+    var $email = $("#email-check");
+    $(this).hide();
+    $(".ssda-check-failed").hide();
+    $("#button-next").show();
+    $email.closest("fieldset").show();
+  });
+
+  $("#email-check").keydown(function(e){
+    if(e.keyCode == 13){
+      $("#button-next").click();
+      e.preventDefault();
+      return false;
+    }
+  });
+</script>
+

@@ -532,6 +532,8 @@ urlpatterns = (
     
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
+    url(r'^ssda$', 'student.views.signin_user_ssda', name="signin_user_ssda"),
+    url(r'^check_ssda_email$', 'student.views.check_ssda_email', name="check_ssda_email"),
 
     url(r'^user_profile$', 'student.newdashboard.user_information', name="user_information"),
     url(r'^user_profile/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),
