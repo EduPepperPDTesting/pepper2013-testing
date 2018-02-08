@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollmentAllowed
-from student.models import District, State, School
+from student.models import District, State, School, Cohort
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
@@ -1039,6 +1039,7 @@ def organization_get_locations(request):
     rows_state = []
     rows_district = []
     rows_school = []
+    rows_cohort = []
     district_id = request.GET.get('district_id', "")
     school_id = request.GET.get('school_id', "")
 
@@ -1060,7 +1061,10 @@ def organization_get_locations(request):
             for org1 in District.objects.filter(state__isnull=False).order_by("name"):
                 rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
 
-        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
+            for org2 in Cohort.objects.all().order_by('code'):
+                rows_cohort.append({'id': org1.id, 'name': org1.code})
+
+        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school, 'rows_cohort': rows_cohort}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
