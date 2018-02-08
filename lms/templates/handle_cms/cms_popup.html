@@ -94,14 +94,16 @@ function librariesSelector() {
             $($(this).children()[1]).toggleClass("down-arrow");
         });
         $("body").on("click", ".selectable_resource", function (e) {
-            url = $(this).data("url");
-            title = $(this).data("title");
-            data = {
-                "url": url,
-                "title": title,
-                "img": working_img
+            if (!$($(this).children()[0]).is(":hover")) {
+                url = $(this).data("url");
+                title = $(this).data("title");
+                data = {
+                    "url": url,
+                    "title": title,
+                    "img": working_img
+                }
+                send_to.fire(data);
             }
-            send_to.fire(data);
         });
         $("body").on("click", "#sub_search", function () {
             search_terms = encodeURIComponent($("#search_term").val());
@@ -117,7 +119,7 @@ function librariesSelector() {
             res_html = "";
             $.each(results, function (i) {
                 res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
-                res_html += results[i].subject_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
+                res_html += results[i].content_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
             });
             $(this).parent().next().html(res_html);
         });
