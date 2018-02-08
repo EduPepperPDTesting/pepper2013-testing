@@ -3,8 +3,8 @@
 %>
 
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
-<script src="/static/js/jquery-ui.js"></script>
-<!--script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
+<!--script src="/static/js/jquery-ui.js"></script-->
+<script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <div id="pep_all_lists">
 	%for org in orgs_list:
@@ -103,6 +103,7 @@
 							function getRowsData(allUsersSource, user_ids){
 								$.ajax({type: "post", url: allUsersSource, data: {'user_ids[]': user_ids}, async: false, success: function (networkData){
 										if(networkData.success){
+											networkRows = [];
 											for(i=0; i<networkData.rows.length; i++){
 												networkRows.push(networkData.rows[i]);
 											}
@@ -210,7 +211,7 @@
 
         $(".pep_contact_block").on("mouseout", ".pep_contact_name", function(e){
         	if($(this).text().length>22){
-        		$(this).css({"max-width": "190px", "height": "20px", "font-size": "1em", "white-space": "nowrap", "position": "relative", "left": "0px", "top": "10px"});
+        		$(this).css({"max-width": "190px", "height": "20px", "font-size": ".8em", "white-space": "nowrap", "position": "relative", "left": "0px", "top": "10px"});
         		//$(this).prev(".pep_contact_info").css("display", "inline-block");
         	}
 		});
@@ -244,28 +245,32 @@
 								}
 							});
 						}
-						var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: window.innerWidth - (235 + 40);
+						//var leftX = (elCount > 0)?parseInt($(".pep_text_container:has(.pep_text_panel):last").css("left")) - 235: "";//window.innerWidth - (235 + 40);
+						var prevRightX = parseInt($('.pep_text_container:has(.pep_text_panel):last').css("right"));
+						var rightX = (elCount > 0)?prevRightX + 235:"0";
 						//console.log("leftX="+leftX);
 						//console.log("nameTitle="+nameTitle);
 						var headAttr = uclass + "`" + nameTitle + "`" + IdTitle;
 
-						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
+						$(".pep_text_container:last").attr("data-chat_mini", "0").css({"display": "block", "left": "", right:  rightX + "px", "bottom": "0px", "z-index":  elCount + 1}).load("/textchat/" + headAttr + " .pep_text_panel");
 
 						var headsList = [];
 						var chatHeads = JSON.parse(sessionStorage.getItem('chatHeads'));
 						if(chatHeads !== null){
 							headsList = chatHeads;
 						}
-						headsList.push(headAttr +"|"+ leftX +"||"+ (elCount+1) + "``0");
+						headsList.push(headAttr +"|"+ rightX +"||"+ (elCount+1) + "``0");
     					sessionStorage.setItem('chatHeads', JSON.stringify(headsList));
-						leftX-=235;
-						$(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+						rightX+=235;
+						$(".pep_textchat_block").append("<div class='pep_text_container' style='right: " + rightX + "px !important; z-index :0'></div>");
 					}
 				}
 				getMessage(id);
-				$("#textchat_"+id).animate({
-					scrollTop: $("#textchat_"+id)[0].scrollHeight
-				}, 500);
+				if($("#textchat_"+id)[0] !== undefined){
+					$("#textchat_"+id).animate({
+						scrollTop: $("#textchat_"+id)[0].scrollHeight
+					}, 500);
+				}
 			}
 			$link.data('lockedAt', +new Date());
             $(".pep_textchat_block").on("click", ".pep_chat_video", function(e) {
@@ -299,7 +304,7 @@
 		});
 
 		showUserList()
-		
+
 		$("#pep_slider_list").on("click", ".pep_remove_from_list", function(e){
 			e.preventDefault();
 

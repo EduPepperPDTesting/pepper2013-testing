@@ -116,6 +116,14 @@ urlpatterns = (
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
 
+    # === CMS 2.1 === #
+    url(r'^cmspopup/$', 'handle_cms.views.get_cms_popup', name='cms_popup'),
+    url(r'^cmsapi/$', 'handle_cms.views.get_cms_api', name='cms_api'),
+    url(r'^cms_libraries/$', 'handle_cms.views.get_libraries', name='cms_libraries'),
+    url(r'^cms_library/$', 'handle_cms.views.get_library', name='cms_library'),
+    url(r'^cms_book/$', 'handle_cms.views.get_book', name='cms_book'),
+    # === CMS 2.1 end === #
+
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
     url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
@@ -722,6 +730,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^demo4$', 'branding.views.demo4', name="demo4"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
         url(r'^contact$', 'branding.views.contact', name="contact_us"),
+        url(r'^helpandsupport$', 'branding.views.helpandsupport', name="helpandsupport"),
         url(r'^intro$', 'branding.views.intro', name="intro"),
         url(r'^intro_research$', 'branding.views.intro_research', name="intro_research"),
         url(r'^intro_ourteam$', 'branding.views.intro_ourteam', name="intro_ourteam"),

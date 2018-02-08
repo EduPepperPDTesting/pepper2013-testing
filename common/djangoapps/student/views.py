@@ -613,7 +613,8 @@ def dashboard(request, user_id=None):
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
-
+            c.is_closed = enrollment.is_closed
+            
             if enrollment.course_id in allowed:
                 exists = exists - 1
 
@@ -2051,7 +2052,7 @@ def activate_imported_account(post_vars):
         profile.percent_eng_learner = post_vars.get('percent_eng_learner', '')
         profile.bio = post_vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
-        profile.save()
+        
 
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
@@ -2081,6 +2082,7 @@ def activate_imported_account(post_vars):
         try:
             profile.user.save()
             registration.activate()
+            profile.save()
         except Exception as e:
             if "for key 'username'" in "%s" % e:
                 ret['value'] = "Username '%s' already exists" % profile.user.username

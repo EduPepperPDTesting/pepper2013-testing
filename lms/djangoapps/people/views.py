@@ -1,12 +1,12 @@
 from django.http import Http404
 from mitxmako.shortcuts import render_to_response
+import datetime
 from django.db import connection
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from student.models import CourseEnrollment,get_user_by_id,People
+from student.models import CourseEnrollment, get_user_by_id, People
 from django.contrib.auth.models import User
-from rest_framework.response import Response
-
+from student.feeding import dashboard_feeding_store
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
 
@@ -21,6 +21,10 @@ from django_future.csrf import ensure_csrf_cookie
 from django.views.decorators.cache import cache_control
 
 from people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
+
+import re
+from student.models import User
+from xmodule.remindstore import myactivitystore, myactivitystaticstore
 
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
@@ -329,3 +333,93 @@ def my_people(request,course_id='',checkInNetwork='',pageAttr=''):
 
     else:
         return HttpResponse(json.dumps({'success': 1, 'users': profiles}), content_type="application/json")
+
+def is_people(user,owner_id):
+    owner_id = str(owner_id)
+    people_of = []
+    if user.profile.people_of:
+        people_of = user.profile.people_of.split(',')
+
+    if owner_id not in people_of:
+        return False
+    else:
+        return True
+
+def get_my_activity_info(my_activity, etype):
+    static_info = myactivitystaticstore().get_item_by_etype(etype)
+    data = my_activity
+    for data_s in static_info:
+        data['URL'] = data_s['URL']
+        data['Logo'] = data_s['Logo']
+        data['DisplayInfo'] = data_s['DisplayInfo']
+        break
+
+    ma_dict = {}
+
+    # URL
+    ma_dict["URL"] = re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
+
+    ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#', 'href=' + ma_dict["URL"])
+
+    return ma_dict["DisplayInfo"]
+
+def get_displayInfo(data):
+    displayInfo_values = {}
+    info_list = re.findall("{([\w |,.()'_/]*)}", data["DisplayInfo"])
+    dt = {}
+    for d in info_list:
+        t1 = d.split(',')
+        value = ''
+        if t1[0] == 'mysql':
+            dt = {}
+            t21 = t1[1].split('|')
+            t22 = t1[2].split('|')
+            dt['db'] = t1[0]
+            dt['models'] = t21[0]
+            dt['models2'] = t21[1]
+            dt['getby'] = t22[0]
+            dt['key'] = data['TokenValues'][t22[1]]
+            dt['key_name'] = t1[3]
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                list_key = str(dt['key']).split(',')
+                _symbol = '='
+                if len(list_key) > 1:
+                    dt['key'] = []
+                    _symbol = '__in='
+                    for d in list_key:
+                        dt['key'].append(int(d))
+                str_get = dt['models'] + '.objects.filter(' + dt['getby'] + _symbol + str(dt['key']) + ')'
+                e1 = eval(str_get)
+                value = ""
+                e2_list = []
+                for d in e1:
+                    if len(e1) == 1:
+                        value = eval("d." + dt['models2'])
+                    else:
+                        e2 = eval("d." + dt['models2'])
+                        e2_list.append(e2)
+                        value = ", ".join(e2_list)
+        elif t1[0] == 'mongo':
+            dt = {}
+            dt['db'] = t1[0]
+            dt['models'] = re.sub("/([\w _]*)/", lambda x: str(data['TokenValues'].get(x.group(1))), t1[1])
+            dt['models'] = dt['models'].replace('|',',')
+            dt['key_name'] = t1[2]
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                try:
+                    value = eval(dt['models'])
+                except:
+                    pass
+        else:
+            info = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["DisplayInfo"])
+            return info
+        displayInfo_values[dt['key_name']] = value
+    info = replace_values(data["DisplayInfo"],displayInfo_values)
+    return info
+
+def replace_values(body, values):
+    return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)

@@ -219,12 +219,12 @@ def save_other_config(request):
         for d in data:
             for u in users:
                 config, created = CommunityNotificationConfig.objects.get_or_create(type_id=d["type_id"], user=u)
-                if created or (not config.self_config):
-                    config.type_id = d["type_id"]
-                    config.via_pepper = d["via_pepper"]
-                    config.via_email = d["via_email"]
-                    config.frequency = d["frequency"]
-                    config.save()
+                # if created or (not config.self_config):
+                config.type_id = d["type_id"]
+                config.via_pepper = d["via_pepper"]
+                config.via_email = d["via_email"]
+                config.frequency = d["frequency"]
+                config.save()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -437,5 +437,13 @@ def _send_notification(action_user, receive_user, type_name, values):
 
 
 def send_course_notification(request, action_user, course, notification_type, user_id):
-    values = {"Course Link": full_reverse('courseware', request, course.id), "Course Name": course.display_name, "Course Number": course.id}
-    _send_notification(action_user, User.objects.get(id=user_id), notification_type, values)
+    user = User.objects.get(id=user_id)
+    values = {"Course Link": full_reverse('courseware', request, course.id),
+              "Course Name": course.display_name,
+              "Course URL ID": course.id,
+              "Course Number": course.number,
+              "Sender First Name": action_user.first_name,
+              "Sender Last Name": action_user.last_name,
+              "Receiver First Name": user.first_name,
+              "Receiver Last Name": user.last_name}
+    _send_notification(action_user, user, notification_type, values)

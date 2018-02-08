@@ -5,8 +5,8 @@ from django.core.urlresolvers import reverse
 <link rel="stylesheet" type="text/css" href="/static/css/webchat-bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/css/webslider.css">
 
-<script src="/static/js/jquery-ui.js"></script>
-<!--script-- src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
+<!--script src="/static/js/jquery-ui.js"></script-->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <div id="pep_container">
 
@@ -17,9 +17,9 @@ from django.core.urlresolvers import reverse
     <div id="pep_panel" class="container">
         <div id="pep_search_container">
 	        <input type="text" class="form-control" placeholder="Search" name="search-term" id="pep_search">
-            <div id="pep_search_glass">
+            <!--div id="pep_search_glass">
             	<img src="/static/images/Pepptalk/PeppSearch.png" alt="glass">
-        	</div>
+        	</div-->
         </div>
         <div id="pep_groups" class="btn-group">
             <a type="button" class="btn btn-xs pep_btn_active" id="my_all" style="background-color: rgb(245, 130, 31);">All</a>
@@ -58,17 +58,17 @@ $(document).ready(function(){
     if(getChatHeads) {
         for (var arrInd in getChatHeads){
             getChatHead = getChatHeads[arrInd].substring(0, getChatHeads[arrInd].indexOf("|"));
-            var leftX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
+            var rightX = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("|")+1, getChatHeads[arrInd].indexOf("||"));
             var zInd = parseInt(getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("||")+2, getChatHeads[arrInd].indexOf("``")));
             var chatMini = getChatHeads[arrInd].substring(getChatHeads[arrInd].indexOf("``")+2); console.log(arrInd+" "+chatMini);
             var getIdString = getChatHead.substring(getChatHead.indexOf("`") + 1);
             var chat_id = getIdString.substring(0, getIdString.indexOf("`"));
-            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": leftX + "px", "right":  "", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
+            $(".pep_text_container:last").attr("data-chat_mini", chatMini).css({"display": "block", "left": "" , "right": rightX + "px", "z-index":  zInd}).load("/textchat/" + getChatHead + " .pep_text_panel");
             console.log(getIdString);
             console.log("getAttachmentID="+sessionStorage.getItem('chatAttach_'+chat_id));
             getMessage(chat_id);
-            leftX-=235;
-            $(".pep_textchat_block").append("<div class='pep_text_container' style='left: " + leftX + "px !important; z-index :0'></div>");
+            rightX+=235;
+            $(".pep_textchat_block").append("<div class='pep_text_container' style='right: " + rightX + "px !important; z-index :0'></div>");
         }
     }
 
@@ -139,12 +139,12 @@ $(document).ready(function(){
     var slPos='out';
     $("#pep_title_tab").click(function(){
         if(slPos=='in'){
-            $("#pep_container").animate({right:'-256px'});
-            $("#pep_title_tab").animate({right:'0px'});
+            $("#pep_container").animate({right:'-256px'}, 200);
+            $("#pep_title_tab").animate({right:'0px'}, 200);
             slPos='out';
         }else{
-            $("#pep_container").animate({right:'40px'});
-            $("#pep_title_tab").animate({right:'291px'});
+            $("#pep_container").animate({right:'40px'}, 200);
+            $("#pep_title_tab").animate({right:'291px'}, 200);
             slPos='in';
 
             $(".pep_contact_name").tooltip({
@@ -178,8 +178,8 @@ $(document).ready(function(){
             var pos = $('#pep_container').offset();
             var leftX = pos.left;
             if($('#pep_title_tab').css('right') != "0px"){
-                $("#pep_container").animate({right:'-256px'});
-				$("#pep_title_tab").animate({right:'0px'});
+                $("#pep_container").animate({right:'-256px'}, 200);
+				$("#pep_title_tab").animate({right:'0px'}, 200);
                 slPos='out';
             }
         }
@@ -302,6 +302,7 @@ $(document).ready(function(){
                                 $("#pep_user_list .org-list-table:eq(0)").css("display","block").attr({"data": "User Search", "id": "user_search"}).empty().append("<thead><tr><th>User Search</th></tr></thead><tbody></tbody>");
 
                                 if(networkData.success){
+                                    networkRows=[];
                                     for(i=0; i<networkData.rows.length; i++){
                                         networkRows.push(networkData.rows[i]);
                                     }

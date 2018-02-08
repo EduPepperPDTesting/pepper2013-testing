@@ -45,17 +45,25 @@ CoursePermission.prototype.checkTaskProgress = function(taskId){
 CoursePermission.prototype.save = function(send_notification){
     var self = this;
     // make filter
-    var users = [], courses = [], access = [], enroll = [];
+    var users = [], courses = [], access = [], enroll = [], course_closed = [];
     var global_all_user = $('#course_permission_user .tablesorter-blue .check-all').is(":checked");
     var select_user_manual = $('#course_permission_user .tablesorter-blue .check-manual').is(":checked");
     var select_user_current_page = $('#course_permission_user .tablesorter-blue .check-current-page').is(":checked");
-    $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input").each(function(){
-        if(select_user_manual){
-            if($(this).is(":checked"))users.push(this.value);
-        }else if(select_user_current_page){
-            users.push(this.value);
-        }
-    });
+
+    // $('#course_permission_user .tablesorter-blue').find("tbody tr td:nth-child(1) input").each(function(){
+    //     if(select_user_manual){
+    //         if($(this).is(":checked"))users.push(this.value);
+    //     }else if(select_user_current_page){
+    //         users.push(this.value);
+    //     }
+    // });
+
+    $("#float-users-win").find("div.email").each(function(){
+        users.push($(this).attr("value"));
+    })
+    if(global_all_user){
+        users = [];
+    }
     if(!users.length && !global_all_user){
         new Dialog($('#dialog')).show("Warn", "No user selected");
         return;
@@ -63,15 +71,18 @@ CoursePermission.prototype.save = function(send_notification){
     var $filter_row = $('#course_permission_course .tablesorter-blue .tablesorter-filter-row');
     var global_course_access = $filter_row.find(".toggle.access").toggleSwitch().val();
     var global_course_enroll = $filter_row.find(".toggle.enroll").toggleSwitch().val();
-    var global_all_course = global_course_access != 0 || global_course_enroll != 0;
+    var global_course_closed = $filter_row.find(".toggle.closed").toggleSwitch().val();
+    var global_all_course = global_course_access != 0 || global_course_enroll != 0 || global_course_closed != 0;
     $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
         var a = $(this).find("td:nth-child(7) .toggle").toggleSwitch().val();
         var e = $(this).find("td:nth-child(8) .toggle").toggleSwitch().val();
-        if(a != 0 || e != 0){
+        var c = $(this).find("td:nth-child(9) .toggle").toggleSwitch().val();
+        if(a != 0 || e != 0 || c != 0){
             if(!global_all_course)
                 courses.push($(this).find("td:nth-child(5)").text())
             access.push(a);
             enroll.push(e);
+            course_closed.push(c);
         }
     });
     if(!courses.length && !global_all_course){
@@ -87,11 +98,13 @@ CoursePermission.prototype.save = function(send_notification){
         global_all_course: global_all_course,
         global_course_access: global_course_access,
         global_course_enroll: global_course_enroll,
+        global_course_closed: global_course_closed,
         send_notification: send_notification,
         users: users.join(","),
         courses: courses.join(","),
         access: access.join(","),
-        enroll: enroll.join(",")
+        enroll: enroll.join(","),
+        closed: course_closed.join(",")
     }
     filter = $.extend(filter, user_filter);
     filter = $.extend(filter, course_filter);
@@ -99,6 +112,11 @@ CoursePermission.prototype.save = function(send_notification){
     $.post(self.sys.url.update_course_permission, filter, function(r){
         if(r.success){
             self.checkTaskProgress(r.taskId);
+            $('#course_permission_course .tablesorter-blue tbody tr').each(function(){
+                $(this).find("td:nth-child(7) .toggle").toggleSwitch().val("0");
+                $(this).find("td:nth-child(8) .toggle").toggleSwitch().val("0");
+                $(this).find("td:nth-child(9) .toggle").toggleSwitch().val("0");
+            });
         }else{
             new Dialog($('#dialog')).show("Course Permission", "Error occured " + r.error); 
         }
@@ -180,9 +198,11 @@ CoursePermission.prototype.loadCourseTable = function(){
         // clean contents inside cells
         $(this).find("thead tr td:eq(4)").html("").css("text-align", "left");
         $(this).find("thead tr td:eq(5)").html("").css("text-align", "left");
+        $(this).find("thead tr td:eq(6)").html("").css("text-align", "left");
         // place toggles into cells
          var g_toggle1 = $("<div class='toggle access'/>").appendTo( $(this).find("thead tr td:eq(4)")).toggleSwitch();
          var g_toggle2 = $("<div class='toggle enroll'/>").appendTo( $(this).find("thead tr td:eq(5)")).toggleSwitch();
+         var g_toggle3 = $("<div class='toggle closed'/>").appendTo( $(this).find("thead tr td:eq(6)")).toggleSwitch();
         g_toggle2.change(function(){
             var v = this.val();
             if(v == 1) g_toggle1.val(1, true)
@@ -193,6 +213,10 @@ CoursePermission.prototype.loadCourseTable = function(){
             if(v == -1) g_toggle2.val(-1, true)
             $(this_table).find("tbody tr td:nth-child(7) .toggle").toggleSwitch().val(v, false);
         });
+        g_toggle3.change(function(){
+            var v = this.val();
+            $(this_table).find("tbody tr td:nth-child(9) .toggle").toggleSwitch().val(v, false);
+        })
         $(this).find("tbody tr").each(function(){
             var id = $(this).find("td:nth-child(5)").text();
             var displaynumber = $(this).find("td:nth-child(6)").text();
@@ -201,10 +225,11 @@ CoursePermission.prototype.loadCourseTable = function(){
             $(this).find("td:nth-child(4)").prop("title", displaynumber);
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
+            var toggle3 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(8)).toggleSwitch();
             toggle2.change(function(){
                 g_toggle2.val(0, false);
                 var v = this.val();
-                if(v == 1) toggle1.val(1)
+                if(v == 1) toggle1.val(1);
             });
             toggle1.change(function(){
                 g_toggle1.val(0, false);
@@ -259,7 +284,7 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
     }
     /** init */
     var courses;
-    var all_user_on = false;
+    self.all_user_on = false;
     var pagerOptions = {
         container: $("#course_permission_user .pager"),
         output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
@@ -268,7 +293,25 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         cssGoto: '.gotoPage',
         ajaxUrl: url,
         ajaxProcessing: function(data){
-            all_user_on = $("input[name=user-select].check-all").is(":checked");
+            // all_user_on = $("input[name=user-select].check-all").is(":checked");
+            if (self.all_user_on){
+                $($(".check-all")[0]).prop('checked',true)
+            }else{
+                var user_selection = self.user_selection;
+                var users = data[1];
+                var flag = true;
+                for (var i = 0 ; i<users.length; i++){
+                    var id = users[i][0]
+                    if(!user_selection[id]){
+                        flag = false;
+                    }
+                }
+                if (flag){
+                    $($(".check-current-page")[0]).prop('checked',true)
+                }else{
+                    $($(".check-manual")[0]).prop('checked',true)
+                }
+            }
             if(data && data.length)courses = data[2];
             return data;
         },
@@ -298,10 +341,9 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         this.config.pager.data.user_filter_last_name_fuzzy=f[2];
         this.config.pager.data.user_filter_email_fuzzy=f[3];
     });
-    var loadwin;
+    var loadwin = new LoadingWin();
     $table.bind("movingPage", function(a){
-        loadwin = new LoadingWin();
-        loadwin.show();  
+        loadwin.show();
     });
     $table.bind("pagerComplete", function (a) {
         $('#course_permission_user table.tablesorter-blue thead').off("click");
@@ -319,20 +361,65 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
             var v = $(this).text();
             $(this).html("");
             var $check = $("<input type='checkbox'>").appendTo(this).val(v);
-            if(user_selection[v]){
+            if (self.all_user_on){
                 $check.prop('checked', true);
+                $check.attr('disabled', true);
+            }else{
+                if(user_selection[v]){
+                    $check.prop('checked', true);
+                }
             }
             $check.change(function(){
-                self.user_selection[this.value] = (this.checked);
-                //console.log(self.user_selection)
-                // var all_checked = $(this_table).find("tbody tr td:nth-child(1) input:checked").length == $(this_table).find("tbody tr td:nth-child(1) input").length;
-                // //console.log(all_checked)
-                // $check_all.attr("checked", all_checked);
-            })
-            $check.click(function(){
+                if (self.all_user_on){
+                    alert('please cannel All Users');
+                    return;
+                }else{
+                    self.user_selection[this.value] = (this.checked);
+                    if ($("#float-users-win").find("input[type=hidden]").length>0){
+                        $("#float-users-win").html("")
+                    }
+                    if ($(this).prop('checked')){
+                        var $tr = $(this).parent().parent();
+                        var $table = $('#course_permission_user .tablesorter-blue');
+                        var $thead = $table.find("thead");
+                        // courses assigned
+                        var course_assign = "";
+                        $tr.find("td:gt(6)").each(function(i){
+                            var assign = $(this).html();
+                            if(assign == "P" || assign == "E"){
+                                var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
+                                course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
+                            }
+                        });
+                        var $item = $("<div class='email'value="+this.value+" email="+ $tr.find('td:nth-child(4)').html() +"><input type='checkbox' checked> <label>" + $tr.find('td:nth-child(4)').html() + "</label></div>").appendTo($("#float-users-win"));
+                        var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
+                        $detail.hide();
+                        /** change checked eath other */
+                        $item.find("input").on("change", function(){
+                        self.user_selection[$(this).parent().attr("value")] = false;
+                        $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
+                        $(this).parent().next().remove();
+                            $(this).parent().remove();
+                        });
+                        $item.find("label").click(function(){
+                            if($detail.is(":visible"))
+                                $detail.hide();
+                            else
+                                $detail.show();
+                        });
+                    }else{
+                        var $tr = $(this).parent().parent();
+                        var email = $tr.find('td:nth-child(4)').html()
+                        $("#float-users-win label").each(function(){
+                            if (email == $(this).html()){
+                                $(this).parent().next().remove()
+                                $(this).parent().remove()
+                            }
+                        })
+                    }
+                }
             });
-            $check.trigger("change");
-        });
+    });
         // self.user_selection = {};
         /** hide headers only for filter  */
         $(this).find("th:nth-child(5)").hide();
@@ -354,57 +441,78 @@ CoursePermission.prototype.loadUserTable = function(use_old_filter){
         });
         /** float user window */
         var $thead = $(this).find("thead");
-        $("#float-users-win").html("");
-        $(this).find("tbody tr td:nth-child(4)").each(function(){ // each email.
-            var $tr = $(this).parent();
-            // courses assigned
-            var course_assign = "";
-            $tr.find("td:gt(6)").each(function(i){
-                var assign = $(this).html();
-                if(assign == "P" || assign == "E"){
-                    var c = $thead.find("tr th:nth-child(" + (i+5) + ")").html();
-                    course_assign += "<div>" + c + " <b>" + assign + "</b></div>"
-                }
-            });
-            var $item = $("<div class='email'><input type='checkbox'> <label>" + $(this).html() + "</label></div>").appendTo($("#float-users-win"));
-            $item.find("input").prop("checked", $tr.find("td:eq(0) input").prop("checked"));
-            var $detail = $("<div class='courses'>" + course_assign + "</div>").insertAfter($item);
-            $detail.hide();
-            /** change checked eath other */
-            $item.find("input").on("change", function(){
-                $tr.find("td:eq(0) input").prop("checked", $(this).prop("checked"))
-            });
-            $tr.find("td:eq(0) input").on("change", function(){
-                $item.find("input").prop("checked", $(this).prop("checked"))
-            });
-            $item.find("label").click(function(){
-                if($detail.is(":visible"))
-                    $detail.hide();
-                else
-                    $detail.show();
-            });
-        });
         // begin ------- end checks control
-        var $checks = $(this).find("tbody tr td:nth-child(1) input");
         $("input[name=user-select]").change(function(e){
-            var v = $(this).val(); 
+            var $checks = $table.find("tbody tr td:nth-child(1) input");
+            var v = $(this).val();
             if(v == "manual"){
-                $checks.prop("checked", false);
+                if (self.all_user_on){
+                    self.all_user_on = false;
+                    $checks.each(function(){
+                        $(this).removeAttr("disabled");
+                        $(this).prop("checked",false);
+                    })
+                }else{
+                    $checks.each(function(){
+                        if ($(this).prop("checked")){
+                            $(this).prop("checked", false);
+                            $(this).trigger('change')
+                        }
+                    })
+                }
+                if ($("#float-users-win").find("input[type=hidden]").length>0){
+                    $("#float-users-win").html("")
+                }
             }else if(v == "current-page"){
-                $checks.prop("checked", true);
+                if (self.all_user_on){
+                    $("#float-users-win").html("")
+                    self.all_user_on = false;
+                    $checks.each(function(){
+                        $(this).removeAttr("disabled");
+                        $(this).prop("checked", false);
+                    })
+                }
+                $checks.each(function(){
+                    if (!$(this).prop("checked")){
+                        $(this).prop("checked", true);
+                        $(this).trigger('change')
+                    }
+                })
             }else if(v == "all"){
-                $checks.prop("checked", true);
+                $("#float-users-win").html("<input style='display:none' type='checkbox' checked><input type='hidden' name='alluser'>All Users are selected.");
+                self.all_user_on = true;
+                self.user_selection = {};
+                $checks.each(function(){
+                    // if (!$(this).prop("checked")){
+                        $(this).prop("checked", true);
+                        $(this).prop("disabled", true);
+                        // $(this).trigger('change')
+                    // }
+                })
+                // $table.trigger('pagerComplete')
             }
         });
-        if(all_user_on){
-            $checks.prop("checked", true);
-        }else{
-            $("input[name=user-select].check-manual").prop("checked", true);
-        }
-        // end ------- checks control
-        $checks.change(function(){
-            $("input[name=user-select].check-manual").prop("checked", true);
-        });
+     var $checks = $table.find("tbody tr td:nth-child(1) input");
+         $checks.change(function(){
+             if (self.all_user_on){
+                 alert('please cannel All Users');
+                 return;
+             }else{
+                 var flag = "";
+                 $checks.each(function(){
+                     if (!$(this).prop("checked")){
+                         flag = "manual";
+                     }else{
+                         flag = "current-page";
+                     }
+                 })
+                 if (flag == "manual"){
+                     $("input[name=user-select].check-manual").prop("checked", true);
+                 }else if(flag == "current-page"){
+                     $("input[name=user-select].check-current-page").prop("checked", true);
+                 }
+             }
+         });
     });
 }
 CoursePermission.prototype.dropDistrictMu = function(select, state_ids){

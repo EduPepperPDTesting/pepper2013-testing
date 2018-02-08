@@ -768,7 +768,7 @@ f.close()
     <div class="expand_div">
       <section id="course_permission_user">
         <h2 style="margin:20px;font-weight:bold;text-transform:none;font-size:24px;" class="course-perm-sub-title shown">
-          View Access / Select Users <img/>
+          Select Users to View/Change Course Permissions <img/>
         </h2>
         <div style="text-align:left;">
           <div class="filters">
@@ -879,9 +879,9 @@ f.close()
               <li data-value="9-12">9-12</li>
             </ul>
           </div>
-          <div style="text-align:right;padding:20px;">
-            <input id="btnClearUserFilter" type="button" name="" value="Clear Filter" style="background:#2E7D32;color:#fff;"/>
-            <input id="btnUserLoad" type="button" name="" value="Load" style="background:#2E7D32;color:#fff;"/>
+          <div style="text-align:left;padding:20px;">
+            <input id="btnUserLoad" type="button" name="" value="Load Users" style="background:#2E7D32;color:#fff;"/>
+            <input id="btnClearUserFilter" type="button" name="" value="Clear Filters" style="background:#DFEDD6;color:black;"/>
           </div>
           <div style="padding:10px;" id="course_permission_user">
             <div style="overflow-x:auto;">
@@ -992,6 +992,7 @@ f.close()
                   <th class="">Course Name</th>
                   <th class="">Access</th>
                   <th class="">Enrollment</th>
+                  <th class="">Close</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -1032,7 +1033,7 @@ f.close()
 <script type="text/javascript">
   function LoadingWin(){
     this.$loader = null;
-    this.show();
+    // this.show();
   }
   LoadingWin.prototype.show = function () {
     if (!this.$loader) {

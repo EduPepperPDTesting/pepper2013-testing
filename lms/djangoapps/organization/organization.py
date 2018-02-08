@@ -5,7 +5,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
-
+from django.http import HttpResponseForbidden
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -30,6 +30,7 @@ from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
 from xmodule.remindstore import myactivitystore
+
 
 # -------------------------------------------------------------------main
 def main(request):
@@ -128,8 +129,15 @@ def main(request):
         elif post_flag == "organization_register_save":
             return organization_register_save(request)
     else:
-        tmp = "organization/organization.html"
-        return render_to_response(tmp)
+        if request.user.is_superuser:
+            tmp = "organization/organization.html"
+            return render_to_response(tmp)
+        else:
+            error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper,\
+                          please contact support for any questions at <a href="mailto:pepperpdhelpdesk@pcgus.com">pepperpdhelpdesk@pcgus.com</a>.'}
+            return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 
 # -------------------------------------------------------------------organization_register_save
@@ -784,7 +792,7 @@ def organization_remove_img(request):
                                 data = {'Success': True}
                                 break
                             break
-                     
+
                     elif column == "OrganizationLogo":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="organization_logo"):
@@ -816,6 +824,34 @@ def organization_remove_img(request):
                     elif column == "LogoProfileCurr":
                         for tmp1 in OrganizationMetadata.objects.filter(id=oid):
                             for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo Curriculumn"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
+                    elif column == "RegisterLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
+                    elif column == "RegisterMainLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Register Main Logo"):
                                 filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
                                 tmp2.itemValue = ""
                                 tmp2.save()
@@ -1097,6 +1133,7 @@ def organizational_save_base(request):
         activities_txt_curr = request.POST.get("activities_txt_curr", "")
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
+        register_text_button = request.POST.get("register_text_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         if is_announcement == "1":
@@ -1430,6 +1467,7 @@ def organizational_save_base(request):
             org_organizationdashboardsave(org_metadata, "my_communities", my_communities)
             org_organizationdashboardsave(org_metadata, "my_learning_plan", my_learning_plan)
             org_organizationdashboardsave(org_metadata, "recommended_courses", recommended_courses)
+            org_organizationdashboardsave(org_metadata, "Register Text Button", register_text_button)
         data = {'Success': True, 'back_sid_all': back_sid_all}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -1606,6 +1644,12 @@ def org_upload(request):
             elif file_type == "profile_logo_curr":
                 imgx = request.FILES.get("organizational_base_profile_logo_curr", None)
 
+            elif file_type == "register_logo":
+                imgx = request.FILES.get("organizational_base_register_logo_curr", None)
+
+            elif file_type == "register_main_logo":
+                imgx = request.FILES.get("organizational_base_register_main_logo_curr", None)
+
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -1661,6 +1705,26 @@ def org_upload(request):
 
                     org_dashboard.organization = organization
                     org_dashboard.itemType = "Profile Logo Curriculumn"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Logo"
+                    org_dashboard.itemValue = file_type + ext
+                    org_dashboard.save()
+
+                elif file_type == "register_main_logo":
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Register Main Logo"):
+                        org_dashboard = tmp1
+                        break
+
+                    org_dashboard.organization = organization
+                    org_dashboard.itemType = "Register Main Logo"
                     org_dashboard.itemValue = file_type + ext
                     org_dashboard.save()
 
@@ -2027,6 +2091,15 @@ def organization_get_info(request):
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_rg_data_items'] = tmp2.DataItem
 
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Text Button'):
+                        data['register_text_button'] = tmp2.itemValue
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Logo'):
+                        data['register_logo'] = tmp2.itemValue
+
+                    for tmp2 in OrganizationDashboard.objects.filter(organization=organization_obj,itemType='Register Main Logo'):
+                        data['register_main_logo'] = tmp2.itemValue
+
                 data['Success'] = True
 
             elif source == "navigation":
@@ -2259,7 +2332,12 @@ def organization_qualifications(specific_items, course_assignment_content):
         for tmp1 in assignments:
             qualification = {}
             qualification['filters'] = []
-            qualification['course_id'] = tmp1.split('<')[0].replace('(','').replace(')','')
+            temp = tmp1.split('<')[0].split('|')
+            if len(temp) > 1:
+                qualification['access'] = temp[1].replace('(','').replace(')','')
+            else:
+                qualification['access'] = 'false'
+            qualification['course_id'] = tmp1.split('<')[0].split('|')[0].replace('(','').replace(')','')
             qualifications_items = tmp1.split('<')[1].split(',')
             for tmp2 in qualifications_items:
                 tmp3 = tmp2.split('>')
@@ -2326,9 +2404,10 @@ def course_assign(qualifications, data):
             user = User.objects.get(email=data['email'])
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=tmp2['course_id'], email=data['email'])
             cea.is_active = True
-            cea.auto_enroll = True
+            cea.auto_enroll = False
             cea.save()
-            CourseEnrollment.enroll(user, tmp2['course_id'])
+            if not tmp2['access'] == 'true':
+                CourseEnrollment.enroll(user, tmp2['course_id'])
             ma_db = myactivitystore()
             my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
             "URLValues": {"course_id": tmp2['course_id']},    

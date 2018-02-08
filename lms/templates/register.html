@@ -421,7 +421,7 @@ import json
 
 <!--@begin:Change the banding image in Login page-->
 <!--@date:2013-11-02-->
-<div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.png);border-bottom:1px solid #000;">
+<div id='register_main_logo' style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.png);border-bottom:1px solid #000;">
 	<div class="_banner_whatis_title_font">
 		WELCOME
 		<div class="_banner_whatis_title_content_font">
@@ -844,7 +844,16 @@ $(document).ready(function(){
           if (r.SchoolType == "") r.SchoolType='School'
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
-		  			
+		  		if (r.register_text_button) $("#submit").html(r.register_text_button)
+          if (r.register_main_logo){
+            var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
+            $("#register_main_logo").html("")
+            $("#register_main_logo").css('background-image',src)
+          } 
+          if (r.register_logo){
+            var img = '<div id="register_logo" style="margin:0px auto;width:960px;height:195px;"><img width="960" height="195" src="/static/uploads/organization/' + r.OrganizationId + '/' + r.register_logo +'"></div>';
+            $("#register_main_logo").before(img)
+          } 	
 					if(r.org_rg_data_items != ""){
 						var tmp_specific_items = eval("(" + r.org_rg_data_items + ")");
 						for(var tmpx in tmp_specific_items){

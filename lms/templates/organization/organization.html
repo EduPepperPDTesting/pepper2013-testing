@@ -21,14 +21,18 @@
 <script type="text/javascript" src="/static/js/certificate-editor.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/configuration.js"></script>
+<script type="text/javascript" src="/static/js/sp_link_create.js"></script>
+
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
 <link rel="stylesheet" href="/static/css/permissions.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/css/configuration.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+<link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
+	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
 	.preview_view1,.editor_view1{width:900px;}
@@ -171,6 +175,17 @@
 	.org_assignment_qualifications_item .oaq_title{font-weight:bold;}
 	
 	.ui-datepicker-current{display:none;}
+
+    .cms_items_url {
+        padding-right: 28px !important;
+    }
+    .cms_items_url_external img {
+        height: 18px;
+        width: 18px;
+        position: absolute;
+        right: 12px;
+        top: 8px;
+    }
 </style>
 
 <!--Main Page Configuration-->
@@ -211,7 +226,7 @@
                     <td colspan="2"><input type="text" id="organizational_base_main_page_button_link" ></td>
                 </tr>
             </table>
-			<div style="width:100%; text-align:right; height:30px;">
+            <div style="width:100%; text-align:right; height:30px;">
                 <input type="button" id="org_btn_main_save" value="Save" class="small_btn" />
             </div>
             <div class="design_main">
@@ -457,6 +472,7 @@
 			      	</div>
 			    </div>
 			</div>
+			</div>
         </div>        
     </div>
 </div>
@@ -528,7 +544,7 @@
                                     <th><!--<input type="checkbox" value="" id="organization-table2_all">--></th>
                                 </tr>
                             </thead>
-                            <tbody>                      
+                            <tbody>
                                 <tr>
                                     <td><span class="org_table_menu1 org_icon_up" id="org_dataitems_profile">Profile</span></td>
                                     <td></td>
@@ -542,11 +558,11 @@
                     </td>
                 </tr>
             </table>
-            <div style="width:90%; text-align:right; height:30px;">	
+            <div style="width:90%; text-align:right; height:30px;">
 				<input type="button" value="REMOVE SELECTED" class="small_btn" id="btn_profile_remove" />
                 <input type="button" value="ADD" class="small_btn" id="btn_profile_add" />
             </div>
-            <div style="width:100%; text-align:right; height:30px;">	
+            <div style="width:100%; text-align:right; height:30px;">
 				<input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
                 <input type="button" value="Save" class="small_btn org_btn_last_save" />
             </div>
@@ -563,12 +579,12 @@
         </select>
         <select id="org_district_select" style="width:300px;"></select>
         <select id="org_school_select" style="width:300px;"></select>
-        
+
         <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
         <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
-        
+
         <div style="width:500px; margin-top:10px;">
             <table id="organization-state-table" class="organization-table">
                 <thead>
@@ -581,7 +597,7 @@
                 <tbody></tbody>
             </table>
             <div id="organization-state-actions" style="height:30px;">
-                <div id="organization-state-pager" class="pager" style="margin-right:100px;">            
+                <div id="organization-state-pager" class="pager" style="margin-right:100px;">
                     <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
                     <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
                     <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
@@ -751,6 +767,25 @@
                     </div>
                 </td>
             </tr>
+            <tr class='organization_pd_dashboard_set'>
+                <td colspan="3">Rgistration Page:</td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="register_logo_curr_tr">
+                <td class="org_td1" style='padding-left:30px;'>Registration Page Logo : </td>
+                <td id="organizational_base_register_logo_curr_p"></td>
+                <td></td>
+            </tr>
+            <tr class="organization_pd_dashboard_set">
+                <td class="org_td1" style='padding-left:30px;'>Button Text: </td>
+                <td colspan="2">
+                        <input type="text" id="organizational_base_register_button_text" />
+                </td>
+            </tr>
+            <tr class="organization_pd_dashboard_set" id="register_main_logo_curr_tr">
+                <td class="org_td1" style='padding-left:30px;'>Main Logo : </td>
+                <td id="organizational_base_register_main_logo_curr_p"></td>
+                <td></td>
+            </tr>
             <tr>
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_on_menu" value="0" checked="checked" />Old Menu</label>
@@ -858,7 +893,7 @@
             </tr>
             <tr class="new_menu_tr">
                 <td class="org_td1">Space Between Items (0 ~ 100 px): </td>
-                <td>                   
+                <td>
                     <input type="button" id="organizational_dashboard_space_between_less" value="&ndash;" class="small_btn" />
                     <input type="text" id="organizational_dashboard_space_between" name="organizational_dashboard_space_between" value="0" maxlength="3" />
                     <input type="button" id="organizational_dashboard_space_between_plus" value="+" class="small_btn" />
@@ -933,8 +968,8 @@
                                     </span>
                                     <span class="organizational_dashboard_menu_btn"><input type="button" onclick="org_menu_item_clone(this,true)" value="+" class="sub_menu_btn small_btn" /></span>
                                 </div>
-                            </fieldset>                            
-                        </div>                        
+                            </fieldset>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -947,6 +982,11 @@
                 <td class="org_td1">CMS Items: </td>
                 <td></td>
                 <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="cms_popup" type ="button" value="CMS Resource">
+                </td>
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
@@ -962,7 +1002,7 @@
                         </div>
                         <div class="organizational_dashboard_cms_body1">
                             <span class="organizational_dashboard_cms_item"><input type="text" class="cms_items_cms_item" /></span>
-                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /></span>
+                            <span class="organizational_dashboard_cms_url"><input type="text" class="cms_items_url" /><a href="#" class="cms_items_url_external"><img src="/static/images/external-link.png" /></a></span>
                             <span class="organizational_dashboard_cms_icon"><input type="file" class="cms_items_icon" id="cms_items_icon_1" name="cms_items_icon_1"></span>
                             <span class="organizational_dashboard_cms_icon_view"></span>
                             <span class="organizational_dashboard_cms_grade"><input type="text" class="cms_items_grade" /></span>
@@ -970,10 +1010,10 @@
                                 <span class="cms_btn_up"></span>
                                 <span class="cms_btn_dn"></span>
                             </span>
-                            <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>                      
+                            <span class="organizational_dashboard_cms_btn"><input type="button" onclick="org_cms_item_clone(this)" value="+" class="cms_item_btn small_btn" /></span>
                             <div class="organizational_dashboard_cms_row1">
                             	<span class="organizational_dashboard_cms_item">Select User Grade</span>
-                                <span> 
+                                <span>
                                     %for item in GradeLevel.objects.all():
                                     <span class="organizational_dashboard_cms_level"><a href="javascript:void(0)" class="btn_grade_level" lid="${item.id}">${item.name}</a></span>
                                     %endfor
@@ -982,7 +1022,7 @@
 	                                <a href="javascript:void(0);" class="organizational_dashboard_cms_manage_user">Manage Users (0)</a>
                                 </span>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -994,7 +1034,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
-                	<div class="certificate_editor_div"> 
+                	<div class="certificate_editor_div">
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
@@ -1023,7 +1063,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="org_td1">
-                	<div class="certificate_editor_div"> 
+                	<div class="certificate_editor_div">
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
@@ -1085,7 +1125,7 @@
             <option value="SEADAE">SEADAE</option>
             <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
             <option value="WestEd">WestEd</option>
-        </select>        
+        </select>
         <input type="button" id="org_assignment_btn_find" value="FIND" class="small_btn" style="margin:0 0 0 20px !important;" />
         <div class="org_assignment_course_all">
             <div class="org_assignment_course_item" style="width:100%; margin-bottom:10px; border-bottom:1px solid #999">
@@ -1094,9 +1134,10 @@
                     <select class="org_assignment_course_select" style="width:500px;">
                         <option value="">Select a Course</option>
                     </select>
+                    <input type='checkbox' class='access'> Access Only
                     <input type="button" onclick="org_assignment_course_clone(this)" value="+" class="small_btn" style="margin:0 0 0 5px !important;" />
                 </div>
-                <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>                
+                <div class="org_assignment_qualifications_title" style="padding:10px 0 10px 10px;">Qualifications:</div>
                 <table width="100%"><tr><td class="org_assignment_qualifications_all" style="padding-left:10px;"></td></tr></table>
             </div>
         </div>
@@ -1261,6 +1302,9 @@
     </div>
 </div>
 
+<div style="" id="cms_dialog" class="modal">
+
+</div>
 <script type="text/javascript">
 	var org_current_id = "";
 	var design_current_id = ""
@@ -1331,7 +1375,7 @@
 	//-----------------------------------------------------------------------CertificateEditor
 	if (typeof CKEDITOR != 'undefined') {
         CKEDITOR.replaceAll(function (textarea, config) {
-            if (textarea.className == 'certificate_editor'  || textarea.className == 'design_certificate_editor') {
+            if (textarea.className == 'certificate_editor' || textarea.className == 'design_certificate_editor') {
                 // Add token plugin
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
@@ -1386,7 +1430,7 @@
     }
 	
 	var ceditor = new CertificateEditor(CKEDITOR.instances.certificate_editor);
-	var ceditor_design = new CertificateEditor(CKEDITOR.instances.design_certificate_editor);	
+	var ceditor_design = new CertificateEditor(CKEDITOR.instances.design_certificate_editor);
     function addNewCertificate(flag,type="org") {
 		if(flag == 1){
 			if(type == "org"){
@@ -1530,6 +1574,12 @@
 		}
 	};
 	
+    function new_cms_resource(data) {
+        console.log(data);
+        $(".cms_items_cms_item:last").val(data.title);
+        $(".organizational_dashboard_cms_url:last").val(data.url);
+    }
+
 	//-----------------------------------------------------------------------checkOrganization
 	function checkOrganization(name, oid) {
 		var valid = true;
@@ -1608,23 +1658,9 @@
 	function organizationEdit(type, id, name) {
 		var button_name = 'Add';
 		var dialog_title = 'New Organization';
-		//var name = '';
-		//var url = '';
 		if (type == 'edit') {
 			button_name = 'Save';
 			dialog_title = 'Edit Organization';
-			/*$.ajaxSettings.async = false; 
-			$.getJSON("${reverse('organizational_configuration')}", {flag:"organization_list", oid: id}, function (r) {
-				if (r.success) {
-					if(r.rows.length > 0){
-						for(var i in r.rows){
-							name = r.rows[i].OrganizationName;
-							url = r.rows[i].url;
-						}
-					}
-				}
-			});
-			$.ajaxSettings.async = true;*/
 		}
 		
 		var content = '<form action="${reverse('organizational_configuration')}" method="post" id="new-organizational-submit">';
@@ -1657,7 +1693,7 @@
 			}
 		});
 	}
-	
+
 	function designEdit(type, id, name){
 		var button_name = 'Add';
 		var dialog_title = 'New Site Page';
@@ -1694,6 +1730,7 @@
 			postForm(this, dialog, updateDesigns);
 		});
 	}
+	
 	//-----------------------------------------------------------------------selectAll
 	function selectAll(trigger_selector, target_selector) {
 		$(trigger_selector).change(function () {
@@ -1706,7 +1743,7 @@
 			});
 		});
 	}
-	
+	//----------------------------------------------------------------------------------------------------------updatedesign
 	function updateDesigns(){
 		$(".expand_title_parent").hide();
 		$('#design-table tbody .data').remove();
@@ -1930,17 +1967,8 @@
 						$("#organization_manage_user_email").remove();
 						var email_el = $('<input id="organization_manage_user_email" type="text" />');
 						$("#organization_manage_user_email_parent").append(email_el);
-						//email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
-						//$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
-
-						email_el.autocomplete({
-                            service: "${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, dataType: "jsonp",
-                        });
-
-						$("#initial_user_name").autocomplete({
-						    service: "${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, dataType: "jsonp",
-                        });
-
+						email_el.autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion&oid=" + org_current_id, {remoteDataType: "json"});
+						$("#initial_user_name").autocomplete("${reverse('organizational_configuration')}?flag=organization_initial_superuser_eamil&oid=" + org_current_id, {remoteDataType: "json"});
 						//-----
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
@@ -1952,10 +1980,14 @@
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
 									organizationAddFileImg("organizational_base_profile_logo", r['Profile Logo']);
 									organizationAddFileImg("organizational_base_profile_logo_curr", r['Profile Logo Curriculumn']);
+									organizationAddFileImg("organizational_base_register_main_logo_curr", r['Register Main Logo']);
+									organizationAddFileImg("organizational_base_register_logo_curr", r['Register Logo']);
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
+									organizationAddFileImgInit("organizational_base_register_main_logo_curr");
+									organizationAddFileImgInit("organizational_base_register_logo_curr");
 									
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
@@ -2132,7 +2164,6 @@
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
 									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
 									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
-									$("#organizational_base_logo_url").val(r["Logo Url"]);
 									// $("#organizational_base_organization_my_trending_topics_curr").val(r["my_trending_topics"]);
 									// $("#organizational_base_organization_my_communities_curr").val(r["my_communities"]);
 									// $("#organizational_base_organization_my_learning_plan_curr").val(r["my_learning_plan"]);
@@ -2141,6 +2172,8 @@
 									$("#organizational_base_organization_my_communities").val(r["my_communities"]);
 									$("#organizational_base_organization_my_learning_plan").val(r["my_learning_plan"]);
 									$("#organizational_base_organization_recommended_courses").val(r["recommended_courses"]);
+									$("#organizational_base_logo_url").val(r["Logo Url"]);
+									$("#organizational_base_register_button_text").val(r["Register Text Button"]);
 									
 									//----------menu item
 									$(".organizational_dashboard_menu_body1").each(function(i){
@@ -2648,7 +2681,7 @@
 			})
 		}
 	}
-	
+
 	function designUploadFile(fileElementId, file_type){
 		if($("#" + fileElementId).val() != ""){
 			var loadwin = new LoadingWin();
@@ -2675,6 +2708,7 @@
 			})
 		}
 	}
+	
 	//-----------------------------------------------------------------------organizationMainUploadFile
 	function organizationMainUploadFile(fileElementId, file_type, mid){
 		if($("#" + fileElementId).val() != ""){
@@ -2742,6 +2776,7 @@
 		}
 	}
 	
+	//-----------------------------------------------------------------------organizationDashboardUploadFile
 	function designDashboardUploadFile(fileElementId){
 		if($("#" + fileElementId).val() != ""){
 			var loadwin = new LoadingWin();			
@@ -2854,6 +2889,10 @@
 			}else if(eid == "design_menu_logo"){
 				column = "Designlogo";
 				current_id = design_current_id;
+			}else if(eid == "organizational_base_register_main_logo_curr"){
+				column = "RegisterMainLogo";
+			}else if (eid == "organizational_base_register_logo_curr"){
+				column = "RegisterLogo";
 			}
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: current_id, column: column, db: db}, function (r) {	
@@ -2915,7 +2954,8 @@
 			}
 		}
 	}
-	
+
+	//-----------------------------------------------------------------------org_menu_item_clone
 	function design_menu_item_clone(el, isSubMenu){
 		if($(el).val() == "-"){
 			$(el).parent().parent().remove();
@@ -2957,6 +2997,7 @@
 			}
 		}
 	}
+	
 	//-----------------------------------------------------------------------org_cms_item_clone
 	function org_cms_item_clone(el){
 		if($(el).val() == "-"){
@@ -2987,6 +3028,7 @@
 			var clonex = $(el).parent().parent().clone(true);
 			clonex.find(".org_assignment_course_select").val("");
 			clonex.find(".small_btn").val("+");
+			clonex.find(".access").prop("checked",false);
 			clonex.find(".org_assignment_qualifications_item").each(function(){
 				$(this).find(".oaq_item").each(function(i){
 					if(i > 0){
@@ -3045,7 +3087,7 @@
 		var menu_text_font_icons = $("#organizational_dashboard_menu_text_font_icons").val();
 		var menu_text_size_icons = $("#organizational_dashboard_menu_text_size_icons").val();
 		
-		$(".menu_items_menu_item").each(function(){
+		$(".organizational_dashboard_menu_div .menu_items_menu_item").each(function(){
 			if($(this).val() != ""){
 				var tmp_item;
 				var tmp_name = $(this).val();
@@ -3118,7 +3160,8 @@
 			}
 		});
 	}
-	
+
+	//-----------------------------------------------------------------------organizational_dashboard_demo_div_reload
 	function design_dashboard_demo_div_reload(){
 		$("#design_dashboard_demo_div").empty();
 		var menu_color = $("#design_menu_color").val();
@@ -3230,7 +3273,7 @@
 			}
 		});
 	}
-
+	
 	//-----------------------------------------------------------------------orgProfileInit
 	var profileFieldType = "<select class='profileFieldType'>";
 	profileFieldType += "<option value=''>Select Type</option>";
@@ -3638,14 +3681,24 @@
 		if(content){
 			var tmp1 = content.split(";");
 			for(var i = 0; i < tmp1.length; i++){
-				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next()[0]);
+				if(i > 0)	org_assignment_course_clone($(".org_assignment_course_select").eq(i - 1).next().next()[0]);
 			}			
 			for(var i = 0; i < tmp1.length; i++){
 				var parent1 = $(".org_assignment_course_item").eq(i);
 				var tmp2 = tmp1[i].split("<");
-				$(".org_assignment_course_select").eq(i).val(tmp2[0].replace("(", "").replace(")", ""));
-				$(".org_assignment_course_select").eq(i).attr("bak_val", tmp2[0].replace("(", "").replace(")", ""));				
-
+				var course_access = tmp2[0].split("|")
+				$(".org_assignment_course_select").eq(i).val(course_access[0].replace("(", "").replace(")", ""));
+				$(".org_assignment_course_select").eq(i).attr("bak_val", course_access[0].replace("(", "").replace(")", ""));
+				if (course_access.length >1){
+					if (course_access[1] == "(true)"){
+					    $(".access").eq(i).prop("checked",true);
+					}else{
+						$(".access").eq(i).prop("checked",false);
+					}
+				}else{
+					$(".access").eq(i).prop("checked",false);
+				}
+				
 				var tmp3 = tmp2[1].split(",");
 				for(var j = 0; j < tmp3.length; j++){
 					var parent2 = parent1.find(".org_assignment_qualifications_item").eq(j);
@@ -3680,6 +3733,18 @@
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
+        $.post("${reverse('cms_popup')}",{}, function(e){
+            $("#cms_dialog").html(e);
+        });
+        $("#cms_popup").click(function() {
+            $("#cms_dialog").show();
+            var callback = $.Callbacks();
+            callback.add(new_cms_resource);
+            initializeCMSPopup(callback);
+        });
+        $("body").on("click", "#cms_close", function () {
+            $("#cms_dialog").hide();
+        })
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
 		
@@ -3689,6 +3754,8 @@
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
+		organizationAddFileImgInit("organizational_base_register_logo_curr");
+		organizationAddFileImgInit("organizational_base_register_main_logo_curr");
 		
 		//--------------------------organization_manage_user
 		/*$('#organization_manage_user_email').autocomplete("${reverse('organizational_configuration')}?flag=organization_user_email_completion", {remoteDataType: "json",
@@ -3710,7 +3777,7 @@
 			}
 		});*/
 		
-		//--------organization_manage_user_default
+		//--------------------------organization_manage_user_default
 		$("input[name='organization_manage_user_default']").change(function () {
         	if($(this).val() == '1') {
                 $('#organization_manage_user_email').attr("disabled", false);
@@ -3973,7 +4040,7 @@
 			var errors = ['The following errors occurred:\n'];
 			var name1 = $("#organizational_option_name");
 			var description1 = $("#organizational_option_description");
-			var name2 = filterStr2(name1.val());
+			var name2 = filterStr2($.trim(name1.val()));
 			
 			if (!/[A-Za-z0-9]+/.test(name2)) {
 				valid = false;
@@ -4115,6 +4182,7 @@
 			}
 		});
 
+		//--------------------------editor_view_btn preview_view_btn
 		$('.editor_view_btn1').click(function(){
 			ceditor_design.switchView("Editor");
 			$(this).addClass("active");
@@ -4268,6 +4336,7 @@
 
 		pagerOptions.container = $("#design-pager");
 		$('#design-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
 		//--------------------------del-organization
 		$('#del-organization').click(function () {
 			if($(".organization-select:checked").length > 0){
@@ -4298,8 +4367,8 @@
 			}else{
 				alert("Select the organization(s) you want to delete.");
 			}
-		});		
-		
+		});
+		//--------------------------del-design
 		$('#del-design').click(function () {
 			if($(".design-select:checked").length > 0){
 				var dialog = new Dialog('#dialogYesNo');
@@ -4329,7 +4398,8 @@
 			}else{
 				alert("Select the Site Page(s) you want to delete.");
 			}
-		});
+		});		
+		
 		//--------------------------Initialize the select all checkboxes.
 		selectAll('.organization-select-all', '.organization-select');
 		selectAll('.organization-state-select-all', '.organization-state-select');
@@ -4338,7 +4408,7 @@
 		selectAll('.design-select-all','.design-select');
 		updateOrganizations();
 		updateDesigns();
-
+		
 		//--------------------------expand_title_next
 		$(".expand_title_next").click(function(){
 			var next_sn = $(this).attr("next_sn");
@@ -4350,23 +4420,23 @@
 				$div.slideDown();
 				$(this).addClass("expand_title_expanded");
 				if($(".expand_title[next_sn='" + next_sn + "']").text() == "Organization Locations"){
-					if($("#org_state_select").find("option").length < 2){
-						var loadwin = new LoadingWin();
-						$.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
-							if (r.Success){
-								for(var i in r.rows_state){
-									$("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
-								}
-								for(var i in r.rows_district){
-									organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
-								}
-							}else{
-								alert(r.Error);
-							}
-							loadwin.hide();
-						});
-					}
-				}
+                    if($("#org_state_select").find("option").length < 2){
+                        var loadwin = new LoadingWin();
+                        $.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
+                            if (r.Success){
+                                    for(var i in r.rows_state){
+                                            $("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
+                                    }
+                                    for(var i in r.rows_district){
+                                            organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);    
+                                    }
+                            }else{
+                                    alert(r.Error);
+                            }
+                            loadwin.hide();
+                        });
+                    }
+                }
 			}
 		});
 		
@@ -4606,6 +4676,16 @@
 				loadwin.hide();
 				return;
 			}
+			if($("#organizational_base_register_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_register_logo_curr").val())){				
+				alert("Register Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
+			if($("#organizational_base_register_main_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_register_main_logo_curr").val())){				
+				alert("Register Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
 			
 			var sid_did = "";
 			$(".organization-state-edit").each(function(){
@@ -4672,7 +4752,7 @@
 				specific_items += '"default_visible":"' + tmp_default_visible + '"}';
 			});
 			specific_items += "]";
-
+			
 			//---------------------------------------------------menu_items
 			var menu_items = "", flag_icon_error = false;			
 			var sn1 = 1; 
@@ -4779,39 +4859,39 @@
 			//---------------------------------------------------Course Assignment
 			var course_assignment_content = "", tmp_var1;
 			$(".org_assignment_course_item").each(function(){
-				var course_id = $(this).find(".org_assignment_course_select").val();
-				if(course_id != ""){
-					var course_assignment_child = "";
-					$(this).find(".org_assignment_qualifications_item").each(function(){
-						var course_assignment_child_1 = "";
-						$(this).find(".oaq_item").each(function(){
-							if($(this).find(".org_assignment_qualifications_datex").length > 0){
-								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
-								var tmp_date = $(this).find(".org_assignment_qualifications_datex").datepicker("getDate");
-								var tmp_date_val = "";
-								if(tmp_date){
-									tmp_var1 = tmp_date.getMonth() + 1;
-									tmp_date_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-									tmp_date_val += "/";
-									tmp_var1 = tmp_date.getDate();
-									tmp_date_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
-									tmp_date_val += "/" + tmp_date.getFullYear();	//mm/dd/yy 
-								}
-								course_assignment_child_1 += "(" + tmp_date_val + ")";
-								
-							}else if($(this).find(".org_assignment_qualifications_select").length > 0){
-								if(course_assignment_child_1 != "")	course_assignment_child_1 += ">";
-								course_assignment_child_1 += "(" + $(this).find(".org_assignment_qualifications_select").val() + ")";
-							}
-						});
-						if(course_assignment_child != "")	course_assignment_child += ",";
-						course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
-					});					
-					if(course_assignment_content != "")	course_assignment_content += ";";
-					course_assignment_content += "(" + course_id + ")<" + course_assignment_child;
-				}
+		        var course_id = $(this).find(".org_assignment_course_select").val();
+		        if(course_id != ""){
+		        	var access = $(this).find(".access").prop("checked");
+	                var course_assignment_child = "";
+	                $(this).find(".org_assignment_qualifications_item").each(function(){
+                        var course_assignment_child_1 = "";
+                        $(this).find(".oaq_item").each(function(){
+                            if($(this).find(".org_assignment_qualifications_datex").length > 0){
+                                if(course_assignment_child_1 != "")     course_assignment_child_1 += ">";
+                                var tmp_date = $(this).find(".org_assignment_qualifications_datex").datepicker("getDate");
+                                var tmp_date_val = "";
+                                if(tmp_date){
+                                        tmp_var1 = tmp_date.getMonth() + 1;
+                                        tmp_date_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                                        tmp_date_val += "/";
+                                        tmp_var1 = tmp_date.getDate();
+                                        tmp_date_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+                                        tmp_date_val += "/" + tmp_date.getFullYear();   //mm/dd/yy 
+                                }
+                                course_assignment_child_1 += "(" + tmp_date_val + ")";
+                            }else if($(this).find(".org_assignment_qualifications_select").length > 0){
+                                if(course_assignment_child_1 != "")     course_assignment_child_1 += ">";
+                                course_assignment_child_1 += "(" + $(this).find(".org_assignment_qualifications_select").val() + ")";
+                            }
+                        });
+                        if(course_assignment_child != "")       course_assignment_child += ",";
+                        course_assignment_child += "(" + $(this).attr("_id") + ")>" + course_assignment_child_1;
+                	});
+	                if(course_assignment_content != "")     course_assignment_content += ";";
+	                course_assignment_content += "(" + course_id + ")|("+ access +")<" + course_assignment_child;
+		        }
 			});
-			
+
 			//---------------------------------------------------
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
 			//document.getElementById('organizational_menu_color').jscolor.toHEXString();
@@ -4824,7 +4904,7 @@
 			var new_PeppTalk = ($("input[name='organizational_dashboard_PeppTalk']").attr("checked")) ? "1" : "0";			
 			var new_show_left_curr = ($("input[name='organizational_dashboard_show_left_curr']").attr("checked")) ? "1" : "0";
 			var new_show_right_curr = ($("input[name='organizational_dashboard_show_right_curr']").attr("checked")) ? "1" : "0";
-			var new_PeppTalk_curr = ($("input[name='organizational_dashboard_PeppTalk_curr']").attr("checked")) ? "1" : "0";			
+			var new_PeppTalk_curr = ($("input[name='organizational_dashboard_PeppTalk_curr']").attr("checked")) ? "1" : "0";	
 			
 			var menu_text_color = $("#organizational_dashboard_menu_text_color").val();
 			var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
@@ -4888,8 +4968,10 @@
 			var activities_txt_curr = $("#organizational_dashboard_activities_txt_curr").val();
 			var progress_txt_curr = $("#organizational_dashboard_progress_txt_curr").val();
 			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
+			var register_text_button = $("#organizational_base_register_button_text").val();
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
+				register_text_button: register_text_button,
 				sid_did: sid_did,
 				course_assignment_content: course_assignment_content,
 				for_district: for_district,
@@ -4919,8 +5001,6 @@
 				new_show_left: new_show_left,
 				new_show_right: new_show_right,
 				my_feed_show_curr: my_feed_show_curr,
-				new_PeppTalk:new_PeppTalk,
-				new_PeppTalk_curr:new_PeppTalk_curr,
 				remove_all_menu: remove_all_menu,
 				my_activities_show_curr: my_activities_show_curr,
 				my_report_show_curr: my_report_show_curr,	
@@ -4928,6 +5008,8 @@
 				is_my_feed_default_curr: is_my_feed_default_curr,
 				new_show_left_curr: new_show_left_curr,
 				new_show_right_curr: new_show_right_curr,
+				new_PeppTalk_curr:new_PeppTalk_curr,
+				new_PeppTalk:new_PeppTalk,
 				menu_text_color: menu_text_color,
 				menu_text_font: menu_text_font,
 				menu_text_size: menu_text_size,
@@ -4976,6 +5058,12 @@
 					if($("#organizational_base_profile_logo_curr").val() != ""){
 						organizationUploadFile("organizational_base_profile_logo_curr", "profile_logo_curr");
 					}
+					if($("#organizational_base_register_logo_curr").val() != ""){
+						organizationUploadFile("organizational_base_register_logo_curr", "register_logo");
+					}
+					if($("#organizational_base_register_main_logo_curr").val() != ""){
+						organizationUploadFile("organizational_base_register_main_logo_curr", "register_main_logo");
+					}
 					$(".organizational_dashboard_menu_body1").each(function(){
 						var menu_item = filterStr($(this).find(".menu_items_menu_item").val());
 						var menu_icon = $(this).find(".menu_items_icon").val();
@@ -4999,6 +5087,8 @@
 			});
 		});
 		
+
+		//------------------------------------------------------------------------------org_btn_last_save 
 		$(".design_save").click(function(){
 			var loadwin = new LoadingWin();
 						
@@ -5110,6 +5200,7 @@
 				if(r.Success)	$(".org_table1_selected").find(".design_next").click();
 			});
 		});
+
 		//--------------------------org_btn_main_save 
 		$("#org_btn_main_save").click(function(){
 			var loadwin = new LoadingWin();	
@@ -5133,15 +5224,14 @@
 			var site_url = $("#organizational_base_site_url").val();
 			var logo_text = $("#organizational_base_main_logo_text").val();
 			var button_text = $("#organizational_base_main_page_button_text").val();
-			var button_link = $("#organizational_base_main_page_button_link").val();			
-			
+			var button_link = $("#organizational_base_main_page_button_link").val();
 			var mid = $(this).attr("mid");
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_main_base", 
 				mid: mid,
 				site_url: site_url,
 				logo_text: logo_text,
 				button_text: button_text,
-				button_link: button_link
+				button_link: button_link,
 			}, function (r) {
 				if (r.Success){
 					if($("#organizational_base_top_main_logo").val() != ""){
@@ -5194,7 +5284,7 @@
 			organizational_dashboard_space_between_old_val = tmp1;
 			$("#organizational_dashboard_space_between").val(organizational_dashboard_space_between_old_val)
 		});
-		
+
 		//--------------------------organizational_dashboard_space_between
 		$("#design_dashboard_space_between").on("input", function(){
 			var tmp1 = Number($.trim($("#design_dashboard_space_between").val()));
@@ -5227,6 +5317,7 @@
 				$("#design_dashboard_space_between").val(tmp1)
 			}
 		});
+		
 		//--------------------------organizational_dashboard_menu_sub_btn
 		$(".organizational_dashboard_menu_sub_btn").click(function(){
 			var tmp_el = $(this).parent().parent().find("fieldset");
@@ -5238,7 +5329,7 @@
 				tmp_icon.removeClass("btn_icon_expanded");
 			}
 		});
-		
+
 		//--------------------------organizational_dashboard_menu_sub_btn
 		$(".design_dashboard_menu_sub_btn").click(function(){
 			var tmp_el = $(this).parent().parent().find("fieldset");
@@ -5249,7 +5340,8 @@
 			}else{
 				tmp_icon.removeClass("btn_icon_expanded");
 			}
-		});		
+		});
+				
 		//--------------------------btn_up
 		$(".btn_up").click(function(){
 			var tmp_body1 = $(this).parent().parent();
@@ -5316,6 +5408,7 @@
 				$(tmp_body1).parent().find(".design_sub_menu_btn:last").val("+");
 			}
 		});	
+
 		//--------------------------cms_btn_up
 		$(".cms_btn_up").click(function(){
 			var tmp_body1 = $(this).parent().parent();
@@ -5349,7 +5442,7 @@
 		$("input[name='organizational_dashboard_on_menu']").change(function(){
 			isNewMenuChange($(this).val());
 		});
-
+		//--------------------------design_dashboard_on_menu change
 		$("input[name='design_dashboard_on_menu']").change(function(){
 			isNewMenuChange($(this).val());
 		});
