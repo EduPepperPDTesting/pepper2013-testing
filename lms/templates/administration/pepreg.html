@@ -2843,6 +2843,7 @@
         });
 
         function reloadTableAdvanced(suborder){
+            var order = parseInt(suborder);
             var data = {}
 
             var field_list = []
@@ -2854,13 +2855,13 @@
             condition_list.push($("#subcondition_" + suborder).val());
 
             var i = 1;
-            while(i<=suborder){
-                field_list[$("#subselect_" + suborder).value + "|" + suborder];
+            while(i<=order){
+                field_list[$("#subselect_" + i).value + "|" + i];
 
-                var search = ($("#advanced_select_" + suborder).length == 1) ? $("#advanced_select_" + suborder).val(): "";
+                var search = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val(): "";
                 search_list.push(search);
 
-                var cond = ($("#subcondition_" + suborder).length == 1) ? $("#subcondition_" + suborder).val(): "";
+                var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 condition_list.push(cond);
 
                 i++;
