@@ -216,7 +216,7 @@ def rows(request):
             trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
     elif not regular_search:
-
+        raise Exception("advanced search")
         field_list = request.REQUEST.get('field_list')
         search_list = request.REQUEST.get('search_list', [])
         conditions = request.REQUEST.get('condition_list', [])
