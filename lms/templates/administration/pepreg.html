@@ -2804,21 +2804,22 @@
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name"));
+            var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
                 $(this).text(" - ").css("top", "-1px !important");
                 $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
-                if($("#advanced_select_" + (suborder + 1)).length == 0){
+                if($("#advanced_select_" + nextOrder).length == 0){
 
-                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + (suborder + 1) + "' name='" + suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
-                    $("#advanced_select_" + (suborder + 1)).append("<option value=''>Select Field</option>");
+                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
+                    $("#advanced_select_" + nextOrder).append("<option value=''>Select Field</option>");
 
                     $.get("${reverse('getfielddata')}", {}, function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + (suborder + 1)).append("<option value='"+ v +"'>" + v + "</option>");
+                                $("#advanced_select_" + nextOrder).append("<option value='"+ v +"'>" + v + "</option>");
                             });
                         }
                     });
@@ -2827,8 +2828,8 @@
             }else{
                 $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + suborder).remove();
-                $("#advanced_select_" + (suborder + 1)).next("div").remove();
-                $("#advanced_select_" + (suborder + 1)).remove();
+                $("#advanced_select_" + nextOrder).next("div").remove();
+                $("#advanced_select_" + nextOrder).remove();
 
                 reloadTableAdvanced(suborder);
             }
