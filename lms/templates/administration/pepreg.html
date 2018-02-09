@@ -2848,16 +2848,12 @@
             var data = {}
 
             var field_list = []
-            var condition_list = []
             search_list = []
-
-            field_list[$("#subselect_" + suborder).value + "|" + suborder];
-            search_list.push($("#advanced_select_" + suborder).value);
-            condition_list.push($("#subcondition_" + suborder).val());
+            var condition_list = []
 
             var i = 1;
-            while(i<=order){
-                field_list[$("#subselect_" + i).value + "|" + i];
+            while(i <= order){
+                field_list.push[$("#subselect_" + i).value + "|" + i];
 
                 var search = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val(): "";
                 search_list.push(search);
@@ -2867,6 +2863,10 @@
 
                 i++;
             }
+
+            data['field_list'] = field_list;
+            data['search_list'] = search_list;
+            data['condition_list'] = condition_list;
 
             var t = $('#data-table')[0];
             var c = t.config;
