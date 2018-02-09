@@ -46,7 +46,7 @@ def main(request):
 
 @login_required
 # @user_passes_test(lambda u: u.is_superuser)
-def get_user_login_info(request):
+def get_user_login_info(request, excel_search=False, _filters={}, _sorts={}, _time_diff_m=0):
 	user = request.user
 	view_right = check_user_perms(user, 'usage_report', 'view', exclude_superuser=True)
 	edit_right = check_user_perms(user, 'usage_report', 'edit', exclude_superuser=True)
@@ -65,16 +65,19 @@ def get_user_login_info(request):
 			   9: ['loginfo__last_session', ''],
 			   10: ['loginfo__total_session', '']}
 
-	# Parse the sort data passed in.
-	sorts = get_post_array(request.GET, 'col')
-	# Parse the filter data passed in.
-	filters = get_post_array(request.GET, 'fcol', 12)
-	# Get the page number and number of rows per page, and calculate the start and end of the query.
-	page = int(request.GET['page'])
-	size = int(request.GET['size'])
-	start = page * size
-	end = start + size
+	# Get query key and sort key
+	filters = {}
+	sorts = {}
+	if not excel_search:
+		# Parse the filter data passed in.
+		filters = get_post_array(request.GET, 'fcol', 12)
+		# Parse the sort data passed in.
+		sorts = get_post_array(request.GET, 'col')
+	else:
+		filters = _filters
+		sorts = _sorts
 
+	# Query DB
 	order = build_sorts(columns, sorts)
 	if len(filters):
 		kwargs = build_filter(columns, filters)
@@ -84,18 +87,33 @@ def get_user_login_info(request):
 
 	total_rows_count = user_data.count()
 	login_info_list = list()
-	for d in user_data[start:end]:
+	# Set paging info
+	page = 0
+	size = 0
+	start = 0
+	end = 0
+	if not excel_search:
+		# Get the page number and number of rows per page, and calculate the start and end of the query.
+		page = int(request.GET['page'])
+		size = int(request.GET['size'])
+		start = page * size
+		end = start + size
+	else:
+		start = 0
+		end = total_rows_count
+
+	for d in user_data[start:end]: # page1:0-9
 		dict_tmp = {}
 		try:
 			dict_tmp['district'] = str(d.district.name)
 			dict_tmp['state'] = str(d.district.state.name)
-		except Exception as e:
+		except:
 			dict_tmp['district'] = ''
 			dict_tmp['state'] = ''
 
 		try:
 			dict_tmp['school'] = str(d.school.name)
-		except Exception as e:
+		except:
 			dict_tmp['school'] = ''
 
 		dict_tmp['id'] = d.user_id
@@ -111,7 +129,10 @@ def get_user_login_info(request):
 		try:
 			user_login_data = d.loginfo.all()[0]
 			if not active_recent(d) or user_login_data.logout_press:
-				dict_tmp['logout_time'] = user_login_data.logout_time
+				if not excel_search:
+					dict_tmp['logout_time'] = user_login_data.logout_time
+				else:
+					dict_tmp['logout_time'] = time_to_local(user_login_data.logout_time, _time_diff_m)
 				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
 				dict_tmp['online_state'] = 'Off'
 				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
@@ -120,7 +141,10 @@ def get_user_login_info(request):
 				dict_tmp['last_session'] = ''
 				dict_tmp['online_state'] = 'On'
 				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
-			dict_tmp['login_time'] = user_login_data.login_time
+			if not excel_search:
+				dict_tmp['login_time'] = user_login_data.login_time
+			else:
+				dict_tmp['login_time'] = time_to_local(user_login_data.login_time, _time_diff_m)
 		except:
 			dict_tmp['login_time'] = ''
 			dict_tmp['logout_time'] = ''
@@ -129,12 +153,20 @@ def get_user_login_info(request):
 			dict_tmp['total_session'] = ''
 
 		login_info_list.append(dict_tmp)
-	return HttpResponse(json.dumps({'rows': login_info_list, 
+	if not excel_search:
+		log.debug("++++++++ no down excel")
+		log.debug(excel_search)
+		return HttpResponse(json.dumps({'rows': login_info_list, 
 		                            'rows_count': total_rows_count,
                                     'sorts': sorts,
                                     'filters': filters,
                                     'search_con': request.GET.dict(),
                                     'success': True}), content_type="application/json")
+	else:
+		log.debug("-------- down excel")
+		log.debug(excel_search)
+		return login_info_list
+	
 
 @login_required
 def download_excel_allsearch_reasult(request):
@@ -143,10 +175,37 @@ def download_excel_allsearch_reasult(request):
 	filters = get_post_array(search_con, 'fcol', 12)
 	# Parse the sort data passed in.
 	sorts = get_post_array(search_con, 'col')
-	log.debug("00000000000000")
-	log.debug(filters)
-	log.debug(sorts)
-	return HttpResponse(json.dumps({'data': 'download_excel_allsearch_reasult', 'success': True}), content_type="application/json")
+
+	local_utc_diff_m = request.POST.get('local_utc_diff_m', 0)
+
+	user = request.user
+	view_right = check_user_perms(user, 'usage_report', 'view', exclude_superuser=True)
+	edit_right = check_user_perms(user, 'usage_report', 'edit', exclude_superuser=True)
+	if view_right or edit_right:
+		import xlsxwriter
+		output = StringIO()
+		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+		worksheet = workbook.add_worksheet()
+		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time", "Online State"]
+
+		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session", "online_state"]
+
+		for i, k in enumerate(TITLES):
+			worksheet.write(0, i, k)
+		row = 1
+		# params format: request, excel_search=False, _filters={}, _sorts={}, _time_diff_m=0
+		down_result = get_user_login_info(request, True, filters, sorts, local_utc_diff_m)
+		for d in down_result:
+			for k, v in enumerate(FIELDS):
+				worksheet.write(row, k, d[v])
+			row += 1
+		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=usage-report-%Y-%m-%d-%H-%M-%S.xlsx')
+		workbook.close()
+		response.write(output.getvalue())
+		return response
+	else:
+		raise Http404
 
 def get_post_array(post, name, max=None):
     """
@@ -185,6 +244,23 @@ def build_sorts(columns, sorts):
 				order_result.append('-' + columns[int(k)][0])
 	return order_result
 
+def time_to_local(user_time,time_diff_m):
+	'''
+	Just use for usage_report_download_excel
+	'''
+	if not user_time:
+		return ''
+
+	user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
+	plus_sub = 1
+	time_diff_m_int = int(time_diff_m)
+	if time_diff_m_int >= 0:
+		plus_sub = 1
+	else:
+		plus_sub = -1
+
+	user_time_str = (user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub).strftime('%m-%d-%Y %I:%M:%S %p')
+	return user_time_str
 
 @login_required
 @ensure_csrf_cookie
