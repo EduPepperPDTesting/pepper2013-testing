@@ -770,7 +770,7 @@
                 </td>
             </tr>
             <tr class='organization_pd_dashboard_set'>
-                <td colspan="3">Rgistration Page:</td>
+                <td colspan="3">Registration Page:</td>
             </tr>
             <tr class="organization_pd_dashboard_set" id="register_logo_curr_tr">
                 <td class="org_td1" style='padding-left:30px;'>Registration Page Logo : </td>
@@ -1115,6 +1115,7 @@
             <option value="TECH">Technology</option>
             <option value="ARTS">Visual & Performing Arts</option>
             <option value="WR">Writing and Poetry</option>
+            <option value="OTHER">Other</option>
         </select>
         <select id="org_assignment_author_id">
             <option value="all">All Authors</option>
@@ -1577,9 +1578,13 @@
 	};
 	
     function new_cms_resource(data) {
-        console.log(data);
+        $(".cms_item_btn:last").click();
         $(".cms_items_cms_item:last").val(data.title);
-        $(".organizational_dashboard_cms_url:last").val(data.url);
+        $(".cms_items_url:last").val(data.url);
+        closeModal();
+    }
+    function closeModal () {
+        $("#cms_dialog").hide();
     }
 
 	//-----------------------------------------------------------------------checkOrganization
