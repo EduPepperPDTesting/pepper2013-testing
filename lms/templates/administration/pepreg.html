@@ -2812,7 +2812,7 @@
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
                 if($("#advanced_select_" + (suborder + 1)).length == 0){
 
-                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + suborder + "' name='" + suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
+                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + (suborder + 1) + "' name='" + suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
                     $("#advanced_select_" + (suborder + 1)).append("<option value=''>Select Field</option>");
 
                     $.get("${reverse('getfielddata')}", {}, function(data) {
