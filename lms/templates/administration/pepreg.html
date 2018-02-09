@@ -2777,57 +2777,48 @@
                     }
                 }
                 });
-            }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[parseInt(suborder)] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }else if(val == ""){
+                $("#advanced_select_" + suborder).next("div").empty();
+                reloadTableAdvanced(parseInt(suborder) - 1);
             }
         });
 
         $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
-            var suborder = parseInt($(this).attr("name"));
-            console.log("subselect val: "+val);
-            filters = $.tablesorter.getFilters($("#data-table"));
+            var suborder = $(this).attr("name");
+
             if(val != ""){
-                if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
-                    console.log("and "+suborder);
-                    filters[suborder] = $(this).val();
-                    $.tablesorter.setFilters($("#data-table"), filters, true);
-                }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
-                    var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                    var col_2 = $("#subselect_" + suborder).attr("data-column");
-                    var val_1 = $("#subselect_" + (suborder - 1)).val();
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
-                }
+                reloadTableAdvanced(suborder);
 
                 if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
                 }
-            }else{
-                filters[suborder] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }else if(val == ""){
+                $("#addNext[name='" + suborder + "']").remove();
+                $("#subcondition_" + suborder).remove();
+
+                reloadTableAdvanced(suborder);
             }
         });
 
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
-            var suborder = parseInt($(this).attr("name")) + 1;
+            var suborder = parseInt($(this).attr("name"));
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
                 $(this).text(" - ").css("top", "-1px !important");
-                $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
-                $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
-                $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
-                if($("#advanced_select_" + suborder).length == 0){
+                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
+                $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
+                $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
+                if($("#advanced_select_" + (suborder + 1)).length == 0){
 
                     $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + suborder + "' name='" + suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
-                    $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
+                    $("#advanced_select_" + (suborder + 1)).append("<option value=''>Select Field</option>");
 
                     $.get("${reverse('getfielddata')}", {}, function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
+                                $("#advanced_select_" + (suborder + 1)).append("<option value='"+ v +"'>" + v + "</option>");
                             });
                         }
                     });
@@ -2835,87 +2826,54 @@
 
             }else{
                 $(this).text(" + ").css("top", "0px");
-                $("#subcondition_" + (suborder - 1)).remove();
-                $("#advanced_select_" + suborder).next("div").remove();
-                $("#advanced_select_" + suborder).remove();
-                console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
-                filters[suborder] = "";
+                $("#subcondition_" + suborder).remove();
+                $("#advanced_select_" + (suborder + 1)).next("div").remove();
+                $("#advanced_select_" + (suborder + 1)).remove();
+
+                reloadTableAdvanced(suborder);
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
-        //filtering records with OR condition
-        function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
-            console.log("tablesorterOptions="+tablesorterOptions);
-            $(".or_filter").removeClass("or_filter");
-            var valueCol_1 = val_1;
-            var valueCol_2 = val;
-            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter").val(valueCol_1);
-            console.log(valueCol_1+" "+col_1);
-            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter").val(valueCol_2);
-            console.log(valueCol_2+" "+col_2);
-
-            //get 'OR'-condition column indexes
-            var orColumns = [col_1, col_2],
-            //show row if one of given columns has corresponding cell with required value
-            filterfxn = function (e, n, f, i, $r, c) {
-                console.log("in filterfxn");
-                var v, showRow = false;
-                $r.children().filter(function (indx) {
-                    console.log(orColumns.indexOf(indx)+ " " + indx);
-                    if (orColumns.indexOf(indx) > -1) {
-                        console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
-                        v = $("#subselect_" + indx).val().toLowerCase();
-                        console.log(v);
-                        showRow = showRow || $(this).text().toLowerCase() === v;
-                    }
-                });
-                return showRow;
-            };
-
-            console.log(orColumns);
-
-            var filter_functions = {
-                ".or_filter": filterfxn
-            };
-
-            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
-
-            $("#data-table").tablesorter(tablesorterOptions);
-            console.log(tablesorterOptions);
-            $("#data-table").trigger("pagerUpdate");
-
-            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
-
-            console.log("filterfxn");
-        };
-
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
-
             var suborder = parseInt($(this).attr("name"));
-            var val_1 = $("#subselect_" + suborder).val();
-            var val_2 = $("#subselect_" + (suborder + 1)).val();
 
-            var filters = $.tablesorter.getFilters($("#data-table"));
-            console.log((isNaN(val_2) && typeof val_2 == "srting") + " " + (val_2 !== "undefined") + " " + (val_2 != ""));
-            if(((isNaN(val_2) && typeof val_2 == "srting") || val_2 !== "undefined") && val_2 != ""){
-                console.log("in subcondition check");
-                if(val == "and") {
-                    console.log("->and");
-                    filters[suborder] = $("#subselect_" + suborder).val();
-                    $.tablesorter.setFilters($("#data-table"), filters, true);
-                }else if(val == "or"){
-                    var col_1 = $("#subselect_" + suborder).attr("data-column");
-                    var col_2 = $("#subselect_" + (suborder + 1)).attr("data-column");
-                    console.log("val_1="+val_1+" val_2="+val_2);
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
-                }
-            }else{
-                filters[(suborder + 1)] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
-            }
+            reloadTableAdvanced(suborder);
         });
+
+        function reloadTableAdvanced(suborder){
+            var data = {}
+
+            var field_list = []
+            var condition_list = []
+            search_list = []
+
+            field_list[$("#subselect_" + suborder).value + "|" + suborder];
+            search_list.push($("#advanced_select_" + suborder).value);
+            condition_list.push($("#subcondition_" + suborder).val());
+
+            var i = 1;
+            while(i<=suborder){
+                field_list[$("#subselect_" + suborder).value + "|" + suborder];
+
+                var search = ($("#advanced_select_" + suborder).length == 1) ? $("#advanced_select_" + suborder).val(): "";
+                search_list.push(search);
+
+                var cond = ($("#subcondition_" + suborder).length == 1) ? $("#subcondition_" + suborder).val(): "";
+                condition_list.push(cond);
+
+                i++;
+            }
+
+            var t = this.$content.find('#data-table')[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.data = $.extend(p.data, data);
+            p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date() + "&advSearch=0";
+            p.reload();
+        }
         /* advanced filtering */
 
     };

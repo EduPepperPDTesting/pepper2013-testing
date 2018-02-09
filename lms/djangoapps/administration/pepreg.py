@@ -1,5 +1,6 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.db.models import Q
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
@@ -186,29 +187,77 @@ def rows(request):
     start = page * size
     end = start + size
 
-    if filters.get('7'):
-        filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+    regular_search = 0 if ((request.GET['advSearch']) == 0) else 1
 
-    if filters.get('16'):
-        filters['11'] = filters.get('16')
-        del filters['16']
+    if regular_search:
+
+        if filters.get('7'):
+            filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+
+        if filters.get('16'):
+            filters['11'] = filters.get('16')
+            del filters['16']
 
 
-    # limit to district trainings for none-system
-    is_no_System = False
-    if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
-        #filters[1] = request.user.profile.district.state.name
-        #filters[2] = request.user.profile.district.name
-        is_no_System = True
+        # limit to district trainings for none-system
+        is_no_System = False
+        if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
+            #filters[1] = request.user.profile.district.state.name
+            #filters[2] = request.user.profile.district.name
+            is_no_System = True
 
-    if len(filters):
-        args, kwargs = build_filters(columns, filters)
-        if args:
-            trainings = PepRegTraining.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            if args:
+                trainings = PepRegTraining.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                trainings = PepRegTraining.objects.prefetch_related().filter(**kwargs).order_by(*order)
         else:
-            trainings = PepRegTraining.objects.prefetch_related().filter(**kwargs).order_by(*order)
-    else:
-        trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
+            trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
+
+    elif not regular_search:
+
+        field_list = request.REQUEST.get('field_list')
+        search_list = request.REQUEST.get('search_list', [])
+        conditions = request.REQUEST.get('condition_list', [])
+
+        trainings = PepRegTraining.objects.all()
+
+        for field_item in field_list:
+
+            item = field_item.split("|")[0]
+            item_order = int(field_item.split("|")[1])
+
+            prev_item_order = item_order - 1
+            next_item_order = item_order + 1
+
+            if item == 'state':
+                field_name = 'district__state__name__in'
+            elif item == 'district':
+                field_name = 'district__name__in'
+            elif item:
+                field_name = item + '__in'
+
+            if (conditions[item_order] == '' or conditions[item_order] == 'and') and (item_order == 1 or (item_order > 1 and conditions[prev_item_order] == '' or conditions[prev_item_order] == 'and')):
+
+                trainings = trainings.filter(**{field_name: search_list[item_order]})
+
+            if (search_list[next_item_order] and conditions[item_order] == 'or'):
+
+                next_item = field_list[next_item_order].split("|")[0]
+
+                if next_item == 'state':
+                    next_field_name = 'district__state__name__in'
+                elif next_item == 'district':
+                    next_field_name = 'district__name__in'
+                elif next_item:
+                    next_field_name = next_item + '__in'
+
+                trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
+
+            if (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] == 'or' and (item_order == 1 or conditions[prev_item_order] != 'or'):
+
+                trainings = trainings.filter(**{field_name: search_list[item_order]})
 
     tmp_school_id = 0
     try:
