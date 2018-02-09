@@ -273,7 +273,7 @@
             <div class="add_table-section table-section clearfix">
                 <table id="data-table" class="tablesorter-blue user_table_init"
                        width="" cellspacing="" cellpadding="" border=""
-                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&regSearch=1">
                     <thead>
                         <tr>
                             <th class="sorter-false filter-false">Edit/Delete</th>
@@ -2873,7 +2873,7 @@
             var p = c.pager;
             p = $.extend(p, p.last);
             p.data = $.extend(p.data, data);
-            p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date() + "&advSearch=0";
+            p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date() + "&regSearch=0";
             p.reload();
         }
         /* advanced filtering */

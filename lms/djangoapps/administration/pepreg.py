@@ -187,7 +187,7 @@ def rows(request):
     start = page * size
     end = start + size
 
-    regular_search = 0 if ((request.GET['advSearch']) == '0') else 1
+    regular_search = int(request.GET['regSearch'])
 
     if regular_search == 1:
 
