@@ -242,7 +242,7 @@ def rows(request):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
-            if (search_list[next_item_order] and conditions[item_order] == 'or'):
+            elif (search_list[next_item_order] and conditions[item_order] == 'or'):
 
                 next_item = field_list[next_item_order].split("|")[0]
 
@@ -255,7 +255,7 @@ def rows(request):
 
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            if (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] == 'or' and (item_order == 1 or conditions[prev_item_order] != 'or'):
+            elif (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] == 'or' and (item_order == 1 or conditions[prev_item_order] != 'or'):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
