@@ -1576,7 +1576,7 @@
 	};
 	
     function new_cms_resource(data) {
-        newResource();
+        $(".cms_item_btn:last").click();
         $(".cms_items_cms_item:last").val(data.title);
         $(".cms_items_url:last").val(data.url);
         closeModal();
