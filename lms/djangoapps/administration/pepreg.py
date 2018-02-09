@@ -187,9 +187,9 @@ def rows(request):
     start = page * size
     end = start + size
 
-    regular_search = 0 if ((request.GET['advSearch']) == 0) else 1
+    regular_search = 0 if ((request.GET['advSearch']) == '0') else 1
 
-    if regular_search:
+    if regular_search == 1:
 
         if filters.get('7'):
             filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
@@ -215,7 +215,7 @@ def rows(request):
         else:
             trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
-    elif not regular_search:
+    elif regular_search == 0:
         raise Exception("advanced search")
         field_list = request.REQUEST.get('field_list')
         search_list = request.REQUEST.get('search_list', [])
