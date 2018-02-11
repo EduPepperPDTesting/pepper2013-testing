@@ -95,6 +95,7 @@ def courses(request):
                               "states_keys": state_key_list,
                               "districts_keys": district_key_list,
                               "collections": collections,
+                              "extitles":extitles,
                               "link": True})
 
 
