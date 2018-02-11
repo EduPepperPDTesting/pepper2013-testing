@@ -295,9 +295,9 @@
                         </div>
                         %if len(extitles) > 0:
                             %for index in range(len(extitles)):
-                                <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/toplevel_title/${extitle}.jpg);background-size:100% 100%;">
+                                <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/toplevel_title/${exurl[index]}.jpg);background-size:100% 100%;">
                                     <div style="height:100px;"></div>
-                                    <a href="/courses-list?toplevel_title=${exurl[index]}" class="card-link image-bottom-style"><span>${extitles[index]}</span></a>
+                                    <a href="/courses-list?toplevel_title=${extitles[index]}" class="card-link image-bottom-style"><span>${extitles[index]}</span></a>
                                 </div>
                             %endfor
                         %endif
