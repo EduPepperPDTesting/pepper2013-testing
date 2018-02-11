@@ -75,6 +75,12 @@ def courses(request):
     """
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
+    extitles = []
+    titles = ['Mathematics','English Language Arts', 'Science', 'Special Education' ,'Writing and Poetry', 'Leadership', 'English Language Learners', "Pepper's Online Workshops", "Visual & Perfoming Arts", 'Digital Citizenship', "Teacher ToolKit"]
+    for tmp in courses:
+        if tmp.create_toplevel_tile not in titles:
+            extitle.append(tmp.create_toplevel_tile)
+
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
     #20160324 modify
     #begin
@@ -88,6 +94,7 @@ def courses(request):
                               "states_keys": state_key_list,
                               "districts_keys": district_key_list,
                               "collections": collections,
+                              "extitles": extitles,
                               "link": True})
 
 
