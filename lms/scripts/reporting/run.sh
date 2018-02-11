@@ -38,7 +38,7 @@ echo '-------------------------------------------'
 sudo rm -f /tmp/user_info.csv;
 
 mysql -u$mysql_user -p$mysql_pwd -h$mysql_host -P$mysql_port $mysql_db <<EOF
-select auth_user.id,auth_userprofile.user_id,auth_user.email,TRIM(auth_user.username),TRIM(auth_user.first_name),TRIM(auth_user.last_name),TRIM(state.name) as state,TRIM(district.name) as district,TRIM(school.name) as school,state.id as state_id,district.id as district_id,school.id as school_id,date_format(auth_userprofile.activate_date,'%Y-%m-%d') as activate_date,TRIM(auth_userprofile.subscription_status),subject_area.name as major_subject_area from auth_user left join auth_userprofile on (auth_userprofile.user_id=auth_user.id) left join district on(district_id=district.id) left join state on(state_id=state.id) left join school on(school_id=school.id) left join subject_area on(major_subject_area_id=subject_area.id) into outfile '/tmp/user_info.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
+select auth_user.id,auth_userprofile.user_id,auth_user.email,TRIM(auth_user.username),TRIM(auth_user.first_name),TRIM(auth_user.last_name),TRIM(state.name) as state,TRIM(cohort.code) as cohort,TRIM(district.name) as district,TRIM(school.name) as school,state.id as state_id,cohort.id as cohort_id,district.id as district_id,school.id as school_id,date_format(auth_userprofile.activate_date,'%Y-%m-%d') as activate_date,TRIM(auth_userprofile.subscription_status),subject_area.name as major_subject_area from auth_user left join auth_userprofile on (auth_userprofile.user_id=auth_user.id) left join district on(district_id=district.id) left join state on(state_id=state.id) left join school on(school_id=school.id) left join subject_area on(major_subject_area_id=subject_area.id) left join cohort on (cohort_id=cohort.id) into outfile '/tmp/user_info.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
 EOF
 
 $mongo3_path/mongo --port=$mongo3_port <<EOF
@@ -48,7 +48,7 @@ EOF
 
 # $mongo3_path/mongoimport -d "reporting" -c "user_info" --port $mongo3_port -f "id,user_id,username,state,district,school,major_subject_area" --type=csv --file=/tmp/test123.csv
 
-$mongo3_path/mongoimport -d "$mongo3_db_reporting" -c "user_info" --port $mongo3_port -f "id,user_id,email,username,first_name,last_name,state,district,school,state_id,district_id,school_id,activate_date,subscription_status,major_subject_area" --type=csv --file=/tmp/user_info.csv
+$mongo3_path/mongoimport -d "$mongo3_db_reporting" -c "user_info" --port $mongo3_port -f "id,user_id,email,username,first_name,last_name,state,cohort,district,school,state_id,cohort_id,district_id,school_id,activate_date,subscription_status,major_subject_area" --type=csv --file=/tmp/user_info.csv
 
 sudo rm -f /tmp/user_info.csv;
 
