@@ -1578,9 +1578,13 @@
 	};
 	
     function new_cms_resource(data) {
-        console.log(data);
+        $(".cms_item_btn:last").click();
         $(".cms_items_cms_item:last").val(data.title);
-        $(".organizational_dashboard_cms_url:last").val(data.url);
+        $(".cms_items_url:last").val(data.url);
+        closeModal();
+    }
+    function closeModal () {
+        $("#cms_dialog").hide();
     }
 
 	//-----------------------------------------------------------------------checkOrganization
