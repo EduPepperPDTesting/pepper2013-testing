@@ -78,8 +78,9 @@ def courses(request):
     extitles = []
     titles = ['Mathematics','English Language Arts', 'Science', 'Special Education' ,'Writing and Poetry', 'Leadership', 'English Language Learners', "Pepper's Online Workshops", "Visual & Perfoming Arts", 'Digital Citizenship', "Teacher ToolKit"]
     for tmp in courses:
-        if tmp.create_toplevel_title not in titles:
-            extitles.append(tmp.create_toplevel_title)
+        if tmp.create_toplevel_title:
+            if tmp.create_toplevel_title not in titles:
+                extitles.append(tmp.create_toplevel_title)
 
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
     #20160324 modify
@@ -430,7 +431,7 @@ def course_list(request):
     filterDic = {'_id.category': 'course'}
     if toplevel_title:
         filterDic['metadata.create_toplevel_title'] = toplevel_title
-        
+
     if subject_id != 'all':
         filterDic['metadata.display_subject'] = subject_id
 
