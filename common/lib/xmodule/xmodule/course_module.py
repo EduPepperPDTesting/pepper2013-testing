@@ -397,6 +397,9 @@ class CourseFields(object):
 
     display_organization = String(help="An optional display string for the course organization that will get rendered in the LMS",
                                   scope=Scope.settings)
+    
+    create_toplevel_title = String(help="An optional display string for the course tile that will get rendered in the LMS",
+                                  scope=Scope.settings)
 
     display_coursenumber = String(help="An optional display string for the course number that will get rendered in the LMS",
                                   scope=Scope.settings)

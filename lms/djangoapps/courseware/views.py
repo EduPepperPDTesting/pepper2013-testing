@@ -75,6 +75,13 @@ def courses(request):
     """
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
+    extitles = []
+    titles = ['Mathematics','English Language Arts', 'Science', 'Special Education' ,'Writing and Poetry', 'Leadership', 'English Language Learners', "Pepper's Online Workshops", "Visual & Perfoming Arts", 'Digital Citizenship', "Teacher ToolKit", "State Content Collections", "District Content Collections"]
+    for tmp in courses:
+        if tmp.create_toplevel_title:
+            if (tmp.create_toplevel_title not in titles) and (tmp.create_toplevel_title not in extitles):
+                extitles.append(tmp.create_toplevel_title)
+
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
     #20160324 modify
     #begin
@@ -412,6 +419,7 @@ def course_list(request):
     district_id = request.GET.get('district', '') #search keyword get from client
     state_id = request.GET.get('state', '') #it's name,not id.search keyword get from client,not id
     origin_page = request.GET.get('origin', '')
+    toplevel_title = request.GET.get('toplevel_title', '')
 
     all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, all_courses)
@@ -420,6 +428,9 @@ def course_list(request):
     is_member = {'state': False, 'district': False}
 
     filterDic = {'_id.category': 'course'}
+    if toplevel_title:
+        filterDic['metadata.create_toplevel_title'] = toplevel_title
+        
     if subject_id != 'all':
         filterDic['metadata.display_subject'] = subject_id
 
