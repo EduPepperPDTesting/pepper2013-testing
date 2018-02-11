@@ -76,10 +76,10 @@ def courses(request):
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
     extitles = []
-    titles = ['Mathematics','English Language Arts', 'Science', 'Special Education' ,'Writing and Poetry', 'Leadership', 'English Language Learners', "Pepper's Online Workshops", "Visual & Perfoming Arts", 'Digital Citizenship', "Teacher ToolKit"]
+    titles = ['Mathematics','English Language Arts', 'Science', 'Special Education' ,'Writing and Poetry', 'Leadership', 'English Language Learners', "Pepper's Online Workshops", "Visual & Perfoming Arts", 'Digital Citizenship', "Teacher ToolKit", "State Content Collections", "District Content Collections"]
     for tmp in courses:
         if tmp.create_toplevel_title:
-            if tmp.create_toplevel_title not in titles:
+            if (tmp.create_toplevel_title not in titles) and (tmp.create_toplevel_title not in extitles):
                 extitles.append(tmp.create_toplevel_title)
 
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
