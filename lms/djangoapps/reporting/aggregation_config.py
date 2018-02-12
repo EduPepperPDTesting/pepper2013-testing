@@ -1767,7 +1767,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
             'current_course': '$current_course', 
             'complete_course': '$complete_course',
             'state': '$state',
-            'cohort': '$cohort'',
+            'cohort': '$cohort',
             'external_time': '$external_time',
             'subscription_status': '$subscription_status',
             'collaboration_time': '$collaboration_time',
