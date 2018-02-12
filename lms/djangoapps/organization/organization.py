@@ -2282,26 +2282,37 @@ def organization_course_list(request):
             sc.sort(key=lambda x: x.display_coursenumber)
 
     rows_course = []
+    duplicate = []
     for course in g_courses[4]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[0]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[1]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[2]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[3]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
 
     data = {'Success': True, "courses": rows_course, "subject_id": subject_id}
 
