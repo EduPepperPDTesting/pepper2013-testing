@@ -220,11 +220,11 @@ def rows(request):
         field_list = get_post_array(request.GET, 'field_list')
         search_list = get_post_array(request.GET, 'search_list')
         conditions = get_post_array(request.GET, 'condition_list')
-        raise Exception(field_list)
+
         trainings = PepRegTraining.objects.all()
 
         for field_item in field_list:
-
+            if field_item.find("|"): continue
             item_unit = field_item.split("|")
 
             item = item_unit[0]
