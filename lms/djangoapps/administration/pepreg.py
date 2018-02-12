@@ -219,7 +219,7 @@ def rows(request):
         field_list = get_post_array(request.GET, 'field_list')
         search_list = get_post_array(request.GET, 'search_list')
         conditions = get_post_array(request.GET, 'condition_list')
-
+        raise Exception(conditions)
         trainings = PepRegTraining.objects.all()
 
         for field_item in field_list:
