@@ -242,7 +242,7 @@ def rows(request):
             elif item:
                 field_name = item + '__in'
 
-            if (conditions[item_order] is None or conditions[item_order] == 'and') and (item_order == 1 or (item_order > 1 and (conditions[prev_item_order] is None or conditions[prev_item_order] == 'and'))):
+            if (item_order == len(conditions) or conditions[item_order] == 'and') and (item_order == 0 or (item_order > 0 and conditions[prev_item_order] == 'and')):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
@@ -260,7 +260,7 @@ def rows(request):
 
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            elif (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] is not None and conditions[item_order] == 'or' and (item_order == 1 or (conditions[prev_item_order] is not None and conditions[prev_item_order] != 'or')):
+            elif ((next_item_order == len(conditions) + 1) and item_order < len(conditions) and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
