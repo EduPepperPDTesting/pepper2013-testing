@@ -20,6 +20,7 @@ import re
 import urllib2
 from datetime import timedelta
 from models import UserLoginInfo
+import threading
 
 import logging
 log = logging.getLogger("tracking")
@@ -194,7 +195,7 @@ def download_excel_allsearch_reasult(request):
 			worksheet.write(0, i, k)
 		row = 1
 		# params format: request, excel_search=False, _filters={}, _sorts={}, _time_diff_m=0
-		down_result = get_user_login_info(request, True, filters, sorts, local_utc_diff_m)
+		down_result = thread_download_excel_list(filters, sorts, local_utc_diff_m)
 		for d in down_result:
 			for k, v in enumerate(FIELDS):
 				worksheet.write(row, k, d[v])
@@ -206,6 +207,154 @@ def download_excel_allsearch_reasult(request):
 		return response
 	else:
 		raise Http404
+
+def thread_download_excel_list(_filters, _sorts, _local_utc_diff_m):
+	columns = {0: ['district__state__name', '__iexact'],
+			   1: ['district__name', '__iexact'],
+			   2: ['school__name', '__iexact'],
+			   3: ['user__email', '__icontains'],
+			   4: ['user__username', '__icontains'],
+			   5: ['user__first_name', '__icontains'],
+			   6: ['user__last_name', '__icontains'],
+			   7: ['loginfo__login_time', ''],
+			   8: ['loginfo__logout_time', ''],
+			   9: ['loginfo__last_session', ''],
+			   10: ['loginfo__total_session', '']}
+
+	# Get query key and sort key
+	filters = _filters
+	sorts = _sorts
+
+	# Query DB
+	order = build_sorts(columns, sorts)
+	if len(filters):
+		kwargs = build_filter(columns, filters)
+		user_data = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+	else:
+		user_data = UserProfile.objects.prefetch_related().all().order_by(*order)
+
+	total_rows_count = user_data.count()
+	login_info_list = list()
+	'''
+	thd1 = ExcelThread("Thread-1", user_data, 0, 500)
+	thd2 = ExcelThread("Thread-2", user_data, 500, 1000)
+	thd3 = ExcelThread("Thread-3", user_data, 1000, 1131)
+
+	thd1.start()
+	thd2.start()
+	thd3.start()
+	thd1.join()
+	thd2.join()
+	thd3.join()
+
+	log.debug("--------create down excel")
+	login_info_list.extend(thd1.get_result())
+	login_info_list.extend(thd2.get_result())
+	login_info_list.extend(thd3.get_result())
+	'''
+	for d in user_data:
+		dict_tmp = {}
+		try:
+			dict_tmp['district'] = str(d.district.name)
+			dict_tmp['state'] = str(d.district.state.name)
+		except:
+			dict_tmp['district'] = ''
+			dict_tmp['state'] = ''
+
+		try:
+			dict_tmp['school'] = str(d.school.name)
+		except:
+			dict_tmp['school'] = ''
+
+		dict_tmp['id'] = d.user_id
+		dict_tmp['email'] = d.user.email
+		dict_tmp['username'] = d.user.username
+		dict_tmp['first_name'] = d.user.first_name
+		dict_tmp['last_name'] = d.user.last_name
+
+		try:
+			user_login_data = d.loginfo.all()[0]
+			if not active_recent(d) or user_login_data.logout_press:
+				dict_tmp['logout_time'] = time_to_local(user_login_data.logout_time, _local_utc_diff_m)
+				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
+				dict_tmp['online_state'] = 'Off'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
+			else:
+				dict_tmp['logout_time'] = ''
+				dict_tmp['last_session'] = ''
+				dict_tmp['online_state'] = 'On'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+			dict_tmp['login_time'] = time_to_local(user_login_data.login_time, _local_utc_diff_m)
+		except:
+			dict_tmp['login_time'] = ''
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			dict_tmp['online_state'] = ''
+			dict_tmp['total_session'] = ''
+		login_info_list.append(dict_tmp)
+
+	log.debug("+++++++++++++++++")
+	log.debug(len(login_info_list))
+	return login_info_list
+
+class ExcelThread(threading.Thread):  
+    def __init__(self, threadname, user_data, _start, _end):  
+        threading.Thread.__init__(self)
+        self.threadname = threadname
+        self.user_data = user_data
+        self._start = _start
+        self._end = _end
+
+    def run(self):  
+        self.result = create_download_excel_list(self.threadname, self.user_data, self._start, self._end)
+
+    def get_result(self):  
+        return self.result
+
+def create_download_excel_list(threadname, user_data, start, end):
+	thread_login_info_list = list()
+	for d in user_data[start:end]:
+		dict_tmp = {}
+		try:
+			dict_tmp['district'] = str(d.district.name)
+			dict_tmp['state'] = str(d.district.state.name)
+		except:
+			dict_tmp['district'] = ''
+			dict_tmp['state'] = ''
+
+		try:
+			dict_tmp['school'] = str(d.school.name)
+		except:
+			dict_tmp['school'] = ''
+
+		dict_tmp['id'] = d.user_id
+		dict_tmp['email'] = d.user.email
+		dict_tmp['username'] = d.user.username
+		dict_tmp['first_name'] = d.user.first_name
+		dict_tmp['last_name'] = d.user.last_name
+
+		try:
+			user_login_data = d.loginfo.all()[0]
+			if not active_recent(d) or user_login_data.logout_press:
+				dict_tmp['logout_time'] = time_to_local(user_login_data.logout_time, _local_utc_diff_m)
+				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
+				dict_tmp['online_state'] = 'Off'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
+			else:
+				dict_tmp['logout_time'] = ''
+				dict_tmp['last_session'] = ''
+				dict_tmp['online_state'] = 'On'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+			dict_tmp['login_time'] = time_to_local(user_login_data.login_time, _local_utc_diff_m)
+		except:
+			dict_tmp['login_time'] = ''
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			dict_tmp['online_state'] = ''
+			dict_tmp['total_session'] = ''
+		thread_login_info_list.append(dict_tmp)
+	return thread_login_info_list
+		
 
 def get_post_array(post, name, max=None):
     """
