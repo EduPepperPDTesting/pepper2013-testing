@@ -1891,7 +1891,7 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'portfolio_time': 1,
         'portfolio_url': 1,
         'state': 1, 
-        "cohort": 1,
+        'cohort': 1,
         'course_number': 1, 
         'subscription_status': 1, 
         'progress': {'$substr': ['$progress', 0, -1]}, 
