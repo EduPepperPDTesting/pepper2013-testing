@@ -226,7 +226,7 @@ def rows(request):
         for field_item in field_list:
 
             item = field_item.split("|")[0]
-            item_order = int(field_item.split("|")[1])
+            item_order = int(field_item.split("|")[1]) - 1
 
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
