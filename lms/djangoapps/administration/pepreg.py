@@ -189,6 +189,13 @@ def rows(request):
 
     regular_search = int(request.GET['regSearch'])
 
+    # limit to district trainings for none-system
+    is_no_System = False
+    if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
+        # filters[1] = request.user.profile.district.state.name
+        # filters[2] = request.user.profile.district.name
+        is_no_System = True
+        
     if regular_search == 1:
 
         if filters.get('7'):
@@ -199,12 +206,7 @@ def rows(request):
             del filters['16']
 
 
-        # limit to district trainings for none-system
-        is_no_System = False
-        if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
-            #filters[1] = request.user.profile.district.state.name
-            #filters[2] = request.user.profile.district.name
-            is_no_System = True
+
 
         if len(filters):
             args, kwargs = build_filters(columns, filters)
