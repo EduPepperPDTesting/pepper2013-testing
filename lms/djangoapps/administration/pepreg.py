@@ -226,6 +226,7 @@ def rows(request):
         for field_item in field_list:
 
             item_unit = field_item.split("|")
+            raise Exception(item_unit)
             item = item_unit[0]
             item_order = int(item_unit[1]) - 1
 
