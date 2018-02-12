@@ -216,14 +216,17 @@ def rows(request):
 
     elif regular_search == 0:
 
-        field_list = get_post_array(request.GET, 'field_list')
-        search_list = get_post_array(request.GET, 'search_list')
-        conditions = get_post_array(request.GET, 'condition_list')
-        raise Exception(conditions)
+        field_dict = get_post_array(request.GET, 'field_list')
+        search_dict = get_post_array(request.GET, 'search_list')
+        conditions_dict = get_post_array(request.GET, 'condition_list')
+
+        field_list = list(field_dict.values())
+        search_list =list(search_dict.values())
+        conditions = list(conditions_dict.values())
+
         trainings = PepRegTraining.objects.all()
 
         for field_item in field_list:
-            if field_item.find("|"): continue
             item_unit = field_item.split("|")
 
             item = item_unit[0]
