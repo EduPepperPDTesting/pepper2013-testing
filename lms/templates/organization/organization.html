@@ -577,9 +577,11 @@
         <select id="org_state_select" style="width:200px;">
         	<option value="">Select State</option>
         </select>
-        <select id="org_district_select" style="width:300px;"></select>
-        <select id="org_school_select" style="width:300px;"></select>
-
+        <select id="org_district_select" style="width:200px;"></select>
+        <select id="org_school_select" style="width:200px;"></select>
+        <select id="org_cohort_select" style="width:200px;">
+			<option value="">Select Cohort</option>
+        </select>
         <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
         <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
@@ -2581,6 +2583,9 @@
 				$("#org_state_select").val(sid);
 				$("#org_state_select").change();
 				
+			}else if (stype == "Cohort"){
+				$("#org_cohort_select").val(sid);
+				$("#org_cohort_select").change();
 			}else if(stype == "District"){
 				for(var i = 0; i < organization_district_list.length; i++){
 					var tmp1 = organization_district_list[i].split(",");
@@ -4306,6 +4311,9 @@
 									for(var i in r.rows_district){
 										organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);	
 									}
+									for(var i in r.rows_cohort){
+										$("#org_cohort_select").append("<option value='" + r.rows_cohort[i]["id"] + "'>" + r.rows_cohort[i]["name"] + "</option>");	
+									}
 								}else{
 									alert(r.Error);
 								}
@@ -4512,12 +4520,27 @@
 			org_school_select_add($(this).val());
         });
 		
+		$("#org_cohort_select").change(function () {
+			if ($(this).val() == ""){
+				$("#org_state_select").prop("disabled",false)
+				$("#org_state_select").val("");
+				$("#org_state_select").change();
+				$("#org_district_select").prop("disabled",false)
+				$("#org_school_select").prop("disabled",false)
+			}else{
+				$("#org_state_select").prop("disabled",true)
+				$("#org_district_select").prop("disabled",true)
+				$("#org_school_select").prop("disabled",true)
+			}
+        });
+        $("#org_cohort_select").change()
 		//--------------------------org_btn_add_state
 		$("#org_btn_add_state").click(function(){
 			var loadwin = new LoadingWin();	
 			var state_id = $("#org_state_select").val();
 			var district_id = $("#org_district_select").val();
-			var school_id = $("#org_school_select").val();			
+			var school_id = $("#org_school_select").val();
+			var cohort_id = $("#org_cohort_select").val();			
 			var add_id = "";
 			var add_txt = "";
 			var add_type = "";
@@ -4536,6 +4559,11 @@
 				add_id = school_id;
 				add_txt = $("#org_school_select option:selected").text();
 				add_type = "School";
+			}
+			if(cohort_id != ""){
+				add_id = cohort_id;
+				add_txt = $("#org_cohort_select option:selected").text();
+				add_type = "Cohort";
 			}
 			if(add_id == ""){
 				alert("Please select");
@@ -4559,6 +4587,9 @@
 									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else if(add_type == "School"){
+									organizationAddDistricts(add_type, add_txt, add_id, "");
+									loadwin.hide();
+								}else if (add_type == "Cohort"){
 									organizationAddDistricts(add_type, add_txt, add_id, "");
 									loadwin.hide();
 								}else{
@@ -4613,6 +4644,7 @@
 			var state_id = $("#org_state_select").val();
 			var district_id = $("#org_district_select").val();
 			var school_id = $("#org_school_select").val();			
+			var cohort_id = $("#org_cohort_select").val();
 			var add_id = "";
 			var add_txt = "";
 			var add_type = "";
@@ -4631,6 +4663,11 @@
 				add_id = school_id;
 				add_txt = $("#org_school_select option:selected").text();
 				add_type = "School";
+			}
+			if(cohort_id != ""){
+				add_id = cohort_id;
+				add_txt = $("#org_cohort_select option:selected").text();
+				add_type = "Cohort";
 			}
 			
 			if(add_id == ""){

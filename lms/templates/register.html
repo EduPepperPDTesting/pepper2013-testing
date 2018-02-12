@@ -835,7 +835,7 @@ $(document).ready(function(){
   })
 	//------------------organization_get_info	
 	var loadwin = new LoadingWin();		
-	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register",user:"${profile.user.id}", state: "${profile.district.state.id}", district: "${profile.district.id}"}, function (r) {
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){

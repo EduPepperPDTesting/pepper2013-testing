@@ -719,7 +719,7 @@ $(document).ready(function(){
   })
 	//------------------organization_get_info
 	var loadwin = new LoadingWin();		
-	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", district: "${profile.district.state.id}", state: "${profile.district.id}"}, function (r) {
+	$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"register", district: "${profile.district.state.id}", state: "${profile.district.id}", user:"${profile.user.id}"}, function (r) {
 		if (r.SiteURL_OK){
 			if(r.Success){
 				if(r.OrganizationOK){

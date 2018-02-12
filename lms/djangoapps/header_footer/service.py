@@ -36,9 +36,22 @@ def check_org(user):
             school_id = user.profile.school.id
         except:
             school_id = -1
+        try:
+            cohort_id = user.profile.cohort.id
+        except:
+            cohort_id = -1
 
         # Look up the org data for each of those.
-        if school_id != -1:
+        if cohort_id != -1:
+            try:
+                org = OrganizationDistricts.objects.get(OrganizationEnity=cohort_id, EntityType="Cohort")
+                if org:
+                    org_object = org.organization
+                    org_enabled = True
+            except:
+                pass
+
+        if (not org_enabled) and school_id != -1:
             try:
                 org = OrganizationDistricts.objects.get(OrganizationEnity=school_id, EntityType="School")
                 if org:
