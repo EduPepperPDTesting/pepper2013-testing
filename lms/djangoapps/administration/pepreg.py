@@ -220,13 +220,13 @@ def rows(request):
         field_list = get_post_array(request.GET, 'field_list')
         search_list = get_post_array(request.GET, 'search_list')
         conditions = get_post_array(request.GET, 'condition_list')
-
+        raise Exception(field_list)
         trainings = PepRegTraining.objects.all()
 
         for field_item in field_list:
 
             item_unit = field_item.split("|")
-            raise Exception(item_unit)
+
             item = item_unit[0]
             item_order = int(item_unit[1]) - 1
 
