@@ -225,8 +225,9 @@ def rows(request):
 
         for field_item in field_list:
 
-            item = field_item.split("|")[0]
-            item_order = int(field_item.split("|")[1]) - 1
+            item_unit = field_item.split("|")
+            item = item_unit[0]
+            item_order = int(item_unit[1]) - 1
 
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
@@ -238,13 +239,14 @@ def rows(request):
             elif item:
                 field_name = item + '__in'
 
-            if (conditions[item_order] == '' or conditions[item_order] == 'and') and (item_order == 1 or (item_order > 1 and conditions[prev_item_order] == '' or conditions[prev_item_order] == 'and')):
+            if (conditions[item_order] == '' or conditions[item_order] == 'and') and (item_order == 1 or (item_order > 0 and conditions[prev_item_order] == '' or conditions[prev_item_order] == 'and')):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
             elif (search_list[next_item_order] and conditions[item_order] == 'or'):
 
-                next_item = field_list[next_item_order].split("|")[0]
+                next_item_unit = field_list[next_item_order].split("|")
+                next_item = next_item_unit[0]
 
                 if next_item == 'state':
                     next_field_name = 'district__state__name__in'
@@ -255,7 +257,7 @@ def rows(request):
 
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            elif (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] == 'or' and (item_order == 1 or conditions[prev_item_order] != 'or'):
+            elif (search_list[next_item_order] is None or search_list[next_item_order] == '') and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
