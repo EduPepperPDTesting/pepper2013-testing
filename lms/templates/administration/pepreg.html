@@ -2853,7 +2853,7 @@
 
             var i = 1;
             while(i <= order){
-                var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + i: "";
+                var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + (i - 1): "";
                 field_list.push(field_type);
 
                 search_list.push($("#subselect_" + i).val());
