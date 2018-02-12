@@ -217,9 +217,9 @@ def rows(request):
 
     elif regular_search == 0:
 
-        field_list = request.REQUEST.get('field_list')
-        search_list = request.REQUEST.get('search_list', [])
-        conditions = request.REQUEST.get('condition_list', [])
+        field_list = get_post_array(request.GET, 'field_list')
+        search_list = get_post_array(request.GET, 'search_list')
+        conditions = get_post_array(request.GET, 'condition_list')
 
         trainings = PepRegTraining.objects.all()
 
