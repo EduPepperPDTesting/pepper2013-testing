@@ -2853,10 +2853,10 @@
 
             var i = 1;
             while(i <= order){
-                field_list.push[$("#subselect_" + i).value + "|" + i];
+                var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + i: "";
+                field_list.push[field_type];
 
-                var search = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val(): "";
-                search_list.push(search);
+                search_list.push($("#subselect_" + i).value);
 
                 var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 condition_list.push(cond);
