@@ -2854,9 +2854,9 @@
             var i = 1;
             while(i <= order){
                 var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + i: "";
-                field_list.push[field_type];
+                field_list.push(field_type);
 
-                search_list.push($("#subselect_" + i).value);
+                search_list.push($("#subselect_" + i).val());
 
                 var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 condition_list.push(cond);
