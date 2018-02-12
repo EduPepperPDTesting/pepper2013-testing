@@ -260,7 +260,7 @@ def rows(request):
 
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            elif ((next_item_order == len(conditions) + 1) and item_order < len(conditions) and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
+            elif (next_item_order == len(conditions) + 1) and item_order < len(conditions) and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
 
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
