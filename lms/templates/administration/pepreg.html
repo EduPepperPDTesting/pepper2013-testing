@@ -2819,7 +2819,7 @@
                     $.get("${reverse('getfielddata')}", {}, function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + nextOrder).append("<option value='"+ v +"'>" + v + "</option>");
+                                $("#advanced_select_" + nextOrder).append("<option value='"+ v.toLowerCase() +"'>" + v + "</option>");
                             });
                         }
                     });
