@@ -2731,7 +2731,7 @@
                     console.log("getfielddata: "+data.success);
                     if (data.success) {
                         $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
+                            $("#advanced_select_1").append("<option value='"+ v.toLowerCase() +"'>" + v + "</option>");
                         });
                     }
                 });
