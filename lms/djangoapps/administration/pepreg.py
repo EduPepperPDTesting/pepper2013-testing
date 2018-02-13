@@ -229,8 +229,10 @@ def rows(request):
         for field_item in field_list:
             item_unit = field_item.split("|")
 
-            item = item_unit[0]
+            item = item_unit[0].encode("utf-8")
             item_order = int(item_unit[1])
+
+            condition = conditions[item_order].encode("utf-8")
 
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
@@ -242,11 +244,11 @@ def rows(request):
             elif item:
                 field_name = item + '__in'
 
-            if (next_item_order == len(conditions) or conditions[item_order] == 'and') and (item_order == 0 or conditions[prev_item_order] == 'and'):
+            if (next_item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
                 #raise Exception("1 list=" + str(search_list))
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
-            elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and conditions[item_order] == 'or':
+            elif next_item_order < len(search_list) and search_list[next_item_order].encode("utf-8") and item_order < len(conditions) and condition == 'or':
                 raise Exception("2 list=" + str(search_list))
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
