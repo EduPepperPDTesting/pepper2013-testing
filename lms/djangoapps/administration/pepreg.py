@@ -247,7 +247,7 @@ def rows(request):
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
             elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and conditions[item_order] == 'or':
-
+                raise Exception(next_item_order+" list="+search_list)
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
