@@ -2103,21 +2103,21 @@ def getsearchdata(request):
     data_column = ""
     search_data = request.POST.get('search_data')
 
-    if search_data == "State":
+    if search_data == "state":
         if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
             data_column = "1"
             success = 1
             for item in State.objects.all().order_by("name"):
                 rows.append(item.name)
 
-    elif  search_data == "District":
+    elif  search_data == "district":
         if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
             data_column = "2"
             success = 1
             for item in District.objects.all().order_by("name"):
                 rows.append(item.name)
 
-    elif search_data == "Subject":
+    elif search_data == "subject":
         data_column = "3"
         success = 1
         rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
