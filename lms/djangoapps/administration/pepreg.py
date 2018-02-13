@@ -238,15 +238,15 @@ def rows(request):
             next_item_order = item_order + 1
 
             if item == 'state':
-                filters = [1, search_list[item_order]]
+                filters = {1: search_list[item_order]}
                 #field_name = 'district__state__name__iexact'
             elif item == 'district':
-                filters = [2, search_list[item_order]]
+                filters = {2: search_list[item_order]}
                 #field_name = 'district__name__iexact'
             elif item:
                 for key, val in columns.iteritems():
                     if item == val[0]:
-                        filters = [key, search_list[item_order]]
+                        filters = {key: search_list[item_order]}
                         break
                 #field_name = item + '__in'
 
@@ -264,15 +264,15 @@ def rows(request):
                 next_item = next_item_unit[0]
 
                 if next_item == 'state':
-                    filters = [1, search_list[next_item_order]]
+                    filters = {1: search_list[next_item_order]}
                     #next_field_name = 'district__state__name__in'
                 elif next_item == 'district':
-                    filters = [2, search_list[next_item_order]]
+                    filters = {2: search_list[next_item_order]}
                     #next_field_name = 'district__name__in'
                 elif next_item:
                     for key, val in columns.iteritems():
                         if next_item == val[0]:
-                            filters = [key, search_list[next_item_order]]
+                            filters = {key: search_list[next_item_order]}
                             break
                     #next_field_name = next_item + '__in'
 
