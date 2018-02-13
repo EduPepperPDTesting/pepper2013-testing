@@ -2063,7 +2063,7 @@ def get_course_permission_course_rows(request):
     courses = filter_courses(**course_filters)
     
     for c in courses[start:end]:
-        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, c.display_coursenumber, "", "",""])
+        coursenames.append([c.display_subject, c.display_organization, c.display_grades, c.display_name, c.id, c.display_coursenumber, "", "","", c.close_course])
 
     json_out = [len(courses), coursenames]
     return HttpResponse(json.dumps(json_out), content_type="application/json")

@@ -223,6 +223,12 @@ CoursePermission.prototype.loadCourseTable = function(){
             $(this).find("td:nth-child(5)").hide();
             $(this).find("td:nth-child(6)").hide();
             $(this).find("td:nth-child(4)").prop("title", displaynumber);
+            $(this).find("td:nth-child(10)").hide();
+            var name = $(this).find("td:nth-child(4)").text();
+            if ($(this).find("td:nth-child(10)").text() == 'true'){
+                name = displaynumber + "-" + name + '    <font color="red">CLOSED</font>';
+                $(this).find("td:nth-child(4)").html(name)
+            }
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
             var toggle3 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(8)).toggleSwitch();
