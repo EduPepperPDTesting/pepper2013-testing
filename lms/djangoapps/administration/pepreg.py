@@ -224,8 +224,8 @@ def rows(request):
         search_list =list(search_dict.values())
         conditions = list(conditions_dict.values())
 
-        trainings = PepRegTraining.objects.all()
-        raise Exception(str(trainings))
+        trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
+        #raise Exception(str(trainings))
         for field_item in field_list:
             item_unit = field_item.split("|")
 
@@ -238,15 +238,24 @@ def rows(request):
             next_item_order = item_order + 1
 
             if item == 'state':
-                field_name = 'district__state__name__in'
+                filters = [1, search_list[item_order]]
+                #field_name = 'district__state__name__iexact'
             elif item == 'district':
-                field_name = 'district__name__in'
+                filters = [2, search_list[item_order]]
+                #field_name = 'district__name__iexact'
             elif item:
-                field_name = item + '__in'
+                for key, val in columns.iteritems():
+                    if item == val[0]:
+                        filters = [key, search_list[item_order]]
+                        break
+                #field_name = item + '__in'
+
+            args, kwargs = build_filters(columns, filters)
 
             if (next_item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
                 #raise Exception("1 item_order=" + str(item_order) + " list=" + str(search_list[item_order]))
-                trainings = trainings.filter(**{field_name: search_list[item_order]})
+                #trainings = trainings.filter(**{field_name: search_list[item_order]})
+                trainings = trainings.filter(**kwargs).order_by(*order)
                 #trainings = PepRegTraining.objects.filter(**{field_name: search_list[item_order]})
                 raise Exception(str(trainings))
             elif next_item_order < len(search_list) and search_list[next_item_order].encode("utf-8") and item_order < len(conditions) and condition == 'or':
@@ -255,15 +264,24 @@ def rows(request):
                 next_item = next_item_unit[0]
 
                 if next_item == 'state':
-                    next_field_name = 'district__state__name__in'
+                    filters = [1, search_list[next_item_order]]
+                    #next_field_name = 'district__state__name__in'
                 elif next_item == 'district':
-                    next_field_name = 'district__name__in'
+                    filters = [2, search_list[next_item_order]]
+                    #next_field_name = 'district__name__in'
                 elif next_item:
-                    next_field_name = next_item + '__in'
+                    for key, val in columns.iteritems():
+                        if next_item == val[0]:
+                            filters = [key, search_list[next_item_order]]
+                            break
+                    #next_field_name = next_item + '__in'
 
-                trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
+                args, next_kwargs = build_filters(columns, filters)
 
-            raise Exception("0 list=" + str(search_list))
+                trainings = trainings.filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
+                #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
+
+            #raise Exception("0 list=" + str(search_list))
     tmp_school_id = 0
     try:
         tmp_school_id = request.user.profile.school.id
