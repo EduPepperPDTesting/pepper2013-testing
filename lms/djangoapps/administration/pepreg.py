@@ -242,7 +242,7 @@ def rows(request):
             elif item:
                 field_name = item + '__in'
 
-            if (item_order == len(conditions) or conditions[item_order] == 'and') and (item_order == 0 or (item_order > 0 and conditions[prev_item_order] == 'and')):
+            if (next_item_order == len(conditions) or conditions[item_order] == 'and') and (item_order == 0 or conditions[prev_item_order] == 'and'):
                 raise Exception("1 list=" + str(search_list))
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
@@ -260,9 +260,6 @@ def rows(request):
 
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            elif (next_item_order == len(conditions) + 1) and item_order < len(conditions) and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
-                raise Exception("3 list=" + str(search_list))
-                trainings = trainings.filter(**{field_name: search_list[item_order]})
             raise Exception("0 list=" + str(search_list))
     tmp_school_id = 0
     try:
