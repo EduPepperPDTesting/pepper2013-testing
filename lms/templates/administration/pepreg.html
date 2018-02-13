@@ -2853,20 +2853,24 @@
 
             var i = 1;
             while(i <= order){
-                field_list.push[$("#subselect_" + i).value + "|" + i];
+                var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + (i - 1): "";
+                field_list.push(field_type);
 
-                var search = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val(): "";
-                search_list.push(search);
+                search_list.push($("#subselect_" + i).val());
 
                 var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 condition_list.push(cond);
 
                 i++;
             }
+            console.log(field_list + "---" + search_list + "---" + condition_list)
 
             data['field_list'] = field_list;
+            console.log(data['field_list']);
             data['search_list'] = search_list;
+            console.log(data['search_list']);
             data['condition_list'] = condition_list;
+            console.log(data['condition_list']);
 
             var t = $('#data-table')[0];
             var c = t.config;
