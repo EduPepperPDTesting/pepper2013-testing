@@ -241,13 +241,13 @@ def rows(request):
                 field_name = 'district__name__in'
             elif item:
                 field_name = item + '__in'
-            raise Exception("0 list=" + search_list)
+
             if (item_order == len(conditions) or conditions[item_order] == 'and') and (item_order == 0 or (item_order > 0 and conditions[prev_item_order] == 'and')):
-                raise Exception("1 list=" + search_list)
+                raise Exception("1 list=" + str(search_list))
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
             elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and conditions[item_order] == 'or':
-                raise Exception("2 list=" + search_list)
+                raise Exception("2 list=" + str(search_list))
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
@@ -261,9 +261,9 @@ def rows(request):
                 trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
             elif (next_item_order == len(conditions) + 1) and item_order < len(conditions) and conditions[item_order] == 'or' and (item_order == 0 or conditions[prev_item_order] != 'or'):
-                raise Exception("3 list=" + search_list)
+                raise Exception("3 list=" + str(search_list))
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
-
+            raise Exception("0 list=" + str(search_list))
     tmp_school_id = 0
     try:
         tmp_school_id = request.user.profile.school.id
