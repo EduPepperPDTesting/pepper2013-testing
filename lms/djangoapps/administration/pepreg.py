@@ -232,7 +232,10 @@ def rows(request):
             item = item_unit[0].encode("utf-8")
             item_order = int(item_unit[1])
 
-            condition = conditions[item_order].encode("utf-8")
+            try:
+                condition = conditions[item_order].encode("utf-8")
+            except:
+                condition = ""
 
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
