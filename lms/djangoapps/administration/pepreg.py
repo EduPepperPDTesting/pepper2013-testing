@@ -257,9 +257,9 @@ def rows(request):
                 #trainings = trainings.filter(**{field_name: search_list[item_order]})
                 trainings = trainings.filter(**kwargs).order_by(*order)
                 #trainings = PepRegTraining.objects.filter(**{field_name: search_list[item_order]})
-                raise Exception(str(trainings))
+                #raise Exception(str(trainings))
             elif next_item_order < len(search_list) and search_list[next_item_order].encode("utf-8") and item_order < len(conditions) and condition == 'or':
-                raise Exception("2 list=" + str(search_list))
+                #raise Exception("2 list=" + str(search_list))
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
