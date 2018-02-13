@@ -245,7 +245,7 @@ def rows(request):
                 field_name = item + '__in'
 
             if (next_item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
-                raise Exception("1 list=" + str(search_list))
+                raise Exception("1 item_order=" + str(item_order) + " list=" + str(search_list[item_order]))
                 trainings = trainings.filter(**{field_name: search_list[item_order]})
 
             elif next_item_order < len(search_list) and search_list[next_item_order].encode("utf-8") and item_order < len(conditions) and condition == 'or':
