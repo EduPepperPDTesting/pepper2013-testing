@@ -231,7 +231,7 @@ def rows(request):
 
             item = item_unit[0].encode("utf-8")
             item_order = int(item_unit[1])
-            if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
+            #if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
             try:
                 condition = conditions[item_order].encode("utf-8")
             except:
