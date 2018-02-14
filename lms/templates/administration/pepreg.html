@@ -2828,8 +2828,13 @@
             }else{
                 $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + suborder).remove();
-                $("#advanced_select_" + nextOrder).next("div").remove();
-                $("#advanced_select_" + nextOrder).remove();
+
+                var n = $(".advanced_select").length;
+                while(n > suborder){
+                    $("#advanced_select_" + n).next("div").remove();
+                    $("#advanced_select_" + n).remove();
+                    n--;
+                }
 
                 reloadTableAdvanced(suborder);
             }
