@@ -220,9 +220,9 @@ def rows(request):
         search_dict = get_post_array(request.GET, 'search_list')
         conditions_dict = get_post_array(request.GET, 'condition_list')
 
-        field_list = list(field_dict.values())
-        search_list =list(search_dict.values())
-        conditions = list(conditions_dict.values())
+        field_list = list(field_dict.values())[::-1]
+        search_list =list(search_dict.values())[::-1]
+        conditions = list(conditions_dict.values())[::-1]
 
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
         #raise Exception(str(trainings))
