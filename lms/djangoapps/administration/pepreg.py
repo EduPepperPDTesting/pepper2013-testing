@@ -256,7 +256,7 @@ def rows(request):
             args, kwargs = build_filters(columns, filters)
 
             if (item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
-                if item_order == 1: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
+                #if item_order == 1: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
 
                 trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
 
