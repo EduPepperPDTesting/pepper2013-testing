@@ -381,9 +381,10 @@ def rows(request):
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 def fix_list(fixlist):
-    last_el = fixlist[0]
-    fixlist[0] = fix_list[len(fixlist) - 1]
-    fixlist[len(fixlist) - 1] = last_el
+    if len(fixlist) > 1:
+        last_el = fixlist[0]
+        fixlist[0] = fixlist[len(fixlist) - 1]
+        fixlist[len(fixlist) - 1] = last_el
     return fixlist
 
 def save_training(request):
