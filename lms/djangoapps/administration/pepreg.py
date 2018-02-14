@@ -220,9 +220,9 @@ def rows(request):
         search_dict = get_post_array(request.GET, 'search_list')
         conditions_dict = get_post_array(request.GET, 'condition_list')
 
-        field_list = list(field_dict.values())[::-1]
-        search_list =list(search_dict.values())[::-1]
-        conditions = list(conditions_dict.values())[::-1]
+        field_list = fix_list(list(field_dict.values()))
+        search_list = fix_list(list(search_dict.values()))
+        conditions = fix_list(list(conditions_dict.values()))
 
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
         #raise Exception(str(trainings))
@@ -380,6 +380,11 @@ def rows(request):
     json_out.append(rows)
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
+def fix_list(fixlist):
+    last_el = fixlist[0]
+    fixlist[0] = fix_list[len(fixlist) - 1]
+    fixlist[len(fixlist) - 1] = last_el
+    return fixlist
 
 def save_training(request):
     try:
