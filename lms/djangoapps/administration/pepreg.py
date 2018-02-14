@@ -382,9 +382,7 @@ def rows(request):
 
 def fix_list(fixlist):
     if len(fixlist) > 1:
-        last_el = fixlist[0]
-        fixlist[0] = fixlist[len(fixlist) - 1]
-        fixlist[len(fixlist) - 1] = last_el
+        fixlist.reverse()
     return fixlist
 
 def save_training(request):
