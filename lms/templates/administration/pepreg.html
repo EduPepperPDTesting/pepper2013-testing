@@ -2779,6 +2779,9 @@
                 });
             }else if(val == ""){
                 $("#advanced_select_" + suborder).next("div").empty();
+
+                removeNextFilter(suborder);
+
                 reloadTableAdvanced(parseInt(suborder) - 1);
             }
         });
@@ -2796,6 +2799,8 @@
             }else if(val == ""){
                 $("#addNext[name='" + suborder + "']").remove();
                 $("#subcondition_" + suborder).remove();
+
+                removeNextFilter(suborder);
 
                 reloadTableAdvanced(parseInt(suborder) - 1);
             }
@@ -2829,12 +2834,7 @@
                 $(this).text(" + ").css("top", "0px");
                 $("#subcondition_" + suborder).remove();
 
-                var n = $(".advanced_select").length;
-                while(n > suborder){
-                    $("#advanced_select_" + n).next("div").remove();
-                    $("#advanced_select_" + n).remove();
-                    n--;
-                }
+                removeNextFilter(suborder);
 
                 reloadTableAdvanced(suborder);
             }
@@ -2849,6 +2849,15 @@
                 reloadTableAdvanced(suborder);
             }
         });
+
+        function removeNextFilter(suborder){
+            var n = $(".advanced_select").length;
+            while(n > suborder){
+                $("#advanced_select_" + n).next("div").remove();
+                $("#advanced_select_" + n).remove();
+                n--;
+            }
+        }
 
         function reloadTableAdvanced(suborder){
             var order = parseInt(suborder);
