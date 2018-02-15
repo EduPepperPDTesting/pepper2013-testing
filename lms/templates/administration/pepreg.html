@@ -2813,7 +2813,9 @@
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
                 var encDash = encodeURIComponent("&ndash;");
-                $(this).text(" " + decodeURIComponent(encDash) + " ").css("top", "-1px !important");
+                var decDash = decodeURIComponent(encDash);
+                var dash = " " + decDash + " ";
+                $(this).text(dash).css("top", "-1px !important");
                 $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
