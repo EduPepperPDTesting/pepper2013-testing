@@ -2845,7 +2845,9 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
 
-            reloadTableAdvanced(suborder);
+            if(val == 'and' or (val == 'or' and $(".subselect").length > suborder and $("#subselect_" + suborder).val() != "")){
+                reloadTableAdvanced(suborder);
+            }
         });
 
         function reloadTableAdvanced(suborder){
