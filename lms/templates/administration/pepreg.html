@@ -2812,7 +2812,7 @@
             var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                $(this).text(" - ").css("font-size", "3em");
+                $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".2em"});
                 $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
                 $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
@@ -2831,7 +2831,7 @@
                 }
 
             }else{
-                $(this).text(" + ").css("font-size", "2em");
+                $(this).text(" + ").css("font-size", "2em");.css({"position": "", "top": "", "left": "", "font-size": "2em", "height": "", "line-height": ""});
                 $("#subcondition_" + suborder).remove();
 
                 removeNextFilter(suborder);
