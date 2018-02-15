@@ -2812,8 +2812,8 @@
             var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".2em"});
-                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition'></select>");
+                $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".4em"});
+                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -5px;'></select>");
                 $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
                 if($("#advanced_select_" + nextOrder).length == 0){
