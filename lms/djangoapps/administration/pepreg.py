@@ -255,11 +255,11 @@ def rows(request):
 
             args, kwargs = build_filters(columns, filters)
 
-            if (item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
+            if (item_order == len(conditions) or condition == 'and' or (condition == 'or' and next_item_order < len(search_list) and search_list[next_item_order])) and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
                 #if item_order == 2: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
                 trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
 
-            elif next_item_order < len(search_list) and search_list[next_item_order].encode("utf-8") and item_order < len(conditions) and condition == 'or':
+            elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and condition == 'or':
                 #raise Exception("2 list=" + str(search_list))
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
