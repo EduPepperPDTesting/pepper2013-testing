@@ -1526,13 +1526,14 @@ def do_send_registration_email(task, user_ids, request):
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
+        else:
+            profile.save()
         finally:
             count_success += 1
             task.success_emails = count_success
             task.update_time = datetime.now(UTC)
             task.save()
             tasklog.save()
-            profile.save()
             db.transaction.commit()
 
     #** post process
