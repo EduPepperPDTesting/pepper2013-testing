@@ -1777,7 +1777,7 @@
             dailogTitle = "Warning";
         }
         if(s && s.indexOf("|")>-1){
-            var googlePerm = ${has_hangout_perms(request.user)};
+            var googlePerm = ("${has_hangout_perms(request.user)}" == "False")? false: true;
             var t = s.substring(0, s.indexOf("!") + 1);
             var eventString = s.substr(s.indexOf("!") + 1).split("|");
             eventStart = eventString[0];
@@ -2704,7 +2704,7 @@
                         $(this).css("color", "#1d9dd9");
                         $(this).css("cursor", "pointer");
                         $(this).click(function () {
-                            var google_save = (${has_hangout_perms(request.user)})? true: false;
+                            var google_save = ("${has_hangout_perms(request.user)}" == "False")? false: true;
                             self.showStudents(training_id, google_save);
                         });
                     });
