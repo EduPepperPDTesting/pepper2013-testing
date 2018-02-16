@@ -9,7 +9,13 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 from web_client.request import WebRequest
+import base64
 
+
+def encode_cms_password (request):
+    password = CMS_API_PASSWORD
+    encoded = base64.encodestring (password)
+    return HttpResponse(json.dumps({'password': encoded}), content_type="application/json")
 
 @login_required
 def get_cms_popup(request):

@@ -120,6 +120,7 @@ urlpatterns = (
     url(r'^cms_libraries/$', 'handle_cms.views.get_libraries', name='cms_libraries'),
     url(r'^cms_library/$', 'handle_cms.views.get_library', name='cms_library'),
     url(r'^cms_book/$', 'handle_cms.views.get_book', name='cms_book'),
+    url(r'^cms_password/$', 'handle_cms.views.encode_cms_password', name='cms_password'),
     # === CMS 2.1 end === #
 
     # === webchat begin ==

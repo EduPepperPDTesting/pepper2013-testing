@@ -51,9 +51,13 @@ $("#search_view_head").click(function() {
 });
 var initialize_listeners = true;
 var send_to;
+var encoded_pw = "";
 function initializeCMSPopup (callback) {
     send_to = callback;
-    librariesSelector();
+    $.post("${reverse('cms_password')}", {}, function (data) {
+        encoded_pw = data.password;
+        librariesSelector();
+    });
 }
 
 function librariesSelector() {
@@ -169,7 +173,7 @@ function callAPI (endpoint, data) {
         url: base+endpoint,
         data: data,
         type: 'GET',
-        headers: {Authorization: 'Basic cmVzdHVzZXI6d0sleURKTXFUPzdHbkJaSw=='},
+        headers: {Authorization: 'Basic ' + encoded_pw},
         jsonp: false,
         xhrFields: {withCredentials: true},
         async: false,
