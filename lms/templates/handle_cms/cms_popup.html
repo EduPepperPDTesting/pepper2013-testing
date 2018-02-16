@@ -55,9 +55,13 @@ var encoded_pw = "";
 function initializeCMSPopup (callback) {
     send_to = callback;
     $.post("${reverse('cms_password')}", {}, function (data) {
-        encoded_pw = data.password;
+        encoded_pw = unshuffle (data.password, data.shift);
         librariesSelector();
     });
+}
+
+function unshuffle (string, shift) {
+    return string.splice(-shift) + spring.splice(0, -shift);
 }
 
 function librariesSelector() {

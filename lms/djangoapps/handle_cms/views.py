@@ -10,13 +10,16 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 from web_client.request import WebRequest
+import random
 import base64
 
 
 def encode_cms_password (request):
     password = settings.CMS_API_PASSWORD
     encoded = base64.encodestring (password)
-    return HttpResponse(json.dumps({'password': encoded}), content_type="application/json")
+    shift = random.randint(1,20)
+    shuffled = encoded[shift:] + encoded[:shift]
+    return HttpResponse(json.dumps({"password": shuffled, "shift": shift}), content_type="application/json")
 
 @login_required
 def get_cms_popup(request):
