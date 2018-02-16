@@ -61,7 +61,7 @@ function initializeCMSPopup (callback) {
 }
 
 function unshuffle (string, shift) {
-    return string.splice(-shift) + spring.splice(0, -shift);
+    return string.slice(-shift) + spring.slice(0, -shift);
 }
 
 function librariesSelector() {
