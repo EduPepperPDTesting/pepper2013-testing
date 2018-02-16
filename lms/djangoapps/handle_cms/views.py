@@ -4,6 +4,7 @@ from util.json_request import JsonResponse
 import json
 import requests
 from django.http import HttpResponse
+from django.conf import settings
 try:
     from urllib import urlencode
 except ImportError:
@@ -13,7 +14,7 @@ import base64
 
 
 def encode_cms_password (request):
-    password = CMS_API_PASSWORD
+    password = settings.CMS_API_PASSWORD
     encoded = base64.encodestring (password)
     return HttpResponse(json.dumps({'password': encoded}), content_type="application/json")
 
