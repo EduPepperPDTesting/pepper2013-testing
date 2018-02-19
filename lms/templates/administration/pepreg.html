@@ -2826,7 +2826,7 @@
                         if (data.success) {
                             $.each(data.rows, function(k, v){
                                 var disp = "block";
-                                for(var i = 1; i < suborder; i++){
+                                for(var i = 1; i <= suborder; i++){
                                     if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
                                         disp = "none";
                                         break;
