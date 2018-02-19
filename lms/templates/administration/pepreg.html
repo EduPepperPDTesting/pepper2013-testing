@@ -2871,6 +2871,8 @@
                         }
                     }
                 }
+            }else{
+                $("#advanced_select_" + nextOrder).find("option[value=='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
             }
 
             if($(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
