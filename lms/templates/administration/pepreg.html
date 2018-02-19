@@ -2853,9 +2853,7 @@
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
             var nextOrder = suborder + 1
-
-            $("#advanced_select_" + next_order).find("option").css("display", "block");
-
+            
             if(val == 'and'){
                 for(var i = 1; i <= suborder; i++){
                     if($("#subcondition_" + i).val() == 'and'){
