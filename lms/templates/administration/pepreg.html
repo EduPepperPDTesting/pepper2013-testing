@@ -2821,11 +2821,20 @@
 
                     $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
                     $("#advanced_select_" + nextOrder).append("<option value=''>Select Field</option>");
-
-                    $.get("${reverse('getfielddata')}", {}, function(data) {
+                    var field_selected = $("#advanced_select_" + suborder).val();
+                    $.get("${reverse('getfielddata')}", function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + nextOrder).append("<option value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                                var disp = "block";
+                                if(val == 'and'){
+                                    for(var i = 1; i < suborder; i++){
+                                        if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                            disp = "none";
+                                            break;
+                                        }
+                                    }
+                                }
+                                $("#advanced_select_" + nextOrder).append("<option style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
                             });
                         }
                     });
@@ -2845,6 +2854,26 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
+            var nextOrder = suborder + 1
+
+            $("#advanced_select_" + next_order).find("option").css("display": "block");
+
+            if(val == 'and'){
+                for(var i = 1; i <= suborder; i++){
+                    if($("#subcondition_" + i).val() == 'and'){
+                        var fieldValue = $("#advanced_select_" + i).val();
+                        for(var n = nextOrder; n <= $(".subcondition").length; n++){
+                            if($("#advanced_select_" + n).val() != fieldValue || $("#subcondition_" + (n - 1)).val() == 'or'){
+                                $("#advanced_select_" + n).find("option[value=='" + fieldValue + "']").css("display": "none");
+                            }else if($("#advanced_select_" + n).val() == fieldValue){
+                                $(this).val() = 'or';
+                                $(".advanced_select[value = '" + fieldValue + "']").css("border": "1px solid red");
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
 
             if($(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
                 reloadTableAdvanced(suborder);

@@ -2108,7 +2108,12 @@ def getfielddata(request):
     except:
         org_id = 0
 
-    rows = ["State", "District", "Subject"]
+    rows = []
+    if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+        rows = ["State", "District"]
+
+    row.append("Subject")
+
     success = 1
 
     data = {'success': success, 'rows': rows}
@@ -2122,18 +2127,16 @@ def getsearchdata(request):
     search_data = request.POST.get('search_data')
 
     if search_data == "state":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "1"
-            success = 1
-            for item in State.objects.all().order_by("name"):
-                rows.append(item.name)
+        data_column = "1"
+        success = 1
+        for item in State.objects.all().order_by("name"):
+            rows.append(item.name)
 
-    elif  search_data == "district":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "2"
-            success = 1
-            for item in District.objects.all().order_by("name"):
-                rows.append(item.name)
+    elif search_data == "district":
+        data_column = "2"
+        success = 1
+        for item in District.objects.all().order_by("name"):
+            rows.append(item.name)
 
     elif search_data == "subject":
         data_column = "3"
