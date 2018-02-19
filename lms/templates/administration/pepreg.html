@@ -2858,7 +2858,9 @@
                 for(var i = 1; i <= suborder; i++){
                     if($("#subcondition_" + i).val() == 'and'){
                         var fieldValue = $("#advanced_select_" + i).val();
+                        console.log("fieldValue="+fieldValue);
                         for(var n = nextOrder; n <= $(".subcondition").length; n++){
+                            console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
                             }else if($("#advanced_select_" + n).val() == fieldValue){
