@@ -2826,12 +2826,10 @@
                         if (data.success) {
                             $.each(data.rows, function(k, v){
                                 var disp = "block";
-                                if(val == 'and'){
-                                    for(var i = 1; i < suborder; i++){
-                                        if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
-                                            disp = "none";
-                                            break;
-                                        }
+                                for(var i = 1; i < suborder; i++){
+                                    if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                        disp = "none";
+                                        break;
                                     }
                                 }
                                 $("#advanced_select_" + nextOrder).append("<option style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
