@@ -2865,7 +2865,7 @@
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
                             }else if($("#advanced_select_" + n).val() == fieldValue){
-                                $(this).val() = 'or';
+                                $(this).val("or");
                                 $(".advanced_select[value = '" + fieldValue + "']").css("border", "1px solid red");
                             }
                         }
