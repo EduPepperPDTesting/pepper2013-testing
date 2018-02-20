@@ -2112,7 +2112,7 @@ def getfielddata(request):
     if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
         rows = ["State", "District"]
 
-    row.append("Subject")
+    rows.append("Subject")
 
     success = 1
 
