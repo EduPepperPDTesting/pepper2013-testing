@@ -287,7 +287,7 @@ def rows(request):
                 if conditions[prev_item_order].encode("utf-8") == 'and':
                     trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
 
-                order = [tuple(x.strip('-') for x in y) for y in order]
+                order = [x.strip('-') for x in order]
 
                 trainings = sorted(chain(trainings, or_trainings), key = attrgetter(*order), reverse = True)
 
