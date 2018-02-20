@@ -279,7 +279,7 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                trainings = trainings.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
+                trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
                 #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
     tmp_school_id = 0
