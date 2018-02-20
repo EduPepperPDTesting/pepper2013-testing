@@ -2867,7 +2867,7 @@
                             }else if($("#advanced_select_" + n).val() == fieldValue){
                                 $(this).val("or");
                                 $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
-                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().next().css("border", "1px solid red");
+                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().next().children().css("border", "1px solid red");
                             }
                         }
                     }
