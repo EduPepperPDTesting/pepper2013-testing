@@ -2861,7 +2861,7 @@
                         console.log("fieldValue="+fieldValue);
                         for(var n = nextOrder; n <= $(".advanced_select").length; n++){
                             console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
-                            console.log(i"sfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
+                            console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
                             }else if($("#advanced_select_" + n).val() == fieldValue){
