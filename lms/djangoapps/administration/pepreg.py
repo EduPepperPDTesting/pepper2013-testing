@@ -282,7 +282,7 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                or_trainings = trainings.prefetch_related().filter(next_kwargs).order_by(*order)
+                or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
 
                 if conditions[prev_item_order].encode("utf-8") == 'and':
                     trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
