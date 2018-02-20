@@ -2852,7 +2852,8 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
-            var nextOrder = suborder + 1
+            var nextOrder = suborder + 1;
+            var reload = true;
 
             if(val == 'and'){
                 for(var i = 1; i <= suborder; i++){
@@ -2865,6 +2866,7 @@
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
                             }else if($("#advanced_select_" + n).val() == fieldValue){
+                                reload = false;
                                 $(this).val("or");
                                 $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
                                 $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
@@ -2876,7 +2878,7 @@
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
             }
 
-            if($(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
+            if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
                 reloadTableAdvanced(suborder);
             }
         });
