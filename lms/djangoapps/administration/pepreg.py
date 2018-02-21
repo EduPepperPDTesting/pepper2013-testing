@@ -218,6 +218,7 @@ def rows(request):
             trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
     elif regular_search == 0:
+        order_or = [x.strip('-') for x in order]
 
         field_dict = get_post_array(request.GET, 'field_list')
         search_dict = get_post_array(request.GET, 'search_list')
@@ -282,14 +283,14 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
+                trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-                if conditions[prev_item_order].encode("utf-8") == 'and':
-                    trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
-
-                order = [x.strip('-') for x in order]
-
-                trainings = sorted(chain(trainings, or_trainings), key = attrgetter(*order), reverse = True)
+                # or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
+                #
+                # if conditions[prev_item_order].encode("utf-8") == 'and':
+                #     trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
+                #
+                # trainings = sorted(chain(trainings, or_trainings), key = attrgetter(*order_or), reverse = True)
 
                 #or_trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
                 #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
