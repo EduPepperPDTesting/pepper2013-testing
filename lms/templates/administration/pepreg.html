@@ -2821,11 +2821,18 @@
 
                     $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
                     $("#advanced_select_" + nextOrder).append("<option value=''>Select Field</option>");
-
-                    $.get("${reverse('getfielddata')}", {}, function(data) {
+                    var field_selected = $("#advanced_select_" + suborder).val();
+                    $.get("${reverse('getfielddata')}", function(data) {
                         if (data.success) {
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + nextOrder).append("<option value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                                var disp = "block";
+                                for(var i = 1; i <= suborder; i++){
+                                    if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                        disp = "none";
+                                        break;
+                                    }
+                                }
+                                $("#advanced_select_" + nextOrder).append("<option style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
                             });
                         }
                     });
@@ -2845,8 +2852,33 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
+            var nextOrder = suborder + 1;
+            var reload = true;
 
-            if($(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
+            if(val == 'and'){
+                for(var i = 1; i <= suborder; i++){
+                    if($("#subcondition_" + i).val() == 'and'){
+                        var fieldValue = $("#advanced_select_" + i).val();
+                        console.log("fieldValue="+fieldValue);
+                        for(var n = nextOrder; n <= $(".advanced_select").length; n++){
+                            console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
+                            console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
+                            if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
+                                $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
+                            }else if($("#advanced_select_" + n).val() == fieldValue){
+                                reload = false;
+                                $(this).val("or");
+                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
+                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                            }
+                        }
+                    }
+                }
+            }else{
+                $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
+            }
+
+            if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
                 reloadTableAdvanced(suborder);
             }
         });

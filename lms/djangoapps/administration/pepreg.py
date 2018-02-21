@@ -30,6 +30,9 @@ from dateutil.relativedelta import relativedelta
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
+from itertools import chain
+from operator import attrgetter
+
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
                             TestCenterRegistration, TestCenterRegistrationForm, State,
                             PendingNameChange, PendingEmailChange, District,
@@ -279,7 +282,16 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                trainings = trainings.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
+                or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
+
+                if conditions[prev_item_order].encode("utf-8") == 'and':
+                    trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
+
+                order = [x.strip('-') for x in order]
+
+                trainings = sorted(chain(trainings, or_trainings), key = attrgetter(*order), reverse = True)
+
+                #or_trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
                 #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
     tmp_school_id = 0
@@ -2108,7 +2120,12 @@ def getfielddata(request):
     except:
         org_id = 0
 
-    rows = ["State", "District", "Subject"]
+    rows = []
+    if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+        rows = ["State", "District"]
+
+    rows.append("Subject")
+
     success = 1
 
     data = {'success': success, 'rows': rows}
@@ -2122,18 +2139,16 @@ def getsearchdata(request):
     search_data = request.POST.get('search_data')
 
     if search_data == "state":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "1"
-            success = 1
-            for item in State.objects.all().order_by("name"):
-                rows.append(item.name)
+        data_column = "1"
+        success = 1
+        for item in State.objects.all().order_by("name"):
+            rows.append(item.name)
 
-    elif  search_data == "district":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "2"
-            success = 1
-            for item in District.objects.all().order_by("name"):
-                rows.append(item.name)
+    elif search_data == "district":
+        data_column = "2"
+        success = 1
+        for item in District.objects.all().order_by("name"):
+            rows.append(item.name)
 
     elif search_data == "subject":
         data_column = "3"
