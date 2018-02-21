@@ -2838,12 +2838,12 @@
             if(addNext == " + "){
                 $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".4em"});
                 $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -10px;'></select>");
-                if($("#advanced_select_" + suborder + " option").length > 1){
+                if($("#advanced_select_" + suborder + " option").length > 2){
                     $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 }
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
 
-                if(($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') || $("#advanced_select_" + suborder + " option").length == 1) {
+                if(($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') || $("#advanced_select_" + suborder + " option").length == 2) {
                     $("#subcondition_" + suborder).prop("disabled", true);
                     $("#subcondition_" + suborder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
                     //$("#subcondition_" + suborder + "::-ms-expand").css("display", "none");
@@ -2906,7 +2906,7 @@
                         }
                     }
                 }
-                if(reload && $("#advanced_select_" + nextOrder + " option").length > 1){
+                if(reload && $("#advanced_select_" + nextOrder + " option").length > 2){
                     $("#subcondition_" + nextOrder).prop("disabled", false);
                     $("#subcondition_" + nextOrder).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
                     //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
