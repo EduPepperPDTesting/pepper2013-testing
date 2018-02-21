@@ -2880,7 +2880,7 @@
                         }
                     }
                 }
-                $("#subcondition_" + nextOrder).prop("disabled", false);
+                if(reload) $("#subcondition_" + nextOrder).prop("disabled", false);
             }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
                 $("#subcondition_" + nextOrder).prop("disabled", true);

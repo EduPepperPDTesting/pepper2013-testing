@@ -283,7 +283,7 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                trainings = trainings.filter(Q(**kwargs) | Q(**next_kwargs))
+                trainings = trainings.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
 
                 # or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
                 #
