@@ -2746,7 +2746,7 @@
         $("#advanced_search").on("change", ".advanced_select", function (){
             var val = $(this).val();
             var suborder = $(this).attr("name");
-            $(this).next("div").empty();
+            $(this).next("div").find(".subselect").remove();
             console.log("advanced_select val: "+val);
             if(val != ""){
                 $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
