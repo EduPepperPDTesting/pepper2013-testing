@@ -283,7 +283,7 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
+                trainings = trainings.filter(Q(**kwargs) | Q(**next_kwargs))
 
                 # or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
                 #
