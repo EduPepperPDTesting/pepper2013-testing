@@ -2880,10 +2880,10 @@
                         }
                     }
                 }
-                $("#advanced_select_" + nextOrder).prop("disabled", false);
+                $("#subcondition_" + nextOrder).prop("disabled", false);
             }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
-                $("#advanced_select_" + nextOrder).prop("disabled", true);
+                $("#subcondition_" + nextOrder).prop("disabled", true);
             }
 
             if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
