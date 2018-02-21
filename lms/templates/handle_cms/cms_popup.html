@@ -31,9 +31,13 @@
 </div>
 
 <script>
-base = "${settings.CMS_API_BASE}";
-working_lib = 0;
-working_img = "";
+
+var base = "${settings.CMS_API_BASE}";
+var working_lib = 0;
+var working_img = "";
+var initialize_listeners = true;
+var send_to;
+var encoded_pw = "";
 
 $("#tree_view_head").css("background-color", "lightgray");
 $("#tree_view_head").click(function() {
@@ -49,9 +53,7 @@ $("#search_view_head").click(function() {
     $(this).css("background-color", "lightgray");
     $("#tree_view_head").css("background-color", "white");
 });
-var initialize_listeners = true;
-var send_to;
-var encoded_pw = "";
+
 function initializeCMSPopup (callback) {
     send_to = callback;
     $.post("${reverse('cms_password')}", {}, function (data) {
@@ -65,15 +67,15 @@ function unshuffle (string, shift) {
 }
 
 function librariesSelector() {
-    user = callAPI("users", {"email":"${request.user.email}"});
-    orgs = user[0].orgs;
-    org_list = "1870,";
+    var user = callAPI("users", {"email":"${request.user.email}"});
+    var orgs = user[0].orgs;
+    var org_list = "1870,";
     for (var i = 0; i < orgs.length; i++) {
         org_list += orgs[i] + ",";
     }
     org_list = org_list.slice(0,-1);
-    libraries = callAPI("libraries/"+org_list, "");
-    html = "";
+    var libraries = callAPI("libraries/"+org_list, "");
+    var html = "";
     for (var i = 0; i < libraries.length; i++) {
         lib = libraries[i];
         html += "<img src='" + lib.image_url + "' class='lib-image' id='" + lib.id + "'></img>";
@@ -93,9 +95,9 @@ function librariesSelector() {
             if ($(this).next().hasClass("resource_level")) {
                 $(this).next().slideToggle();
             } else {
-                package_id = $(this).data("package_id");
-                offset = $(this).data("offset");
-                res_html = makeResourceTree(package_id, offset + 1);
+                var package_id = $(this).data("package_id");
+                var offset = $(this).data("offset");
+                var res_html = makeResourceTree(package_id, offset + 1);
                 $(this).after(res_html);
                 $(this).next().slideToggle();
             }
@@ -103,8 +105,8 @@ function librariesSelector() {
         });
         $("body").on("click", ".selectable_resource", function (e) {
             if (!$($(this).children()[0]).is(":hover")) {
-                url = $(this).data("url");
-                title = $(this).data("title");
+                var url = $(this).data("url");
+                var title = $(this).data("title");
                 data = {
                     "url": url,
                     "title": title,
@@ -114,8 +116,10 @@ function librariesSelector() {
             }
         });
         $("body").on("click", "#sub_search", function () {
-            search_terms = encodeURIComponent($("#search_term").val());
-            library = encodeURIComponent($("#search_term").data("lib"));
+            //search_terms = encodeURIComponent($("#search_term").val());
+            //library = encodeURIComponent($("#search_term").data("lib"));
+            var search_terms = $("#search_term").val();
+            var library = $("#search_term").data("lib");
             $("#search_results").data("page", 0);
             page = $("#search_results").data("page");
             data = {
@@ -123,8 +127,8 @@ function librariesSelector() {
                 "f[0]": library,
                 "page": page
             };
-            results = callAPI("search", data);
-            res_html = "";
+            var results = callAPI("search", data);
+            var res_html = "";
             $.each(results, function (i) {
                 res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
                 res_html += results[i].content_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
@@ -151,16 +155,18 @@ function librariesSelector() {
 }
 
 function reloadPage () {
-    search_terms = encodeURIComponent($("#search_term").val());
-    library      = encodeURIComponent($("#search_term").data("lib"));
+    //search_terms = encodeURIComponent($("#search_term").val());
+    //library      = encodeURIComponent($("#search_term").data("lib"));
+    var search_terms = $("#search_term").val();
+    var library = $("#search_term").data("lib");
     page = $("#search_results").data("page");
     data = {
         "search": search_terms,
         "f[0]": library,
         "page": page
     };
-    results = callAPI ("search", data);
-    res_html = "";
+    var results = callAPI ("search", data);
+    var res_html = "";
     $.each(results, function(i) {
         res_html += "<div class='selectable_resource' data-title='"+results[i].title+"' data-url='"+results[i].url+"'>" + results[i].title + "<span class='ttext'>";
         res_html += results[i].subject_area + "<br>" + results[i].grades + "<br><a target='_blank' href='" + results[i].url + "'>View Resource</a></span></div>";
@@ -170,8 +176,6 @@ function reloadPage () {
 }
 
 function callAPI (endpoint, data) {
-    console.log ("Calling: " + base + endpoint);
-    console.log ("Sending data: " + data);
     var struct = null;
     $.ajax({
         url: base+endpoint,
@@ -191,7 +195,7 @@ function callAPI (endpoint, data) {
 function loadLibrary(lib_id) {
     working_lib = lib_id;
     lib = callAPI ("library/" + lib_id, "");
-    tree = "";
+    var tree = "";
     $.each(lib, function(row) {
         tree += makeBookTree(lib[row].grade, lib[row].book_id);
     });
@@ -202,11 +206,10 @@ function loadLibrary(lib_id) {
             $(this).next().slideToggle();
 
         } else {
-            console.log("Loading book...");
-            book_id = $(this).data("book_id");
-            struct = callAPI ("library/book/" + book_id);
-            book = struct[book_id];
-            book_html = ""
+            var book_id = $(this).data("book_id");
+            var struct = callAPI ("library/book/" + book_id);
+            var book = struct[book_id];
+            var book_html = ""
             book_html += "<div class='tree-level'><div style='margin-left:10px;' class='expandable_tree'><span class='tree-name'>" + book.name + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
             book_html += makeTree("", book_id, book.structure, offset=2);
             book_html += "</div>";
@@ -216,19 +219,18 @@ function loadLibrary(lib_id) {
         $($(this).children()[1]).toggleClass("down-arrow");
     });
     //Setup Search Tab
-    html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
+    var html = "<div style='padding-top:10px'><input data-lib = '"+lib_id+"' type='text' id='search_term' style='display:inline'><input type='button' id='sub_search' value='Search' style='margin-left:8px'></div><div id='search_results' data-page='0'></div>";
     html += "<span id='prev_button'>Previous</span><span id='next_button'>Next</span>";
     $("#search_view").html(html);
 
 }
 
 function makeBookTree (header, book_id) {
-    html += "";
-    html = "<div class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
+    var html = "<div class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
     return html;
 }
 function makeTree (header, book_id, struct=0, offset=0) {
-    html = "";
+    var html = "";
     if (struct == 0) {
         return "";
     } else {
@@ -247,8 +249,8 @@ function makeTree (header, book_id, struct=0, offset=0) {
 }
 
 function makeResourceTree (package_id, offset) {
-    resources = callAPI("resources", {"package_id": package_id});
-    html = "<div class='tree-level resource_level'>";
+    var resources = callAPI("resources", {"package_id": package_id});
+    var html = "<div class='tree-level resource_level'>";
     if (resources.length < 1) {
        html += "<div style='margin-left: " + (10*offset) + "px' class='selectable_resource'>No Resources Available</div></div>";
         return html;
