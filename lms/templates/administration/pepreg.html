@@ -2817,7 +2817,7 @@
             if(val != ""){
                 reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0){
+                if($("#addNext[name = '" + suborder + "']").length == 0 && ($("#advanced_select_" + suborder + " option").length > 1 || $("#subcondition_" + (suborder - 1)) == 'and')){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
             }else if(val == ""){
@@ -2843,7 +2843,7 @@
 
                 if($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') {
                     $("#subcondition_" + suborder).prop("disabled", true);
-                    $("#subcondition_" + suborder).css({"-webkit-appearance": "none", "appearance": "none"});
+                    $("#subcondition_" + suborder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
                     //$("#subcondition_" + suborder + "::-ms-expand").css("display", "none");
                 }
 
@@ -2906,13 +2906,18 @@
                 }
                 if(reload) {
                     $("#subcondition_" + nextOrder).prop("disabled", false);
-                    $("#subcondition_" + nextOrder).css({"-webkit-appearance": "", "appearance": ""});
+                    $("#subcondition_" + nextOrder).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
                     //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
                 }
             }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
+
+                for(var n = nextOrder; i <= $(".advanced_select").length; i++){
+                    $("#advanced_select_" + n).find("option:hidden").css("display", "block");
+                }
+
                 $("#subcondition_" + nextOrder).prop("disabled", true);
-                $("#subcondition_" + nextOrder).css({"-webkit-appearance": "none", "appearance": "none"});
+                $("#subcondition_" + nextOrder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
                 //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "none");
             }
 
