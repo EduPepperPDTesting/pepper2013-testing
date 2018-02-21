@@ -2770,7 +2770,7 @@
                     $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                         console.log("advanced_select data.success: "+data.success);
                         if (data.success) {
-                            $("#advanced_select_" + suborder).data('oldvalue', $(this).val());
+                            $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
                             $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
                             $("#subselect_" + suborder).append("<option value=''>Select</option>");
@@ -2796,7 +2796,7 @@
                                 $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                             });
                         }else{
-                            $("#advanced_select_" + suborder).val($(this).data('oldvalue'));
+                            $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
                         }
                     }
                     });
