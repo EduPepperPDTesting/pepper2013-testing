@@ -2813,11 +2813,16 @@
             var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                var disable = ($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or')? ' disabled': ' ';
+                var disable_cond = ($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') ? ' disabled': '';
                 $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".4em"});
-                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + disable + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -10px;'></select>");
+                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -10px;'></select>");
                 $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
                 $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
+
+                if($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') {
+                    $("#advanced_select_" + suborder).prop("disabled", true);
+                }
+
                 if($("#advanced_select_" + nextOrder).length == 0){
 
                     $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
@@ -2866,17 +2871,19 @@
                             console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
-                            }else if($("#advanced_select_" + n).val() == fieldValue){
+                            }else if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 reload = false;
                                 $(this).val("or");
-                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
-                                $(".advanced_select").find("option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                                $("#advanced_select_" + n).css("border", "1px solid red");
+                                $("#advanced_select_" + n).next().children(":nth-child(1)").css("border", "1px solid red");
                             }
                         }
                     }
                 }
+                $("#advanced_select_" + nextOrder).prop("disabled", false);
             }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
+                $("#advanced_select_" + nextOrder).prop("disabled", true);
             }
 
             if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
