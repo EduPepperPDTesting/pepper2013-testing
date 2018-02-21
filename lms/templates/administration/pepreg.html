@@ -2844,7 +2844,7 @@
                 if($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') {
                     $("#subcondition_" + suborder).prop("disabled", true);
                     $("#subcondition_" + suborder).css({"-webkit-appearance": "none", "appearance": "none"});
-                    $("#subcondition_" + suborder + "::-ms-expand").css("display", "none");
+                    //$("#subcondition_" + suborder + "::-ms-expand").css("display", "none");
                 }
 
                 if($("#advanced_select_" + nextOrder).length == 0){
@@ -2907,13 +2907,13 @@
                 if(reload) {
                     $("#subcondition_" + nextOrder).prop("disabled", false);
                     $("#subcondition_" + nextOrder).css({"-webkit-appearance": "", "appearance": ""});
-                    $("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
+                    //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
                 }
             }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block");
                 $("#subcondition_" + nextOrder).prop("disabled", true);
                 $("#subcondition_" + nextOrder).css({"-webkit-appearance": "none", "appearance": "none"});
-                $("#subcondition_" + nextOrder + "::-ms-expand").css("display", "none");
+                //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "none");
             }
 
             if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
