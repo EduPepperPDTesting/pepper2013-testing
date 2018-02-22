@@ -63,6 +63,7 @@ class OrganizationMenuitem(models.Model):
     MenuItem = models.CharField(blank=False, max_length=255, db_index=False)
     Url = models.CharField(blank=False, max_length=255, db_index=False)
     Icon = models.CharField(blank=False, max_length=255, db_index=False)
+    Location = models.CharField(blank=False, max_length=255, db_index=False,default='1')
     isAdmin = models.BooleanField(blank=False, default=0)
     rowNum = models.IntegerField(blank=False, default=0)
     ParentID = models.IntegerField(blank=False, default=0)

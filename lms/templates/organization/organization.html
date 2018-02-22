@@ -84,7 +84,9 @@
 	.design_dashboard_menu_item input, .organizational_dashboard_menu_item input{width:98% !important;}
 	.design_dashboard_menu_url, .organizational_dashboard_menu_url{width:200px;}
 	.design_dashboard_menu_url input, .organizational_dashboard_menu_url input{width:98% !important;}
-	.design_dashboard_menu_icon, .organizational_dashboard_menu_icon{width:180px; overflow:hidden}
+	.design_dashboard_menu_icon{width:180px; overflow:hidden}
+	.organizational_dashboard_menu_icon{width:160px; overflow:hidden}
+	.organizational_dashboard_menu_location{width:125px; overflow:hidden}
 	.design_dashboard_menu_icon_view,.organizational_dashboard_menu_icon_view{width:70px; overflow:hidden}
 	.organizational_dashboard_menu_admin{width:140px; text-align:center;}
 	.organizational_dashboard_menu_admin select{width:100px;}
@@ -921,7 +923,8 @@
                             <span class="organizational_dashboard_menu_url">URL</span>
                             <span class="organizational_dashboard_menu_icon">Icon</span>
                             <span class="organizational_dashboard_menu_icon_view"></span>
-                            <span class="organizational_dashboard_menu_admin" style="padding-top:7px; height:38px !important; line-height:15px !important;">Admin only</span>
+                            <span class="organizational_dashboard_menu_location">location</span>
+                            <span class="organizational_dashboard_menu_admin">Admin only</span>
                             <span class="organizational_dashboard_menu_sub">Sub Menu</span>
                             <span class="organizational_dashboard_menu_sort"></span>
                             <span class="organizational_dashboard_menu_btn"></span>
@@ -931,6 +934,13 @@
                             <span class="organizational_dashboard_menu_url"><input type="text" class="menu_items_url" /></span>
                             <span class="organizational_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
                             <span class="organizational_dashboard_menu_icon_view"></span>
+                            <span class="organizational_dashboard_menu_location">
+                                <select class="menu_location">
+	                                <option value='1'>Same Tab</option>
+	                                <option value='2'>New Tab</option>
+	                                <option value='3'>New Window</option>	
+                                </select>
+                            </span>
                             <span class="organizational_dashboard_menu_admin">
                             	<input type="checkbox" class="menu_items_admin" />
                                 <select class="menu_items_permissions">
@@ -955,11 +965,19 @@
                                 <div class="organizational_dashboard_menu_head1">
                                     <span class="organizational_dashboard_menu_item">Menu Item</span>
                                     <span class="organizational_dashboard_menu_url">URL</span>
-                                    <span class="organizational_dashboard_menu_admin" style="padding-top:7px; height:38px !important; line-height:15px !important;">Admin only</span>
+                                    <span class="organizational_dashboard_menu_location">Location</span>
+                                    <span class="organizational_dashboard_menu_admin">Admin only</span>
                                 </div>
                                 <div class="organizational_dashboard_menu_body2">
                                     <span class="organizational_dashboard_menu_item"><input type="text" class="sub_menu_item" /></span>
                                     <span class="organizational_dashboard_menu_url"><input type="text" class="sub_menu_url" /></span>
+                                    <span class="organizational_dashboard_menu_location">
+										<select class="sub_menu_location">
+			                                <option value='1'>Same Tab</option>
+			                                <option value='2'>New Tab</option>
+			                                <option value='3'>New Window</option>	
+		                                </select>
+                                    </span>	
                                     <span class="organizational_dashboard_menu_admin">
                                     	<input type="checkbox" class="sub_menu_admin" />
                                         <select class="sub_menu_permissions"></select>
@@ -2189,6 +2207,7 @@
 										}else{											
 											$(this).find(".menu_items_menu_item").val("");
 											$(this).find(".menu_items_url").val("");
+											$(this).find(".menu_location").val("");
 											$(this).find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' id='menu_items_icon_1' name='menu_items_icon_1'>");
 											$(this).find(".organizational_dashboard_menu_icon_view").html("");
 											$(this).find(".organizational_dashboard_menu_icon_view").removeAttr("icon_name");
@@ -2236,6 +2255,7 @@
 											}
 											tmp_el.find(".menu_items_menu_item").val(tmp2[1]);
 											tmp_el.find(".menu_items_url").val(tmp2[2]);
+											tmp_el.find(".menu_location").val(tmp2[7]);
 											if(tmp2[3] == "True"){
 												tmp_el.find(".menu_items_admin").prop("checked", true);
 												tmp_el.find(".menu_items_permissions").show();
@@ -2266,6 +2286,7 @@
 												}
 												tmp_sub_el.find(".sub_menu_item").val(tmp4[1]);
 												tmp_sub_el.find(".sub_menu_url").val(tmp4[2]);
+												tmp_sub_el.find(".sub_menu_location").val(tmp4[5]);
 												if(tmp4[3] == "True"){
 													tmp_sub_el.find(".sub_menu_admin").prop("checked", true);
 													tmp_sub_el.find(".sub_menu_permissions").show();
@@ -4804,6 +4825,7 @@
 					var menu_url = filterStr($(this).find(".menu_items_url").val());
 					var menu_icon = $(this).find(".menu_items_icon").val();
 					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");
+					var menu_location = $(this).find(".menu_location").val();
 					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
 					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
 					
@@ -4824,13 +4846,14 @@
 							var menu_url1 = filterStr($(this).find(".sub_menu_url").val());
 							var menu_admin1 = ($(this).find(".sub_menu_admin").attr('checked')) ? "1" : "0";
 							var menu_permission1 = $(this).find(".sub_menu_permissions").val();
+							var menu_location1 = $(this).find(".menu_location").val();
 							if(menu_items_child != "")	menu_items_child += "_<_";
-							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1;
+							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1 + "_>_" + menu_location1;
 							sn2++;
 						}
 					});
 					if(menu_items != "")	menu_items += "=<=";
-					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name + "=>=" + menu_permission;	
+					menu_items += sn1 + "=>=" + menu_item + "=>=" + menu_url + "=>=" + menu_admin + "=>=" + menu_items_child + "=>=" + menu_icon_name + "=>=" + menu_permission + "=>=" + menu_location;	
 					
 					sn1++;
 				}

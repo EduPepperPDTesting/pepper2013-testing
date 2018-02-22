@@ -973,9 +973,9 @@ def organization_get(request):
                             if menu_items_child != "":
                                 menu_items_child = menu_items_child + "_<_"
 
-                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin) + "_>_" + str(tmp2.id)
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin) + "_>_" + str(tmp2.id) + "_>_" + tmp2.Location
 
-                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id)
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id) + "=>=" + tmp1.Location
 
                     data["menu_items"] = menu_items
 
@@ -1316,6 +1316,7 @@ def organizational_save_base(request):
                     org_menu_item.MenuItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
                     org_menu_item.Icon = tmp2[5]
+                    org_menu_item.Location = tmp[7]
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
                     else:
@@ -1347,6 +1348,7 @@ def organizational_save_base(request):
                             org_menu_item1.organization = org_metadata
                             org_menu_item1.MenuItem = tmp4[1]
                             org_menu_item1.Url = tmp4[2]
+                            org_menu_item1.Location = tmp4[5]
                             if tmp4[3] == "1":
                                 org_menu_item1.isAdmin = True
                                 

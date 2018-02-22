@@ -70,8 +70,13 @@
                 if tmp2.isAdmin == 0 or (tmp2.isAdmin == 1 and request.user.is_superuser) or only_flag2:
                     if liClass == "":
                         liClass = " class='new-pepper-menu-holder'"
-
-                    menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
+                    if tmp2.Location == "1":
+                        menu_items_child = menu_items_child + "<li><a target='_self' href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>"
+                    elif tmp2.Location == "2":
+                        menu_items_child = menu_items_child + "<li><a target='_blank' href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem 
+                    elif tmp2.Location == "3":
+                        menu_items_child = menu_items_child + "<li><a href='#' onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');'>" + tmp2.MenuItem + "</a></li>"    
+                    <!-- menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>" -->
 
             menu_items_child = menu_items_child + "</ul>"
 
@@ -122,7 +127,13 @@
                     menu_items_tmp1 = menu_items_tmp1 + "</a></li>"
                 else:
                     if liClass == "":
-                        icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>"
+                        if tmp1.Location == "1":
+                            icon_a = "<a target='_self' href='" + absolute_url(tmp1.Url) + "'>"
+                        elif tmp1.Location == "2":
+                            icon_a = "<a target='_blank' href='" + absolute_url(tmp1.Url) + "'>"
+                        elif tmp1.Location == "3":
+                            icon_a = "<a href='#' onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');'>"
+                        <!-- icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>" -->
                     else:
                         icon_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "'>"
 
@@ -163,7 +174,12 @@
                 else:
                     tmp_menu_icon = " &#9662;"
                     if liClass == "":
-                        text_a = "<a href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        if tmp1.Location == "1":
+                            text_a = "<a target='_self' href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        elif tmp1.Location == "2":
+                            text_a = "<a target='_blank' href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                        elif tmp1.Location == "3":
+                            text_a = "<a onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');' href='#' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
                         tmp_menu_icon = ""
                     else:
                         text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
