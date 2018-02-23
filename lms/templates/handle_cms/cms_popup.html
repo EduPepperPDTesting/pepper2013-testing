@@ -49,7 +49,7 @@ $("#tree_view_head").click(function() {
 
 $("#search_view_head").click(function() {
     $("#tree_view").hide();
-    $("#search_view").show()
+    $("#search_view").show();
     $(this).css("background-color", "lightgray");
     $("#tree_view_head").css("background-color", "white");
 });
@@ -229,9 +229,13 @@ function makeBookTree (header, book_id) {
     var html = "<div class='book_header_section' data-book_id='" + book_id + "'><span data-book_id='" + book_id + "' class='book_header'>" + header + "</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
     return html;
 }
-function makeTree (header, book_id, struct=0, offset=0) {
+function makeTree (header, book_id, struct, offset) {
     var html = "";
-    if (struct == 0) {
+    // Remove initis in parameters - doesn't work in IE.
+    if (offset === undefined) {
+        offset = 0;
+    }
+    if (struct === undefined) {
         return "";
     } else {
         html += "<div class='tree-level'>";
@@ -243,7 +247,7 @@ function makeTree (header, book_id, struct=0, offset=0) {
                 html += "<div style='margin-left: "+(10*offset)+"px' class = 'has_resource' data-offset='"+offset+"' data-package_id = '"+struct[i].id+"'><span class='tree-name'>"+struct[i].title +"</span><img src='/static/images/collapse_arrow.png' class='section-arrow'></div>";
             }
         });
-        html += "</div>"
+        html += "</div>";
     }
     return html;
 }
