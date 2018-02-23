@@ -10,7 +10,6 @@ from django.db.models import Q
 from student.models import UserProfile
 from StringIO import StringIO
 import datetime
-import time
 # from django.utils.translation import ugettext as _
 from ratelimitbackend.exceptions import RateLimitException
 from student.models import CmsLoginInfo
@@ -156,6 +155,8 @@ def get_user_login_info(request, excel_search=False, _filters={}, _sorts={}, _ti
 
 		login_info_list.append(dict_tmp)
 	if not excel_search:
+		log.debug("++++++++ no down excel")
+		log.debug(excel_search)
 		return HttpResponse(json.dumps({'rows': login_info_list, 
 		                            'rows_count': total_rows_count,
                                     'sorts': sorts,
@@ -163,6 +164,8 @@ def get_user_login_info(request, excel_search=False, _filters={}, _sorts={}, _ti
                                     'search_con': request.GET.dict(),
                                     'success': True}), content_type="application/json")
 	else:
+		log.debug("-------- down excel")
+		log.debug(excel_search)
 		return login_info_list
 	
 
@@ -192,7 +195,6 @@ def download_excel_allsearch_reasult(request):
 			worksheet.write(0, i, k)
 		row = 1
 		# params format: request, excel_search=False, _filters={}, _sorts={}, _time_diff_m=0
-		# down_result = thread_download_excel_list(filters, sorts, local_utc_diff_m)
 		down_result = thread_download_excel_list(filters, sorts, local_utc_diff_m)
 		for d in down_result:
 			for k, v in enumerate(FIELDS):
@@ -231,26 +233,68 @@ def thread_download_excel_list(_filters, _sorts, _local_utc_diff_m):
 	else:
 		user_data = UserProfile.objects.prefetch_related().all().order_by(*order)
 
-	log.debug("++++++++++++++++++++")
-	user_data_temp = []
-	for i in range(60):
-		user_data_temp.extend(user_data)
-	total_rows_count = len(user_data_temp)
-	thread_per_count = 1000
-	loop_number = total_rows_count // thread_per_count + 1
-	mod_rows_count = total_rows_count % thread_per_count
-
+	total_rows_count = user_data.count()
 	login_info_list = list()
-	for index in range(loop_number):
-		data_start = index * thread_per_count
-		data_end = (index + 1) * thread_per_count
-		if index + 1 == data_end:
-			data_end = data_start + mod_rows_count
-		thd = ExcelThread("Thread", user_data_temp, data_start, data_end)
-		thd.start()
-		thd.join()
-		login_info_list.extend(thd.get_result())
-		time.sleep(0.1)
+	'''
+	thd1 = ExcelThread("Thread-1", user_data, 0, 500)
+	thd2 = ExcelThread("Thread-2", user_data, 500, 1000)
+	thd3 = ExcelThread("Thread-3", user_data, 1000, 1131)
+
+	thd1.start()
+	thd2.start()
+	thd3.start()
+	thd1.join()
+	thd2.join()
+	thd3.join()
+
+	log.debug("--------create down excel")
+	login_info_list.extend(thd1.get_result())
+	login_info_list.extend(thd2.get_result())
+	login_info_list.extend(thd3.get_result())
+	'''
+	for d in user_data:
+		dict_tmp = {}
+		try:
+			dict_tmp['district'] = str(d.district.name)
+			dict_tmp['state'] = str(d.district.state.name)
+		except:
+			dict_tmp['district'] = ''
+			dict_tmp['state'] = ''
+
+		try:
+			dict_tmp['school'] = str(d.school.name)
+		except:
+			dict_tmp['school'] = ''
+
+		dict_tmp['id'] = d.user_id
+		dict_tmp['email'] = d.user.email
+		dict_tmp['username'] = d.user.username
+		dict_tmp['first_name'] = d.user.first_name
+		dict_tmp['last_name'] = d.user.last_name
+
+		try:
+			user_login_data = d.loginfo.all()[0]
+			if not active_recent(d) or user_login_data.logout_press:
+				dict_tmp['logout_time'] = time_to_local(user_login_data.logout_time, _local_utc_diff_m)
+				dict_tmp['last_session'] = study_time_format(user_login_data.last_session)
+				dict_tmp['online_state'] = 'Off'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session)
+			else:
+				dict_tmp['logout_time'] = ''
+				dict_tmp['last_session'] = ''
+				dict_tmp['online_state'] = 'On'
+				dict_tmp['total_session'] = study_time_format(user_login_data.total_session - 1800)
+			dict_tmp['login_time'] = time_to_local(user_login_data.login_time, _local_utc_diff_m)
+		except:
+			dict_tmp['login_time'] = ''
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			dict_tmp['online_state'] = ''
+			dict_tmp['total_session'] = ''
+		login_info_list.append(dict_tmp)
+
+	log.debug("+++++++++++++++++")
+	log.debug(len(login_info_list))
 	return login_info_list
 
 class ExcelThread(threading.Thread):  
