@@ -1864,7 +1864,11 @@ def filter_courses(subjects=None, authors=None, grade_levels=None, states=None, 
     filters.append({'_id.category': 'course'})
     
     if subjects is not None:
-        filters.append({'metadata.display_subject': {"$in": subjects}})
+        subjects1 = []
+        for tmp in subjects:
+            subjects1.append({'metadata.display_subject':{"$regex":tmp, "$options": "-i"}})
+        filters.append({"$or":subjects1})
+        # filters.append({'metadata.display_subject': {"$in": subjects}})
 
     if subject_fuzzy:    
         filters.append({'metadata.display_subject': {"$regex": subject_fuzzy, "$options": "-i"}})
