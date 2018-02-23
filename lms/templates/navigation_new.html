@@ -75,8 +75,8 @@
                     elif tmp2.Location == "2":
                         menu_items_child = menu_items_child + "<li><a target='_blank' href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem 
                     elif tmp2.Location == "3":
-                        menu_items_child = menu_items_child + "<li><a href='#' onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');'>" + tmp2.MenuItem + "</a></li>"    
-                    <!-- menu_items_child = menu_items_child + "<li><a href='" + absolute_url(tmp2.Url) + "'>" + tmp2.MenuItem + "</a></li>" -->
+                        winstr = 'window.open("'+ absolute_url(tmp2.Url) + '","newWindow","menubar=0,location=1");'
+                        menu_items_child = menu_items_child + "<li><a href='#' onclick='"+ winstr +"'>" + tmp2.MenuItem + "</a></li>"
 
             menu_items_child = menu_items_child + "</ul>"
 
@@ -132,8 +132,8 @@
                         elif tmp1.Location == "2":
                             icon_a = "<a target='_blank' href='" + absolute_url(tmp1.Url) + "'>"
                         elif tmp1.Location == "3":
-                            icon_a = "<a href='#' onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');'>"
-                        <!-- icon_a = "<a href='" + absolute_url(tmp1.Url) + "'>" -->
+                            winstr = 'window.open("'+ absolute_url(tmp1.Url) + '","newWindow","menubar=0,location=1");'
+                            icon_a = "<a href='#' onclick='"+ winstr +"'>"
                     else:
                         icon_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "'>"
 
@@ -179,7 +179,8 @@
                         elif tmp1.Location == "2":
                             text_a = "<a target='_blank' href='" + absolute_url(tmp1.Url) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
                         elif tmp1.Location == "3":
-                            text_a = "<a onclick='window.open('" + absolute_url(tmp1.Url) + "','newWindow','menubar=0,location=1');' href='#' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
+                            winstr = 'window.open("'+ absolute_url(tmp1.Url) + '","newWindow","menubar=0,location=1");'
+                            text_a = "<a onclick='"+ winstr +"' href='#' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
                         tmp_menu_icon = ""
                     else:
                         text_a = "<a href='javascript:void(0)' class='pepper-configuration' mid='" + str(tmp1.id) + "' style='font-size:" + org_data['Text Size'] + "px !important; color:" + org_data['Text Color'] + "  !important; font-family:" + org_data['Text Font'] + " !important;'>"
