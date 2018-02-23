@@ -1316,7 +1316,7 @@ def organizational_save_base(request):
                     org_menu_item.MenuItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
                     org_menu_item.Icon = tmp2[5]
-                    org_menu_item.Location = tmp[7]
+                    org_menu_item.Location = tmp2[7]
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
                     else:

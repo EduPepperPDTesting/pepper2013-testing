@@ -4825,7 +4825,7 @@
 					var menu_url = filterStr($(this).find(".menu_items_url").val());
 					var menu_icon = $(this).find(".menu_items_icon").val();
 					var menu_icon_name = $(this).find(".organizational_dashboard_menu_icon_view").attr("icon_name");
-					var menu_location = $(this).find(".menu_location").val();
+					var menu_location = $(this).find(".menu_location").val() !="undefined" ? $(this).find(".menu_location").val() : "1";
 					if(typeof(menu_icon_name) == "undefined")	menu_icon_name = "";
 					if(!menu_icon_name || menu_icon_name == "undefined")	menu_icon_name = "";
 					
@@ -4846,7 +4846,7 @@
 							var menu_url1 = filterStr($(this).find(".sub_menu_url").val());
 							var menu_admin1 = ($(this).find(".sub_menu_admin").attr('checked')) ? "1" : "0";
 							var menu_permission1 = $(this).find(".sub_menu_permissions").val();
-							var menu_location1 = $(this).find(".menu_location").val();
+							var menu_location1 = $(this).find(".sub_menu_location").val() != "undefined" ? $(this).find(".sub_menu_location").val() : "1"
 							if(menu_items_child != "")	menu_items_child += "_<_";
 							menu_items_child += sn2 + "_>_" + menu_item1 + "_>_" + menu_url1 + "_>_" + menu_admin1 + "_>_" + menu_permission1 + "_>_" + menu_location1;
 							sn2++;
