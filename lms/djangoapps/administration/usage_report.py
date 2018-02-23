@@ -231,24 +231,26 @@ def thread_download_excel_list(_filters, _sorts, _local_utc_diff_m):
 	else:
 		user_data = UserProfile.objects.prefetch_related().all().order_by(*order)
 
-	total_rows_count = user_data.count()
-	thread_per_count = 500
+	log.debug("++++++++++++++++++++")
+	user_data_temp = []
+	for i in range(60):
+		user_data_temp.extend(user_data)
+	total_rows_count = len(user_data_temp)
+	thread_per_count = 1000
 	loop_number = total_rows_count // thread_per_count + 1
 	mod_rows_count = total_rows_count % thread_per_count
 
 	login_info_list = list()
 	for index in range(loop_number):
-		data_start = index * 500
-		data_end = (index + 1) * 500
+		data_start = index * thread_per_count
+		data_end = (index + 1) * thread_per_count
 		if index + 1 == data_end:
 			data_end = data_start + mod_rows_count
-		thd = ExcelThread("Thread", user_data, data_start, data_end)
+		thd = ExcelThread("Thread", user_data_temp, data_start, data_end)
 		thd.start()
 		thd.join()
 		login_info_list.extend(thd.get_result())
 		time.sleep(0.1)
-	log.debug("+++++++++++++++++")
-	log.debug(len(login_info_list))
 	return login_info_list
 
 class ExcelThread(threading.Thread):  
