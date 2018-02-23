@@ -126,20 +126,20 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
 	
-	#calendar-month tr td .al_3{ background-color:#22b14c;}
+	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
-	#calendar-month tr td .al_6{ background-color:#ffc90e;}
+	#calendar-month tr td .al_6{ background-color:#ffc90e; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important;}
+	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_4 span{color:#FFFFFF; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
+	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
@@ -1483,7 +1483,6 @@
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
                         $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
-                        //+ labelHtml + "</div>");
                         $("[data-slot='" + iClass + "']").html(labelHtml);
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
