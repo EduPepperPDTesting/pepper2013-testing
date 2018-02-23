@@ -296,7 +296,7 @@ def rows(request):
                 #or_trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
                 #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
-            elif item_order == 3:
+            #elif item_order == 3:
                 #raise Exception(str(item_order) + " " + str(search_list[item_order]))
 
     tmp_school_id = 0
