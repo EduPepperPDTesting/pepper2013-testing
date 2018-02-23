@@ -2222,7 +2222,7 @@ def organization_course_list(request):
 
     filter_dic = {'_id.category': 'course'}
     if subject_id != 'all':
-        filter_dic['metadata.display_subject'] = subject_id
+        filter_dic['metadata.display_subject'] = {"$regex": subject_id, "$options": "-i"}
 
     if grade_id != 'all':
         if grade_id == '6-8' or grade_id == '9-12':
