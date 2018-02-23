@@ -465,14 +465,16 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:290px;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:700px;
 }
 .community-right .every-resource{
     width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
 }
+/*
 .community-right .community-resources a{
     font-size:13px;color:#000;
 }
+*/
 .community-right .every-resource-more{
     display:none;
 }
@@ -481,6 +483,46 @@ a{
 }
 .community-right .resources-seemore .btn-seemore-r{
     font-size:13px;color:#999;cursor: pointer;
+}
+
+.community-resource {
+    display: block;
+    clear: both;
+    margin:auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 0 solid #f0870c;
+    height: 150px;
+    width: 200px;
+    
+    box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+.community-resource img {
+    display: block;
+    width: 200px;
+
+    border-radius: 6px;
+}
+.community-resource a {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 60px;
+    background: #f0870c;
+    color: #fff !important;
+    font-size: 14px;
+    border-radius: 0 0 6px 6px;
+}
+.community-resource div {
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    width: 200px;
+    text-align: center;
 }
 /*--------------community middle top--------------*/
 .con-main-all .con-main-info-outer{
@@ -1029,12 +1071,13 @@ a{
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
                     %for k, resource in enumerate(resources_list):
-                        %if k + 1 == len(resources_list):
-                        <div class="every-resource border-zero overflow-text">
-                        %else:
-                        <div class="every-resource overflow-text">
-                        %endif
-                            <a href="${resource['link']}" target="_blank">${resource['name']}</a>
+                        <div class="community-resource">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
                         </div>
                     %endfor
                     %if re_count > re_show_count and re_count > 0 and re_show_count > 0:
@@ -1376,13 +1419,13 @@ a{
                 var html = '';
 
                 for(var i=0;i<d.resources.length;i++){
-                    if(i+1==d.resources.length){
-                        html += '<div class="every-resource border-zero overflow-text">';
-                    }
-                    else{
-                        html += '<div class="every-resource overflow-text">';
-                    }
-                    html += '<a href="'+d.resources[i].link+'" target="_blank">'+d.resources[i].name+'</a>';
+                    html += '<div class="community-resource">';
+                    html += '<img src="'+d.resources[i].logo+'" alt="'+d.resources[i].name+'"/>';
+                    html += '<a href="'+d.resources[i].link+'" target="_blank">';
+                    html += '<div>';
+                    html += d.resources[i].name;
+                    html += '</div>';
+                    html += '</a>';
                     html += '</div>';
                 }
                 $('.community-resources').html(html);

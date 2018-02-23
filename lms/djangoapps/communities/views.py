@@ -2419,7 +2419,7 @@ def get_resources_process(request):
     resources_list = list()
     resources = CommunityResources.objects.select_related().filter(community=int(community_id))
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})   
     return HttpResponse(json.dumps({'success': True, 'resources': resources_list}), content_type='application/json')
 
 @login_required
