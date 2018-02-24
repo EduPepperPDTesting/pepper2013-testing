@@ -126,21 +126,23 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
 	
-	#calendar-month tr td .al_3{ background-color:#22b14c;}
+	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
-	#calendar-month tr td .al_6{ background-color:#ffc90e;}
+	#calendar-month tr td .al_6{ background-color:#ffc90e; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important;}
-	#calendar-month tr td .al_4 span{color:#FFFFFF; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
-	
+	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -15px; color:#FFFFFF; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7 span{position: relative; left: -15px;}
+}
+
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
 	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
@@ -462,18 +464,15 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-                <input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/>
+                <!--input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/-->
                 %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
                     <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
                 %endif
-                <div style="margin-top: 5px;">
+                <!--div style="margin-top: 5px;"-->
                     <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
                     <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
                     <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
-                </div>
-                <!--span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
-                <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn" />
-                <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" /-->
+                <!--/div-->
             </div>
         </div>
         <!--training registration - akogan-->
@@ -1482,10 +1481,11 @@
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
+                        console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
-                         + labelHtml + "</div>");
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
+                        $("[data-slot='" + iClass + "']").html(labelHtml);
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
