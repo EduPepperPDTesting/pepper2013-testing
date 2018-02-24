@@ -240,7 +240,6 @@ div.expand_div{
 }
 .community-all{
     width:640px;
-    background-color:#e4e4e4;
     margin:auto;
     margin-top:15px;
     margin-bottom:15px;
@@ -254,11 +253,15 @@ div.expand_div{
     text-align:center;
     padding-top:10px;
 }
+.community-content{
+    background-color:#e4e4e4;
+    margin-top:5px;
+}
 .communities-column{
-    width:193px;
+    width:301px;
     float:left;
     background-color:#fff;
-    margin-left:15px;
+    margin-left:13px;
     margin-top:15px;
     margin-bottom:15px;
 }
@@ -267,7 +270,7 @@ div.expand_div{
     width:100%;
     height:30px;
     color:#fff;
-    font-size:14px;
+    font-size:15px;
     padding-top:10px;
     text-align:center;
 }
@@ -276,6 +279,37 @@ div.expand_div{
     height:500px;
     overflow-y:auto;
 }
+.my-communities-all a{
+    cursor:pointer;
+    color:#000;
+}
+.my-communities-all a:hover{
+    color:#898989;
+}
+.community-tab{
+    height:120px;width:270px;padding-top:15px;margin:auto;border-bottom:1px solid #ccc;
+}
+
+.my-communities-all :last-child .community-tab{
+    border-bottom:0px !important;
+}
+.community-tab-text{
+    float:left;width:125px;text-align:center;padding-left:5px;
+}
+.community-tab-text-title{
+    height:56px;width:130px;font-size:16px;line-height:18px;overflow:hidden;
+}
+.community-tab-text-content{
+    height:48px;width:130px;font-size:12px;overflow:hidden;
+}
+.community-tab-image-con{
+    float:left;height:104px;width:130px;margin-left:8px;vertical-align:middle;
+}
+.community-tab-image{
+   display:table-cell;vertical-align:middle;text-align:center;height:104px;width:130px; 
+}
+
+
 
 .communities-text{
     width:130px;
@@ -476,6 +510,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     build and enhance your community of practice
                 </div>
             </div>
+            <!--
             <div class="community-find">
                 <div style="padding-top:22px;padding-left:30px;">
                     <form method="" id="community_list_form" action="">
@@ -498,37 +533,65 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     </form>
                 </div>
             </div>
+            -->
             <div class="community-all">
                 <div class="community-all-title">
-                    Pepper Communities
+                    <div style="float:left;padding-left:25px;">Pepper Communities</div>
+                    <div style="float:right;padding-right:10px;margin-top:-1px;">
+                        <input type="text" name="member" id="complete-community" autocomplete="off" placeholder="Search" style="width:180px;height:22px;font-size:13px;">
+                    </div>
                 </div>
                 <div class="community-content">
                     <div class="my-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#28bcec;">My Communities</div>
+                        <div class="my-communities-title" style="background-color:#f8801f;">My Communities</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if user_in_community(community['id'], request.user.id):
-                                    <div class="communities-text">
-                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    ${community['name']}
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
-                            %endfor
+                            %endfor                         
                         </div>
                     </div>
 
                     <div class="public-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#f8801f;">Public Communities</div>
+                        <div class="my-communities-title" style="background-color:#89c651;">Join a Community</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if community['private'] == 0:
-                                    <div class="communities-text">
-                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    ${community['name']}
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
                             %endfor
                         </div>
                     </div>
-
+                    <!--
                     <div class="my-district-communities communities-column">
                         <div class="my-communities-title" style="background-color:#89c651;">My District Communities</div>
                         <div class="my-communities-all">
@@ -541,7 +604,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             %endfor
                         </div>
                     </div>
-
+                    -->
                     <div style="clear:both;"></div>
                 </div>
             </div>

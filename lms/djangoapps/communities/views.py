@@ -1618,6 +1618,7 @@ def newcommunities(request):
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
+                                   'motto': item.community.motto,
                                    'logo': item.community.logo.upload.url if item.community.logo else '',
                                    'private': item.community.private})
     # Query for the communities this user is allowed to see.
@@ -1625,6 +1626,7 @@ def newcommunities(request):
     for item in items:
         community_list.append({'id': item.id,
                                'name': item.name,
+                               'motto': item.motto,
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
 
