@@ -923,7 +923,7 @@
                             <span class="organizational_dashboard_menu_url">URL</span>
                             <span class="organizational_dashboard_menu_icon">Icon</span>
                             <span class="organizational_dashboard_menu_icon_view"></span>
-                            <span class="organizational_dashboard_menu_location">location</span>
+                            <span class="organizational_dashboard_menu_location">Location</span>
                             <span class="organizational_dashboard_menu_admin">Admin only</span>
                             <span class="organizational_dashboard_menu_sub">Sub Menu</span>
                             <span class="organizational_dashboard_menu_sort"></span>
@@ -2221,6 +2221,7 @@
 												}else{
 													$(this).find(".sub_menu_item").val("");
 													$(this).find(".sub_menu_url").val("");
+													$(this).find(".sub_menu_location").val("");
 													$(this).find(".sub_menu_admin").prop("checked", false);
 													$(this).find(".sub_menu_permissions").hide();
 													$(this).find(".sub_menu_btn").val("+");
@@ -2953,6 +2954,7 @@
 					var clonex = $(el).parent().parent().clone(true);
 					clonex.find(".sub_menu_item").val("");
 					clonex.find(".sub_menu_url").val("");
+					clonex.find(".sub_menu_location").val("");
 					clonex.find(".sub_menu_admin").prop("checked", false);
 					
 					$(el).parent().parent().parent().append(clonex);
@@ -2964,12 +2966,14 @@
 					var clonex = $(el).parent().parent().clone(true);
 					clonex.find(".menu_items_menu_item").val("");
 					clonex.find(".menu_items_url").val("");
+					clonex.find(".menu_items_location").val("");
 					clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' >");
 					clonex.find(".organizational_dashboard_menu_icon_view").empty();
 					clonex.find(".menu_items_admin").prop("checked", false);
 					clonex.find(".organizational_dashboard_menu_icon_view").attr("icon_name", "");
 					clonex.find("fieldset .sub_menu_item").val("");
 					clonex.find("fieldset .sub_menu_url").val("");
+					clonex.find("fieldset .sub_menu_location").val("");
 					clonex.find("fieldset .sub_menu_admin").prop("checked", false);			
 					clonex.find(".organizational_dashboard_menu_sub_btn .btn_icon").removeClass("btn_icon_expanded");
 					clonex.find("fieldset .organizational_dashboard_menu_body2").each(function(i){
