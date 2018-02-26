@@ -107,21 +107,21 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
 	
-	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important; color:#FFFFFF !important}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
+	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	#calendar-month tr td .al_6{ background-color:#ffc90e; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
 	
 	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
+	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
 	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_4 span{position: relative; left: -15px; color:#FFFFFF; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -15px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7 span{position: relative; left: -15px;}
+	#calendar-month tr td .al_7 span{position: relative; left: -15px; color:#FFFFFF !important;}
 }
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
@@ -783,7 +783,7 @@
 			});
 
 			$(".alert").each(function(){
-				if($(this).find("input").length > 0){
+				if($(this).find("span").length > 0){
 					var tmp_span = $(this).find("span");
 					var tmp_span_txt = $(tmp_span).text();
 					if(tmp_span_txt.length > 10){
@@ -1415,6 +1415,8 @@
     };
 
     function uniqueTrainingSlot() {
+        var bStart, bLimit, tClass, hClass, dh, iClass;
+        var height, leftX, slIndex, lastWidth;
         var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
@@ -1452,12 +1454,16 @@
 
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
-                        var labelHtml = $(iClass).first().find("label").html();
+                        var labelHtml = $(iClass).first().find("label").html().replace(/(\r\n|\n|\r)/gm,"");
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
-                        $("[data-slot='" + iClass + "']").html(labelHtml);
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 125px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
+                        $("[data-slot='" + iClass + "']").append(labelHtml);
+                        if($("[data-slot='" + iClass + "']").find("input").length == 0){
+                            $("[data-slot='" + iClass + "']").find("span").css("left", "-82px");
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-15px", "width": "135px"});
+                        }
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
@@ -1493,7 +1499,7 @@
             var lastSlotX = $(".completeSlot:last").position().left + parseInt($(".completeSlot:last").width()) + 20;
             var tableX = $("#calendar-month").position().left + parseInt($("#calendar-month").width());
             if(lastSlotX > tableX){
-                tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
+                var tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
                 $("#calendar-month").css("width", tableWidth + "px");
             }
 
@@ -1596,7 +1602,7 @@
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
                         }).first().outerHeight()}, 1000, function() {
-                console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+                console.log("posY: "+$(".completeSlot:eq(0)").position().top);
             });
         }
     };
