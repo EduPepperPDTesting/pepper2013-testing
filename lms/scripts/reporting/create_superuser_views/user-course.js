@@ -42,7 +42,7 @@ db.student_courseenrollment.aggregate({
         },
         cohort:{
             $arrayElemAt: ['$user_info.cohort', 0]
-        }
+        },
         subscription_status: {
             $arrayElemAt: ['$user_info.subscription_status', 0]
         },

@@ -484,6 +484,7 @@ urlpatterns = (
     url(r'^community/get_mycommunities', 'communities.views.get_mycommunities_process', name='get_mycommunities'),
     url(r'^community/get_subcommunities', 'communities.views.get_subcommunities_process', name='get_subcommunities'),
     url(r'^community/get_trending', 'communities.views.get_trending_discussions_process', name='get_trending'),
+    url(r'^communities/search/community-completion', 'communities.views.communities_search_community_completion', name='communities_search_community_completion'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 

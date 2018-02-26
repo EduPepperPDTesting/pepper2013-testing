@@ -2383,7 +2383,7 @@ def subcommunity_user_email_completion(request):
 
         data = User.objects.filter(**kwargs)
         for item in data:
-            r.append(item.email)
+            r.append(item.name)
     return render_json_response(r)
 
 def subcommunity_user_email_valid(request):
@@ -2409,6 +2409,17 @@ def subcommunity_user_email_valid(request):
         check_result['info'] = 'The user you are trying to add is not the member of this community.'
 
     return render_json_response(check_result)
+
+def communities_search_community_completion(request):
+    cinfo = list()
+    lookup = request.POST.get('q', False)
+    if lookup:
+        kwargs = {'name__istartswith': lookup, 'main_id': 0}
+
+        data = CommunityCommunities.objects.filter(**kwargs).order_by('-id')
+        for item in data:
+            cinfo.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps({"success": True, "cinfo": cinfo}), content_type="application/json")
 
 @login_required
 @ensure_csrf_cookie
