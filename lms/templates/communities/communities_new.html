@@ -303,7 +303,7 @@ div.expand_div{
     height:48px;width:130px;font-size:12px;overflow:hidden;
 }
 .community-tab-image-con{
-    float:left;height:104px;width:130px;margin-left:8px;vertical-align:middle;
+    float:left;height:104px;width:130px;margin-left:8px;overflow:hidden;
 }
 .community-tab-image{
    display:table-cell;vertical-align:middle;text-align:center;height:104px;width:130px; 
@@ -537,6 +537,11 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             <div class="community-all">
                 <div class="community-all-title">
                     <div style="float:left;padding-left:25px;">Pepper Communities</div>
+                    %if request.user.is_superuser:
+                        <div style="padding-left:10px;display:inline-block;">
+                            <a href="#" style="font-size:14px;color:#0A4965;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
+                        </div>
+                    %endif
                     <div style="float:right;padding-right:10px;margin-top:-1px;">
                         <input type="text" name="member" id="complete-community" autocomplete="off" placeholder="Search" style="width:180px;height:22px;font-size:13px;">
                     </div>
@@ -620,6 +625,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
+<div class="community_auto_info" style="display:none"></div>
 <div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -1488,6 +1494,38 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                 $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
         });
+
+        $('#complete-community').autocomplete({
+            source: function( request, response ) {  
+                $.ajax({  
+                    type:"post",  
+                    url: "/communities/search/community-completion",  
+                    dataType: "json",
+                    data: {
+                        q: $('#complete-community').val()
+                    },  
+                    success: function( data ) {  
+                        var html = "";
+                        for(var i=0;i<data.cinfo.length;i++){
+                            html += "<span>"+data.cinfo[i]['id']+"</span>"
+                        }
+                        $(".community_auto_info").append(html);
+                        response( $.map( data.cinfo, function( item ) {  
+                            return {
+                                lable:item.id,      
+                                value:item.name 
+                            }  
+                        }));  
+                    }  
+                });  
+            }
+            
+        });
+        
+        $(document).on('click', '.ui-menu-item', function () {
+            console.log($(this).children().html());
+        });
+    
     });
 </script>
 
