@@ -436,7 +436,7 @@ def course_list(request):
         filterDic['metadata.create_toplevel_title'] = toplevel_title
         
     if subject_id != 'all':
-        filterDic['metadata.display_subject'] = subject_id
+        filterDic['metadata.display_subject'] = {"$regex": subject_id, "$options": "-i"}
 
     if grade_id != 'all':
         if grade_id == '6-8' or grade_id == '9-12':
