@@ -1488,7 +1488,7 @@
                         $(iClass+" label").remove();
                         $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
                         $("[data-slot='" + iClass + "']").append(labelHtml);
-                        $("[data-slot='" + iClass + "'] span").css("left": "-40px");
+                        $("[data-slot='" + iClass + "'].find("span").css("left": "-40px");
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
