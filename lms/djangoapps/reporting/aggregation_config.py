@@ -56,6 +56,9 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
         "state": {
             "$last": "$state"
         },
+        "cohort": {
+            "$last": "$cohort"
+        },
         "district": {
             "$last": "$district"
         },
@@ -104,6 +107,7 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
         "first_name": 1,
         "last_name": 1,
         "state": 1,
+        "cohort": 1,
         "district": 1,
         "school": 1,
         "activate_date": 1,
@@ -150,6 +154,9 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         },
         "state": {
             "$last": "$state"
+        },
+        "cohort": {
+            "$last": "$cohort"
         },
         "district": {
             "$last": "$district"
@@ -221,6 +228,7 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         "first_name":1,
         "last_name": 1,
         "state": 1,
+        "cohort":1,
         "district": 1,
         "school": 1,
         "subscription_status": 1,
@@ -1669,6 +1677,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'current_course': {'$last': '$current_course'},
         'complete_course': {'$last': '$complete_course'},
         'state': {'$last': '$state'},
+        'cohort': {'$last': '$cohort'},
         'external_time': {'$sum': '$external_time'},
         'subscription_status': {'$last': '$subscription_status'},
         'collaboration_time': {'$sum': '$collaboration_time'},
@@ -1691,7 +1700,8 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'collaboration_time': 1, 
         'current_course': 1, 
         'complete_course': 1, 
-        'state': 1, 
+        'state': 1,
+        'cohort': 1, 
         'external_time': 1, 
         'subscription_status': 1,
         'discussion_time': 1, 
@@ -1712,6 +1722,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'collaboration_time': 1,
         'complete_course': {'$substr': ['$complete_course', 0, -1]}, 
         'state': 1,
+        'cohort': 1,
         'last_name': 1,
         'external_time': 1,
         'subscription_status': 1,
@@ -1741,6 +1752,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
             'current_course': '$current_course', 
             'complete_course': '$complete_course',
             'state': '$state',
+            'cohort': '$cohort',
             'external_time': '$external_time',
             'subscription_status': '$subscription_status',
             'collaboration_time': '$collaboration_time',
@@ -1754,6 +1766,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'current_course': {'$push': '$current_course'},
         'complete_course': {'$push': '$complete_course'},
         'state': {'$push': '$state'},
+        'cohort': {'$push': '$cohort'},
         'external_time': {'$push': '$external_time'},
         'subscription_status': {'$push': '$subscription_status'}, 
         'discussion_time': {'$push': '$discussion_time'},
@@ -1774,6 +1787,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]},
         'complete_course': {'$arrayElemAt': ['$complete_course', 0]},
         'state': {'$arrayElemAt': ['$state', 0]},
+        'cohort': {'$arrayElemAt': ['$cohort', 0]},
         'last_name': {'$arrayElemAt': ['$last_name', 0]}, 
         'external_time': {'$arrayElemAt': ['$external_time', 0]},
         'subscription_status': {'$arrayElemAt': ['$subscription_status', 0]},
@@ -1801,6 +1815,7 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'portfolio_time': {'$sum': '$portfolio_time'},
         'portfolio_url': {'$last': '$portfolio_url'},
         'state': {'$last': '$state'},
+        'cohort': {'$last': '$cohort'},
         'course_number': {'$last': '$course_number'},
         'subscription_status': {'$last': '$subscription_status'},
         'progress': {'$last': '$progress'},
@@ -1832,6 +1847,7 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'portfolio_time': 1,
         'portfolio_url': 1, 
         'state': 1,
+        'cohort': 1,
         'course_number': 1,
         'subscription_status': 1,
         'progress': 1,
@@ -1859,7 +1875,8 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'course_run': 1,
         'portfolio_time': 1,
         'portfolio_url': 1,
-        'state': 1, 
+        'state': 1,
+        'cohort': 1, 
         'course_number': 1, 
         'subscription_status': 1, 
         'progress': {'$substr': ['$progress', 0, -1]}, 
@@ -1888,6 +1905,7 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'portfolio_time': {'$push': '$portfolio_time'},
         'portfolio_url': {'$push': '$portfolio_url'},
         'state': {'$push': '$state'},
+        'cohort': {'$push': '$cohort'},
         'course_number': {'$push': '$course_number'},
         'subscription_status': {'$push': '$subscription_status'},
         'progress': {'$push': '$progress'},
@@ -1941,7 +1959,8 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
         'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]}, 
         'portfolio_url': {'$arrayElemAt': ['$portfolio_url', 0]}, 
-        'state': {'$arrayElemAt': ['$state', 0]}, 
+        'state': {'$arrayElemAt': ['$state', 0]},
+        'cohort': {'$arrayElemAt': ['$cohort', 0]}, 
         'course_number': {'$arrayElemAt': ['$course_number', 0]}, 
         'subscription_status': {'$arrayElemAt': ['$subscription_status', 0]}, 
         'progress': {'$arrayElemAt': ['$progress', 0]}, 
