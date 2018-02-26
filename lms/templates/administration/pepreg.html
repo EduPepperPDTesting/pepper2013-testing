@@ -1482,12 +1482,12 @@
 
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
-                        var labelHtml = $(iClass).first().find("label").html().toString().replace(/(\r\n|\n|\r)/gm,"");
+                        var labelHtml = $(iClass).first().find("label").html().replace(/(\r\n|\n|\r)/gm,"");
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
                         $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
-                        $("[data-slot='" + iClass + "']").html(labelHtml);
+                        $("[data-slot='" + iClass + "']").append(labelHtml);
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
