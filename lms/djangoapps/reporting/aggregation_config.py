@@ -228,7 +228,7 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         "first_name":1,
         "last_name": 1,
         "state": 1,
-        "cohort":1
+        "cohort":1,
         "district": 1,
         "school": 1,
         "subscription_status": 1,
