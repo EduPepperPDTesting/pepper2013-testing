@@ -266,6 +266,10 @@ def rows(request):
 
             elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and condition == 'or':
                 #raise Exception("2 list=" + str(search_list))
+
+                if item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and':
+                    kwargs_fst = kwargs.copy()
+
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
@@ -284,7 +288,14 @@ def rows(request):
 
                 args, next_kwargs = build_filters(columns, filters)
 
-                trainings = trainings.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
+                or_trainings = trainings.prefetch_related().filter(Q(**kwargs_fst) | Q(**next_kwargs)).order_by(*order)
+
+                if next_item_order < len(conditions) and conditions[next_item_order].encode("utf-8") == 'or':
+                    #trainings.union(or_trainings).order_by(*order)
+                    trainings = trainings | or_trainings
+                    trainings = trainings.distinct()
+                elif next_item_order == len(conditions) or conditions[next_item_order].encode("utf-8") == 'and':
+                    trainings = or_trainings.all()
 
                 # or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
                 #
@@ -295,9 +306,6 @@ def rows(request):
 
                 #or_trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
                 #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
-
-            #elif item_order == 3:
-                #raise Exception(str(item_order) + " " + str(search_list[item_order]))
 
     tmp_school_id = 0
     try:
