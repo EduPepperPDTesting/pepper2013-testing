@@ -1046,7 +1046,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
 
-                                        if (not ((startHourAMPM == "AM" and startHour >= 7) or (startHourAMPM == "PM" and startHour <=8))):
+                                        if ((startHourAMPM == "AM" and (startHour < 7 or startHour == 12)) or (startHourAMPM == "PM" and startHour > 8)):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
                                             else:
