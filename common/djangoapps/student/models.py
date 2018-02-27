@@ -1109,6 +1109,14 @@ class CourseEnrollment(models.Model):
             return False
 
     @classmethod
+    def get_closed(cls, user, course_id):
+        try:
+            record = CourseEnrollment.objects.get(user=user, course_id=course_id)
+            return record.is_closed
+        except cls.DoesNotExist:
+            return False
+
+    @classmethod
     def enrollments_for_user(cls, user):
         return CourseEnrollment.objects.filter(user=user, is_active=1)
 
