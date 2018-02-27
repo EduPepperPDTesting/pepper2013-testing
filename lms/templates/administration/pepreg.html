@@ -2756,26 +2756,24 @@
 
             console.log("advanced_select val: "+val);
             if(val != ""){
-                if($("#subcondition_" + suborder).val() == 'and'){
-                    var show_value = true;
+                var show_value = true;
 
-                    for(var i = 1; i <= $(".advanced_select").length; i++){
-                        if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $("#subcondition_" + i).length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == val){
-                               show_value = false
-                               break;
-                        }
+                for(var i = 1; i <= $(".advanced_select").length; i++){
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $(".subcondition").length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == val){
+                           show_value = false
+                           break;
                     }
+                }
 
-                    console.log("show_value = " + show_value);
+                console.log("show_value = " + show_value);
 
-                    if(show_value){
-                        $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
-                    }else{
-                        reload = false;
-                        $(this).val($(this).data('oldvalue'));
-                        $(".advanced_select[value = '" + val + "']").css("border", "1px solid red");
-                        $(".advanced_select[value = '" + val + "']").next().children(":nth-child(1)").css("border", "1px solid red");
-                    }
+                if(show_value){
+                    $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+                }else{
+                    reload = false;
+                    $(this).val($(this).data('oldvalue'));
+                    $(".advanced_select[value = '" + val + "']").css("border", "1px solid red");
+                    $(".advanced_select[value = '" + val + "']").next().children(":nth-child(1)").css("border", "1px solid red");
                 }
 
                 if(reload){
