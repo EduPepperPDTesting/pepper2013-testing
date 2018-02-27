@@ -1051,7 +1051,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                 startHour = 0
                                             else:
                                                 startHour = 7
-
+                                        raise Exception("startHour="+startHour)
                                         if((startHourAMPM == "PM" and startHour <= 8) or (startHourAMPM == "AM" and startHour >= 7)):
                                             endHour = int(day[4][i][:day[4][i].index(":")])
                                             endHourAMPM = day[4][i][-2:]
