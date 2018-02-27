@@ -2918,17 +2918,17 @@
                     $("#subcondition_" + nextOrder).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
                     //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
                 }*/
-            }/*else{
+            }else{
                 $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block").attr("data-hidden", "false");
 
                 for(var n = nextOrder + 1; i <= $(".advanced_select").length; i++){
                     $("#advanced_select_" + n).find("option[data-hidden='true']").css("display", "block").attr("data-hidden", "false");
                 }
 
-                $("#subcondition_" + nextOrder).prop("disabled", true);
-                $("#subcondition_" + nextOrder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                //$("#subcondition_" + nextOrder).prop("disabled", true);
+                //$("#subcondition_" + nextOrder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
                 //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "none");
-            }*/
+            }
 
             if(reload && $(".subselect").length > suborder && $("#subselect_" + suborder).val() != ""){
                 reloadTableAdvanced();
