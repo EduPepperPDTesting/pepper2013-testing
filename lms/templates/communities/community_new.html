@@ -423,7 +423,7 @@ a{
     font-size:13px;color:#999;cursor: pointer;
 }
 
-.community-resource {
+.community-resource-tab {
     display: block;
     clear: both;
     margin:auto;
@@ -432,19 +432,20 @@ a{
     border: 0 solid #f0870c;
     height: 150px;
     width: 200px;
+    font-size:13px;
     
     box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
     border-radius: 6px;
     overflow: hidden;
     position: relative;
 }
-.community-resource img {
+.community-resource-tab img {
     display: block;
     width: 200px;
 
     border-radius: 6px;
 }
-.community-resource a {
+.community-resource-tab a {
     display: block;
     position: absolute;
     bottom: 0;
@@ -455,7 +456,7 @@ a{
     font-size: 14px;
     border-radius: 0 0 6px 6px;
 }
-.community-resource div {
+.community-resource-tab div {
     display: table-cell;
     height: 60px;
     vertical-align: middle;
@@ -997,7 +998,7 @@ a{
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
                     %for k, resource in enumerate(resources_list):
-                        <div class="community-resource">
+                        <div class="community-resource-tab">
                             <img src="${resource['logo']}" alt="${resource['name']}" />
                             <a href="${resource['link']}" target="_blank">
                                 <div>
