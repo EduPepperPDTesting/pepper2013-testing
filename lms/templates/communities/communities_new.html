@@ -539,7 +539,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     <div style="float:left;padding-left:25px;">Pepper Communities</div>
                     %if request.user.is_superuser:
                         <div style="padding-left:10px;display:inline-block;">
-                            <a href="#" style="font-size:14px;color:#0A4965;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
+                            <a href="#" style="font-size:14px;color:#2CBAEC;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
                         </div>
                     %endif
                     <div style="float:right;padding-right:10px;margin-top:-1px;">
@@ -625,7 +625,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
-<div class="community_auto_info" style="display:none"></div>
+<!--<div class="community_auto_info" style="display:none"></div>-->
 <div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -1504,18 +1504,25 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     data: {
                         q: $('#complete-community').val()
                     },  
-                    success: function( data ) {  
+                    success: function( data ) { 
+                        /*
                         var html = "";
                         for(var i=0;i<data.cinfo.length;i++){
                             html += "<span>"+data.cinfo[i]['id']+"</span>"
                         }
                         $(".community_auto_info").append(html);
+                        */
                         response( $.map( data.cinfo, function( item ) {  
                             return {
                                 lable:item.id,      
                                 value:item.name 
                             }  
                         }));  
+                        var id_number = 0;
+                        $.each($(".ui-corner-all a"), function(){
+                            $(this).attr("cid", data.cinfo[id_number]['id'])
+                            id_number += 1;
+                        });
                     }  
                 });  
             }
@@ -1523,7 +1530,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
         
         $(document).on('click', '.ui-menu-item', function () {
-            console.log($(this).children().html());
+            var cid = $(this).children().attr("cid");
+            console.log(cid);
+            window.location.href="/maincommunity/"+cid;
         });
     
     });
