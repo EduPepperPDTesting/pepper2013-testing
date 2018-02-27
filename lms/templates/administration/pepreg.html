@@ -2766,13 +2766,10 @@
                         }
                     }
 
+                    console.log("show_value = " + show_value);
+
                     if(show_value){
-                        for(var i = 1; i <= $(".advanced_select").length; i++){
-                            if(i == suborder) continue;
-                            if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $("#subcondition_" + i).length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() != val){
-                               $("#advanced_select_" + i).find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
-                            }
-                        }
+                        $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
                     }else{
                         reload = false;
                         $(this).val($(this).data('oldvalue'));
