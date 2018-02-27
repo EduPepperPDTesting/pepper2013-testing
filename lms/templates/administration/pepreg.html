@@ -2900,6 +2900,19 @@
             var reload = true;
 
             if(val == 'and'){
+
+                if(suborder != 1 && $("#subcondition_" + (suborder - 1)).val() == 'and'){
+
+                }
+
+                for(var i = 1; i <= $(".advanced_select").length; i++){
+                    if(i == suborder) continue;
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $(".subcondition").length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val() ){
+                           show_value = false
+                           break;
+                    }
+                }
+
                 for(var i = 1; i <= suborder; i++){
                     if($("#subcondition_" + i).val() == 'and'){
                         var fieldValue = $("#advanced_select_" + i).val();
@@ -2927,7 +2940,7 @@
                 var show_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val()){
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $(".subcondition").length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val()){
                         show_option = false;
                         break;
                     }
