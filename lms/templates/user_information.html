@@ -289,7 +289,7 @@ xmp{
                 OrganizationOK = True
                 break;
 
-        if (not(OrganizationOK) school_id != -1):
+        if (not(OrganizationOK) and school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
                 OrganizationOK = True
