@@ -2748,26 +2748,36 @@
             }
             $(".tablesorter-filter-row").css("display", "none");
         });
+
         $("#advanced_search").on("change", ".advanced_select", function (){
             var val = $(this).val();
             var reload = true;
             var suborder = parseInt($(this).attr("name"));
-            var nextOrder = suborder + 1;
 
             console.log("advanced_select val: "+val);
             if(val != ""){
                 if($("#subcondition_" + suborder).val() == 'and'){
-                    for(var n = nextOrder; n <= $(".advanced_select").length; n++){
-                        console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != val && $("#subcondition_" + (n - 1)).val() == 'and'));
-                        console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == val));
-                        if($("#advanced_select_" + n).val() != val && $("#subcondition_" + (n - 1)).val() == 'and'){
-                            $("#advanced_select_" + n).find("option[value='" + val + "']").css("display", "none");
-                        }else if($("#advanced_select_" + n).val() == val && $("#subcondition_" + (n - 1)).val() == 'and'){
-                            reload = false;
-                            $(this).val($(this).data('oldvalue'));
-                            $("#advanced_select_" + n).css("border", "1px solid red");
-                            $("#advanced_select_" + n).next().children(":nth-child(1)").css("border", "1px solid red");
+                    var show_value = true;
+
+                    for(var i = 1; i <= $(".advanced_select").length; i++){
+                        if((i == 1 or $("#subcondition_" + (i - 1)).val() == 'and') && (i == $("#subcondition_" + i).length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == val){
+                               show_value = false
+                               break;
                         }
+                    }
+
+                    if(show_value){
+                        for(var i = 1; i <= $(".advanced_select").length; i++){
+                            if(i == suborder) continue;
+                            if((i == 1 or $("#subcondition_" + (i - 1)).val() == 'and') && (i == $("#subcondition_" + i).length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() != val){
+                               $("#advanced_select_" + i).find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+                            }
+                        }
+                    }else{
+                        reload = false;
+                        $(this).val($(this).data('oldvalue'));
+                        $(".advanced_select[value = '" + val + "']").css("border", "1px solid red");
+                        $(".advanced_select[value = '" + val + "']").next().children(":nth-child(1)").css("border", "1px solid red");
                     }
                 }
 
@@ -2864,13 +2874,13 @@
                             $.each(data.rows, function(k, v){
                                 var disp = "block";
                                 var hidden = 'false';
-                                /*for(var i = 1; i <= suborder; i++){
-                                    if($("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                for(var i = 1; i <= suborder; i++){
+                                    if(($("#subcondition_" + (i - 1)).length == 0 or $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
                                         disp = "none";
                                         hidden = 'true';
                                         break;
                                     }
-                                }*/
+                                }
                                 $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
                             });
                         }
@@ -2903,7 +2913,7 @@
                             console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
                             console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
-                                $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none");
+                                $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
                             }else if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'){
                                 reload = false;
                                 $(this).val("or");
@@ -2919,10 +2929,17 @@
                     //$("#subcondition_" + nextOrder + "::-ms-expand").css("display", "");
                 }*/
             }else{
-                $("#advanced_select_" + nextOrder).find("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block").attr("data-hidden", "false");
+                var show_option = true;
 
-                for(var n = nextOrder + 1; i <= $(".advanced_select").length; i++){
-                    $("#advanced_select_" + n).find("option[data-hidden='true']").css("display", "block").attr("data-hidden", "false");
+                for(var i = 1; i <= $(".advanced_select").length; i++){
+                    if((i == 1 or $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val()){
+                        show_option = false;
+                        break;
+                    }
+                }
+
+                if(show_option){
+                    $("option[value='" + $("#advanced_select_" + suborder).val() + "']").css("display", "block").attr("data-hidden", "false");
                 }
 
                 //$("#subcondition_" + nextOrder).prop("disabled", true);
