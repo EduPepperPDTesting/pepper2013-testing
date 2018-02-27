@@ -798,6 +798,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
+                        raise Exception("trainingStartTime="+str(trainingStartTime))
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
@@ -1045,7 +1046,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
-                                        raise Exception("startHour=" + str(startHour) + "startHourAMPM" + str(startHourAMPM))
+                                        #raise Exception("startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
                                         if ((startHourAMPM == "AM" and (startHour < 7 or startHour == 12)) or (startHourAMPM == "PM" and startHour > 8)):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
