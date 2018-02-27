@@ -2932,7 +2932,7 @@
                 var show_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == 1 or $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val()){
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == $("#advanced_select_" + suborder).val()){
                         show_option = false;
                         break;
                     }
