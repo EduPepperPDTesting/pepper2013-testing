@@ -564,8 +564,7 @@ def getCalendarMonth(request):
 
     if not daterangelist:
         daterangelist = list(daterange)
-    if len(daterangelist) == 1:
-        raise Exception("all_occurrences = " + str(all_occurrences))
+    #if len(daterangelist) == 1:        raise Exception("all_occurrences = " + str(all_occurrences))
         #for item in all_occurrences:
             #if item.name == "kwtest6": raise Exception("start time=" + str(item.training_time_start))
     if (request.GET.get('printpdf') == 'true'):
@@ -801,7 +800,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
-                        #raise Exception("trainingStartTime="+str(trainingStartTime))
+                        raise Exception("trainingStartTime="+str(trainingStartTime))
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
