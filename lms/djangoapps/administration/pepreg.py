@@ -799,27 +799,28 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                     itemData = ""
 
-                    if isday:
-                        #if item.name=="kwtest6": raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
-                        trainingStartMinutes = int(trainingStartTime[-5:-3])
-                        if(trainingStartMinutes)<30:
-                            trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                    if ((arrive == "0" and allow == "0") and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3") or (catype == "0" or catype == "2")) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")):
+                        if isday:
+                            #if item.name=="kwtest6": raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
+                            trainingStartMinutes = int(trainingStartTime[-5:-3])
+                            if(trainingStartMinutes)<30:
+                                trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                            else:
+                                trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
+
+                            trainingEndMinutes = int(trainingEndTime[-5:-3])
+                            if (trainingEndMinutes) < 30:
+                                trainingEndHour = trainingEndTime[0:-5] + "00" + trainingEndTime[-3:]
+                            else:
+                                trainingEndHour = trainingEndTime[0:-5] + "30" + trainingEndTime[-3:]
+
+                            trainingStartHours.append(trainingStartHour)
+                            trainingEndHours.append(trainingEndHour)
+
+                            itemData = "<br/><div>" + str(item.training_date)
                         else:
-                            trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
-
-                        trainingEndMinutes = int(trainingEndTime[-5:-3])
-                        if (trainingEndMinutes) < 30:
-                            trainingEndHour = trainingEndTime[0:-5] + "00" + trainingEndTime[-3:]
-                        else:
-                            trainingEndHour = trainingEndTime[0:-5] + "30" + trainingEndTime[-3:]
-
-                        trainingStartHours.append(trainingStartHour)
-                        trainingEndHours.append(trainingEndHour)
-
-                        itemData = "<br/><div>" + str(item.training_date)
-                    else:
-                        trainingStartHours.append(trainingStartTime[0:-6])
-                        trainingEndHours.append(trainingEndTime[0:-6])
+                            trainingStartHours.append(trainingStartTime[0:-6])
+                            trainingEndHours.append(trainingEndTime[0:-6])
 
                     if not isday:
                         timeTxt = "" # From: "
@@ -897,6 +898,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if (catype == "0" or catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' disabled /> "
                                 occurrences.append("<label class='alert short_name al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>")
+
 
             if date.__str__() == current_day.__str__():
                 current = True
@@ -1048,7 +1050,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
-                                        raise Exception("tmp1="+ tmp1+" startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
+                                        #raise Exception("tmp1="+ tmp1+" startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
                                         if ((startHourAMPM == "AM" and (startHour < 7 or startHour == 12)) or (startHourAMPM == "PM" and startHour > 8)):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
