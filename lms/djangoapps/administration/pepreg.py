@@ -564,7 +564,9 @@ def getCalendarMonth(request):
 
     if not daterangelist:
         daterangelist = list(daterange)
-
+    if len(daterangelist) == 1:
+        for item in all_occurrences:
+            raise Exception("start time=" + item.training_time_start)
     if (request.GET.get('printpdf') == 'true'):
         training_list = []
 
@@ -581,7 +583,6 @@ def getCalendarMonth(request):
                 continue
 
             for item in all_occurrences:
-                if isday: raise Exception("start time=" + item.training_time_start)
                 if (item.training_date == pdfDate.date()):
                     if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                         continue;
