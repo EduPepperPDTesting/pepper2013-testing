@@ -1418,11 +1418,11 @@
         var height, leftX, slIndex, lastWidth;
         var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
-            bStart = (a == 0) ? 6 : 1;
-            bLimit = (a == 0) ? 12 : 6;
+            bStart = (a == 0) ? 7 : 0;
+            bLimit = (a == 0) ? 11 : 8;
             tClass = (a == 0) ? ".AM" : ".PM";
             for ( var b = bStart; b <= bLimit; b++ ) {
-                dh = (b < 10) ? ".0" + b : "." + b;
+                dh = (b == 0)? ".12" : (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
                 console.log(hClass + " els #: " + cLimit);
