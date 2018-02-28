@@ -800,7 +800,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
-                        raise Exception("trainingStartTime="+str(trainingStartTime))
+                        raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
