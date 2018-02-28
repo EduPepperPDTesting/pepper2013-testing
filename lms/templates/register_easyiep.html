@@ -68,6 +68,14 @@ from baseinfo.models import Enum
   color:#fff;
   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
+  .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}  
+  .org_description{ font-size:12px; color:#646464}
+  .org_name_no_required::after{content:'' !important;}
+  .org_assignment_qualifications_datex{width:200px !important;}
+  .list-input .field input[type="checkbox"]{display:inline-block !important; width:30px !important;}
+  .list-input .field input[type="radio"]{display:inline-block !important; width:30px !important;}
+  .my_label {font-weight:normal !important;}
+  .my_label:after {margin-left: 0 !important; content: "" !important;}
 </style>
 <!--@end-->
 <%block name="title"><title>${_("Register for {platform_name}").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
@@ -607,12 +615,17 @@ from baseinfo.models import Enum
     dropDistrict($form,state_id,function(){
       clearOption($form.find("select[name=school_id]"));
     });
+    get_org()
   });
   $form.find("select[name=district_id]").change(function(){
     var state_id='';
     var district_id=$(this).val();
     dropSchool($form,state_id,district_id);
+    get_org()
   });
+  $form.find("select[name=district_id]").change(function(){
+    get_org()
+  })
   $("#change_photo_button").click(function(){
     $("#change_photo").show();
 
@@ -620,5 +633,190 @@ from baseinfo.models import Enum
   $("#change_photo_close").click(function(){
     $("#change_photo").hide();
   })
+  function LoadingWin(){
+  this.$loader = null;
+  this.show();
+}
+LoadingWin.prototype.show = function () {
+  if (!this.$loader) {
+    this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+    this.$loader.appendTo(document.body);
+  }
+  this.$loader.css('display','block');
+};
+LoadingWin.prototype.hide = function () {
+  if (this.$loader) {
+    this.$loader.remove();
+    this.$loader = null;
+  }
+};
+  function get_org(){
+    var loadwin = new LoadingWin();
+    var data = {flag:"organization_get_info", source:"register", user:"${profile.user.id}"}
+    if ($("#register-form").find("select[name=state_id]").val()){
+      data.state_id = $("#register-form").find("select[name=state_id]").val()
+    }
+    if ($("#register-form").find("select[name=district_id]").val()){
+      data.district_id = $("#register-form").find("select[name=district_id]").val()
+    }
+    if ($("#register-form").find("select[name=school_id]").val()){
+      data.school_id = $("#register-form").find("select[name=school_id]").val()
+    }
+    var cohort = "${profile.cohort.id}"
+    if (cohort){
+      data.cohort_id = cohort
+    }
+    $.post("${reverse('organizational_configuration')}", data, function (r) {
+      if (r.SiteURL_OK){
+        if(r.Success){
+          if(r.OrganizationOK){
+            OrganizationId = r.OrganizationId;
+            if (r.DistrictType == "") r.DistrictType='District'
+            if (r.SchoolType == "") r.SchoolType='School'
+            $("#organization_info_district").parent().find("label").html(r.DistrictType);
+            $("#school_id").parent().find("label").html(r.SchoolType);
+            if (r.register_text_button) $("#submit").html(r.register_text_button)
+            ///static/uploads/organization/168/register_logo.png?r=0.14758438960515186
+            ///r.OrganizationId
+            if (r.register_main_logo){
+              var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
+              $("#register_main_logo").html("")
+              $("#register_main_logo").css('background-image',src)
+            } 
+            if (r.register_logo){
+              var img = '<div id="register_logo" style="margin:0px auto;width:960px;height:195px;"><img width="960" height="195" src="/static/uploads/organization/' + r.OrganizationId + '/' + r.register_logo +'"></div>';
+              $("#register_main_logo").before(img)
+            } 
+
+            if(r.org_rg_data_items != ""){
+              var tmp_specific_items = eval("(" + r.org_rg_data_items + ")");
+              for(var tmpx in tmp_specific_items){
+                var tmp_json = tmp_specific_items[tmpx];
+                var tmp_required = (tmp_json["required"] == "1") ? " *" : "";
+                
+                if(tmp_json["default"] && tmp_json["default"] != ""){
+                  var find_el = $("#organization_info_org_default_" + tmp_json["default"]);
+                  if(tmp_json["default_visible"] == "0"){
+                    find_el.find(".org_description").html(tmp_json["description"]);
+                    if(tmp_json["default"] == "4" || tmp_json["default"] == "5" || tmp_json["default"] == "6"){
+                      find_el.find("b").html(tmp_required);
+                    }else{
+                      find_el.find(".org_name").html(tmp_json["name"] + tmp_required);
+                    }
+                  }else{
+                    find_el.hide();
+                  }               
+                }else{
+                  var tmp_content = "";
+                  if(tmp_json["field_type"] == "1"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<span></span>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "2"){
+                    var tmp_list1 = tmp_json["field_type_2"].split("|-|-|");
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<select class="org_field" field_type="2" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;"><option value="">--</option>';
+                    for(var ii in tmp_list1){
+                      var tmp_list2 = tmp_list1[ii].split("|-|");
+                      tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
+                    }
+                    tmp_content += '</select>';
+                    tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "3"){
+                    var tmp_list1 = tmp_json["field_type_3"].split("|-|-|");
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<select class="org_field" field_type="3" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;" size="5" multiple="multiple">';
+                    for(var ii in tmp_list1){
+                      var tmp_list2 = tmp_list1[ii].split("|-|");
+                      tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
+                    }
+                    tmp_content += '</select>';
+                    tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "4"){
+                    
+                    tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
+                    tmp_content += '<li class="field required text org_field" id="field-name" field_type="4" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
+                    if(tmp_json["field_type_4"] != ""){
+                      var tmp_list1 = tmp_json["field_type_4"].split("|-|-|");
+                      for(var ii in tmp_list1){
+                        var tmp_list2 = tmp_list1[ii].split("|-|");
+                        tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+                      }
+                    }
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "5"){
+                    
+                    tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
+                    tmp_content += '<li class="field required text org_field" id="field-name" field_type="5" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
+                    if(tmp_json["field_type_5"] != ""){
+                      var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
+                      for(var ii in tmp_list1){
+                        var tmp_list2 = tmp_list1[ii].split("|-|");
+                        tmp_content += '<label class="my_label"><input type="radio" ' + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+                      }
+                    }
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                  
+                  }else if(tmp_json["field_type"] == "6"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<input type="text" name="' + tmp_json["name"] + '" value="" required aria-required="true" maxlength="30"  class="org_field" field_type="6" isRequired="' + tmp_required + '"/>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "7"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max, 255 remain)</span>';
+                    tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field org_textarea" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "8"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<input type="text" class="org_assignment_qualifications_datex org_field" value="" placeholder="Select Date" readonly="true" name="' + tmp_json["name"] + '" field_type="8" isRequired="' + tmp_required + '" />';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                  }
+                  
+                  if(tmp_content != "") $("#org_list_list").append(tmp_content);
+                }
+              }
+            }
+            if($("#organization_info_org_default_456").find("li:visible").length == 0){
+              $("#organization_info_org_default_456").hide();
+            }
+            $(".org_assignment_qualifications_datex").datepicker();
+            $(".org_textarea").keyup(function(){
+              $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
+            })
+
+          }
+        }
+      }
+      loadwin.hide();
+    });
+  }
+  document.ready(function({
+    get_org()
+  }))
 </script>
 <div/>
