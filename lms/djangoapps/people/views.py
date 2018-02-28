@@ -235,8 +235,12 @@ def people(request,course_id=''):
 
         # courses=sorted(courses, key=lambda course: course.number.lower())
         courses=sorted(courses, key=lambda course: course.display_name.lower())
+        courses_filter = list()
+        for tmp in courses:
+            if not tmp.close_course and not CourseEnrollment.get_closed(request.user,tmp.id):
+                courses_filter.append(tmp)
 
-        context['courses']=courses
+        context['courses']=courses_filter
         course=None
         if course_id:
             course=get_course_with_access(request.user, course_id, 'load')
