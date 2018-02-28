@@ -581,6 +581,7 @@ def getCalendarMonth(request):
                 continue
 
             for item in all_occurrences:
+                if isday: raise Exception("start time=" + item.training_time_start)
                 if (item.training_date == pdfDate.date()):
                     if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                         continue;
@@ -798,7 +799,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
-                        raise Exception("trainingStartTime="+str(trainingStartTime))
+                        #raise Exception("trainingStartTime="+str(trainingStartTime))
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
