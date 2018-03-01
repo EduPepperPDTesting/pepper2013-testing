@@ -898,6 +898,9 @@ INSTALLED_APPS = (
     # web chat
     'webchat',
 
+    # Task Queue
+    'taskqueue'
+
     # Organization
     'organization',
 
