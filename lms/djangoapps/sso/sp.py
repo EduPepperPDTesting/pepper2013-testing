@@ -638,7 +638,7 @@ def register_user_easyiep(request, activation_key):
 
     try:
         cohort = profile.cohort.id
-    except
+    except:
         cohort = 0
     context = {
         'cohort': cohort,
@@ -665,7 +665,7 @@ def register_sso(request, activation_key):
 
     try:
         cohort = profile.cohort.id
-    except
+    except:
         cohort = 0
     context = {
         'cohort': cohort,
