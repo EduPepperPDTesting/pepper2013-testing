@@ -1268,7 +1268,7 @@ def get_inital(request,now_utc):
             b["date"] = b["date"][:19]
             timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
             organization_createdate = int(time.mktime(timeArray))
-            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+            date_joined = int(time.mktime(request.user.profile.activate_date.timetuple()))
 
             if organization_createdate < date_joined:
                 if v.organization.id not in organization_id:
