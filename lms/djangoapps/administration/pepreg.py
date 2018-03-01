@@ -800,7 +800,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
-                        if ((arrive == "0" and allow == "0") and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Registered" and (catype == "0" or catype == "3") or (catype == "0" or catype == "2")) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")):
+                        if ((arrive == "0" and allow == "0" and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or status == "Registered" or (catype == "0" or catype == "2"))) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and ((catype == "0" or catype == "1") or (catype == "0" or catype == "3")))) and not (arrive == "1" and status == "" and allow == "1"):
                             #raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
                             trainingStartMinutes = int(trainingStartTime[-5:-3])
                             if(trainingStartMinutes)<30:
@@ -1050,7 +1050,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                         endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
-                                        raise Exception("day[1] length ="+ str(len(day[1])) + " day[4] length ="+ str(len(day[4])) + " startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
+                                        #raise Exception("day[1] length ="+ str(len(day[1])) + " day[3] length ="+ str(len(day[3])) + " startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
                                         if ((startHourAMPM == "AM" and (startHour < 7 or startHour == 12)) or (startHourAMPM == "PM" and startHour > 8)):
                                             if (startHourAMPM == "PM" and startHour == 12):
                                                 startHour = 0
