@@ -2861,12 +2861,13 @@
                 }
 
                 if($("#advanced_select_" + nextOrder).length == 0){
-
+                    console.log("new advanced_select");
                     $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
                     $("#advanced_select_" + nextOrder).append("<option value=''>Select Field</option>");
                     var field_selected = $("#advanced_select_" + suborder).val();
                     $.get("${reverse('getfielddata')}", function(data) {
                         if (data.success) {
+                            console.log("new advanced_select data success: "+data.success);
                             $.each(data.rows, function(k, v){
                                 var disp = "block";
                                 var hidden = 'false';
