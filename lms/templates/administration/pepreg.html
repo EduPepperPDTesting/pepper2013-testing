@@ -2900,7 +2900,7 @@
             var suborder = parseInt($(this).attr("name"));
             var fieldValue = $(".advanced_select_" + suborder).val();
 
-            if($(".advanced_select[value = '" + fieldValue + "']").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' )){
+            if($(".advanced_select[value = '" + fieldValue + "']").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and') && $("#subcondition_" + suborder).val() == 'and' ){
                 if(val == 'and') {
                     $(this).val("or");
                 }else{
