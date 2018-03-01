@@ -123,6 +123,10 @@ urlpatterns = (
     url(r'^cms_password/$', 'handle_cms.views.encode_cms_password', name='cms_password'),
     # === CMS 2.1 end === #
 
+    # === Task Queue Begin === #
+    url(r'^popqueue/$', 'taskqueue.views.pop_queue', name='task_queue_pop'),
+    # === Task Queue End === #
+
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
     url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
