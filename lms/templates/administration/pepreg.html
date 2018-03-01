@@ -2923,7 +2923,7 @@
                         }
                     }
                 }
-                reloadTableAdvanced();
+                if($("#subselect_" + (suborder + 1)).length > 0 && $("#subselect_" + (suborder + 1)).val() != '') reloadTableAdvanced();
             }
         });
 
