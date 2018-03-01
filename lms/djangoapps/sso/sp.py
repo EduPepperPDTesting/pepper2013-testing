@@ -636,7 +636,12 @@ def register_user_easyiep(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key
     }
@@ -658,7 +663,12 @@ def register_sso(request, activation_key):
         mapped_name = attr['map'] if attr['map'] else attr['name']
         attribute_mapping[mapped_name] = attr
 
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key,
         'attribute_mapping': attribute_mapping

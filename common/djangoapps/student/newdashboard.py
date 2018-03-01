@@ -1268,7 +1268,7 @@ def get_inital(request,now_utc):
             b["date"] = b["date"][:19]
             timeArray = time.strptime(b["date"], "%Y-%m-%d %H:%M:%S")
             organization_createdate = int(time.mktime(timeArray))
-            date_joined = int(time.mktime(request.user.date_joined.timetuple()))
+            date_joined = int(time.mktime(request.user.profile.activate_date.timetuple()))
 
             if organization_createdate < date_joined:
                 if v.organization.id not in organization_id:
@@ -1281,7 +1281,7 @@ def get_inital(request,now_utc):
         for v2 in organization_id:
             initial_button = OrganizationMenu.objects.get(organization=v2,itemType="Initial Pepper Announcement")
             if initial_button.itemValue == '1':
-                inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.date_joined,**kwargs)))
+                inital.extend(list(store.get_initals(request.user.id, "Pepper",int(v2),request.user.profile.activate_date,**kwargs)))
 
         inital = sorted(inital,key=lambda inital: inital["date"],reverse=True)
         
