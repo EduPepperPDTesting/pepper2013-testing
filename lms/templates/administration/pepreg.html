@@ -1489,11 +1489,13 @@
                         $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;padding-right:10px;text-align:left;'></div>");
 
                         if(labelHtml.indexOf("<input") == -1){
-                            var locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf('Location:'), labelHtml.indexOf('</div>')) + '</span>';
-                            console.log("locationSpan: "+ locationSpan);
-                            var newlabelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
-                            console.log("new labelHtml: " + newlabelHtml);
-                            $("[data-slot='" + iClass + "']").append(newlabelHtml);
+                            if(labelHtml.indexOf('Location:') > -1){
+                                var locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf('Location:'), labelHtml.indexOf('</div>')) + '</span>';
+                                console.log("locationSpan: "+ locationSpan);
+                                labelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
+                                console.log("new labelHtml: " + labelHtml);
+                            }
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
                             $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px"});
                             $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
                         }else{
