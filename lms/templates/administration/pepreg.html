@@ -1493,7 +1493,7 @@
                             var newlabelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
                             console.log("new labelHtml: " + newlabelHtml);
                             $("[data-slot='" + iClass + "']").append(newlabelHtml);
-                            $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px;"});
+                            $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px"});
                             $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
                         }else{
                             $("[data-slot='" + iClass + "']").append(labelHtml);
