@@ -1446,11 +1446,11 @@
         var height, leftX, slIndex, lastWidth;
         var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
-            bStart = (a == 0) ? 6 : 1;
-            bLimit = (a == 0) ? 12 : 6;
+            bStart = (a == 0) ? 7 : 0;
+            bLimit = (a == 0) ? 11 : 8;
             tClass = (a == 0) ? ".AM" : ".PM";
             for ( var b = bStart; b <= bLimit; b++ ) {
-                dh = (b < 10) ? ".0" + b : "." + b;
+                dh = (b == 0)? ".12" : (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
                 console.log(hClass + " els #: " + cLimit);
@@ -1485,11 +1485,11 @@
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 135px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
                         $("[data-slot='" + iClass + "']").append(labelHtml);
                         if($("[data-slot='" + iClass + "']").find("input").length == 0){
-                            $("[data-slot='" + iClass + "']").find("span").css("left", "-90px");
-                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-10px", "min-width": "135px"});
+                            $("[data-slot='" + iClass + "']").find("span").css("left", "-100px");
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-5px", "min-width": "135px"});
                         }
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
