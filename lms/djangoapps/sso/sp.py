@@ -40,7 +40,6 @@ from util import saml_django_response
 import base64
 from PIL import Image
 
-
 # *Guess the xmlsec_path
 try:
     from saml2.sigver import get_xmlsec_binary
@@ -637,7 +636,18 @@ def register_user_easyiep(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key
     }
@@ -651,6 +661,12 @@ def register_sso(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+        
     ms = metadata.idp_by_name(profile.sso_idp)
     attribute_setting = ms.get('attributes')
 
@@ -659,7 +675,12 @@ def register_sso(request, activation_key):
         mapped_name = attr['map'] if attr['map'] else attr['name']
         attribute_mapping[mapped_name] = attr
 
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key,
         'attribute_mapping': attribute_mapping

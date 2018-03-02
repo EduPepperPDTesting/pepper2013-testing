@@ -208,7 +208,7 @@ def people(request,course_id=''):
         courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
         # courses=sorted(courses, key=lambda course: course.number.lower())
-        courses=sorted(courses, key=lambda course: course.display_name.lower())
+        courses=sorted(courses, key=lambda course: course.number.lower())
         courses_filter = list()
         for tmp in courses:
             if not tmp.close_course and not CourseEnrollment.get_closed(request.user,tmp.id):
