@@ -782,15 +782,16 @@
 			});
 
 			$(".alert").each(function(){
-				if($(this).find("span").length > 0){
-					var tmp_span = $(this).find("span");
+				if($(this).hasClass("completeSlot")){
+					var tmp_span = $(this).find("span:eq(0)");
 					var tmp_span_txt = $(tmp_span).text();
-					if(tmp_span_txt.length > 10){
-						$(tmp_span).text(tmp_span_txt.substr(0,10) + "...");
+					if(tmp_span_txt.length > 15){
+						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
-					var tmp1 = $(this).text();
-					if(tmp1.length > 10){
+				    var tmp_span = $(this).find("span");
+					var tmp_span_txt = $(tmp_span).text();
+					if(tmp_span_txt.length > 10){
 						$(this).text(tmp1.substr(0,10) + "...");
 					}
 				}
@@ -1457,12 +1458,20 @@
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
-                        $("[data-slot='" + iClass + "']").append(labelHtml);
-                        if($("[data-slot='" + iClass + "']").find("input").length == 0){
-                            $("[data-slot='" + iClass + "']").find("span").css("left", "-100px");
-                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-5px", "min-width": "135px"});
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;padding-right:10px;text-align:left;'></div>");
+
+                        if(labelHtml.indexOf("<input") == -1){
+                            var locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf('Location:'), labelHtml.indexOf('</div>')) + '</span>';
+                            console.log("locationSpan: "+ locationSpan);
+                            var newlabelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
+                            console.log("new labelHtml: " + newlabelHtml);
+                            $("[data-slot='" + iClass + "']").append(newlabelHtml);
+                            $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px"});
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
+                        }else{
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
                         }
+
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
