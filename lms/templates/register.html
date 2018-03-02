@@ -845,8 +845,6 @@ $(document).ready(function(){
 					$("#organization_info_district").parent().find("label").html(r.DistrictType);
 					$("#school_id").parent().find("label").html(r.SchoolType);
           if (r.register_text_button) $("#submit").html(r.register_text_button)
-          ///static/uploads/organization/168/register_logo.png?r=0.14758438960515186
-          ///r.OrganizationId
 		  		if (r.register_main_logo){
             var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
             $("#register_main_logo").html("")
