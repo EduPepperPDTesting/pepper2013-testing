@@ -636,6 +636,12 @@ def register_user_easyiep(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+
     try:
         cohort = profile.cohort.id
     except:
@@ -655,6 +661,12 @@ def register_sso(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+        
     ms = metadata.idp_by_name(profile.sso_idp)
     attribute_setting = ms.get('attributes')
 

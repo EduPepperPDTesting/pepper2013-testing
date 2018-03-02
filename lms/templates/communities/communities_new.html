@@ -246,10 +246,8 @@ div.expand_div{
 }
 .community-all-title{
     width:100%;
-    height:30px;
+    height:31px;
     background-color:#535456;
-    color:#fff;
-    font-size:17px;
     text-align:center;
     padding-top:10px;
 }
@@ -283,9 +281,11 @@ div.expand_div{
     cursor:pointer;
     color:#000;
 }
+/*
 .my-communities-all a:hover{
-    color:#898989;
+    color:#434343;
 }
+*/
 .community-tab{
     height:120px;width:270px;padding-top:15px;margin:auto;border-bottom:1px solid #ccc;
 }
@@ -297,7 +297,10 @@ div.expand_div{
     float:left;width:125px;text-align:center;padding-left:5px;
 }
 .community-tab-text-title{
-    height:56px;width:130px;font-size:16px;line-height:18px;overflow:hidden;
+    height:56px;width:130px;font-size:15px;line-height:18px;font-weight:bold;overflow:hidden;
+}
+.community-tab-text-title-cell{
+    display:table-cell;height:56px;width:130px;vertical-align:middle;text-align:center;
 }
 .community-tab-text-content{
     height:48px;width:130px;font-size:12px;overflow:hidden;
@@ -467,6 +470,23 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 .select-lock option{
     color:#ccc;
 }
+
+/*-----------Search box-----------*/
+div.mul-drop-button-box{
+    text-align:left;
+}
+.check-all-label{
+    display:none !important;
+}
+.list-scroll td{
+    text-align:left;
+}
+.list-scroll input{
+   display:none;
+}
+.mul-drop-button-box .item{
+    cursor:pointer !important;
+}
 </style>
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -536,14 +556,18 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             -->
             <div class="community-all">
                 <div class="community-all-title">
-                    <div style="float:left;padding-left:25px;">Pepper Communities</div>
+                    <div style="color:#fff;font-size:17px;float:left;padding-left:25px;">Pepper Communities</div>
                     %if request.user.is_superuser:
                         <div style="padding-left:10px;display:inline-block;">
                             <a href="#" style="font-size:14px;color:#2CBAEC;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
                         </div>
                     %endif
-                    <div style="float:right;padding-right:10px;margin-top:-1px;">
-                        <input type="text" name="member" id="complete-community" autocomplete="off" placeholder="Search" style="width:180px;height:22px;font-size:13px;">
+                    <div style="float:right;margin-top:-4px;">
+                        <select name="subject_id" name="" autocomplate="off" class="mu" label="Search">
+                            %for community in communities:
+                                <option value="${community['id']}">${community['name']}</option>
+                            %endfor
+                        </select>
                     </div>
                 </div>
                 <div class="community-content">
@@ -556,7 +580,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                         <div class="community-tab">
                                             <div class="community-tab-text">
                                                 <div class="community-tab-text-title">
-                                                    ${community['name']}
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
                                                 </div>
                                                 <div class="community-tab-text-content">${community['motto']}</div>
                                             </div>
@@ -581,7 +607,9 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                                         <div class="community-tab">
                                             <div class="community-tab-text">
                                                 <div class="community-tab-text-title">
-                                                    ${community['name']}
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
                                                 </div>
                                                 <div class="community-tab-text-content">${community['motto']}</div>
                                             </div>
@@ -625,7 +653,6 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 %for course_option in courses_drop:
     <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
 %endfor
-<!--<div class="community_auto_info" style="display:none"></div>-->
 <div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -872,7 +899,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
     }
 </script>
-
+<script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
+<link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
 <script type="text/javascript">
     function PepReg($content) {
         var self = this;
@@ -1495,46 +1523,13 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             }
         });
 
-        $('#complete-community').autocomplete({
-            source: function( request, response ) {  
-                $.ajax({  
-                    type:"post",  
-                    url: "/communities/search/community-completion",  
-                    dataType: "json",
-                    data: {
-                        q: $('#complete-community').val()
-                    },  
-                    success: function( data ) { 
-                        /*
-                        var html = "";
-                        for(var i=0;i<data.cinfo.length;i++){
-                            html += "<span>"+data.cinfo[i]['id']+"</span>"
-                        }
-                        $(".community_auto_info").append(html);
-                        */
-                        response( $.map( data.cinfo, function( item ) {  
-                            return {
-                                lable:item.id,      
-                                value:item.name 
-                            }  
-                        }));  
-                        var id_number = 0;
-                        $.each($(".ui-corner-all a"), function(){
-                            $(this).attr("cid", data.cinfo[id_number]['id'])
-                            id_number += 1;
-                        });
-                    }  
-                });  
-            }
-            
-        });
-        
-        $(document).on('click', '.ui-menu-item', function () {
-            var cid = $(this).children().attr("cid");
+        $(".mu").multi_sele_dropdown();
+
+        $(document).on('click', '.mul-drop-button-box .item', function () {
+            var cid = $(this).children().attr("value");
             console.log(cid);
             window.location.href="/maincommunity/"+cid;
         });
-    
     });
 </script>
 

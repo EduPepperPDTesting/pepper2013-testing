@@ -10,5 +10,5 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 
-def pop_queue ():
+def pop_queue (request):
     return "Done."
