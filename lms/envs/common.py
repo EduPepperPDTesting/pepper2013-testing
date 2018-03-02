@@ -899,7 +899,7 @@ INSTALLED_APPS = (
     'webchat',
 
     # Task Queue
-    'taskqueue'
+    'taskqueue',
 
     # Organization
     'organization',
