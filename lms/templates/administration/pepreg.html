@@ -1492,12 +1492,12 @@
                             console.log("locationSpan: "+ locationSpan);
                             labelHtml = labelHtml.substring(0, labelHtml.indexOf("Location:")) + locationSpan + "</div>";
                             console.log("new labelHtml: " + labelHtml);
-
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
                             $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
                         }else{
                             $("[data-slot='" + iClass + "']").append(labelHtml);
                         }
-                                                                        
+
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
