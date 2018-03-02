@@ -138,9 +138,9 @@
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
 	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_4 span{position: relative; left: -15px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7 span{position: relative; left: -15px; color:#FFFFFF !important;}
+	#calendar-month tr td .al_7 span{position: relative; left: -10px; color:#FFFFFF !important;}
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
@@ -1485,10 +1485,10 @@
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 125px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 135px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
                         $("[data-slot='" + iClass + "']").append(labelHtml);
                         if($("[data-slot='" + iClass + "']").find("input").length == 0){
-                            $("[data-slot='" + iClass + "']").find("span").css("left", "-82px");
+                            $("[data-slot='" + iClass + "']").find("span").css("left", "-90px");
                             $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-15px", "width": "135px"});
                         }
                         $(iClass + " div").removeClass("short_name");
