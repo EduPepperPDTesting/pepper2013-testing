@@ -1489,7 +1489,7 @@
                         $("[data-slot='" + iClass + "']").append(labelHtml);
                         if($("[data-slot='" + iClass + "']").find("input").length == 0){
                             $("[data-slot='" + iClass + "']").find("span").css("left", "-90px");
-                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-15px", "width": "135px"});
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-10px", "min-width": "135px"});
                         }
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
