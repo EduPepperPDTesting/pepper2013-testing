@@ -1457,11 +1457,11 @@
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 135px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
                         $("[data-slot='" + iClass + "']").append(labelHtml);
                         if($("[data-slot='" + iClass + "']").find("input").length == 0){
-                            $("[data-slot='" + iClass + "']").find("span").css("left", "-90px");
-                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-10px", "min-width": "135px"});
+                            $("[data-slot='" + iClass + "']").find("span").css("left", "-100px");
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-5px", "min-width": "135px"});
                         }
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
