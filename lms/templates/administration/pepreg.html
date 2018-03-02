@@ -1486,8 +1486,8 @@
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
                         $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;padding-right:10px;text-align:left;'></div>");
-                        locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substr(labelHtml.indexOf("Location:")) + '</span>';
-                        labelHtml = labelHtml.substring(0, labelHtml.indexOf("Location:")) + locationSpan;
+                        locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf("Location:"), labelHtml.indexOf("</div>")) + '</span>';
+                        labelHtml = labelHtml.substring(0, labelHtml.indexOf("Location:")) + locationSpan + "</div>";
                         $("[data-slot='" + iClass + "']").append(labelHtml);
                         if($("[data-slot='" + iClass + "']").find("input").length == 0){
                             $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
