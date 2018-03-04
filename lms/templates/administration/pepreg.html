@@ -2883,7 +2883,7 @@
                                 var disp = "block";
                                 var hidden = 'false';
                                 for(var i = 1; i <= suborder; i++){
-                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
                                         disp = "none";
                                         hidden = 'true';
                                         break;
