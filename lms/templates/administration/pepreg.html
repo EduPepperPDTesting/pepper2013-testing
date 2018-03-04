@@ -2922,7 +2922,7 @@
             }else{
                 $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
-                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' ){
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and'){
                         fieldValue = $("#advanced_select_" + i).val();
                         console.log("fieldValue="+fieldValue);
                         for(var n = i + 1; n <= $(".advanced_select").length; n++){
