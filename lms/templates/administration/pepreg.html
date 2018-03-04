@@ -2767,11 +2767,11 @@
 
             console.log("advanced_select val: "+val);
             if(val != ""){
-                var hide_option = false;
+                var hide_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
                     if((i == suborder || $("#advanced_select_" + i).val() == val) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
-                        hide_option = true
+                        hide_option = false
                         break;
                     }
                 }
