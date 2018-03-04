@@ -2920,7 +2920,7 @@
                 $(".advanced_select[value = '" + fieldValue + "']").css("border", "1px solid red");
                 $(".advanced_select[value = '" + fieldValue + "']").next().children(":nth-child(1)").css("border", "1px solid red");
             }else{
-                $(".advanced_select option[data-hidden='false']").attr("data-hidden", "false").css("display", "block");
+                $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
                     if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' ){
                         fieldValue = $("#advanced_select_" + i).val();
