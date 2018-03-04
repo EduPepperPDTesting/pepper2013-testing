@@ -2767,18 +2767,18 @@
 
             console.log("advanced_select val: "+val);
             if(val != ""){
-                var show_value = true;
+                var hide_option = false;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $(".subcondition").length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == val){
-                           show_value = false
-                           break;
+                    if((i == suborder || $("#advanced_select_" + i).val() == val) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
+                        hide_option = true
+                        break;
                     }
                 }
 
-                console.log("show_value = " + show_value);
+                console.log("hide_option = " + hide_option);
 
-                if(show_value){
+                if(hide_option){
                     $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
                 }else{
                     reload = false;
