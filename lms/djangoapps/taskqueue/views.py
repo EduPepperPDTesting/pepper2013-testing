@@ -88,7 +88,7 @@ def run_registration_email(task):
 
     except Exception as e:
         db.transaction.rollback()
-        log.error(e.getMessage())
+        log.debug("Email error: %s" % e.message)
 
 
 
