@@ -2838,7 +2838,7 @@
             if(val != ""){
                 reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0 && ($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1 || $("#subcondition_" + (suborder - 1)).val() == 'and')){
+                if($("#addNext[name = '" + suborder + "']").length == 0 && ($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1 || ($("#advanced_select_" + suborder + " option[data-hidden='true']").length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or'))){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
             }else if(val == ""){
