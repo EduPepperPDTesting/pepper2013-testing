@@ -73,8 +73,8 @@ def run_registration_email(task):
 
         use_custom = email_data['custom_email']
         if use_custom == 'true':
-            custom_email = email_data['custom_email_body']
-            custom_email_subject = email_data['custom_email_subject']
+            custom_email = email_data['custom_message']
+            custom_email_subject = email_data['custom_message_subject']
             subject = render_from_string(custom_email_subject, props)
             body = render_from_string(custom_email, props)
         else:
