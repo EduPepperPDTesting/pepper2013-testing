@@ -46,6 +46,9 @@ from permissions.decorators import user_has_perms
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from permissions.utils import check_user_perms
 
+#BEGIN TASKQUEUE
+from taskqueue.views import create_job, push_reg_email
+#END TASKQUEUE
 
 log = logging.getLogger("tracking")
 USER_CSV_COLS = ('email', 'state_name', 'district_name',)
@@ -1469,6 +1472,33 @@ def registration_send_email(request):
         data = UserProfile.objects.all()
         data = registration_filter_user(request.POST, data)
         ids = data.values_list('user_id', flat=True)
+
+    #
+    # @TaskQueue Update
+    #
+
+    job_id = create_job('email', len(ids))
+
+    custom_email_body = ""
+    custom_email_subject = ""
+    if request.POST.get("custom_email_002"):
+        custom_email_body = request.POST.get("custom_email_002")
+    if request.POST.get("custom_email_subject"):
+        custom_email_subject = request.POST.get("custom_email_subject")
+
+    for id in ids:
+        email_json = {
+            'custom_email': request.POST.get("customize_email"),
+            'custom_message': custom_email_body,
+            'custom_message_subject': custom_email_subject,
+            'ids': id
+        }
+        email_dump = json.dumps(email_json)
+        push_reg_email(job_id, email_dump)
+
+    #
+    # @End TaskQueue Update
+    #
 
     task = EmailTask()
     task.total_emails = len(ids)
