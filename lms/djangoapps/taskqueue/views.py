@@ -59,7 +59,7 @@ def push_reg_email(job_id, email_data):
 
 
 def run_registration_email(task):
-    log.log("Sending TaskQueue task email.\n\n " + task.data)
+    log.debug("Sending TaskQueue task email.\n\n Data: %s" % task.data)
     job = task.job
     email_json = json.loads(task.data)
     try:
