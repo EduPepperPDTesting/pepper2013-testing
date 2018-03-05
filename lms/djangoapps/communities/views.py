@@ -1747,6 +1747,11 @@ def maincommunity(request, community_id):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
+    Get Courses for init show
+    '''
+    courses = CommunityCourses.objects.filter(community=community)
+
+    '''
     Get Resources for init show
     '''
     re_show_count = 4
@@ -1780,7 +1785,8 @@ def maincommunity(request, community_id):
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count,
-                      'd_top5_view_count': d_top5_view_count
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses
                       }
     data.update(community_info)
 

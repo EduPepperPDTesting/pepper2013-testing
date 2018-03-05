@@ -354,7 +354,10 @@ a{
     
     border: 0px solid;
 }
-.communitystatus,.resources{
+.communitystatus{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;display:none;
+}
+.resources{
     width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
 }
 .community-right .community-status{
@@ -403,7 +406,7 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:700px;
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:800px;
 }
 .community-right .every-resource{
     width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
@@ -997,6 +1000,11 @@ a{
             <div class="resources">
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
+                    %for i,cc in enumerate(courses):
+                        <script>num_c++;</script>
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
                     %for k, resource in enumerate(resources_list):
                         <div class="community-resource-tab">
                             <img src="${resource['logo']}" alt="${resource['name']}" />
