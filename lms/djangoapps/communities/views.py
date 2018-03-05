@@ -2562,7 +2562,9 @@ def new_process_get_discussions(request):
             size = 0
         else:
             if discussion_id:
-                find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+                tmp_find_el = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+                find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "community_id": community_id, "db_table": "community_discussions"}
+                # find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
             else:
                 find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
@@ -2834,7 +2836,9 @@ def new_process_get_discussion_reply(request):
             discussions_json = []
             if level == "1":
                 if comment_id:
-                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
                 else:
                     find_sql = {"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
 
@@ -2951,7 +2955,9 @@ def new_process_get_discussion_reply(request):
                     discussions_json.append(discussions_json_2)
             else:
                 if comment_id:
-                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies_next", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
                 else:
                     find_sql = {"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
 

@@ -115,7 +115,8 @@ if is_new:
     post_replies = CommunityComments.objects.all().order_by('id')
     for replies in post_replies:
         dis_one = store.get_item({"db_table":"community_discussions", "mysql_id":replies.post_id})
-        my_post_reply = {
+        my_post_reply = {        
+            "post_reply": "1",
             "mysql_id": replies.id, 
             "discussion_mysql_id": replies.post_id, 
             "discussion_id": dis_one['_id'], 
@@ -810,11 +811,19 @@ function getCommunityDiscussions(json_obj){
 			var total_dis = Number(data.total);
 			var size_dis = $(".community_new_center").find(".center_block").length;
 			if(total_dis > size_dis){
-				$(".community_new_center").append('<div class="load_more" id="load_more_main"><a href="javascript:void(0);">Load More Previous</a></div>');
-				$("#load_more_main").click(function(){
-					$("#load_more_main").remove();
-					getCommunityDiscussions({'isMask':'1', 'append':'1', 'discussion_id': $(".community_new_center").find(".center_block:last").attr("discussion_id")});
+				//$(".community_new_center").append('<center><img class="posts_loading_image" src="../static/images/posts-loading.gif"></img></center>');
+				$(window).scroll(function(){
+					if(getScrollTop() + getWindowHeight() == getScrollHeight()){
+						//$(".posts_loading_image").parent().remove();
+						$(window).unbind('scroll');
+						getCommunityDiscussions({'isMask':'1', 'append':'1', 'discussion_id': $(".community_new_center").find(".center_block:last").attr("discussion_id")});
+				　　}
 				});
+				//$(".community_new_center").append('<div class="load_more" id="load_more_main"><a href="javascript:void(0);">Load More Previous</a></div>');
+				//$("#load_more_main").click(function(){
+				//	$("#load_more_main").remove();
+				//	getCommunityDiscussions({'isMask':'1', 'append':'1', 'discussion_id': $(".community_new_center").find(".center_block:last").attr("discussion_id")});
+				//});
 			}
 			
 			//---------------------------------------------------------addCommunityDiscussionEvent
@@ -845,6 +854,42 @@ function getCommunityDiscussions(json_obj){
 			alert("Error: " + data.Error);
 		}
 	});
+}
+//-----------------------------------------------------------------------getScrollTop
+function getScrollTop(){
+　　var scrollTop = 0, bodyScrollTop = 0, documentScrollTop = 0;
+　　if(document.body){
+　　　　bodyScrollTop = document.body.scrollTop;
+　　}
+　　if(document.documentElement){
+　　　　documentScrollTop = document.documentElement.scrollTop;
+　　}
+　　scrollTop = (bodyScrollTop - documentScrollTop > 0) ? bodyScrollTop : documentScrollTop;
+　　return scrollTop;
+}
+
+//-----------------------------------------------------------------------getScrollHeight
+function getScrollHeight(){
+　　var scrollHeight = 0, bodyScrollHeight = 0, documentScrollHeight = 0;
+　　if(document.body){
+　　　　bodyScrollHeight = document.body.scrollHeight;
+　　}
+　　if(document.documentElement){
+　　　　documentScrollHeight = document.documentElement.scrollHeight;
+　　}
+　　scrollHeight = (bodyScrollHeight - documentScrollHeight > 0) ? bodyScrollHeight : documentScrollHeight;
+　　return scrollHeight;
+}
+
+//-----------------------------------------------------------------------getWindowHeight
+function getWindowHeight(){
+　　var windowHeight = 0;
+　　if(document.compatMode == "CSS1Compat"){
+　　　　windowHeight = document.documentElement.clientHeight;
+　　}else{
+　　　　windowHeight = document.body.clientHeight;
+　　}
+　　return windowHeight;
 }
 
 //-----------------------------------------------------------------------getCommunityDiscussionReplies
@@ -1415,6 +1460,7 @@ function addCommunityDiscussionEvent(){
 
 //-----------------------------------------------------------------------document ready
 $(document).ready(function(){
+	window.scrollTo(0, 0);
 	//---------------------------------------------------------menu_btn_hyperlink click
 	$(".menu_btn_hyperlink").click(function(e){
 		e.preventDefault();
