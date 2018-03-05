@@ -2770,7 +2770,8 @@
                 var hide_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == suborder || $("#advanced_select_" + i).val() == val) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
+                    if(i == suborder) continue;
+                    if($("#advanced_select_" + i).val() == val && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
                         hide_option = false
                         break;
                     }
@@ -2779,12 +2780,26 @@
                 console.log("hide_option = " + hide_option);
 
                 if(hide_option){
-                    $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+                    $(".advanced_select[name != '" + suborder + "'] option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+
+                    for(var i = 1; i <= $(".advanced_select").length; i++){
+                        if($("#advanced_select_" + i + " option[data-hidden='false']").length > 1){
+                            if($("#advanced_select_" + i).val() == val && $("#subcondition_" + i).is(':disabled')){
+                                 $("#subcondition_" + i).prop('disabled', false);
+                                 $("#subcondition_" + i).prepend("<option value='and'>AND</option>");
+                                 $("#subcondition_" + i).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                            }
+                        }
+                    }
                 }else{
                     reload = false;
                     $(this).val($(this).data('oldvalue'));
-                    $(".advanced_select[value = '" + val + "']").css("border", "1px solid red");
-                    $(".advanced_select[value = '" + val + "']").next().children(":nth-child(1)").css("border", "1px solid red");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "1px solid red");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                    setTimeout(function(){
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "");
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                    }, 500);
                 }
 
                 if(reload){
@@ -2838,7 +2853,7 @@
             if(val != ""){
                 reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0 && ($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1 || ($("#advanced_select_" + suborder + " option[data-hidden='true']").length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or'))){
+                if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
             }else if(val == ""){
@@ -2909,31 +2924,54 @@
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
             var suborder = parseInt($(this).attr("name"));
-            var fieldValue = $(".advanced_select_" + suborder).val();
+            var fieldValue = $("#advanced_select_" + suborder).val();
 
-            if($(".advanced_select[value = '" + fieldValue + "']").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and')){
+            if($(".advanced_select option[value = '" + fieldValue + "']:selected").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and')){
                 if(val == 'and') {
                     $(this).val("or");
                 }else{
                     $(this).val("and");
                 }
-                $(".advanced_select[value = '" + fieldValue + "']").css("border", "1px solid red");
-                $(".advanced_select[value = '" + fieldValue + "']").next().children(":nth-child(1)").css("border", "1px solid red");
+                $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
+                $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                setTimeout(function(){
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                }, 500);
             }else{
                 $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
+                    fieldValue = $("#advanced_select_" + i).val();
+                    console.log("fieldValue="+fieldValue);
+
                     if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and'){
-                        fieldValue = $("#advanced_select_" + i).val();
-                        console.log("fieldValue="+fieldValue);
                         for(var n = i + 1; n <= $(".advanced_select").length; n++){
                             console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
                             console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
                             }
+                            if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
+                                if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + i).is(':disabled')){
+                                    $("#subcondition_" + n).prop('disabled', true);
+                                    $("#subcondition_" + n + " option[value='and']").remove();
+                                    $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                                }
+                            }
                         }
                     }
                 }
+
+                for(var n = 1; n <= $(".advanced_select").length; n++){
+                    if($("#advanced_select_" + n + " option[data-hidden='false']").length > 1){
+                        if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled')){
+                            $("#subcondition_" + n).prop('disabled', false);
+                            $("#subcondition_" + n).prepend("<option value='and'>AND</option>");
+                            $("#subcondition_" + n).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                        }
+                    }
+                }
+
                 if($("#subselect_" + (suborder + 1)).length > 0 && $("#subselect_" + (suborder + 1)).val() != '') reloadTableAdvanced();
             }
         });
