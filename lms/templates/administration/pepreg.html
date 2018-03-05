@@ -2770,7 +2770,8 @@
                 var hide_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == suborder || $("#advanced_select_" + i).val() == val) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
+                    if(i == suborder) continue;
+                    if($("#advanced_select_" + i).val() == val && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
                         hide_option = false
                         break;
                     }
@@ -2780,6 +2781,16 @@
 
                 if(hide_option){
                     $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+
+                    for(var i = 1; i <= $(".advanced_select").length; i++){
+                        if($("#advanced_select_" + i + " option[data-hidden='false']").length > 1){
+                            if($("#advanced_select_" + i).val() == val && $("#subcondition_" + i).is(':disabled')){
+                                 $("#subcondition_" + i).prop('disabled', false);
+                                 $("#subcondition_" + i).prepend("<option value='and'>AND</option>");
+                                 $("#subcondition_" + i).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                            }
+                        }
+                    }
                 }else{
                     reload = false;
                     $(this).val($(this).data('oldvalue'));
@@ -2838,7 +2849,7 @@
             if(val != ""){
                 reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0 && ($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1 || ($("#advanced_select_" + suborder + " option[data-hidden='true']").length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or'))){
+                if($("#addNext[name = '" + suborder + "']").length == 0){
                     $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
             }else if(val == ""){
