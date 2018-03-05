@@ -2952,7 +2952,7 @@
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
                             }
                             if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
-                                if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':not(:disabled)')){
+                                if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled') === false){
                                     $("#subcondition_" + n).prop('disabled', true);
                                     $("#subcondition_" + n + " option[value='and']").remove();
                                     $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
@@ -2998,7 +2998,7 @@
                             $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
                         }
                         if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
-                            if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(:not(:disabled))){
+                            if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled') === false){
                                 $("#subcondition_" + n).prop('disabled', true);
                                 $("#subcondition_" + n + " option[value='and']").remove();
                                 $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
