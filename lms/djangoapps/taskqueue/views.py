@@ -96,7 +96,7 @@ def run_registration_email(task):
 
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
-        log.info("Registration email sent using data: %s" task.data)
+        log.info("Registration email sent using data: %s" % task.data)
 
         remove_task(task)
 
