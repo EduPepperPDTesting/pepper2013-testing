@@ -19,7 +19,7 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 
-log = logging.getLogger("tracking")
+log = logging.getLogger("taskqueue")
 
 def pop_queue(request):
     size = settings.TASK_QUEUE_SIZE
@@ -58,9 +58,22 @@ def push_reg_email(job_id, email_data):
     task.save()
 
 
+def remove_task (task):
+    try:
+        task.delete()
+        update_job (task.job)
+    except Exception as e:
+        db.transaction.rollback()
+        log.error("Couldn't delete task. %s" % e.message)
+
+
+def update_job(job):
+    job.completed = job.completed + 1
+    job.save()
+
+
 def run_registration_email(task):
-    log.debug("Sending TaskQueue task email.\n\n Data: %s" % task.data)
-    job = task.job
+    log.debug("Sending TaskQueue task email.")
     email_data = json.loads(task.data)
     try:
         user_id = email_data['ids']
@@ -83,12 +96,14 @@ def run_registration_email(task):
 
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
-        job.completed = job.completed + 1
-        job.save()
+        log.info("Registration email sent using data: %s" % task.data)
+
+        remove_task(task)
 
     except Exception as e:
         db.transaction.rollback()
         log.debug("Email error: %s" % e.message)
+        log.debug("Failed data: %s" % task.data)
 
 
 
