@@ -2780,7 +2780,7 @@
                 console.log("hide_option = " + hide_option);
 
                 if(hide_option){
-                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+                    $(".advanced_select[name != '" + suborder + "'] option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
 
                     for(var i = 1; i <= $(".advanced_select").length; i++){
                         if($("#advanced_select_" + i + " option[data-hidden='false']").length > 1){
