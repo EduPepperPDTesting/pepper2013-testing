@@ -2933,18 +2933,37 @@
             }else{
                 $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
+                    fieldValue = $("#advanced_select_" + i).val();
+                    console.log("fieldValue="+fieldValue);
+
                     if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and'){
-                        fieldValue = $("#advanced_select_" + i).val();
-                        console.log("fieldValue="+fieldValue);
                         for(var n = i + 1; n <= $(".advanced_select").length; n++){
                             console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
                             console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue){
                                 $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
                             }
+                            if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
+                                if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + i).is(':disabled')){
+                                    $("#subcondition_" + n).prop('disabled', true);
+                                    $("#subcondition_" + n + " option[value='and']").remove();
+                                    $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                                }
+                            }
+                        }
+                    }
+                    
+                    for(var n = 1; n <= $(".advanced_select").length; n++){
+                        if($("#advanced_select_" + n + " option[data-hidden='false']").length > 1){
+                            if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + i).is(':disabled')){
+                                $("#subcondition_" + n).prop('disabled', false);
+                                $("#subcondition_" + n).prepend("<option value='and'>AND</option>");
+                                $("#subcondition_" + n).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                            }
                         }
                     }
                 }
+
                 if($("#subselect_" + (suborder + 1)).length > 0 && $("#subselect_" + (suborder + 1)).val() != '') reloadTableAdvanced();
             }
         });
