@@ -61,9 +61,9 @@ def push_reg_email(job_id, email_data):
 def run_registration_email(task):
     log.debug("Sending TaskQueue task email.\n\n Data: %s" % task.data)
     job = task.job
-    email_json = json.loads(task.data)
+    email_data = task.data
     try:
-        user_id = email_json.id
+        user_id = email_data['ids']
         user = User.objects.get(id=user_id)
         profile = UserProfile.objects.get(user=user)
         profile.subscription_status = 'Unregistered'
@@ -71,10 +71,10 @@ def run_registration_email(task):
         reg = Registration.objects.get(user=user)
         props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
 
-        use_custom = email_json.custom_email
+        use_custom = email_data['custom_email']
         if use_custom == 'true':
-            custom_email = email_json.custom_email_body
-            custom_email_subject = email_json.custom_email_subject
+            custom_email = email_data['custom_email_body']
+            custom_email_subject = email_data['custom_email_subject']
             subject = render_from_string(custom_email_subject, props)
             body = render_from_string(custom_email, props)
         else:
