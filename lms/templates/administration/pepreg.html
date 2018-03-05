@@ -2796,6 +2796,10 @@
                     $(this).val($(this).data('oldvalue'));
                     $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "1px solid red");
                     $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                    setTimeout(function(){
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "");
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                    }, 500);
                 }
 
                 if(reload){
@@ -2930,6 +2934,10 @@
                 }
                 $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
                 $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                setTimeout(function(){
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                }, 500);
             }else{
                 $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
