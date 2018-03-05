@@ -2945,7 +2945,8 @@
                     console.log("fieldValue="+fieldValue);
 
                     if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == fieldValue)) && $("#subcondition_" + i).val() == 'and'){
-                        for(var n = i + 1; n <= $(".advanced_select").length; n++){
+                        for(var n = 1; n <= $(".advanced_select").length; n++){
+                            if(n == i) continue;
                             console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
                             console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
                             if($("#advanced_select_" + n).val() != fieldValue){
