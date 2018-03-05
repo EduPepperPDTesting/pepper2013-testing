@@ -2,21 +2,35 @@ from mitxmako.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from util.json_request import JsonResponse
 import json
+from mako.template import Template
+import mitxmako
 import requests
 from django.http import HttpResponse
+from mitxmako.shortcuts import render_to_response, render_to_string, marketing_link
+from django.template import Context
 from django.conf import settings
 from student.models import User, UserProfile, Registration
-from mitxmako.shortcuts import render_to_string
 from models import Job, Tasks
 from django import db
+import logging
 from mail import send_html_mail
 try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
 
+log = logging.getLogger("tracking")
 
 def pop_queue(request):
+    size = settings.TASK_QUEUE_SIZE
+    total = Tasks.objects.all().count()
+    if total >= size:
+        tasks = Tasks.objects.order_by("id")[:size]
+    else:
+        tasks = Tasks.objects.all()
+    for task in tasks:
+        if task.function == "email":
+            run_registration_email(task)
     return "Done."
 
 
@@ -44,6 +58,7 @@ def push_reg_email(job_id, email_data):
 
 
 def run_registration_email(task):
+    log.log("Sending TaskQueue task email.\n\n " + task.data)
     job = task.job
     email_json = json.loads(task.data)
     try:
@@ -56,11 +71,11 @@ def run_registration_email(task):
         props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
 
         use_custom = email_json.custom_email
-        subject = ""
-        body = ""
         if use_custom == 'true':
             custom_email = email_json.custom_email_body
             custom_email_subject = email_json.custom_email_subject
+            subject = render_from_string(custom_email_subject, props)
+            body = render_from_string(custom_email, props)
         else:
             subject = render_to_string ('emails/acivation_email_subject.txt', props)
             body = render_to_string('emails/activation_email.txt', props)
@@ -68,7 +83,32 @@ def run_registration_email(task):
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         job.completed = job.completed + 1
+        job.save()
 
     except Exception as e:
         db.transaction.rollback()
+        log.error(e.getMessage())
 
+
+
+def render_from_string(template_string, dictionary, context=None, namespace='main'):
+    context_instance = Context(dictionary)
+    # add dictionary to context_instance
+    context_instance.update(dictionary or {})
+    # collapse context_instance to a single dictionary for mako
+    context_dictionary = {}
+    context_instance['settings'] = settings
+    context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+    context_instance['marketing_link'] = marketing_link
+
+    # In various testing contexts, there might not be a current request context.
+    if mitxmako.middleware.requestcontext is not None:
+        for d in mitxmako.middleware.requestcontext:
+            context_dictionary.update(d)
+    for d in context_instance:
+        context_dictionary.update(d)
+    if context:
+        context_dictionary.update(context)
+    # fetch and render template
+    raw_template = Template(template_string)
+    return raw_template.render_unicode(**context_dictionary)
