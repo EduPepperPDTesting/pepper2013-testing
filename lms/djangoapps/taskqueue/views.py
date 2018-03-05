@@ -80,7 +80,7 @@ def run_registration_email(task):
         else:
             subject = render_to_string ('emails/acivation_email_subject.txt', props)
             body = render_to_string('emails/activation_email.txt', props)
-        subject = ''.join(subject.splitLines())
+
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         job.completed = job.completed + 1
