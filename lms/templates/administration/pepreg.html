@@ -2952,14 +2952,14 @@
                             }
                         }
                     }
-                    
-                    for(var n = 1; n <= $(".advanced_select").length; n++){
-                        if($("#advanced_select_" + n + " option[data-hidden='false']").length > 1){
-                            if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + i).is(':disabled')){
-                                $("#subcondition_" + n).prop('disabled', false);
-                                $("#subcondition_" + n).prepend("<option value='and'>AND</option>");
-                                $("#subcondition_" + n).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
-                            }
+                }
+
+                for(var n = 1; n <= $(".advanced_select").length; n++){
+                    if($("#advanced_select_" + n + " option[data-hidden='false']").length > 1){
+                        if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + i).is(':disabled')){
+                            $("#subcondition_" + n).prop('disabled', false);
+                            $("#subcondition_" + n).prepend("<option value='and'>AND</option>");
+                            $("#subcondition_" + n).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
                         }
                     }
                 }
