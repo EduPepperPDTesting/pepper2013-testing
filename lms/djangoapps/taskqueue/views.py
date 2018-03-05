@@ -29,7 +29,8 @@ def pop_queue(request):
     else:
         tasks = Tasks.objects.all()
     for task in tasks:
-        if task.function == "email":
+        job = task.job
+        if job.function == "email":
             run_registration_email(task)
     return HttpResponse(json.dumps({"pop": "done"}), content_type="application/json")
 
