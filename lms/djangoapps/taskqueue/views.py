@@ -9,7 +9,7 @@ from student.models import User, UserProfile, Registration
 from mitxmako.shortcuts import render_to_string
 from models import Job, Tasks
 from django import db
-from pepconn import render_from_string
+from administration.pepconn import render_from_string
 from mail import send_html_mail
 try:
     from urllib import urlencode
