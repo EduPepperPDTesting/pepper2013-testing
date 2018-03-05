@@ -806,15 +806,16 @@
 			});
 			 
 			$(".alert").each(function(){
-				if($(this).find("span").length > 0){
-					var tmp_span = $(this).find("span");
+				if($(this).hasClass("completeSlot")){
+					var tmp_span = $(this).find("span:eq(0)");
 					var tmp_span_txt = $(tmp_span).text();
-					if(tmp_span_txt.length > 10){
-						$(tmp_span).text(tmp_span_txt.substr(0,10) + "...");
+					if(tmp_span_txt.length > 15){
+						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
-					var tmp1 = $(this).text();
-					if(tmp1.length > 10){
+				    var tmp_span = $(this).find("span");
+					var tmp_span_txt = $(tmp_span).text();
+					if(tmp_span_txt.length > 10){
 						$(this).text(tmp1.substr(0,10) + "...");
 					}
 				}
@@ -1446,11 +1447,11 @@
         var height, leftX, slIndex, lastWidth;
         var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
-            bStart = (a == 0) ? 6 : 1;
-            bLimit = (a == 0) ? 12 : 6;
+            bStart = (a == 0) ? 7 : 0;
+            bLimit = (a == 0) ? 11 : 8;
             tClass = (a == 0) ? ".AM" : ".PM";
             for ( var b = bStart; b <= bLimit; b++ ) {
-                dh = (b < 10) ? ".0" + b : "." + b;
+                dh = (b == 0)? ".12" : (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
                 console.log(hClass + " els #: " + cLimit);
@@ -1485,12 +1486,22 @@
                         console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 125px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></div>");
-                        $("[data-slot='" + iClass + "']").append(labelHtml);
-                        if($("[data-slot='" + iClass + "']").find("input").length == 0){
-                            $("[data-slot='" + iClass + "']").find("span").css("left", "-82px");
-                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "left": "-15px", "width": "135px"});
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;padding-right:10px;text-align:left;'></div>");
+
+                        if(labelHtml.indexOf("<input") == -1){
+                            if(labelHtml.indexOf('Location:') > -1){
+                                var locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf('Location:'), labelHtml.indexOf('</div>')) + '</span>';
+                                console.log("locationSpan: "+ locationSpan);
+                                labelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
+                                console.log("new labelHtml: " + labelHtml);
+                            }
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
+                            $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px"});
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
+                        }else{
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
                         }
+
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
@@ -2756,18 +2767,18 @@
 
             console.log("advanced_select val: "+val);
             if(val != ""){
-                var show_value = true;
+                var hide_option = true;
 
                 for(var i = 1; i <= $(".advanced_select").length; i++){
-                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && (i == $(".subcondition").length || $("#subcondition_" + i).val() == 'and') && $("#advanced_select_" + i).val() == val){
-                           show_value = false
-                           break;
+                    if((i == suborder || $("#advanced_select_" + i).val() == val) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
+                        hide_option = false
+                        break;
                     }
                 }
 
-                console.log("show_value = " + show_value);
+                console.log("hide_option = " + hide_option);
 
-                if(show_value){
+                if(hide_option){
                     $(".advanced_select[value != '" + val + "']").find("option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
                 }else{
                     reload = false;
@@ -2872,7 +2883,7 @@
                                 var disp = "block";
                                 var hidden = 'false';
                                 for(var i = 1; i <= suborder; i++){
-                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
                                         disp = "none";
                                         hidden = 'true';
                                         break;
@@ -2900,7 +2911,7 @@
             var suborder = parseInt($(this).attr("name"));
             var fieldValue = $(".advanced_select_" + suborder).val();
 
-            if($(".advanced_select[value = '" + fieldValue + "']").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and') && $("#subcondition_" + suborder).val() == 'and' ){
+            if($(".advanced_select[value = '" + fieldValue + "']").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and')){
                 if(val == 'and') {
                     $(this).val("or");
                 }else{
@@ -2909,9 +2920,9 @@
                 $(".advanced_select[value = '" + fieldValue + "']").css("border", "1px solid red");
                 $(".advanced_select[value = '" + fieldValue + "']").next().children(":nth-child(1)").css("border", "1px solid red");
             }else{
-                $(".advanced_select").find("option[data-hidden='true']").attr("data-hidden", "false");
+                $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
                 for(var i = 1; i < $(".advanced_select").length; i++){
-                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && $("#subcondition_" + i).val() == 'and' ){
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and'){
                         fieldValue = $("#advanced_select_" + i).val();
                         console.log("fieldValue="+fieldValue);
                         for(var n = i + 1; n <= $(".advanced_select").length; n++){
