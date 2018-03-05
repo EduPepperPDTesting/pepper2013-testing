@@ -36,7 +36,7 @@ def create_job(fname, size):
 
 
 def push_reg_email(job_id, email_data):
-    job = Job.object.get(id=job_id)
+    job = Job.objects.get(id=job_id)
     task = Tasks()
     task.job = job
     task.data = email_data
