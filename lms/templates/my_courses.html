@@ -460,7 +460,7 @@
 			          %else:
                     <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn disabled_btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
-                %if curr_user == request.user and not course.close_course:      
+                %if curr_user == request.user and not course.close_course and not course.is_closed:      
                     <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
                 %endif
             % endif
