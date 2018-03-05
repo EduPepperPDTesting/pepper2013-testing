@@ -24,7 +24,12 @@ class @HTMLEditingDescriptor
       theme : "advanced",
       skin: 'studio',
       schema: "html5",
-      plugins : "table,advimage-link,spellchecker",
+      plugins : "table,advimage-link,spellchecker,paste",
+      paste_auto_cleanup_on_paste : true,
+      paste_remove_styles: true,
+      paste_remove_styles_if_webkit: true,
+      paste_strip_class_attributes: true,
+      paste_preprocess: @pastecleanup,
       spellchecker_languages : "+English=en",
       # Necessary to preserve relative URLs to our images.
       convert_urls : false,
@@ -163,3 +168,7 @@ class @HTMLEditingDescriptor
     if @showingVisualEditor and visualEditor.isDirty()
       text = rewriteStaticLinks(visualEditor.getContent({no_events: 1}), @base_asset_url, '/static/')
     data: text
+
+  pastecleanup: (plugin, args)=>
+    args.content = args.content.replace(/\<b\>/g,'').replace(/\<\/b\>/g,'').replace(/\<i\>/g,'').replace(/\<\/i\>/g,'').replace(/\<u\>/g,'').replace(/\<\/u\>/g,'')
+
