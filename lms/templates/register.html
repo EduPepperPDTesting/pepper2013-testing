@@ -838,7 +838,7 @@ $(document).ready(function(){
 					$("#school_id").parent().find("label").html(r.SchoolType);
           if (r.register_text_button) {
             $("#submit").html(r.register_text_button)
-            $("#_banner_whatis_title_content_font").html(r.register_text_button)
+            $("._banner_whatis_title_content_font").html(r.register_text_button)
           }
 		  		if (r.register_main_logo){
             var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
