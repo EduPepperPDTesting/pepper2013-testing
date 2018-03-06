@@ -736,19 +736,6 @@ import json
     <header>
       <h3 class="sr">${_("Registration Help")}</h3>
     </header>
-    ## TODO: Use a %block tag or something to allow themes to
-    ##       override in a more generalizable fashion.
-    <div class="cta cta-nextsteps">
-      <h3>${_("Next Steps")}</h3>
-      % if self.stanford_theme_enabled():
-        <p>${_("You will receive an activation email.  You must click on the activation link to complete the process.  Don't see the email?  Check your spam folder and mark emails from class.stanford.edu as 'not spam', since you'll want to be able to receive email from your courses.")}</p>
-      % else:
-<!--@begin:Change the text on the right side-->
-<!--@date:2013-11-02-->
-      <p>${_("As part of joining {platform_name}, you will receive a confirmation email.  Don’t see the email? Check your spam folder and mark {platform_name} emails as “not spam.”  At {platform_name}, we communicate mostly through email.").format(platform_name=settings.PLATFORM_NAME)}</p>
-<!--@end-->              
-      % endif
-    </div>
 <!--@begin:Remove the default FQA-->
 <!--@date:2013-11-02-->
     % if False and settings.MKTG_URL_LINK_MAP.get('FAQ'):
