@@ -290,7 +290,7 @@ def rows(request):
                     #next_field_name = next_item + '__in'
 
                 args, next_kwargs = build_filters(columns, filters)
-
+                if item_order == 3: raise Exception("kwargs_fst: "+str(kwargs_fst)+" next_kwargs: "+str(next_kwargs))
                 or_trainings = trainings.prefetch_related().filter(Q(**kwargs_fst) | Q(**next_kwargs)).order_by(*order)
 
                 if next_item_order < len(conditions) and conditions[next_item_order].encode("utf-8") == 'or':
