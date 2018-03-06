@@ -1747,16 +1747,12 @@ def maincommunity(request, community_id):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Courses for init show
+    Get Courses and Resources for init show
     '''
-    courses = CommunityCourses.objects.filter(community=community)
+    courses = CommunityCourses.objects.select_related().filter(community=community)
 
-    '''
-    Get Resources for init show
-    '''
-    re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
-    re_count = CommunityResources.objects.filter(community=community).count()
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
     resources_list = list()
     for k, r in enumerate(resources):
         resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
@@ -1780,7 +1776,6 @@ def maincommunity(request, community_id):
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
-                      're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,

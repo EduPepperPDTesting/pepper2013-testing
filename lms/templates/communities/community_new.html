@@ -406,7 +406,10 @@ a{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:800px;
+    width:224px;border:0px solid #ccc;overflow-y:auto;min-height:1px;max-height:800px;
+}
+.community-right .community-resources-all{
+    width:224px;border:0px solid #ccc;overflow-y:auto;height:800px;display:none;
 }
 .community-right .every-resource{
     width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
@@ -1000,6 +1003,44 @@ a{
             <div class="resources">
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
+                    <% 
+                        resource_show_count = 4
+                        course_count = 0 
+                    %>
+                    %for i, cc in enumerate(courses):
+                        <%
+                            if i > 3:
+                                break
+                            endif
+                        %>
+                        <%  course_count = i + 1 %>
+                        <script>num_c++;</script>
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
+                    <% resource_count = resource_show_count - course_count %>
+                    %for k, resource in enumerate(resources_list):
+                        <%
+                            if k > resource_count - 1:
+                                break
+                            endif
+                        %>
+                        <div class="community-resource-tab">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
+                        </div>
+                    %endfor
+                    %if re_count + courses.count() > resource_show_count > 0:
+                        <div class="resources-seemore">
+                            <span class="btn-seemore-r">See More</span>
+                        </div>
+                    %endif
+                </div>
+                <div class="community-resources-all">
                     %for i,cc in enumerate(courses):
                         <script>num_c++;</script>
                         <% c=course_from_id(cc.course) %>
@@ -1015,11 +1056,6 @@ a{
                             </a>
                         </div>
                     %endfor
-                    %if re_count > re_show_count and re_count > 0 and re_show_count > 0:
-                        <div class="resources-seemore">
-                            <span class="btn-seemore-r">See More</span>
-                        </div>
-                    %endif
                 </div>
             </div>
         </div>
@@ -1347,31 +1383,10 @@ a{
         message_board(userInfo);
     }
 
-    //get resources
-    function get_resources_ajax(community_id){
-        var updata = {'community_id': community_id};
-        $.post("${reverse('get_community_resources')}", updata, function (d) {
-            if(d.success){
-                var html = '';
-
-                for(var i=0;i<d.resources.length;i++){
-                    html += '<div class="community-resource">';
-                    html += '<img src="'+d.resources[i].logo+'" alt="'+d.resources[i].name+'"/>';
-                    html += '<a href="'+d.resources[i].link+'" target="_blank">';
-                    html += '<div>';
-                    html += d.resources[i].name;
-                    html += '</div>';
-                    html += '</a>';
-                    html += '</div>';
-                }
-                $('.community-resources').html(html);
-            }
-        });
-    }
     //resources see more btn
     $(".btn-seemore-r").click(function(){
-        $(this).hide();
-        get_resources_ajax(${community_id})
+        $(".community-resources").hide();
+        $(".community-resources-all").show();
     });
 
     //get subcommunities
