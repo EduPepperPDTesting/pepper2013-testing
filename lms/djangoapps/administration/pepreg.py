@@ -261,7 +261,7 @@ def rows(request):
                 #field_name = item + '__in'
 
             args, kwargs = build_filters(columns, filters)
-            if item_order == 2 and conditions[item_order].encode("utf-8") == 'or': raise Exception("true on 2, no condition") #and condition == 'or'
+            if item_order == 2 and item_order < len(conditions) and conditions[item_order].encode("utf-8") == 'or': raise Exception("true on 2, condition") #and condition == 'or'
             if (item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
                 #if item_order == 2: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
                 trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
