@@ -1477,7 +1477,7 @@ def registration_send_email(request):
     # @TaskQueue Update
     #
 
-    job_id = create_job('email', len(ids))
+    job_id = create_job('email', len(ids), request.user)
 
     custom_email_body = ""
     custom_email_subject = ""
@@ -1504,7 +1504,7 @@ def registration_send_email(request):
     task.total_emails = len(ids)
     task.user = request.user
     task.save()
-    
+
     do_send_registration_email(task, ids, request)
     return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
 

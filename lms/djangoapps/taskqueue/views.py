@@ -21,6 +21,12 @@ except ImportError:
 
 log = logging.getLogger("taskqueue")
 
+
+#
+# pop_queue is the only function that is hit externally to run tasks.
+# It pulls a size variable from siteconf.py. If there are more entries
+# then the specified max process size, it only pulls the first batch.
+#
 def pop_queue(request):
     size = settings.TASK_QUEUE_SIZE
     total = Tasks.objects.all().count()
@@ -28,6 +34,7 @@ def pop_queue(request):
         tasks = Tasks.objects.order_by("id")[:size]
     else:
         tasks = Tasks.objects.all()
+    log.info("Starting task pop job.")
     for task in tasks:
         job = task.job
         if job.function == "email":
@@ -41,15 +48,20 @@ def pop_queue(request):
 # The total is the initial total - checks will still need to happen against
 # the tasks table to verify that that many tasks are actually created/exist.
 #
-def create_job(fname, size):
+def create_job(fname, size, user):
     job = Job()
     job.function = fname
     job.completed = 0
     job.total = size
+    job.user = user
     job.save()
     return job.id
 
 
+#
+# Pushes a set of data onto a registration job. email_data contains
+# custom email, the email body,
+#
 def push_reg_email(job_id, email_data):
     job = Job.objects.get(id=job_id)
     task = Tasks()
@@ -58,10 +70,15 @@ def push_reg_email(job_id, email_data):
     task.save()
 
 
-def remove_task (task):
+#
+# Called when a task function is completed successfully.
+# Removes the task from the pending tasks list and calls the update
+# function on its job to make sure the job gets the update.
+#
+def remove_task(task):
     try:
         task.delete()
-        update_job (task.job)
+        update_job(task.job)
     except Exception as e:
         db.transaction.rollback()
         log.error("Couldn't delete task. %s" % e.message)
@@ -72,6 +89,10 @@ def update_job(job):
     job.save()
 
 
+#############################################
+# Functions for sending registration emails #
+# Adapted from pepconn.py                   #
+#############################################
 def run_registration_email(task):
     log.debug("Sending TaskQueue task email.")
     email_data = json.loads(task.data)
@@ -104,7 +125,6 @@ def run_registration_email(task):
         db.transaction.rollback()
         log.debug("Email error: %s" % e.message)
         log.debug("Failed data: %s" % task.data)
-
 
 
 def render_from_string(template_string, dictionary, context=None, namespace='main'):
