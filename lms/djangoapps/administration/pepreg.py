@@ -224,6 +224,9 @@ def rows(request):
         search_dict = get_post_array(request.GET, 'search_list')
         conditions_dict = get_post_array(request.GET, 'condition_list')
 
+        kwargs_fst = dict()
+        next_kwargs = dict()
+
         field_list = list(field_dict.values())
         search_list = list(search_dict.values())
         conditions = list(conditions_dict.values())
