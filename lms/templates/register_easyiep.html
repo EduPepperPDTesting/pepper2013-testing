@@ -887,15 +887,22 @@ LoadingWin.prototype.hide = function () {
             if (r.register_text_button) {
               $("#submit").html(r.register_text_button)
               $("._banner_whatis_title_content_font").html(r.register_text_button)
+            }else{
+              $("#submit").html("Create My Account");
+              $("._banner_whatis_title_content_font").html("register below to create your account");
             }
             if (r.register_main_logo){
               var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
               $("#_banner_whatis_title_photo").css('background-image',src)
+            }else{
+              $("#_banner_whatis_title_photo").css('background-image',"")
             } 
             if (r.register_logo){
               var img = '<div id="register_logo" style="margin:0px auto;width:960px;height:195px;"><img width="960" height="195" src="/static/uploads/organization/' + r.OrganizationId + '/' + r.register_logo +'"></div>';
               $("#register_logo").remove()
               $("#register_main_logo").before(img)
+            }else{
+              $("#register_logo").remove()
             } 
 
             if(r.org_rg_data_items != ""){
@@ -1018,7 +1025,13 @@ LoadingWin.prototype.hide = function () {
             $(".org_textarea").keyup(function(){
               $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
             })
-
+          }else{
+            $("#register_logo").remove();
+            $("#_banner_whatis_title_photo").css('background-image',"")
+            $("#organization_info_district").parent().find("label").html("district");
+            $("#school_id").parent().find("label").html("school");
+            $("#submit").html("Create My Account");
+            $("._banner_whatis_title_content_font").html("register below to create your account");
           }
         }
       }
