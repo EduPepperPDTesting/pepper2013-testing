@@ -68,6 +68,8 @@ from baseinfo.models import Enum
   color:#fff;
   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
+  #_banner_whatis_title_photo{width:365px;height:195px;float:right;}
+  ._banner_whatis_title_font{width:500px;float:left;}
   .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}  
   .org_description{ font-size:12px; color:#646464}
   .org_name_no_required::after{content:'' !important;}
@@ -400,6 +402,7 @@ from baseinfo.models import Enum
       register below to create your account
     </div>
   </div>
+  <div id='_banner_whatis_title_photo'></div>
 </div>
 <!--@end-->
 <div style="width:960px;margin:0 auto;">
@@ -920,13 +923,13 @@ function get_org(){
             if (r.SchoolType == "") r.SchoolType='School'
             $("#organization_info_district").parent().find("label").html(r.DistrictType);
             $("#school_id").parent().find("label").html(r.SchoolType);
-            if (r.register_text_button) $("#submit").html(r.register_text_button)
-            ///static/uploads/organization/168/register_logo.png?r=0.14758438960515186
-            ///r.OrganizationId
+            if (r.register_text_button) {
+              $("#submit").html(r.register_text_button)
+              $("._banner_whatis_title_content_font").html(r.register_text_button)
+            }
             if (r.register_main_logo){
               var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
-              $("#register_main_logo").html("")
-              $("#register_main_logo").css('background-image',src)
+              $("#_banner_whatis_title_photo").css('background-image',src)
             } 
             if (r.register_logo){
               var img = '<div id="register_logo" style="margin:0px auto;width:960px;height:195px;"><img width="960" height="195" src="/static/uploads/organization/' + r.OrganizationId + '/' + r.register_logo +'"></div>';
