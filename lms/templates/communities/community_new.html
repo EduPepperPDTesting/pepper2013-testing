@@ -861,8 +861,10 @@ a{
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
                     <div class="my-communities-all">
                         %if subcommunities_list:
-                        <div style="font-size:14px;float:left;">Subcommunities</div>
-                        <div class="my-communities-triangle"></div>
+                        <div style="font-size:14px;float:left;">Subcommunities</div><div class="my-communities-triangle"></div>
+                        %else:
+                        <div style="height:16px;"></div>
+                        %endif
                         <div style="clear:both;"></div>
                         <div class="my-communities">
                             %for k, sc in enumerate(subcommunities_list):
@@ -889,13 +891,12 @@ a{
                                     </div>  
                                 %endif
                             %endfor
-                            %if mc_count > mc_show_count and mc_count > 0 and mc_show_count > 0:
+                            %if sc_count > sc_show_count and sc_count > 0 and sc_show_count > 0: 
                                 <div class="mycommunities-seemore">
                                     <span class="btn-seemore-mc">See More</span>
                                 </div>
                             %endif
                         </div>
-                        %endif
                     </div>
                 </div>
             </div>
@@ -1004,7 +1005,6 @@ a{
                             endif
                         %>
                         <%  course_count = i + 1 %>
-                        <script>num_c++;</script>
                         <% c=course_from_id(cc.course) %>
                         <%include file="../course_community.html" args="course=c" />
                     %endfor
@@ -1032,7 +1032,6 @@ a{
                 </div>
                 <div class="community-resources-all">
                     %for i,cc in enumerate(courses):
-                        <script>num_c++;</script>
                         <% c=course_from_id(cc.course) %>
                         <%include file="../course_community.html" args="course=c" />
                     %endfor

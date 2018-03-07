@@ -2379,13 +2379,12 @@ def subcommunity_user_email_completion(request):
     user_district = request.user.profile.district
     lookup = request.GET.get('q', False)
     main_community_id = request.GET.get('main_id', 0)
-
     if lookup and main_community_id:
         kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered', 'communityuser__community': main_community_id}
 
         data = User.objects.filter(**kwargs)
         for item in data:
-            r.append(item.name)
+            r.append(item.email)
     return render_json_response(r)
 
 def subcommunity_user_email_valid(request):
