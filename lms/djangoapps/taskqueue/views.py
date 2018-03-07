@@ -92,7 +92,7 @@ def update_job(job):
 def job_status(request):
     try:
         job = Job.objects.filter(user=request.user).order_by("-id")[0]
-        html = job.function + " Progress: " + job.completed + "/" + job.total + " Completed."
+        html = str(job.function) + " Progress: " + str(job.completed) + "/" + str(job.total) + " Completed."
         return HttpResponse(json.dumps({"html": html}), content_type="application/json")
     except Exception as e:
         return HttpResponse(json.dumps({"html": e.message}), content_type="application/json")
