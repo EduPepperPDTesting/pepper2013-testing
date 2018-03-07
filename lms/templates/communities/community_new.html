@@ -851,7 +851,11 @@ a{
                 <div style="clear:both;"></div>
             </div>
             <div class="communitystatus">
-                <div class="sub-title">Community Status</div>
+                <div class="sub-title">Community Status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    %if user_super or ruser_info['facilitator'] and ruser_info['default']:
+                    <span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span>
+                    %endif
+                </div>
                 <div class="community-status">
                     <div class="dis-count">Discussions:&nbsp;<span>${discussions_count}</span></div>
                     <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
