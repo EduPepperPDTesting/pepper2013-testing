@@ -1630,6 +1630,11 @@ $(document).ready(function () {
                         $.post("${reverse('taskqueue_get_job_progress')}", {}, function (r) {
                            $("#progress_job").html(r.html);
                         });
+                        setInterval(function() {
+                            $.post("${reverse('taskqueue_get_job_progress')}", {}, function (r) {
+                               $("#progress_job").html(r.html);
+                            });
+                        }, 3000);
                         $("#user_table_init").trigger("pagerUpdate");
                     }
                 });
