@@ -95,7 +95,7 @@ def job_status(request):
         html = job.function + " Progress: " + job.completed + "/" + job.total + " Completed."
         return HttpResponse(json.dumps({"html": html}), content_type="application/json")
     except Exception as e:
-        None
+        return HttpResponse(json.dumps({"html": e.message}), content_type="application/json")
 
 
 
