@@ -1713,7 +1713,7 @@ def maincommunity(request, community_id):
     '''
     Get Subcommunities for init show
     '''
-    sc_show_count = 4
+    sc_show_count = 3
     # default_last_access when last_access is null
     default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
@@ -1728,7 +1728,7 @@ def maincommunity(request, community_id):
             filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
-                count_new = '99+'
+                count_new = '99'
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
@@ -1867,7 +1867,7 @@ def subcommunity(request, community_id):
     '''
     Get Subcommunities for init show
     '''
-    sc_show_count = 4
+    sc_show_count = 3
     # default_last_access when last_access is null
     default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
@@ -1882,7 +1882,7 @@ def subcommunity(request, community_id):
             filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
-                count_new = '99+'
+                count_new = '99'
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
@@ -1901,11 +1901,12 @@ def subcommunity(request, community_id):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Resources for init show
+    Get Courses and Resources for init show
     '''
-    re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
-    re_count = CommunityResources.objects.filter(community=community).count()
+    courses = CommunityCourses.objects.select_related().filter(community=community)
+
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
     resources_list = list()
     for k, r in enumerate(resources):
         resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
@@ -1931,12 +1932,12 @@ def subcommunity(request, community_id):
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
-                      're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count,
-                      'd_top5_view_count': d_top5_view_count
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses
                       }
     data.update(community_info)
 
@@ -2378,13 +2379,12 @@ def subcommunity_user_email_completion(request):
     user_district = request.user.profile.district
     lookup = request.GET.get('q', False)
     main_community_id = request.GET.get('main_id', 0)
-
     if lookup and main_community_id:
         kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered', 'communityuser__community': main_community_id}
 
         data = User.objects.filter(**kwargs)
         for item in data:
-            r.append(item.name)
+            r.append(item.email)
     return render_json_response(r)
 
 def subcommunity_user_email_valid(request):

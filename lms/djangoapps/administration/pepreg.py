@@ -224,6 +224,9 @@ def rows(request):
         search_dict = get_post_array(request.GET, 'search_list')
         conditions_dict = get_post_array(request.GET, 'condition_list')
 
+        kwargs_fst = dict()
+        next_kwargs = dict()
+
         field_list = list(field_dict.values())
         search_list = list(search_dict.values())
         conditions = list(conditions_dict.values())
@@ -258,7 +261,7 @@ def rows(request):
                 #field_name = item + '__in'
 
             args, kwargs = build_filters(columns, filters)
-
+            if item_order == 2 and item_order < len(conditions) and conditions[item_order].encode("utf-8") == 'or': raise Exception("true on 2, condition") #and condition == 'or'
             if (item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
                 #if item_order == 2: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
                 trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
@@ -287,7 +290,7 @@ def rows(request):
                     #next_field_name = next_item + '__in'
 
                 args, next_kwargs = build_filters(columns, filters)
-
+                if item_order == 3: raise Exception("kwargs_fst: "+str(kwargs_fst)+" next_kwargs: "+str(next_kwargs))
                 or_trainings = trainings.prefetch_related().filter(Q(**kwargs_fst) | Q(**next_kwargs)).order_by(*order)
 
                 if next_item_order < len(conditions) and conditions[next_item_order].encode("utf-8") == 'or':

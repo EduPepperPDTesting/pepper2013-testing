@@ -1593,7 +1593,7 @@ $(document).ready(function () {
                     'custom_email_subject': $("#user_table_custom_email_form input[name='custom_email_subject']").val()
                 }, function (r) {
                     if (r.success) {
-                        self.taskId = r.taskId;
+                        alert ("Job Created.");
                         $("#user_table_init").trigger("pagerUpdate");
                     }
                 });
