@@ -89,6 +89,16 @@ def update_job(job):
     job.save()
 
 
+def job_status(request):
+    try:
+        job = Job.objects.filter(user=request.user).order_by("-id")[0]
+        html = job.function + " Progress: " + job.completed + "/" + job.total + " Completed."
+        return HttpResponse(json.dumps({"html": html}), content_type="application/json")
+    except Exception as e:
+        None
+
+
+
 #############################################
 # Functions for sending registration emails #
 # Adapted from pepconn.py                   #

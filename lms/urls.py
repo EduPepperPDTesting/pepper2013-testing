@@ -125,6 +125,7 @@ urlpatterns = (
 
     # === Task Queue Begin === #
     url(r'^popqueue/$', 'taskqueue.views.pop_queue', name='task_queue_pop'),
+    url(r'^jobstatus/$', 'taskqueue.views.job_status', name='taskqueue_get_job_progress'),
     # === Task Queue End === #
 
     # === webchat begin ==
