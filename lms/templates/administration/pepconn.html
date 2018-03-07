@@ -1294,7 +1294,7 @@ function clearDropdown(dropdown){
 
 $(document).ready(function () {
     $("#job_slider").click(function() {
-        $("#job_progress").toggle();
+        $("#progress_job").toggle();
     });
     $("#User_state_select").change(function () {
        var id = $("#User_state_select :selected").attr("class");
@@ -1628,7 +1628,7 @@ $(document).ready(function () {
                         alert ("Job Created.");
                         $("#job_slider").show();
                         $.post("${reverse('taskqueue_get_job_progress')}", {}, function (r) {
-                           $("#job_progress").html(r.html);
+                           $("#progress_job").html(r.html);
                         });
                         $("#user_table_init").trigger("pagerUpdate");
                     }
