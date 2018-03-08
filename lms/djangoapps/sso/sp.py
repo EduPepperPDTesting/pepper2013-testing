@@ -39,7 +39,7 @@ from .models import CourseAssignmentCourse
 from util import saml_django_response
 import base64
 from PIL import Image
-
+from xmodule.remindstore import myactivitystore
 # *Guess the xmlsec_path
 try:
     from saml2.sigver import get_xmlsec_binary
@@ -777,6 +777,37 @@ def activate_account(request):
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
 
+        #** course enroll
+        try:
+            cohort = profile.cohort.code
+        except:
+            cohort = ""
+        if profile.district.code == "3968593":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+        elif profile.district.state.name == "Oklahoma":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+        elif profile.district.state.name != "New Mexico" and cohort != '#C-001':
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+        # ** auto enroll courses
+        ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
+        for cea in ceas:
+            if cea.auto_enroll:
+                CourseEnrollment.enroll(profile.user, cea.course_id)
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                "URLValues": {"course_id": cea.course_id},    
+                "TokenValues": {"course_id": cea.course_id}, 
+                "LogoValues": {"course_id": cea.course_id}}
+                ma_db.insert_item(my_activity)
         # ** upload photo
         # photo = request.FILES.get("photo")
         # upload_user_photo(profile.user.id, photo)
@@ -793,12 +824,6 @@ def activate_account(request):
             p.paste(im, (0, 0, x, y), im)
             p.save(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
             upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
-
-        # ** auto enroll courses
-        ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
-        for cea in ceas:
-            if cea.auto_enroll:
-                CourseEnrollment.enroll(profile.user, cea.course_id)
 
         js = {'success': True}
     except Exception as e:
