@@ -784,18 +784,18 @@ def activate_account(request):
         except:
             cohort = ""
         if profile.district.code == "3968593":
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=profile.user.email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.2/F2017')
         elif profile.district.state.name == "Oklahoma":
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=profile.user.email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
         elif profile.district.state.name != "New Mexico" and cohort != '#C-001':
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
             CourseEnrollment.enroll(user,'PCG_Education/PEP101.1/S2016')
             cea.is_active = True
             cea.auto_enroll = True
