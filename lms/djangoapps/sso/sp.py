@@ -39,6 +39,7 @@ from .models import CourseAssignmentCourse
 from util import saml_django_response
 import base64
 from PIL import Image
+from xmodule.remindstore import myactivitystore
 
 # *Guess the xmlsec_path
 try:
