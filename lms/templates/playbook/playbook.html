@@ -1,0 +1,227 @@
+<%
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+%>
+
+<%inherit file="../main.html"/>
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/vendor/cupertino/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/playbook-theme.css"/>
+<!-- <link rel="stylesheet" type="text/css" media="screen" href="/static/css/foundation.css"/> -->
+
+<style type="text/css">
+    .playbook-main {
+        max-width: 998px;
+        background: #FFFFFF;
+        position: relative;
+        padding-top: 114px;
+        padding-bottom: 10px;
+        margin-top: -114px;
+        margin-left: auto !important; 
+        margin-right: auto !important;
+    }
+    @media print, screen and (max-width: 64em) {
+        .playbook-main {
+            width: 100%;
+            margin-left: 0 !important; 
+            margin-right: 0 !important;
+        }
+    }
+    .right {
+        float: right !important;
+    }
+    #catalog-tabs {
+        background-color: #fafafc;
+    }
+    .playbook .tabs-title > a {
+        color: #787878;
+        padding: 1rem;
+        border-bottom: 1px solid #d4dae3;
+        border-right: 1px solid #d4dae3; 
+    }
+    .playbook .tabs-title > a[aria-selected='true'] {
+        background: #ffffff;
+        color: #787878;
+        border-bottom: 0;
+    }
+    .playbook .tabs-title > a:hover {
+        background-color: #e2e2e2;
+        text-decoration: none;
+        color: #787878;
+    }
+    .playbook .tabs-title > a:focus {
+        outline-style:none;
+        -moz-outline-style: none;
+    }
+    #create-new-play {
+        width: 940px;
+    }
+    #btnSearch {
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0; 
+    }
+    #tenant-list {
+        height: 500px;
+        overflow: auto;
+    }
+    .play-details li {
+        display: inline;
+        list-style: disc;
+    }
+    .play-settings li {
+        display: inline;
+    }
+    .play-panel {
+        display: inline-block;
+        background: #fafafc;
+        border-color: #d4dae3;
+        border-style: solid;
+        border-width: 1px;
+        border-color: #d9d9d9;
+        margin-bottom: 1.25em;
+        padding: 1.25em !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    i[class^=icon] {
+        font-style: normal;
+    }
+    label {
+        font-style: initial;
+    }
+    
+</style>
+<div class="playbook">
+    <div class="playbook-main small-12">
+        <div class="large-12 columns">
+            <div class="row">
+                <div class="large-12 columns" style="padding-left: 1em">
+                    <h3 class="left">Play Management</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <ul class="tabs" data-tabs id="catalog-tabs">
+                <li class="tabs-title is-active"><a href="#catalog-global" aria-selected="true">PCG Global Catalog</a></li>
+                <li class="tabs-title"><a href="#catalog-in-tenant" data-tabs-target="catalog-in-tenant">Plays in Tenant</a></li>
+            </ul>
+            <div class="tabs-content" data-tabs-content="catalog-tabs">
+                <div class="tabs-panel is-active" id="catalog-global">
+                    
+                </div>
+                <div class="tabs-panel" id="catalog-in-tenant">
+                    <div class="row grid-x">
+                        <div class="small-12 large-12">
+                            <a class="button small secondary right" data-open="create-new-play"><i class="icon-plus"></i>&nbsp;Setup a new Play</a>
+                            <!-- set up new play dialog -->
+                            <div class="playbook large reveal" id="create-new-play" data-reveal>
+                                <h4>Create a New Play</h4>
+                                <form id="create-play-form" action="/playbook/create_new_play" method="post">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                                    <div class="grid-x">
+                                        <div class="small-12">
+                                            <label>Play Title <input type="text" name="title"></label>
+                                        </div>
+                                        <div class="small-5 columns">
+                                            <label>Play Category</label>
+                                            <select id="GlobalCategory" name='category'>
+                                                % for category in categories:
+                                                    <option value=${category.pk}>${category.name}</option>
+                                                % endfor
+                                            </select>
+                                        </div>
+                                        <div class="small-1"></div>
+                                        <div class="small-5">
+                                            <label>Play Duration in Days <input type="text" name="duration" value="90"></label>
+                                        </div>
+                                        <div class="small-12">
+                                            <label>Coaches Tip <textarea name="tip"></textarea></label>
+                                        </div>
+                                        <div class="small-5">
+                                            <label>Tag(s)<input id="tags" type="text" name="tags"></label>
+                                        </div>
+                                        <div class="small-12">
+                                            <input id="checkbox2" type="checkbox"><label for="checkbox2">Check to Include this Play in the Global Play </label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                </div>
+                                </form>
+                                <button id="create-play-button" class="button">Create</button>
+                                <button class="close-button" data-close aria-label="Close modal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="small-10 large-10">
+                            <input id="search" type="text">
+                        </div>
+                        <div class="small-2 large-2">
+                            <button id="btnSearch" class="button secondary prefix">Search</button>
+                        </div>
+                        <div class="large-3 columns">
+                            <select id="GlobalCategory">
+                                % for category in categories:
+                                    <option value=${category.pk}>${category.name}</option>
+                                % endfor
+                            </select>
+                        </div>
+                        <div class="small-12">
+                            <div id="tenant-list">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/playbook/foundation.min.js"></script>
+<script type="text/javascript" src="/static/js/playbook/tagator.jquery.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#tags").tagator({
+            showAllOptionsOnFocus: false
+        });
+        $(document).foundation();
+        $.ajax({
+            url: "playbook/get_play_list",
+            data: {"category": -1},
+        })
+        .done(function(play_list) {
+            $("#tenant-list").html(play_list)
+        });
+
+        $("#create-play-button").on('click', function() {
+            valid = true;
+            $form = $("#create-play-form");
+            title = $form.find("input[name=title]");
+            if (title.val().trim() === "") {
+                title.css("border", "1px solid #e47e7e");
+                valid = false;
+                title.on('click', function() {
+                    title.css("border", "1px solid #cacaca");
+                });
+            }
+            duration = $form.find("input[name=duration]");
+            if (!(/(^[0-9]\d*$)/.test(duration.val()))) {
+                console.log(duration.val())
+                duration.css("border", "1px solid #e47e7e");
+                valid = false;
+                duration.on('click', function() {
+                    duration.css("border", "1px solid #cacaca");
+                });
+            }
+
+            if (valid) {
+                $form.submit();
+            } else {
+                return false;
+            }
+        });
+    })
+</script>

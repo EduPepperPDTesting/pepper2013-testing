@@ -639,6 +639,16 @@ urlpatterns = (
         name='auth_password_reset_done'),
     url(r'^heartbeat$', include('heartbeat.urls')),
     url(r'^user_api/', include('user_api.urls')),
+
+
+    # playbook
+    url(r'^playbook$', 'playbook.views.playbook', name='playbook'),
+    url(r'^playbook/create_new_play$', 'playbook.views.create_new_play', name='create_new_play'),
+    url(r'^playbook/edit_play$', 'playbook.views.edit_play', name='edit_play'),
+    url(r'^playbook/create_new_category$', 'playbook.views.create_new_category'), # for debug
+    url(r'^playbook/get_play_list', 'playbook.views.get_play_list', name='get_play_list'),
+    url(r'^playbook/play_detail/(?P<play_pk>\d+)$', 'playbook.views.play_detail', name='play_detail'),
+
 )
 js_info_dict = {
     'domain': 'djangojs',
