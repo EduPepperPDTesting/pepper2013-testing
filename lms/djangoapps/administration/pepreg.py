@@ -342,6 +342,8 @@ def rows(request):
         remain = item.max_registration - PepRegStudent.objects.filter(
             training=item).count() if item.max_registration > 0 else -1
 
+        allow_waitlist = "1" if item.allow_waitlist else "0"
+
         status = ""
         all_edit = "0"
         all_delete = "0"
@@ -394,10 +396,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain
+                remain, allow_waitlist
             ),
             item.subjectother,
         ]
@@ -445,6 +447,7 @@ def save_training(request):
 
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
+        training.allow_waitlist = request.POST.get("allow_waitlist", False)
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
@@ -1284,6 +1287,42 @@ def register(request):
     return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
 
+def waitlist(request):
+    try:
+        join = request.POST.get("join", "false") == "true"
+        training_id = request.POST.get("training_id")
+        user_id = request.POST.get("user_id")
+
+        if user_id:
+            student_user = User.objects.get(id=int(user_id))
+        else:
+            student_user = request.user
+
+        try:
+            student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+        except:
+            student = PepRegStudent()
+            student.user_create = request.user
+            student.date_create = datetime.now(UTC)
+
+        if join:
+            student_status = "Waitlist"
+        else:
+            student_status = ""
+
+        student.student = student_user
+        student.student_status = student_status
+        student.training_id = int(training_id)
+        student.user_modify = request.user
+        student.date_modify = datetime.now(UTC)
+        student.save()
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
+
+
 def set_student_attended(request):
     try:
         training_id = int(request.POST.get("training_id"))
@@ -1380,7 +1419,7 @@ def student_list(request):
         training_id = request.POST.get("training_id")
         print training_id
         training = PepRegTraining.objects.get(id=training_id)
-        students = PepRegStudent.objects.filter(training_id=training_id)
+        students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
         rows = []
@@ -1412,7 +1451,8 @@ def student_list(request):
                                     'training_type': training.type,
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
-                                    'student_limit': student_limit # akogan
+                                    'student_limit': student_limit, # akogan
+                                    'allow_waitlist': training.allow_waitlist
                                     }),
                         content_type="application/json")
 

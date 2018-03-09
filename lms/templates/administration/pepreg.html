@@ -681,6 +681,12 @@
                             <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Waitlist</span>
+                            <input type="checkbox" name="allow_waitlist" value="true"/>
+                            <span class="check-mark"
+                                  alt="This will allow students to be added to waitlist."></span>
+                        </div>
+                        <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
                             <input type="checkbox" name="allow_student_attendance" value="true"/>
                             <span class="check-mark"
@@ -1741,7 +1747,8 @@
                                 $form.find("input[name=max_registration]").val() || 0 : 0,
             allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
             allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
-            allow_validation: $form.find("input[name=allow_validation]:checked").val()
+            allow_validation: $form.find("input[name=allow_validation]:checked").val(),
+            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val()
         };
         if (json.subject == "Other") {
             json.subjectother = $form.find("input[name=subject-other]").val();
@@ -2243,6 +2250,16 @@
             }
         });
     };
+    PepReg.prototype.waitlistUser = function (training_id, join, cb) {
+        var self = this;
+        $.post("${reverse('pepreg_waitlist')}", {training_id: training_id, join: join}, function (r) {
+            if (r.success) {
+                cb(join, r.training_id);
+                trID=r.training_id;
+                regData={success: true, trID: trID};
+            }
+        });
+    };
     PepReg.prototype.setStudentAttended = function (student_id, training_id, yn, cb) {
         var self = this;
         $.post("${reverse('pepreg_set_student_attended')}", {
@@ -2270,6 +2287,13 @@
     PepReg.prototype.deleteStudent = function (id, cb) {
         var self = this;
         $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
+            if (r.success) {
+                cb && cb(r.data);
+            }
+        });
+    };
+    PepReg.prototype.unwaitlistStudent = function (id, cb) {
+        $.post("${reverse('pepreg_waitlist')}", {training_id: id}, function (r) {
             if (r.success) {
                 cb && cb(r.data);
             }
@@ -2374,7 +2398,7 @@
                     data.is_attended = data.is_attended ? "checked" : "";
                     data.is_validated = data.is_validated ? "checked" : "";
                     data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
-                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a class='" + status + "'>✕</a> {email}</td><td>{status}</td>\
                     <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
                     <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
                     if ($r)$r.replaceWith($row);
@@ -2390,11 +2414,21 @@
                     }
                     $row.find("a").css("color", "red");
                     $row.find("a").css("cursor", "pointer");
-                    $row.find("a").click(function (e) {
+                    $row.find("a[class != 'Waitlist']").click(function (e) {
                         e.preventDefault();
                         self.confirm("Really delete the student?", dlg, function (r) {
                             if (r) {
                                 self.deleteStudent(data.id, function () {
+                                    $row.remove();
+                                });
+                            }
+                        });
+                    });
+                    $row.find("a[class = 'Waitlist']").click(function (e) {
+                        e.preventDefault();
+                        self.confirm("Really remove the student from waitlist?", dlg, function (r) {
+                            if (r) {
+                                self.unwaitlistStudent(data.id, function () {
                                     $row.remove();
                                 });
                             }
@@ -2418,13 +2452,37 @@
                     return $row;
                 }
 
-
-
-
+                var waitlist_array = [];
 
                 $.each(r.rows, function (i, data) {
+                    if(data.status != "Waitlist"){
+                        fillRow(null, data).appendTo($tbody);
+                    }else if(waitlist_array){
+                        waitlist_array.push(data);
+                    }
+                });
+
+                if(waitlist_array){
+                    $.each(waitlist_array, function (i, data) {
+                        fillRow(null, data).appendTo($tbody);
+                    }
+                }
+
+                var waitlist_array = [];
+                $.each(r.rows, function (i, data) {
+                    if(data.status == "Waitlist"){
+                        waitlist_array.push(data);
+                    }
+                    if(waitlist_array){
+                        waitlist_array.sort(function(a, b){
+                            a = new Date(a.dateModified);
+                            b = new Date(b.dateModified);
+                        })
+                    }
+
                     fillRow(null, data).appendTo($tbody);
                 });
+
                 $(".download-students-excel").unbind("click").click(function () {
                     window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
                 });
@@ -2589,6 +2647,7 @@
                 var reach_limit = apart[4];
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
+                var allow_waitlist = apart[7];
 				if(is_superuser){
 					all_edit = "1";
 					all_delete = "1";
@@ -2608,14 +2667,19 @@
 						});
 					}
                 }
-                // Register/Record Attendance
+                // Register/Record Attendance/Waitlist
                 $(this).find("td:nth-child(15)").each(function () {
                     if (arrive == "0" && allow == "0") {
                         $(this).html("The training date has not arrived yet.");
                     } else if (arrive == "0" && allow == "1") {
-                        if (status == "" && reach_limit == "1") {
+                        if ((status == "" || status == "Waitlist") && reach_limit == "1") {
                             // not reigistered and reach limit
-                            $(this).html("Maximum number of users have registered for this training.");
+                            $(this).html("<div>Maximum number of users have registered for this training.</div>");
+                            if(status == "" && allow_waitlist == "1"){
+                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span></div>');
+                            }else if(status == "Waitlist"){
+                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span></div>');
+                            }
                         } else {
                             var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
                             if (remain > -1) {
@@ -2642,6 +2706,29 @@
                                 });
                             });
                         }
+
+                        $("#waitlist_add_" + training_id).click(function () {
+                            var thisCheck = $(this);
+                            self.waitlistUser(training_id, true, function (reg, trID) {
+                                if (reg){
+                                    var DataRow = thisCheck.closest("tr");
+                                    warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                    warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+                                    warningData += DataRow.find("td:eq(5)").text() + "|";
+                                    warningData += DataRow.find("td:eq(6)").text() + "|";
+                                    warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
+
+                                    self.warning("Thank you! You have been added to the waitlist for this training!" + warningData);
+                                }
+                            });
+                        })
+
+                        $("#waitlist_remove_" + training_id).click(function () {
+                            self.waitlistUser(training_id, false, function (reg, trID) {
+                                self.warning("Thank you! You are no longer on the waitlist for this training.");
+                            });
+                        })
+
                     } else if (arrive == "1" && status == "" && allow == "1") {
                         $(this).html("The registration date has passed for this training");
                     } else if (arrive == "1" && allow_student_attendance == "0") {
