@@ -2236,30 +2236,12 @@ def activate_imported_account(post_vars):
         profile.percent_eng_learner = post_vars.get('percent_eng_learner', '')
         profile.bio = post_vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
-        profile.save()
-
-        ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
-        for cea in ceas:
-            if cea.auto_enroll:
-                CourseEnrollment.enroll(profile.user, cea.course_id)
-                ma_db = myactivitystore()
-                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
-                "URLValues": {"course_id": cea.course_id},    
-                "TokenValues": {"course_id": cea.course_id}, 
-                "LogoValues": {"course_id": cea.course_id}}
-                ma_db.insert_item(my_activity)
-        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
-
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}
-
-
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
-
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         message = render_to_string('emails/welcome_body.txt', d)
-
         profile.user.username=post_vars.get('username','')
         profile.user.set_password(post_vars.get('password',''))
 
@@ -2267,6 +2249,39 @@ def activate_imported_account(post_vars):
             profile.user.save()
             registration.activate()
             profile.save()
+
+            #** course enroll
+            try:
+                cohort = profile.cohort.code
+            except:
+                cohort = ""
+            if profile.district.code == "3968593":
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=profile.user.email)
+                cea.is_active = True
+                cea.auto_enroll = True
+                cea.save()
+            elif profile.district.state.name == "Oklahoma":
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=profile.user.email)
+                cea.is_active = True
+                cea.auto_enroll = True
+                cea.save()
+            elif profile.district.state.name != "New Mexico" and cohort != '#C-001':
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
+                cea.is_active = True
+                cea.auto_enroll = True
+                cea.save()
+
+            ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
+            for cea in ceas:
+                if cea.auto_enroll:
+                    CourseEnrollment.enroll(profile.user, cea.course_id)
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                    "URLValues": {"course_id": cea.course_id},    
+                    "TokenValues": {"course_id": cea.course_id}, 
+                    "LogoValues": {"course_id": cea.course_id}}
+                    ma_db.insert_item(my_activity)
+
         except Exception as e:
             if "for key 'username'" in "%s" % e:
                 ret['value'] = "Username '%s' already exists" % profile.user.username
