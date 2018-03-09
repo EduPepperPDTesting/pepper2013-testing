@@ -1,0 +1,19 @@
+<%
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+%>
+
+<%inherit file="../main.html"/>
+
+
+<div><p>
+    %if created == 'True':
+        <span>done</span>
+    %endif
+</p></div>
+<form action="/playbook/create_new_category" method="post">
+	<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+	<input type="text" name="name">
+	<button type="submit">Add</button>
+</form>

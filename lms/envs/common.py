@@ -907,7 +907,10 @@ INSTALLED_APPS = (
     'async_task',
 
     # Header/footer
-    'header_footer'
+    'header_footer',
+
+    # playbook
+    'playbook',
 )
 
 ######################### MARKETING SITE ###############################

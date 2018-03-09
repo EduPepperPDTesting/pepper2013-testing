@@ -1,0 +1,325 @@
+<%
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+%>
+
+<%inherit file="../main.html"/>
+
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/vendor/cupertino/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/playbook-theme.css"/>
+
+<style type="text/css">
+	.playbook-main {
+        max-width: 998px;
+        background: #FFFFFF;
+        position: relative;
+        padding-top: 114px;
+        padding-bottom: 10px;
+        margin-top: -114px;
+        margin-left: auto !important; 
+        margin-right: auto !important;
+    }
+    .playbook .button.super-tiny {
+    	font-size: 0.3em;
+    }
+    @media print, screen and (max-width: 64em) {
+        .playbook-main {
+            width: 100%;
+            margin-left: 0 !important; 
+            margin-right: 0 !important;
+        }
+    }
+	#play-detail-header {
+		border: 1px solid #d4dae3;
+		background: #eff0f4;
+		padding-left: 0.9375em;
+		padding-top: 11px;
+		height: 45px;
+		line-height: 16px;
+		box-sizing: border-box;
+	}
+	#play-detail-header a {
+		color: #666666;
+	}
+	#play-detail-header a:hover {
+		text-decoration: none;
+	}
+	.right {
+        float: right !important;
+    }
+    #right-panel {
+    	box-sizing: border-box;
+    	background: #eff1f5;
+    	border-left: 1px solid #bac2cf;
+    	padding-bottom: 500000em;
+    	margin-bottom: -500000em;    
+    }
+    #add-step {
+        box-sizing: border-box;
+    }
+    .playbook-activity-card-body p {
+        font-size: small;
+    }
+    i[class^=icon] {
+        font-style: normal;
+    }
+    .playbook .play-tag {
+        display: inline-block;
+        background-color: #8f8f8f;
+        color: #ffffff;
+        padding: 2px 4px;
+        margin: 2px;
+    }
+    .playbook .detail-section {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="playbook">
+	<div class="playbook-main">
+		<div class="row grid-x" style="overflow: hidden;border-left: 1px solid #bac2cf;">
+			<div class="small-12 large-8">
+				<div class="row grid-x">
+					<div class="small-12">
+						<div id="play-detail-header">
+							<a href="/playbook"><h6><i class="icon-angle-left"></i>&nbsp;&nbsp;My Plays</h6></a>
+						</div>
+					</div>
+				</div>
+				<div class="row grid-x" style="margin-top: 20px; padding: 5px 20px;">
+					<div class="small-12">
+						<h4 style="display: inline-block;">${play.title}</h4>
+						<div class="right" style="font-size: 6px;background: #405666;color: white;padding: 6px;margin: 5px 0;">${play.category.name}</div>
+					</div>
+					<div class="small-6 detail-section">
+						<h6>Coaches Tip</h6>
+						<p>${play.tip}</p>
+					</div>
+					<div class="small-6 detail-section" style="padding-top: 25px;">
+						<div class="right">Play Duration in Days <span>${play.duration}</span></div>
+					</div>
+					<div class="small-12 detail-section">
+						<h6>Conditions</h6>
+						<p>No Conditions are set for this play.</p>
+					</div>
+					<div class="small-8 detail-section">
+						<h6>Tag(s)</h6>
+                        % if play.tags.count() != 0:
+                            % for tag in play.tags.all():
+                                <div class="play-tag">${tag.name}</div>
+                            % endfor
+                        % else:
+
+                        % endif
+					</div>
+					<div class="small-4 detail-section" style="padding-top: 25px;">
+                        <button data-open="edit-play" class="button tiny right" style="margin-left: 20px">Edit</button>
+						<a href="#" target="_blank" class="button tiny right">Preview</a>
+					</div>					
+				</div>
+				<hr>
+				<div class="row grid-x" style="padding: 5px 20px;">
+					<div class="small-4">
+						<h4>ACTION STEPS</h4>
+					</div>
+					<div class="small-8">
+						<a href="#" data-open="add-step" class="button tiny right">Add Action Step</a>
+					</div>
+					<div class="small-12" style="height: 400px">
+						<p>You haven't added any activities. Add activities to help you achieve your goal.</p>
+					</div>
+				</div>
+			</div>
+			<div id="right-panel" class="samll-12 large-4"></div>
+		</div>
+	</div>
+
+
+	<!-- Edit play dialog -->
+	<div class="playbook large reveal" id="edit-play" data-reveal>
+        <h4>Edit Play</h4>
+        <form id="edit-play-form" action="/playbook/edit_play" method="post">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            <input type="hidden" name="play_id" value="${play.pk}">
+            <div class="grid-x">
+                <div class="small-12">
+                    <label>Play Title <input type="text" name="title" value=${play.title}></label>
+                </div>
+                <div class="small-5 columns">
+                    <label>Play Category</label>
+                    <select id="GlobalCategory" name='category'>
+                        % for category in categories:
+                            % if category == play.category:
+                                <option value="${category.pk}" selected>${category.name}</option>
+                            % else:
+                                <option value="${category.pk}">${category.name}</option>
+                            % endif
+                        % endfor
+                    </select>
+                </div>
+                <div class="small-1"></div>
+                <div class="small-5">
+                    <label>Play Duration in Days <input type="text" name="duration" value="${play.duration}"></label>
+                </div>
+                <div class="small-12">
+                    <label>Coach’s Tip <textarea name="tip">${play.tip}</textarea></label>
+                </div>
+                <div class="small-5">
+                    <label>Tags<input id="tags" type="text" name="tags" value="${tags}"></label>
+                </div>
+                <div class="small-12">
+                    <input id="checkbox2" type="checkbox"><label for="checkbox2">Check to Include this Play in the Global Play </label>
+                </div>
+            </div>
+            <div>
+        </div>
+        </form>
+        <button id="edit-play-button" type="button" class="button">Save</button>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <!-- Add action steps dialog -->
+    <div class="playbook large reveal" id="add-step" data-reveal>
+        <h5>Add Activity</h5>
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x small-up-2 medium-up-3">
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-file icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Community Resource</h5>
+                            <p>Add a resource from the community to your Play</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-play-sign icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Library Resource</h5>
+                            <p>Add a resource from the library to your Play</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-calendar icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Meeting or Event</h5>
+                            <p>Add a meeting or an in-person event to your Play</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-book icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Course</h5>
+                            <p>Take a course as part of your Play</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-check-sign icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Task</h5>
+                            <p>Track something outside PLP as part of your Play</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-list-alt icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Reflection</h5>
+                            <p>Add a reflection activity to your PD Series</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="card">
+                        <div class="card-section">
+                            <div class="text-center">
+                                <i class="icon-eye-open icon-5x"></i>
+                            </div>
+                        </div>
+                        <div class="card-section playbook-activity-card-body">
+                            <h5>Landing Page</h5>
+                            <p>Add a Landing page to your Play </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/playbook/foundation.min.js"></script>
+<script type="text/javascript" src="/static/js/playbook/tagator.jquery.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#tags").tagator({
+            showAllOptionsOnFocus: false
+        });
+        $(document).foundation();
+
+        $("#edit-play-button").on('click', function() {
+            valid = true;
+            $form = $("#edit-play-form");
+            title = $form.find("input[name=title]");
+            if (title.val().trim() === "") {
+                title.css("border", "1px solid #e47e7e");
+                valid = false;
+                title.on('click', function() {
+                    title.css("border", "1px solid #cacaca");
+                });
+            }
+            duration = $form.find("input[name=duration]");
+            if (!(/(^[0-9]\d*$)/.test(duration.val()))) {
+                console.log(duration.val())
+                duration.css("border", "1px solid #e47e7e");
+                valid = false;
+                duration.on('click', function() {
+                    duration.css("border", "1px solid #cacaca");
+                });
+            }
+
+            if (valid) {
+                $form.submit();
+            } else {
+                return false;
+            }
+        });
+    })
+</script>

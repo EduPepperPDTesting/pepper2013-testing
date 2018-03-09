@@ -1,0 +1,43 @@
+<ul style="margin-left: 0">
+    <li data-courseid="719" data-coursename="1" class="ui-widget-content course-item play-panel">
+        <div class="row">
+            <div class="large-10 small-8 columns">
+                <h5>${title}</h5>
+
+                <ul class="play-details">
+                    <li> ${step_nums} Actions Steps</li>
+                    <li>&#9670;${category_name}</li>
+                    <li>&#9670; Created on ${created_time.month}/${created_time.day}/${created_time.year}</li>
+                    <li>&#9670; Created by ${creator}</li>
+                </ul>
+            </div>
+            <div class="large-4 small-4 columns right">
+                <ul class="play-settings button-groupx">
+                    <li>    
+                        <a href="/playbook/play_detail/${play_id}">
+                            <img src="/static/images/playbook/edit_small_active.png" alt="" />
+                        </a>
+                    </li>
+                    <li>                        
+                        <a href="#" class="btnClone" data-pathid="719" data-name="1" data-reveal-id="cloneModal">
+                            <img src="/static/images/playbook/clone_small_active.png" />
+                        </a>
+                    </li>
+                    <li>
+                        <a>
+                            <span class="tog" data-pathid="719">
+                                <img style="display:none" src="/static/images/playbook/status_small_active.png" />
+                                <img style="" src="/static/images/playbook/status_small_inactive.png" />
+                            </span>
+                        </a>
+                    </li>
+                    <li>                        
+                        <a>
+                            <img src="/static/images/playbook/unassign_small_inactive.png" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </li>            
+</ul>
