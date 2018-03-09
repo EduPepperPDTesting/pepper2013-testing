@@ -729,7 +729,7 @@
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_year, _old_month, _first_date;
 	var _calendar_date = new Date();
 	var _cal_view = "screen";
-	
+
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(goback, goforth){
 	   goback = goback || "false";
@@ -810,7 +810,7 @@
 			$(".alert").click(function () {
 				$("#calendar_alert_title").hide();
 			});
-			 
+
 			$(".alert").each(function(){
 				if($(this).hasClass("completeSlot")){
 					var tmp_span = $(this).find("span:eq(0)");
@@ -878,7 +878,7 @@
 					console.log(regData.trID);*/
 				})
 			});
-			
+
 			$(".calendar_check_attended").each(function(){
 				var attendancel_id = $(this).attr("attendancel_id");
 				if (attendancel_id.length) {
@@ -888,7 +888,7 @@
 					$(this).parent().after(button).after(input);
 					$(input).hide();
 					$(button).hide();
-					
+
 					button.click(function () {
 						if (attendancel_id == input.val()) {
 							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
@@ -897,7 +897,7 @@
 								console.log("~5");
 
                                 pepreg.warning("Thank you for registering/recording attendance for this training!");
-								
+
 								pepreg.reloadTable();
 								calendarOpen();
 							});
@@ -907,16 +907,16 @@
 					});
 				}
 			});
-			
+
 			$(".calendar_check_attended").change(function(){
 				var training_id = $(this).attr("training_id");
 				var attendancel_id = $(this).attr("attendancel_id");
 				var checked = ($(this).attr("checked")) ? true : false;
-				
+
 				if (attendancel_id.length) {
 					var tmp_text = $(this).parent().parent().find("input[type='text'][training_id='" + training_id + "']");
 					var tmp_button = $(this).parent().parent().find("input[type='button'][training_id='" + training_id + "']");
-					
+
 					if (checked) {
 						tmp_text.show();
 						tmp_button.show();
@@ -929,7 +929,7 @@
 							});
 						}
 						tmp_text.hide();
-						tmp_button.hide();						
+						tmp_button.hide();
 					}
 				}else{
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
@@ -968,7 +968,7 @@
 		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + picker_year));
 	}
-	
+
 	function mathCreditsChecked(){
 		var t1 = $("input[name='training_time_start']").val();
 		var t2 = $("input[name='training_time_end']").val();
@@ -982,7 +982,7 @@
 			t2_flag = false;
 			if(t1.indexOf("PM") > 0)	t1_flag = true;
 			if(t2.indexOf("PM") > 0)	t2_flag = true;
-			
+
 			t1 = t1.replace(" AM", "").replace(" PM", "");
 			t2 = t2.replace(" AM", "").replace(" PM", "");
 			t1_arr = t1.split(":");
@@ -993,7 +993,7 @@
 			t2_m = Number(t2_arr[1]);
 			if(t1_flag && t1_h != 12)	t1_h += 12;
 			if(t2_flag && t2_h != 12)	t2_h += 12;
-			
+
 			var h = t2_h - t1_h;
 			var m = t2_m - t1_m;
 			if(m < 0){
@@ -1003,23 +1003,23 @@
 			m = Number((m / 60).toFixed(1));
 			math_val = h + m;
 		}
-		
+
 		$("#math_credits").attr("bak_val", $("input[name='credits']").val());
 		$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
 		$("input[name='credits']").val(math_val);
 	}
-	
+
 	$(function(){
 		//$("input[name='training_time_start']").change(function(){
 			//alert($(this).val());
 		//});
-		
+
 		//---------------------------------------
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
 			field: document.getElementById('calendar_select_data'),
-			firstDay: 1,			
+			firstDay: 1,
 		    //minDate: new Date("1998-01-01"), maxDate: new Date("2030-12-30"),
 			yearRange: [picker_year - 10, picker_year + 10],
 			onSelect: function(date) {
@@ -1027,7 +1027,7 @@
 				_sys_calendar_month = date.getMonth() + 1;
 				_old_month = _sys_calendar_month;
 				_calendar_picker_day = date.getDate();
-				
+
 				setPickerValue();
 				calendarOpen();
 			}
@@ -1251,20 +1251,20 @@
         _sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
-		
+
 		_sys_calendar_year_now = _calendar_date.getFullYear();
 		_sys_calendar_month_now = _calendar_date.getMonth() + 1;
 		_sys_calendar_day_now = _calendar_date.getDate();
 
 		//-----------------------------------------------getCalendarInfo
-		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	
-			$("#calendar-panel").dialog({title: data.title});			
+		/*$.getJSON("/pepreg/getCalendarInfo", function(data){
+			$("#calendar-panel").dialog({title: data.title});
 			_sys_calendar_year = data.year;
 			_sys_calendar_month = data.month;
 			_sys_calendar_year_now = data.year;
 			_sys_calendar_month_now = data.month;
 		});*/
-		
+
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
 		    console.log(_sys_calendar_month);
@@ -1288,7 +1288,7 @@
 			setPickerValue();
             calendarOpen("true", "false");
 		});
-		
+
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
 		    console.log(_sys_calendar_month);
@@ -1314,7 +1314,7 @@
 			setPickerValue();
             calendarOpen("false", "true");
 		});
-		
+
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous_y").click(function(){
 		    var rangeVal = $("#calendar_select_range").val();
@@ -1345,7 +1345,7 @@
 			setPickerValue();
 			calendarOpen("true", "false");
 		});
-		
+
 		//-----------------------------------------------next
 		$("#calendar_btn_next_y").click(function(){
 		    var rangeVal = $("#calendar_select_range").val();
@@ -1424,7 +1424,7 @@
 			if($("#school_id").attr("flag_system") == "1"){
 				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
 					$("#school_id").empty();
-					$("#school_id").append('<option value=""></option>');        
+					$("#school_id").append('<option value=""></option>');
 					if(data.length > 0){
 						for(var i in data){
 							$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
@@ -1433,7 +1433,7 @@
 				});
 			}
 		});
-	});	
+	});
 
     $('.list-group-item, .forBtnRemoval').click(function(){
         removeScrollBtns();
@@ -1688,7 +1688,7 @@
         });
         map_show.addControl(map_show_directions);	//控件
         map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
-		
+
 		/*this.map_show = L.map('map_show');
         L.tileLayer(url_tile_layer, {
             maxZoom: 18,
@@ -1935,14 +1935,14 @@
         } else {
             self.clearData();
         }
-        self.fillData(data);						
-		
+        self.fillData(data);
+
 		// ************* school id
 		if($("#school_id").attr("flag_system") == "1"){
 			var school_id = data.school_id;
-			$("#school_id").empty();	
-			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
-				$("#school_id").append('<option value="-1"></option>');        
+			$("#school_id").empty();
+			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {
+				$("#school_id").append('<option value="-1"></option>');
 				if(data.length > 0){
 					for(var i in data){
 						$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
@@ -2018,7 +2018,7 @@
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
-        var ar = [];       
+        var ar = [];
 		$("#training_instructors_list").find("tr").each(function () {
 			var email = $(this).find("td").eq(1).text();
 			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
@@ -2040,10 +2040,10 @@
 						var tmp_td3 = $("<td align='center'><input type='checkbox' name='allow_delete' /></td>");
 						tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3);
 						$("#training_instructors_list").append(tmp_tr);
-						
+
 						if(tmp[1] == "1")			tmp_td2.find("input").attr("checked", "checked");
 						if(tmp[2] == "1")			tmp_td3.find("input").attr("checked", "checked");
-						
+
 						tmp_tr.find("a").click(function(e){
 							e.preventDefault();
 							$(this).parent().parent().remove();
@@ -2151,7 +2151,7 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
-			
+
 			if(r.arrive == "1"){
 				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
 				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
@@ -2161,16 +2161,16 @@
 				$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 				$(".training_date_icon").show();
 			}
-			
+
 			$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
 			$("#math_credits").removeAttr("checked");
-			
+
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
                     self.steps.switchTo(einfo.id);
                     return;
-                }				
+                }
                 $.post("${reverse('pepreg_save_training')}", data, function (r) {
                     if (r.success) {
                         $("#dlg-add-training").hide();
@@ -2194,11 +2194,11 @@
 		$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
 		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 		$(".training_date_icon").show();
-		
+
 		$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
 		$("#math_credits").removeAttr("checked");
-			
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
+
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
             // submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -2251,7 +2251,6 @@
         });
     };
     PepReg.prototype.waitlistUser = function (training_id, join, cb) {
-        var self = this;
         $.post("${reverse('pepreg_waitlist')}", {training_id: training_id, join: join}, function (r) {
             if (r.success) {
                 cb(join, r.training_id);
@@ -2398,7 +2397,7 @@
                     data.is_attended = data.is_attended ? "checked" : "";
                     data.is_validated = data.is_validated ? "checked" : "";
                     data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
-                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a class='" + status + "'>✕</a> {email}</td><td>{status}</td>\
+                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a class='{status}'>✕</a> {email}</td><td>{status}</td>\
                     <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
                     <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
                     if ($r)$r.replaceWith($row);
@@ -2706,13 +2705,13 @@
                                     self.warning("Thank you! You have been added to the waitlist for this training!" + warningData);
                                 }
                             });
-                        })
+                        });
 
                         $("#waitlist_remove_" + training_id).click(function () {
                             self.waitlistUser(training_id, false, function (reg, trID) {
                                 self.warning("Thank you! You are no longer on the waitlist for this training.");
                             });
-                        })
+                        });
 
                     } else if (arrive == "1" && status == "" && allow == "1") {
                         $(this).html("The registration date has passed for this training");
