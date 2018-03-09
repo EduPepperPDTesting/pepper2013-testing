@@ -1,5 +1,6 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.db.models import Q
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
@@ -28,6 +29,9 @@ from django.utils.translation import ugettext_lazy as _
 from dateutil.relativedelta import relativedelta
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
+
+from itertools import chain
+from operator import attrgetter
 
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
                             TestCenterRegistration, TestCenterRegistrationForm, State,
@@ -186,29 +190,125 @@ def rows(request):
     start = page * size
     end = start + size
 
-    if filters.get('7'):
-        filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
-
-    if filters.get('16'):
-        filters['11'] = filters.get('16')
-        del filters['16']
-
+    regular_search = int(request.GET['regSearch'])
 
     # limit to district trainings for none-system
     is_no_System = False
     if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
-        #filters[1] = request.user.profile.district.state.name
-        #filters[2] = request.user.profile.district.name
+        # filters[1] = request.user.profile.district.state.name
+        # filters[2] = request.user.profile.district.name
         is_no_System = True
 
-    if len(filters):
-        args, kwargs = build_filters(columns, filters)
-        if args:
-            trainings = PepRegTraining.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+    if regular_search == 1:
+
+        if filters.get('7'):
+            filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+
+        if filters.get('16'):
+            filters['11'] = filters.get('16')
+            del filters['16']
+
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            if args:
+                trainings = PepRegTraining.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                trainings = PepRegTraining.objects.prefetch_related().filter(**kwargs).order_by(*order)
         else:
-            trainings = PepRegTraining.objects.prefetch_related().filter(**kwargs).order_by(*order)
-    else:
+            trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
+
+    elif regular_search == 0:
+        order_or = [x.strip('-') for x in order]
+
+        field_dict = get_post_array(request.GET, 'field_list')
+        search_dict = get_post_array(request.GET, 'search_list')
+        conditions_dict = get_post_array(request.GET, 'condition_list')
+
+        kwargs_fst = dict()
+        next_kwargs = dict()
+
+        field_list = list(field_dict.values())
+        search_list = list(search_dict.values())
+        conditions = list(conditions_dict.values())
+
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
+        #raise Exception(str(trainings))
+        for field_item in field_list:
+            item_unit = field_item.split("|")
+
+            item = item_unit[0].encode("utf-8")
+            item_order = int(item_unit[1])
+            #if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
+            try:
+                condition = conditions[item_order].encode("utf-8")
+            except:
+                condition = ""
+
+            prev_item_order = item_order - 1
+            next_item_order = item_order + 1
+
+            if item == 'state':
+                filters = {1: search_list[item_order]}
+                #field_name = 'district__state__name__iexact'
+            elif item == 'district':
+                filters = {2: search_list[item_order]}
+                #field_name = 'district__name__iexact'
+            elif item:
+                for key, val in columns.iteritems():
+                    if item == val[0]:
+                        filters = {key: search_list[item_order]}
+                        break
+                #field_name = item + '__in'
+
+            args, kwargs = build_filters(columns, filters)
+            if item_order == 2 and item_order < len(conditions) and conditions[item_order].encode("utf-8") == 'or': raise Exception("true on 2, condition") #and condition == 'or'
+            if (item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and'):
+                #if item_order == 2: raise Exception("1 item_order=" + str(item_order) + " fields=" + str(field_list) + " search_list=" + str(search_list) + " item=" + str(search_list[item_order]) + " cond=" + str((item_order == len(conditions) or condition == 'and') and (item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and')))
+                trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
+                #if item_order == 3: raise Exception("'and' set " + str(item_order) + " " + str(search_list[item_order]))
+
+            elif next_item_order < len(search_list) and search_list[next_item_order] and item_order < len(conditions) and condition == 'or':
+                #raise Exception("2 list=" + str(search_list))
+
+                if item_order == 0 or conditions[prev_item_order].encode("utf-8") == 'and':
+                    kwargs_fst = kwargs.copy()
+
+                next_item_unit = field_list[next_item_order].split("|")
+                next_item = next_item_unit[0]
+
+                if next_item == 'state':
+                    filters = {1: search_list[next_item_order]}
+                    #next_field_name = 'district__state__name__in'
+                elif next_item == 'district':
+                    filters = {2: search_list[next_item_order]}
+                    #next_field_name = 'district__name__in'
+                elif next_item:
+                    for key, val in columns.iteritems():
+                        if next_item == val[0]:
+                            filters = {key: search_list[next_item_order]}
+                            break
+                    #next_field_name = next_item + '__in'
+
+                args, next_kwargs = build_filters(columns, filters)
+                if item_order == 3: raise Exception("kwargs_fst: "+str(kwargs_fst)+" next_kwargs: "+str(next_kwargs))
+                or_trainings = trainings.prefetch_related().filter(Q(**kwargs_fst) | Q(**next_kwargs)).order_by(*order)
+
+                if next_item_order < len(conditions) and conditions[next_item_order].encode("utf-8") == 'or':
+                    #trainings.union(or_trainings).order_by(*order)
+                    trainings = trainings | or_trainings
+                    trainings = trainings.distinct()
+                elif next_item_order == len(conditions) or conditions[next_item_order].encode("utf-8") == 'and':
+                    trainings = or_trainings.all()
+
+                # or_trainings = trainings.prefetch_related().filter(**next_kwargs).order_by(*order)
+                #
+                # if conditions[prev_item_order].encode("utf-8") == 'and':
+                #     trainings = trainings.prefetch_related().filter(**kwargs).order_by(*order)
+                #
+                # trainings = sorted(chain(trainings, or_trainings), key = attrgetter(*order_or), reverse = True)
+
+                #or_trainings = PepRegTraining.objects.prefetch_related().filter(Q(**kwargs) | Q(**next_kwargs)).order_by(*order)
+                #trainings = trainings.filter(Q(**{field_name: search_list[item_order]}) | Q(**{next_field_name: search_list[next_item_order]}))
 
     tmp_school_id = 0
     try:
@@ -241,6 +341,8 @@ def rows(request):
         rl = "1" if reach_limit(item) else "0"
         remain = item.max_registration - PepRegStudent.objects.filter(
             training=item).count() if item.max_registration > 0 else -1
+
+        allow_waitlist = "1" if item.allow_waitlist else "0"
 
         status = ""
         all_edit = "0"
@@ -294,10 +396,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain
+                remain, allow_waitlist
             ),
             item.subjectother,
         ]
@@ -306,7 +408,6 @@ def rows(request):
     json_out = [count]
     json_out.append(rows)
     return HttpResponse(json.dumps(json_out), content_type="application/json")
-
 
 def save_training(request):
     try:
@@ -346,6 +447,7 @@ def save_training(request):
 
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
+        training.allow_waitlist = request.POST.get("allow_waitlist", False)
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
@@ -1185,6 +1287,42 @@ def register(request):
     return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
 
+def waitlist(request):
+    try:
+        join = request.POST.get("join", "false") == "true"
+        training_id = request.POST.get("training_id")
+        user_id = request.POST.get("user_id")
+
+        if user_id:
+            student_user = User.objects.get(id=int(user_id))
+        else:
+            student_user = request.user
+
+        try:
+            student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+        except:
+            student = PepRegStudent()
+            student.user_create = request.user
+            student.date_create = datetime.now(UTC)
+
+        if join:
+            student_status = "Waitlist"
+        else:
+            student_status = ""
+
+        student.student = student_user
+        student.student_status = student_status
+        student.training_id = int(training_id)
+        student.user_modify = request.user
+        student.date_modify = datetime.now(UTC)
+        student.save()
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
+
+
 def set_student_attended(request):
     try:
         training_id = int(request.POST.get("training_id"))
@@ -1281,7 +1419,7 @@ def student_list(request):
         training_id = request.POST.get("training_id")
         print training_id
         training = PepRegTraining.objects.get(id=training_id)
-        students = PepRegStudent.objects.filter(training_id=training_id)
+        students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
         rows = []
@@ -1313,7 +1451,8 @@ def student_list(request):
                                     'training_type': training.type,
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
-                                    'student_limit': student_limit # akogan
+                                    'student_limit': student_limit, # akogan
+                                    'allow_waitlist': training.allow_waitlist
                                     }),
                         content_type="application/json")
 
@@ -2037,7 +2176,12 @@ def getfielddata(request):
     except:
         org_id = 0
 
-    rows = ["State", "District", "Subject"]
+    rows = []
+    if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+        rows = ["State", "District"]
+
+    rows.append("Subject")
+
     success = 1
 
     data = {'success': success, 'rows': rows}
@@ -2050,21 +2194,19 @@ def getsearchdata(request):
     data_column = ""
     search_data = request.POST.get('search_data')
 
-    if search_data == "State":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "1"
-            success = 1
-            for item in State.objects.all().order_by("name"):
-                rows.append(item.name)
+    if search_data == "state":
+        data_column = "1"
+        success = 1
+        for item in State.objects.all().order_by("name"):
+            rows.append(item.name)
 
-    elif  search_data == "District":
-        if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-            data_column = "2"
-            success = 1
-            for item in District.objects.all().order_by("name"):
-                rows.append(item.name)
+    elif search_data == "district":
+        data_column = "2"
+        success = 1
+        for item in District.objects.all().order_by("name"):
+            rows.append(item.name)
 
-    elif search_data == "Subject":
+    elif search_data == "subject":
         data_column = "3"
         success = 1
         rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]

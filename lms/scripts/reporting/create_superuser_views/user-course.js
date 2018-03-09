@@ -40,6 +40,9 @@ db.student_courseenrollment.aggregate({
         school: {
             $arrayElemAt: ['$user_info.school', 0]
         },
+        cohort:{
+            $arrayElemAt: ['$user_info.cohort', 0]
+        },
         subscription_status: {
             $arrayElemAt: ['$user_info.subscription_status', 0]
         },
@@ -115,6 +118,7 @@ db.student_courseenrollment.aggregate({
         state: 1,
         district: 1,
         school: 1,
+        cohort: 1,
         subscription_status: 1,
         enrollment_date: 1,
         state_id: 1,
@@ -232,6 +236,7 @@ db.student_courseenrollment.aggregate({
         state: 1,
         district: 1,
         school: 1,
+        cohort: 1,
         state_id: 1,
         district_id: 1,
         school_id: 1,

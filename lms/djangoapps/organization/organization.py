@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School, CourseEnrollmentAllowed
-from student.models import District, State, School
+from student.models import District, State, School, Cohort
 from xmodule.modulestore.django import modulestore
 import pymongo
 from django.db.models import Q
@@ -272,6 +272,10 @@ def organization_manage_user_info(request):
                                 if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
                                     is_add = False
                                     break
+                            elif tmp1.EntityType == "Cohort":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.cohort.id):
+                                    is_add = False
+                                    break
                             else:
                                 if int(tmp1.OrganizationEnity) == int(school_id):
                                     is_add = False
@@ -329,6 +333,10 @@ def org_manage_user_cvs_upload(request):
                                     break
                             elif tmp1.EntityType == "District":
                                 if int(tmp1.OrganizationEnity) == int(user.profile.district.id):
+                                    is_add = True
+                                    break
+                            elif tmp1.EntityType == "Cohort":
+                                if int(tmp1.OrganizationEnity) == int(user.profile.cohort.id):
                                     is_add = True
                                     break
                             else:
@@ -933,6 +941,10 @@ def organization_get(request):
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
                                 break
+                        elif tmp1.EntityType == "Cohort":
+                            for tmp2 in Cohort.objects.filter(id=tmp1.OrganizationEnity):
+                                tmp1_text = tmp2.code
+                                break
                         else:
                             for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
@@ -961,9 +973,9 @@ def organization_get(request):
                             if menu_items_child != "":
                                 menu_items_child = menu_items_child + "_<_"
 
-                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin) + "_>_" + str(tmp2.id)
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin) + "_>_" + str(tmp2.id) + "_>_" + tmp2.Location
 
-                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id)
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon + "=>=" + str(tmp1.id) + "=>=" + tmp1.Location
 
                     data["menu_items"] = menu_items
 
@@ -1039,6 +1051,7 @@ def organization_get_locations(request):
     rows_state = []
     rows_district = []
     rows_school = []
+    rows_cohort = []
     district_id = request.GET.get('district_id', "")
     school_id = request.GET.get('school_id', "")
 
@@ -1060,7 +1073,10 @@ def organization_get_locations(request):
             for org1 in District.objects.filter(state__isnull=False).order_by("name"):
                 rows_district.append({'id': org1.id, 'name': org1.name, 'state_id': org1.state.id})
 
-        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school}
+            for org2 in Cohort.objects.all().order_by('code'):
+                rows_cohort.append({'id': org2.id, 'name': org2.code})
+
+        data = {'Success': True, 'rows_state': rows_state, 'rows_district': rows_district, 'rows_school': rows_school, 'rows_cohort': rows_cohort}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -1300,6 +1316,7 @@ def organizational_save_base(request):
                     org_menu_item.MenuItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
                     org_menu_item.Icon = tmp2[5]
+                    org_menu_item.Location = tmp2[7]
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
                     else:
@@ -1331,6 +1348,7 @@ def organizational_save_base(request):
                             org_menu_item1.organization = org_metadata
                             org_menu_item1.MenuItem = tmp4[1]
                             org_menu_item1.Url = tmp4[2]
+                            org_menu_item1.Location = tmp4[5]
                             if tmp4[3] == "1":
                                 org_menu_item1.isAdmin = True
                                 
@@ -2062,10 +2080,21 @@ def organization_get_info(request):
                 district = request.POST.get('district', False)
                 state = request.POST.get('state', False)
                 school = request.POST.get('school', False)
-
+                user = request.POST.get('user', False)
+                profile = UserProfile.objects.get(user=user)
+                try:
+                    cohort = profile.cohort.id
+                except:
+                    cohort = ""
                 data['OrganizationOK'] = False
 
-                if school:
+                if cohort:
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort, EntityType="Cohort"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break
+
+                if not(data['OrganizationOK']) and school:
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school, EntityType="School"):
                         data['OrganizationOK'] = True
                         organization_obj = tmp1.organization
@@ -2116,10 +2145,21 @@ def organization_get_info(request):
                         school = request.user.profile.school.id
                     except:
                         school = -1
+                    try:
+                        cohort = request.user.profile.cohort.id
+                    except:
+                        cohort = -1
 
                     data['OrganizationOK'] = False
 
-                    if school != -1:
+                    if cohort != -1:
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort,
+                                                                         EntityType="Cohort"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break
+
+                    if not (data['OrganizationOK']) and school != -1:
                         for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school,
                                                                          EntityType="School"):
                             data['OrganizationOK'] = True
@@ -2184,7 +2224,7 @@ def organization_course_list(request):
 
     filter_dic = {'_id.category': 'course'}
     if subject_id != 'all':
-        filter_dic['metadata.display_subject'] = subject_id
+        filter_dic['metadata.display_subject'] = {"$regex": subject_id, "$options": "-i"}
 
     if grade_id != 'all':
         if grade_id == '6-8' or grade_id == '9-12':
@@ -2244,26 +2284,37 @@ def organization_course_list(request):
             sc.sort(key=lambda x: x.display_coursenumber)
 
     rows_course = []
+    duplicate = []
     for course in g_courses[4]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[0]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[1]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[2]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
     for course in g_courses[3]:
         for c in course:
             if not c.close_course or c.close_course and c.keep_in_directory:
-                rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                if c.id not in duplicate:
+                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+                    duplicate.append(c.id)
 
     data = {'Success': True, "courses": rows_course, "subject_id": subject_id}
 

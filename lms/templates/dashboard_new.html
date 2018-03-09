@@ -675,9 +675,19 @@ a{
             school_id = request.user.profile.school.id
         except:
             school_id = -1
+        try:
+            cohort_id = request.user.profile.cohort.id
+        except:
+            cohort_id = -1
             
         organization_obj = OrganizationMetadata()
-        if (school_id != -1):
+        if (cohort_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
+
+        if (not(OrganizationOK) and school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
                 OrganizationOK = True

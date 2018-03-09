@@ -22,6 +22,9 @@ from baseinfo.models import Enum
 
 <!--@begin:Add page style-->
 <!--@date:2013-11-02-->
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -68,11 +71,22 @@ from baseinfo.models import Enum
   color:#fff;
   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
+  #_banner_whatis_title_photo{width:365px;height:195px;float:right;background-repeat:round;}
+  ._banner_whatis_title_font{width:500px;float:left;}
+  .lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}  
+  .org_description{ font-size:12px; color:#646464}
+  .org_name_no_required::after{content:'' !important;}
+  .org_assignment_qualifications_datex{width:200px !important;}
+  .list-input .field input[type="checkbox"]{display:inline-block !important; width:30px !important;}
+  .list-input .field input[type="radio"]{display:inline-block !important; width:30px !important;}
+  .my_label {font-weight:normal !important;}
+  .my_label:after {margin-left: 0 !important; content: "" !important;}
 </style>
 <!--@end-->
 <%block name="title"><title>${_("Register for {platform_name}").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
 <%block name="js_extra">
   <script type="text/javascript">
+    var OrganizationId = "";
     $(function() {
       var view_name = 'view-register';
       // adding js class for styling with accessibility in mind
@@ -130,6 +144,187 @@ from baseinfo.models import Enum
           $("#last_name").addClass('field-error');                         
           return false;   
         }
+            //----------------Major Subject Area
+    if(!$("select[name='major_subject_area_id']").is(":hidden")){
+      if($("select[name='major_subject_area_id']").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_1").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='major_subject_area_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
+    //----------------Grade Level-Check all that apply
+    if(!$(".btn_grade_level").is(":hidden")){
+      if($("#grade_level_id").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_2").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("#grade_level_id").addClass('field-error');       
+          return false; 
+        }
+      }
+    }
+    //----------------Number of Years in Education
+    if(!$("select[name='years_in_education_id']").is(":hidden")){
+      if($("select[name='years_in_education_id']").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_3").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='years_in_education_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
+    //----------------My Learners' Profile
+    if(!$("select[name='percent_lunch']").is(":hidden")){
+      if($("#organization_info_org_default_4").find("b").html().indexOf("*") > -1){
+        if($("select[name='percent_lunch']").val() == ""){
+          toggleSubmitButton(true);
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html("Free/Reduced Lunch is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='percent_lunch']").addClass('field-error');        
+          return false; 
+        }
+      }else{
+        if($("select[name='percent_lunch']").val() == ""){
+          $("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+        }
+      }
+    }else{
+      $("select[name='percent_lunch']").find("option").eq(1).prop("selected",true)
+    }
+    if(!$("select[name='percent_iep']").is(":hidden")){
+      if($("#organization_info_org_default_5").find("b").html().indexOf("*") > -1){
+        if($("select[name='percent_iep']").val() == ""){
+          toggleSubmitButton(true);
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html("IEPs is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='percent_iep']").addClass('field-error');        
+          return false; 
+        }
+      }else{
+        if($("select[name='percent_iep']").val() == ""){
+          $("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+        }
+      }
+    }else{
+      $("select[name='percent_iep']").find("option").eq(1).prop("selected",true)
+    }
+    if(!$("select[name='percent_eng_learner']").is(":hidden")){
+      if($("#organization_info_org_default_6").find("b").html().indexOf("*") > -1){
+        if($("select[name='percent_eng_learner']").val() == ""){
+          toggleSubmitButton(true);
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html("English Learners is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='percent_eng_learner']").addClass('field-error');        
+          return false; 
+        }
+      }else{
+        if($("select[name='percent_eng_learner']").val() == ""){
+          $("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+        }
+      }
+    }else{
+      $("select[name='percent_eng_learner']").find("option").eq(1).prop("selected",true)
+    }
+    //----------------About Me
+    if(!$("#organization_info_org_default_7").is(":hidden")){
+      if($("#user_photo").val() == "" || $("#txBio").val() == ""){
+        toggleSubmitButton(true);
+        var tmp_name = $("#organization_info_org_default_7").find(".org_name").html();
+        if(tmp_name.indexOf("*") > -1){
+          tmp_name = tmp_name.replace(" *", "");
+          $('.status.message.submission-error').addClass('is-shown').focus();
+          $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+          $(".field-error").removeClass('field-error');
+          $("select[name='years_in_education_id']").addClass('field-error');        
+          return false; 
+        }
+      }
+    }
+    var org_content = '"email":"${profile.user.email}"';
+    var is_pass = true;
+    $(".org_field").each(function(){
+      var tmp_type = $(this).attr("field_type");
+      var tmp_required = $(this).attr("isRequired");
+      var tmp_name = $(this).attr("name");
+      var tmp_val = "";
+      
+      if(tmp_type == "2"){
+        tmp_val = $(this).val();
+        
+      }else if(tmp_type == "3"){
+        tmp_val = $(this).val();
+      }else if(tmp_type == "4"){
+        $(this).find('input[type="checkbox"]').each(function() {
+          if ($(this).attr('checked')) {
+            if(tmp_val != "") tmp_val += ",";
+            tmp_val += $(this).val();
+          }
+        });
+      }else if(tmp_type == "5"){
+        tmp_val = $(this).find("input[type='radio']:checked").val();
+        
+      }else if(tmp_type == "6"){
+        tmp_val = escape($(this).val());
+        
+      }else if(tmp_type == "7"){
+        tmp_val = escape($(this).val());
+        
+      }else if(tmp_type == "8"){
+        var tmp_date = $(this).datepicker("getDate");
+        var tmp_var1 = "";
+        if(tmp_date){
+          tmp_var1 = tmp_date.getMonth() + 1;
+          tmp_val = (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+          tmp_val += "/";
+          tmp_var1 = tmp_date.getDate();
+          tmp_val += (tmp_var1 < 10) ? "0" + tmp_var1 : String(tmp_var1);
+          tmp_val += "/" + tmp_date.getFullYear();  //mm/dd/yy 
+        }
+      }
+      if(tmp_required == " *" && (tmp_val == "" || tmp_val == null)){
+        toggleSubmitButton(true);
+        $('.status.message.submission-error').addClass('is-shown').focus();
+        $('.status.message.submission-error .message-copy').html(tmp_name + " is required").stop().css("display", "block");
+        $(".field-error").removeClass('field-error');
+        $("*[name='" + tmp_name + "']").addClass('field-error');
+        is_pass = false;
+        return false; 
+      }else{
+        org_content += ',"' + tmp_name + '":"' + tmp_val + '"';
+      }
+    });
+    if(!is_pass) {
+      return false;
+    }else{
+      $.ajaxSettings.async = false; 
+      $.post("${reverse('organizational_configuration')}", {flag: "organization_register_save", email:"${profile.user.email}", OrganizationId: OrganizationId, content: "{" + org_content + "}"}, function (r) {
+        if (r.Success){
+        }else{
+          toggleSubmitButton(true);
+          return false; 
+        }
+      });
+      $.ajaxSettings.async = true;
+    }
       });
       $('#register-form').on('ajax:error', function() {
         toggleSubmitButton(true);
@@ -203,13 +398,14 @@ from baseinfo.models import Enum
 
 <!--@begin:Change the banding image in Login page-->
 <!--@date:2013-11-02-->
-<div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.png);border-bottom:1px solid #000;">
-	<div class="_banner_whatis_title_font">
-		WELCOME
-		<div class="_banner_whatis_title_content_font">
-			register below to create your account
-		</div>
-	</div>
+<div id='register_main_logo' style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.png);border-bottom:1px solid #000;">
+  <div class="_banner_whatis_title_font">
+    WELCOME
+    <div class="_banner_whatis_title_content_font">
+      register below to create your account
+    </div>
+  </div>
+  <div id='_banner_whatis_title_photo'></div>
 </div>
 <!--@end-->
 <div style="width:960px;margin:0 auto;">
@@ -283,7 +479,7 @@ from baseinfo.models import Enum
           </li>
           <li class="field required text" id="field-name">
             <label for="district_id">${_('District')}</label>      
-            <select name="district_id" autocomplete="off">
+            <select name="district_id" autocomplete="off" id="organization_info_district">
               <option value="">--</option>
               %if profile.district_id:
                 %for item in District.objects.filter(state=profile.district.state).order_by('name'):
@@ -308,28 +504,34 @@ from baseinfo.models import Enum
             </select>
           </li>
           <li class="field required text" id="field-name">
-            <label for="major_subject_area_id">${_('Major Subject Area')}</label>
-            <select autocomplete="off" name="major_subject_area_id">
-              <option value="">--</option>
-              %for item in SubjectArea.objects.all().order_by("so"):
-              <option value="${item.id}">${item.name}</option>
-              %endfor
-            </select>
+              <span id="organization_info_org_default_1">
+                <label class="org_name org_name_no_required" for="major_subject_area_id">${_('Major Subject Area *')}</label>
+                <select autocomplete="off" name="major_subject_area_id">
+                  <option value="">--</option>
+                  %for item in SubjectArea.objects.all().order_by("so"):
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+                <br><span class="org_description"></span>
+              </span>
           </li>
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
-            <label for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
-            <div class="level_containter" style="margin-bottom:10px;">
-            <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
-              %for item in GradeLevel.objects.all():
-              <span class="level">
-                <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
-                  ${item.name}
-                </a>
-              </span>
-              %endfor
-              </div>
-          </li>
+              <span id="organization_info_org_default_2">
+                <label class="org_name org_name_no_required" for="grade_level_id">${_('Grade Level-Check all that apply *')}</label>
+                <div class="level_containter" style="margin-bottom:10px;">
+                <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
+                  %for item in GradeLevel.objects.all():
+                  <span class="level">
+                    <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
+                      ${item.name}
+                    </a>
+                  </span>
+                  %endfor
+                  </div>
+                  <br><span class="org_description"></span>
+              </span> 
+         </li> 
 
           <!-- 
           <script type="text/javascript">
@@ -341,71 +543,81 @@ from baseinfo.models import Enum
           </script> -->
 
          <li class="field required text" id="field-name">
-            <label for="years_in_education_id">${_('Number of Years in Education')}</label>
-            <select autocomplete="off" name="years_in_education_id" style="width:100px;">
-              <option value="">--</option>
-              %for item in YearsInEducation.objects.all():
-              <option value="${item.id}">${item.name}</option>
-              %endfor                
-            </select>
-            <!--@end-->
-         </li>
-
-          <div style="padding:10px 0 15px 0;"> 
-            <b style="font-size:15px;color:#333;">My Learners' Profile *</b>
-          </div>
-          <li class="field required text" id="field-name">
-            In my class,
-            <select autocomplete="off" name="percent_lunch" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor                
-            </select>
-            of my students are eligible for Free/Reduced lunch. <b>*</b>
+             <span id="organization_info_org_default_3">    
+                <label class="org_name org_name_no_required" for="years_in_education_id">${_('Number of Years in Education *')}</label>
+                <select autocomplete="off" name="years_in_education_id" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in YearsInEducation.objects.all():
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor                
+                </select>
+                <br><span class="org_description"></span>
+        </span>
           </li>
-          <li class="field required text" id="field-name">
-            In my class, 
-            <select autocomplete="off" name="percent_iep" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor 
-            </select>
-            of my students have an IEP.  <b>*</b>
-          </li>
-          <li class="field required text" id="field-name">
-            <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
-              <option value="">--</option>
-              %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
-              <option value="${item.value}">${item.content}</option>
-              %endfor 
-            </select>
-            of my students are English Learners. <b>*</b>  
-          </li>
-          <div style="padding:10px 0 15px 0;"> 
-            <b style="font-size:15px;color:#333;">About me</b>
-          </div>
-          <li class="field required text" id="field-name">
-              Please upload a photo to use with your profile.
-              <div style="margin-top: 15px;">
-                  <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
-                  <a id="change_photo_button" style="cursor: pointer;"> Click Here to Edit Photo</a>
-                  <input type='hidden' name='photo' id='user_photo'>
+ <span id="organization_info_org_default_456">       
+              <div style="padding:10px 0 15px 0;"> 
+                <b style="font-size:15px;color:#333;">My Learners' Profile</b>
               </div>
-          </li>
-          <li class="field required text" id="field-name">
-            Add a bio to your user profile (255 characters max, <span></span> remain) 
-            <textarea maxlength="255" name="bio" id="txBio" rows="" cols="" tabindex=""></textarea>
-            <script type="text/javascript">
-              var txBio=document.getElementById('txBio');
-              txBio.oninput=function(){
-                $(this).prev("span").html(255-this.value.length)
-              }
-              txBio.oninput()
-            </script>
-          </li>
+              <li id="organization_info_org_default_4" class="field required text" id="field-name">
+                In my class,
+                <select autocomplete="off" name="percent_lunch" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor                
+                </select>
+                of my students are eligible for Free/Reduced lunch. <b>*</b>                
+                <div class="org_description"></div>
+              </li>
+              <li id="organization_info_org_default_5" class="field required text" id="field-name">
+                In my class, 
+                <select autocomplete="off" name="percent_iep" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor 
+                </select>
+                of my students have an IEP.  <b>*</b>             
+                <div class="org_description"></div>
+              </li>
+              <li id="organization_info_org_default_6" class="field required text" id="field-name">
+                <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
+                  <option value="">--</option>
+                  %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+                  <option value="${item.value}">${item.content}</option>
+                  %endfor 
+                </select>
+                of my students are English Learners. <b>*</b>             
+                <div class="org_description"></div> 
+              </li>
+          </span>
+          <span id="organization_info_org_default_7">
+              <div style="padding:10px 0 15px 0;"> 
+                <b class="org_name" style="font-size:15px;color:#333;">About me</b>
+              </div>
+              <li class="field required text" id="field-name">
+                  Please upload a photo to use with your profile.
+                  <div style="margin-top: 15px;">
+                      <img src='/static/images/photos/photo_temp.png' id='show_photo' style='border:1px solid black;width:55px;height:55px;border-radius:55px;'>
+                      <a id="change_photo_button" style="cursor: pointer;"> Click Here to Edit Photo</a>
+                      <input type='hidden' name='photo' id='user_photo'>
+                  </div>
+              </li>
+              <li class="field required text" id="field-name" style="margin-bottom:20px;">
+                Add a bio to your user profile (255 characters max, <span></span> remain) 
+                <textarea maxlength="255" name="bio" id="txBio" rows="" cols="" tabindex=""></textarea>
+                <script type="text/javascript">
+                  var txBio=document.getElementById('txBio');
+                  txBio.oninput=function(){
+                    $(this).prev("span").html(255-this.value.length)
+                  }
+                  txBio.oninput()
+                </script>
+              </li>
+              <div class="org_description"></div>
+          </span>
         </ol>
+        <ol class='list-input' id='org_list_list'></ol>
         % else:
         <div class="message">
           <h3 class="message-title">${_("Welcome {username}").format(username=extauth_id)}</h3>
@@ -607,18 +819,227 @@ from baseinfo.models import Enum
     dropDistrict($form,state_id,function(){
       clearOption($form.find("select[name=school_id]"));
     });
+    $("#register-form").find("select[name=district_id]").val("")
+    $("#register-form").find("select[name=school_id]").val("")
+    $('#org_list_list').empty();
+    get_org()
   });
   $form.find("select[name=district_id]").change(function(){
     var state_id='';
     var district_id=$(this).val();
     dropSchool($form,state_id,district_id);
+    $("#register-form").find("select[name=school_id]").val("")
+    $('#org_list_list').empty();
+    get_org()
   });
+  $form.find("select[name=school_id]").change(function(){
+    $('#org_list_list').empty();
+    get_org()
+  })
   $("#change_photo_button").click(function(){
     $("#change_photo").show();
-
   })
   $("#change_photo_close").click(function(){
     $("#change_photo").hide();
+  })
+function LoadingWin(){
+  this.$loader = null;
+  this.show();
+}
+LoadingWin.prototype.show = function () {
+  if (!this.$loader) {
+    this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+    this.$loader.appendTo(document.body);
+  }
+  this.$loader.css('display','block');
+};
+LoadingWin.prototype.hide = function () {
+  if (this.$loader) {
+    this.$loader.remove();
+    this.$loader = null;
+  }
+};
+  function get_org(){
+    var loadwin = new LoadingWin();
+    var data = {flag:"organization_get_info", source:"register", user:"${profile.user.id}"}
+    if ($("#register-form").find("select[name=state_id]").val()){
+      data.state = $("#register-form").find("select[name=state_id]").val()
+    }
+    if ($("#register-form").find("select[name=district_id]").val()){
+      data.district = $("#register-form").find("select[name=district_id]").val()
+    }
+    if ($("#register-form").find("select[name=school_id]").val()){
+      data.school = $("#register-form").find("select[name=school_id]").val()
+    }
+    var cohort = "${cohort}"
+    if (cohort){
+      data.cohort = cohort
+    }
+    $.post("${reverse('organizational_configuration')}", data, function (r) {
+      if (r.SiteURL_OK){
+        if(r.Success){
+          if(r.OrganizationOK){
+            OrganizationId = r.OrganizationId;
+            if (r.DistrictType == "") r.DistrictType='District'
+            if (r.SchoolType == "") r.SchoolType='School'
+            $("#organization_info_district").parent().find("label").html(r.DistrictType);
+            $("#school_id").parent().find("label").html(r.SchoolType);
+            if (r.register_text_button) {
+              $("#submit").html(r.register_text_button)
+              $("._banner_whatis_title_content_font").html(r.register_text_button)
+            }else{
+              $("#submit").html("Create My Account");
+              $("._banner_whatis_title_content_font").html("register below to create your account");
+            }
+            if (r.register_main_logo){
+              var src = 'url(/static/uploads/organization/' + r.OrganizationId + '/' + r.register_main_logo +')';
+              $("#_banner_whatis_title_photo").css('background-image',src)
+            }else{
+              $("#_banner_whatis_title_photo").css('background-image',"")
+            } 
+            if (r.register_logo){
+              var img = '<div id="register_logo" style="margin:0px auto;width:960px;height:195px;"><img width="960" height="195" src="/static/uploads/organization/' + r.OrganizationId + '/' + r.register_logo +'"></div>';
+              $("#register_logo").remove()
+              $("#register_main_logo").before(img)
+            }else{
+              $("#register_logo").remove()
+            } 
+
+            if(r.org_rg_data_items != ""){
+              var tmp_specific_items = eval("(" + r.org_rg_data_items + ")");
+              for(var tmpx in tmp_specific_items){
+                var tmp_json = tmp_specific_items[tmpx];
+                var tmp_required = (tmp_json["required"] == "1") ? " *" : "";
+                
+                if(tmp_json["default"] && tmp_json["default"] != ""){
+                  var find_el = $("#organization_info_org_default_" + tmp_json["default"]);
+                  if(tmp_json["default_visible"] == "0"){
+                    find_el.find(".org_description").html(tmp_json["description"]);
+                    if(tmp_json["default"] == "4" || tmp_json["default"] == "5" || tmp_json["default"] == "6"){
+                      find_el.find("b").html(tmp_required);
+                    }else{
+                      find_el.find(".org_name").html(tmp_json["name"] + tmp_required);
+                    }
+                  }else{
+                    find_el.hide();
+                  }               
+                }else{
+                  var tmp_content = "";
+                  if(tmp_json["field_type"] == "1"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<span></span>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "2"){
+                    var tmp_list1 = tmp_json["field_type_2"].split("|-|-|");
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<select class="org_field" field_type="2" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;"><option value="">--</option>';
+                    for(var ii in tmp_list1){
+                      var tmp_list2 = tmp_list1[ii].split("|-|");
+                      tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
+                    }
+                    tmp_content += '</select>';
+                    tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "3"){
+                    var tmp_list1 = tmp_json["field_type_3"].split("|-|-|");
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<select class="org_field" field_type="3" isRequired="' + tmp_required + '" autocomplete="off" name="' + tmp_json["name"] + '" style="width:500px;" size="5" multiple="multiple">';
+                    for(var ii in tmp_list1){
+                      var tmp_list2 = tmp_list1[ii].split("|-|");
+                      tmp_content += '<option value="' + tmp_list2[0] + '">' + tmp_list2[0] + '</option>';
+                    }
+                    tmp_content += '</select>';
+                    tmp_content += '<br><span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "4"){
+                    
+                    tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
+                    tmp_content += '<li class="field required text org_field" id="field-name" field_type="4" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
+                    if(tmp_json["field_type_4"] != ""){
+                      var tmp_list1 = tmp_json["field_type_4"].split("|-|-|");
+                      for(var ii in tmp_list1){
+                        var tmp_list2 = tmp_list1[ii].split("|-|");
+                        tmp_content += '<label class="my_label"><input type="checkbox" name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+                      }
+                    }
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "5"){
+                    
+                    tmp_content += '<div style="padding:2px 0 5px 0;"><b style="font-size:15px;color:#333;">' + tmp_json["name"] + tmp_required + '</b></div>';
+                    tmp_content += '<li class="field required text org_field" id="field-name" field_type="5" name="' + tmp_json["name"] + '" isRequired="' + tmp_required + '">';
+                    if(tmp_json["field_type_5"] != ""){
+                      var tmp_list1 = tmp_json["field_type_5"].split("|-|-|");
+                      for(var ii in tmp_list1){
+                        var tmp_list2 = tmp_list1[ii].split("|-|");
+                        tmp_content += '<label class="my_label"><input type="radio" ' + ' name="' + tmp_json["name"] + '" value="' + tmp_list2[0] + '" />' + tmp_list2[0] + '</label>';
+                      }
+                    }
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                  
+                  }else if(tmp_json["field_type"] == "6"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<input type="text" name="' + tmp_json["name"] + '" value="" required aria-required="true" maxlength="30"  class="org_field" field_type="6" isRequired="' + tmp_required + '"/>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "7"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required" style="display:inline">' + tmp_json["name"] + tmp_required + '</label><span>(255 characters max, 255 remain)</span>';
+                    tmp_content += '<textarea maxlength="255" name="' + tmp_json["name"] + '" class="org_field org_textarea" field_type="7" isRequired="' + tmp_required + '"></textarea>';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                    
+                  }else if(tmp_json["field_type"] == "8"){
+                    tmp_content += '<li class="field required text" id="field-name">';
+                    
+                    tmp_content += '<label for="' + tmp_json["name"] + '" class="org_name_no_required">' + tmp_json["name"] + tmp_required + '</label>';
+                    tmp_content += '<input type="text" class="org_assignment_qualifications_datex org_field" value="" placeholder="Select Date" readonly="true" name="' + tmp_json["name"] + '" field_type="8" isRequired="' + tmp_required + '" />';
+                    tmp_content += '<span class="org_description">' + tmp_json["description"] + '</span>';
+                    tmp_content += '</li>';
+                  }
+                  
+                  if(tmp_content != "") $("#org_list_list").append(tmp_content);
+                }
+              }
+            }
+            if($("#organization_info_org_default_456").find("li:visible").length == 0){
+              $("#organization_info_org_default_456").hide();
+            }
+            $(".org_assignment_qualifications_datex").datepicker();
+            $(".org_textarea").keyup(function(){
+              $(this).prev("span").html("(255 characters max,"+ (255 - $(this).val().length) +"remain)")
+            })
+          }else{
+            $("#register_logo").remove();
+            $("#_banner_whatis_title_photo").css('background-image',"")
+            $("#organization_info_district").parent().find("label").html("district");
+            $("#school_id").parent().find("label").html("school");
+            $("#submit").html("Create My Account");
+            $("._banner_whatis_title_content_font").html("register below to create your account");
+          }
+        }
+      }
+      loadwin.hide();
+    });
+  }
+  $(document).ready(function(){
+    get_org();
   })
 </script>
 <div/>

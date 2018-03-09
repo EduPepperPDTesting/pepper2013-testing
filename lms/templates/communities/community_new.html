@@ -97,7 +97,7 @@ font: normal 1.2em/1.2em;
     padding: 0 8px;
     color:#fff !important;
 }
-.community-course, .community-resource, #community-state {
+.community-course, .community-resources, #community-state {
     clear: both;
 }
 .resource-logo-label{
@@ -301,22 +301,22 @@ a{
     display:none;
 }
 .community-left .unjoined{
-    width:90%;font-size:13px;margin:10px;padding: 1px 0 1px 0;border:0px solid;
+    width:90%;font-size:13px;margin-left:10px;padding: 10px 0 10px 0;border-bottom:1px solid #ccc;
 }
 .community-left .unjoined a{
     color: #000;font-size:13px;cursor: pointer;
 }
 .community-left .joined{
-    width:90%;font-size:13px;margin:10px;border:0px solid;
+    width:90%;font-size:13px;margin-left:10px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
 }
 .community-left .joined a{
     color: #000;font-size:13px;cursor: pointer;font-weight: bold;
 }
 .community-left .joined-title{
-    display:table-cell;padding:1px 5px 1px 0;max-width:155px;
+    display:table-cell;padding:1px 5px 1px 0;max-width:126px;border:0px solid;
 }
 .community-left .discussion-count{
-    padding:1px 8px 1px 8px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+    padding:1px 5px 1px 5px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
 }
 .community-left .seemore-sc{
     width:212px;padding:0 10px 0 0;text-align:right;border:0px solid;
@@ -354,71 +354,122 @@ a{
     
     border: 0px solid;
 }
-.communitystatus,.resources{
-    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+.communitystatus{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #ccc;
 }
-.community-right .community-status{
-    width:224px;border:0px solid #ccc;
+.resources{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #ccc;
 }
-.community-right .dis-count{
+.community-left .community-status{
+    width:224px;padding-bottom:13px;border:1px solid #ccc;
+}
+.community-left .dis-count{
     width:85%;font-size:14px;margin:15px 10px 2px 15px;border:0px solid;
 }
-.community-right .members{
+.community-left .members{
     width:85%;font-size:14px;margin:2px 10px 2px 15px;border:0px solid;
 }
-.community-right .dis-count span{
+.community-left .dis-count span{
     font-size:14px;color:#F58221;font-weight:bold;
 }
-.community-right .members span{
+.community-left .members span{
     font-size:14px;color:#F58221;font-weight:bold;
 }
-.community-right .members a{
+.community-left .members a{
     font-size:14px;color:#89C153;
 }
-.community-right .my-communities-all{
+.community-left .my-communities-all{
     width:85%;font-size:14px;margin:4px 10px 2px 15px;border:0px solid;
-    height:121px;
 }
-.community-right .my-communities-triangle{
+.community-left .my-communities-triangle{
     float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #000;border-right: 5px solid transparent;border-left: 5px solid transparent;
 }
-.community-right .my-communities{
+.community-left .my-communities{
     overflow-y:auto;
-    height:100px;
-    margin-top:5px;
+    height:140px;
+    border:0px solid;
 }
-.community-right .every-community{
-    width:80%;margin-left:18px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
+.community-left .every-community{
+    width:90%;margin-left:10px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
 }
-.community-right .every-community a{
-    color: #000;cursor: pointer;
+.community-left .every-community a{
+    color: #000;cursor: pointer;font-size:13px;
 }
-.community-right .every-community-more{
+.community-left .every-community-more{
     display:none;
 }
-.community-right .mycommunities-seemore{
-    width:80%;margin-left:18px;padding:0px 0 5px 0;
+.community-left .mycommunities-seemore{
+    width:90%;margin-left:8px;padding:0px 0 5px 0;text-align:right;border:0px solid;
 }
-.community-right .mycommunities-seemore .btn-seemore-mc{
+.community-left .mycommunities-seemore .btn-seemore-mc{
     padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
 }
+
+
+/*------------resources------------*/
 .community-right .community-resources{
-    width:224px;border:0px solid #ccc;overflow-y:auto;height:290px;
+    width:224px;border:1px solid #ccc;overflow-y:auto;min-height:1px;max-height:800px;
+}
+.community-right .community-resources-all{
+    width:224px;border:1px solid #ccc;overflow-y:auto;height:800px;display:none;
 }
 .community-right .every-resource{
     width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
 }
+/*
 .community-right .community-resources a{
     font-size:13px;color:#000;
 }
+*/
 .community-right .every-resource-more{
     display:none;
 }
 .community-right .resources-seemore{
-    width:80%;margin-left:20px;padding:0px 0 5px 0;
+    width:200px;padding:0px 0 20px 0;text-align:right;margin:auto;border:0px solid;
 }
 .community-right .resources-seemore .btn-seemore-r{
     font-size:13px;color:#999;cursor: pointer;
+}
+
+.community-resource-tab {
+    display: block;
+    clear: both;
+    margin:auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 0 solid #f0870c;
+    height: 150px;
+    width: 200px;
+    font-size:13px;
+    
+    box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+.community-resource-tab img {
+    display: block;
+    width: 200px;
+
+    border-radius: 6px;
+}
+.community-resource-tab a {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 60px;
+    background: #f0870c;
+    color: #fff !important;
+    font-size: 14px;
+    border-radius: 0 0 6px 6px;
+}
+.community-resource-tab div {
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    width: 200px;
+    text-align: center;
 }
 /*--------------community middle top--------------*/
 .con-main-all .con-main-info-outer{
@@ -799,35 +850,54 @@ a{
                 %endif
                 <div style="clear:both;"></div>
             </div>
-            
-            <div class="subcommunities">
-                <div class="sub-title">Subcommunities&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="communitystatus">
+                <div class="sub-title">Community Status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     %if user_super or ruser_info['facilitator'] and ruser_info['default']:
                     <span class="btn-addsub" onclick="return pepreg.addSubTraining(${community_id});">+</span>
                     %endif
                 </div>
-                <div class="sub-community-titles">
-                    %for k, sc in enumerate(subcommunities_list):
-                        %if sc['member']:
-                            <div class="joined">
-                                %if sc['count_new']:
-                                <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
-                                <div style="display:table-cell"><div class="discussion-count overflow-text">${sc['count_new']}</div></div>
-                                %else:
-                                <div class="overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
-                                %endif
-                            </div>
+                <div class="community-status">
+                    <div class="dis-count">Discussions:&nbsp;<span>${discussions_count}</span></div>
+                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
+                    <div class="my-communities-all">
+                        %if subcommunities_list:
+                        <div style="font-size:14px;float:left;">Subcommunities</div><div class="my-communities-triangle"></div>
                         %else:
-                            <div class="unjoined overflow-text">
-                                <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
-                            </div>  
+                        <div style="height:16px;"></div>
                         %endif
-                    %endfor 
-                    %if sc_count > sc_show_count and sc_count > 0 and sc_show_count > 0:
-                    <div class="seemore-sc">
-                        <span class="btn-seemore-sc">See More</span>
+                        <div style="clear:both;"></div>
+                        <div class="my-communities">
+                            %for k, sc in enumerate(subcommunities_list):
+                                %if sc['member']:
+                                    %if k + 1 == len(subcommunities_list):
+                                    <div class="joined border-zero" >
+                                    %else:
+                                    <div class="joined" >
+                                    %endif
+                                        %if sc['count_new']:
+                                        <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                        <div style="display:table-cell;"><div class="discussion-count overflow-text">${sc['count_new']}</div></div>
+                                        %else:
+                                        <div class="overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                        %endif
+                                    </div>
+                                %else:
+                                    %if k + 1 == len(subcommunities_list):
+                                    <div class="unjoined overflow-text border-zero">
+                                    %else:
+                                    <div class="unjoined overflow-text">
+                                    %endif
+                                        <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
+                                    </div>  
+                                %endif
+                            %endfor
+                            %if sc_count > sc_show_count and sc_count > 0 and sc_show_count > 0: 
+                                <div class="mycommunities-seemore">
+                                    <span class="btn-seemore-mc">See More</span>
+                                </div>
+                            %endif
+                        </div>
                     </div>
-                    %endif
                 </div>
             </div>
             <div class="trending">
@@ -868,7 +938,7 @@ a{
                     <div class="email-facilitator-title">Email Facilitator</div>
                     <textarea id="ask_expert_message" class="email-facilitator-message" placeholder="Ask a question of your community facilitator." rows="3"></textarea>
                     <div class="email-facilitator-error"></div>
-                    <div style="margin-top:10px;text-align:center;"><span class="email-facilitator-send-btn">Send</span></div>
+                    <div style="margin-top:10px;text-align:right;"><span class="email-facilitator-send-btn">Send</span></div>
                     <div class="email-facilitator-close-btn">✕</div>
                 </div>
             </div>
@@ -921,53 +991,60 @@ a{
         
         <!--community-right-->
         <div class="community-right">
-            <div class="communitystatus">
-                <div class="sub-title">Community Status</div>
-                <div class="community-status">
-                    <div class="dis-count">Discussions:&nbsp;<span>${discussions_count}</span></div>
-                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
-                    <div class="my-communities-all">
-                        %if my_communities_list:
-                        <div style="font-size:14px;float:left;">My Communities</div>
-                        <div class="my-communities-triangle"></div>
-                        <div style="clear:both;"></div>
-                        <div class="my-communities">
-                            %for k, mc in enumerate(my_communities_list):
-                                %if k + 1 == len(my_communities_list):
-                                <div class="every-community border-zero overflow-text">
-                                %else:
-                                <div class="every-community overflow-text">
-                                %endif
-                                    <a href="${reverse('maincommunity', args=[mc['id']])}">${mc['name']}</a>
-                                </div>
-                            %endfor
-                            %if mc_count > mc_show_count and mc_count > 0 and mc_show_count > 0:
-                                <div class="mycommunities-seemore">
-                                    <span class="btn-seemore-mc">See More</span>
-                                </div>
-                            %endif
-                        </div>
-                        %endif
-                    </div>
-                </div>
-            </div>
             <div class="resources">
                 <div class="sub-title">Resources</div>
                 <div class="community-resources">
+                    <% 
+                        resource_show_count = 4
+                        course_count = 0 
+                    %>
+                    %for i, cc in enumerate(courses):
+                        <%
+                            if i > 3:
+                                break
+                            endif
+                        %>
+                        <%  course_count = i + 1 %>
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
+                    <% resource_count = resource_show_count - course_count %>
                     %for k, resource in enumerate(resources_list):
-                        %if k + 1 == len(resources_list):
-                        <div class="every-resource border-zero overflow-text">
-                        %else:
-                        <div class="every-resource overflow-text">
-                        %endif
-                            <div><a href="${resource['link']}" target="_blank">${resource['name']}</a></div>
+                        <%
+                            if k > resource_count - 1:
+                                break
+                            endif
+                        %>
+                        <div class="community-resource-tab">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
                         </div>
                     %endfor
-                    %if re_count > re_show_count and re_count > 0 and re_show_count > 0:
+                    %if re_count + courses.count() > resource_show_count > 0:
                         <div class="resources-seemore">
                             <span class="btn-seemore-r">See More</span>
                         </div>
                     %endif
+                </div>
+                <div class="community-resources-all">
+                    %for i,cc in enumerate(courses):
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
+                    %for k, resource in enumerate(resources_list):
+                        <div class="community-resource-tab">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
+                        </div>
+                    %endfor
                 </div>
             </div>
         </div>
@@ -1295,34 +1372,13 @@ a{
         message_board(userInfo);
     }
 
-    //get resources
-    function get_resources_ajax(community_id){
-        var updata = {'community_id': community_id};
-        $.post("${reverse('get_community_resources')}", updata, function (d) {
-            if(d.success){
-                var html = '';
-
-                for(var i=0;i<d.resources.length;i++){
-                    if(i+1==d.resources.length){
-                        html += '<div class="every-resource border-zero overflow-text">';
-                    }
-                    else{
-                        html += '<div class="every-resource overflow-text">';
-                    }
-                    html += '<a href="'+d.resources[i].link+'" target="_blank">'+d.resources[i].name+'</a>';
-                    html += '</div>';
-                }
-                $('.community-resources').html(html);
-            }
-        });
-    }
     //resources see more btn
     $(".btn-seemore-r").click(function(){
-        $(this).hide();
-        get_resources_ajax(${community_id})
+        $(".community-resources").hide();
+        $(".community-resources-all").show();
     });
 
-    //get subcommunities
+    //my status get subcommunities
     function get_subcommunities_ajax(community_id){
         var updata = {'community_id': community_id};
         $.post("${reverse('get_subcommunities')}", updata, function (d) {
@@ -1331,7 +1387,12 @@ a{
 
                 for(var i=0;i<d.subcommunities.length;i++){
                     if(d.subcommunities[i].member){
-                        html += '<div class="joined">';
+                        if(i+1==d.subcommunities.length){
+                            html += '<div class="joined border-zero">';
+                        }
+                        else{
+                            html += '<div class="joined">';
+                        }
                         if(d.subcommunities[i].count_new){
                             html += '<div class="overflow-text joined-title"><a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
                             html += '<div style="display:table-cell"><div class="discussion-count overflow-text">'+d.subcommunities[i].count_new+'</div></div>';
@@ -1342,46 +1403,24 @@ a{
                         html += '</div>';    
                     }
                     else{
-                        html += '<div class="unjoined overflow-text">';
+                        if(i+1==d.subcommunities.length){
+                            html += '<div class="unjoined overflow-text border-zero">';
+                        }
+                        else{
+                            html += '<div class="unjoined overflow-text">';
+                        }
                         html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
                         html += '</div>';   
                     }
-                }
-                $('.sub-community-titles').html(html);
-            }
-        });
-    }
-    //subcommunities see more btn
-    $(".btn-seemore-sc").click(function(){
-        $(this).hide();
-        get_subcommunities_ajax(${community_id});
-    });
-
-    //get my maincommunities
-    function get_mycommunities_ajax(community_id){
-        var updata = {'community_id': community_id};
-        $.post("${reverse('get_mycommunities')}", updata, function (d) {
-            if(d.success){
-                var html = '';
-
-                for(var i=0;i<d.my_communities.length;i++){
-                    if(i+1==d.my_communities.length){
-                        html += '<div class="every-community border-zero overflow-text">';
-                    }
-                    else{
-                        html += '<div class="every-community overflow-text">';
-                    }
-                    html += '<a href="/maincommunity/'+d.my_communities[i].id+'">'+d.my_communities[i].name+'</a>'
-                    html += '</div>';
                 }
                 $('.my-communities').html(html);
             }
         });
     }
-    //mycommunities see more btn
+    //my status subcommunities see more btn
     $(".btn-seemore-mc").click(function(){
         $(this).hide();
-        get_mycommunities_ajax(${community_id});
+        get_subcommunities_ajax(${community_id});
     });
 
     //get trending

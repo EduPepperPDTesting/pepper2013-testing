@@ -126,27 +126,29 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
 	
-	#calendar-month tr td .al_3{ background-color:#22b14c;}
+	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important; color:#FFFFFF !important}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
-	#calendar-month tr td .al_6{ background-color:#ffc90e;}
+	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
+	#calendar-month tr td .al_6{ background-color:#ffc90e; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
+	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#7f7f7f; width:95px;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
-	
+	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7 span{position: relative; left: -10px; color:#FFFFFF !important;}
+
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
 	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
 	#calendar-panel .calendar_exp .c1{background-color:#22B14C;}
 	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
 	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
-	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
+	#calendar-panel .calendar_exp .c4{background-color:#595959;}
 	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
 	
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
@@ -273,7 +275,7 @@
             <div class="add_table-section table-section clearfix">
                 <table id="data-table" class="tablesorter-blue user_table_init"
                        width="" cellspacing="" cellpadding="" border=""
-                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&regSearch=1">
                     <thead>
                         <tr>
                             <th class="sorter-false filter-false">Edit/Delete</th>
@@ -461,18 +463,15 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-                <input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/>
+                <!--input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/-->
                 %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
                     <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
                 %endif
-                <div style="margin-top: 5px;">
+                <!--div style="margin-top: 5px;"-->
                     <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
                     <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
                     <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
-                </div>
-                <!--span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
-                <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn" />
-                <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" /-->
+                <!--/div-->
             </div>
         </div>
         <!--training registration - akogan-->
@@ -618,7 +617,7 @@
                         <h5>Create Your Training or PD Event: Step 4 of 6</h5>
                         <h4>Training or PD Event Location</h4>
                         <div class="form-row">
-                            <span class="label" style="width:220px">Please Fill-in Room # or Location:</span>
+                            <span class="label" style="width:220px">Location -- Room # or URL:</span>
                             <input type="" name="classroom" value="" style="width:400px"/>
                         </div>
                         <div class="form-row">
@@ -682,6 +681,12 @@
                             <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Waitlist</span>
+                            <input type="checkbox" name="allow_waitlist" value="true"/>
+                            <span class="check-mark"
+                                  alt="This will allow students to be added to waitlist."></span>
+                        </div>
+                        <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
                             <input type="checkbox" name="allow_student_attendance" value="true"/>
                             <span class="check-mark"
@@ -724,7 +729,7 @@
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_year, _old_month, _first_date;
 	var _calendar_date = new Date();
 	var _cal_view = "screen";
-	
+
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(goback, goforth){
 	   goback = goback || "false";
@@ -805,17 +810,18 @@
 			$(".alert").click(function () {
 				$("#calendar_alert_title").hide();
 			});
-			 
+
 			$(".alert").each(function(){
-				if($(this).find("input").length > 0){
-					var tmp_span = $(this).find("span");
+				if($(this).hasClass("completeSlot")){
+					var tmp_span = $(this).find("span:eq(0)");
 					var tmp_span_txt = $(tmp_span).text();
-					if(tmp_span_txt.length > 10){
-						$(tmp_span).text(tmp_span_txt.substr(0,10) + "...");
+					if(tmp_span_txt.length > 15){
+						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
-					var tmp1 = $(this).text();
-					if(tmp1.length > 10){
+				    var tmp_span = $(this).find("span");
+					var tmp_span_txt = $(tmp_span).text();
+					if(tmp_span_txt.length > 10){
 						$(this).text(tmp1.substr(0,10) + "...");
 					}
 				}
@@ -872,7 +878,7 @@
 					console.log(regData.trID);*/
 				})
 			});
-			
+
 			$(".calendar_check_attended").each(function(){
 				var attendancel_id = $(this).attr("attendancel_id");
 				if (attendancel_id.length) {
@@ -882,7 +888,7 @@
 					$(this).parent().after(button).after(input);
 					$(input).hide();
 					$(button).hide();
-					
+
 					button.click(function () {
 						if (attendancel_id == input.val()) {
 							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
@@ -891,7 +897,7 @@
 								console.log("~5");
 
                                 pepreg.warning("Thank you for registering/recording attendance for this training!");
-								
+
 								pepreg.reloadTable();
 								calendarOpen();
 							});
@@ -901,16 +907,16 @@
 					});
 				}
 			});
-			
+
 			$(".calendar_check_attended").change(function(){
 				var training_id = $(this).attr("training_id");
 				var attendancel_id = $(this).attr("attendancel_id");
 				var checked = ($(this).attr("checked")) ? true : false;
-				
+
 				if (attendancel_id.length) {
 					var tmp_text = $(this).parent().parent().find("input[type='text'][training_id='" + training_id + "']");
 					var tmp_button = $(this).parent().parent().find("input[type='button'][training_id='" + training_id + "']");
-					
+
 					if (checked) {
 						tmp_text.show();
 						tmp_button.show();
@@ -923,7 +929,7 @@
 							});
 						}
 						tmp_text.hide();
-						tmp_button.hide();						
+						tmp_button.hide();
 					}
 				}else{
 					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
@@ -962,7 +968,7 @@
 		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + picker_year));
 	}
-	
+
 	function mathCreditsChecked(){
 		var t1 = $("input[name='training_time_start']").val();
 		var t2 = $("input[name='training_time_end']").val();
@@ -976,7 +982,7 @@
 			t2_flag = false;
 			if(t1.indexOf("PM") > 0)	t1_flag = true;
 			if(t2.indexOf("PM") > 0)	t2_flag = true;
-			
+
 			t1 = t1.replace(" AM", "").replace(" PM", "");
 			t2 = t2.replace(" AM", "").replace(" PM", "");
 			t1_arr = t1.split(":");
@@ -987,7 +993,7 @@
 			t2_m = Number(t2_arr[1]);
 			if(t1_flag && t1_h != 12)	t1_h += 12;
 			if(t2_flag && t2_h != 12)	t2_h += 12;
-			
+
 			var h = t2_h - t1_h;
 			var m = t2_m - t1_m;
 			if(m < 0){
@@ -997,23 +1003,23 @@
 			m = Number((m / 60).toFixed(1));
 			math_val = h + m;
 		}
-		
+
 		$("#math_credits").attr("bak_val", $("input[name='credits']").val());
 		$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
 		$("input[name='credits']").val(math_val);
 	}
-	
+
 	$(function(){
 		//$("input[name='training_time_start']").change(function(){
 			//alert($(this).val());
 		//});
-		
+
 		//---------------------------------------
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
 			field: document.getElementById('calendar_select_data'),
-			firstDay: 1,			
+			firstDay: 1,
 		    //minDate: new Date("1998-01-01"), maxDate: new Date("2030-12-30"),
 			yearRange: [picker_year - 10, picker_year + 10],
 			onSelect: function(date) {
@@ -1021,7 +1027,7 @@
 				_sys_calendar_month = date.getMonth() + 1;
 				_old_month = _sys_calendar_month;
 				_calendar_picker_day = date.getDate();
-				
+
 				setPickerValue();
 				calendarOpen();
 			}
@@ -1245,20 +1251,20 @@
         _sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
-		
+
 		_sys_calendar_year_now = _calendar_date.getFullYear();
 		_sys_calendar_month_now = _calendar_date.getMonth() + 1;
 		_sys_calendar_day_now = _calendar_date.getDate();
 
 		//-----------------------------------------------getCalendarInfo
-		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	
-			$("#calendar-panel").dialog({title: data.title});			
+		/*$.getJSON("/pepreg/getCalendarInfo", function(data){
+			$("#calendar-panel").dialog({title: data.title});
 			_sys_calendar_year = data.year;
 			_sys_calendar_month = data.month;
 			_sys_calendar_year_now = data.year;
 			_sys_calendar_month_now = data.month;
 		});*/
-		
+
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
 		    console.log(_sys_calendar_month);
@@ -1282,7 +1288,7 @@
 			setPickerValue();
             calendarOpen("true", "false");
 		});
-		
+
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
 		    console.log(_sys_calendar_month);
@@ -1308,7 +1314,7 @@
 			setPickerValue();
             calendarOpen("false", "true");
 		});
-		
+
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous_y").click(function(){
 		    var rangeVal = $("#calendar_select_range").val();
@@ -1339,7 +1345,7 @@
 			setPickerValue();
 			calendarOpen("true", "false");
 		});
-		
+
 		//-----------------------------------------------next
 		$("#calendar_btn_next_y").click(function(){
 		    var rangeVal = $("#calendar_select_range").val();
@@ -1418,7 +1424,7 @@
 			if($("#school_id").attr("flag_system") == "1"){
 				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
 					$("#school_id").empty();
-					$("#school_id").append('<option value=""></option>');        
+					$("#school_id").append('<option value=""></option>');
 					if(data.length > 0){
 						for(var i in data){
 							$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
@@ -1427,7 +1433,7 @@
 				});
 			}
 		});
-	});	
+	});
 
     $('.list-group-item, .forBtnRemoval').click(function(){
         removeScrollBtns();
@@ -1443,13 +1449,15 @@
     };
 
     function uniqueTrainingSlot() {
+        var bStart, bLimit, tClass, hClass, dh, iClass;
+        var height, leftX, slIndex, lastWidth;
         var existingSlots = 0;
         for ( var a = 0; a < 2; a++ ) { console.log(a);
-            bStart = (a == 0) ? 6 : 1;
-            bLimit = (a == 0) ? 12 : 6;
+            bStart = (a == 0) ? 7 : 0;
+            bLimit = (a == 0) ? 11 : 8;
             tClass = (a == 0) ? ".AM" : ".PM";
             for ( var b = bStart; b <= bLimit; b++ ) {
-                dh = (b < 10) ? ".0" + b : "." + b;
+                dh = (b == 0)? ".12" : (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(".unique").length;
                 console.log(hClass + " els #: " + cLimit);
@@ -1480,11 +1488,26 @@
 
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
-                        var labelHtml = $(iClass).first().find("label").html();
+                        var labelHtml = $(iClass).first().find("label").html().replace(/(\r\n|\n|\r)/gm,"");
+                        console.log("HTML: "+labelHtml);
                         $(iClass+":gt(0)").remove();
                         $(iClass+" label").remove();
-                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 100px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>"
-                         + labelHtml + "</div>");
+                        $(iClass).append("<div data-slot='" + iClass + "' id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='min-width: 140px; max-width:200px; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;padding-right:10px;text-align:left;'></div>");
+
+                        if(labelHtml.indexOf("<input") == -1){
+                            if(labelHtml.indexOf('Location:') > -1){
+                                var locationSpan = '<span style="float: right;padding-right: 5px;">' + labelHtml.substring(labelHtml.indexOf('Location:'), labelHtml.indexOf('</div>')) + '</span>';
+                                console.log("locationSpan: "+ locationSpan);
+                                labelHtml = labelHtml.substring(0, labelHtml.indexOf('Location:')) + locationSpan + '</div>';
+                                console.log("new labelHtml: " + labelHtml);
+                            }
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
+                            $("[data-slot='" + iClass + "']").find("span").css({"position": "relative", "left": "0px"});
+                            $("[data-slot='" + iClass + "']").find("div").css({"position": "relative", "min-width": "135px"});
+                        }else{
+                            $("[data-slot='" + iClass + "']").append(labelHtml);
+                        }
+
                         $(iClass + " div").removeClass("short_name");
                         $(".training-row:not(:has('.completeSlot'))").filter(function() {
                             return $(this).height() == 24;
@@ -1520,7 +1543,7 @@
             var lastSlotX = $(".completeSlot:last").position().left + parseInt($(".completeSlot:last").width()) + 20;
             var tableX = $("#calendar-month").position().left + parseInt($("#calendar-month").width());
             if(lastSlotX > tableX){
-                tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
+                var tableWidth = parseInt($("#calendar-month").width()) + (lastSlotX - tableX);
                 $("#calendar-month").css("width", tableWidth + "px");
             }
 
@@ -1566,7 +1589,7 @@
                 }
 
                 if($("#btn_down").length){
-                    $("#btn_down").click(function(){                        
+                    $("#btn_down").click(function(){
                         $("#calendar_content").animate({scrollTop: $(".completeSlot").filter(function(cont_bottom){
                            var slot_top = $(this).css('top');
                            isanimated = true;
@@ -1623,7 +1646,7 @@
                            isanimated = true;
                            return parseInt(slot_top) >= cont_bottom;
                         }).first().outerHeight()}, 1000, function() {
-                console.log("posY: "+$(".completeSlot:eq(0)").position().top)
+                console.log("posY: "+$(".completeSlot:eq(0)").position().top);
             });
         }
     };
@@ -1665,7 +1688,7 @@
         });
         map_show.addControl(map_show_directions);	//控件
         map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
-		
+
 		/*this.map_show = L.map('map_show');
         L.tileLayer(url_tile_layer, {
             maxZoom: 18,
@@ -1724,7 +1747,8 @@
                                 $form.find("input[name=max_registration]").val() || 0 : 0,
             allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
             allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
-            allow_validation: $form.find("input[name=allow_validation]:checked").val()
+            allow_validation: $form.find("input[name=allow_validation]:checked").val(),
+            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val()
         };
         if (json.subject == "Other") {
             json.subjectother = $form.find("input[name=subject-other]").val();
@@ -1776,7 +1800,7 @@
             dailogTitle = "Warning";
         }
         if(s && s.indexOf("|")>-1){
-            var googlePerm = ${has_hangout_perms(request.user)};
+            var googlePerm = ("${has_hangout_perms(request.user)}" == "False")? false: true;
             var t = s.substring(0, s.indexOf("!") + 1);
             var eventString = s.substr(s.indexOf("!") + 1).split("|");
             eventStart = eventString[0];
@@ -1911,14 +1935,14 @@
         } else {
             self.clearData();
         }
-        self.fillData(data);						
-		
+        self.fillData(data);
+
 		// ************* school id
 		if($("#school_id").attr("flag_system") == "1"){
 			var school_id = data.school_id;
-			$("#school_id").empty();	
-			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
-				$("#school_id").append('<option value="-1"></option>');        
+			$("#school_id").empty();
+			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {
+				$("#school_id").append('<option value="-1"></option>');
 				if(data.length > 0){
 					for(var i in data){
 						$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
@@ -1994,7 +2018,7 @@
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
-        var ar = [];       
+        var ar = [];
 		$("#training_instructors_list").find("tr").each(function () {
 			var email = $(this).find("td").eq(1).text();
 			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
@@ -2016,10 +2040,10 @@
 						var tmp_td3 = $("<td align='center'><input type='checkbox' name='allow_delete' /></td>");
 						tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3);
 						$("#training_instructors_list").append(tmp_tr);
-						
+
 						if(tmp[1] == "1")			tmp_td2.find("input").attr("checked", "checked");
 						if(tmp[2] == "1")			tmp_td3.find("input").attr("checked", "checked");
-						
+
 						tmp_tr.find("a").click(function(e){
 							e.preventDefault();
 							$(this).parent().parent().remove();
@@ -2127,7 +2151,7 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
-			
+
 			if(r.arrive == "1"){
 				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
 				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
@@ -2137,16 +2161,16 @@
 				$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 				$(".training_date_icon").show();
 			}
-			
+
 			$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
 			$("#math_credits").removeAttr("checked");
-			
+
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
                     self.steps.switchTo(einfo.id);
                     return;
-                }				
+                }
                 $.post("${reverse('pepreg_save_training')}", data, function (r) {
                     if (r.success) {
                         $("#dlg-add-training").hide();
@@ -2170,11 +2194,11 @@
 		$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
 		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 		$(".training_date_icon").show();
-		
+
 		$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
 		$("#math_credits").removeAttr("checked");
-			
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
+
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
             // submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -2226,6 +2250,15 @@
             }
         });
     };
+    PepReg.prototype.waitlistUser = function (training_id, join, cb) {
+        $.post("${reverse('pepreg_waitlist')}", {training_id: training_id, join: join}, function (r) {
+            if (r.success) {
+                cb(join, r.training_id);
+                trID=r.training_id;
+                regData={success: true, trID: trID};
+            }
+        });
+    };
     PepReg.prototype.setStudentAttended = function (student_id, training_id, yn, cb) {
         var self = this;
         $.post("${reverse('pepreg_set_student_attended')}", {
@@ -2253,6 +2286,13 @@
     PepReg.prototype.deleteStudent = function (id, cb) {
         var self = this;
         $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
+            if (r.success) {
+                cb && cb(r.data);
+            }
+        });
+    };
+    PepReg.prototype.unwaitlistStudent = function (id, cb) {
+        $.post("${reverse('pepreg_waitlist')}", {training_id: id}, function (r) {
             if (r.success) {
                 cb && cb(r.data);
             }
@@ -2357,7 +2397,7 @@
                     data.is_attended = data.is_attended ? "checked" : "";
                     data.is_validated = data.is_validated ? "checked" : "";
                     data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
-                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a class='{status}'>✕</a> {email}</td><td>{status}</td>\
                     <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
                     <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
                     if ($r)$r.replaceWith($row);
@@ -2373,11 +2413,21 @@
                     }
                     $row.find("a").css("color", "red");
                     $row.find("a").css("cursor", "pointer");
-                    $row.find("a").click(function (e) {
+                    $row.find("a[class != 'Waitlist']").click(function (e) {
                         e.preventDefault();
                         self.confirm("Really delete the student?", dlg, function (r) {
                             if (r) {
                                 self.deleteStudent(data.id, function () {
+                                    $row.remove();
+                                });
+                            }
+                        });
+                    });
+                    $row.find("a[class = 'Waitlist']").click(function (e) {
+                        e.preventDefault();
+                        self.confirm("Really remove the student from waitlist?", dlg, function (r) {
+                            if (r) {
+                                self.unwaitlistStudent(data.id, function () {
                                     $row.remove();
                                 });
                             }
@@ -2401,13 +2451,22 @@
                     return $row;
                 }
 
-
-
-
+                var waitlist_array = [];
 
                 $.each(r.rows, function (i, data) {
-                    fillRow(null, data).appendTo($tbody);
+                    if(data.status != "Waitlist"){
+                        fillRow(null, data).appendTo($tbody);
+                    }else if(data.status == "Waitlist"){
+                        waitlist_array.push(data);
+                    }
                 });
+
+                if(waitlist_array){
+                    $.each(waitlist_array, function (i, data) {
+                        fillRow(null, data).appendTo($tbody);
+                    });
+                }
+
                 $(".download-students-excel").unbind("click").click(function () {
                     window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
                 });
@@ -2572,6 +2631,7 @@
                 var reach_limit = apart[4];
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
+                var allow_waitlist = apart[7];
 				if(is_superuser){
 					all_edit = "1";
 					all_delete = "1";
@@ -2591,14 +2651,19 @@
 						});
 					}
                 }
-                // Register/Record Attendance
+                // Register/Record Attendance/Waitlist
                 $(this).find("td:nth-child(15)").each(function () {
                     if (arrive == "0" && allow == "0") {
                         $(this).html("The training date has not arrived yet.");
                     } else if (arrive == "0" && allow == "1") {
-                        if (status == "" && reach_limit == "1") {
+                        if ((status == "" || status == "Waitlist") && reach_limit == "1") {
                             // not reigistered and reach limit
-                            $(this).html("Maximum number of users have registered for this training.");
+                            $(this).html("<div>Maximum number of users have registered for this training.</div>");
+                            if(status == "" && allow_waitlist == "1"){
+                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span></div>');
+                            }else if(status == "Waitlist"){
+                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span></div>');
+                            }
                         } else {
                             var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
                             if (remain > -1) {
@@ -2625,6 +2690,29 @@
                                 });
                             });
                         }
+
+                        $("#waitlist_add_" + training_id).click(function () {
+                            var thisCheck = $(this);
+                            self.waitlistUser(training_id, true, function (reg, trID) {
+                                if (reg){
+                                    var DataRow = thisCheck.closest("tr");
+                                    warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
+                                    warningData += DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(9)").text() + "|";
+                                    warningData += DataRow.find("td:eq(5)").text() + "|";
+                                    warningData += DataRow.find("td:eq(6)").text() + "|";
+                                    warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
+
+                                    self.warning("Thank you! You have been added to the waitlist for this training!" + warningData);
+                                }
+                            });
+                        });
+
+                        $("#waitlist_remove_" + training_id).click(function () {
+                            self.waitlistUser(training_id, false, function (reg, trID) {
+                                self.warning("Thank you! You are no longer on the waitlist for this training.");
+                            });
+                        });
+
                     } else if (arrive == "1" && status == "" && allow == "1") {
                         $(this).html("The registration date has passed for this training");
                     } else if (arrive == "1" && allow_student_attendance == "0") {
@@ -2703,7 +2791,7 @@
                         $(this).css("color", "#1d9dd9");
                         $(this).css("cursor", "pointer");
                         $(this).click(function () {
-                            var google_save = (${has_hangout_perms(request.user)})? true: false;
+                            var google_save = ("${has_hangout_perms(request.user)}" == "False")? false: true;
                             self.showStudents(training_id, google_save);
                         });
                     });
@@ -2731,7 +2819,7 @@
                     console.log("getfielddata: "+data.success);
                     if (data.success) {
                         $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option value='"+ v +"'>" + v + "</option>");
+                            $("#advanced_select_1").append("<option data-hidden='false' value='"+ v.toLowerCase() +"'>" + v + "</option>");
                         });
                     }
                 });
@@ -2742,180 +2830,298 @@
             }
             $(".tablesorter-filter-row").css("display", "none");
         });
+
         $("#advanced_search").on("change", ".advanced_select", function (){
             var val = $(this).val();
-            var suborder = $(this).attr("name");
-            $(this).next("div").empty();
+            var reload = true;
+            var suborder = parseInt($(this).attr("name"));
+
             console.log("advanced_select val: "+val);
             if(val != ""){
-                $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
-                    console.log("advanced_select data.success: "+data.success);
-                    if (data.success) {
-                        $("#advanced_select_" + suborder).next("div").append("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
-                        $("#subselect_" + suborder).append("<option value=''>Select</option>");
-                        var optValue;
-                        $.each(data.rows, function(k, v){
-                            if(val == "Subject"){
-                                switch (v){
-                                    case "Assessments and Reporting":
-                                        optValue = "AR";
-                                        break;
-                                    case "Digital Citizenship":
-                                        optValue = "DC";
-                                        break;
-                                    case "English Language Arts":
-                                        optValue = "ELA";
-                                        break;
-                                    default:
-                                        optValue = "";
-                                }
-                            }else{
-                                optValue = v;
-                            }
-                            $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
-                        });
+                var hide_option = true;
+
+                for(var i = 1; i <= $(".advanced_select").length; i++){
+                    if(i == suborder) continue;
+                    if($("#advanced_select_" + i).val() == val && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and') && i < $(".subcondition").length && $("#subcondition_" + i).val() == 'and'){
+                        hide_option = false
+                        break;
                     }
                 }
-                });
-            }else{
-                filters = $.tablesorter.getFilters($("#data-table"));
-                filters[parseInt(suborder)] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+
+                console.log("hide_option = " + hide_option);
+
+                if(hide_option){
+                    $(".advanced_select[name != '" + suborder + "'] option[value='" + val + "']").css("display", "none").attr("data-hidden", "true");
+
+                    for(var i = 1; i <= $(".advanced_select").length; i++){
+                        if($("#advanced_select_" + i + " option[data-hidden='false']").length > 1){
+                            if($("#advanced_select_" + i).val() == val && $("#subcondition_" + i).is(':disabled')){
+                                 $("#subcondition_" + i).prop('disabled', false);
+                                 $("#subcondition_" + i).prepend("<option value='and'>AND</option>");
+                                 $("#subcondition_" + i).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                            }
+                        }
+                    }
+                }else{
+                    reload = false;
+                    $(this).val($(this).data('oldvalue'));
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "1px solid red");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                    setTimeout(function(){
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().css("border", "");
+                        $(".advanced_select[name != '" + suborder + "'] option[value = '" + val + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                    }, 500);
+                }
+
+                if(reload){
+                    $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
+                        console.log("advanced_select data.success: "+data.success);
+                        if (data.success) {
+                            $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
+                            $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
+                            $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
+                            $("#subselect_" + suborder).append("<option value=''>Select</option>");
+                            var optValue;
+                            $.each(data.rows, function(k, v){
+                                if(val == "subject"){
+                                    switch (v){
+                                        case "Assessments and Reporting":
+                                            optValue = "AR";
+                                            break;
+                                        case "Digital Citizenship":
+                                            optValue = "DC";
+                                            break;
+                                        case "English Language Arts":
+                                            optValue = "ELA";
+                                            break;
+                                        default:
+                                            optValue = "";
+                                    }
+                                }else{
+                                    optValue = v;
+                                }
+                                $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
+                            });
+                        }else{
+                            $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
+                        }
+                    }
+                    });
+                }
+            }else if(val == ""){
+                $("#advanced_select_" + suborder).next("div").empty();
+
+                removeNextFilter(suborder);
+
+                reloadTableAdvanced();
             }
         });
 
         $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
-            var suborder = parseInt($(this).attr("name"));
-            console.log("subselect val: "+val);
-            filters = $.tablesorter.getFilters($("#data-table"));
+            var suborder = $(this).attr("name");
+
             if(val != ""){
-                if(suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == "and"){
-                    console.log("and "+suborder);
-                    filters[suborder] = $(this).val();
-                    $.tablesorter.setFilters($("#data-table"), filters, true);
-                }else if($("#subcondition_" + (suborder - 1)).val() == "or"){
-                    var col_1 = $("#subselect_" + (suborder - 1)).attr("data-column");
-                    var col_2 = $("#subselect_" + suborder).attr("data-column");
-                    var val_1 = $("#subselect_" + (suborder - 1)).val();
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val);
-                }
+                reloadTableAdvanced();
 
                 if($("#addNext[name = '" + suborder + "']").length == 0){
-                    $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"'> + </a>");
+                    $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
-            }else{
-                filters[suborder] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+            }else if(val == ""){
+                $("#addNext[name='" + suborder + "']").remove();
+                $("#subcondition_" + suborder).remove();
+
+                removeNextFilter(suborder);
+
+                reloadTableAdvanced();
             }
         });
 
         $("#advanced_search").on("click", "#addNext", function () {
             var addNext = $(this).text();
-            var suborder = parseInt($(this).attr("name")) + 1;
+            var suborder = parseInt($(this).attr("name"));
+            var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
             if(addNext == " + "){
-                $(this).text(" - ").css("top", "-1px !important");
-                $("#advanced_select_" + (suborder - 1)).next("div").append("<select id='subcondition_" + (suborder - 1) + "' name='" + (suborder - 1) + "' autocomplete='off' class='subcondition'></select>");
-                $("#subcondition_" + (suborder - 1)).append("<option value='and'>AND</option>");
-                $("#subcondition_" + (suborder - 1)).append("<option value='or'>OR</option>");
-                if($("#advanced_select_" + suborder).length == 0){
+                $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".4em"});
+                $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -10px;'></select>");
+                if($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1){
+                    $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
+                }
+                $("#subcondition_" + suborder).append("<option value='or'>OR</option>");
+                console.log("condition dd added");
+                //if(($("#subcondition_" + (suborder - 1)).length == 1 && $("#subcondition_" + (suborder - 1)).val() == 'or') || $("#advanced_select_" + suborder + " option[data-hidden='false']").length == 1) {
+                if($("#advanced_select_" + suborder + " option[data-hidden='false']").length == 1){
+                    $("#subcondition_" + suborder).prop("disabled", true);
+                    $("#subcondition_" + suborder).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                    //$("#subcondition_" + suborder + "::-ms-expand").css("display", "none");
+                }
 
-                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + suborder + "' name='" + suborder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
-                    $("#advanced_select_" + suborder).append("<option value=''>Select Field</option>");
-
-                    $.get("${reverse('getfielddata')}", {}, function(data) {
+                if($("#advanced_select_" + nextOrder).length == 0){
+                    console.log("new advanced_select");
+                    $("#advanced_search").append("<div style='display: block;'><select id='advanced_select_" + nextOrder + "' name='" + nextOrder + "' autocomplete='off' class='advanced_select'></select><div style='display: inline-block; margin-left: 5px;'></div></div>");
+                    $("#advanced_select_" + nextOrder).append("<option value=''>Select Field</option>");
+                    var field_selected = $("#advanced_select_" + suborder).val();
+                    $.get("${reverse('getfielddata')}", function(data) {
                         if (data.success) {
+                            console.log("new advanced_select data success: "+data.success);
                             $.each(data.rows, function(k, v){
-                                $("#advanced_select_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
+                                var disp = "block";
+                                var hidden = 'false';
+                                for(var i = 1; i <= suborder; i++){
+                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                        disp = "none";
+                                        hidden = 'true';
+                                        break;
+                                    }
+                                }
+                                $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
                             });
                         }
                     });
                 }
 
             }else{
-                $(this).text(" + ").css("top", "0px");
-                $("#subcondition_" + (suborder - 1)).remove();
-                $("#advanced_select_" + suborder).next("div").remove();
-                $("#advanced_select_" + suborder).remove();
-                console.log("filters["+(suborder - 1)+"]="+filters[suborder - 1]);
-                filters[suborder] = "";
+                $(this).text(" + ").css({"position": "relative", "top": "3px", "left": "-3px", "font-size": "2em", "height": "", "line-height": ""});
+                $("#subcondition_" + suborder).remove();
+
+                removeNextFilter(suborder);
+
+                reloadTableAdvanced();
             }
             $.tablesorter.setFilters($("#data-table"), filters, true);
         });
 
-        //filtering records with OR condition
-        function OrFilter(tablesorterOptions, col_1, col_2, val_1, val){
-            console.log("tablesorterOptions="+tablesorterOptions);
-            $(".or_filter").removeClass("or_filter");
-            var valueCol_1 = val_1;
-            var valueCol_2 = val;
-            $(".tablesorter-filter[data-column='" + col_1 + "']").addClass("or_filter").val(valueCol_1);
-            console.log(valueCol_1+" "+col_1);
-            $(".tablesorter-filter[data-column='" + col_2 + "']").addClass("or_filter").val(valueCol_2);
-            console.log(valueCol_2+" "+col_2);
-
-            //get 'OR'-condition column indexes
-            var orColumns = [col_1, col_2],
-            //show row if one of given columns has corresponding cell with required value
-            filterfxn = function (e, n, f, i, $r, c) {
-                console.log("in filterfxn");
-                var v, showRow = false;
-                $r.children().filter(function (indx) {
-                    console.log(orColumns.indexOf(indx)+ " " + indx);
-                    if (orColumns.indexOf(indx) > -1) {
-                        console.log(c.$filters.eq(indx).find('.tablesorter-filter').val()+" "+indx+" "+orColumns.indexOf(indx));
-                        v = $("#subselect_" + indx).val().toLowerCase();
-                        console.log(v);
-                        showRow = showRow || $(this).text().toLowerCase() === v;
-                    }
-                });
-                return showRow;
-            };
-
-            console.log(orColumns);
-
-            var filter_functions = {
-                ".or_filter": filterfxn
-            };
-
-            tablesorterOptions.widgetOptions.filter_functions = filter_functions;
-
-            $("#data-table").tablesorter(tablesorterOptions);
-            console.log(tablesorterOptions);
-            $("#data-table").trigger("update");
-
-            $(".tablesorter-filter[data-column='" + col_2 + "']").trigger("change");
-
-            console.log("filterfxn");
-        };
-
         $("#advanced_search").on("change", ".subcondition", function () {
             var val = $(this).val();
-
             var suborder = parseInt($(this).attr("name"));
-            var val_1 = $("#subselect_" + suborder).val();
-            var val_2 = $("#subselect_" + (suborder + 1)).val();
+            var fieldValue = $("#advanced_select_" + suborder).val();
 
-            var filters = $.tablesorter.getFilters($("#data-table"));
-            console.log((isNaN(val_2) && typeof val_2 == "srting") + " " + (val_2 !== "undefined") + " " + (val_2 != ""));
-            if(((isNaN(val_2) && typeof val_2 == "srting") || val_2 !== "undefined") && val_2 != ""){
-                console.log("in subcondition check");
-                if(val == "and") {
-                    console.log("->and");
-                    filters[suborder] = $("#subselect_" + suborder).val();
-                    $.tablesorter.setFilters($("#data-table"), filters, true);
-                }else if(val == "or"){
-                    var col_1 = $("#subselect_" + suborder).attr("data-column");
-                    var col_2 = $("#subselect_" + (suborder + 1)).attr("data-column");
-                    console.log("val_1="+val_1+" val_2="+val_2);
-                    OrFilter(tablesorterOptions, parseInt(col_1), parseInt(col_2), val_1, val_2);
+            if($(".advanced_select option[value = '" + fieldValue + "']:selected").length > 1 && (suborder == 1 || $("#subcondition_" + (suborder - 1)).val() == 'and')){
+                if(val == 'and') {
+                    $(this).val("or");
+                }else{
+                    $(this).val("and");
                 }
+                $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().css("border", "1px solid red");
+                $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "1px solid red");
+                setTimeout(function(){
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().css("border", "");
+                    $(".advanced_select[name != '" + suborder + "'] option[value = '" + fieldValue + "']:selected").parent().next().children(":nth-child(1)").css("border", "");
+                }, 500);
             }else{
-                filters[(suborder + 1)] = "";
-                $.tablesorter.setFilters($("#data-table"), filters, true);
+                $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
+                for(var i = 1; i < $(".advanced_select").length; i++){
+                    fieldValue = $("#advanced_select_" + i).val();
+                    console.log("fieldValue="+fieldValue);
+
+                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == fieldValue)) && $("#subcondition_" + i).val() == 'and'){
+                        for(var n = 1; n <= $(".advanced_select").length; n++){
+                            if(n == i) continue;
+                            console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
+                            console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
+                            if($("#advanced_select_" + n).val() != fieldValue){
+                                $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
+                            }
+                            if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
+                                if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled') === false){
+                                    $("#subcondition_" + n).prop('disabled', true);
+                                    $("#subcondition_" + n + " option[value='and']").remove();
+                                    $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for(var n = 1; n <= $(".advanced_select").length; n++){
+                    if($("#advanced_select_" + n + " option[data-hidden='false']").length > 1){
+                        if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled')){
+                            $("#subcondition_" + n).prop('disabled', false);
+                            $("#subcondition_" + n).prepend("<option value='and'>AND</option>");
+                            $("#subcondition_" + n).css({"-webkit-appearance": "", "-moz-appearance": "", "appearance": ""});
+                        }
+                    }
+                }
+
+                if($("#subselect_" + (suborder + 1)).length > 0 && $("#subselect_" + (suborder + 1)).val() != '') reloadTableAdvanced();
             }
         });
+
+        function removeNextFilter(suborder){
+            var n = $(".advanced_select").length;
+            while(n > suborder){
+                $("#advanced_select_" + n).next("div").remove();
+                $("#advanced_select_" + n).remove();
+                n--;
+            }
+
+            $(".advanced_select option[data-hidden='true']").attr("data-hidden", "false").css("display", "block");
+            for(var i = 1; i < $(".advanced_select").length; i++){
+                fieldValue = $("#advanced_select_" + i).val();
+                console.log("fieldValue="+fieldValue);
+
+                if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == fieldValue)) && $("#subcondition_" + i).val() == 'and'){
+                    for(var n = 1; n <= $(".advanced_select").length; n++){
+                        if(n == i) continue;
+                        console.log("n="+n+" ifnone: " + ($("#advanced_select_" + n).val() != fieldValue && $("#subcondition_" + (n - 1)).val() == 'and'));
+                        console.log("isfieldValue: " + ($("#advanced_select_" + n).val() == fieldValue));
+                        if($("#advanced_select_" + n).val() != fieldValue){
+                            $("#advanced_select_" + n).find("option[value='" + fieldValue + "']").css("display", "none").attr("data-hidden", "true");
+                        }
+                        if($("#advanced_select_" + n + " option[data-hidden='false']").length == 1){
+                            if($("#advanced_select_" + n).val() == fieldValue && $("#subcondition_" + n).is(':disabled') === false){
+                                $("#subcondition_" + n).prop('disabled', true);
+                                $("#subcondition_" + n + " option[value='and']").remove();
+                                $("#subcondition_" + n).css({"-webkit-appearance": "none", "-moz-appearance": "none", "appearance": "none"});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function reloadTableAdvanced(){
+            var order = $(".advanced_select").length;
+            var data = {};
+
+            var field_list = {};
+            var search_list = {};
+            var condition_list = {};
+
+            var i = 1;
+            while(i <= order){
+                n = i - 1;
+                s = "[" + n + "]";
+
+                var field_type = ($("#advanced_select_" + i).length == 1) ? $("#advanced_select_" + i).val() + "|" + n : "";
+                if(field_type != "") field_list[s] = field_type;
+
+                var search_val = ($("#subselect_" + i).length == 1) ? $("#subselect_" + i).val() : "";
+                if(search_val != "") search_list[s] = search_val;
+
+                var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
+                if(cond != "") condition_list[s] = cond;
+
+                i++;
+            }
+            console.log(field_list + "---" + search_list + "---" + condition_list)
+
+            data['field_list'] = field_list;
+            console.log(data['field_list']);
+            data['search_list'] = search_list;
+            console.log(data['search_list']);
+            data['condition_list'] = condition_list;
+            console.log(data['condition_list']);
+
+            var t = $('#data-table')[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.data = $.extend(p.data, data);
+            p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date() + "&regSearch=0";
+            p.reload();
+        }
         /* advanced filtering */
 
     };

@@ -39,6 +39,7 @@ from .models import CourseAssignmentCourse
 from util import saml_django_response
 import base64
 from PIL import Image
+from xmodule.remindstore import myactivitystore
 
 # *Guess the xmlsec_path
 try:
@@ -636,7 +637,18 @@ def register_user_easyiep(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key
     }
@@ -650,6 +662,12 @@ def register_sso(request, activation_key):
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
+    if request.user.is_authenticated() and profile.user == request.user:
+        return redirect(reverse('dashboard'))
+
+    if profile.subscription_status == 'Registered':
+        return HttpResponse("User already registered.")
+        
     ms = metadata.idp_by_name(profile.sso_idp)
     attribute_setting = ms.get('attributes')
 
@@ -658,7 +676,12 @@ def register_sso(request, activation_key):
         mapped_name = attr['map'] if attr['map'] else attr['name']
         attribute_mapping[mapped_name] = attr
 
+    try:
+        cohort = profile.cohort.id
+    except:
+        cohort = 0
     context = {
+        'cohort': cohort,
         'profile': profile,
         'activation_key': activation_key,
         'attribute_mapping': attribute_mapping
@@ -755,6 +778,27 @@ def activate_account(request):
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
 
+        #** course enroll
+        try:
+            cohort = profile.cohort.code
+        except:
+            cohort = ""
+        if profile.district.code == "3968593":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.2/F2017', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+        elif profile.district.state.name == "Oklahoma":
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.3/F2017', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+        elif profile.district.state.name != "New Mexico" and cohort != '#C-001':
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+            
         # ** upload photo
         # photo = request.FILES.get("photo")
         # upload_user_photo(profile.user.id, photo)

@@ -7,7 +7,7 @@ CoursePermission.prototype.downloadExcel = function(url){
     var user_state_ids = $("#lst-user-filter-state").get_selection();
     var user_district_ids = $("#lst-user-filter-district").get_selection();
     var user_school_ids = $("#lst-user-filter-school").get_selection();
-    var user_cohort_ids = ($("#lst-user-filter-cohort").length ? $("#lst-user-filter-cohort").get_selection().join(",") : []);
+    var user_cohort_ids = ($("#lst-user-filter-cohort").length ? $("#lst-user-filter-cohort").get_selection() : []);
     var course_subject = ($("#filters-subject-submenu li.active").attr("data-value") || '');
     var course_author = ($("#filters-author-submenu li.active").attr("data-value") || '');
     var course_grade_level = ($("#filters-grade-submenu li.active").attr("data-value") || '');
@@ -223,6 +223,12 @@ CoursePermission.prototype.loadCourseTable = function(){
             $(this).find("td:nth-child(5)").hide();
             $(this).find("td:nth-child(6)").hide();
             $(this).find("td:nth-child(4)").prop("title", displaynumber);
+            $(this).find("td:nth-child(10)").hide();
+            var name = $(this).find("td:nth-child(4)").text();
+            if ($(this).find("td:nth-child(10)").text() == 'true'){
+                name = displaynumber + "-" + name + '    <font color="red">CLOSED</font>';
+                $(this).find("td:nth-child(4)").html(name)
+            }
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
             var toggle3 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(8)).toggleSwitch();

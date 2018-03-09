@@ -1618,6 +1618,7 @@ def newcommunities(request):
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
+                                   'motto': item.community.motto,
                                    'logo': item.community.logo.upload.url if item.community.logo else '',
                                    'private': item.community.private})
     # Query for the communities this user is allowed to see.
@@ -1625,6 +1626,7 @@ def newcommunities(request):
     for item in items:
         community_list.append({'id': item.id,
                                'name': item.name,
+                               'motto': item.motto,
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
 
@@ -1711,7 +1713,7 @@ def maincommunity(request, community_id):
     '''
     Get Subcommunities for init show
     '''
-    sc_show_count = 4
+    sc_show_count = 3
     # default_last_access when last_access is null
     default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
@@ -1726,7 +1728,7 @@ def maincommunity(request, community_id):
             filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
-                count_new = '99+'
+                count_new = '99'
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
@@ -1745,11 +1747,12 @@ def maincommunity(request, community_id):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Resources for init show
+    Get Courses and Resources for init show
     '''
-    re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
-    re_count = CommunityResources.objects.filter(community=community).count()
+    courses = CommunityCourses.objects.select_related().filter(community=community)
+
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
     resources_list = list()
     for k, r in enumerate(resources):
         resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
@@ -1773,12 +1776,12 @@ def maincommunity(request, community_id):
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
-                      're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count,
-                      'd_top5_view_count': d_top5_view_count
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses
                       }
     data.update(community_info)
 
@@ -1864,7 +1867,7 @@ def subcommunity(request, community_id):
     '''
     Get Subcommunities for init show
     '''
-    sc_show_count = 4
+    sc_show_count = 3
     # default_last_access when last_access is null
     default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
     subcommunities_list = list()
@@ -1879,7 +1882,7 @@ def subcommunity(request, community_id):
             filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
             count_new = mongo3_store.find(filter_cond).count()
             if count_new > 99:
-                count_new = '99+'
+                count_new = '99'
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
         else:
             subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
@@ -1898,11 +1901,12 @@ def subcommunity(request, community_id):
         my_communities_list.append({'id': item.community.id, 'name': item.community.name})
 
     '''
-    Get Resources for init show
+    Get Courses and Resources for init show
     '''
-    re_show_count = 4
-    resources = CommunityResources.objects.select_related().filter(community=community)[0:re_show_count]
-    re_count = CommunityResources.objects.filter(community=community).count()
+    courses = CommunityCourses.objects.select_related().filter(community=community)
+
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
     resources_list = list()
     for k, r in enumerate(resources):
         resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
@@ -1928,12 +1932,12 @@ def subcommunity(request, community_id):
                       'mc_show_count': mc_show_count,
                       'mc_count': mc_count,
                       'my_communities_list': my_communities_list,
-                      're_show_count': re_show_count,
                       're_count': re_count,
                       'resources_list': resources_list,
                       'd_and_r_count': d_and_r_count,
                       'likes_count': likes_count,
-                      'd_top5_view_count': d_top5_view_count
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses
                       }
     data.update(community_info)
 
@@ -2375,7 +2379,6 @@ def subcommunity_user_email_completion(request):
     user_district = request.user.profile.district
     lookup = request.GET.get('q', False)
     main_community_id = request.GET.get('main_id', 0)
-
     if lookup and main_community_id:
         kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered', 'communityuser__community': main_community_id}
 
@@ -2408,6 +2411,17 @@ def subcommunity_user_email_valid(request):
 
     return render_json_response(check_result)
 
+def communities_search_community_completion(request):
+    cinfo = list()
+    lookup = request.POST.get('q', False)
+    if lookup:
+        kwargs = {'name__istartswith': lookup, 'main_id': 0}
+
+        data = CommunityCommunities.objects.filter(**kwargs).order_by('-id')
+        for item in data:
+            cinfo.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps({"success": True, "cinfo": cinfo}), content_type="application/json")
+
 @login_required
 @ensure_csrf_cookie
 def get_resources_process(request):
@@ -2419,7 +2433,7 @@ def get_resources_process(request):
     resources_list = list()
     resources = CommunityResources.objects.select_related().filter(community=int(community_id))
     for k, r in enumerate(resources):
-        resources_list.append({'name': r.name, 'link': r.link})
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})   
     return HttpResponse(json.dumps({'success': True, 'resources': resources_list}), content_type='application/json')
 
 @login_required
@@ -2549,7 +2563,9 @@ def new_process_get_discussions(request):
             size = 0
         else:
             if discussion_id:
-                find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+                tmp_find_el = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+                find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "community_id": community_id, "db_table": "community_discussions"}
+                # find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
             else:
                 find_sql = {"community_id": community_id, "db_table": "community_discussions"}
 
@@ -2821,7 +2837,9 @@ def new_process_get_discussion_reply(request):
             discussions_json = []
             if level == "1":
                 if comment_id:
-                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
                 else:
                     find_sql = {"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
 
@@ -2938,7 +2956,9 @@ def new_process_get_discussion_reply(request):
                     discussions_json.append(discussions_json_2)
             else:
                 if comment_id:
-                    find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies_next", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
                 else:
                     find_sql = {"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
 

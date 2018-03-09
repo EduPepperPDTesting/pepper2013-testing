@@ -898,13 +898,19 @@ INSTALLED_APPS = (
     # web chat
     'webchat',
 
+    # Task Queue
+    'taskqueue',
+
     # Organization
     'organization',
 
     'async_task',
 
     # Header/footer
-    'header_footer'
+    'header_footer',
+
+    # playbook
+    'playbook',
 )
 
 ######################### MARKETING SITE ###############################

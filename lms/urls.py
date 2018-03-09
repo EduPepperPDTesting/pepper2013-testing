@@ -94,6 +94,7 @@ urlpatterns = (
     url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
     url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
+    url(r'^pepreg/register$', 'administration.pepreg.waitlist', name="pepreg_waitlist"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
     url(r'^pepreg/student_list$', 'administration.pepreg.student_list', name="pepreg_student_list"),
@@ -120,7 +121,13 @@ urlpatterns = (
     url(r'^cms_libraries/$', 'handle_cms.views.get_libraries', name='cms_libraries'),
     url(r'^cms_library/$', 'handle_cms.views.get_library', name='cms_library'),
     url(r'^cms_book/$', 'handle_cms.views.get_book', name='cms_book'),
+    url(r'^cms_password/$', 'handle_cms.views.encode_cms_password', name='cms_password'),
     # === CMS 2.1 end === #
+
+    # === Task Queue Begin === #
+    url(r'^popqueue/$', 'taskqueue.views.pop_queue', name='task_queue_pop'),
+    url(r'^jobstatus/$', 'taskqueue.views.job_status', name='taskqueue_get_job_progress'),
+    # === Task Queue End === #
 
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
@@ -217,6 +224,7 @@ urlpatterns = (
     url(r'^usage_report/save_user_status$', 'administration.usage_report.save_user_status', name="save_user_status"),
     url(r'^usage_report/save_user_password$', 'administration.usage_report.save_user_password', name="save_user_password"),
     url(r'^usage_report/save_user_passwordold$', 'administration.usage_report.save_user_password_checkold', name="save_user_passwordold"),
+    url(r'^usage_report/download_excel_allsearch$', 'administration.usage_report.download_excel_allsearch_reasult', name="download_excel_allsearch"),
     
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
@@ -482,6 +490,7 @@ urlpatterns = (
     url(r'^community/get_mycommunities', 'communities.views.get_mycommunities_process', name='get_mycommunities'),
     url(r'^community/get_subcommunities', 'communities.views.get_subcommunities_process', name='get_subcommunities'),
     url(r'^community/get_trending', 'communities.views.get_trending_discussions_process', name='get_trending'),
+    url(r'^communities/search/community-completion', 'communities.views.communities_search_community_completion', name='communities_search_community_completion'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 
@@ -630,6 +639,16 @@ urlpatterns = (
         name='auth_password_reset_done'),
     url(r'^heartbeat$', include('heartbeat.urls')),
     url(r'^user_api/', include('user_api.urls')),
+
+
+    # playbook
+    url(r'^playbook$', 'playbook.views.playbook', name='playbook'),
+    url(r'^playbook/create_new_play$', 'playbook.views.create_new_play', name='create_new_play'),
+    url(r'^playbook/edit_play$', 'playbook.views.edit_play', name='edit_play'),
+    url(r'^playbook/create_new_category$', 'playbook.views.create_new_category'), # for debug
+    url(r'^playbook/get_play_list', 'playbook.views.get_play_list', name='get_play_list'),
+    url(r'^playbook/play_detail/(?P<play_pk>\d+)$', 'playbook.views.play_detail', name='play_detail'),
+
 )
 js_info_dict = {
     'domain': 'djangojs',

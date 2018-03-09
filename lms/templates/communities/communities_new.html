@@ -240,25 +240,26 @@ div.expand_div{
 }
 .community-all{
     width:640px;
-    background-color:#e4e4e4;
     margin:auto;
     margin-top:15px;
     margin-bottom:15px;
 }
 .community-all-title{
     width:100%;
-    height:30px;
+    height:31px;
     background-color:#535456;
-    color:#fff;
-    font-size:17px;
     text-align:center;
     padding-top:10px;
 }
+.community-content{
+    background-color:#e4e4e4;
+    margin-top:5px;
+}
 .communities-column{
-    width:193px;
+    width:301px;
     float:left;
     background-color:#fff;
-    margin-left:15px;
+    margin-left:13px;
     margin-top:15px;
     margin-bottom:15px;
 }
@@ -267,7 +268,7 @@ div.expand_div{
     width:100%;
     height:30px;
     color:#fff;
-    font-size:14px;
+    font-size:15px;
     padding-top:10px;
     text-align:center;
 }
@@ -276,6 +277,42 @@ div.expand_div{
     height:500px;
     overflow-y:auto;
 }
+.my-communities-all a{
+    cursor:pointer;
+    color:#000;
+}
+/*
+.my-communities-all a:hover{
+    color:#434343;
+}
+*/
+.community-tab{
+    height:120px;width:270px;padding-top:15px;margin:auto;border-bottom:1px solid #ccc;
+}
+
+.my-communities-all :last-child .community-tab{
+    border-bottom:0px !important;
+}
+.community-tab-text{
+    float:left;width:125px;text-align:center;padding-left:5px;
+}
+.community-tab-text-title{
+    height:56px;width:130px;font-size:15px;line-height:18px;font-weight:bold;overflow:hidden;
+}
+.community-tab-text-title-cell{
+    display:table-cell;height:56px;width:130px;vertical-align:middle;text-align:center;
+}
+.community-tab-text-content{
+    height:48px;width:130px;font-size:12px;overflow:hidden;
+}
+.community-tab-image-con{
+    float:left;height:104px;width:130px;margin-left:8px;overflow:hidden;
+}
+.community-tab-image{
+   display:table-cell;vertical-align:middle;text-align:center;height:104px;width:130px; 
+}
+
+
 
 .communities-text{
     width:130px;
@@ -433,6 +470,23 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
 .select-lock option{
     color:#ccc;
 }
+
+/*-----------Search box-----------*/
+div.mul-drop-button-box{
+    text-align:left;
+}
+.check-all-label{
+    display:none !important;
+}
+.list-scroll td{
+    text-align:left;
+}
+.list-scroll input{
+   display:none;
+}
+.mul-drop-button-box .item{
+    cursor:pointer !important;
+}
 </style>
 <link rel="stylesheet" href="/static/css/amazeui.cropper.css">
 <link rel="stylesheet" href="/static/css/custom_up_img.css">
@@ -476,6 +530,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     build and enhance your community of practice
                 </div>
             </div>
+            <!--
             <div class="community-find">
                 <div style="padding-top:22px;padding-left:30px;">
                     <form method="" id="community_list_form" action="">
@@ -498,37 +553,78 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                     </form>
                 </div>
             </div>
+            -->
             <div class="community-all">
                 <div class="community-all-title">
-                    Pepper Communities
+                    <div style="color:#fff;font-size:17px;float:left;padding-left:25px;">Pepper Communities</div>
+                    %if request.user.is_superuser:
+                        <div style="padding-left:10px;display:inline-block;">
+                            <a href="#" style="font-size:14px;color:#2CBAEC;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
+                        </div>
+                    %endif
+                    <div style="float:right;margin-top:-4px;">
+                        <select name="subject_id" name="" autocomplate="off" class="mu" label="Search">
+                            %for community in communities:
+                                <option value="${community['id']}">${community['name']}</option>
+                            %endfor
+                        </select>
+                    </div>
                 </div>
                 <div class="community-content">
                     <div class="my-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#28bcec;">My Communities</div>
+                        <div class="my-communities-title" style="background-color:#f8801f;">My Communities</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if user_in_community(community['id'], request.user.id):
-                                    <div class="communities-text">
-                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
-                            %endfor
+                            %endfor                         
                         </div>
                     </div>
 
                     <div class="public-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#f8801f;">Public Communities</div>
+                        <div class="my-communities-title" style="background-color:#89c651;">Join a Community</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if community['private'] == 0:
-                                    <div class="communities-text">
-                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
                             %endfor
                         </div>
                     </div>
-
+                    <!--
                     <div class="my-district-communities communities-column">
                         <div class="my-communities-title" style="background-color:#89c651;">My District Communities</div>
                         <div class="my-communities-all">
@@ -541,7 +637,7 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
                             %endfor
                         </div>
                     </div>
-
+                    -->
                     <div style="clear:both;"></div>
                 </div>
             </div>
@@ -803,7 +899,8 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
         });
     }
 </script>
-
+<script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
+<link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
 <script type="text/javascript">
     function PepReg($content) {
         var self = this;
@@ -1424,6 +1521,14 @@ h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,
             source: function (request, response) {
                 $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
             }
+        });
+
+        $(".mu").multi_sele_dropdown();
+
+        $(document).on('click', '.mul-drop-button-box .item', function () {
+            var cid = $(this).children().attr("value");
+            console.log(cid);
+            window.location.href="/maincommunity/"+cid;
         });
     });
 </script>
