@@ -2457,7 +2457,7 @@
                 $.each(r.rows, function (i, data) {
                     if(data.status != "Waitlist"){
                         fillRow(null, data).appendTo($tbody);
-                    }else if(waitlist_array){
+                    }else if(data.status == "Waitlist"){
                         waitlist_array.push(data);
                     }
                 });
@@ -2467,21 +2467,6 @@
                         fillRow(null, data).appendTo($tbody);
                     }
                 }
-
-                var waitlist_array = [];
-                $.each(r.rows, function (i, data) {
-                    if(data.status == "Waitlist"){
-                        waitlist_array.push(data);
-                    }
-                    if(waitlist_array){
-                        waitlist_array.sort(function(a, b){
-                            a = new Date(a.dateModified);
-                            b = new Date(b.dateModified);
-                        })
-                    }
-
-                    fillRow(null, data).appendTo($tbody);
-                });
 
                 $(".download-students-excel").unbind("click").click(function () {
                     window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
