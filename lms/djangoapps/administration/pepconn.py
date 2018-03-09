@@ -46,6 +46,9 @@ from permissions.decorators import user_has_perms
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from permissions.utils import check_user_perms
 
+#BEGIN TASKQUEUE
+from taskqueue.views import create_job, push_reg_email
+#END TASKQUEUE
 
 log = logging.getLogger("tracking")
 USER_CSV_COLS = ('email', 'state_name', 'district_name',)
@@ -1428,13 +1431,34 @@ def registration_send_email(request):
         data = registration_filter_user(request.POST, data)
         ids = data.values_list('user_id', flat=True)
 
-    task = EmailTask()
-    task.total_emails = len(ids)
-    task.user = request.user
-    task.save()
-    
-    do_send_registration_email(task, ids, request)
-    return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
+    #
+    # @TaskQueue Update
+    #
+
+    job_id = create_job('email', len(ids), request.user)
+
+    custom_email_body = ""
+    custom_email_subject = ""
+    if request.POST.get("custom_email_002"):
+        custom_email_body = request.POST.get("custom_email_002")
+    if request.POST.get("custom_email_subject"):
+        custom_email_subject = request.POST.get("custom_email_subject")
+
+    for id in ids:
+        email_json = {
+            'custom_email': request.POST.get("customize_email"),
+            'custom_message': custom_email_body,
+            'custom_message_subject': custom_email_subject,
+            'ids': id
+        }
+        email_dump = json.dumps(email_json)
+        push_reg_email(job_id, email_dump)
+
+    #
+    # @End TaskQueue Update
+    #
+
+    return HttpResponse(json.dumps({'success': True, 'taskId': job_id, 'message': message}), content_type="application/json")
 
 
 @postpone
@@ -1484,13 +1508,14 @@ def do_send_registration_email(task, user_ids, request):
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
+        else:
+            profile.save()
         finally:
             count_success += 1
             task.success_emails = count_success
             task.update_time = datetime.now(UTC)
             task.save()
             tasklog.save()
-            profile.save()
             db.transaction.commit()
 
     #** post process
