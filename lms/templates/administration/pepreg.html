@@ -2660,11 +2660,13 @@
                     } else if (arrive == "0" && allow == "1") {
                         if ((status == "" || status == "Waitlist") && reach_limit == "1") {
                             // not reigistered and reach limit
+                            var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
+                            var remove_from_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span>';
                             $(this).html("<div>Maximum number of users have registered for this training.</div>");
                             if(status == "" && allow_waitlist == "1"){
-                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span></div>');
+                                $(this).append('<div>' + add_to_wl + '</div>');
                             }else if(status == "Waitlist"){
-                                $(this).append('<div><input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span></div>');
+                                $(this).append('<div>' + remove_from_wl + '</div>');
                             }
                         } else {
                             var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
@@ -2705,13 +2707,17 @@
                                     warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
                                     self.warning("+Thank you! You have been added to the waitlist for this training." + warningData);
+
+                                    thisCheck.parent().empty().append(remove_from_wl);
                                 }
                             });
                         });
 
                         $(this).on("click", "#waitlist_remove_" + training_id, function () {
+                            var thisCheck = $(this);
                             self.waitlistUser(training_id, false, function (reg, trID) {
                                 self.warning("-Thank you! You are no longer on the waitlist for this training.");
+                                thisCheck.parent().empty().append(add_to_wl);
                             });
                         });
 
