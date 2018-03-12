@@ -1298,14 +1298,14 @@ def waitlist(request):
             raise Exception("user: "+str(student_user))
         else:
             student_user = request.user
-
+        raise Exception("user: " + str(student_user))
         try:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
         except:
             student = PepRegStudent()
             student.user_create = request.user
             student.date_create = datetime.now(UTC)
-            raise Exception("user: " + str(student_user))
+
 
         if join:
             student_status = "Waitlist"
