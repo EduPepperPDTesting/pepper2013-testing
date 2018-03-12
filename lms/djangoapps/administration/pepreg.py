@@ -1307,8 +1307,10 @@ def waitlist(request):
 
         if join:
             student_status = "Waitlist"
+            raise Exception("Waitlist add")
         else:
             student_status = ""
+            raise Exception("Waitlist remove")
 
         student.student = student_user
         student.student_status = student_status
