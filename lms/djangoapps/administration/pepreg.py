@@ -1309,17 +1309,14 @@ def waitlist(request):
 
         if join:
             student_status = "Waitlist"
-            #raise Exception("Waitlist add")
+            student.student = student_user
+            student.student_status = student_status
+            student.training_id = int(training_id)
+            student.user_modify = request.user
+            student.date_modify = datetime.now(UTC)
+            student.save()
         else:
-            student_status = ""
-            #raise Exception("Waitlist remove")
-
-        student.student = student_user
-        student.student_status = student_status
-        student.training_id = int(training_id)
-        student.user_modify = request.user
-        student.date_modify = datetime.now(UTC)
-        student.save()
+            student.delete()
 
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
