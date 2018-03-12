@@ -2691,7 +2691,7 @@
                             });
                         }
 
-                        $("#waitlist_add_" + training_id).click(function () {
+                        $(this).on("click, "#waitlist_add_" + training_id, function () {
                             var thisCheck = $(this);
                             self.waitlistUser(training_id, true, function (reg, trID) {
                                 if (reg){
@@ -2707,7 +2707,7 @@
                             });
                         });
 
-                        $("#waitlist_remove_" + training_id).click(function () {
+                        $(this).on("click, "#waitlist_remove_" + training_id, function () {
                             self.waitlistUser(training_id, false, function (reg, trID) {
                                 self.warning("Thank you! You are no longer on the waitlist for this training.");
                             });
