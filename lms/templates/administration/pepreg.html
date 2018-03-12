@@ -2294,13 +2294,13 @@
         });
     };
 
-    PepReg.prototype.unwaitlistStudent = function (id, cb) {
-        $.post("${reverse('pepreg_waitlist')}", {training_id: id}, function (r) {
+    PepReg.prototype.unwaitlistStudent = function (trId, id, cb) {
+        $.post("${reverse('pepreg_waitlist')}", {training_id: trId, user_id: id}, function (r) {
             if (r.success) {
                 cb();
 
                 var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
-                $("#waitlist_remove_" + id).parent().empty().append(add_to_wl);
+                $("#waitlist_remove_" + trId).parent().empty().append(add_to_wl);
             }
         });
     };
@@ -2433,8 +2433,8 @@
                         e.preventDefault();
                         self.confirm("Really remove the student from waitlist?", dlg, function (r) {
                             if (r) {
-                                console.log("unwaitlist: " + data.id);
-                                self.unwaitlistStudent(data.id, function () {
+                                console.log("unwaitlist: " + data.training_id);
+                                self.unwaitlistStudent(data.training_id, data.id, function () {
                                     $row.remove();
                                 });
                             }
