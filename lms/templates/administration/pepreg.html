@@ -2692,7 +2692,7 @@
                         }
 
                         $(this).on("click", "#waitlist_add_" + training_id, function () {
-                            var thisCheck = $(this); console.log("waitlist_add checked: "+$(this).checked);
+                            var thisCheck = $(this); console.log("waitlist_add checked: "+$(this).is(":checked"));
                             self.waitlistUser(training_id, true, function (reg, trID) { console.log("waitlistUser");
                                 if (reg){
                                     var DataRow = thisCheck.closest("tr");
