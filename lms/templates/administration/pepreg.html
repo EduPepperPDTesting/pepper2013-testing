@@ -2250,9 +2250,9 @@
             }
         });
     };
-    PepReg.prototype.waitlistUser = function (training_id, join, cb) {
+    PepReg.prototype.waitlistUser = function (training_id, join, cb) { console.log(training_id+" "+join+" "+cb);
         $.post("${reverse('pepreg_waitlist')}", {training_id: training_id, join: join}, function (r) {
-            if (r.success) {
+            if (r.success) { console.log(r.success+" "+r.training_id);
                 cb(join, r.training_id);
                 trID=r.training_id;
                 regData={success: true, trID: trID};
