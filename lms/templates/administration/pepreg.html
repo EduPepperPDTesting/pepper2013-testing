@@ -859,7 +859,7 @@
                                 warningData += data.description + "|";
                                 warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
                                 warningData += " " + data.geo_location;
-                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                pepreg.warning("Thank you for registering/recording attendance for this training!*" + warningData);
 					        }else{
 						        pepreg.warning("Thank you for registering/recording attendance for this training!");
 					        }
@@ -1801,8 +1801,8 @@
         }
         if(s && s.indexOf("|")>-1){
             var googlePerm = ("${has_hangout_perms(request.user)}" == "False")? false: true;
-            var t = s.substring(0, s.indexOf("!") + 1);
-            var eventString = s.substr(s.indexOf("!") + 1).split("|");
+            var t = s.substring(0, s.indexOf("*"));
+            var eventString = s.substr(s.indexOf("*") + 1).split("|");
             eventStart = eventString[0];
             eventEnd = eventString[1];
             eventTitle = eventString[2];
@@ -2687,7 +2687,7 @@
                                         warningData += DataRow.find("td:eq(6)").text() + "|";
                                         warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
-                                        self.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                        self.warning("Thank you for registering/recording attendance for this training!*" + warningData);
                                     }else{
                                         self.warning("Thank you! You are no longer registered for this training.");
                                     }
@@ -2706,7 +2706,7 @@
                                     warningData += DataRow.find("td:eq(6)").text() + "|";
                                     warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
-                                    self.warning("Thank you You have been added to the waitlist for this training." + warningData);
+                                    self.warning("Thank you! You have been added to the waitlist for this training.*" + warningData);
 
                                     thisCheck.parent().empty().append(remove_from_wl);
                                 }
@@ -2780,7 +2780,7 @@
                                         warningData += DataRow.find("td:eq(6)").text() + "|";
                                         warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " +DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
-                                        self.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                                        self.warning("Thank you for registering/recording attendance for this training!*" + warningData);
                                     }else{
                                         self.warning("Thank you! You are no longer registered for this training.");
                                     }
