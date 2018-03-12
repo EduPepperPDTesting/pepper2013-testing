@@ -2256,6 +2256,8 @@
                 cb(join, r.training_id);
                 trID=r.training_id;
                 regData={success: true, trID: trID};
+            }else{
+                console.log(r.success+" "+r.error);
             }
         });
     };
