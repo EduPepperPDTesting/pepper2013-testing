@@ -2706,7 +2706,7 @@
                                     warningData += DataRow.find("td:eq(6)").text() + "|";
                                     warningData += DataRow.find("td:eq(10)").find("span:eq(0)").text() + " " + DataRow.find("td:eq(10)").find("span:eq(1)").text();
 
-                                    self.warning("+Thank you! You have been added to the waitlist for this training." + warningData);
+                                    self.warning("Thank you You have been added to the waitlist for this training." + warningData);
 
                                     thisCheck.parent().empty().append(remove_from_wl);
                                 }
@@ -2716,7 +2716,7 @@
                         $(this).on("click", "#waitlist_remove_" + training_id, function () {
                             var thisCheck = $(this);
                             self.waitlistUser(training_id, false, function (reg, trID) {
-                                self.warning("-Thank you! You are no longer on the waitlist for this training.");
+                                self.warning("Thank you! You are no longer on the waitlist for this training.");
                                 thisCheck.parent().empty().append(add_to_wl);
                             });
                         });
