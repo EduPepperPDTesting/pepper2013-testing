@@ -1294,11 +1294,11 @@ def waitlist(request):
         user_id = request.POST.get("user_id")
 
         if user_id:
-            raise Exception("user: "+str(user_id))
-            student_user = User.objects.get(id=int(user_id))
+            student_id = PepRegStudent.objects.get(id=user_id).student_id
+            student_user = User.objects.get(id=student_id)
         else:
             student_user = request.user
-            
+
         try:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
         except:
