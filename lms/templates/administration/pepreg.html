@@ -2299,7 +2299,7 @@
             if (r.success) {
                 cb();
 
-                var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
+                var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + trId + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
                 $("#waitlist_remove_" + trId).parent().empty().append(add_to_wl);
             }else{
                 console.log(r.error);
