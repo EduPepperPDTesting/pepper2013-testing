@@ -1305,6 +1305,7 @@ def waitlist(request):
             student = PepRegStudent()
             student.user_create = request.user
             student.date_create = datetime.now(UTC)
+            raise Exception("user: " + str(student_user))
 
         if join:
             student_status = "Waitlist"
