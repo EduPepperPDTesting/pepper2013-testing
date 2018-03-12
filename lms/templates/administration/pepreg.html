@@ -2692,8 +2692,8 @@
                         }
 
                         $(this).on("click", "#waitlist_add_" + training_id, function () {
-                            var thisCheck = $(this);
-                            self.waitlistUser(training_id, true, function (reg, trID) {
+                            var thisCheck = $(this); console.log("waitlist_add checked: "+$(this).checked);
+                            self.waitlistUser(training_id, true, function (reg, trID) { console.log("waitlistUser");
                                 if (reg){
                                     var DataRow = thisCheck.closest("tr");
                                     warningData = DataRow.find("td:eq(7)").text() + " " + DataRow.find("td:eq(8)").text() + "|";
