@@ -2435,7 +2435,7 @@
                         e.preventDefault();
                         self.confirm("Really remove the student from waitlist?", dlg, function (r) {
                             if (r) {
-                                console.log("unwaitlist: " student: " + data.id + " from: " + training_id);
+                                console.log("unwaitlist: " + data.id + " from: " + training_id);
                                 self.unwaitlistStudent(training_id, data.id, function () {
                                     $row.remove();
                                 });
