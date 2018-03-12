@@ -1295,6 +1295,7 @@ def waitlist(request):
 
         if user_id:
             student_user = User.objects.get(id=int(user_id))
+            raise Exception("user: "+str(student_user))
         else:
             student_user = request.user
 
