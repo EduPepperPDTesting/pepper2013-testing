@@ -1221,11 +1221,11 @@ def remove_student(student):
     student.delete()
 
 
-def register(request):
+def register(request, studentId = None):
     try:
         join = request.POST.get("join", "false") == "true"
         training_id = request.POST.get("training_id")
-        user_id = request.POST.get("user_id")
+        user_id = request.POST.get("user_id") if studentId == None else studentId
         training = PepRegTraining.objects.get(id=training_id)
 
         if user_id:
@@ -1280,6 +1280,12 @@ def register(request):
             
             if mem.exists():
                 mem.delete()
+
+            on_waitlist = PepRegStudent.objects.filter(training_id=training_id, status='Waitlist')
+            if training.allow_waitlist and on_waitlist.count > 0:
+                top_on_waitlist = on_waitlist.order_by('id')[:1].student_id
+                register(request, top_on_waitlist)
+
 
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
