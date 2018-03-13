@@ -2290,6 +2290,8 @@
         $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
             if (r.success) {
                 cb && cb(r.data);
+            }else{
+                console.log(r.error);
             }
         });
     };
