@@ -1513,8 +1513,16 @@ def delete_student(request):
     try:
         id = int(request.POST.get("id"))
         user = PepRegStudent.objects.get(id=id).student
+        training_id = PepRegStudent.objects.get(id=id).training_id
         remove_student(PepRegStudent.objects.get(id=id))
         TrainingUsers.objects.filter(user=user).delete()
+
+        training = PepRegTraining.objects.get(id=training_id)
+        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, status='Waitlist')
+        if training.allow_waitlist and on_waitlist.count > 0:
+            top_on_waitlist = on_waitlist.order_by('id')[:1].student_id
+            register(request, top_on_waitlist)
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
