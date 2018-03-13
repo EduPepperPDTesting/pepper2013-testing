@@ -1281,7 +1281,7 @@ def register(request, studentId = None):
             if mem.exists():
                 mem.delete()
 
-            on_waitlist = PepRegStudent.objects.filter(training_id=training_id, status='Waitlist')
+            on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
             raise Exception("allow_waitlist=" + str(training.allow_waitlist) + " on_waitlist.count="+str(on_waitlist.count))
             if training.allow_waitlist and on_waitlist.count > 0:
                 top_on_waitlist = on_waitlist.order_by('id')[:1].student_id
@@ -1518,7 +1518,7 @@ def delete_student(request):
         TrainingUsers.objects.filter(user=user).delete()
 
         training = PepRegTraining.objects.get(id=training_id)
-        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, status='Waitlist')
+        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
         if training.allow_waitlist and on_waitlist.count > 0:
             top_on_waitlist = on_waitlist.order_by('id')[:1].student_id
             register(request, top_on_waitlist)
