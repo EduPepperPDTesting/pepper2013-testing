@@ -5,6 +5,7 @@ import pymongo
 import logging
 import json
 from reporting.run_config import RunConfig
+from student.models import User
 log = logging.getLogger("tracking")
 
 
@@ -211,7 +212,8 @@ class MongoReportingStore(object):
             self.collection.remove({"user_id":int(tmp),"school_year":"current"})
 
 
-    def get_user_data(user):
+    def get_user_data(self, user):
+        user = User.objects.get(pk=user.id)
         data = {'email':user.email, 'user_id': user.id, 'user_name': user.username}
         try:
             data['first_name'] = user.first_name
