@@ -151,7 +151,7 @@
                             % if check_user_perms(request.user, 'certificate'):
                                 <li id="org_tsm_configuration_obj"><a href="${absolute_url(reverse('configuration'))}">Configuration</a></li>
                             % endif
-                            % if request.user.is_superuser:
+                            % if check_user_perms(request.user, 'OrganizationConfiguraiton'):
                                 <li><a href="${absolute_url(reverse('organizational_configuration'))}">Organizational Configuration</a></li>
                             % endif
                             <li id="org_tsm_pepper_pd_planner_obj"><a href="${absolute_url(reverse('pepreg'))}">Pepper PD Planner</a></li>
