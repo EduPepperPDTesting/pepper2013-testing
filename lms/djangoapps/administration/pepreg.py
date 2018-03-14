@@ -1272,6 +1272,7 @@ def register_student(request, join, training_id, user_id):
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
+            student.delete()
 
             # akogan
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
@@ -1532,6 +1533,7 @@ def delete_student(request):
         training_id = PepRegStudent.objects.get(id=id).training_id
         remove_student(PepRegStudent.objects.get(id=id))
         TrainingUsers.objects.filter(user=user).delete()
+        PepRegStudent.objects.filter(id=id).delete()
 
         training = PepRegTraining.objects.get(id=training_id)
         on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
