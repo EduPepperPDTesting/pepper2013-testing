@@ -152,8 +152,7 @@ def build_sorts(columns, sorts):
 
 
 def reach_limit(training):
-    return training.max_registration > 0 and PepRegStudent.objects.filter(
-        training=training, student_status!='Waitlist').count() >= training.max_registration
+    return training.max_registration > 0 and PepRegStudent.objects.filter(~Q(student_status='Waitlist'), training=training).count() >= training.max_registration
 
 
 def instructor_names(training):
