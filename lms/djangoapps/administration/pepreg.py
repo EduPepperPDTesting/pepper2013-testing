@@ -1283,6 +1283,7 @@ def register_student(request, join, training_id, user_id):
 
             on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
             if training.allow_waitlist and on_waitlist.count > 0:
+                raise Exception('no waitlist')
                 top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
                 register_student(request, True, training_id, top_on_waitlist)
 
