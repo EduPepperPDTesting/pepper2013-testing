@@ -1272,7 +1272,7 @@ def register_student(request, join, training_id, user_id):
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
-            student.delete()
+            PepRegStudent.objects.filter(training_id=training_id, student=student_user).delete()
 
             # akogan
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
