@@ -4,6 +4,8 @@ from django.conf import settings
 import pymongo
 import logging
 import json
+from reporting.run_config import RunConfig
+from student.models import User
 log = logging.getLogger("tracking")
 
 
@@ -168,7 +170,7 @@ class MongoReportingStore(object):
         return self.db.system_js.collection_stats()
 
     def get_aggregate(self, collection, pipeline, disk=False):
-        self.db.command({'aggregate': collection,
+        return self.db.command({'aggregate': collection,
                          'pipeline': pipeline,
                          'allowDiskUse': disk})
 
@@ -187,6 +189,72 @@ class MongoReportingStore(object):
         cursor = list(self.db.eval(val))
         return cursor[start:start + num]
 
+    def update_user_view(self, user):
+        data = self.get_user_data(user)
+        self.update_data({'school_year': 'current','user_id':int(user.id)}, data,RunConfig["new_user_info"]["collection"])
+
+    def insert_user_view(self, user):
+        collection = "new_user_info"
+        self.del_collection(collection)
+        self.set_collection(collection)
+        data = self.get_user_data(user)
+        self.collection.insert(data)
+        query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
+        result = self.get_aggregate(collection,query)
+        for tmp in result['result']:
+            self.set_collection(RunConfig[collection]["collection"])
+            self.collection.insert(tmp)
+
+    def delete_user_view(self, ids):
+        collection = "user_info"
+        self.set_collection(RunConfig[collection]["collection"])
+        for tmp in ids:
+            self.collection.remove({"user_id":int(tmp),"school_year":"current"})
+
+
+    def get_user_data(self, user):
+        user = User.objects.get(pk=user.id)
+        data = {'email':user.email, 'user_id': user.id, 'user_name': user.username}
+        try:
+            data['first_name'] = user.first_name
+        except:
+            data['first_name'] = ""
+        try:
+            data['last_name'] = user.last_name
+        except:
+            data['last_name'] = ""
+        try:
+            data['district_id'] = user.profile.district.id
+            data['district'] = user.profile.district.name
+            data['state_id'] = user.profile.district.state.id
+            data['state'] = user.profile.district.state.name
+        except:
+            data['district_id'] = ""
+            data['district'] = ""
+            data['state_id'] = ""
+            data['state'] = ""
+        try:
+            data['school_id'] = user.profile.school.id
+            data['school'] = user.profile.school.name
+        except:
+            data['school_id'] = ""
+            data['school'] = ""
+        try:
+            data['subscription_status'] = user.profile.subscription_status
+        except:
+            data['subscription_status'] = ""
+        try:
+            data['cohort_id'] = user.profile.cohort.id
+            data["cohort"] = user.profile.cohort.code
+        except:
+            data['cohort_id'] = ""
+            data["cohort"] = ""
+        try:
+            data['activate_date'] = user.profile.activate_date.strftime('%b-%d-%y %H:%M:%S')
+        except:
+            data['activate_date'] = ""
+
+        return data
 
 def reporting_store():
     options = {}

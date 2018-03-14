@@ -40,7 +40,7 @@ from util import saml_django_response
 import base64
 from PIL import Image
 from xmodule.remindstore import myactivitystore
-
+from reporting.models import reporting_store
 # *Guess the xmlsec_path
 try:
     from saml2.sigver import get_xmlsec_binary
@@ -798,7 +798,7 @@ def activate_account(request):
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
-            
+
         # ** upload photo
         # photo = request.FILES.get("photo")
         # upload_user_photo(profile.user.id, photo)
@@ -821,6 +821,10 @@ def activate_account(request):
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
+
+        
+        rs = reporting_store()
+        rs.update_user_view(profile.user)
 
         js = {'success': True}
     except Exception as e:

@@ -191,6 +191,7 @@
 </style>
 
 <!--Main Page Configuration-->
+% if request.user.is_superuser:
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
     <div class="expand_title expand_title_collapse" always_on="1">Main Page Configuration<div class="icon"></div></div>
     <div class="expand_div">
@@ -474,10 +475,10 @@
 			      	</div>
 			    </div>
 			</div>
-			</div>
-        </div>        
+        </div>
     </div>
 </div>
+% endif
 
 <!--organization-table-->
 <div class="organization_main">
@@ -486,7 +487,9 @@
             <thead>
                 <tr>
                     <th>Organization</th>
+                    % if request.user.is_superuser:
                     <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-select-all"></th>
+                    % endif
                 </tr>
             </thead>
             <tbody></tbody>
@@ -508,15 +511,72 @@
                     <option value="200">200</option>
                 </select>
             </div>
+            % if request.user.is_superuser:
             <input type="button" name="submit" id="del-organization" value="REMOVE SELECTED" class="small_btn" />
             <input type="button" name="submit" value="ADD" class="small_btn" onclick="organizationEdit('add','','')" />
+            % endif
         </div>
     </div>
 </div>
 
+<!--Organization Locations-->
+% if request.user.is_superuser:
+<div class="organization_main1 expand_title_parent">
+    <div class="expand_title expand_title_collapse" always_on="1">Organization Locations<div class="icon"></div></div>
+    <div class="expand_div">
+        <select id="org_state_select" style="width:200px;">
+            <option value="">Select State</option>
+        </select>
+        <select id="org_district_select" style="width:200px;"></select>
+        <select id="org_school_select" style="width:200px;"></select>
+        <select id="org_cohort_select" style="width:200px;">
+            <option value="">Select Cohort</option>
+        </select>
+        <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
+        <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
+        <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
+        <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
+
+        <div style="width:500px; margin-top:10px;">
+            <table id="organization-state-table" class="organization-table">
+                <thead>
+                    <tr>
+                        <th width="200">Entity type</th>
+                        <th width="400">Entity</th>
+                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div id="organization-state-actions" style="height:30px;">
+                <div id="organization-state-pager" class="pager" style="margin-right:100px;">
+                    <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                    <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                    <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                    <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                    <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                    <select class="pagesize">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                    </select>
+                </div>
+                <input type="button" id="organization-state-remove" value="REMOVE SELECTED" class="small_btn" />
+            </div>
+        </div>
+        <div style="width:100%; text-align:right; height:30px;">
+            <input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
+            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+        </div>
+    </div>
+</div>
+% endif
+
 <!--Organization Structure-->
 <div class="organization_main1 expand_title_parent">
-    <div class="expand_title expand_title_collapse" always_on="1">Organization Structure<div class="icon"></div></div>
+    <div class="expand_title expand_title_collapse" next_sn="2">Organization Structure<div class="icon"></div></div>
     <div class="expand_div">
         <div style="padding: 1em 7px 7px 7px;">
         	<table width="1100" border="0" class="org_table1">
@@ -565,62 +625,9 @@
                 <input type="button" value="ADD" class="small_btn" id="btn_profile_add" />
             </div>
             <div style="width:100%; text-align:right; height:30px;">
-				<input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
+				<input type="button" next_sn="3" value="Next" class="small_btn expand_title_next" />
                 <input type="button" value="Save" class="small_btn org_btn_last_save" />
             </div>
-        </div>
-    </div>
-</div>
-
-<!--Organization Locations-->
-<div class="organization_main1 expand_title_parent">
-    <div class="expand_title expand_title_collapse" next_sn="2">Organization Locations<div class="icon"></div></div>
-    <div class="expand_div">
-        <select id="org_state_select" style="width:200px;">
-        	<option value="">Select State</option>
-        </select>
-        <select id="org_district_select" style="width:200px;"></select>
-        <select id="org_school_select" style="width:200px;"></select>
-        <select id="org_cohort_select" style="width:200px;">
-			<option value="">Select Cohort</option>
-        </select>
-        <input type="button" id="org_btn_add_state" value="ADD" class="small_btn" style="margin:0 0 0 40px !important;" />
-        <input type="button" id="org_btn_fix_state" value="EDIT" class="small_btn" style="margin:0 0 0 10px !important;" />
-        <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
-        <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
-
-        <div style="width:500px; margin-top:10px;">
-            <table id="organization-state-table" class="organization-table">
-                <thead>
-                    <tr>
-                        <th width="200">Entity type</th>
-                        <th width="400">Entity</th>
-                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <div id="organization-state-actions" style="height:30px;">
-                <div id="organization-state-pager" class="pager" style="margin-right:100px;">
-                    <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-                    <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-                    <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-                    <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-                    <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-                    <select class="pagesize">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="200">200</option>
-                    </select>
-                </div>
-                <input type="button" id="organization-state-remove" value="REMOVE SELECTED" class="small_btn" />
-            </div>
-        </div>
-        <div style="width:100%; text-align:right; height:30px;">
-            <input type="button" next_sn="3" value="Next" class="small_btn expand_title_next" />
-            <input type="button" value="Save" class="small_btn org_btn_last_save" />
         </div>
     </div>
 </div>
@@ -1961,10 +1968,12 @@
 					for(var i in r.rows){
 						var row = '<tr class="data">';
 						row += '<td><a href="#' + r.rows[i].id + '" class="organization_next">' + r.rows[i].OrganizationName + '</a></td>';
-						row += '<td class="check-column">';
-						row += '<input type="checkbox" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
-						row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
-						row += '</td>';
+                        if (r.is_superuser == '1') {
+                            row += '<td class="check-column">';
+                            row += '<input type="checkbox" value="' + r.rows[i].id + '" class="organization-select">&nbsp;';
+                            row += '<a href="#' + r.rows[i].id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+                            row += '</td>';
+                        }
 						row += '</tr> ';
 						$('#organization-table tbody').append(row);
 					}
@@ -2020,10 +2029,11 @@
 									
 									//----------dataitems
 									$(".org_table_profile_tr").remove();
-									orgProfileInit(r.specific_items);							
-															
+									orgProfileInit(r.specific_items);
+
 									var flag_new = true;
-									
+                                    if (r.is_superuser == '0') flag_new = false;
+
 									//----------Course Assignment
 									initAssignmentQualifications(r['Course Assignment']);
 									

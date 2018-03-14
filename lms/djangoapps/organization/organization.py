@@ -129,7 +129,7 @@ def main(request):
         elif post_flag == "organization_register_save":
             return organization_register_save(request)
     else:
-        if request.user.is_superuser:
+        if check_user_perms(request.user, 'OrganizationConfiguration', 'AdminOrganizationConfiguration'):
             tmp = "organization/organization.html"
             return render_to_response(tmp)
         else:
@@ -373,13 +373,32 @@ def organization_list(request):
     if oid:
         org_list = OrganizationMetadata.objects.filter(id=oid)
     else:
-        org_list = OrganizationMetadata.objects.prefetch_related().all()
+        access_level = check_access_level(request.user, 'OrganizationConfiguration', 'AdminOrganizationConfiguration')
+        if access_level == 'System':
+            org_list = OrganizationMetadata.objects.all()
+        else:
+            if access_level == 'School':
+                qs = Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity=request.user.profile.school.id)
+            if access_level == 'District':
+                qs = Q(organizationdistricts__EntityType='District', organizationdistricts__OrganizationEnity=request.user.profile.district.id)
+                schools_in_district = School.objects.filter(district_id=request.user.profile.district.id).values('id')
+                qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
+                # cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
+                # qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
+            if access_level == 'State':
+                qs = Q(organizationdistricts__EntityType='State', organizationdistricts__OrganizationEnity=request.user.profile.district.state.id)
+                districts_in_state = District.objects.filter(state_id=request.user.profile.district.state.id)
+                qs |= Q(organizationdistricts__EntityType='District', organizationdistricts__OrganizationEnity__in=districts_in_state.values('id'))
+                for district_in_state in districts_in_state:
+                    schools_in_district = School.objects.filter(district_id=district_in_state.id).values('id')
+                    qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
+            org_list = OrganizationMetadata.objects.filter(qs).distinct()
 
     rows = []
     for org in org_list:
         rows.append({'id': org.id, 'OrganizationName': org.OrganizationName})
 
-    return render_json_response({'success': True, 'rows': rows})
+    return render_json_response({'success': True, 'rows': rows, 'is_superuser': request.user.is_superuser})
 
 #----------------------------------------------------------------------design_list
 @login_required
@@ -884,7 +903,7 @@ def organization_get(request):
     data = {}
     try:
         if oid:
-            data = {'Success': True}
+            data = {'Success': True, 'is_superuser': request.user.is_superuser}
             organizations = OrganizationMetadata.objects.filter(id=oid)
             if len(organizations) > 0:
                 data['find'] = True
@@ -1224,7 +1243,7 @@ def organizational_save_base(request):
                 store.create(type='announcement', organization_type='Pepper', user_id=user.id, content=announcement_content, attachment_file=None, receivers=receiver_ids, date=datetime.utcnow(), expiration_date=expiration_date, source='organization', organization_id=oid)
 
             # --------------OrganizationDistricts
-            if sid_did != "":
+            if sid_did != "" and request.user.is_superuser:
                 sid_did_list = sid_did.split(":")
                 org_dir_list = OrganizationDistricts.objects.filter(organization=org_metadata)
 
@@ -1267,7 +1286,7 @@ def organizational_save_base(request):
                         back_sid_all += ","
 
                     back_sid_all += str(org_dis.id)
-            else:
+            elif request.user.is_superuser:
                 OrganizationDistricts.objects.filter(organization=org_metadata).delete()
 
             # --------------OrganizationDashboard

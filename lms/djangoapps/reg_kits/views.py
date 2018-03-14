@@ -27,7 +27,8 @@ from pytz import UTC
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-
+from reporting.models import reporting_store
+from reporting.run_config import RunConfig
 from courseware.courses import get_courses
 from xmodule.modulestore.django import modulestore
 import pymongo
@@ -553,6 +554,9 @@ def user_submit(request):
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
 
+        rs = reporting_store()
+        rs.update_user_view(user)
+        
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
@@ -586,6 +590,10 @@ def user_delete(request):
         User.objects.filter(id__in=ids).delete()
         UserProfile.objects.filter(user_id__in=ids).delete()
         db.transaction.commit()
+
+        rs = reporting_store()
+        rs.delete_user_view(ids)
+
     except Exception as e:
         db.transaction.rollback()
         message={'success': False,'error':'%s' % (e)}
