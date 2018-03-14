@@ -2111,6 +2111,10 @@ def accept_name_change_by_id(id):
     u.last_name = pnc.new_last_name
     u.save()
     up.save()
+
+    rs = reporting_store()
+    rs.update_user_view(u)
+
     pnc.delete()
 
     return HttpResponse(json.dumps({'success': True}))
@@ -2161,6 +2165,8 @@ def change_school_request(request):
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
+    rs = reporting_store()
+    rs.update_user_view(request.user)
     return HttpResponse(json.dumps({'success': True, 'school_id': up.school_id,
                                     'location': up.location}))
 
@@ -2303,6 +2309,9 @@ def activate_imported_account(post_vars):
             upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
+        
+        rs = reporting_store()
+        rs.update_user_view(profile.user)
 
         ret={'success': True}
     except Exception as e:

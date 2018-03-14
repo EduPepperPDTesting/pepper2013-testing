@@ -552,7 +552,8 @@ def report_view(request, report_id):
             rs = reporting_store()
             collection = get_cache_collection(request, report_id, school_year)
 
-            stats = int(rs.get_collection_stats(collection)['ok'])
+            # stats = int(rs.get_collection_stats(collection)['ok'])
+            stats = 0
             if(not(stats)):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
