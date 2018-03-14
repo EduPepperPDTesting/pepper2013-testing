@@ -1220,12 +1220,12 @@ def remove_student(student):
                                                course_id=student.training.pepper_course).delete()
     student.delete()
 
-def register_student(join = None, training_id = None, user_id = None):
+def register_student(join, training_id, user_id):
     register_data = []
-
+    Success = True
     try:
         training = PepRegTraining.objects.get(id=training_id)
-        #raise Exception(str(join) + " " + str(training_id) + " " + str(user_id))
+        raise Exception(str(join) + " " + str(training_id) + " " + str(user_id))
         if user_id:
             student_user = User.objects.get(id=int(user_id))
         else:
@@ -1285,11 +1285,10 @@ def register_student(join = None, training_id = None, user_id = None):
                 register_student(True, training_id, top_on_waitlist)
 
     except Exception as e:
-        register_data.append(False)
-        register_data.append(e)
-        return register_data
+        Success = False
 
-    register_data.append(True)
+    register_data[0] = Success
+    if Success == True: register_data[1] = training_id
     return register_data
 
 def register(request):
