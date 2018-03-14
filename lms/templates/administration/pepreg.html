@@ -2247,6 +2247,8 @@
                 //self.reloadTable();
                 trID=r.training_id;
                 regData={success: true, trID: trID};
+            }else{
+                console.log(r.error);
             }
         });
     };
