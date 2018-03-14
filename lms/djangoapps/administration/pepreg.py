@@ -1225,7 +1225,7 @@ def register_student(join, training_id, user_id):
     Success = True
     try:
         training = PepRegTraining.objects.get(id=training_id)
-        raise Exception(str(join) + " " + str(training_id) + " " + str(user_id))
+        #raise Exception(str(join) + " " + str(training_id) + " " + str(user_id))
         if user_id:
             student_user = User.objects.get(id=int(user_id))
         else:
@@ -1287,8 +1287,11 @@ def register_student(join, training_id, user_id):
     except Exception as e:
         Success = False
 
-    register_data[0] = Success
-    if Success == True: register_data[1] = training_id
+    register_data.append(Success)
+    if Success == True:
+        register_data.append(training_id)
+    else:
+        register_data.append(e)
     return register_data
 
 def register(request):
