@@ -129,7 +129,7 @@ def main(request):
         elif post_flag == "organization_register_save":
             return organization_register_save(request)
     else:
-        if check_user_perms(request.user, 'OrganizationConfiguraiton', 'AdminOrganizationConfiguration'):
+        if check_user_perms(request.user, 'OrganizationConfiguration', 'AdminOrganizationConfiguration'):
             tmp = "organization/organization.html"
             return render_to_response(tmp)
         else:
