@@ -194,21 +194,21 @@ class MongoReportingStore(object):
 
     def insert_user_view(self, user):
         collection = "new_user_info"
-        rs.del_collection(collection)
-        rs.set_collection(collection)
+        self.del_collection(collection)
+        self.set_collection(collection)
         data = get_user_data(user)
-        rs.collection.insert(data)
+        self.collection.insert(data)
         query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
-        result = rs.get_aggregate(collection,query)
+        result = self.get_aggregate(collection,query)
         for tmp in result['result']:
-            rs.set_collection(RunConfig[collection]["collection"])
-            rs.collection.insert(tmp)
+            self.set_collection(RunConfig[collection]["collection"])
+            self.collection.insert(tmp)
 
     def delete_user_view(self, ids):
         collection = "user_info"
-        rs.set_collection(RunConfig[collection]["collection"])
+        self.set_collection(RunConfig[collection]["collection"])
         for tmp in ids:
-            rs.collection.remove({"user_id":int(tmp),"school_year":"current"})
+            self.collection.remove({"user_id":int(tmp),"school_year":"current"})
 
 
     def get_user_data(user):
