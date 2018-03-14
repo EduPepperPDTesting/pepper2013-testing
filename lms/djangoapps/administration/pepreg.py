@@ -1221,7 +1221,8 @@ def remove_student(student):
     student.delete()
 
 def register_student(request, join, training_id, user_id):
-    register_data = []
+    register_data = list()
+    data = training_id
     Success = True
     try:
         training = PepRegTraining.objects.get(id=training_id)
@@ -1287,12 +1288,10 @@ def register_student(request, join, training_id, user_id):
 
     except Exception as e:
         Success = False
+        data = str(e)
 
     register_data.append(Success)
-    if Success == True:
-        register_data.append(training_id)
-    else:
-        register_data.append(e)
+    register_data.append(data)
     return register_data
 
 def register(request):
