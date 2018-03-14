@@ -189,14 +189,14 @@ class MongoReportingStore(object):
         return cursor[start:start + num]
 
     def update_user_view(self, user):
-        data = get_user_data(user)
+        data = self.get_user_data(user)
         self.update_data({'school_year': 'current','user_id':int(user.id)}, data,RunConfig["new_user_info"]["collection"])
 
     def insert_user_view(self, user):
         collection = "new_user_info"
         self.del_collection(collection)
         self.set_collection(collection)
-        data = get_user_data(user)
+        data = self.get_user_data(user)
         self.collection.insert(data)
         query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
         result = self.get_aggregate(collection,query)
