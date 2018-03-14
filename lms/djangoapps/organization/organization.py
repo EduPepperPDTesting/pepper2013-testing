@@ -373,7 +373,7 @@ def organization_list(request):
     if oid:
         org_list = OrganizationMetadata.objects.filter(id=oid)
     else:
-        access_level = check_access_level(request.user, 'OrganizationConfiguraiton', 'AdminOrganizationConfiguration')
+        access_level = check_access_level(request.user, 'OrganizationConfiguration', 'AdminOrganizationConfiguration')
         if access_level == 'System':
             org_list = OrganizationMetadata.objects.all()
         else:
