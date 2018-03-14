@@ -1227,7 +1227,7 @@ def register(request, join = None, trainingId = None, studentId = None):
         training_id = request.POST.get("training_id") if trainingId == None else trainingId
         user_id = request.POST.get("user_id") if studentId == None else studentId
         training = PepRegTraining.objects.get(id=training_id)
-        #raise Exception(str(join)+" "+str(training_id)+" "+str(user_id))
+        raise Exception(str(join)+" "+str(training_id)+" "+str(user_id))
         if user_id:
             student_user = User.objects.get(id=int(user_id))
         else:
