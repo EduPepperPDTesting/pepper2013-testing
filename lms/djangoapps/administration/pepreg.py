@@ -1298,7 +1298,7 @@ def register(request):
         user_id = request.POST.get("user_id")
 
         register_data = register_student(join, training_id, user_id)
-
+        raise Exception(register_data)
         if register_data[0] == False:
             return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
 
