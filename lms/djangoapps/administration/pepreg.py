@@ -1220,7 +1220,7 @@ def remove_student(student):
                                                course_id=student.training.pepper_course).delete()
     student.delete()
 
-def register_student(join, training_id, user_id):
+def register_student(request, join, training_id, user_id):
     register_data = []
     Success = True
     try:
@@ -1282,7 +1282,7 @@ def register_student(join, training_id, user_id):
             on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
             if training.allow_waitlist and on_waitlist.count > 0:
                 top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
-                register_student(True, training_id, top_on_waitlist)
+                register_student(request, True, training_id, top_on_waitlist)
 
     except Exception as e:
         Success = False
@@ -1300,8 +1300,8 @@ def register(request):
         training_id = request.POST.get("training_id")
         user_id = request.POST.get("user_id")
 
-        register_data = register_student(join, training_id, user_id)
-        raise Exception(register_data)
+        register_data = register_student(request, join, training_id, user_id)
+
         if register_data[0] == False:
             return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
 
@@ -1537,7 +1537,7 @@ def delete_student(request):
         on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
         if training.allow_waitlist and on_waitlist.count > 0:
             top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
-            register_data = register_student(True, training_id, top_on_waitlist)
+            register_data = register_student(request, True, training_id, top_on_waitlist)
 
             if register_data[0] == False:
                 return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
