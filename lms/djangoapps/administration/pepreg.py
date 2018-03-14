@@ -1220,14 +1220,91 @@ def remove_student(student):
                                                course_id=student.training.pepper_course).delete()
     student.delete()
 
+def register_student(join = None, training_id = None, user_id = None):
+    register_data = []
 
-def register(request, join = None, trainingId = None, studentId = None):
     try:
-        join = request.POST.get("join", "false") == "true" if join == None else join
-        training_id = request.POST.get("training_id") if trainingId == None else trainingId
-        user_id = request.POST.get("user_id") if studentId == None else studentId
         training = PepRegTraining.objects.get(id=training_id)
-        raise Exception(str(join)+" "+str(training_id)+" "+str(user_id))
+        #raise Exception(str(join) + " " + str(training_id) + " " + str(user_id))
+        if user_id:
+            student_user = User.objects.get(id=int(user_id))
+        else:
+            student_user = request.user
+
+        if join:
+            if reach_limit(training):
+                raise Exception("Maximum number of users have registered for this training.")
+
+            try:
+                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+            except:
+                student = PepRegStudent()
+                student.user_create = request.user
+                student.date_create = datetime.now(UTC)
+
+            student.student = student_user
+            student.student_status = "Registered"
+            student.training_id = int(training_id)
+            student.user_modify = request.user
+            student.date_modify = datetime.now(UTC)
+            student.save()
+
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
+                           "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+                           "URLValues": {"training_id": training.id},
+                           "TokenValues": {"training_id": training.id},
+                           "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
+
+            if training.type == "pepper_course":
+                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
+                                                                             course_id=training.pepper_course)
+                cea.is_active = True
+                cea.save()
+                CourseEnrollment.enroll(student_user, training.pepper_course)
+
+            mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+            if not mem.exists():
+                tu = TrainingUsers(user=student_user, training=training)
+                tu.save()
+        else:
+            student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+            remove_student(student)
+
+            # akogan
+            mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+            if mem.exists():
+                mem.delete()
+
+            on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
+            if training.allow_waitlist and on_waitlist.count > 0:
+                top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
+                register_student(True, training_id, top_on_waitlist)
+
+    except Exception as e:
+        register_data.append(False)
+        register_data.append(e)
+        return register_data
+
+    register_data.append(True)
+    return register_data
+
+def register(request):
+    try:
+        join = request.POST.get("join", "false") == "true"
+        training_id = request.POST.get("training_id")
+        user_id = request.POST.get("user_id")
+
+        # register_data = register_student(join, training_id, user_id)
+        #
+        # if register_data[0] == False:
+        #     return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
+
+        training = PepRegTraining.objects.get(id=training_id)
+        #raise Exception(str(join)+" "+str(training_id)+" "+str(user_id))
         if user_id:
             student_user = User.objects.get(id=int(user_id))
         else:
@@ -1284,8 +1361,10 @@ def register(request, join = None, trainingId = None, studentId = None):
             on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
             if training.allow_waitlist and on_waitlist.count > 0:
                 top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
-                register(request, True, training_id, top_on_waitlist)
+                register_data = register_student(True, training_id, top_on_waitlist)
 
+                if register_data[0] == False:
+                    return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
 
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -1519,7 +1598,10 @@ def delete_student(request):
         on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
         if training.allow_waitlist and on_waitlist.count > 0:
             top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
-            register(request, True, training_id, top_on_waitlist)
+            register_data = register_student(True, training_id, top_on_waitlist)
+
+            if register_data[0] == False:
+                return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
 
     except Exception as e:
         db.transaction.rollback()
