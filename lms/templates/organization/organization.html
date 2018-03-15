@@ -3811,22 +3811,6 @@
         })
 		$("#org_btn_fix_state").hide();
 		$("#org_btn_cancel_state").hide();
-        if($("#org_state_select").find("option").length < 2){
-            var loadwin = new LoadingWin();
-            $.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
-                if (r.Success){
-                        for(var i in r.rows_state){
-                                $("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
-                        }
-                        for(var i in r.rows_district){
-                                organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);    
-                        }
-                }else{
-                        alert(r.Error);
-                }
-                loadwin.hide();
-            });
-        }
 		
 		organizationAddFileImgInit("organizational_base_home_logo");
 		organizationAddFileImgInit("organizational_base_profile_logo");
