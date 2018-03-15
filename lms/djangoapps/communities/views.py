@@ -3124,6 +3124,7 @@ def new_process_submit_comment(request):
         community_id = request.POST.get("community_id", "")
         content = request.POST.get("content", "")
         level = request.POST.get("level", "")
+        main_community_id = request.POST.get("main_community_id", "")
         data = {'Success': False, 'did': did, 'content': content, 'level': level}
         mongo3_store = community_discussions_store()
         new_json = {}
@@ -3150,10 +3151,16 @@ def new_process_submit_comment(request):
                 replies_id = mongo3_store.insert(my_discussion_post)
 
                 rs = myactivitystore()
-                my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
-                "URLValues": {"discussion_id": str(replies_id)},
-                "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
-                "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
+                if not main_community_id:
+                    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                    "URLValues": {"discussion_id": str(replies_id)},
+                    "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
+                    "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
+                else:
+                    my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                    "URLValues": {"discussion_id": str(replies_id)},
+                    "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
+                    "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
                 rs.insert_item(my_activity)
 
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
@@ -3237,10 +3244,16 @@ def new_process_submit_comment(request):
                     replies_id = mongo3_store.insert(my_discussion_post)
 
                     rs = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
-                    "URLValues": {"discussion_id": str(disc_id)},
-                    "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
-                    "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
+                    if not main_community_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                        "URLValues": {"discussion_id": str(disc_id)},
+                        "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
+                        "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                        "URLValues": {"discussion_id": str(disc_id)},
+                        "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
+                        "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
                     rs.insert_item(my_activity)
 
                 if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
