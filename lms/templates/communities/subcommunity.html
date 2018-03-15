@@ -1417,7 +1417,8 @@ a{
     });
     function joinMe(){
         var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community_id])}",{user_ids:user_id}, function(r){
+        var maincommunity_id = ${main_community.id};
+        $.post("${reverse('community_join', args=[community_id])}",{user_ids: user_id, maincommunity_id: maincommunity_id}, function(r){
             if(r.success)
                 window.location.reload();
         });
@@ -1871,6 +1872,7 @@ a{
         var $form = $("#dlg-add-training");
         var json = {
             community_id: '${community_id}',
+            main_community_id: '${main_community.id}',
             name: $form.find("input[name=name]").val(),
             motto: $form.find("input[name=motto]").val(),
             logo: $form.find("input[name=logo]").val(),

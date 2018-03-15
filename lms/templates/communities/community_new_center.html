@@ -376,6 +376,7 @@ function addNewDiscussion(fid, subject, post){
 		content += '</div>';
 	}
 	content += '<input type="hidden" value="${community.id}" name="community_id">';
+    content += '<input type="hidden" value="${main_community_id}" name="main_community_id">';
 	content += '<input type="hidden" value="' + fid + '" name="fid">';
 	content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
 	content += '<div class="community-clear"></div><br/>';
