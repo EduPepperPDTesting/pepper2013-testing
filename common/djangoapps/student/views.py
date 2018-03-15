@@ -834,6 +834,7 @@ def change_enrollment(request):
     if course_id is None:
         return HttpResponseBadRequest(_("Course id not specified"))
 
+    rs = reporting_store('UserView')
     if action == "enroll":
         # Make sure the course exists
         # We don't do this check on unenroll, or a bad course id can't be unenrolled from
@@ -861,12 +862,14 @@ def change_enrollment(request):
         "TokenValues": {"course_id": course.id}, 
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
+        rs.insert_user_course(user, course.id)
 
         return HttpResponse("course_enroll_ok")
 
     elif action == "unenroll":
         try:
             CourseEnrollment.unenroll(user, course_id)
+            rs.delete_user_course(user, course_id)
 
             org, course_num, run = course_id.split("/")
             statsd.increment("common.student.unenrollment",

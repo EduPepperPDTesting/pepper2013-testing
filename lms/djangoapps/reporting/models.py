@@ -301,6 +301,11 @@ class NewUserView(MongoReportingStore):
         self.collection.insert(data)
         self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":1}},RunConfig[collection]["collection"])
 
+    def delete_user_course(self, user, course_id):
+        collection = "new_student_courseenrollment"
+        self.remove_data({"user_id":int(tmp),"course_id":course_id},RunConfig[collection]["origin_collection"])
+        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":-1}},RunConfig[collection]["collection"])
+
     def update_user_complete_course(self, user, course_id):
         collection = "new_courseware_studentmodule"
         data = self.get_user_course_date1(user, course_id)
