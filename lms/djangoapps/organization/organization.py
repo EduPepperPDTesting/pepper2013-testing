@@ -383,8 +383,8 @@ def organization_list(request):
                 qs = Q(organizationdistricts__EntityType='District', organizationdistricts__OrganizationEnity=request.user.profile.district.id)
                 schools_in_district = School.objects.filter(district_id=request.user.profile.district.id).values('id')
                 qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
-                # cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
-                # qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
+                cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
+                qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
             if access_level == 'State':
                 qs = Q(organizationdistricts__EntityType='State', organizationdistricts__OrganizationEnity=request.user.profile.district.state.id)
                 districts_in_state = District.objects.filter(state_id=request.user.profile.district.state.id)
