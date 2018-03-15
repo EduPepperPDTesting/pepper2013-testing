@@ -554,7 +554,7 @@ def user_submit(request):
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
 
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.update_user_view(user)
         
     except Exception as e:
@@ -591,7 +591,7 @@ def user_delete(request):
         UserProfile.objects.filter(user_id__in=ids).delete()
         db.transaction.commit()
 
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.delete_user_view(ids)
 
     except Exception as e:

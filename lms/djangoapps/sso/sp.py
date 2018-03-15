@@ -823,7 +823,7 @@ def activate_account(request):
                 CourseEnrollment.enroll(profile.user, cea.course_id)
 
         
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.update_user_view(profile.user)
 
         js = {'success': True}

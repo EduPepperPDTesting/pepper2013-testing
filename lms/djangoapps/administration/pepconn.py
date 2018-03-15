@@ -574,7 +574,7 @@ def user_edit_info(request):
     profile.user.save()
     profile.save()
 
-    rs = reporting_store()
+    rs = reporting_store('UserView')
     rs.update_user_view(profile.user)
 
     j = json.dumps({'success': 'true', 'error':'none', 'data':'hello, here is the name '+str(profile.user.first_name)})
@@ -1097,7 +1097,7 @@ def do_import_user(task, csv_lines, request):
             # Save the profile after we know everything has been set correctly.
             profile.save()
 
-            rs = reporting_store()
+            rs = reporting_store('UserView')
             rs.insert_user_view(user)
 
         except Exception as e:
@@ -1231,7 +1231,7 @@ def single_user_submit(request):
 
         # Save profile now that we have everything set.
         profile.save()
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.insert_user_view(user)
 
     except Exception as e:
@@ -1281,7 +1281,7 @@ def add_to_cohort(request):
         change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
         change.cohort_id = int(request.POST.get('cohort'))
         change.save()
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.update_user_view(change.user)
         message = "success"
     except Exception as e:
@@ -1299,7 +1299,7 @@ def remove_from_cohort(request):
         user = UserProfile.objects.get(user_id=id)
         user.cohort_id = 0
         user.save()
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.update_user_view(user.user)
     except Exception as e:
         db.transaction.rollback()

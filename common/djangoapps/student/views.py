@@ -2112,7 +2112,7 @@ def accept_name_change_by_id(id):
     u.save()
     up.save()
 
-    rs = reporting_store()
+    rs = reporting_store('UserView')
     rs.update_user_view(u)
 
     pnc.delete()
@@ -2165,7 +2165,7 @@ def change_school_request(request):
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
-    rs = reporting_store()
+    rs = reporting_store('UserView')
     rs.update_user_view(request.user)
     return HttpResponse(json.dumps({'success': True, 'school_id': up.school_id,
                                     'location': up.location}))
@@ -2310,7 +2310,7 @@ def activate_imported_account(post_vars):
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
         
-        rs = reporting_store()
+        rs = reporting_store('UserView')
         rs.update_user_view(profile.user)
 
         ret={'success': True}

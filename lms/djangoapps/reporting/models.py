@@ -6,6 +6,7 @@ import logging
 import json
 from reporting.run_config import RunConfig
 from student.models import User
+from courseware.models import StudentModule
 log = logging.getLogger("tracking")
 
 
@@ -131,6 +132,10 @@ class MongoReportingStore(object):
     #         map(lambda d: d.keys(), self.collection.find()),
     #         set()
     #     )
+    def remove_data(self,db_filter,collection):
+        self.set_collection(collection)
+        self.collection.remove(db_filter)
+
     def insert_datas(self,datas,collection):
         self.set_collection(collection)
         for index,val in enumerate(datas):
@@ -189,28 +194,17 @@ class MongoReportingStore(object):
         cursor = list(self.db.eval(val))
         return cursor[start:start + num]
 
-    def update_user_view(self, user):
-        data = self.get_user_data(user)
-        self.update_data({'school_year': 'current','user_id':int(user.id)}, data,RunConfig["new_user_info"]["collection"])
-
-    def insert_user_view(self, user):
-        collection = "new_user_info"
-        self.del_collection(collection)
-        self.set_collection(collection)
-        data = self.get_user_data(user)
-        self.collection.insert(data)
-        query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
-        result = self.get_aggregate(collection,query)
-        for tmp in result['result']:
-            self.set_collection(RunConfig[collection]["collection"])
-            self.collection.insert(tmp)
-
-    def delete_user_view(self, ids):
-        collection = "user_info"
-        self.set_collection(RunConfig[collection]["collection"])
-        for tmp in ids:
-            self.collection.remove({"user_id":int(tmp),"school_year":"current"})
-
+    def get_user_course_data(self, user, course_id):
+        user = User.objects.get(pk=user.id)
+        data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.district.state.id, 'district_id': user.district.id}
+        try:
+            data['school_id'] = user.profile.school.id
+        except:
+            data['school_id'] = ""
+        enroll = CourseEnrollment.objects.get(user=user, course_id=course_id)
+        data['is_active'] = enroll.is_active
+        data['created'] = enroll.create.strftime('%Y-%m-%d %H:%M:%S')
+        return data
 
     def get_user_data(self, user):
         user = User.objects.get(pk=user.id)
@@ -256,7 +250,62 @@ class MongoReportingStore(object):
 
         return data
 
-def reporting_store():
+    def get_user_course_date1(self, user, course_id):
+        course_data = StudentModule.objects.get(student=user,course_id=course_id,module_type="course")
+        data = course_data.__dict__
+        data['created'] = data['created'].strftime('%Y-%m-%d %H:%M:%S')
+        data['modified'] = data['modified'].strftime('%Y-%m-%d %H:%M:%S')
+        data['c_course_id'] = data['course_id']
+        data['c_student_id'] = data['student_id']
+        data['module_id'] = data['module_state_key']
+        data.pop('_state')
+        data.pop('module_state_key')
+        data.pop('id')
+        return data
+
+def reporting_store(view=None):
     options = {}
     options.update(settings.REPORTINGSTORE['OPTIONS'])
-    return MongoReportingStore(**options)
+    if view == 'UserView':
+        return NewUserView(**options)
+    else:
+        return MongoReportingStore(**options)
+
+class NewUserView(MongoReportingStore):
+    def update_user_view(self, user):
+        data = self.get_user_data(user)
+        self.update_data({'school_year': 'current','user_id':int(user.id)}, data,RunConfig["new_user_info"]["collection"])
+
+    def insert_user_view(self, user):
+        collection = "new_user_info"
+        self.del_collection(collection)
+        self.set_collection(collection)
+        data = self.get_user_data(user)
+        self.collection.insert(data)
+        query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
+        result = self.get_aggregate(collection,query)
+        for tmp in result['result']:
+            self.set_collection(RunConfig[collection]["collection"])
+            self.collection.insert(tmp)
+
+    def delete_user_view(self, ids):
+        collection = "new_user_info"
+        for tmp in ids:
+            self.remove_data({"user_id":int(tmp),"school_year":"current"},RunConfig[collection]["collection"])
+            self.remove_data({"user_id":int(tmp)},RunConfig[collection]["origin_collection"])
+        
+    def insert_user_course(self, user, course_id):
+        collection = "new_student_courseenrollment"
+        data = self.get_user_course_data(user, course_id)
+        self.set_collection(RunConfig[collection]['origin_collection'])
+        self.collection.insert(data)
+        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":1}},RunConfig[collection]["collection"])
+
+    def update_user_complete_course(self, user, course_id):
+        collection = "new_courseware_studentmodule"
+        data = self.get_user_course_date1(user, course_id)
+        self.set_collection(RunConfig[collection]['origin_collection'])
+        self.collection.insert(data)
+        self.set_collection(RunConfig[collection]["collection"])
+        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"complete_course":1,"current_course":-1}})
+
