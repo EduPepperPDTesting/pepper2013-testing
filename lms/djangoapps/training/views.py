@@ -9,7 +9,7 @@ from .models import TrainingUsers
 from administration.pepconn import get_post_array
 from django.db.models import Q
 
-from administration.views import register_students
+from administration.pepreg import register_students
 from people.views import get_pager
 from view_counter.models import view_counter_store
 #from notification import send_notification
