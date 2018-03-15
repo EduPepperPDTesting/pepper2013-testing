@@ -2441,6 +2441,11 @@
                         self.confirm("Really delete the student?", dlg, function (r) {
                             if (r) {
                                 self.deleteStudent(data.id, function () {
+                                    var wait_row = $row.sibling("tr:has(a[class='Waitlist']):eq(0)");
+                                    if(wait_row.length > 0){
+                                        wait_row.find("a").removeClass('Waitlist').addClass('Registered');
+                                        wait_row.find("td:contains('Waitlist')").text('Registered');
+                                    }
                                     $row.remove();
                                 });
                             }
