@@ -1987,23 +1987,6 @@
 					$(".organization_next").click(function(e){
 						e.preventDefault();
 						var loadwin = new LoadingWin();
-
-                        if($("#org_state_select").find("option").length < 2){
-                            var loadwin = new LoadingWin();
-                            $.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
-                                if (r.Success){
-                                        for(var i in r.rows_state){
-                                                $("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
-                                        }
-                                        for(var i in r.rows_district){
-                                                organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);    
-                                        }
-                                }else{
-                                        alert(r.Error);
-                                }
-                                loadwin.hide();
-                            });
-                        }
 						
 						org_current_id = $(this).attr('href').substr(1);
 						var org_current_name = $(this).text();
@@ -2026,6 +2009,23 @@
 								if(r.find){	
 									$("#org_btn_reset_state").click();
 									$(".expand_title_parent").show();
+
+                                    if($("#org_state_select").find("option").length < 2){
+                                        var loadwin = new LoadingWin();
+                                        $.get("${reverse('organizational_configuration')}", {flag: "organization_get_locations"}, function (r) {
+                                            if (r.Success){
+                                                    for(var i in r.rows_state){
+                                                            $("#org_state_select").append("<option value='" + r.rows_state[i]["id"] + "'>" + r.rows_state[i]["name"] + "</option>");
+                                                    }
+                                                    for(var i in r.rows_district){
+                                                            organization_district_list.push(r.rows_district[i]["state_id"] + "," + r.rows_district[i]["id"] + "," + r.rows_district[i]["name"]);    
+                                                    }
+                                            }else{
+                                                    alert(r.Error);
+                                            }
+                                            loadwin.hide();
+                                        });
+                                    }
 									
 									organizationAddFileImg("organizational_base_organization_logo", r.organization_logo);
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
