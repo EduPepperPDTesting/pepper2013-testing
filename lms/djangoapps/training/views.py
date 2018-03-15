@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from .models import TrainingUsers
 from administration.pepconn import get_post_array
 from django.db.models import Q
+
+from administration.views import register_students
 from people.views import get_pager
 from view_counter.models import view_counter_store
 #from notification import send_notification
@@ -74,7 +76,7 @@ def training_leave(request, training_id):
     """
 
     training = PepRegTraining.objects.get(id=training_id)
-
+    i = 0
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
             continue
@@ -90,6 +92,9 @@ def training_leave(request, training_id):
 
                 if pepmems.exists():
                     pepmems.delete()
+                    i = i + 1
+
+            register_students(request, training_id, i)
 
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': "{0}".format(e)}), content_type="application/json")

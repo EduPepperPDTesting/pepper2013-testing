@@ -1294,9 +1294,9 @@ def register_student(request, join, training_id, user_id):
     register_data.append(data)
     return register_data
 
-def register_students(request):
-    training_id = request.POST.get("training_id")
-    training_room = int(request.POST.get("training_room"))
+def register_students(request, training_id = None, training_room = None):
+    training_id = request.POST.get("training_id") if training_id == None else training_id
+    training_room = int(request.POST.get("training_room")) if training_room = None else training_room
     training = PepRegTraining.objects.get(id=training_id)
     try:
         on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
