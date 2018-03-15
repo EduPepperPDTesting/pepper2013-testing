@@ -834,6 +834,7 @@ def change_enrollment(request):
     if course_id is None:
         return HttpResponseBadRequest(_("Course id not specified"))
 
+    rs = reporting_store('UserView')
     if action == "enroll":
         # Make sure the course exists
         # We don't do this check on unenroll, or a bad course id can't be unenrolled from
@@ -861,12 +862,14 @@ def change_enrollment(request):
         "TokenValues": {"course_id": course.id}, 
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
+        rs.insert_user_course(user, course.id)
 
         return HttpResponse("course_enroll_ok")
 
     elif action == "unenroll":
         try:
             CourseEnrollment.unenroll(user, course_id)
+            rs.delete_user_course(user, course_id)
 
             org, course_num, run = course_id.split("/")
             statsd.increment("common.student.unenrollment",
@@ -2112,7 +2115,7 @@ def accept_name_change_by_id(id):
     u.save()
     up.save()
 
-    rs = reporting_store()
+    rs = reporting_store('UserView')
     rs.update_user_view(u)
 
     pnc.delete()
@@ -2165,7 +2168,7 @@ def change_school_request(request):
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
-    rs = reporting_store()
+    rs = reporting_store('UserView')
     rs.update_user_view(request.user)
     return HttpResponse(json.dumps({'success': True, 'school_id': up.school_id,
                                     'location': up.location}))
@@ -2256,6 +2259,8 @@ def activate_imported_account(post_vars):
             registration.activate()
             profile.save()
 
+            rs = reporting_store('UserView')
+            rs.update_user_view(profile.user)
             #** course enroll
             try:
                 cohort = profile.cohort.code
@@ -2277,16 +2282,17 @@ def activate_imported_account(post_vars):
                 cea.auto_enroll = True
                 cea.save()
 
+            ma_db = myactivitystore()
             ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
             for cea in ceas:
                 if cea.auto_enroll:
                     CourseEnrollment.enroll(profile.user, cea.course_id)
-                    ma_db = myactivitystore()
                     my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
                     "URLValues": {"course_id": cea.course_id},    
                     "TokenValues": {"course_id": cea.course_id}, 
                     "LogoValues": {"course_id": cea.course_id}}
                     ma_db.insert_item(my_activity)
+                    rs.insert_user_course(profile.user,cea.course_id)
 
         except Exception as e:
             if "for key 'username'" in "%s" % e:
@@ -2310,9 +2316,6 @@ def activate_imported_account(post_vars):
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
         
-        rs = reporting_store()
-        rs.update_user_view(profile.user)
-
         ret={'success': True}
     except Exception as e:
         # transaction.rollback()

@@ -376,6 +376,7 @@ function addNewDiscussion(fid, subject, post){
 		content += '</div>';
 	}
 	content += '<input type="hidden" value="${community.id}" name="community_id">';
+    content += '<input type="hidden" value="${main_community_id}" name="main_community_id">';
 	content += '<input type="hidden" value="' + fid + '" name="fid">';
 	content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
 	content += '<div class="community-clear"></div><br/>';
@@ -582,6 +583,7 @@ function getAttachmentPictHtml(json, level_sn){
 
 //-----------------------------------------------------------------------getDiscussionsHtml
 function getDiscussionsHtml(json, tmp_reply){
+    var main_community_id = "${main_community_id}";
 	var html = "";
 	html += "<div class='center_block' discussion_id='" + json._id + "' community_id='" + sys_community_id + "'>";
 	html += "    <span class='center_block_left'><img class='user_phone' src ='" + json.user_photo + "' /></span>";
@@ -640,6 +642,7 @@ function getDiscussionsHtml(json, tmp_reply){
 	html += "                    <input type='hidden' name='fid' value=''/>";
 	html += "                    <input type='hidden' name='flag' value='submit_comment'/>";
 	html += "                    <input type='hidden' name='community_id' value='" + sys_community_id + "'/>";
+    html += "                    <input type='hidden' name='main_community_id' value='" + main_community_id + "'/>";
 	html += "                    <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
 	html += "                </form>";
 	html += "            </div>";
@@ -653,6 +656,7 @@ function getDiscussionsHtml(json, tmp_reply){
 
 //-----------------------------------------------------------------------getRepliesHtml
 function getRepliesHtml(json, pid, reply_next){
+    var main_community_id = "${main_community_id}";
 	var tmp_reply = "";
 	tmp_reply += "<div class='dis_reply_block' discussion_id='" + pid + "'  comment_id='" + json._id + "' community_id='" + sys_community_id + "'>";
 	tmp_reply += "    <span class='dis_reply_left'>";
@@ -692,6 +696,7 @@ function getRepliesHtml(json, pid, reply_next){
 	tmp_reply += "                <input type='hidden' name='fid_pict_isdel' value=''/>";
 	tmp_reply += "                <input type='hidden' name='flag' value='submit_comment'/>";
 	tmp_reply += "                <input type='hidden' name='community_id' value='" + sys_community_id + "'/>";
+    tmp_reply += "                <input type='hidden' name='main_community_id' value='" + main_community_id + "'/>";
 	tmp_reply += "                <input type='hidden' name='csrfmiddlewaretoken' value='${csrf_token}'/>";
 	tmp_reply += "            </form>";
 	tmp_reply += "        </div>";

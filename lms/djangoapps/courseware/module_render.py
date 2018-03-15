@@ -50,6 +50,7 @@ from django.utils.timezone import UTC
 
 # True North Logic integration
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
+from reporting.models import reporting_store
 
 # log = logging.getLogger(__name__)
 log = logging.getLogger("tracking")
@@ -656,6 +657,8 @@ def modx_dispatch(request, dispatch, location, course_id):
                             "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
                             ma_db.insert_item(my_activity)
+                            rs = reporting_store('UserView')
+                            rs.update_user_complete_course(request.user,course_id)
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)

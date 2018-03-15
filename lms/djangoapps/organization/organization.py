@@ -30,6 +30,7 @@ from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
 from xmodule.remindstore import myactivitystore
+from reporting.models import reporting_store
 
 
 # -------------------------------------------------------------------main
@@ -383,8 +384,8 @@ def organization_list(request):
                 qs = Q(organizationdistricts__EntityType='District', organizationdistricts__OrganizationEnity=request.user.profile.district.id)
                 schools_in_district = School.objects.filter(district_id=request.user.profile.district.id).values('id')
                 qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
-                # cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
-                # qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
+                cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
+                qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
             if access_level == 'State':
                 qs = Q(organizationdistricts__EntityType='State', organizationdistricts__OrganizationEnity=request.user.profile.district.state.id)
                 districts_in_state = District.objects.filter(state_id=request.user.profile.district.state.id)
@@ -2478,9 +2479,11 @@ def course_assign(qualifications, data):
             cea.save()
             if not tmp2['access'] == 'true':
                 CourseEnrollment.enroll(user, tmp2['course_id'])
-            ma_db = myactivitystore()
-            my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
-            "URLValues": {"course_id": tmp2['course_id']},    
-            "TokenValues": {"course_id": tmp2['course_id']}, 
-            "LogoValues": {"course_id": tmp2['course_id']}}
-            ma_db.insert_item(my_activity)
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Courses", "EventType": "course_courseEnrollmentAuto", "ActivityDateTime": datetime.utcnow(), "UsrCre": user.id, 
+                "URLValues": {"course_id": tmp2['course_id']},    
+                "TokenValues": {"course_id": tmp2['course_id']}, 
+                "LogoValues": {"course_id": tmp2['course_id']}}
+                ma_db.insert_item(my_activity)
+                rs = reporting_store('UserView')
+                rs.insert_user_course(user, tmp2['course_id'])
