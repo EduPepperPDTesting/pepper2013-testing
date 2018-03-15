@@ -244,7 +244,7 @@ class MongoReportingStore(object):
             data['cohort_id'] = ""
             data["cohort"] = ""
         try:
-            data['activate_date'] = user.profile.activate_date.strftime('%b-%d-%y %H:%M:%S')
+            data['activate_date'] = user.profile.activate_date.strftime('%Y-%m-%d %H:%M:%S')
         except:
             data['activate_date'] = ""
 

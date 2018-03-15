@@ -2256,6 +2256,8 @@ def activate_imported_account(post_vars):
             registration.activate()
             profile.save()
 
+            rs = reporting_store('UserView')
+            rs.update_user_view(profile.user)
             #** course enroll
             try:
                 cohort = profile.cohort.code
@@ -2277,16 +2279,17 @@ def activate_imported_account(post_vars):
                 cea.auto_enroll = True
                 cea.save()
 
+            ma_db = myactivitystore()
             ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
             for cea in ceas:
                 if cea.auto_enroll:
                     CourseEnrollment.enroll(profile.user, cea.course_id)
-                    ma_db = myactivitystore()
                     my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
                     "URLValues": {"course_id": cea.course_id},    
                     "TokenValues": {"course_id": cea.course_id}, 
                     "LogoValues": {"course_id": cea.course_id}}
                     ma_db.insert_item(my_activity)
+                    rs.insert_user_course(profile.user,cea.course_id)
 
         except Exception as e:
             if "for key 'username'" in "%s" % e:
@@ -2310,9 +2313,6 @@ def activate_imported_account(post_vars):
 
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
         
-        rs = reporting_store('UserView')
-        rs.update_user_view(profile.user)
-
         ret={'success': True}
     except Exception as e:
         # transaction.rollback()

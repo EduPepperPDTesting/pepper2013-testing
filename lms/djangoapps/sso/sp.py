@@ -777,7 +777,8 @@ def activate_account(request):
         profile.bio = vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
-
+        rs = reporting_store('UserView')
+        rs.update_user_view(profile.user)
         #** course enroll
         try:
             cohort = profile.cohort.code
@@ -817,14 +818,17 @@ def activate_account(request):
             upload_user_photo(profile.user.id,settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/img/img_out.jpeg')
 
         # ** auto enroll courses
+        ma_db = myactivitystore()
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-
-        
-        rs = reporting_store('UserView')
-        rs.update_user_view(profile.user)
+                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                    "URLValues": {"course_id": cea.course_id},    
+                    "TokenValues": {"course_id": cea.course_id}, 
+                    "LogoValues": {"course_id": cea.course_id}}
+                ma_db.insert_item(my_activity)
+                rs.insert_user_course(profile.user,cea.course_id)
 
         js = {'success': True}
     except Exception as e:
