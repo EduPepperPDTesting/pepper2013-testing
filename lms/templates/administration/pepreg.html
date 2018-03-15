@@ -2151,6 +2151,7 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
+            var old_max_registration = r.max_registration;
 
 			if(r.arrive == "1"){
 				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
@@ -2176,8 +2177,18 @@
                         $("#dlg-add-training").hide();
                         $(".lean-overlay").hide();
                         self.reloadTable();
+
+                        if(data.max_registration > 0 && old_max_registration < data.max_registration){
+                            var training_room = data.max_registration - old_max_registration;
+                            $.post("${reverse('pepreg_register_students')}", {training_id: id, training_room: training_room}, function (w) {
+                                if(!w.success){
+                                    console.log(w.error);
+                                }
+                            }
+                        }
                     }
                 });
+
             });
         });
     };

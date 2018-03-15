@@ -94,6 +94,7 @@ urlpatterns = (
     url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
     url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
+    url(r'^pepreg/register$', 'administration.pepreg.register_students', name="pepreg_register_students"),
     url(r'^pepreg/waitlist$', 'administration.pepreg.waitlist', name="pepreg_waitlist"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),

@@ -1294,6 +1294,24 @@ def register_student(request, join, training_id, user_id):
     register_data.append(data)
     return register_data
 
+def register_students(request):
+    training_id = request.POST.get("training_id")
+    training_room = int(request.POST.get("training_room"))
+    training = PepRegTraining.objects.get(id=training_id)
+    try:
+        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
+        if training.allow_waitlist and on_waitlist.count() > 0:
+            i = 1
+            while i <= training_room:
+                one_from_waitlist = on_waitlist.values().order_by('id')[i-1:i][0]['student_id']
+                register_student(request, True, training_id, one_from_waitlist)
+                i = i +1
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
 def register(request):
     try:
         join = request.POST.get("join", "false") == "true"
