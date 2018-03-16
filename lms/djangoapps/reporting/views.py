@@ -565,8 +565,10 @@ def report_view(request, report_id):
                 for f in report_filters:
                     filters.append(f)
 
-                create_report_collection(request, report, selected_view, columns, filters, report_id)
-                #create_report_collection2(request, report, selected_view, columns, filters, report_id)
+                if selected_view.view.collection == 'AggregateGradesView':
+                    create_report_collection2(request, report, selected_view, columns, filters, report_id)
+                else:
+                    create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             view_id = ReportViews.objects.filter(report=report)[0].view_id;
             pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;

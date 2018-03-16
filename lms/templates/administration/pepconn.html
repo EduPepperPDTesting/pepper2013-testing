@@ -1032,6 +1032,35 @@ f.close()
     % endif
 </div>
 
+<!-- Task Queue Job Status Temp -->
+<div style="
+    position: fixed;
+    bottom: 0;
+    width: 30%;
+    right: 35%;
+"><div style="
+    display:none;
+    right: 20%;
+    width: 60%;
+    text-align: center;
+    height: 24px;
+    padding-top: 7px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
+    box-shadow: 0 1px 0 0 rgb(255, 250, 64) inset;
+    background-color: rgb(217, 200, 14);
+    background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
+    text-shadow: 0 -1px 1px rgb(137, 120, 14);
+    color: white;
+    font-weight: bold;
+    margin-left: 20%;
+" id = 'job_slider'>
+    Jobs
+    </div><div id="progress_job" style="display:none; width: 100%;background-color: lightgray;border: 1px solid black;padding-top: 6px;padding-bottom: 6px;color: black;background: white;border-top-left-radius: 4px;border-top-right-radius: 4px;font-weight: bold;font-size: 14px;text-align: center;">Email Job: 0/2 Complete</div></div>
+
+<!-- End Task Queue Job Status Temp -->
+
 <script type="text/javascript">
   function LoadingWin(){
     this.$loader = null;
@@ -1264,6 +1293,9 @@ function clearDropdown(dropdown){
 }
 
 $(document).ready(function () {
+    $("#job_slider").click(function() {
+        $("#progress_job").toggle();
+    });
     $("#User_state_select").change(function () {
        var id = $("#User_state_select :selected").attr("class");
         clearDropdown("#User_district_select");
@@ -1593,7 +1625,16 @@ $(document).ready(function () {
                     'custom_email_subject': $("#user_table_custom_email_form input[name='custom_email_subject']").val()
                 }, function (r) {
                     if (r.success) {
-                        self.taskId = r.taskId;
+                        alert ("Job Created.");
+                        $("#job_slider").show();
+                        $.post("${reverse('taskqueue_get_job_progress')}", {}, function (r) {
+                           $("#progress_job").html(r.html);
+                        });
+                        setInterval(function() {
+                            $.post("${reverse('taskqueue_get_job_progress')}", {}, function (r) {
+                               $("#progress_job").html(r.html);
+                            });
+                        }, 3000);
                         $("#user_table_init").trigger("pagerUpdate");
                     }
                 });

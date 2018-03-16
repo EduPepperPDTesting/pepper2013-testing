@@ -127,6 +127,11 @@ urlpatterns = (
     url(r'^cms_book/$', 'handle_cms.views.get_book', name='cms_book'),
     # === CMS 2.1 end === #
 
+    # === Task Queue Begin === #
+    url(r'^popqueue/$', 'taskqueue.views.pop_queue', name='task_queue_pop'),
+    url(r'^jobstatus/$', 'taskqueue.views.job_status', name='taskqueue_get_job_progress'),
+    # === Task Queue End === #
+
     # === webchat begin ==
     url(r'^videochat/(?P<uname>[a-zA-Z_]+)$', 'webchat.views.getvideoframe', name='videochat_show'),
     url(r'^textchat/(?P<uname>[a-zA-Z0-9_`/.../]+)$', 'webchat.views.gettextframe', name='textchat_show'),
