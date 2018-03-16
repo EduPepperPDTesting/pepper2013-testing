@@ -2529,7 +2529,7 @@
                 }
 
                 function waitlistSwap(training_id, top_student_id, bottom_student_id){
-                    $.post("${reverse('pepreg_waitlist_swap')}", {training_id: training_id, top_student_id: top_student_id, bottom_student_id: bottom_student_id}, function (r) {
+                    $.post("${reverse('pepreg_waitlist_swap')}", {training_id: training_id, top_user_id: top_student_id, bottom_user_id: bottom_student_id}, function (r) {
                         if (!r.success) {
                             console.log(r.error);
                         }
