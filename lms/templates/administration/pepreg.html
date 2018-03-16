@@ -2516,9 +2516,9 @@
 
                            $("a[class = 'Waitlist']").click(function (e) {
                                 e.preventDefault();
+                                var row = $(this).closest("tr");
                                 self.confirm("Really remove the student from waitlist?", dlg, function (r) {
                                     if (r) {
-                                        var row = $(this).closest("tr");
                                         var student_id = row.attr("student_id");
                                         console.log("unwaitlist: " + student_id + " from: " + training_id);
                                         self.unwaitlistStudent(training_id, student_id, function () {
