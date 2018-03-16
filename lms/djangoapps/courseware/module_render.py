@@ -646,6 +646,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                         uncompleted_course_prompt = '<p style=\'color:red\'>This course requires a passing score of '+str(int(course_descriptor.grade_cutoffs['Pass']*100))+' percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</p>'
                         if percent >= course_descriptor.grade_cutoffs['Pass']: #0.85
                         #@end
+                            sign = course_instance.complete_course
                             course_instance.complete_course = True
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
@@ -657,8 +658,10 @@ def modx_dispatch(request, dispatch, location, course_id):
                             "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
                             ma_db.insert_item(my_activity)
-                            rs = reporting_store('UserView')
-                            rs.update_user_complete_course(request.user,course_id)
+                            if sign:
+                                rs = reporting_store('UserView')
+                                rs.update_user_complete_course(request.user,course_id)
+                            
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)

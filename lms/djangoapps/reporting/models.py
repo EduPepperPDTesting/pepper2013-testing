@@ -5,7 +5,7 @@ import pymongo
 import logging
 import json
 from reporting.run_config import RunConfig
-from student.models import User
+from student.models import User, CourseEnrollment
 from courseware.models import StudentModule
 log = logging.getLogger("tracking")
 
@@ -134,7 +134,7 @@ class MongoReportingStore(object):
     #     )
     def remove_data(self,db_filter,collection):
         self.set_collection(collection)
-        self.collection.remove(db_filter)
+        return self.collection.remove(db_filter)
 
     def insert_datas(self,datas,collection):
         self.set_collection(collection)
@@ -196,14 +196,14 @@ class MongoReportingStore(object):
 
     def get_user_course_data(self, user, course_id):
         user = User.objects.get(pk=user.id)
-        data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.district.state.id, 'district_id': user.district.id}
+        data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.profile.district.state.id, 'district_id': user.profile.district.id}
         try:
             data['school_id'] = user.profile.school.id
         except:
             data['school_id'] = ""
         enroll = CourseEnrollment.objects.get(user=user, course_id=course_id)
         data['is_active'] = enroll.is_active
-        data['created'] = enroll.create.strftime('%Y-%m-%d %H:%M:%S')
+        data['created'] = enroll.created.strftime('%Y-%m-%d %H:%M:%S')
         return data
 
     def get_user_data(self, user):
@@ -298,6 +298,7 @@ class NewUserView(MongoReportingStore):
         collection = "new_student_courseenrollment"
         data = self.get_user_course_data(user, course_id)
         self.set_collection(RunConfig[collection]['origin_collection'])
+        self.collection.remove({"user_id":int(user.id),"course_id":course_id})
         self.collection.insert(data)
         self.set_collection(RunConfig[collection]["collection"])
         self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":1}})
