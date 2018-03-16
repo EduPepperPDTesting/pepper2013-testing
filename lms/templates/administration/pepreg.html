@@ -2532,10 +2532,10 @@
                     console.log("in function: " + top_student_id+ " " +bottom_student_id);
                     $.post("${reverse('pepreg_waitlist_swap')}", {training_id: training_id, top_user_id: top_student_id, bottom_user_id: bottom_student_id}, function (r) {
                         if (r.success) {
-                           var top_row = $("tr[stdent_id='" + top_student_id + "']").html();
-                           var bottom_row = $("tr[stdent_id='" + bottom_student_id + "']").html();
-                           $("tr[stdent_id='" + top_student_id + "']").html(bottom_row);
-                           $("tr[stdent_id='" + bottom_student_id + "']").html(top_row);
+                           var top_row = $("tr[student_id='" + top_student_id + "']").html();
+                           var bottom_row = $("tr[student_id='" + bottom_student_id + "']").html();
+                           $("tr[student_id='" + top_student_id + "']").html(bottom_row);
+                           $("tr[student_id='" + bottom_student_id + "']").html(top_row);
                         }else{
                             console.log(r.error);
                         }
