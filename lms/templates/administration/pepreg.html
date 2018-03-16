@@ -2503,11 +2503,11 @@
                         var up_arrow = "";
 
                         if($(this).prev().find("a[class='Waitlist']").length > 0){
-                            up_arrow = "<div class='up_arrow' style='display: block;position: relative; top: 0;'><img src='/static/images/uparrow.png'</div>";
+                            up_arrow = "<div class='up_arrow' style='display: block;position: relative; top: -10px; width: 15px;'><img src='/static/images/uparrow.png'></div>";
                         }
 
                         if($(this).next().length > 0) {
-                            down_arrow = "<div class='up_arrow' style='display: block;position: relative; bottom: 0;'><img src='/static/images/downarrow.png'</div>";
+                            down_arrow = "<div class='up_arrow' style='display: block;position: relative; bottom: -5px; width: 15px;'><img src='/static/images/downarrow.png'></div>";
                         }
 
                         $(this).find("td:first").append("<div style='display:inline-block; float: right;'>" + up_arrow + down_arrow + "</div>");
