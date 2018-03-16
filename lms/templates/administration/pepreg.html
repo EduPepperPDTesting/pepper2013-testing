@@ -2518,10 +2518,11 @@
                                 e.preventDefault();
                                 self.confirm("Really remove the student from waitlist?", dlg, function (r) {
                                     if (r) {
-                                        var student_id = $(this).closest("tr").attr("student_id");
+                                        var row = $(this).closest("tr");
+                                        var student_id = row.attr("student_id");
                                         console.log("unwaitlist: " + student_id + " from: " + training_id);
                                         self.unwaitlistStudent(training_id, student_id, function () {
-                                            $row.remove();
+                                            row.remove();
                                             self.reloadTable();
                                         });
                                         addWaitlistArrows();
