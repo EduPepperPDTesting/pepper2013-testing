@@ -2448,7 +2448,7 @@
                                         wait_row.find("td:contains('Waitlist')").text('Registered');
                                     }
                                     $row.remove();
-                                    self.reloadTable();
+                                    addWaitlistArrows();
                                 });
                             }
                         });
@@ -2462,6 +2462,7 @@
                                     $row.remove();
                                     self.reloadTable();
                                 });
+                                addWaitlistArrows();
                             }
                         });
                     });
@@ -2507,8 +2508,10 @@
                         if (r.success) {
                            var top_row = $("tr[student_id='" + top_student_id + "']").html();
                            var bottom_row = $("tr[student_id='" + bottom_student_id + "']").html();
-                           $("tr[student_id='" + top_student_id + "']").attr("student_id", bottom_student_id).html(bottom_row).find(".waitlist_arrow").remove();
-                           $("tr[student_id='" + bottom_student_id + "']").attr("student_id", top_student_id).html(top_row).find(".waitlist_arrow").remove();;
+
+                           $("tr[student_id='" + top_student_id + "']").attr("student_id", "bottom_student_id").html(bottom_row);
+                           $("tr[student_id='" + bottom_student_id + "']").attr("student_id", top_student_id).html(top_row);
+                           $("tr[student_id='bottom_student_id']").attr("student_id", bottom_student_id);
                            addWaitlistArrows();
                         }else{
                             console.log(r.error);
@@ -2517,6 +2520,7 @@
                 }
 
                 function addWaitlistArrows(){
+                    $(".waitlist_arrow").remove()
                     $("tr:has(a[class='Waitlist'])").each(function(){
                         var down_arrow = "";
                         var up_arrow = "";
