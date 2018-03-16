@@ -134,7 +134,7 @@ class MongoReportingStore(object):
     #     )
     def remove_data(self,db_filter,collection):
         self.set_collection(collection)
-        self.collection.remove(db_filter)
+        return self.collection.remove(db_filter)
 
     def insert_datas(self,datas,collection):
         self.set_collection(collection)
@@ -298,6 +298,7 @@ class NewUserView(MongoReportingStore):
         collection = "new_student_courseenrollment"
         data = self.get_user_course_data(user, course_id)
         self.set_collection(RunConfig[collection]['origin_collection'])
+        self.collection.remove({user_id:int(user.id),course_id:course_id})
         self.collection.insert(data)
         self.set_collection(RunConfig[collection]["collection"])
         self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":1}})

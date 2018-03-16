@@ -2096,20 +2096,20 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
         if created or not enr.is_active:
             enr.is_active = True
             enr.save()
+            rs = reporting_store('UserView')
+            rs.insert_user_course(user, course.id)
             if send_notification:
                 send_course_notification(request, user, course, "Add Course Enroll", user.id)
-        rs = reporting_store('UserView')
-        rs.insert_user_course(user, course.id)
     elif enroll == -1:
         find = CourseEnrollment.objects.filter(user=user, course_id=course.id, is_active=True)
         if find.exists():
             enr = find[0]
             enr.is_active = False
             enr.save()
+            rs = reporting_store('UserView')
+            rs.delete_user_course(user, course.id)
             if send_notification:
                 send_course_notification(request, user, course, "Remove Course Enroll", user.id)
-        rs = reporting_store('UserView')
-        rs.delete_user_course(user, course.id)
     if closed == 1:
         enr, created = CourseEnrollment.objects.get_or_create(user=user, course_id=course.id)
         if created:
