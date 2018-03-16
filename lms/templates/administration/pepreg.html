@@ -2513,6 +2513,21 @@
                            $("tr[student_id='" + bottom_student_id + "']").attr("student_id", top_student_id).html(top_row);
                            $("tr[student_id='bottom_student_id']").attr("student_id", bottom_student_id);
                            addWaitlistArrows();
+
+                           $"a[class = 'Waitlist']").click(function (e) {
+                                e.preventDefault();
+                                self.confirm("Really remove the student from waitlist?", dlg, function (r) {
+                                    if (r) {
+                                        var student_id = $(this).closest("tr").attr("student_id");
+                                        console.log("unwaitlist: " + student_id + " from: " + training_id);
+                                        self.unwaitlistStudent(training_id, student_id, function () {
+                                            $row.remove();
+                                            self.reloadTable();
+                                        });
+                                        addWaitlistArrows();
+                                    }
+                                });
+                            });
                         }else{
                             console.log(r.error);
                         }
