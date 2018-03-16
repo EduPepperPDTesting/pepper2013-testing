@@ -454,6 +454,7 @@
                         tabRemove.reloadTable();
                         new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
                         checkStudentLimit(${training.id});
+                        reloadMainTable();
                     }else{
                         $("input:checked").prop("checked", false)
                         new Dialog($('#dialog')).show("Error", r.error);
@@ -473,12 +474,23 @@
                     $.post("${reverse('training_leave',args=[training.id])}",{user_ids:ids.join(",")},function(){
                         tabAdd.reloadTable();
                         tabRemove.reloadTable();
+                        reloadMainTable();
                     });
                 });
             }else{
                 new Dialog($('#dialog')).show("Error", "Please select at least one user to remove.");
             }
         }
+
+        reloadMainTable = function () {
+            var t = $(document).find('#data-table')[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date();
+            p.reload();
+        };
+
         function showStudents(training_id) {
             var self = this;
 

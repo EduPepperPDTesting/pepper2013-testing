@@ -1,5 +1,6 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.db.models import Q
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
@@ -148,8 +149,7 @@ def build_sorts(columns, sorts):
 
 
 def reach_limit(training):
-    return training.max_registration > 0 and PepRegStudent.objects.filter(
-        training=training).count() >= training.max_registration
+    return training.max_registration > 0 and PepRegStudent.objects.filter(~Q(student_status='Waitlist'), training=training).count() >= training.max_registration
 
 
 def instructor_names(training):
@@ -242,6 +242,8 @@ def rows(request):
         remain = item.max_registration - PepRegStudent.objects.filter(
             training=item).count() if item.max_registration > 0 else -1
 
+        allow_waitlist = "1" if item.allow_waitlist else "0"
+
         status = ""
         all_edit = "0"
         all_delete = "0"
@@ -294,10 +296,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain
+                remain, allow_waitlist
             ),
             item.subjectother,
         ]
@@ -346,6 +348,7 @@ def save_training(request):
 
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
+        training.allow_waitlist = request.POST.get("allow_waitlist", False)
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
@@ -1123,12 +1126,11 @@ def remove_student(student):
                                                course_id=student.training.pepper_course).delete()
     student.delete()
 
-
-def register(request):
+def register_student(request, join, training_id, user_id):
+    register_data = list()
+    data = training_id
+    Success = True
     try:
-        join = request.POST.get("join", "false") == "true"
-        training_id = request.POST.get("training_id")
-        user_id = request.POST.get("user_id")
         training = PepRegTraining.objects.get(id=training_id)
 
         if user_id:
@@ -1177,6 +1179,7 @@ def register(request):
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
+            PepRegStudent.objects.filter(training_id=training_id, student=student_user).delete()
 
             #akogan
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
@@ -1184,11 +1187,119 @@ def register(request):
             if mem.exists():
                 mem.delete()
 
+            on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
+            if training.allow_waitlist and on_waitlist.count() > 0:
+                #raise Exception('no waitlist')
+                top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
+                register_student(request, True, training_id, top_on_waitlist)
+
+    except Exception as e:
+        Success = False
+        data = str(e)
+
+    register_data.append(Success)
+    register_data.append(data)
+    return register_data
+
+def register_students(request, training_id = None, training_room = None):
+    training_id = request.POST.get("training_id") if training_id == None else training_id
+    training_room = int(request.POST.get("training_room")) if training_room == None else training_room
+    training = PepRegTraining.objects.get(id=training_id)
+    try:
+        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
+        if training.allow_waitlist and on_waitlist.count() > 0:
+            i = 1
+            while i <= training_room:
+                one_from_waitlist = on_waitlist.values().order_by('id')[i-1:i][0]['student_id']
+                register_student(request, True, training_id, one_from_waitlist)
+                i = i +1
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+def register(request):
+    try:
+        join = request.POST.get("join", "false") == "true"
+        training_id = request.POST.get("training_id")
+        user_id = request.POST.get("user_id")
+
+        register_data = register_student(request, join, training_id, user_id)
+        #raise Exception(str(register_data[0]) + " " + str(register_data[1]))
+        if register_data[0] == False:
+            return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
+
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
     return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
+
+def waitlist(request):
+    try:
+        join = request.POST.get("join", "false") == "true"
+        training_id = request.POST.get("training_id")
+        user_id = request.POST.get("user_id")
+
+        if user_id:
+            student_id = PepRegStudent.objects.get(id=user_id).student_id
+            student_user = User.objects.get(id=student_id)
+        else:
+            student_user = request.user
+
+        try:
+            student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+        except:
+            student = PepRegStudent()
+            student.user_create = request.user
+            student.date_create = datetime.now(UTC)
+
+
+        if join:
+            student_status = "Waitlist"
+            student.student = student_user
+            student.student_status = student_status
+            student.training_id = int(training_id)
+            student.user_modify = request.user
+            student.date_modify = datetime.now(UTC)
+            student.save()
+        else:
+            student.delete()
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
+
+def waitlist_swap(request):
+    try:
+        training_id = request.POST.get("training_id")
+        top_user_id = request.POST.get("top_user_id")
+        bottom_user_id = request.POST.get("bottom_user_id")
+
+        top_student_id = PepRegStudent.objects.get(id=top_user_id).student_id
+        top_student_user = User.objects.get(id=top_student_id)
+        top_student = PepRegStudent.objects.get(training_id=training_id, student=top_student_user)
+
+        bottom_student_id = PepRegStudent.objects.get(id=bottom_user_id).student_id
+        bottom_student_user = User.objects.get(id=bottom_student_id)
+        bottom_student = PepRegStudent.objects.get(training_id=training_id, student=bottom_student_user)
+
+        top_student.student = bottom_student_user
+        top_student.user_modify = request.user
+        top_student.date_modify = datetime.now(UTC)
+        top_student.save()
+
+        bottom_student.student = top_student_user
+        bottom_student.user_modify = request.user
+        bottom_student.date_modify = datetime.now(UTC)
+        bottom_student.save()
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 def set_student_attended(request):
     try:
@@ -1286,7 +1397,7 @@ def student_list(request):
         training_id = request.POST.get("training_id")
         print training_id
         training = PepRegTraining.objects.get(id=training_id)
-        students = PepRegStudent.objects.filter(training_id=training_id)
+        students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
         rows = []
@@ -1318,7 +1429,8 @@ def student_list(request):
                                     'training_type': training.type,
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
-                                    'student_limit': student_limit # akogan
+                                    'student_limit': student_limit, # akogan
+                                    'allow_waitlist': training.allow_waitlist
                                     }),
                         content_type="application/json")
 
@@ -1370,8 +1482,20 @@ def delete_student(request):
     try:
         id = int(request.POST.get("id"))
         user = PepRegStudent.objects.get(id=id).student
+        training_id = PepRegStudent.objects.get(id=id).training_id
         remove_student(PepRegStudent.objects.get(id=id))
         TrainingUsers.objects.filter(user=user).delete()
+        PepRegStudent.objects.filter(id=id).delete()
+
+        training = PepRegTraining.objects.get(id=training_id)
+        on_waitlist = PepRegStudent.objects.filter(training_id=training_id, student_status='Waitlist')
+        if training.allow_waitlist and on_waitlist.count() > 0:
+            top_on_waitlist = on_waitlist.values().order_by('id')[:1][0]['student_id']
+            register_data = register_student(request, True, training_id, top_on_waitlist)
+            #raise Exception(str(register_data[0])+" "+str(register_data[1]))
+            if register_data[0] == False:
+                return HttpResponse(json.dumps({'success': False, 'error': '%s' % register_data[1]}), content_type="application/json")
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
