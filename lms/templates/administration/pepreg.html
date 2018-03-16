@@ -2516,19 +2516,20 @@
                     $(".up_arrow").click(function(){
                         var top_student_id = $(this).closest("tr").prev().attr("student_id");
                         var bottom_student_id = $(this).closest("tr").attr("student_id");
-
+                        console.log(top_student_id+ " " +bottom_student_id);
                         waitlistSwap(training_id, top_student_id, bottom_student_id);
                     });
 
                     $(".down_arrow").click(function(){
                         var top_student_id = $(this).closest("tr").attr("student_id");
                         var bottom_student_id = $(this).closest("tr").next().attr("student_id");
-
+                        console.log(top_student_id+ " " +bottom_student_id);
                         waitlistSwap(training_id, top_student_id, bottom_student_id);
                     });
                 }
 
                 function waitlistSwap(training_id, top_student_id, bottom_student_id){
+                    console.log("in function: " + top_student_id+ " " +bottom_student_id);
                     $.post("${reverse('pepreg_waitlist_swap')}", {training_id: training_id, top_user_id: top_student_id, bottom_user_id: bottom_student_id}, function (r) {
                         if (!r.success) {
                             console.log(r.error);
