@@ -2176,7 +2176,6 @@
                     if (r.success) {
                         $("#dlg-add-training").hide();
                         $(".lean-overlay").hide();
-                        self.reloadTable();
 
                         if(data.max_registration > 0 && old_max_registration < data.max_registration){
                             var training_room = data.max_registration - old_max_registration;
@@ -2186,6 +2185,8 @@
                                 }
                             });
                         }
+
+                        self.reloadTable();
                     }
                 });
 
@@ -2447,6 +2448,7 @@
                                         wait_row.find("td:contains('Waitlist')").text('Registered');
                                     }
                                     $row.remove();
+                                    self.reloadTable();
                                 });
                             }
                         });
@@ -2458,6 +2460,7 @@
                                 console.log("unwaitlist: " + data.id + " from: " + training_id);
                                 self.unwaitlistStudent(training_id, data.id, function () {
                                     $row.remove();
+                                    self.reloadTable();
                                 });
                             }
                         });
