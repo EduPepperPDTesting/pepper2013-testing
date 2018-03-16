@@ -1365,6 +1365,34 @@ def waitlist(request):
 
     return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
+def waitlist_swap(request):
+    try:
+        training_id = request.POST.get("training_id")
+        top_user_id = request.POST.get("top_user_id")
+        bottom_user_id = request.POST.get("bottom_user_id")
+
+        top_student_id = PepRegStudent.objects.get(id=top_user_id).student_id
+        top_student_user = User.objects.get(id=top_student_id)
+        top_student = PepRegStudent.objects.get(training_id=training_id, student=top_student_user)
+
+        bottom_student_id = PepRegStudent.objects.get(id=bottom_user_id).student_id
+        bottom_student_user = User.objects.get(id=bottom_student_id)
+        bottom_student = PepRegStudent.objects.get(training_id=training_id, student=bottom_student_user)
+
+        top_student.student = bottom_student_user
+        top_student.user_modify = request.user
+        top_student.date_modify = datetime.now(UTC)
+        top_student.save()
+
+        bottom_student.student = top_student_user
+        bottom_student.user_modify = request.user
+        bottom_student.date_modify = datetime.now(UTC)
+        bottom_student.save()
+
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 def set_student_attended(request):
     try:

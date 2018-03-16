@@ -2497,6 +2497,43 @@
                     $.each(waitlist_array, function (i, data) {
                         fillRow(null, data).appendTo($tbody);
                     });
+
+                    $("tr:has(a[class='Waitlist'])").each(function(){
+                        var down_arrow = "";
+                        var up_arrow = "";
+
+                        if($(this).prev().find("a[class='Waitlist']").length > 0){
+                            up_arrow = "<div class='up_arrow' style="display: block;position: relative; top: 0;"><img src="/static/images/uparrow.png"</div>"
+                        }
+
+                        if($(this).next().length > 0) {
+                            down_arrow = "<div class='up_arrow' style="display: block;position: relative; bottom: 0;"><img src="/static/images/downarrow.png"</div>"
+                        }
+
+                        $(this).find("td:first").append("<div style='display:inline-block; float: right;'>" + up_arrow + down_arrow + "</div>")
+                    }
+
+                    $(".up_arrow").click(function(){
+                        var top_student_id = $(this).closest("tr").prev().attr("student_id");
+                        var bottom_student_id = $(this).closest("tr").attr("student_id");
+
+                        waitlistSwap(training_id, top_student_id, bottom_student_id);
+                    }
+
+                    $(".down_arrow").click(function(){
+                        var top_student_id = $(this).closest("tr").attr("student_id");
+                        var bottom_student_id = $(this).closest("tr").next().attr("student_id");
+
+                        waitlistSwap(training_id, top_student_id, bottom_student_id);
+                    }
+                }
+
+                function waitlistSwap(training_id, top_student_id, bottom_student_id){
+                    $.post("${reverse('pepreg_waitlist_swap')}", {training_id: training_id, top_student_id: top_student_id, bottom_student_id: bottom_student_id}, function (r) {
+                        if (!r.success) {
+                            console.log(r.error);
+                        }
+                    }
                 }
 
                 $(".download-students-excel").unbind("click").click(function () {

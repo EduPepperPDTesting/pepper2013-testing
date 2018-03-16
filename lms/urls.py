@@ -96,6 +96,7 @@ urlpatterns = (
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
     url(r'^pepreg/register$', 'administration.pepreg.register_students', name="pepreg_register_students"),
     url(r'^pepreg/waitlist$', 'administration.pepreg.waitlist', name="pepreg_waitlist"),
+    url(r'^pepreg/waitlist_swap$', 'administration.pepreg.waitlist_swap', name="pepreg_waitlist_swap"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
     url(r'^pepreg/student_list$', 'administration.pepreg.student_list', name="pepreg_student_list"),
