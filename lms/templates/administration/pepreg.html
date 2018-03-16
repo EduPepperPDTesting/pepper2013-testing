@@ -2524,8 +2524,9 @@
                                         self.unwaitlistStudent(training_id, student_id, function () {
                                             row.remove();
                                             self.reloadTable();
+                                            addWaitlistArrows();
                                         });
-                                        addWaitlistArrows();
+
                                     }
                                 });
                             });
