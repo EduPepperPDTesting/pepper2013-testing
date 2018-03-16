@@ -5,7 +5,7 @@ import pymongo
 import logging
 import json
 from reporting.run_config import RunConfig
-from student.models import User
+from student.models import User, CourseEnrollment
 from courseware.models import StudentModule
 log = logging.getLogger("tracking")
 
@@ -196,14 +196,14 @@ class MongoReportingStore(object):
 
     def get_user_course_data(self, user, course_id):
         user = User.objects.get(pk=user.id)
-        data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.district.state.id, 'district_id': user.district.id}
+        data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.profile.district.state.id, 'district_id': user.profile.district.id}
         try:
             data['school_id'] = user.profile.school.id
         except:
             data['school_id'] = ""
         enroll = CourseEnrollment.objects.get(user=user, course_id=course_id)
         data['is_active'] = enroll.is_active
-        data['created'] = enroll.create.strftime('%Y-%m-%d %H:%M:%S')
+        data['created'] = enroll.created.strftime('%Y-%m-%d %H:%M:%S')
         return data
 
     def get_user_data(self, user):
