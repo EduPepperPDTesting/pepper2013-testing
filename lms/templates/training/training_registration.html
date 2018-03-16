@@ -482,14 +482,14 @@
         }
 
         reloadMainTable = function () {
-            var t = this.$content.find('#data-table')[0];
+            var t = $(document).find('#data-table')[0];
             var c = t.config;
             var p = c.pager;
             p = $.extend(p, p.last);
             p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date();
             p.reload();
         };
-        
+
         function showStudents(training_id) {
             var self = this;
 
