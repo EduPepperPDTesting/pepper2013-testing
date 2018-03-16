@@ -2514,7 +2514,7 @@
                            $("tr[student_id='bottom_student_id']").attr("student_id", bottom_student_id);
                            addWaitlistArrows();
 
-                           $"a[class = 'Waitlist']").click(function (e) {
+                           $("a[class = 'Waitlist']").click(function (e) {
                                 e.preventDefault();
                                 self.confirm("Really remove the student from waitlist?", dlg, function (r) {
                                     if (r) {
