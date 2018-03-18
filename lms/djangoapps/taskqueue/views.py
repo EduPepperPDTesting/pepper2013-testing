@@ -134,6 +134,7 @@ def run_registration_email(task):
         log.info("Registration email sent using data: %s" % task.data)
 
         remove_task(task)
+        profile.save()
 
     except Exception as e:
         db.transaction.rollback()
