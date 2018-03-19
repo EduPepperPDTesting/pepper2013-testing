@@ -260,6 +260,8 @@ class MongoRecordTimeStore(object):
                 },
                 True
             )
+            rs = reporting_store('UserView')
+            rs.update_user_course_discussion_time(user_id, course_id, time)
         elif type == 'portfolio':
             results = self.collection_portfolio.update(
                 {
@@ -270,6 +272,8 @@ class MongoRecordTimeStore(object):
                 },
                 True
             )
+            rs = reporting_store('UserView')
+            rs.update_user_course_portfolio_time(user_id, time)
         return results
 
     #  Return total time (course_time, discussion_time, portfolio_time)
@@ -350,10 +354,37 @@ class MongoRecordTimeStore(object):
 
     def set_adjustment_time(self, user_id, type, time, course_id=''):
         time = int(time)
-        if type == 'portfolio' or type == 'total':
+        if type == 'total':
             return self.collection_adjustment.update(
                 {
                     'user_id': user_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+        elif  type == 'portfolio':
+            rs = reporting_store('UserView')
+            rs.update_user_course_portfolio_time(user_id, time)
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+        elif type == "discussion":
+            rs = reporting_store('UserView')
+            rs.update_user_course_discussion_time(user_id, course_id, time)
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
                     'type': type
                 },
                 {

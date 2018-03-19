@@ -331,21 +331,51 @@ class NewUserView(MongoReportingStore):
         collection = "new_external_time"
         if type == "adjustment_time":
             self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id),'course_id': course_id,'type': 'external'},{'$inc': {'r_time': time}},True)
+            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
             self.set_collection(RunConfig[collection]['origin_collection1'])
-            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'time': time}},True)
+            self.collection.update({'user_id': int(user_id),'course_id': course_id,'type': 'external'},{'$inc': {'time': time}},True)
             data = {'$inc': {'total_time': time,'external_time': time}}
-            self._update_user_view(int(user_id),data)
+            self._update_user_view(int(user_id), data)
         elif type == "external_time":
             self.set_collection(RunConfig[collection]['origin_collection'])
             self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
             data = {'$inc': {'total_time': time,'external_time': time}}
-            self._update_user_view(int(user_id),data)
+            self._update_user_view(int(user_id), data)
 
     def update_user_course_pd_time(self, user_id, credit):
         collection = "new_pd_time"
         time = 3600 * int(credit)
         self.set_collection(RunConfig[collection]['origin_collection'])
-        self.collection.update({'user_id': int(user_id)},{'$inc': {'credit': time}},True)
-        data = {'$inc': {'total_time': time,'pd_time': time}}
-        self._update_user_view(int(user_id),data)
+        self.collection.update({'user_id': int(user_id)}, {'$inc': {'credit': time}}, True)
+        data = {'$inc': {'total_time': time, 'pd_time': time}}
+        self._update_user_view(int(user_id), data)
+
+    def update_user_course_portfolio_time(self, user_id, time, type='adjustment_time'):
+        collection = "new_portfolio_time"
+        if type == "adjustment_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
+            self.set_collection(RunConfig[collection]['origin_collection1'])
+            self.collection.update({'user_id': int(user_id), 'type': 'portfolio'}, {'$inc': {'time': time}}, True)
+            data = {'$inc': {'total_time': time,'portfolio_time': time, 'collaboration_time': time}}
+            self._update_user_view(int(user_id),data)
+        elif type == "portfolio_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}},True)
+            data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
+            self._update_user_view(int(user_id), data)
+
+    def update_user_course_discussion_time(self, user_id, course_id, time, type='adjustment_time'):
+        collection = "new_discussion_time"
+        if type == "adjustment_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
+            self.set_collection(RunConfig[collection]['origin_collection1'])
+            self.collection.update({'user_id': int(user_id), 'course_id': course_id, 'type': 'discussion'}, {'$inc': {'time': time}}, True)
+            data = {'$inc': {'total_time': time,'portfolio_time': time, 'collaboration_time': time}}
+            self._update_user_view(int(user_id),data)
+        elif type == "discussion_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
+            data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
+            self._update_user_view(int(user_id), data)

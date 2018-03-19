@@ -15,6 +15,14 @@ RunConfig = {
     "new_pd_time":{
         'origin_collection':'pd_time'
     },
+    "new_portfolio_time":{
+        'origin_collection':'portfolio_time',
+        'origin_collection1':'adjustment_time'
+    },
+    "new_discussion_time":{
+        'origin_collection':'discussion_time',
+        'origin_collection1':'adjustment_time'
+    }
 }
 
 
