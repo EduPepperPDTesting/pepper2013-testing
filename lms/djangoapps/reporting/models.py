@@ -336,7 +336,7 @@ class NewUserView(MongoReportingStore):
             self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'time': time}},True)
             data = {'$inc': {'total_time': time,'external_time': time}}
             self._update_user_view(int(user_id),data)
-        elif type = "external_time":
+        elif type == "external_time":
             self.set_collection(RunConfig[collection]['origin_collection'])
             self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
             data = {'$inc': {'total_time': time,'external_time': time}}

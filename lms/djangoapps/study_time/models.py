@@ -4,7 +4,8 @@ import django_comment_client.utils as utils
 from courseware.courses import get_course_with_access
 import pymongo
 import logging
-from reporting import reporting_store
+from reporting.models import reporting_store
+from student.views import course_from_id
 log = logging.getLogger("tracking")
 
 
@@ -274,6 +275,10 @@ class MongoRecordTimeStore(object):
 
     def set_external_time(self, user_id, course_id, type, external_id, weight):
         if type == 'combinedopenended':
+            rs = reporting_store('UserView')
+            c = course_from_id(course_id)
+            r_time = int(weight * int(c.external_course_time))
+            rs.update_user_course_external_time(user_id, request.POST.get('course_id'), r_time, "external_time")
             return self.collection_external.update(
                 {
                     'user_id': user_id,
@@ -288,7 +293,7 @@ class MongoRecordTimeStore(object):
             )
 
     def del_external_time(self, user_id, course_id, type, external_id):
-        return self.collection_external.remove(
+        result = self.collection_external.remove(
             {
                 'user_id': user_id,
                 'course_id': course_id,
@@ -296,6 +301,12 @@ class MongoRecordTimeStore(object):
                 'type': type
             }
         )
+        if result['n']:
+            rs = reporting_store('UserView')
+            c = course_from_id(course_id)
+            r_time = int(weight * int(c.external_course_time))
+            rs.update_user_course_external_time(user_id, request.POST.get('course_id'), r_time, "external_time")
+        return result
 
     def get_external_time(self, user_id, course_id):
         count_weight = 0
@@ -344,7 +355,7 @@ class MongoRecordTimeStore(object):
                 True
             )
         elif type == "external":
-            rs = reporting_store()
+            rs = reporting_store('UserView')
             rs.update_user_course_external_time(user_id, course_id, time)
             return self.collection_adjustment.update(
                 {
