@@ -25,6 +25,7 @@ from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
 from io import BytesIO
 import urllib
+import uuid
 from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
@@ -53,6 +54,8 @@ from django.contrib.auth.models import User
 #@date:2016-06-21
 from reporting.models import reporting_store
 #@end
+
+from certificates.models import CertificateImages
 
 logger = logging.getLogger(__name__) 
 
@@ -606,4 +609,24 @@ def recorded_time_format(t, is_sign=False):
     return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
 #@end
 
+@csrf_exempt
+def save_upload_images(request):
+    image = request.FILES.get('upload')
+    (shotname, extension) = os.path.splitext(image.name)
+    image.name = str(uuid.uuid1()) + extension
+    certificate_image = CertificateImages(image=image)
+    certificate_image.save()
+    return HttpResponse('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction(' + request.GET.get('CKEditorFuncNum') + ', "' + certificate_image.image.url + '", "");</script>')
 
+def browser_upload_images(request):
+    images = CertificateImages.objects.all()
+    image_list = []
+    for image in images:
+        img = {
+            'name': image.image.name,
+            'url': image.image.url,
+            'mtime': ''
+        }
+        image_list.append(img)
+
+    return HttpResponse(image_list)
