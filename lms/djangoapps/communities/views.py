@@ -55,7 +55,8 @@ def community_ngss(request):
 @login_required
 def community_manage_member(request, community_id):
     community = CommunityCommunities.objects.get(id=community_id)
-    return render_to_response('communities/manage_members.html', {"community": community})
+    main_community_id = request.GET.get("main_id", "")
+    return render_to_response('communities/manage_members.html', {"community": community, "main_community_id": main_community_id})
 
 
 def build_sorts(columns, sorts):
@@ -153,21 +154,37 @@ def get_add_user_rows(request, community_id):
     if filters.get('8'):
         filters['all'] = filters['8']
         del filters['8']
-    
+
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
-    # If the were filers passed in, get the arguments to filter by and add them to the query.
-    if len(filters):
-        args, kwargs = build_filters(columns, filters)
-        # If there was a search for all, add the Q arguments.
-        if args:
-            users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+    main_community_id = request.GET.get("main_id", "")
+    if not main_community_id:
+        # If the were filers passed in, get the arguments to filter by and add them to the query.
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            # If there was a search for all, add the Q arguments.
+            if args:
+                users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+        # If there are no filters, just select all.
         else:
-            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
-    # If there are no filters, just select all.
+            users = UserProfile.objects.prefetch_related().all().order_by(*order)
     else:
-        users = UserProfile.objects.prefetch_related().all().order_by(*order)
+        # If the were filers passed in, get the arguments to filter by and add them to the query.
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            kwargs.update({'user__communityuser__community': main_community_id})
+            # If there was a search for all, add the Q arguments.
+            if args:
+                users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+        # If there are no filters, just select all.
+        else:
+            kwargs = {'user__communityuser__community': main_community_id}
+            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
 
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 

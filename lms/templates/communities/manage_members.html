@@ -118,7 +118,7 @@
                     </div>
                 </div>
                 <div>
-                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&main_id=${main_community_id}">
                         <thead>
                         <tr>
                             <!-- <th class="user_id_select">ID</th> -->

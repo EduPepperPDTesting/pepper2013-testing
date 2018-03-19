@@ -876,7 +876,7 @@ a{
                                 <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
-                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}?main_id=${main_community.id}">Manage Users</a></div>
                                 %endif
                             </div>
                         </div>
@@ -907,7 +907,7 @@ a{
                                 <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
                                 %endif
                                 %if ruser_info['default'] or user_super:
-                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}">Manage Users</a></div>
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}?main_id=${main_community.id}">Manage Users</a></div>
                                 %endif
                             </div>
                         </div>
@@ -1739,7 +1739,7 @@ a{
         // ************* input facilitators
         $(".btn-add-facilitator").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
-            $.get("${reverse('subcommunity_user_email_valid')}", {email: email, main_id: '${community.main_id}'}, function (result) {
+            $.get("${reverse('subcommunity_user_email_valid')}", {email: email, main_id: '${main_community.id}'}, function (result) {
                 if (result.success){
                     self.addFacilitator(email);
                     $("#complete-email").val("");
@@ -2289,7 +2289,7 @@ a{
 
         $('#complete-email').autocomplete({
             source: function (request, response) {
-                $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${community.main_id}'}, response);
+                $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${main_community.id}'}, response);
             }
         });
 
