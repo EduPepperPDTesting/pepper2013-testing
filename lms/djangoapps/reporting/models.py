@@ -342,4 +342,10 @@ class NewUserView(MongoReportingStore):
             data = {'$inc': {'total_time': time,'external_time': time}}
             self._update_user_view(int(user_id),data)
 
-
+    def update_user_course_pd_time(self, user_id, credit):
+        collection = "new_pd_time"
+        time = 3600 * int(credit)
+        self.set_collection(RunConfig[collection]['origin_collection'])
+        self.collection.update({'user_id': int(user_id)},{'$inc': {'credit': time}},True)
+        data = {'$inc': {'total_time': time,'pd_time': time}}
+        self._update_user_view(int(user_id),data)

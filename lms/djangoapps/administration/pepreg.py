@@ -50,7 +50,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from xmodule.remindstore import myactivitystore
 import logging
-
+from reporting.models import reporting_store
 from operator import itemgetter
 
 @login_required
@@ -1462,11 +1462,15 @@ def set_student_validated(request):
             student.student_status = "Validated"
             student.student_credit = training.credits
             student.save()
+            rs = reporting_store('UserView')
+            rs.update_user_course_pd_time(student_id, int(training.credits))
         else:
             student.student_status = "Attended"
             student.student_credit = 0
+            student.save()
+            rs = reporting_store('UserView')
+            rs.update_user_course_pd_time(student_id, int(-training.credits))
 
-        student.save()
 
         data = {"id": student.id,
                 "email": student.student.email,

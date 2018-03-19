@@ -11,7 +11,10 @@ RunConfig = {
     "new_external_time":{
         'origin_collection':'external_time',
         'origin_collection1':'adjustment_time'
-    }
+    },
+    "new_pd_time":{
+        'origin_collection':'pd_time'
+    },
 }
 
 
