@@ -5,9 +5,15 @@ from courseware.courses import get_course_with_access
 import pymongo
 import logging
 from reporting.models import reporting_store
-from student.views import course_from_id
+from xmodule.course_module import CourseDescriptor
+from xmodule.modulestore.django import modulestore
 log = logging.getLogger("tracking")
 
+
+def course_from_id(course_id):
+    """Return the CourseDescriptor corresponding to this course_id"""
+    course_loc = CourseDescriptor.id_to_location(course_id)
+    return modulestore().get_instance(course_id, course_loc)
 
 class MongoRecordTimeStore(object):
 
@@ -278,7 +284,7 @@ class MongoRecordTimeStore(object):
             rs = reporting_store('UserView')
             c = course_from_id(course_id)
             r_time = int(weight * int(c.external_course_time))
-            rs.update_user_course_external_time(user_id, request.POST.get('course_id'), r_time, "external_time")
+            rs.update_user_course_external_time(user_id, course_id, r_time, "external_time")
             return self.collection_external.update(
                 {
                     'user_id': user_id,
@@ -305,7 +311,7 @@ class MongoRecordTimeStore(object):
             rs = reporting_store('UserView')
             c = course_from_id(course_id)
             r_time = int(weight * int(c.external_course_time))
-            rs.update_user_course_external_time(user_id, request.POST.get('course_id'), r_time, "external_time")
+            rs.update_user_course_external_time(user_id, course_id, r_time, "external_time")
         return result
 
     def get_external_time(self, user_id, course_id):

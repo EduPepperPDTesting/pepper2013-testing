@@ -10,6 +10,7 @@ from models import record_time_store
 from student.models import User
 from django.conf import settings
 from reporting.models import reporting_store
+from student.views import course_from_id
 import time
 import datetime
 import logging
