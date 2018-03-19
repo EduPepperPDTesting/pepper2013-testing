@@ -299,11 +299,12 @@ class MongoRecordTimeStore(object):
             )
 
     def del_external_time(self, user_id, course_id, type, external_id):
-        result = self.collection_external.find({'user_id':user_id,'course_id':course_id})
-        if result['weight']:
+        results = self.collection_external.find({'user_id':user_id,'course_id':course_id})
+        for data in results:
+            weight = int(data['weight'])
             rs = reporting_store('UserView')
             c = course_from_id(course_id)
-            r_time = int(result['weight']) * int(c.external_course_time)
+            r_time = weight * int(c.external_course_time)
             rs.update_user_course_external_time(user_id, course_id, r_time, "external_time")
         return self.collection_external.remove(
             {
