@@ -372,10 +372,25 @@ class NewUserView(MongoReportingStore):
             self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
             self.set_collection(RunConfig[collection]['origin_collection1'])
             self.collection.update({'user_id': int(user_id), 'course_id': course_id, 'type': 'discussion'}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time,'portfolio_time': time, 'collaboration_time': time}}
+            data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
             self._update_user_view(int(user_id),data)
         elif type == "discussion_time":
             self.set_collection(RunConfig[collection]['origin_collection'])
             self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
+            data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
+            self._update_user_view(int(user_id), data)
+
+    def update_user_course_course_time(self, user_id, course_id, time, type='adjustment_time'):
+        collection = "new_course_time"
+        if type == "adjustment_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
+            self.set_collection(RunConfig[collection]['origin_collection1'])
+            self.collection.update({'user_id': int(user_id), 'course_id': course_id, 'type': 'courseware'}, {'$inc': {'time': time}}, True)
+            data = {'$inc': {'total_time': time, 'course_time': time}}
+            self._update_user_view(int(user_id),data)
+        elif type == "course_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
+            data = {'$inc': {'total_time': time, 'course_time': time}}
             self._update_user_view(int(user_id), data)

@@ -156,6 +156,9 @@ class MongoRecordTimeStore(object):
                     'time': item['time'],
                     'page_data': rdata
                 })
+
+                rs = reporting_store('UserView')
+                rs.update_user_course_course_time(item['user_id'], rdata['course_id'], int(item['time']), 'course_time')
         else:
             # first record
             if int(item['time']) >= 0:
@@ -169,6 +172,9 @@ class MongoRecordTimeStore(object):
                     'page_data': rdata
                 })
 
+                rs = reporting_store('UserView')
+                rs.update_user_course_course_time(item['user_id'], rdata['course_id'], int(item['time']), 'course_time')
+                
     # Todo (page time report)
     def return_page_items(self, user_id, skip=0, limit=5):
         r = []
@@ -261,7 +267,7 @@ class MongoRecordTimeStore(object):
                 True
             )
             rs = reporting_store('UserView')
-            rs.update_user_course_discussion_time(user_id, course_id, time)
+            rs.update_user_course_discussion_time(user_id, course_id, time, 'discussion')
         elif type == 'portfolio':
             results = self.collection_portfolio.update(
                 {
@@ -273,7 +279,7 @@ class MongoRecordTimeStore(object):
                 True
             )
             rs = reporting_store('UserView')
-            rs.update_user_course_portfolio_time(user_id, time)
+            rs.update_user_course_portfolio_time(user_id, time, portfolio, 'portfolio')
         return results
 
     #  Return total time (course_time, discussion_time, portfolio_time)
@@ -395,6 +401,20 @@ class MongoRecordTimeStore(object):
         elif type == "external":
             rs = reporting_store('UserView')
             rs.update_user_course_external_time(user_id, course_id, time)
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+        elif type == "courseware":
+            rs = reporting_store('UserView')
+            rs.update_user_course_course_time(user_id, course_id, time)
             return self.collection_adjustment.update(
                 {
                     'user_id': user_id,
