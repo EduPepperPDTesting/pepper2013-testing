@@ -391,6 +391,6 @@ class NewUserView(MongoReportingStore):
             self._update_user_view(int(user_id),data)
         elif type == "course_time":
             self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
+            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
             data = {'$inc': {'total_time': time, 'course_time': time}}
             self._update_user_view(int(user_id), data)
