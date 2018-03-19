@@ -1,15 +1,16 @@
 RunConfig = {
     "new_user_info": {
-        "collection": "UserView",
         'origin_collection':'user_info'
     },
     "new_student_courseenrollment": {
-        "collection": "UserView",
         'origin_collection':'student_courseenrollment'
     },
     "new_courseware_studentmodule":{
-        "collection": "UserView",
         'origin_collection':'courseware_studentmodule'
+    },
+    "new_external_time":{
+        'origin_collection':'external_time',
+        'origin_collection1':'adjustment_time'
     }
 }
 

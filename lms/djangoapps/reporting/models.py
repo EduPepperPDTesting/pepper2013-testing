@@ -141,6 +141,7 @@ class MongoReportingStore(object):
         for index,val in enumerate(datas):
             self.collection.insert(val)
         return True
+
     def update_data(self,db_filter,data,collection):
         self.set_collection(collection)
         data = {"$set":data}
@@ -272,9 +273,19 @@ def reporting_store(view=None):
         return MongoReportingStore(**options)
 
 class NewUserView(MongoReportingStore):
+    def _insert_user_view(self, data):
+        self.set_collection("UserView")
+        return self.collection.insert(data)
+
+    def _update_user_view(self, user_id, data):
+        self.set_collection("UserView")
+        db_filter = {'school_year': 'current','user_id':int(user_id)}
+        return self.collection.update(db_filter,data,True)
+
     def update_user_view(self, user):
         data = self.get_user_data(user)
-        self.update_data({'school_year': 'current','user_id':int(user.id)}, data,RunConfig["new_user_info"]["collection"])
+        data = {"$set":data}
+        self._update_user_view(user.id, data)
 
     def insert_user_view(self, user):
         collection = "new_user_info"
@@ -285,13 +296,12 @@ class NewUserView(MongoReportingStore):
         query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
         result = self.get_aggregate(collection,query)
         for tmp in result['result']:
-            self.set_collection(RunConfig[collection]["collection"])
-            self.collection.insert(tmp)
+            self._insert_user_view(tmp)
 
     def delete_user_view(self, ids):
         collection = "new_user_info"
         for tmp in ids:
-            self.remove_data({"user_id":int(tmp),"school_year":"current"},RunConfig[collection]["collection"])
+            self.remove_data({"user_id":int(tmp),"school_year":"current"},"UserView")
             self.remove_data({"user_id":int(tmp)},RunConfig[collection]["origin_collection"])
         
     def insert_user_course(self, user, course_id):
@@ -300,20 +310,36 @@ class NewUserView(MongoReportingStore):
         self.set_collection(RunConfig[collection]['origin_collection'])
         self.collection.remove({"user_id":int(user.id),"course_id":course_id})
         self.collection.insert(data)
-        self.set_collection(RunConfig[collection]["collection"])
-        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":1}})
+        data = {"$inc":{"current_course":1}}
+        self._update_user_view(user.id, data)
 
     def delete_user_course(self, user, course_id):
         collection = "new_student_courseenrollment"
         self.remove_data({"user_id":int(user.id),"course_id":course_id},RunConfig[collection]["origin_collection"])
-        self.set_collection(RunConfig[collection]["collection"])
-        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"current_course":-1}})
+        data = {"$inc":{"current_course":-1}}
+        self._update_user_view(user.id, data)
 
     def update_user_complete_course(self, user, course_id):
         collection = "new_courseware_studentmodule"
         data = self.get_user_course_date1(user, course_id)
         self.set_collection(RunConfig[collection]['origin_collection'])
         self.collection.insert(data)
-        self.set_collection(RunConfig[collection]["collection"])
-        self.collection.update({'school_year': 'current','user_id':int(user.id)}, {"$inc":{"complete_course":1,"current_course":-1}})
+        data = {"$inc":{"complete_course":1,"current_course":-1}}
+        self._update_user_view(user.id, data)
+
+    def update_user_course_external_time(self, user_id, course_id, time, type='adjustment_time'):
+        collection = "new_external_time"
+        if type == "adjustment_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id),'course_id': course_id,'type': 'external'},{'$inc': {'r_time': time}},True)
+            self.set_collection(RunConfig[collection]['origin_collection1'])
+            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'time': time}},True)
+            data = {'$inc': {'total_time': time,'external_time': time}}
+            self._update_user_view(int(user_id),data)
+        elif type = "external_time":
+            self.set_collection(RunConfig[collection]['origin_collection'])
+            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
+            data = {'$inc': {'total_time': time,'external_time': time}}
+            self._update_user_view(int(user_id),data)
+
 

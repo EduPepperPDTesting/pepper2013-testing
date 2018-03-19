@@ -9,6 +9,8 @@ from dashboard.models import *
 from models import record_time_store
 from student.models import User
 from django.conf import settings
+from student.view import course_from_id
+from reporting.models import reporting_store
 import time
 import datetime
 import logging
@@ -171,6 +173,10 @@ def save_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
     rts.set_external_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('external_id'), request.POST.get('weight'))
+    rs = reporting_store()
+    c = course_from_id(request.POST.get('course_id'))
+    r_time = int(request.POST.get('weight')) * int(c.external_course_time)
+    rs.update_user_course_external_time(user_id, request.POST.get('course_id'), r_time, "external_time")
     return utils.JsonResponse({})
 
 

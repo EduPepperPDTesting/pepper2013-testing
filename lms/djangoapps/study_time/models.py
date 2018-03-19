@@ -4,6 +4,7 @@ import django_comment_client.utils as utils
 from courseware.courses import get_course_with_access
 import pymongo
 import logging
+from reporting import reporting_store
 log = logging.getLogger("tracking")
 
 
@@ -335,6 +336,20 @@ class MongoRecordTimeStore(object):
             return self.collection_adjustment.update(
                 {
                     'user_id': user_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+        elif type == "external":
+            rs = reporting_store()
+            rs.update_user_course_external_time(user_id, course_id, time)
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
                     'type': type
                 },
                 {
