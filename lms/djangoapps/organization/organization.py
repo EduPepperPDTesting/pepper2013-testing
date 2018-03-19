@@ -385,7 +385,7 @@ def organization_list(request):
                 schools_in_district = School.objects.filter(district_id=request.user.profile.district.id).values('id')
                 qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
                 cohorts_in_district = Cohort.objects.filter(district_id=request.user.profile.district.id).values('id')
-                qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
+                qs |= Q(organizationdistricts__EntityType='Cohort', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
             if access_level == 'State':
                 qs = Q(organizationdistricts__EntityType='State', organizationdistricts__OrganizationEnity=request.user.profile.district.state.id)
                 districts_in_state = District.objects.filter(state_id=request.user.profile.district.state.id)
@@ -393,6 +393,8 @@ def organization_list(request):
                 for district_in_state in districts_in_state:
                     schools_in_district = School.objects.filter(district_id=district_in_state.id).values('id')
                     qs |= Q(organizationdistricts__EntityType='School', organizationdistricts__OrganizationEnity__in=schools_in_district)
+                    cohorts_in_district = Cohort.objects.filter(district_id=district_in_state.id).values('id')
+                    qs |= Q(organizationdistricts__EntityType='Cohort', organizationdistricts__OrganizationEnity__in=cohorts_in_district)
             org_list = OrganizationMetadata.objects.filter(qs).distinct()
 
     rows = []
@@ -911,6 +913,8 @@ def organization_get(request):
                 for tmp in organizations:
                     org = tmp
 
+                    data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
+
                     # --------------OrganizationMetadata
                     data['DistrictType'] = org.DistrictType
                     data['SchoolType'] = org.SchoolType
@@ -1172,6 +1176,7 @@ def organizational_save_base(request):
         register_text_button = request.POST.get("register_text_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
+        allow_pd_planner = request.POST.get("allow_pd_planner", "")
         if is_announcement == "1":
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
@@ -1195,6 +1200,14 @@ def organizational_save_base(request):
 
             org_metadata.DistrictType = for_district
             org_metadata.SchoolType = for_school
+
+            # allow pd planner
+            if allow_pd_planner:
+                if allow_pd_planner == "1":
+                    org_metadata.allow_pd_planner = True
+                else:
+                    org_metadata.allow_pd_planner = False
+
             org_metadata.save()
 
             # --------------OrganizationDataitems
