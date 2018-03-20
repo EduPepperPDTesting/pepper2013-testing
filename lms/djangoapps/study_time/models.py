@@ -173,7 +173,7 @@ class MongoRecordTimeStore(object):
                 })
 
                 rs = reporting_store('UserView')
-                rs.update_user_course_course_time(item['user_id'], rdata['course_id'], int(item['time']), 'course_time')
+                rs.update_user_course_course_time(item['user_id'], item['course_id'], int(item['time']), 'course_time')
                 
     # Todo (page time report)
     def return_page_items(self, user_id, skip=0, limit=5):
