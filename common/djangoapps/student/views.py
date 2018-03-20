@@ -834,7 +834,7 @@ def change_enrollment(request):
     if course_id is None:
         return HttpResponseBadRequest(_("Course id not specified"))
 
-    rs = reporting_store('UserView')
+    rs = reporting_store('StudentCourseenrollment')
     if action == "enroll":
         # Make sure the course exists
         # We don't do this check on unenroll, or a bad course id can't be unenrolled from
@@ -862,14 +862,14 @@ def change_enrollment(request):
         "TokenValues": {"course_id": course.id}, 
         "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
-        rs.insert_user_course(user, course.id)
+        rs.report_update_data(user.id, course.id)
 
         return HttpResponse("course_enroll_ok")
 
     elif action == "unenroll":
         try:
             CourseEnrollment.unenroll(user, course_id)
-            rs.delete_user_course(user, course_id)
+            rs.report_update_data(user, course_id, -1)
 
             org, course_num, run = course_id.split("/")
             statsd.increment("common.student.unenrollment",
@@ -2115,8 +2115,8 @@ def accept_name_change_by_id(id):
     u.save()
     up.save()
 
-    rs = reporting_store('UserView')
-    rs.update_user_view(u)
+    rs = reporting_store('UserInfo')
+    rs.report_update_data(u.id)
 
     pnc.delete()
 
@@ -2168,8 +2168,8 @@ def change_school_request(request):
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
-    rs = reporting_store('UserView')
-    rs.update_user_view(request.user)
+    rs = reporting_store('UserInfo')
+    rs.report_update_data(request.user.id)
     return HttpResponse(json.dumps({'success': True, 'school_id': up.school_id,
                                     'location': up.location}))
 
@@ -2259,8 +2259,8 @@ def activate_imported_account(post_vars):
             registration.activate()
             profile.save()
 
-            rs = reporting_store('UserView')
-            rs.update_user_view(profile.user)
+            rs = reporting_store('UserInfo')
+            rs.report_update_data(profile.user.id)
             #** course enroll
             try:
                 cohort = profile.cohort.code
@@ -2283,6 +2283,7 @@ def activate_imported_account(post_vars):
                 cea.save()
 
             ma_db = myactivitystore()
+            rs = reporting_store('StudentCourseenrollment')
             ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
             for cea in ceas:
                 if cea.auto_enroll:
@@ -2292,7 +2293,7 @@ def activate_imported_account(post_vars):
                     "TokenValues": {"course_id": cea.course_id}, 
                     "LogoValues": {"course_id": cea.course_id}}
                     ma_db.insert_item(my_activity)
-                    rs.insert_user_course(profile.user,cea.course_id)
+                    rs.report_update_data(profile.user.id, cea.course_id)
 
         except Exception as e:
             if "for key 'username'" in "%s" % e:

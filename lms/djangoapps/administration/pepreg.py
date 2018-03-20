@@ -1462,14 +1462,14 @@ def set_student_validated(request):
             student.student_status = "Validated"
             student.student_credit = training.credits
             student.save()
-            rs = reporting_store('UserView')
-            rs.update_user_course_pd_time(student_id, int(training.credits))
+            rs = reporting_store('PdTime')
+            rs.report_update_data(student_id, int(training.credits))
         else:
             student.student_status = "Attended"
             student.student_credit = 0
             student.save()
-            rs = reporting_store('UserView')
-            rs.update_user_course_pd_time(student_id, int(-training.credits))
+            rs = reporting_store('PdTime')
+            rs.report_update_data(student_id, int(-training.credits))
 
 
         data = {"id": student.id,

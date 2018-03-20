@@ -2500,5 +2500,5 @@ def course_assign(qualifications, data):
                 "TokenValues": {"course_id": tmp2['course_id']}, 
                 "LogoValues": {"course_id": tmp2['course_id']}}
                 ma_db.insert_item(my_activity)
-                rs = reporting_store('UserView')
-                rs.insert_user_course(user, tmp2['course_id'])
+                rs = reporting_store('StudentCourseenrollment')
+                rs.report_update_data(user.id, tmp2['course_id'])

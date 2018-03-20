@@ -554,8 +554,8 @@ def user_submit(request):
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
 
-        rs = reporting_store('UserView')
-        rs.update_user_view(user)
+        rs = reporting_store('UserInfo')
+        rs.report_update_data(user.id)
         
     except Exception as e:
         db.transaction.rollback()
@@ -591,8 +591,9 @@ def user_delete(request):
         UserProfile.objects.filter(user_id__in=ids).delete()
         db.transaction.commit()
 
-        rs = reporting_store('UserView')
-        rs.delete_user_view(ids)
+        rs = reporting_store('UserInfo')
+        for tmp in ids:
+            rs.report_remove_data(tmp)
 
     except Exception as e:
         db.transaction.rollback()

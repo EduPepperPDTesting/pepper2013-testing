@@ -574,8 +574,8 @@ def user_edit_info(request):
     profile.user.save()
     profile.save()
 
-    rs = reporting_store('UserView')
-    rs.update_user_view(profile.user)
+    rs = reporting_store('UserInfo')
+    rs.report_update_data(profile.user)
 
     j = json.dumps({'success': 'true', 'error':'none', 'data':'hello, here is the name '+str(profile.user.first_name)})
     return HttpResponse(j, content_type="application/json")
@@ -1097,8 +1097,8 @@ def do_import_user(task, csv_lines, request):
             # Save the profile after we know everything has been set correctly.
             profile.save()
 
-            rs = reporting_store('UserView')
-            rs.insert_user_view(user)
+            rs = reporting_store('UserInfo')
+            rs.report_insert_data(user.id)
 
         except Exception as e:
             db.transaction.rollback()
@@ -1231,8 +1231,8 @@ def single_user_submit(request):
 
         # Save profile now that we have everything set.
         profile.save()
-        rs = reporting_store('UserView')
-        rs.insert_user_view(user)
+        rs = reporting_store('UserInfo')
+        rs.report_insert_data(user.id)
 
     except Exception as e:
         db.transaction.rollback()
@@ -1281,8 +1281,8 @@ def add_to_cohort(request):
         change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
         change.cohort_id = int(request.POST.get('cohort'))
         change.save()
-        rs = reporting_store('UserView')
-        rs.update_user_view(change.user)
+        rs = reporting_store('UserInfo')
+        rs.report_update_data(change.user.id)
         message = "success"
     except Exception as e:
         db.transaction.rollback()
@@ -1299,8 +1299,8 @@ def remove_from_cohort(request):
         user = UserProfile.objects.get(user_id=id)
         user.cohort_id = 0
         user.save()
-        rs = reporting_store('UserView')
-        rs.update_user_view(user.user)
+        rs = reporting_store('UserInfo')
+        rs.report_update_data(user.user.id)
     except Exception as e:
         db.transaction.rollback()
         message = e
@@ -2096,8 +2096,8 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
         if created or not enr.is_active:
             enr.is_active = True
             enr.save()
-            rs = reporting_store('UserView')
-            rs.insert_user_course(user, course.id)
+            rs = reporting_store('StudentCourseenrollment')
+            rs.report_update_data(user.id, course.id)
             if send_notification:
                 send_course_notification(request, user, course, "Add Course Enroll", user.id)
     elif enroll == -1:
@@ -2106,8 +2106,8 @@ def _update_user_course_permission(request, user, course, access, enroll, closed
             enr = find[0]
             enr.is_active = False
             enr.save()
-            rs = reporting_store('UserView')
-            rs.delete_user_course(user, course.id)
+            rs = reporting_store('StudentCourseenrollment')
+            rs.report_update_data(user.id, course.id, -1)
             if send_notification:
                 send_course_notification(request, user, course, "Remove Course Enroll", user.id)
     if closed == 1:

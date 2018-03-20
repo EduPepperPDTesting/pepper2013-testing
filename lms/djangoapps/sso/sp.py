@@ -777,8 +777,8 @@ def activate_account(request):
         profile.bio = vars.get('bio', '')
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
-        rs = reporting_store('UserView')
-        rs.update_user_view(profile.user)
+        rs = reporting_store('UserInfo')
+        rs.report_update_data(profile.user.id)
         #** course enroll
         try:
             cohort = profile.cohort.code
@@ -819,6 +819,7 @@ def activate_account(request):
 
         # ** auto enroll courses
         ma_db = myactivitystore()
+        rs = reporting_store('StudentCourseenrollment')
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
             if cea.auto_enroll:
@@ -828,7 +829,7 @@ def activate_account(request):
                     "TokenValues": {"course_id": cea.course_id}, 
                     "LogoValues": {"course_id": cea.course_id}}
                 ma_db.insert_item(my_activity)
-                rs.insert_user_course(profile.user,cea.course_id)
+                rs.report_update_data(profile.user.id, cea.course_id)
 
         js = {'success': True}
     except Exception as e:
