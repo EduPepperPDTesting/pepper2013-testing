@@ -40,7 +40,7 @@
 
             // Register the toolbar button.
             editor.ui.addButton && editor.ui.addButton( 'UploadImage', {
-                label: 'upload',
+                label: 'Upload',
                 command: pluginName,
                 toolbar: 'insert,10',
                 icon: this.path + "icons/upload.png"
@@ -57,7 +57,7 @@
             if ( editor.addMenuItems ) {
                 editor.addMenuItems( {
                     image: {
-                        label: editor.lang.image.menu,
+                        label: 'Upload',
                         command: 'image',
                         group: 'image'
                     }

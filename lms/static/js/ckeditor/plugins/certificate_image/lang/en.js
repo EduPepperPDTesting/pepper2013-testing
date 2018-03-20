@@ -5,7 +5,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 CKEDITOR.plugins.setLang( 'image', 'en', {
 	alt: 'Alternative Text',
 	border: 'Border',
-	btnUpload: 'Send it to the Server',
+	btnUpload: 'Upload',
 	button2Img: 'Do you want to transform the selected image button on a simple image?',
 	hSpace: 'HSpace',
 	img2Button: 'Do you want to transform the selected image on a image button?',

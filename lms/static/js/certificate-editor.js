@@ -34,6 +34,9 @@ CertificateEditor.prototype.loadCertificate=function(id){
          self.content=r.content;
          self.CKEDITOR.setData(self.content);
          self.isPublish=self.association_type==0?false:true;
+         if(r.association == -1) {
+          self.isPublish = true;
+         }
          self.setReadOnly(r.readonly);
          self.setPublishIcon(self.isPublish);
          $(".certificate_name").val(self.certificate_name);

@@ -1201,8 +1201,8 @@
                 <br>
             </div>
             <div id="pd" style="display: none">
-                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="0" checked="checked" />Basic</label>
-                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="1" />Advanced (Work Flow) </label>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="planner_type" value="0" checked="checked" />Basic</label>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="planner_type" value="1" />Advanced (Work Flow) </label>
                 <p style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</p>
                 <div class="pd">                   
                     <!-- Certificate Filter-->
@@ -6146,35 +6146,16 @@
         window.frames["pd_certificate_preview"].print();
     }
     function certificate_editor_publish(){
-        $('#fltPublishCertificate')[0].control.getFieldArea('association_type').find("option:first").attr("selected","selected");
-        $('#fltPublishCertificate')[0].control.clearDropItems($('#fltPublishCertificate')[0].control.getFieldArea('association'));
-        new Dialog($('#publish_dialog')).showButtons("Publish Certificate","",['Save','Cancel'],function(choice){
-            if(choice==0)
-            {
-                var filter=$('#fltPublishCertificate')[0].control.getFilter();
-                if(filter['association']!=""){
-                    ceditor.publish(filter);
-                    this.hide();
-                    new Dialog($('#dialog')).show('OK','Association completed!');
-                }
-                else{
-                    this.hide();
-                    new Dialog($('#dialog')).showButtons("Error","<p style='font-size:15px;'>Please select an Association item,Otherwise it can not be Publish</p><br/>",['Retry','Cancel'],function(choice){
-                        if(choice==0){
-                            certificate_editor_publish();
-                            this.hide();}
-                        else{this.hide();}
-                    })
-                }
-            }
-            else{this.hide();}
-        })
-
+        var filter = {
+            "association_type": 0,
+            "association": -1
+        }
+        pd_ceditor.publish(filter);
     }
     function certificate_editor_unpublish(){
         new Dialog($('#dialog')).showButtons("Unpublish Certificate","<p>Are you sure you want to Unpublish?</p><br/>",['Yes','No'],function(choice){
             if(choice==0){
-                ceditor.unPublish();
+                pd_ceditor.unPublish();
                 this.hide();
             }
             else{this.hide();}
@@ -6233,11 +6214,11 @@
                 pd_displayCertificate();
                 pd_ceditor.loadCertificate($(this).parent().parent().find('.check-row').val());
                 // TODO: See about doing this in a cleaner way.
-                %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
-                    setTimeout(function () {
-                        $('.pd_preview_view_btn').trigger('click');
-                    }, 500);
-                %endif
+                // %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                //     setTimeout(function () {
+                //         $('.pd_preview_view_btn').trigger('click');
+                //     }, 500);
+                // %endif
             })
         });
         $('#tblCertificate table').trigger("update");
