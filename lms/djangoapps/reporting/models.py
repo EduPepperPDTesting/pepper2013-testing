@@ -412,9 +412,6 @@ class NewUserView(MongoReportingStore):
             self._update_user_view(int(user_id), data)
 
 class UserInfo(MongoReportingStore):
-
-    def __init__(**kwargs):
-        super(UserInfo, self).__init__(**kwargs)
         
     def report_update_data(self, user_id):
         affected_collection = ['user_info', 'UserView', 'UserCourseView']
@@ -460,9 +457,6 @@ class UserInfo(MongoReportingStore):
 
 class DiscussionTime(MongoReportingStore):
 
-    def __init__(**kwargs):
-        super(DiscussionTime, self).__init__(**kwargs)
-
     def report_update_data(self, user_id, course_id, time):
         affected_collection = ['discussion_time', 'UserView', 'UserCourseView']
         for tmp in affected_collection:
@@ -479,9 +473,6 @@ class DiscussionTime(MongoReportingStore):
             self.collection.update(db_filter, data, True)
 
 class CourseTime(MongoReportingStore):
-
-    def __init__(**kwargs):
-        super(CourseTime, self).__init__(**kwargs)
 
     def report_update_data(self, user_id, course_id, time):
         affected_collection = ['course_time', 'UserView', 'UserCourseView']
@@ -500,9 +491,6 @@ class CourseTime(MongoReportingStore):
 
 class PortfolioTime(MongoReportingStore):
 
-    def __init__(**kwargs):
-        super(PortfolioTime, self).__init__(**kwargs)
-
     def report_update_data(self, user_id, time):
         affected_collection = ['portfolio_time', 'UserView', 'UserCourseView']
         for tmp in affected_collection:
@@ -519,9 +507,6 @@ class PortfolioTime(MongoReportingStore):
             self.collection.update(db_filter, data, True)
 
 class ExternalTime(MongoReportingStore):
-
-    def __init__(**kwargs):
-        super(ExternalTime, self).__init__(**kwargs)
 
     def report_update_data(self, user_id, course_id, time, external_id = "", weight = ""):
         affected_collection = ['t_external_time', 'external_time', 'UserView', 'UserCourseView']
@@ -545,8 +530,6 @@ class ExternalTime(MongoReportingStore):
             self.collection.update(db_filter, data, True)
 
 class AdjustmentTime(MongoReportingStore):
-    def __init__(**kwargs):
-        super(AdjustmentTime, self).__init__(**kwargs)
 
     def report_update_data(self, user_id, course_id, time, type):
         affected_collection = ['adjustment_time', 'UserView', 'UserCourseView']
@@ -583,9 +566,6 @@ class AdjustmentTime(MongoReportingStore):
 
 class PdTime(MongoReportingStore):
 
-    def __init__(**kwargs):
-        super(PdTime, self).__init__(**kwargs)
-
     def report_update_data(self, user_id, credit):
         affected_collection = ['pd_time', 'UserView', 'UserCourseView']
         time = 3600 * int(credit)
@@ -603,18 +583,15 @@ class PdTime(MongoReportingStore):
 
 class StudentCourseenrollment(MongoReportingStore):
 
-    def __init__(**kwargs):
-        super(StudentCourseenrollment, self).__init__(**kwargs)
-
     def report_update_data(self, user_id, course_id, is_active = 1):
         affected_collection = ['student_courseenrollment', 'UserView', 'UserCourseView']
         for tmp in affected_collection:
             self.set_collection(tmp)
-            elif tmp == "student_courseenrollment":
+            if tmp == "student_courseenrollment":
                 if is_active == 1:
                     data = self.get_user_data(user_id, course_id)
                     db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
-                else is_active == -1:
+                else:
                     db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
                     self.collection.remove(db_filter)
                     break
@@ -627,8 +604,6 @@ class StudentCourseenrollment(MongoReportingStore):
 
 class CoursewareStudentmodule(MongoReportingStore):
 
-    def __init__(**kwargs):
-        super(CoursewareStudentmodule, self).__init__(**kwargs)
     def report_update_data(self, user_id, course_id):
         affected_collection = ['courseware_studentmodule', 'UserView', 'UserCourseView']
         for tmp in affected_collection:
