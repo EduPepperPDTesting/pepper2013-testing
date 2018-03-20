@@ -489,7 +489,7 @@
                                     {
                                     type: 'file',
                                     id: 'upload',
-                                    label: editor.lang.image.btnUpload,
+                                    label: 'Upload',
                                     style: 'height:40px',
                                     size: 38
                                 },
@@ -497,7 +497,7 @@
                                     type: 'fileButton',
                                     id: 'uploadButton',
                                     filebrowser: 'info:txtUrl',
-                                    label: editor.lang.image.btnUpload,
+                                    label: 'Upload',
                                     'for': [ 'info', 'upload' ]
                                 },
                                 {
