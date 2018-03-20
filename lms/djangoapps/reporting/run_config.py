@@ -22,7 +22,11 @@ RunConfig = {
     "new_discussion_time":{
         'origin_collection':'discussion_time',
         'origin_collection1':'adjustment_time'
-    }
+    },
+    "new_course_time":{
+        'origin_collection':'course_time',
+        'origin_collection1':'adjustment_time'
+    },
 }
 
 
