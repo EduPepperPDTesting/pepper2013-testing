@@ -1277,7 +1277,7 @@
                     <!-- Certificate Editor-->
                     <div class="pd_certificate_editor_div" style="display: none">
                         <!-- Editor tools button-->
-                        % if check_user_perms(request.user, 'certificate', 'edit'):
+                        <!-- % if check_user_perms(request.user, 'certificate', 'edit'): -->
                         <div class="certificate_editor_tools_bar">
                             <div class="certificate_filter_btn">
                                 <a href="javascript:void(0);" onclick="certificate_editor_save()"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
@@ -1303,15 +1303,15 @@
                                 <a href="javascript:void(0);" onclick="certificate_editor_cancel()"><div class="imgBtn imgBtn_cancel"></div><div>Cancel</div></a>
                             </div>
                         </div>
-                        % endif
+                        <!-- % endif -->
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
-                                    %if check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                                    <!-- %if check_user_perms(request.user, 'certificate', ['add', 'edit']): -->
                                     <li>
                                         <a class="pd_editor_view_btn active" href="javascript:void(0);">Editor</a>
                                     </li>
-                                    %endif
+                                    <!-- %endif -->
                                     <li>
                                         <a class="pd_preview_view_btn" href="javascript:void(0);">Preview</a>
                                     </li>
