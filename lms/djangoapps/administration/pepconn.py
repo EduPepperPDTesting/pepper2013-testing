@@ -575,7 +575,7 @@ def user_edit_info(request):
     profile.save()
 
     rs = reporting_store('UserInfo')
-    rs.report_update_data(profile.user)
+    rs.report_update_data(profile.user.id)
 
     j = json.dumps({'success': 'true', 'error':'none', 'data':'hello, here is the name '+str(profile.user.first_name)})
     return HttpResponse(j, content_type="application/json")

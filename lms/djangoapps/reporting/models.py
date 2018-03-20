@@ -589,7 +589,7 @@ class StudentCourseenrollment(MongoReportingStore):
             self.set_collection(tmp)
             if tmp == "student_courseenrollment":
                 if is_active == 1:
-                    data = self.get_user_data(user_id, course_id)
+                    data = self.get_user_course_data(user_id, course_id)
                     db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
                 else:
                     db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
