@@ -914,6 +914,7 @@ def organization_get(request):
                     org = tmp
 
                     # data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
+                    data['allow_pd_planner'] = '0'
 
                     # --------------OrganizationMetadata
                     data['DistrictType'] = org.DistrictType
@@ -1176,7 +1177,8 @@ def organizational_save_base(request):
         register_text_button = request.POST.get("register_text_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
-        allow_pd_planner = request.POST.get("allow_pd_planner", "")
+        # allow_pd_planner = request.POST.get("allow_pd_planner", "")
+        allow_pd_planner = '0'
         if is_announcement == "1":
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
