@@ -6233,11 +6233,11 @@
                 pd_displayCertificate();
                 pd_ceditor.loadCertificate($(this).parent().parent().find('.check-row').val());
                 // TODO: See about doing this in a cleaner way.
-                %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                // %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
                     setTimeout(function () {
                         $('.pd_preview_view_btn').trigger('click');
                     }, 500);
-                %endif
+                // %endif
             })
         });
         $('#tblCertificate table').trigger("update");
