@@ -197,6 +197,9 @@
     .modal {
         position: fixed;
     }
+    #publish_dialog input[type=button] {
+        display: inline-block;
+    }
 </style>
 
 <!--Main Page Configuration-->
@@ -1190,17 +1193,17 @@
     <div class="expand_title expand_title_collapse" next_sn="5">PD Planner<div class="icon"></div></div>
     <div class="expand_div">
         <div style="padding: 1em 7px 7px 7px;">
-            <div style="margin-bottom: 20px;font-weight: bold;border-bottom: 1px solid rgb(221, 221, 221)">
+            <div style="margin-bottom: 20px;border-bottom: 1px solid rgb(221, 221, 221)">
                 <label onclick="allowPDPlanner()">
                     <input type="checkbox" name="allow_pd_planner" id="allow_pd_planner" />
-                    <span style="margin-left:10px;">Allow PD Planner</span>
+                    <span style="margin-left:10px;font-weight: bold;">Allow PD Planner</span>
                 </label>
                 <br>
             </div>
             <div id="pd" style="display: none">
-                <label style="margin-right:20px;"><input type="radio" name="" value="0" checked="checked" />Basic</label>
-                <label style="margin-right:20px;"><input type="radio" name="" value="1" />Advanced (Work Flow) </label>
-                <h5 style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</h5>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="0" checked="checked" />Basic</label>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="1" />Advanced (Work Flow) </label>
+                <p style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</p>
                 <div class="pd">                   
                     <!-- Certificate Filter-->
                     <div class="certificate_filter_div">
@@ -1227,16 +1230,16 @@
                             </div>
                             <!-- ADD/DELETE button-->
                             <div>
-                                % if check_user_perms(request.user, 'certificate', 'add'):
+                                <!-- % if check_user_perms(request.user, 'certificate', 'add'): -->
                                 <div class="certificate_filter_btn">
                                     <a onclick="pd_addNewCertificate()"><div class="imgBtn imgBtn_add_new"></div><div>Add New</div></a>
                                 </div>
-                                % endif
-                                % if check_user_perms(request.user, 'certificate', 'delete'):
+                                <!-- % endif -->
+                                <!-- % if check_user_perms(request.user, 'certificate', 'delete'): -->
                                 <div class="certificate_filter_btn">
                                     <a onclick="deleteSelectCertificate()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
                                 </div>
-                                % endif
+                                <!-- % endif -->
                             </div>
                             <div class="control table" id="tblCertificate">
                                 <span class="body"></span>
@@ -1274,7 +1277,7 @@
                     <!-- Certificate Editor-->
                     <div class="pd_certificate_editor_div" style="display: none">
                         <!-- Editor tools button-->
-                        % if check_user_perms(request.user, 'certificate', 'edit'):
+                        <!-- % if check_user_perms(request.user, 'certificate', 'edit'): -->
                         <div class="certificate_editor_tools_bar">
                             <div class="certificate_filter_btn">
                                 <a href="javascript:void(0);" onclick="certificate_editor_save()"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
@@ -1300,15 +1303,15 @@
                                 <a href="javascript:void(0);" onclick="certificate_editor_cancel()"><div class="imgBtn imgBtn_cancel"></div><div>Cancel</div></a>
                             </div>
                         </div>
-                        % endif
+                        <!-- % endif -->
                         <div class="certificate_editor_frame">
                             <div class="certificate_tabs_div">
                                 <ol class="certificate_tabs">
-                                    %if check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                                    <!-- %if check_user_perms(request.user, 'certificate', ['add', 'edit']): -->
                                     <li>
                                         <a class="pd_editor_view_btn active" href="javascript:void(0);">Editor</a>
                                     </li>
-                                    %endif
+                                    <!-- %endif -->
                                     <li>
                                         <a class="pd_preview_view_btn" href="javascript:void(0);">Preview</a>
                                     </li>
