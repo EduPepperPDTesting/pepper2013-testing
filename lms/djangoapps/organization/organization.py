@@ -913,7 +913,7 @@ def organization_get(request):
                 for tmp in organizations:
                     org = tmp
 
-                    data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
+                    # data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
 
                     # --------------OrganizationMetadata
                     data['DistrictType'] = org.DistrictType
