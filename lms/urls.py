@@ -550,6 +550,10 @@ urlpatterns = (
     # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
     url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
+
+    url(r'^upload_certificate_image', 'certificates.views.save_upload_images', name="save_certificate_image"),
+    url(r'^browser_certificate_image', 'certificates.views.browser_upload_images', name="browser_certificate_image"),
+
     url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
     url(r'^course_credits_tcsj$', 'certificates.views.course_credits_tcsj', name="course_credits_tcsj"),
@@ -644,7 +648,7 @@ urlpatterns = (
 
 
     # playbook
-    url(r'^playbook$', 'playbook.views.playbook', name='playbook'),
+    url(r'^playbook/$', 'playbook.views.playbook', name='playbook'),
     url(r'^playbook/create_new_play$', 'playbook.views.create_new_play', name='create_new_play'),
     url(r'^playbook/edit_play$', 'playbook.views.edit_play', name='edit_play'),
     url(r'^playbook/create_new_category$', 'playbook.views.create_new_category'), # for debug
