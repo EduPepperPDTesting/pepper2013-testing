@@ -197,6 +197,9 @@
     .modal {
         position: fixed;
     }
+    #publish_dialog input[type=button] {
+        display: inline-block;
+    }
 </style>
 
 <!--Main Page Configuration-->
@@ -1190,17 +1193,17 @@
     <div class="expand_title expand_title_collapse" next_sn="5">PD Planner<div class="icon"></div></div>
     <div class="expand_div">
         <div style="padding: 1em 7px 7px 7px;">
-            <div style="margin-bottom: 20px;font-weight: bold;border-bottom: 1px solid rgb(221, 221, 221)">
+            <div style="margin-bottom: 20px;border-bottom: 1px solid rgb(221, 221, 221)">
                 <label onclick="allowPDPlanner()">
                     <input type="checkbox" name="allow_pd_planner" id="allow_pd_planner" />
-                    <span style="margin-left:10px;">Allow PD Planner</span>
+                    <span style="margin-left:10px;font-weight: bold;">Allow PD Planner</span>
                 </label>
                 <br>
             </div>
             <div id="pd" style="display: none">
-                <label style="margin-right:20px;"><input type="radio" name="" value="0" checked="checked" />Basic</label>
-                <label style="margin-right:20px;"><input type="radio" name="" value="1" />Advanced (Work Flow) </label>
-                <h5 style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</h5>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="0" checked="checked" />Basic</label>
+                <label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="" value="1" />Advanced (Work Flow) </label>
+                <p style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</p>
                 <div class="pd">                   
                     <!-- Certificate Filter-->
                     <div class="certificate_filter_div">
