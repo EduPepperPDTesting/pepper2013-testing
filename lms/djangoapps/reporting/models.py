@@ -7,8 +7,14 @@ import json
 from reporting.run_config import RunConfig
 from student.models import User, CourseEnrollment
 from courseware.models import StudentModule
+from xmodule.course_module import CourseDescriptor
+from xmodule.modulestore.django import modulestore
 log = logging.getLogger("tracking")
 
+def course_from_id(course_id):
+    """Return the CourseDescriptor corresponding to this course_id"""
+    course_loc = CourseDescriptor.id_to_location(course_id)
+    return modulestore().get_instance(course_id, course_loc)
 
 class Categories(models.Model):
     class Meta:
@@ -263,6 +269,18 @@ class MongoReportingStore(object):
         data.pop('module_state_key')
         data.pop('id')
         return data
+
+    def get_course_data(self, course_id):
+        course_data = course_from_id(course_id)
+        data = {'course_number': course_data.display_coursenumber,
+                'course_name': course_data.display_name,
+                'organization': course_data.display_organization,
+                'start_date': course_data.start,
+                'end_date': course_data.end,
+                'course_run': course_data.org}
+        return data
+
+
 
 def reporting_store(view=None):
     options = {}
@@ -617,7 +635,33 @@ class StudentCourseenrollment(MongoReportingStore):
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
                 self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
-                continue
+                if is_active == 1:
+                    data = self.get_insert_data(int(user_id), course_id)
+                    self.collection.insert(data)
+                else:
+                    db_filter = {'course_id': course_id, 'user_id': int(user_id), 'school_year': 'current'}
+                    self.collection.remove(db_filter)
+
+    def get_insert_data(self, user_id, course_id):
+        user_data = self.get_user_data(user_id)
+        course_data = self.get_course_data(course_id)
+        user_course_data = get_user_course_data(user_id, course_id)
+        data = data.update(course_data)
+        data["enrollment_date"] = user_course_data['created']
+        data["complete_date"] = ""
+        data["portfolio_url"] = "/courses/" + course_id + "portfolio/about_me/" + user_id
+        data["course_time"] = 0
+        data["external_time"] = 0
+        data["discussion_time"] = 0
+        data["portfolio_time"] = 0
+        data["pd_time"] = 0
+        data["collaboration_time"] = 0
+        data["total_time"] = 0
+        data["progress"] = 0
+        data["user_id"] = user_id
+        data["course_id"] = course_id
+        data["school_year"] = "current"
+        return data
 
 class CoursewareStudentmodule(MongoReportingStore):
 

@@ -1552,7 +1552,8 @@ def get_courses_drop(state_name, district_code):
     }
 
 
-    courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
+    # courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
+    courses = modulestore().collection.find({'_id.category': 'course'}).sort("metadata.display_name", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(courses), 0)
     return courses
 
