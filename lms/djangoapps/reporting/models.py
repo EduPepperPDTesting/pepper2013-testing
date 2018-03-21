@@ -421,9 +421,13 @@ class UserInfo(MongoReportingStore):
             self.set_collection(tmp)
             if tmp == "user_info":
                 db_filter = {'user_id': int(user_id)}
-            elif tmp == "UserView" or tmp == "UserCourseView":
+                self.collection.update(db_filter, data, False)
+            elif tmp == "UserView":
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data, False)
+            elif tmp =="UserCourseView":
+                db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data, False, multi=True)
 
     def report_insert_data(self, user_id):
         affected_collection = ['user_info', 'UserView']
@@ -464,13 +468,15 @@ class DiscussionTime(MongoReportingStore):
             if tmp == "discussion_time":
                 data = {'$inc': {'time': time}}
                 db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data)
 
 class CourseTime(MongoReportingStore):
 
@@ -481,13 +487,15 @@ class CourseTime(MongoReportingStore):
             if tmp == "course_time":
                 data = {'$inc': {'time': time}}
                 db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'course_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 data = {'$inc': {'total_time': time, 'course_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data)
 
 class PortfolioTime(MongoReportingStore):
 
@@ -498,13 +506,15 @@ class PortfolioTime(MongoReportingStore):
             if tmp == "portfolio_time":
                 data = {'$inc': {'time': time}}
                 db_filter = {'user_id': int(user_id)}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data)
 
 class ExternalTime(MongoReportingStore):
 
@@ -515,19 +525,22 @@ class ExternalTime(MongoReportingStore):
             if tmp == "external_time":
                 data = {'$inc': {'r_time': time}}
                 db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                self.collection.update(db_filter, data, True)
             elif tmp == "t_external_time":
                 if external_id:
                     data = {'$set': {'weight': weight}}
                     db_filter = {'user_id': user_id, 'course_id': course_id, 'external_id': external_id, 'type': 'combinedopenended'}
+                    self.collection.update(db_filter, data, True)
                 else:
                     continue
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'external_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 data = {'$inc': {'total_time': time, 'external_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data)
 
 class AdjustmentTime(MongoReportingStore):
 
@@ -541,7 +554,8 @@ class AdjustmentTime(MongoReportingStore):
                     db_filter = {'user_id': int(user_id), 'type': type}
                 elif type == 'discussion' or type == "external" or type == "courseware":
                     data = {'$inc': {'time': time}}
-                    db_filter = {'user_id': int(user_id), 'course_id': course_id, 'type': type}    
+                    db_filter = {'user_id': int(user_id), 'course_id': course_id, 'type': type}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 if type == 'portfolio':
                     data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
@@ -552,6 +566,7 @@ class AdjustmentTime(MongoReportingStore):
                 elif type == 'courseware':
                     data = {'$inc': {'total_time': time, 'course_time': time}}   
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 if type == 'portfolio':
                     data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
@@ -562,7 +577,7 @@ class AdjustmentTime(MongoReportingStore):
                 elif type == 'courseware':
                     data = {'$inc': {'total_time': time, 'course_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
-            self.collection.update(db_filter, data, True)
+                self.collection.update(db_filter, data)
 
 class PdTime(MongoReportingStore):
 
@@ -574,12 +589,13 @@ class PdTime(MongoReportingStore):
             if tmp == "pd_time":
                 data = {'$inc': {'credit': time}}
                 db_filter = {'user_id': int(user_id)}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'pd_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 continue
-            self.collection.update(db_filter, data, True)
 
 class StudentCourseenrollment(MongoReportingStore):
 
@@ -591,6 +607,7 @@ class StudentCourseenrollment(MongoReportingStore):
                 if is_active == 1:
                     data = self.get_user_course_data(user_id, course_id)
                     db_filter = {'course_id': course_id, 'user_id': int(user_id)}
+                    self.collection.update(db_filter, data, True)
                 else:
                     db_filter = {'course_id': course_id, 'user_id': int(user_id)}
                     self.collection.remove(db_filter)
@@ -598,9 +615,9 @@ class StudentCourseenrollment(MongoReportingStore):
             elif tmp == "UserView":
                 data = {'$inc': {'current_course': is_active}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 continue
-            self.collection.update(db_filter, data, True)
 
 class CoursewareStudentmodule(MongoReportingStore):
 
@@ -611,13 +628,13 @@ class CoursewareStudentmodule(MongoReportingStore):
             if tmp == "courseware_studentmodule":
                 data = self.get_user_course_date1(user_id, course_id)
                 db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 data = {'$inc': {'complete_course': 1, 'current_course': -1}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
                 continue
-            self.collection.update(db_filter, data, True)
-
 
 class Modulestore(MongoReportingStore):
     pass
