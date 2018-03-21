@@ -195,8 +195,8 @@ class MongoReportingStore(object):
         cursor = list(self.db.eval(val))
         return cursor[start:start + num]
 
-    def get_user_course_data(self, user, course_id):
-        user = User.objects.get(pk=user.id)
+    def get_user_course_data(self, user_id, course_id):
+        user = User.objects.get(pk=user_id)
         data = {'course_id': course_id, 'user_id': int(user.id), 'state_id': user.profile.district.state.id, 'district_id': user.profile.district.id}
         try:
             data['school_id'] = user.profile.school.id
@@ -245,7 +245,7 @@ class MongoReportingStore(object):
             data['cohort_id'] = ""
             data["cohort"] = ""
         try:
-            data['activate_date'] = user.profile.activate_date.strftime('%Y-%m-%d %H:%M:%S')
+            data['activate_date'] = user.profile.activate_date.strftime('%Y-%m-%d')
         except:
             data['activate_date'] = ""
 
@@ -322,7 +322,7 @@ class NewUserView(MongoReportingStore):
         
     def insert_user_course(self, user, course_id):
         collection = "new_student_courseenrollment"
-        data = self.get_user_course_data(user, course_id)
+        data = self.get_user_course_data(user.id, course_id)
         self.set_collection(RunConfig[collection]['origin_collection'])
         self.collection.remove({"user_id":int(user.id),"course_id":course_id})
         self.collection.insert(data)
@@ -520,7 +520,7 @@ class ExternalTime(MongoReportingStore):
                     data = {'$set': {'weight': weight}}
                     db_filter = {'user_id': user_id, 'course_id': course_id, 'external_id': external_id, 'type': 'combinedopenended'}
                 else:
-                    break
+                    continue
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'external_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
@@ -578,7 +578,7 @@ class PdTime(MongoReportingStore):
                 data = {'$inc': {'total_time': time, 'pd_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
             elif tmp == "UserCourseView":
-                break
+                continue
             self.collection.update(db_filter, data, True)
 
 class StudentCourseenrollment(MongoReportingStore):
@@ -590,16 +590,16 @@ class StudentCourseenrollment(MongoReportingStore):
             if tmp == "student_courseenrollment":
                 if is_active == 1:
                     data = self.get_user_course_data(user_id, course_id)
-                    db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
+                    db_filter = {'course_id': course_id, 'user_id': int(user_id)}
                 else:
-                    db_filter = {'course_id': 'course_id', 'user_id': int(user_id)}
+                    db_filter = {'course_id': course_id, 'user_id': int(user_id)}
                     self.collection.remove(db_filter)
-                    break
+                    continue
             elif tmp == "UserView":
                 data = {'$inc': {'current_course': is_active}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
             elif tmp == "UserCourseView":
-                break
+                continue
             self.collection.update(db_filter, data, True)
 
 class CoursewareStudentmodule(MongoReportingStore):
@@ -615,7 +615,7 @@ class CoursewareStudentmodule(MongoReportingStore):
                 data = {'$inc': {'complete_course': 1, 'current_course': -1}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
             elif tmp == "UserCourseView":
-                break
+                continue
             self.collection.update(db_filter, data, True)
 
 

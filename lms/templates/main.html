@@ -50,9 +50,8 @@
                     footer = tmp.DataItem
             
             org_data = {}
-            if design_menu_flag == "1":
-                for tmp1 in DesignMenu.objects.filter(design=design):
-                    org_data[tmp1.itemType] = tmp1.itemValue
+              for tmp1 in DesignMenu.objects.filter(design=design):
+                  org_data[tmp1.itemType] = tmp1.itemValue
 
     else:
       if request.user.is_authenticated():            

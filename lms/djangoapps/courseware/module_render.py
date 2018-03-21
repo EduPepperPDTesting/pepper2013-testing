@@ -658,9 +658,9 @@ def modx_dispatch(request, dispatch, location, course_id):
                             "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
                             ma_db.insert_item(my_activity)
-                            if sign:
-                                rs = reporting_store('UserView')
-                                rs.update_user_complete_course(request.user,course_id)
+                            if not sign:
+                                rs = reporting_store('CoursewareStudentmodule')
+                                rs.report_update_data(request.user.id,course_id)
                             
                             # True North Logic integration
                             if tnl_course(student, course_id):
