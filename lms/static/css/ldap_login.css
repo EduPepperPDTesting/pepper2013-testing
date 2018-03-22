@@ -1,0 +1,58 @@
+#submit:hover {
+    background:#6e8194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+#submit {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: #949494 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+#submit:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+.login-form {
+    width: 960px;
+    margin: 0 auto;
+}
+section.introduction > div {
+    margin: 0 auto;
+    width: 960px;
+    height: 195px;
+    background: url(/static/images/ppd-register-banner.jpg);
+    border-bottom: 1px solid #000;
+}
+section.introduction > div > div {
+    width: 580px;
+    float: left;
+}
+.cta-help {
+    line-height: 25px;
+    color: #666;
+}

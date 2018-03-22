@@ -1,0 +1,207 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%inherit file="main.html" />
+
+<%namespace name='static' file='static_content.html'/>
+
+<%! from django.core.urlresolvers import reverse %>
+<%! from django.utils.translation import ugettext as _ %>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/ldap_login.css">
+
+<%block name="title"><title>${_("Log into your {platform_name} Account").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
+
+<%block name="js_extra">
+    <script type="text/javascript">
+        $(function() {
+
+            var view_name = 'view-login';
+
+            // adding js class for styling with accessibility in mind
+            $('body').addClass('js').addClass(view_name);
+
+            // new window/tab opening
+            $('a[rel="external"], a[class="new-vp"]')
+                    .click( function() {
+                        window.open( $(this).attr('href') );
+                        return false;
+                    });
+
+            // form field label styling on focus
+            $("form :input").focus(function() {
+                $("label[for='" + this.id + "']").parent().addClass("is-focused");
+            }).blur(function() {
+                $("label").parent().removeClass("is-focused");
+            });
+        });
+
+        (function() {
+            var urlParams = {};
+            var searchString = window.location.search.substring(1);
+            if (searchString !== undefined) {
+                var pairs = searchString.split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var values = pairs[i].split('=');
+                    urlParams[values[0]] = values[1] === undefined ? false : decodeURIComponent(values[1]);
+                }
+            }
+
+            if (localStorage.pepperpd_login_email)
+            {
+                $("#email").val(localStorage.pepperpd_login_email);
+            }
+            toggleSubmitButton(true);
+
+            var $login_form = $('#login-form');
+            $login_form.on('submit', function() {
+                toggleSubmitButton(false);
+            });
+
+            $login_form.on('ajax:error', function() {
+                toggleSubmitButton(true);
+            });
+
+            $login_form.on('ajax:success', function(event, json, xhr) {
+                if (json.success) {
+                    if ($('#remember-yes').attr("checked"))
+                    {
+                        localStorage.pepperpd_login_email=$("#email").val();
+                    }
+
+                    if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
+                        var next = urlParams['next'];
+                        if (next.substring(0,1) != '/') {
+                            next = '/' + next;
+                        }
+                        location.href = next;
+                    } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next'])) {
+                        location.href = urlParams['next'];
+                    }  else {
+                        location.href = "${reverse('dashboard')}";
+                    }
+
+                } else {
+                    toggleSubmitButton(true);
+                    $('.message.submission-error').addClass('is-shown').focus();
+                    $('.message.submission-error .message-copy').html(json.value);
+                }
+            });
+        })(this);
+
+        function toggleSubmitButton(enable) {
+            var $submitButton = $('form .form-actions #submit');
+
+
+            if (enable) {
+                $submitButton.
+                removeClass('is-disabled').
+                removeProp('disabled').
+
+                html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
+            } else {
+                $submitButton.
+                addClass('is-disabled').
+                prop('disabled', true).
+                html(gettext('Processing your account information &hellip;'));
+            }
+
+        }
+
+        //------------- Clear time storage-------------------//
+
+        function clearTimeSessionStorage(){
+            var user_id = sessionStorage.getItem('user_id');
+            if(user_id != null){
+                sessionStorage.removeItem(user_id + '_course_id');
+                sessionStorage.removeItem(user_id + '_vertical_id');
+                sessionStorage.removeItem(user_id + '_type');
+                sessionStorage.removeItem(user_id + '_time');
+                sessionStorage.removeItem('user_id');
+            }
+        }
+
+        clearTimeSessionStorage();
+
+    </script>
+</%block>
+<div class="login-form">
+    <section class="introduction">
+        <div>
+            <div>
+                <div class="_banner_whatis_title_font">
+                    PLEASE LOG IN
+                    <div class="_banner_whatis_title_content_font">
+                        to access your account
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="login container">
+        <section role="main" class="content">
+            <form role="form" id="login-form" method="post" data-remote="true" action="/ldap_ajax" novalidate>
+
+                <!-- status messages -->
+                <div role="alert" class="status message">
+                    <h3 class="message-title">${_("We're Sorry, {platform_name} accounts are unavailable currently").format(platform_name=settings.PLATFORM_NAME)}</h3>
+                    <p class="message-copy">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                </div>
+
+                <div role="alert" class="status message submission-error" tabindex="-1">
+                    <h3 class="message-title">${_("The following errors occured while logging you in:")} </h3>
+                    <ul class="message-copy">
+                        <li>${_("Your email or password is incorrect")}</li>
+                    </ul>
+                </div>
+
+                <p class="instructions sr">
+                    ${_('Please provide the following information to log into your {platform_name} account. Required fields are noted by <strong class="indicator">bold text and an asterisk (*)</strong>.').format(platform_name=settings.PLATFORM_NAME)}
+                </p>
+
+                <fieldset class="group group-form group-form-requiredinformation">
+                    <legend class="sr">${_('Required Information')}</legend>
+
+                    <ol class="list-input">
+                        <li class="field text" id="field-email">
+                            <label for="email" style="font-weight:bold;">${_('E-mail')}</label>
+                            <input class="" id="email" type="email" name="email" value="" placeholder="example: username@domain.com" required aria-required="true" />
+                        </li>
+                        <li class="field password" id="field-password">
+                            <label for="password" style="font-weight:bold;">${_('Password')}</label>
+                            <input id="password" type="password" name="password" value="" required aria-required="true" />
+                            <span class="tip tip-input">
+                                <a href="#forgot-password-modal" rel="leanModal" class="blue pwd-reset action action-forgotpw">${_('Forgot password?')}</a>
+                            </span>
+                        </li>
+                    </ol>
+                </fieldset>
+
+                <fieldset class="group group-form group-form-secondary group-form-accountpreferences">
+                    <legend class="sr">${_('Account Preferences')}</legend>
+
+                    <ol class="list-input">
+                        <li class="field checkbox" id="field-remember">
+                            <input id="remember-yes" type="checkbox" name="remember" value="true" />
+                            <label for="remember-yes" style="font-weight:bold;">${_('Remember me')}</label>
+                        </li>
+                    </ol>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button name="submit" type="submit" id="submit" class="action action-primary action-update"></button>
+                </div>
+
+            </form>
+        </section>
+
+        <aside role="complementary">
+            <header>
+                <h2 class="sr">${_("Helpful Information")}</h2>
+            </header>
+
+            <div class="cta cta-help">
+            </div>
+        </aside>
+    </section>
+</div>
