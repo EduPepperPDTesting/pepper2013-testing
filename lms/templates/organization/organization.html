@@ -1263,7 +1263,7 @@
                                   "certificate_name":{"display":"Certificate Name","sort":"+","show":1}
                                   },
                                   "urls":{
-                                  "data":"/configuration/certificate/table"
+                                  "data":"/configuration/certificate/table?training=1"
                                   },
                                   "paging":{
                                   "size":100
@@ -5985,10 +5985,10 @@
                     ["", ""],
                     ["firstname", "firstname"],
                     ["lastname", "lastname"],
-                    ["coursename", "coursename"],
-                    ["coursenumber", "coursenumber"],
-                    ["date", "date"],
-                    ["hours", "hours"]
+                    ["trainingname", "trainingname"],
+                    ["trainingdate", "trainingdate"],
+                    ["trainingcredits", "trainingcredits"],
+                    ["subject", "subject"]
                 ];
                 config.tokenStart = '{';
                 config.tokenEnd = '}';
@@ -6134,6 +6134,9 @@
         });
     }
     function certificate_editor_save(){
+        // negative integer mark ths certificate being created for training
+        // -2 unpublish, -1 publish
+        pd_ceditor.publish({"association_type": 0, "association": -2});
         pd_ceditor.save();
     }
     function certificate_editor_copy(){
