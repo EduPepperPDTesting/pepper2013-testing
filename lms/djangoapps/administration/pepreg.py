@@ -2268,7 +2268,7 @@ def getfielddata(request):
     if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
         rows = ["State", "District"]
 
-    rows.append("Subject")
+    rows.append("Subject", "Date")
 
     success = 1
 
@@ -2298,6 +2298,11 @@ def getsearchdata(request):
         data_column = "3"
         success = 1
         rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+
+    elif search_data == "date":
+        data_column = "7"
+        success = 1
+        rows = ["date"]
 
     data = {'success': success, 'rows': rows, 'datacolumn': data_column}
 

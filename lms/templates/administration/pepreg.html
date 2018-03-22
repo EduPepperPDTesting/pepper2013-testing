@@ -2986,29 +2986,36 @@
                         if (data.success) {
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
-                            $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
-                            $("#subselect_" + suborder).append("<option value=''>Select</option>");
-                            var optValue;
-                            $.each(data.rows, function(k, v){
-                                if(val == "subject"){
-                                    switch (v){
-                                        case "Assessments and Reporting":
-                                            optValue = "AR";
-                                            break;
-                                        case "Digital Citizenship":
-                                            optValue = "DC";
-                                            break;
-                                        case "English Language Arts":
-                                            optValue = "ELA";
-                                            break;
-                                        default:
-                                            optValue = "";
+
+                            if(data.rows != "date"){
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
+                                $("#subselect_" + suborder).append("<option value=''>Select</option>");
+                                var optValue;
+                                $.each(data.rows, function(k, v){
+                                    if(val == "subject"){
+                                        switch (v){
+                                            case "Assessments and Reporting":
+                                                optValue = "AR";
+                                                break;
+                                            case "Digital Citizenship":
+                                                optValue = "DC";
+                                                break;
+                                            case "English Language Arts":
+                                                optValue = "ELA";
+                                                break;
+                                            default:
+                                                optValue = "";
+                                        }
+                                    }else{
+                                        optValue = v;
                                     }
-                                }else{
-                                    optValue = v;
-                                }
-                                $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
-                            });
+                                    $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
+                                });
+                            }else{
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search' data-column='" + data.datacolumn + "' placeholder='Select Date' readonly='true'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'></select>");
+                                $("#range_condition_" + suborder + ")
+                            }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
                         }
@@ -3026,7 +3033,8 @@
 
         $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
-            var suborder = $(this).attr("name");
+            var field_name = $(this).attr("name");
+            var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
             if(val != ""){
                 reloadTableAdvanced();
@@ -3400,7 +3408,7 @@
         $(datepicker_CurrentInput).val("");
         $(datepicker_CurrentInput).change();
     });
-    $('.datePickText,input[name=training_data]').each(function () {
+    $('.datePickText,input[name^=training_data]').each(function () {
         var lock_past = $(this).hasClass("lock_past");
         $(this).datepicker({
             autoSize: true,
