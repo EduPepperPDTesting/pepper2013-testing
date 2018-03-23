@@ -193,6 +193,7 @@
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
+            c.is_closed = enrollment.is_closed
 
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
@@ -253,12 +254,15 @@
                     %for course in courses_incomplated_top2:
                         <%
                             course_target = reverse('courseware', args=[course.id])
+                            course_target_close = course_target.replace('courseware', 'cabout')
                         %>
                         <div class="course-incomplated">
-                                %if not course.close_course:      
+                                %if not course.close_course and not course.is_closed:      
                                     <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
                                 %else:
-                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    <a href="${course_target_close}">
+                                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    </a>
                                 %endif
                         </div>
                     %endfor
@@ -283,7 +287,7 @@
                     <div class="my-courses-cards">
                         %for course in allowedcourse:
                             <div class="course-incomplated">
-                                %if not course.close_course:  
+                                %if not course.close_course: 
                                     <a href="${reverse('cabout', args=[course.id])}" title="${get_course_about_section(course, 'title')}">
                                         <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
                                     </a>

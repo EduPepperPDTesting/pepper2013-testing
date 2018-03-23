@@ -33,6 +33,7 @@ def about_me(request,course_id, user_id=None):
 
     portfolio_user = get_portfolio_user(request, user_id)
     course = get_course_with_access(portfolio_user, course_id, 'load')
+    course.is_closed = CourseEnrollment.get_closed(request.user, course_id)
     content = create_discussion_about_me(request, course, portfolio_user)
     return render_to_response('portfolio/about_me.html', {'curr_user':portfolio_user,'course':course,'content':content,'portfolio_user_id':portfolio_user.id,'portfolio_user':portfolio_user})
 
