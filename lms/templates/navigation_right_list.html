@@ -135,6 +135,12 @@
                 organization_obj = tmp1.organization
                 OrganizationOK = True
                 break;
+
+        if (not(OrganizationOK) and district_id != -1):
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                organization_obj = tmp1.organization
+                OrganizationOK = True
+                break;
         
         if (not(OrganizationOK) and state_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
@@ -187,6 +193,7 @@
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
+            c.is_closed = enrollment.is_closed
 
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
@@ -249,7 +256,7 @@
                             course_target = reverse('courseware', args=[course.id])
                         %>
                         <div class="course-incomplated">
-                                %if not course.close_course:      
+                                %if not course.close_course and not course.is_closed:      
                                     <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
                                 %else:
                                     <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}

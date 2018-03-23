@@ -1388,8 +1388,9 @@ $(document).ready(function(){
                 element_html = '<div class="course-in-progress-row get-more-incompleted">';
             }
             element_html += '<div class="course-in-progress-t">';
-            if(cp.close_course){
-                element_html += '<b>'+cp.name+'</b>|'+cp.number;
+            if(cp.close_course || cp.is_closed){
+                cp.url = cp.url.replace('courseware', 'cabout')
+                element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
             }
             else{
                 element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
@@ -1482,8 +1483,9 @@ $(document).ready(function(){
             element_html += '</td>';
             element_html += '<td>';
             element_html += '<div class="completed-courses-row-title">';
-            if(cc.close_course){
-                element_html += '<b>'+cc.name+'</b>|'+cc.number;
+            if(cc.close_course || cc.is_closed){
+                cc.url = cc.url.replace('courseware', 'cabout')
+                element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
             }
             else{
                 element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
