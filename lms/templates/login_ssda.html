@@ -672,6 +672,7 @@
            *   return false;
            * });*/
         }else if(r.status == "is ssda"){
+          $("#email").val($("#email-check").val())
           $(".ssda-check-success").show();
           $submitButton.removeClass("is-disabled").removeProp('disabled');
           $submitButton.html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
