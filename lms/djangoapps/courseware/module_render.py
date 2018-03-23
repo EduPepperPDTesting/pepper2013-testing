@@ -616,7 +616,15 @@ def modx_dispatch(request, dispatch, location, course_id):
     # Let the module handle the AJAX
     try:
         ajax_return = instance.handle_ajax(dispatch, data)
-        
+        if dispatch == 'problem_check':
+            student = request.user
+            course_descriptor = get_course_by_id(course_id)
+            field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student,course_descriptor, depth=None)
+            course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
+            percent = grade(student, request, course_descriptor, field_data_cache)['percent']
+            rs = reporting_store('UserCourseProgress')
+            rs.report_update_data(request.user.id, course_id, percent)
+
         #@begin:complete_course_survey
         #@data:2013-12-13
         try:
@@ -636,6 +644,10 @@ def modx_dispatch(request, dispatch, location, course_id):
                                                  grade_bucket_type='ajax')
                     percent = grade(student, request, course_descriptor, field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
+                    try:
+                        old_complete_course_sign = course_instance.complete_course
+                    except:
+                        old_complete_course_sign = False
                     if ajax_return_json['success'] == u'correct':
                         if course_descriptor.issue_certificate:
                             completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
@@ -646,7 +658,6 @@ def modx_dispatch(request, dispatch, location, course_id):
                         uncompleted_course_prompt = '<p style=\'color:red\'>This course requires a passing score of '+str(int(course_descriptor.grade_cutoffs['Pass']*100))+' percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</p>'
                         if percent >= course_descriptor.grade_cutoffs['Pass']: #0.85
                         #@end
-                            sign = course_instance.complete_course
                             course_instance.complete_course = True
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
@@ -658,10 +669,6 @@ def modx_dispatch(request, dispatch, location, course_id):
                             "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
                             ma_db.insert_item(my_activity)
-                            if not sign:
-                                rs = reporting_store('CoursewareStudentmodule')
-                                rs.report_update_data(request.user.id,course_id)
-                            
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)
@@ -677,6 +684,9 @@ def modx_dispatch(request, dispatch, location, course_id):
                         course_instance.complete_date = None
                         instance.save()
                     course_instance.save()
+                    rs = reporting_store('CoursewareStudentmodule')
+                    if old_complete_course_sign != course_instance.complete_course:
+                        rs.report_update_data(request.user.id, course_id, course_instance.complete_course)
                 else:
                     # Save any fields that have changed to the underlying KeyValueStore
                     instance.save()
