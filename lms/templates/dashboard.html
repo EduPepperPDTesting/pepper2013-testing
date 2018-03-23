@@ -1224,7 +1224,7 @@ Add info that you would like to share about yourself here:
           %if curr_user == request.user and not course.close_course and not course.is_closed:
             <a href="${course_target}" class="cover">
           %else:
-            <a href="${course_target_close}">
+            <a href="${course_target_close}" class="cover">
           %endif
               <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
             </a>
