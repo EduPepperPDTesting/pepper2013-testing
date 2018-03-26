@@ -15,8 +15,8 @@ sessions. Assumes structure:
 from .common import *
 from logsettings import get_logger_config
 
-DEBUG = True
-TEMPLATE_DEBUG = True
+#DEBUG = True
+#TEMPLATE_DEBUG = True
 import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
