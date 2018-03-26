@@ -360,10 +360,16 @@ def community_join(request, community_id):
 
                 if manage == "1":
                     ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
-                    "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id": community.id},
-                    "LogoValues": {"community_id": community.id}}
+                    if not maincommunity_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
                     ma_db.insert_item(my_activity)
                 else:
                     ma_db = myactivitystore()
@@ -384,10 +390,16 @@ def community_join(request, community_id):
 
     if manage == "1":
         ma_db = myactivitystore()
-        my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-        "URLValues": {"community_id": community.id},
-        "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
-        "LogoValues": {"community_id": community.id}}
+        if not maincommunity_id:
+            my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
+        else:
+            my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
         ma_db.insert_item(my_activity)
 
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
