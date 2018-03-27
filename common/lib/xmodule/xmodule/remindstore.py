@@ -278,7 +278,7 @@ class MongoMyActivityStore(object):
         #community discussion
         self.collection.update({'EventType':'community_creatediscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
         self.collection.update({'EventType':'community_replydiscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
-  
+
         for d in discussions:
             self.collection.update(
                 {'EventType':'community_creatediscussion','URLValues.discussion_id':d.id},
@@ -324,6 +324,11 @@ class MongoMyActivityStore(object):
             year_end = str(d2['ActivityDateTime'])[0:4]
             break
         return int(year_start), int(year_end)
+
+    def new_set_item_community_discussion(self, discussion_name, community_id, discussion_id):
+        self.collection.update(
+            {'TokenValues.discussion_id': discussion_id, 'TokenValues.community_id': community_id},
+            {'$set': {'LogoValues': {'community_id': community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
 
 class MongoMyActivityStaticStore(object):
 

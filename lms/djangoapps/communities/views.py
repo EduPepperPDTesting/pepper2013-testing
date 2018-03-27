@@ -3381,14 +3381,23 @@ def new_process_discussions_delete(request):
                 mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
 
+                ma_db = myactivitystore()
+                ma_db.new_set_item_community_discussion(discussion['subject'], discussion['community_id'], str(discussion['_id']))
+
                 poll_connect = poll_store()
                 if poll_connect.poll_exists('discussion', did):
                     poll_connect.delete_poll('discussion', did)
 
             elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
-                discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                discussion = ""
+                if level == "2":
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                else:
+                    reply1 = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(did)})
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": reply1['discussion_id']})
                 send_notification(request.user, discussion['community_id'], replies_delete=[str(did)], domain_name=domain_name)
+
                 if level == "2":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
                     mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})
@@ -3403,7 +3412,7 @@ def new_process_discussions_delete(request):
 
                 elif level == "3":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "_id": ObjectId(cid)})
-
+                    
                     have_reply = True
                     for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(did)}, 0, 0, "date_create", -1):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": itemx['date_create']}})
@@ -3411,7 +3420,6 @@ def new_process_discussions_delete(request):
                         break
                     if have_reply:
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
-
             data = {'Success': True}
 
     except Exception as e:
