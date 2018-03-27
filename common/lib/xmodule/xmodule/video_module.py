@@ -11,7 +11,6 @@ in XML.
 """
 
 import json
-import re
 import logging
 
 from lxml import etree
@@ -27,7 +26,6 @@ from xmodule.editing_module import TabsEditingDescriptor
 from xmodule.raw_module import EmptyDataRawDescriptor
 from xmodule.xml_module import is_pointer_tag, name_to_pathname
 from xmodule.modulestore import Location
-from xmodule.contentstore.content import StaticContent
 from xblock.fields import Scope, String, Boolean, Float, List, Integer, ScopeIds
 
 from xblock.field_data import DictFieldData
@@ -104,7 +102,12 @@ class VideoFields(object):
         help="A list of filenames to be used with HTML5 video. The first supported filetype will be displayed.",
         display_name="Video Sources",
         scope=Scope.settings,
-        default=['']
+    )
+    html_source = String(
+        help="Paste Video URL in the textbox or upload a video.",
+        display_name="Video Source",
+        scope=Scope.settings,
+        default=""
     )
     track = String(
         help="The external URL to download the timed transcript track. This appears as a link beneath the video.",
@@ -168,6 +171,8 @@ class VideoModule(VideoFields, XModule):
 
         get_ext = lambda filename: filename.rpartition('.')[-1]
         sources = {get_ext(src): src for src in self.html5_sources}
+        if self.html_source:
+            sources[get_ext(self.html_source)] = self.html_source
         sources['main'] = self.source
 
         # for testing Youtube timeout in acceptance tests
@@ -288,6 +293,11 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
             ele.set('src', source)
             xml.append(ele)
 
+        if self.html_source:
+            ele = etree.Element('html_source')
+            ele.set('src', self.html_source)
+            xml.append(ele)
+
         if self.track:
             ele = etree.Element('track')
             ele.set('src', self.track)
@@ -342,12 +352,13 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
         sources = xml.findall('source')
         if sources:
             field_data['html5_sources'] = [ele.get('src') for ele in sources]
-            # field_data['source'] = field_data['html5_sources'][0]
+            field_data['source'] = field_data['html5_sources'][0]
+
+        html_source = xml.find('html_source')
+        if html_source:
+            field_data['html_source'] = html_source
             # use path of uploaded videos in content -> files & uploads
-            if (re.match(r'^/static/.*$')):
-                field_data['source'] = StaticContent.get_static_path_from_location(field_data['html5_sources'][0])
-            else:
-                field_data['source'] = field_data['html5_sources'][0]
+            field_data['source'] = field_data['html_source']
 
         track = xml.find('track')
         if track is not None:

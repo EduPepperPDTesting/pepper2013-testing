@@ -33,11 +33,6 @@
     $('.edit-button').live('click', function () {
       var video_descriptor = $(this).parents('.component').find('.xmodule_edit');
       video_descriptor.find('#settings-tab ul li:gt(7)').hide();
-      $(video_descriptor).find('#settings-tab ul li:nth-child(8) li.list-settings-item').show();
-      $(video_descriptor).find('#settings-tab ul li:nth-child(8) li.list-settings-item input').css('width', '100%');
-      $(video_descriptor).find('#settings-tab ul li:nth-child(8) button.action.setting-clear.active').hide();
-      $(video_descriptor).find('#settings-tab ul li:nth-child(8) a.create-action').hide();
-      $(video_descriptor).find('#settings-tab ul li:nth-child(8) a.remove-action.remove-setting').hide();
     });
     
   </script>
