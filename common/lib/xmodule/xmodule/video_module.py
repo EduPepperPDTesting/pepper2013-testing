@@ -11,6 +11,7 @@ in XML.
 """
 
 import json
+import re
 import logging
 
 from lxml import etree
@@ -26,6 +27,7 @@ from xmodule.editing_module import TabsEditingDescriptor
 from xmodule.raw_module import EmptyDataRawDescriptor
 from xmodule.xml_module import is_pointer_tag, name_to_pathname
 from xmodule.modulestore import Location
+from xmodule.contentstore.content import StaticContent
 from xblock.fields import Scope, String, Boolean, Float, List, Integer, ScopeIds
 
 from xblock.field_data import DictFieldData
@@ -102,6 +104,7 @@ class VideoFields(object):
         help="A list of filenames to be used with HTML5 video. The first supported filetype will be displayed.",
         display_name="Video Sources",
         scope=Scope.settings,
+        default=['']
     )
     track = String(
         help="The external URL to download the timed transcript track. This appears as a link beneath the video.",
@@ -339,7 +342,12 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
         sources = xml.findall('source')
         if sources:
             field_data['html5_sources'] = [ele.get('src') for ele in sources]
-            field_data['source'] = field_data['html5_sources'][0]
+            # field_data['source'] = field_data['html5_sources'][0]
+            # use path of uploaded videos in content -> files & uploads
+            if (re.match(r'^/static/.*$')):
+                field_data['source'] = StaticContent.get_static_path_from_location(field_data['html5_sources'][0])
+            else:
+                field_data['source'] = field_data['html5_sources'][0]
 
         track = xml.find('track')
         if track is not None:
