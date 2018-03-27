@@ -254,12 +254,15 @@
                     %for course in courses_incomplated_top2:
                         <%
                             course_target = reverse('courseware', args=[course.id])
+                            course_target_close = course_target.replace('courseware', 'cabout')
                         %>
                         <div class="course-incomplated">
                                 %if not course.close_course and not course.is_closed:      
                                     <a href="${course_target}"><b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}</a>
                                 %else:
-                                    <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    <a href="${course_target_close}">
+                                        <b>${get_course_about_section(course, 'title')}</b>|${course.display_number_with_default | h}
+                                    </a>
                                 %endif
                         </div>
                     %endfor

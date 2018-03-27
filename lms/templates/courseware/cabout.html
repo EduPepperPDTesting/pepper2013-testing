@@ -294,20 +294,24 @@ from pytz import UTC
 </section>
 <section id="course_closed" class="modal">
   <div class="inner-wrapper" style="padding-bottom:10px;">
-    <header style="padding:10px 5px 0 5px;margin-bottom:5px">
-      <img src="/static/images/header-logo.png" class="" alt="" height="30"/>
-    </header>
+    <div style="padding:10px 5px 0 5px; margin-bottom:20px; color:black; font-size:20px;line-height:25px">
+      <!-- <img src="/static/images/header-logo.png" class="" alt="" height="30"/> -->
+       ${get_course_about_section(course, 'university')} : ${course.display_number_with_default | h} ${course.display_name_with_default}
+    </div>
     <div style="margin-top:0;color:black;padding:0 30px;">
       The course has been closed! Please contact your administrator for futher information.
     </div>
-    <div style="padding-top:20px;text-align:right">
+    <div style="padding-top:20px;text-align:center">
+      <img src="/static/images/header-logo.png" class="" alt="" height="30"/>
+    </div>
+    <div style="text-align:right">
       <input type="button" class="btnx" id="course_closed_ok" value="OK" style="padding:5px 15px"/>
     </div>
-    <div class="close-modal" id="course_closed_close">
+    <!-- <div class="close-modal" id="course_closed_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
-    </div>
+    </div> -->
   </div>
 </section>
 <script type="text/javascript">
@@ -344,7 +348,7 @@ from pytz import UTC
       return false;
     });
     $(".close_course").click(function(event) {
-      $("<a href='#course_closed'></a>").leanModal({closeButton:'#course_closed_close,#course_closed_ok'}).click();
+      $("<a href='#course_closed'></a>").leanModal({closeButton:'#course_closed_close,#course_closed_ok',bottom:'0px'}).click();
       return false;
     });
     ## making the conditional around this entire JS block for sanity
