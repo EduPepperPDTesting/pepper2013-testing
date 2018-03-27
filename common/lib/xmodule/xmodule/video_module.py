@@ -104,7 +104,7 @@ class VideoFields(object):
         scope=Scope.settings,
     )
     html_source = String(
-        help="Paste Video URL in the textbox or upload a video.",
+        help="Paste Video URL in the textbox.",
         display_name="Video Source",
         scope=Scope.settings,
         default=""
