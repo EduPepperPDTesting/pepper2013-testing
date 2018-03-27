@@ -29,6 +29,12 @@
     });
 
     var unit_location_analytics = '${unit_location}';
+
+    $('.edit-button').live('click', function () {
+      var video_descriptor = $(this).parents('.component').find('.xmodule_edit');
+      video_descriptor.find('#settings-tab ul li:gt(7)').hide();
+    });
+
   </script>
 
 </%block>
