@@ -2553,6 +2553,39 @@ def get_trending_discussions_process(request):
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
 
+@login_required
+def subcommunity_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cmain_id = community.main_id
+
+        #cname = community.name
+        #clogo_url = get_file_url(community.logo)
+        # discussions = CommunityDiscussions.objects.filter(community=community)
+        # ma_db = myactivitystore()
+        # ma_db.new_set_item_community(cid, cname, clogo_url)
+
+        community.delete()
+
+        mongo3_store = community_discussions_store()
+        mongo3_store.remove({"community_id": cid})
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+        # return redirect(reverse('maincommunity', args=[cmain_id]))
+    except Exception as e:
+        data = {'error_title': 'Problem Deleting Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Deleting Community'}
+        return render_to_response('error.html', data)
+
+@login_required
+def subcommunity_delete(community_id):
+    pass
+
+
+
+
 # -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
     get_flag = request.GET.get("flag")
