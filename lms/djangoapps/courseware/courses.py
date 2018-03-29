@@ -182,6 +182,8 @@ def get_course_about_section(course, section_key):
     elif section_key == "title":
         return course.display_name_with_default
     elif section_key == "university":
+        if course.display_org_with_default == 'SSEC':
+            return 'Smithsonian Science Education Center'
         return course.display_org_with_default
     elif section_key == "number":
         return course.display_number_with_default
