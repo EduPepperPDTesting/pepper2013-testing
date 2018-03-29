@@ -1559,8 +1559,6 @@ a{
 
             this.hide();
             if(ans){
-                console.log("delete community");
-                
                 $.post("${reverse('subcommunity_delete_new',args=[community_id])}",{},function(r){
                     if(r.success){
                         window.location.replace("${reverse('maincommunity', args=[main_community.id])}");
@@ -1569,7 +1567,6 @@ a{
                         //window.location.replace("error.html");
                     }
                 });
-                
             }
         });
     }

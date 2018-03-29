@@ -494,6 +494,7 @@ urlpatterns = (
     url(r'^community/get_trending', 'communities.views.get_trending_discussions_process', name='get_trending'),
     url(r'^communities/search/community-completion', 'communities.views.communities_search_community_completion', name='communities_search_community_completion'),
     url(r'^subcommunity/(?P<community_id>[a-zA-Z0-9_]+)/delete_new$', 'communities.views.subcommunity_delete_new', name='subcommunity_delete_new'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/delete_new$', 'communities.views.community_delete_new', name='community_delete_new'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 

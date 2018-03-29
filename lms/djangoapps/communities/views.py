@@ -2559,31 +2559,70 @@ def subcommunity_delete_new(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cmain_id = community.main_id
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
 
-        #cname = community.name
-        #clogo_url = get_file_url(community.logo)
-        # discussions = CommunityDiscussions.objects.filter(community=community)
-        # ma_db = myactivitystore()
-        # ma_db.new_set_item_community(cid, cname, clogo_url)
-
+        # Delete subcommunity
         community.delete()
 
         mongo3_store = community_discussions_store()
-        mongo3_store.remove({"community_id": cid})
+        # Get save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the subcommunity
+        mongo3_store.remove({'community_id': cid})
+
+        # Save info for my activity after delete the subcommunity
+        ma_db = myactivitystore()
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
 
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')
-        # return redirect(reverse('maincommunity', args=[cmain_id]))
+        #return redirect(reverse('maincommunity', args=[cmain_id]))
     except Exception as e:
         data = {'error_title': 'Problem Deleting Community',
                 'error_message': 'Error: {0}'.format(e),
                 'window_title': 'Problem Deleting Community'}
         return render_to_response('error.html', data)
 
+
 @login_required
-def subcommunity_delete(community_id):
-    pass
+def community_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        # cname = community.name
+        # clogo_url = get_file_url(community.logo)
 
+        subcommunities = CommunityCommunities.objects.filter(main_id=cid)
+        subcommunities_save_info = list()
+        mongo3_store = community_discussions_store()
+        for sc in subcommunities:
+            scid = sc.id
+            subcommunities_save_info.append({'scid': scid, 'scname': sc.name, 'sclogo_url': get_file_url(sc.logo)})
+            sc.delete()
+            mongo3_store.remove({"community_id": scid})
+            log.debug("sc====================")
+            log.debug(sc.id)
+            log.debug(type(sc.id))
 
+        community.delete()
+        mongo3_store.remove({"community_id": cid})
+
+        log.debug("success====================")
+        log.debug(subcommunities_save_info)
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+        # return redirect(reverse('maincommunity', args=[cmain_id]))
+    except Exception as e:
+        log.debug("e======================")
+        log.debug(e)
+        data = {'error_title': 'Problem Deleting Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Deleting Community'}
+        return render_to_response('error.html', data)
 
 
 # -------------------------------------------------------------------new_discussion_process
@@ -3415,7 +3454,7 @@ def new_process_discussions_delete(request):
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
 
                 ma_db = myactivitystore()
-                ma_db.new_set_item_community_discussion(discussion['subject'], discussion['community_id'], str(discussion['_id']))
+                ma_db.new_set_item_community_discussion(discussion['community_id'], str(discussion['_id']), discussion['subject'])
 
                 poll_connect = poll_store()
                 if poll_connect.poll_exists('discussion', did):
