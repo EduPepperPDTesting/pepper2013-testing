@@ -49,6 +49,9 @@ from student.models import CourseEnrollment
 
 from xmodule.html_module import AboutDescriptor
 from courseware.courses import get_courses, get_course_with_access, sort_by_custom
+from reporting.models import reporting_store
+import logging
+log = logging.getLogger('tracking')
 __all__ = ['course_index', 'create_new_course', 'course_info',
            'course_info_updates', 'get_course_settings',
            'course_config_graders_page',
@@ -180,7 +183,8 @@ def create_new_course(request):
         system=new_course.system,
         definition_data=overview_template.get('data')
     )
-
+    rs = reporting_store('ModuleStore')
+    rs.report_insert_data(new_course.location.course_id)
     initialize_course_tabs(new_course)
 
     create_all_course_groups(request.user, new_course.location)
@@ -191,6 +195,8 @@ def create_new_course(request):
     # auto-enroll the course creator in the course so that "View Live" will
     # work.
     CourseEnrollment.enroll(request.user, new_course.location.course_id)
+    rs = reporting_store('StudentCourseenrollment')
+    rs.report_update_data(request.user.id, new_course.location.course_id)
 
     return JsonResponse({'id': new_course.location.url()})
 
@@ -390,8 +396,12 @@ def course_settings_updates(request, org, course, name, section):
             encoder=CourseSettingsEncoder
         )
     elif request.method in ('POST', 'PUT'):  # post or put, doesn't matter.
+        Response = manager.update_from_json(request.POST)
+        rs = reporting_store('ModuleStore')
+        course_id = '/'.join([org, course, name])
+        rs.report_update_data(course_id)
         return JsonResponse(
-            manager.update_from_json(request.POST),
+            Response,
             encoder=CourseSettingsEncoder
         )
 
@@ -512,11 +522,15 @@ def course_advanced_updates(request, org, course, name):
                         # the metadata
                         filter_tabs = False
         try:
-            return JsonResponse(CourseMetadata.update_from_json(
+            Response = CourseMetadata.update_from_json(
                 location,
                 request_body,
                 filter_tabs=filter_tabs
-            ))
+            )
+            rs = reporting_store('ModuleStore')
+            course_id = '/'.join([org, course, name])
+            rs.report_update_data(course_id)
+            return JsonResponse(Response)
         except (TypeError, ValueError) as err:
             return HttpResponseBadRequest(
                 "Incorrect setting format. " + str(err),

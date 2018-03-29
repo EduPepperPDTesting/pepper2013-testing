@@ -453,7 +453,8 @@ def save_training(request):
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
         training.save()
-
+        rs = reporting_store('PepregTraining')
+        rs.report_update_data(training.id)
         if not id:
             ma_db = myactivitystore()
             my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_createTraining", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
@@ -498,7 +499,10 @@ def delete_training(request):
         PepRegStudent.objects.filter(training=training).delete()
         TrainingUsers.objects.filter(training=training).delete()
         training.delete()
-
+        rs = reporting_store('PepregTraining')
+        rs.report_update_data(id, True)
+        rs = reporting_store('PepregStudent')
+        rs.report_update_data(id, "", True)
         ma_db = myactivitystore()
         ma_db.set_item_pd(tid, tname, str(tdate))
 
@@ -1248,7 +1252,8 @@ def register_student(request, join, training_id, user_id):
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
             student.save()
-
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(int(training_id), student_user.id)
             ma_db = myactivitystore()
             my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
                            "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
@@ -1273,7 +1278,8 @@ def register_student(request, join, training_id, user_id):
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
             PepRegStudent.objects.filter(training_id=training_id, student=student_user).delete()
-
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(int(training_id), student_user.id, True)
             # akogan
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
@@ -1436,8 +1442,12 @@ def set_student_attended(request):
                     "student_credit": student.student_credit,
                     "student_id": student.student_id,
                     }
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(training_id, student_id)
         else:
             data = None
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(training_id, student_id, True)
 
     except Exception as e:
         db.transaction.rollback()
@@ -1470,7 +1480,8 @@ def set_student_validated(request):
             student.save()
             rs = reporting_store('PdTime')
             rs.report_update_data(student_id, int(-training.credits))
-
+        rs = reporting_store('PepregStudent')
+        rs.report_update_data(training_id, student_id)
 
         data = {"id": student.id,
                 "email": student.student.email,

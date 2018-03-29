@@ -9,6 +9,8 @@ from student.models import User, CourseEnrollment
 from courseware.models import StudentModule
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.django import modulestore
+from administration.models import PepRegTraining, PepRegInstructor, PepRegStudent
+from student.models import District, School, State
 log = logging.getLogger("tracking")
 
 def course_from_id(course_id):
@@ -209,7 +211,7 @@ class MongoReportingStore(object):
         except:
             data['school_id'] = ""
         enroll = CourseEnrollment.objects.get(user=user, course_id=course_id)
-        data['is_active'] = enroll.is_active
+        data['is_active'] = int(enroll.is_active)
         data['created'] = enroll.created.strftime('%Y-%m-%d')
         return data
 
@@ -260,6 +262,7 @@ class MongoReportingStore(object):
     def get_user_course_date1(self, user_id, course_id):
         course_data = StudentModule.objects.get(student=user_id,course_id=course_id,module_type="course")
         data = course_data.__dict__
+        data['state'] = eval(data['state'].replace('false', 'False').replace('true', 'True').replace('null', 'None'))
         data['created'] = data['created'].strftime('%Y-%m-%d')
         data['modified'] = data['modified'].strftime('%Y-%m-%d')
         data['c_course_id'] = data['course_id']
@@ -278,7 +281,7 @@ class MongoReportingStore(object):
         except:
             data["course_number"] = ""
         try:
-            data["course_name"] = str(course_data.display_name)
+            data["course_name"] = course_data.display_name
         except:
             data["course_name"] = ""
         try:
@@ -324,6 +327,12 @@ def reporting_store(view=None):
         return CoursewareStudentmodule(**options)
     elif view == 'UserCourseProgress':
         return UserCourseProgress(**options)
+    elif view == 'ModuleStore':
+        return ModuleStore(**options)
+    elif view == 'PepregTraining':
+        return PepregTraining(**options)
+    elif view == 'PepregStudent':
+        return PepregStudent(**options)    
     else:
         return MongoReportingStore(**options)
 
@@ -398,7 +407,6 @@ class CourseTime(MongoReportingStore):
 
     def report_update_data(self, user_id, course_id, time):
         affected_collection = ['course_time', 'UserView', 'UserCourseView']
-        log.debug('3333333')
         for tmp in affected_collection:
             self.set_collection(tmp)
             if tmp == "course_time":
@@ -580,7 +588,7 @@ class CoursewareStudentmodule(MongoReportingStore):
             self.set_collection(tmp)
             if tmp == "courseware_studentmodule":
                 data = self.get_user_course_date1(user_id, course_id)
-                db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                db_filter = {'student_id': int(user_id), 'course_id': course_id, 'module_type':"course"}
                 self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
                 if is_complete:
@@ -592,21 +600,241 @@ class CoursewareStudentmodule(MongoReportingStore):
             elif tmp == "UserCourseView":
                 if is_complete:
                     course_data = self.get_user_course_date1(user_id, course_id)
-                    course_data["state"] = eval(course_data["state"].replace('true', 'True'))
                     data = {"$set":{"complete_date":course_data['state']['complete_date'][0:10]}}
                 else:
                     data = {"$set":{"complete_date":""}}
                 db_filter = {'user_id': int(user_id), 'course_id': course_id, 'school_year': 'current'}
                 self.collection.update(db_filter, data)
 
-class Modulestore(MongoReportingStore):
-    pass
+class ModuleStore(MongoReportingStore):
+
+    def report_update_data(self, course_id):
+        affected_collection = ['modulestore', 'UserCourseView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "modulestore":
+                data = self.get_insert_data(course_id)
+                data.pop('_id')
+                db_filter = {'course_id': course_id, '_id.category':'course'}
+                self.collection.update(db_filter, data)
+                data1 = self.get_course_data(course_id)
+                db_filter1 = {'q_course_id': course_id}
+                self.collection.update(db_filter1, data1, multi=True)
+            if tmp == "UserCourseView":
+                data = {'$set' : self.get_course_data(course_id)}
+                db_filter = {'course_id': course_id}
+                self.collection.update(db_filter, data, True, multi=True)
+
+    #  creata_course,   '_id.category':'course'
+    def report_insert_data(self, course_id):
+        affected_collection = ['modulestore']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "modulestore":
+                course_data = self.get_insert_data(course_id)
+                self.collection.insert(course_data)
+
+    # publish_draft, '_id.category':'problem,combinedopenended'
+    def report_update_problem(self, location, is_publish=True):
+        affected_collection = 'modulestore'
+        course_data, graded = self.get_course_data_by_location(location)
+        arr = location.split('/')
+        vertical_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in vertical_data:
+            if len(tmp['definition']['children']) > 0:
+                for tmp1 in tmp['definition']['children']:
+                    arr1 = tmp1.split('/')
+                    unit_data = modulestore().collection.find({'_id.category':arr1[4], '_id.org':arr1[2], '_id.name':arr1[5], '_id.course': arr1[3]})
+                    for tmp2 in unit_data:
+                        if tmp2['_id']['category'] == 'problem' or tmp2['_id']['category'] == "combinedopenended":
+                            self.set_collection(affected_collection)
+                            module_id = tmp2['_id']['tag'] + '://' + tmp2['_id']['org']  + '/' + tmp2['_id']['course']  + '/' + tmp2['_id']['category']  + '/' + tmp2['_id']['name']
+                            db_filter = {'module_id': module_id}
+                            if is_publish and graded:
+                                course_data['module_id'] = module_id
+                                course_data.update(tmp2)
+                                data = {'$set' : course_data}
+                                self.collection.update(db_filter, course_data, True)
+                            else:
+                                self.collection.remove(db_filter)
+
+    # sequential mark graded
+    def report_update_assignment_problem(self, location, graderType):
+        arr = location.split('/')
+        sequential_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in sequential_data:
+            if len(tmp['definition']['children']) > 0:
+                for tmp1 in tmp['definition']['children']:
+                    if graderType == "Assignment":
+                        self.report_update_problem(tmp1)
+                    else:
+                        self.report_update_problem(tmp1, False)
+
+    def get_parent_location(self, location, category):
+        data = modulestore().collection.find({'_id.category':category, 'definition.children':{'$in':[location]}})
+        parent_location = ""
+        for tmp in data:
+            parent_location = tmp['_id']['tag'] + '://' + tmp['_id']['org']  + '/' + tmp['_id']['course']  + '/' + tmp['_id']['category']  + '/' + tmp['_id']['name']
+        return parent_location
+
+    def get_course_data_by_location(self, location):
+        result = {}
+        graded = False
+        sequential_location = self.get_parent_location(location, 'sequential')
+        arr = sequential_location.split('/')
+        sequential_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in sequential_data:
+            result['vertical_num'] = tmp['definition']['children'].index(location) + 1
+            try:
+                result['sequential_name'] = tmp['metadata']['display_name']
+            except:
+                result['sequential_name'] = ""
+            try:
+                graded = tmp['metadata']['graded']
+            except:
+                graded = False
+
+        chapter_location = self.get_parent_location(sequential_location, 'chapter')
+        course_location = self.get_parent_location(chapter_location, 'course')
+        arr = course_location.split('/')
+        course_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in course_data:
+            result['q_course_id'] = '/'.join([tmp['_id']['org'], tmp['_id']['course'], tmp['_id']['name']])
+            try:
+                result['organization'] = tmp['metadata']['display_organization']
+            except:
+                result['organization'] = ""
+            try:
+                result['end_date'] = tmp['metadata']['end'][0:10]
+            except:
+                result['end_date'] = ""
+            try:    
+                result['start_date'] = tmp['metadata']['start'][0:10]
+            except:
+                result['start_date'] = ""
+            try:    
+                result['course_name'] = tmp['metadata']['display_name']
+            except:
+                result['course_name'] = ""
+            try:    
+                result['course_number'] = tmp['metadata']['display_coursenumber']
+            except:
+                result['course_number'] = ""
+        return result, graded
+
+    def get_insert_data(self, course_id):
+        org, course, name = course_id.split('/');
+        course_date = modulestore().collection.find({'_id.category':'course', '_id.org':org, '_id.name':name, '_id.course': course})
+        result = {}
+        for tmp in course_date:
+            result.update(tmp)
+        result['course_id'] = course_id
+        return result
 
 class PepregStudent(MongoReportingStore):
-    pass
+
+    def report_update_data(self, training_id, user_id, is_delete=False):
+        affected_collection = ['pepreg_student', 'PepRegStudentView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == 'pepreg_student':
+                if user_id:
+                    if is_delete:
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id)}
+                        self.collection.remove(db_filter)
+                    else:
+                        data = self.get_training_student_data(training_id, user_id)
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id)}
+                        self.collection.update(db_filter, data, True)
+                else:
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.remove(db_filter)
+            if tmp == 'PepRegStudentView':
+                if user_id:
+                    if is_delete:
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id), 'school_year': 'current'}
+                        self.collection.remove(db_filter)
+                    else:
+                        data = self.get_training_student_data(training_id, user_id)
+                        data['school_year'] = 'current'
+                        data['key'] = 'current_' + str(training_id)
+                        if data['instructor_id'] != 'NULL':
+                            data['instructor_status'] = 'Yes'
+                        else:
+                            data['instructor_status'] = 'No'
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id), 'school_year': 'current'}
+                        self.collection.update(db_filter, data, True)
+                else:
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.remove(db_filter)
+
+    def get_training_student_data(self, training_id, user_id):
+        result = {}
+        student_data = PepRegStudent.objects.get(training_id=training_id, student=user_id)
+        result['training_id'] = int(training_id)
+        result['student_id'] = int(user_id)
+        result['student_status'] = student_data.student_status
+        result['student_credit'] = student_data.student_credit
+        if PepRegInstructor.objects.filter(training_id=training_id, instructor_id=user_id).exists():
+            result['instructor_id'] = user_id
+        else:
+            result['instructor_id'] = 'NULL'
+        return result
+
 
 class PepregTraining(MongoReportingStore):
-    pass
+
+    def report_update_data(self, training_id, is_delete=False):
+        affected_collection = ['pepreg_training', 'PepRegTrainingView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == 'pepreg_training':
+                if is_delete:
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.remove(db_filter)
+                else:
+                    data = self.get_training_data(training_id)
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.update(db_filter, data, True)
+            if tmp == 'PepRegTrainingView':
+                if is_delete:
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.remove(db_filter)
+                else:
+                    data = self.get_training_data(training_id)
+                    data['school_year'] = 'current'
+                    data['key'] = 'current_' + str(data['training_id'])
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.update(db_filter, data, True)
+
+    def get_training_data(self, training_id):
+        result = {}
+        training_data = PepRegTraining.objects.get(id=training_id)
+        result['training_id'] = int(training_id)
+        result['type'] = training_data.type
+        result['district_id'] = training_data.district_id
+        result['description'] = training_data.description
+        result['subject'] = training_data.subject
+        result['name'] = training_data.name
+        result['pepper_course'] = training_data.pepper_course
+        result['training_date'] = training_data.training_date.strftime('%Y-%m-%d')
+        result['training_time_start'] = training_data.training_time_start.strftime('%H:%M:%S')
+        result['training_time_end'] = training_data.training_time_end.strftime('%H:%M:%S')
+        result['geo_location'] = training_data.geo_location
+        result['classroom'] = training_data.classroom
+        result['credits'] = training_data.credits
+        result['attendancel_id'] = training_data.attendancel_id
+        result['allow_registration'] = training_data.allow_registration
+        result['allow_attendance'] = training_data.allow_attendance
+        result['allow_validation'] = training_data.allow_validation
+        result['max_registration'] = training_data.max_registration
+        result['user_create_id'] = training_data.user_create_id
+        result['date_create'] = training_data.date_create.strftime('%Y-%m-%d')
+        result['state_id'] = training_data.district.state.id
+        result['district'] = training_data.district.name
+        result['school'] = School.objects.get(id=training_data.school_id).name
+        return result
+
 
 class ProblemPoint(MongoReportingStore):
     pass
