@@ -1099,11 +1099,11 @@ function addCommunityDiscussionEvent(){
 			}
 		}
 	});
-	
+
 	//---------------------------------------------------------btn_upload_attr btn_upload_pict click
 	$(".btn_upload_attr, .btn_upload_pict").unbind("click").click(function(){
 		try{
-			$(this).find("input[type='file']:first").click();
+			$(this).find("input[type='file']")[0].click();
 		}catch(e){}
 	});
 	
