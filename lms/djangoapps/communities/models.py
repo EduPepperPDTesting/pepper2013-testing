@@ -88,7 +88,7 @@ class CommunityNotificationType(models.Model):
         db_table = 'community_notification_type'
     name = models.CharField(blank=True, null=True, max_length=20, db_index=False)
     description = models.TextField(blank=False, max_length=255, db_index=False)
-    group = models.ForeignKey(CommunityNotificationGroup, on_delete=models.PROTECT)
+    group = models.ForeignKey(CommunityNotificationGroup, on_delete=models.CASCADE)
     subject = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     body = models.TextField(blank=True, null=True, db_index=False)
     action = models.CharField(blank=True, null=True, max_length=255, db_index=False)
