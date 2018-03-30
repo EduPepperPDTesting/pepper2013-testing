@@ -1467,7 +1467,10 @@ a{
                         window.location.replace("${reverse('newcommunities')}");
                     }
                     else{
-                        //window.location.replace("error.html");
+                        var dlg = new Dialog($("#dlg-warning"));
+                        var dailogTitle = "Warning";
+                        var dailogText = "Problem Deleting Community: " + r.error + ".";
+                        dlg.show(dailogTitle, dailogText);
                     }
                 });
             }

@@ -2552,7 +2552,6 @@ def get_trending_discussions_process(request):
         td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
-
 @login_required
 def subcommunity_delete_new(request, community_id):
     try:
@@ -2566,7 +2565,8 @@ def subcommunity_delete_new(request, community_id):
         community.delete()
 
         mongo3_store = community_discussions_store()
-        # Get save info
+
+        # Get subcommunity discussion save info
         discussion_list = list()
         discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
         for d in discussions_mongo3:
@@ -2580,50 +2580,59 @@ def subcommunity_delete_new(request, community_id):
         ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
 
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')
-        #return redirect(reverse('maincommunity', args=[cmain_id]))
     except Exception as e:
-        data = {'error_title': 'Problem Deleting Community',
-                'error_message': 'Error: {0}'.format(e),
-                'window_title': 'Problem Deleting Community'}
-        return render_to_response('error.html', data)
-
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
 
 @login_required
 def community_delete_new(request, community_id):
     try:
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
-        # cname = community.name
-        # clogo_url = get_file_url(community.logo)
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
 
         subcommunities = CommunityCommunities.objects.filter(main_id=cid)
-        subcommunities_save_info = list()
         mongo3_store = community_discussions_store()
+        ma_db = myactivitystore()
+
         for sc in subcommunities:
             scid = sc.id
-            subcommunities_save_info.append({'scid': scid, 'scname': sc.name, 'sclogo_url': get_file_url(sc.logo)})
-            sc.delete()
-            mongo3_store.remove({"community_id": scid})
-            log.debug("sc====================")
-            log.debug(sc.id)
-            log.debug(type(sc.id))
+            scname = sc.name
+            sclogo_url = get_file_url(sc.logo)
 
+            # Delete subcommunity
+            sc.delete()
+
+            sc_discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': scid})
+
+            # Get subcommunity discussion save info
+            sc_discussion_list = list()
+            for d in sc_discussions_mongo3:
+                sc_discussion_list.append({'cid': scid, 'did': str(d['_id']), 'dname': d['subject']})
+
+            # Delete discussions and all comments of the subcommunity
+            mongo3_store.remove({"community_id": scid})
+
+            # Save info for my activity after delete the subcommunity
+            ma_db.new_set_item_subcommunity(scid, scname, sclogo_url, sc_discussion_list)
+
+        # Delete community
         community.delete()
+        # Get community discussion save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the community
         mongo3_store.remove({"community_id": cid})
 
-        log.debug("success====================")
-        log.debug(subcommunities_save_info)
+        # Save info for my activity after delete the community
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
 
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')
-        # return redirect(reverse('maincommunity', args=[cmain_id]))
     except Exception as e:
-        log.debug("e======================")
-        log.debug(e)
-        data = {'error_title': 'Problem Deleting Community',
-                'error_message': 'Error: {0}'.format(e),
-                'window_title': 'Problem Deleting Community'}
-        return render_to_response('error.html', data)
-
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
 
 # -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
