@@ -2913,6 +2913,7 @@
 
         /* advanced filtering */
         var filters = [];
+        var logic_conditions = ["equal to", "less than", "greater than", "equal to or less than", "equal to or greater than"];
 
         $("#switch_search").click(function(){
             if($("#switch_search").text()=="Advanced Search"){
@@ -2984,16 +2985,20 @@
                     $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                         console.log("advanced_select data.success: "+data.success);
                         if (data.success) {
+                            var data_rows = ["Date", "Time"];
+
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
 
-                            if(data.rows != "date"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
+                            if(data_rows.indexOf(data.rows[0]) == 0){
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
                                 $("#subselect_" + suborder).append("<option value=''>Select</option>");
                                 var optValue;
                                 $.each(data.rows, function(k, v){
                                     if(val == "subject"){
-                                        switch (v){
+                                        var subject_dict = {"Assessments and Reporting": "AR", "Digital Citizenship": "DC", "English Language Arts": "ELA"};
+                                        optValue = (subject_dict[v]) ? subject_dict[v] : "";
+                                        /*switch (v){
                                             case "Assessments and Reporting":
                                                 optValue = "AR";
                                                 break;
@@ -3005,16 +3010,24 @@
                                                 break;
                                             default:
                                                 optValue = "";
-                                        }
+                                        }*/
                                     }else{
                                         optValue = v;
                                     }
                                     $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
-                            }else{
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search' data-column='" + data.datacolumn + "' placeholder='Select Date' readonly='true'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'></select>");
-                                $("#range_condition_" + suborder + ")
+                            }else if(data.rows[0] == "Date"){
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $.each(logic_conditions, function (index, value){
+                                    $("#range_condition_" + suborder + ").append("<option value='" + index + "'>" + value + "</option>")
+                                });
+                            }else if(data.rows[0] == "Time"){
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $.each(logic_conditions, function (index, value){
+                                    $("#range_condition_" + suborder + ").append("<option value='" + index + "'>" + value + "</option>")
+                                });
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
@@ -3213,7 +3226,16 @@
                 if(field_type != "") field_list[s] = field_type;
 
                 var search_val = ($("#subselect_" + i).length == 1) ? $("#subselect_" + i).val() : "";
-                if(search_val != "") search_list[s] = search_val;
+                if(search_val != "") {
+                    search_list[s] = search_val;
+
+                    if($("#range_condition_" + i).length > 0){
+                        var range_condition = $("#range_condition_" + i).val();
+                        if(range_condition !== undefined && range_condition != ""){
+                            search_list[s] = "^"range_condition + "|" + search_list[s];
+                        }
+                    }
+                }
 
                 var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 if(cond != "") condition_list[s] = cond;

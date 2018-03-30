@@ -76,6 +76,9 @@ def build_filters(columns, filters):
     """
     kwargs = dict()
     args = None
+    ranges = {"1": "__lt", "2": "__gt", "3": "__lte", "4": "__gte"}
+    kwargs_condition = ''
+
     # Iterate through the filters.
     for column, value in filters.iteritems():
         # For the numerical columns, just filter that column by the passed value.
@@ -84,14 +87,36 @@ def build_filters(columns, filters):
 
             # If the column is an integer value, convert the search term.
             try:
+                if(value.find("^") == 0):
+                    out_value = value[value.find("|") + 1:]
+                    if columns[c][0] == "training_date":
+                        out_value = datetime.strptime(out_value, '%m/%d/%Y').date()
+                    elif columns[c][0].startswith("training_time"):
+                        out_value = datetime.strptime(out_value, '%I:%M %p')
+                    if(value[1] != "0"):
+                        r = value[1]
+                        kwargs_condition = ranges.get(r)
+                        kwargs[columns[c][0] + ranges.get(r)] = out_value
+
+                else:
+                    if columns[c][2] == 'int' and value.isdigit():
+                        out_value = int(value)
+                    else:
+                        out_value = value
+
+                    # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+                    # type of selection to make ([1] - '__iexact').
+                    kwargs[columns[c][0] + columns[c][1]] = out_value
                 out_value = value
             except:
                 raise Exception("c="+str(c))
-            if columns[c][2] == 'int' and value.isdigit():
-                out_value = int(value)
+            # if columns[c][2] == 'int' and value.isdigit():
+            #     out_value = int(value)
+
+            kwargs_condition = columns[c][1] if not kwargs_condition else kwargs_condition
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
             # type of selection to make ([1] - '__iexact').
-            kwargs[columns[c][0] + columns[c][1]] = out_value
+            kwargs[columns[c][0] + kwargs_condition] = out_value
         # If this is a search for all, we need to do an OR search, so we build one with Q objects.
         else:
             args_list = list()
@@ -175,6 +200,7 @@ def rows(request):
         9: ['geo_location', '__iexact', 'str'],
         10: ['credits', '__iexact', 'int'],
         11: ['subjectother', '__iexact', 'str'],
+        12: ['training_time_end', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
@@ -232,6 +258,16 @@ def rows(request):
 
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
         #raise Exception(str(trainings))
+
+        field_type = {
+            "state": 1,
+            "district": 2,
+            "subject": 3,
+            "date": 7,
+            "training time start": 8,
+            "training time end": 12
+        }
+
         for field_item in field_list:
             item_unit = field_item.split("|")
 
@@ -246,17 +282,19 @@ def rows(request):
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
 
-            if item == 'state':
-                filters = {1: search_list[item_order]}
-                #field_name = 'district__state__name__iexact'
-            elif item == 'district':
-                filters = {2: search_list[item_order]}
-                #field_name = 'district__name__iexact'
-            elif item:
-                for key, val in columns.iteritems():
-                    if item == val[0]:
-                        filters = {key: search_list[item_order]}
-                        break
+            filters = {field_type[item]: search_list[item_order]}
+
+            # elif item == 'date':
+            #     #date_indices = [i for i, s in enumerate(field_list) if s == "date" and i != item_order]
+            #     #if(date_indices):
+            #         #if date at i < date current date add date at i to Q condition as date__gte
+            #         #if date at i > date current date add date at i to Q condition as date__lte
+            #     filters = {7: search_list[item_order]}
+            # elif item:
+            #     for key, val in columns.iteritems():
+            #         if item == val[0]:
+            #             filters = {key: search_list[item_order]}
+            #             break
                 #field_name = item + '__in'
 
             args, kwargs = build_filters(columns, filters)
@@ -275,17 +313,21 @@ def rows(request):
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
-                if next_item == 'state':
-                    filters = {1: search_list[next_item_order]}
-                    #next_field_name = 'district__state__name__in'
-                elif next_item == 'district':
-                    filters = {2: search_list[next_item_order]}
-                    #next_field_name = 'district__name__in'
-                elif next_item:
-                    for key, val in columns.iteritems():
-                        if next_item == val[0]:
-                            filters = {key: search_list[next_item_order]}
-                            break
+                filters = {field_type[next_item]: search_list[next_item_order]}
+
+                # if next_item == 'state':
+                #     filters = {1: search_list[next_item_order]}
+                #     #next_field_name = 'district__state__name__in'
+                # elif next_item == 'district':
+                #     filters = {2: search_list[next_item_order]}
+                #     #next_field_name = 'district__name__in'
+                # elif next_item == 'date':
+                #     filters = {7: search_list[next_item_order]}
+                # elif next_item:
+                #     for key, val in columns.iteritems():
+                #         if next_item == val[0]:
+                #             filters = {key: search_list[next_item_order]}
+                #             break
                     #next_field_name = next_item + '__in'
 
                 args, next_kwargs = build_filters(columns, filters)
@@ -335,6 +377,7 @@ def rows(request):
     count = len(trainings_set)
     rows = list()
     for item in trainings_set[start:end]:
+
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
@@ -2268,7 +2311,7 @@ def getfielddata(request):
     if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
         rows = ["State", "District"]
 
-    rows.append("Subject", "Date")
+    rows = rows + ["Subject", "Date", "Training Start Time", "Training End Time"]
 
     success = 1
 
@@ -2282,28 +2325,32 @@ def getsearchdata(request):
     data_column = ""
     search_data = request.POST.get('search_data')
 
-    if search_data == "state":
-        data_column = "1"
-        success = 1
-        for item in State.objects.all().order_by("name"):
-            rows.append(item.name)
+    field_type = {
+        "state": [1, State],
+        "district": [2, District],
+        "subject": [3, "Subject"],
+        "date": [7, "Date"],
+        "training time start": [8, "Time"],
+        "training time end": [9, "Time"]
+    }
 
-    elif search_data == "district":
-        data_column = "2"
-        success = 1
-        for item in District.objects.all().order_by("name"):
-            rows.append(item.name)
+    not_query = ["Date", "Time", "Subject"]
+    try:
+        data_column = str(field_type[search_data][0])
+        if field_type[search_data][1] not in not_query:
+            for item in field_type[search_data][1].objects.all().order_by("name"):
+                rows.append(item.name)
+        elif field_type[search_data][1] == "Subject":
+            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
 
-    elif search_data == "subject":
-        data_column = "3"
-        success = 1
-        rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+        if(not rows):
+            rows.append(field_type[search_data][1])
 
-    elif search_data == "date":
-        data_column = "7"
         success = 1
-        rows = ["date"]
+    except:
+        data_column = ""
+        success = 0
 
-    data = {'success': success, 'rows': rows, 'datacolumn': data_column}
+    data = {'success': success, 'rows': rows, 'data_column': data_column}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
