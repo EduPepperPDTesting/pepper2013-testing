@@ -99,7 +99,7 @@ class CommunityNotificationConfig(models.Model):
         db_table = 'community_notification_config'
     via_pepper = models.BooleanField(blank=False, default=0)
     via_email = models.BooleanField(blank=False, default=0)
-    type = models.ForeignKey(CommunityNotificationType, on_delete=models.PROTECT)
+    type = models.ForeignKey(CommunityNotificationType, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     frequency = models.CharField(max_length=20, db_index=False, default="")
     self_config = models.BooleanField(blank=False, default=0)
