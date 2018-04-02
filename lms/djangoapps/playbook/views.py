@@ -95,32 +95,6 @@ def get_play_list(request):
 
     return HttpResponse(play_list_fragment)
 
-def debug_get_play_list(request):
-    try:
-        play_list_fragment = ''
-        category_id = int(request.GET.get('category'))
-        print category_id
-        print type(category_id)
-
-        if category_id == -1:
-            plays = Play.objects.all()
-        else:
-            plays = Play.objects.get(category=category_id)
-
-        for play in plays:
-            data = {}
-            data['play_id'] = play.pk
-            data['title'] = play.title
-            data['step_nums'] = 0
-            data['category_name'] = play.category.name
-            data['created_time'] = play.created_time
-            data['creator'] = play.creator.profile.getFullname();
-            play_list_fragment += render_to_string('playbook/play-list-in-tenant-fragment.html', data)
-
-        return HttpResponse(play_list_fragment)
-    except Error as e:
-        return HttpResponse(e)
-
 @login_required
 def create_new_category(request):
     if request.method == 'POST':
