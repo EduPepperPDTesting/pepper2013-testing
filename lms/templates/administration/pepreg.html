@@ -469,6 +469,7 @@
                 %endif
                 <!--div style="margin-top: 5px;"-->
                     <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+                    <input type="button" name="" value="SEND COMPLETION CERTIFICATE" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);display: none;" id="send_certificate_btn">
                     <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
                     <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
                 <!--/div-->
@@ -708,6 +709,17 @@
                             <input type="checkbox" name="allow_validation" value="true"/>
                             <span class="check-mark"
                                   alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Select Certificate</span>
+                            <div id="show_certificates" style="display: inline-block;">
+                                <input type="checkbox" name="allow_certificate">
+                                <select name="certificate"></select>
+                            </div>
+                            <span id="no_certificates" style="display: none">No Certificates for the Organization.</span>    
+                            <span class="check-mark"
+                                  alt="A certificate can be selected for this event that has been configured by the administrator in the organization configuration screen."></span>
+
                         </div>
                     </div>
                 </div>
@@ -1433,6 +1445,19 @@
 				});
 			}
 		});
+
+        $("#district_id, #school_id").change(function(){
+            pepreg.getCertificates();
+        })
+
+        $("input[name=allow_certificate]").change(function() {
+            if($(this).is(':checked')) {
+                $("select[name=certificate]").attr("disabled", false);
+            } else {
+                $("select[name=certificate]").val('0');
+                $("select[name=certificate]").attr("disabled", true);
+            }
+        });
 	});
 
     $('.list-group-item, .forBtnRemoval').click(function(){
@@ -1723,6 +1748,12 @@
             var URLrt = (href_classroom.indexOf("://") == -1) ? "https://" : "";
             classroom = classroom.replace(href_classroom, "<a href = '" + URLrt + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
         }
+        var certificate = ""
+        if(!$form.find("select[name=certificate]").val() || $form.find("select[name=certificate]").val() == '0') {
+            certificate = ""
+        } else {
+            certificate = $form.find("select[name=certificate]").val();
+        }
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
@@ -1748,7 +1779,8 @@
             allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
             allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
             allow_validation: $form.find("input[name=allow_validation]:checked").val(),
-            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val()
+            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val(),
+            certificate: certificate,
         };
         if (json.subject == "Other") {
             json.subjectother = $form.find("input[name=subject-other]").val();
@@ -2015,6 +2047,12 @@
                 $(this).next("input").hide();
             }
         }).change();
+
+        // certificate
+        if(data.district_id || data.school_id){
+            this.getCertificates(data.district_id, data.school_id, data.certificate);
+        }
+
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
@@ -2385,11 +2423,12 @@
                         $("#dlg-training-info").css("display", "block");
                     });
 				}else{
-                    $("#register_unregister_students").attr("disabled", true);
+                    $("#register_unregister_students").hide();
 				}
 
                 //Last Reminder Email: 08/16/2016
                 if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){
+                    $("#send_certificate_btn").hide()
                     $("#reminder_mail_date").show();
                     //$("#reminder_mail_btn").show();
                     $("#reminder_mail_btn").attr("disabled", false);
@@ -2409,9 +2448,10 @@
                         });
                     });
                 }else{
+                    if(r.has_validated_student) $("#send_certificate_btn").show();
                     $("#reminder_mail_date").hide();
-                    $("#reminder_mail_btn").attr("disabled", true);
-                    //$("#reminder_mail_btn").hide();
+                    // $("#reminder_mail_btn").attr("disabled", true);
+                    $("#reminder_mail_btn").hide();
                 }
 			
                 var dlg = new Dialog($("#dlg-students"));
@@ -3247,6 +3287,43 @@
         });
         return ids;
     };
+    PepReg.prototype.getCertificates = function (district_id, school_id, certificate_id) {
+
+        var $form = $("#dlg-add-training");
+        var certificate_select = $form.find("select[name=certificate]");
+        certificate_select.empty();
+        certificate_select.append($("<option value='0'>Select a certificate</option>"));
+        if(!district_id) {
+            var district_id = $form.find("select[name=district_id]").val();
+        }
+        if(!school_id) {
+            var school_id = $form.find("select[name=school_id]").val() ? $form.find("select[name=school_id]").val() : "";
+        }
+        $.getJSON("${reverse('get_training_certificates')}", {
+            "district_id": district_id,
+            "school_id": school_id
+        }, function(r){
+            if(r.Success) {
+                $.each(r.certificates, function(index, certificate) {
+                    var option = $("<option></option>");
+                    option.val(certificate.id);
+                    option.text(certificate.name);
+                    if(certificate.id == certificate_id) option.attr("selected", true);
+                    certificate_select.append(option);
+                })
+                $form.find("#show_certificates").show();
+                $form.find("#no_certificates").hide();
+            } else {
+                $form.find("#show_certificates").hide();
+                $form.find("#no_certificates").show();
+            }
+        });
+        if(!certificate_id) {
+            $("input[name=allow_certificate]").attr("checked", false);
+        } else {
+            $("input[name=allow_certificate]").attr("checked", true);
+        }
+    }
     $(document).ready(function () {
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
