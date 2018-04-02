@@ -7,6 +7,8 @@ import json
 
 from playbook.models import Play, Category, PlaybookTags
 
+import logging
+log = logging.getLogger("tracking")
 
 @login_required
 def playbook(request):
@@ -90,6 +92,9 @@ def get_play_list(request):
         data['step_nums'] = 0
         data['category_name'] = play.category.name
         data['created_time'] = play.created_time
+        log.debug("===================================================")
+        log.debug(type(play.created_time))
+        log.debug(play.created_time)
         data['creator'] = play.creator.profile.getFullname();
         play_list_fragment += render_to_string('playbook/play-list-in-tenant-fragment.html', data)
 
