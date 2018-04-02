@@ -1106,8 +1106,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(isweek and day[0]):
-                thismonth = month
-                thisyear = year
+                thisMonth = month
+                thisYear = year
 
                 if (old_month < month):
                     oldmlsnewm = "true"
@@ -1130,27 +1130,27 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 else:
                     nextMonth = "false"
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
-                        thismonth -= 1
+                        thisMonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
-                    thismonth -= 1
+                    thisMonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
-                        thismonth += 1
+                        thisMonth += 1
                     prevMonth = "false"
 
                 if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
-                    thismonth += 1
+                    thisMonth += 1
 
-                if thismonth == 13:
-                    thismonth = 1
-                    thisyear += 1
-                elif thismonth == 0:
-                    thismonth = 12
-                    thisyear -= 1
+                if thisMonth == 13:
+                    thisMonth = 1
+                    thisYear += 1
+                elif thisMonth == 0:
+                    thisMonth = 12
+                    thisYear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ", " + str(week[0][0]) + ", " + str(year) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})'".format(str(day[0]), str(thisMonth), str(thisYear), nextMonth, prevMonth, str(dateToCompare), str(old_month), oldmlsnewm, oldmgrnewm, str(month), str(week[0][0]), str(year))
             else:
                 clickFunc = ""
 
@@ -1160,17 +1160,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if isday:
                     width_id = "day-view"
 
-                table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                table_tr_content += "<td class='{}' id='{}' style='position: relative; height: 100%;{}'{}>".format(class_name, width_id, cell_border, clickFunc)
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
-
+                    table_tr_content += "<div class='calendarium-relative' {}><span class='calendarium-date'>{}</span>".format(colstyle, str(day[0]))
                     if not isday:
                         #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
                     if isday:
-                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
 
                         for dayHour in dayHours:
 
@@ -1179,7 +1178,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if day[1]:
                                 i = 0
 
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
                                 divAdded = 1
 
                                 for tmp1 in day[1]:
@@ -1232,28 +1231,27 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                     hourAMPM = "PM"
 
                                         if (h <= endHour):
-                                            if(h == startHour):
-                                                unique = " unique " if (h == startHour) else ""
+                                            unique = " unique " if (h == startHour) else ""
                                             t = day[3][i][-2:]
                                             dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                            table_tr_content += "<span class='" + unique + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                            table_tr_content += "<span class='{}{} {} span-{}'>{}</span>".format(unique, t, dh, str(i), tmp1)
 
                                     i += 1
 
                             if ( not divAdded ):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
 
                             table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
-                    table_tr_content += "</div>";
+                    table_tr_content += "</div>"
 
-                table_tr_content += "</td>";
+                table_tr_content += "</td>"
 
-        table_tr_content += "</tr>";
+        table_tr_content += "</tr>"
 
-    return table_tr_content;
+    return table_tr_content
 
 def remove_student(student):
     if student.training.type == "pepper_course":
