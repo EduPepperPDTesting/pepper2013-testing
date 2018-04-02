@@ -189,7 +189,7 @@
         });
         $(document).foundation();
         $.ajax({
-            url: "playbook/get_play_list",
+            url: "${reverse('get_play_list')}",
             data: {"category": -1},
         })
         .done(function(play_list) {
@@ -209,7 +209,6 @@
             }
             duration = $form.find("input[name=duration]");
             if (!(/(^[0-9]\d*$)/.test(duration.val()))) {
-                console.log(duration.val())
                 duration.css("border", "1px solid #e47e7e");
                 valid = false;
                 duration.on('click', function() {
