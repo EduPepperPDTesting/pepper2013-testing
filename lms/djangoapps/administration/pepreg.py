@@ -2,7 +2,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -450,6 +450,7 @@ def save_training(request):
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
+        training.certificate_id = request.POST.get("certificate", None)
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
         training.save()
@@ -548,9 +549,32 @@ def training_json(request):
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
-        "arrive": arrive
+        "arrive": arrive,
+        "certificate": item.certificate_id
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+def get_training_certificates(request):
+    district_id = request.GET.get('district_id', None)
+    school_id = request.GET.get('school_id', None)
+    if not district_id:
+        return HttpResponse(json.dumps({"Success": False, "info": "No district given"}), content_type="application/json")
+    if school_id:
+        qs = Q(organization__organizationdistricts__EntityType='School', organization__organizationdistricts__OrganizationEnity=school_id)
+    else:
+        qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+    trainging_certificates = TrainingCertificate.objects.filter(qs)
+    row = []
+    if trainging_certificates:
+        for trainging_certificate in trainging_certificates:
+            row.append({
+                "id": trainging_certificate.certificate.id,
+                "name": trainging_certificate.certificate.certificate_name,
+                })
+        return HttpResponse(json.dumps({"Success": True, "certificates": row}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({"Success": False}), content_type="application/json")
 
 
 def getCalendarInfo(request):
@@ -1508,6 +1532,7 @@ def student_list(request):
         students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
+        has_validated_student = False
         rows = []
         for item in students:
             rows.append({
@@ -1519,6 +1544,8 @@ def student_list(request):
                 "student_credit": item.student_credit,
                 "student_id": item.student_id,
             })
+            if item.student_status == "Validated":
+                has_validated_student = True
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -1538,7 +1565,8 @@ def student_list(request):
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
                                     'student_limit': student_limit, # akogan
-                                    'allow_waitlist': training.allow_waitlist
+                                    'allow_waitlist': training.allow_waitlist,
+                                    'has_validated_student': has_validated_student,
                                     }),
                         content_type="application/json")
 
