@@ -891,6 +891,7 @@ INSTALLED_APPS = (
 
     # SSO
     'sso',
+    'pepper_ldap',
 
     # PD Training Registration
     'training',
