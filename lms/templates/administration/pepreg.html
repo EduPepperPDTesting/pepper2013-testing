@@ -463,13 +463,12 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-                <!--input type="button" value="Send Completion Certificate" id="send_completion_certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" onclick=""/-->
                 %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
                     <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
                 %endif
                 <!--div style="margin-top: 5px;"-->
                     <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
-                    <input type="button" name="" value="SEND COMPLETION CERTIFICATE" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);display: none;" id="send_certificate_btn">
+                    <input type="button" name="" value="Send Completion Certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);display: none;" id="send_certificate_btn">
                     <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
                     <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
                 <!--/div-->
@@ -2448,7 +2447,18 @@
                         });
                     });
                 }else{
-                    if(r.has_validated_student) $("#send_certificate_btn").show();
+                    if(r.has_validated_student) {
+                        $("#send_certificate_btn").show();
+                        $("#send_certificate_btn").off("click");
+                        $("#send_certificate_btn").on("click", function() {
+                            var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
+                            $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
+                                if(!data.success) {
+                                    alert("Send failed!" + data.error);
+                                }
+                            });
+                        })
+                    }
                     $("#reminder_mail_date").hide();
                     // $("#reminder_mail_btn").attr("disabled", true);
                     $("#reminder_mail_btn").hide();
@@ -2929,6 +2939,13 @@
                     } else {
                         $(this).html("");
                     }
+
+                    if (arrive == "1" && status == "Validated") {
+                        var certificate_link = $("<a target='_blank'>veiw certificate</a>");
+                        var certificate_url = "${reverse('download_training_certificate')}?training_id=" + training_id;
+                        certificate_link.attr("href", certificate_url);
+                        $(this).append($("<div></div>").html(certificate_link));
+                    }
                 });
                 $(this).find("td:nth-child(12)").css("white-space", "nowrap");
                 // Training Name
@@ -3320,8 +3337,10 @@
         });
         if(!certificate_id) {
             $("input[name=allow_certificate]").attr("checked", false);
+            $("select[name=certificate]").attr("disabled", true);
         } else {
             $("input[name=allow_certificate]").attr("checked", true);
+            $("select[name=certificate]").attr("disabled", false);
         }
     }
     $(document).ready(function () {

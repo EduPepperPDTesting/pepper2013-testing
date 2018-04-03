@@ -1,5 +1,6 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate
@@ -19,6 +20,7 @@ from StringIO import StringIO
 import xlsxwriter
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from training.models import TrainingUsers
+from communities.models import CommunityNotificationType
 from xmodule.modulestore.django import modulestore
 import pymongo
 
@@ -38,6 +40,7 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
                             PendingNameChange, PendingEmailChange, District,
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
+from communities.notification import send_completion_certificate_notification
 
 from io import BytesIO
 
@@ -2341,3 +2344,21 @@ def getsearchdata(request):
     data = {'success': success, 'rows': rows, 'datacolumn': data_column}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+def send_completion_certificate(request):
+    training_id = request.GET.get('training_id')
+    error = ''
+    students = PepRegStudent.objects.filter(training_id=training_id)
+    for student in students:
+        if student.student_status == 'Validated':
+            try:
+                send_completion_certificate_notification(request.user, student.student,
+                    reverse('download_training_certificate') + '?training_id=' + training_id, 'Send PD Certificate')
+            except CommunityNotificationType.DoesNotExist:
+                error = 'NotificationType Does not Exist'
+                return HttpResponse(json.dumps({'success': False, 'error': error}))
+    if not students:
+        error = 'no validated student'
+        return HttpResponse(json.dumps({'success': False, 'error': error}))
+
+    return HttpResponse(json.dumps({'success': True}))
