@@ -606,6 +606,51 @@ class CoursewareStudentmodule(MongoReportingStore):
                 db_filter = {'user_id': int(user_id), 'course_id': course_id, 'school_year': 'current'}
                 self.collection.update(db_filter, data)
 
+    def report_insert_data(self, course_data): 
+        affected_collection = ['courseware_studentmodule', 'problem_point']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "courseware_studentmodule":
+                data = self.format_insert_data(course_data)
+                self.collection.insert(data)
+            if tmp == "problempoint":
+                data = self.get_point_data(course_data)
+                self.collection.insert(data)
+
+    def format_insert_data(self, course_data):
+        data = course_data.__dict__
+        data['state'] = eval(data['state'].replace('false', 'False').replace('true', 'True').replace('null', 'None'))
+        data['created'] = data['created'].strftime('%Y-%m-%d')
+        data['modified'] = data['modified'].strftime('%Y-%m-%d')
+        data['module_id'] = data['module_state_key']
+        data.pop('_state')
+        data.pop('module_state_key')
+        data.pop('id')
+        data.pop('_student_cache')
+        return data
+
+    def get_point_data(self, course_data):
+        course_data = course_data.__dict__
+        data = {}
+        data['module_id'] = course_data['module_state_key']
+        data['user_id'] = course_data['student_id']
+        data['course_id'] = course_data['course_id']
+        if course_data['grade']:
+            data['point'] = course_data['grade']
+        else:
+            data['point'] = 0
+        return data
+
+    def report_update_point_data(self, user_id, location, course_id):
+        affected_collection = ['problem_point']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "problem_point":
+                course_data = StudentModule.objects.get(student=user_id, course_id=course_id, module_state_key=location)
+                data = self.get_point_data(course_data)
+                db_filter = {'user_id': int(user_id), 'module_id': location}
+                self.collection.update(db_filter, data, True)
+
 class ModuleStore(MongoReportingStore):
 
     def report_update_data(self, course_id):
@@ -617,7 +662,7 @@ class ModuleStore(MongoReportingStore):
                 data.pop('_id')
                 db_filter = {'course_id': course_id, '_id.category':'course'}
                 self.collection.update(db_filter, data)
-                data1 = self.get_course_data(course_id)
+                data1 = {'$set': self.get_course_data(course_id)}
                 db_filter1 = {'q_course_id': course_id}
                 self.collection.update(db_filter1, data1, multi=True)
             if tmp == "UserCourseView":
@@ -652,9 +697,10 @@ class ModuleStore(MongoReportingStore):
                             db_filter = {'module_id': module_id}
                             if is_publish and graded:
                                 course_data['module_id'] = module_id
+                                tmp2.pop('_id')
                                 course_data.update(tmp2)
                                 data = {'$set' : course_data}
-                                self.collection.update(db_filter, course_data, True)
+                                self.collection.update(db_filter, data, True)
                             else:
                                 self.collection.remove(db_filter)
 
@@ -665,7 +711,7 @@ class ModuleStore(MongoReportingStore):
         for tmp in sequential_data:
             if len(tmp['definition']['children']) > 0:
                 for tmp1 in tmp['definition']['children']:
-                    if graderType == "Assignment":
+                    if graderType != "Not Graded":
                         self.report_update_problem(tmp1)
                     else:
                         self.report_update_problem(tmp1, False)
@@ -781,7 +827,6 @@ class PepregStudent(MongoReportingStore):
             result['instructor_id'] = 'NULL'
         return result
 
-
 class PepregTraining(MongoReportingStore):
 
     def report_update_data(self, training_id, is_delete=False):
@@ -834,10 +879,6 @@ class PepregTraining(MongoReportingStore):
         result['district'] = training_data.district.name
         result['school'] = School.objects.get(id=training_data.school_id).name
         return result
-
-
-class ProblemPoint(MongoReportingStore):
-    pass
 
 class UserCourseProgress(MongoReportingStore):
 

@@ -624,6 +624,8 @@ def modx_dispatch(request, dispatch, location, course_id):
             percent = grade(student, request, course_descriptor, field_data_cache)['percent']
             rs = reporting_store('UserCourseProgress')
             rs.report_update_data(request.user.id, course_id, percent)
+            rs = reporting_store('CoursewareStudentmodule')
+            rs.report_update_point_data(request.user.id, location, course_id)
 
         #@begin:complete_course_survey
         #@data:2013-12-13
@@ -695,7 +697,6 @@ def modx_dispatch(request, dispatch, location, course_id):
         except ItemNotFoundError:
             instance.save()
         #@end
-
     # If we can't find the module, respond with a 404
     except NotFoundError:
         log.exception("Module indicating to user that request doesn't exist")
