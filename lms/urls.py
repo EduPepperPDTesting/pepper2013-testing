@@ -88,6 +88,13 @@ urlpatterns = (
     url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
     url(r'^sso/course_assignments/save$', 'sso.idp_metadata.course_assignment_save', name="sso_course_assignment_save"),
     url(r'^sso/course_assignments/delete$', 'sso.idp_metadata.course_assignment_delete', name="sso_course_assignment_delete"),
+
+    url(r'^ldap/(?P<name>[a-zA-Z0-9_\-]+)/login$', 'pepper_ldap.views.ldap_login', name='ldap_login'),
+    url(r'^ldap/signin$', 'pepper_ldap.views.ldap_signin', name='ldap_signin'),
+    url(r'^ldap/configure', 'pepper_ldap.views.ldap_configure', name='ldap_configure'),
+    url(r'^ldap/settings_json$', 'pepper_ldap.views.ldap_settings_json', name='ldap_settings_json'),
+    url(r'^ldap/remove_config$', 'pepper_ldap.views.ldap_remove_config', name='ldap_remove_config'),
+    url(r'^ldap/save_config$', 'pepper_ldap.views.ldap_save_config', name='ldap_save_config'),
     # === sso end ===
 
     # === pepreg begin ==

@@ -1,0 +1,401 @@
+<%!
+from django.core.urlresolvers import reverse
+%>
+
+<%inherit file="/main.html" />
+
+<%
+##     select_items = ''
+##     for item in data_items:
+##         select_items += '<option value="' + item['field'] + '">' + item['name'] + '</option>'
+%>
+
+<link rel="stylesheet" href="/static/css/sso.css" type="text/css" media="screen" />
+
+<section class="container clearfix ldap-container">
+    <!--<div style="text-align:right;padding:20px;">
+        <a href="${reverse('sso_idp_metadata_edit')}">IDP Metadata</a>
+    </div>-->
+    <div style="font-size:30px;padding-top:20px;">LDAP Configurations</div>
+    <div style="float:left;">
+        <div style="margin:20px 0 5px 0;">LDAP Servers</div>
+        <div id="entityList" class="listbox"></div>
+        <br/>
+        <input type="button" name="" value="+" onclick="ldap_add()"/>
+        <input type="button" name="" value="-" onclick="ldap_remove()"/>
+        <input type="button" name="" value="Save" onclick="ldap_save()"/>
+    </div>
+    <form id="form1" style="display:none;width:800px">
+        <div class="section">LDAP Config</div>
+        <div class="row">
+            <span class="">Name</span>
+            <input type="text" name="ldap_name" value="" />
+        </div>
+        <div class="row">
+            <span class="">server</span>
+            <input type="text" name="server" value="" />
+        </div>
+        <div class="row">
+            <span class="">User DN</span>
+            <input type="text" name="user_dn" value="" />
+        </div>
+        <div class="row">
+            <span class="">Base DN</span>
+            <input type="text" name="base_dn" value="" />
+        </div>
+        <div class="row">
+            <span class="">Search Filter</span>
+            <input type="text" name="search_filter" value="" />
+        </div>
+        <div class="section">Mappings</div>
+        <div id="divLDAPMapping"></div>
+        <div id="divLDAPPlus">
+            <input type="button" value="+" onclick="ldap_add_field()"/>
+        </div>
+        <input type="hidden" name="config_id" value="" />
+    </form>
+</section>
+<script type="text/javascript">
+    var ldap_form_changed = false;
+
+    function get_ldap_settings() {
+        $('#entityList').html('');
+        clear_setting();
+        $.get("${reverse('ldap_settings_json')}", function (data) {
+            $.each(data, function (key, setting) {
+                var $opt = $('<div class="ldap-setting" data-id="' + setting['id'] + '">' + setting['name'] + '</div>').appendTo('#entityList');
+                $opt.click(function(){
+                    clear_setting();
+                    $(this).addClass('selected');
+                    show_setting(setting);
+                });
+                $opt.hover(function(){
+                    $(this).addClass('hover');
+                }, function(){
+                    $(this).removeClass('hover');
+                });
+            });
+        });
+    }
+
+    function clear_setting() {
+        if (ldap_form_changed) {
+            ask_save();
+        }
+        $('#form1').hide();
+        $("input[name='ldap_name']").val('');
+        $("input[name='server']").val('');
+        $("input[name='user_dn']").val('');
+        $("input[name='base_dn']").val('');
+        $("input[name='search_filter']").val('');
+        $("input[name='config_id']").val('');
+        $("#entityList div").removeClass('selected');
+        $("#divLDAPMapping").html('');
+        ldap_form_changed = false;
+    }
+
+    function local_field_options(value) {
+        var values = [
+            {value: 'idp_user_id', name: 'User ID'},
+            {value: 'first_name', name: 'First Name'},
+            {value: 'last_name', name: 'Last Name'},
+            {value: 'email', name: 'Email'},
+            {value: 'district', name: 'District'},
+            {value: 'school', name: 'School'}
+        ];
+
+        var options = '<select name="local_field">';
+        $.each(values, function (k, v) {
+            if (value === v['value']) {
+                options += '<option value="' + v['value'] + '" selected>' + v['name'] + '</option>';
+            } else {
+                options += '<option value="' + v['value'] + '">' + v['name'] + '</option>';
+            }
+        });
+        options += '</select> ';
+        return options;
+    }
+
+    function show_setting(setting) {
+        $('#form1').show();
+        $("input[name='ldap_name']").val(setting['name']);
+        $("input[name='server']").val(setting['server']);
+        $("input[name='user_dn']").val(setting['user_dn']);
+        $("input[name='base_dn']").val(setting['base_dn']);
+        $("input[name='search_filter']").val(setting['search_filter']);
+        $("input[name='config_id']").val(setting['id']);
+
+        $.each(setting['mappings'], function (key, mapping) {
+            var row = '<div style="text-align:left;" class="row">';
+            row += '<span>Name</span> ';
+            row += local_field_options(mapping['local_field']);
+            row += '<span style="width:auto">Map To</span> ';
+            row += '<input name="ldap_field" type="input" value="' + mapping['ldap_field'] + '"> ';
+            row += '<input style="width:20px;padding:0 5px" value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
+            row += '</div>';
+
+            $('#divLDAPMapping').append(row);
+        });
+
+        ldap_changes();
+    }
+
+    function ask_save(){
+        if (confirm('There have been changes to this LDAP configuration. Would you like to save it?')) {
+            ldap_save();
+        }
+    }
+
+    function ldap_changes() {
+        $('#form1').find('input, select').off('change');
+        $('#form1').find('input, select').change(function () {
+            ldap_form_changed = true;
+        });
+    }
+
+    function ldap_add() {
+        $('#form1').show();
+        clear_setting();
+    }
+
+    function ldap_remove() {
+        if (confirm("Are you sure you want to delete this config?")) {
+            var send = {config: $("#form1 input[name='config_id']").val()};
+            $.post("${reverse('ldap_remove_config')}", send, function (data) {
+                if (data.success) {
+                    get_ldap_settings();
+                    alert("Config removed successfully.");
+                } else {
+                    alert("There was a problem removing this config. Please contact support if this error continues.");
+                }
+            });
+        }
+    }
+
+    function ldap_add_field() {
+        var row = '<div style="text-align:left;" class="row">';
+        row += '<span>Name</span> ';
+        row += local_field_options();
+        row += '<span style="width:auto">Map To</span> ';
+        row += '<input name="ldap_field" type="input" value=""> ';
+        row += '<input style="width:20px;padding:0 5px" value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
+        row += '</div>';
+
+        $('#divLDAPMapping').append(row);
+    }
+
+    function ldap_remove_field(field) {
+        $(field).parent('.row').remove();
+    }
+
+    function ldap_save() {
+        var send = $("#form1").serialize();
+        $.post("${reverse('ldap_save_config')}", send, function (data) {
+            if (data.success) {
+                get_ldap_settings();
+                alert("Config saved successfully");
+            } else {
+                alert("There was a problem saving this config: " + data.error);
+            }
+        });
+    }
+
+    get_ldap_settings();
+
+##      function Metadata(){
+##          var self = this;
+##          this.data = [];
+##          this.list = new ListBox($("#entityList"));
+##          $("#entityList").bind("beforeChange", function(e, index){
+##              if (index >= 0)
+##                  self.bufferData(index);
+##          });
+##          $("#entityList").bind("change",function(e,index){
+##              self.showData(self.data[index])
+##          });
+##          $("select[name=sso_type]").bind("change",function(e,index){
+##              $(".typed_sec").hide();
+##              $(".typed_sec."+$(this).val()).show();
+##          });
+##          $("input[name=sso_name]").keyup(function(){
+##              this.value=$.trim(this.value);
+##              self.list.getSelectedItems().html(self.name4List(this.value));
+##          });
+##          $("#form1").find("input,textarea").keyup(function(){
+##              self.bufferData(self.list.getSelectedIndex());
+##          });
+##          this.load();
+##      }
+##      Metadata.prototype.bufferData = function(index){
+##          var $rows = $("#divLDAPMapping").find("div.row");
+##          this.data[index] = {};
+##          this.data[index]['ldap_name'] = $("input[name=ldap_name]").val();
+##
+##          if (index >= 0){
+##              var attributes=[];
+##              $rows.each(function(){
+##                  attributes.push({
+##                      name:$(this).find('input[name=name]').val(),
+##                      map:$(this).find('input[name=map]').val()
+##                  });
+##              });
+##              this.data[index]['attributes'] = attributes;
+##          }
+##      };
+##      Metadata.prototype.validateData = function(index){
+##          var sp = this.data[index];
+##          var n = 0;
+##          if ($.trim(sp.sso_name) === ''){
+##              throw {"message": "SSO Name can't be empty."}
+##          }
+##          $.each(this.data, function(i,v){
+##              if (v.sso_name === sp.sso_name){
+##                  if (++n>1) throw {"message": "Same SSO Name already exists."}
+##              }
+##          });
+##      };
+##      Metadata.prototype.name4List = function(s){
+##          if (typeof s !== "string")
+##              s = "";
+##          else
+##              s = s.trim();
+##          if (!s.length)
+##              s = "(unknown)";
+##          return s;
+##      };
+##      Metadata.prototype.showData = function(d){
+##          $("#form1").show();
+##
+##          $("#divLDAPMapping").html('');
+##          $("#form1").find("input,textarea,select").each(function(){
+##              if (this.name){
+##                  value = d[this.name] || (d.typed && d.typed[this.name]);
+##                  $(this).val(value || "");
+##              }
+##          });
+##          for (var i in d.attributes){
+##              var a = d.attributes[i];
+##              var $row = this.addField();
+##              // $row.find("select[name=type]").val(a.type);
+##              $row.find("input[name=name]").val(a.name);
+##              $row.find("input[name=map]").val(a.map);
+##          }
+##          $(".typed_sec").hide();
+##          $(".typed_sec."+d.sso_type).show();
+##      };
+##      Metadata.prototype.load = function(){
+##          var self=this;
+##          $.get("${reverse('ldap_settings_json')}",function(r){
+##              self.data = r;
+##              $.each(r,function(i,e){
+##                  self.list.addItem(self.name4List(e.sso_name));
+##              });
+##              self.list.setSelectedIndex(0);
+##          });
+##      };
+##      Metadata.prototype.add = function(){
+##          this.data.push({});
+##          this.list.addItem(this.name4List(""));
+##          this.list.setSelectedIndex(this.data.length-1);
+##          $("select[name=sso_type]").trigger("change");
+##      };
+##      Metadata.prototype.remove = function(){
+##          var index = this.list.getSelectedIndex();
+##          this.data.splice(index, 1);
+##          this.list.removeItem(index);
+##          $("#form1").hide();
+##          this.list.setSelectedIndex(this.list.getNearestNext(index));
+##      };
+##      Metadata.prototype.saveAll = function(){
+##          this.bufferData(this.list.getSelectedIndex());
+##          var self = this;
+##          var ok = true;
+##          $.each(this.data, function(i){
+##              try{
+##                  self.validateData(i);
+##              }catch(e){
+##                  ok = false;
+##                  alert(e.message);
+##                  self.list.setSelectedIndex(i);
+##                  return false;
+##              }
+##          });
+##          if (ok){
+##              $.post("${reverse('sso_sp_metadata_save')}", {data:JSON.stringify(this.data)}, function(r){
+##                  alert("Save success.")
+##              });
+##          }
+##      };
+##      Metadata.prototype.addField = function(){
+##          var $row = $("<div style='text-align:left;' class='row'> \
+##  <span>Name</span> <input type='input' name='name'/> \
+##  <span style='width:auto'>Map To</span> <input type='input' name='map'/> \
+##  <input type='button' style='width:20px;padding:0 5px' value='-' class='btnRemove'/></div>").appendTo($("#divSpAttributeMapping"));
+##          var $btnRemove=$row.find(".btnRemove");
+##          $btnRemove.click(function(){
+##              $(this).parent().remove();
+##          });
+##          return $row;
+##      };
+##
+##      function ListBox(el, multi){
+##          this.multi = multi;
+##          this.$el = $(el);
+##      }
+##      ListBox.prototype.getCount = function(){
+##          return this.$el.find("div").length;
+##      };
+##      ListBox.prototype.getNearestNext = function(index){
+##          var last = this.getCount() - 1;
+##          if (index > last) index = last;
+##          return index;
+##      };
+##      ListBox.prototype.getSelectedIndex = function(){
+##          return this.$el.find("div").index(this.getSelectedItems());
+##      };
+##      ListBox.prototype.validIndex = function(index){
+##          var valid = index >= 0;
+##          valid = valid && index < this.getCount();
+##          return valid;
+##      };
+##      ListBox.prototype.setSelectedIndex = function(index){
+##          if(this.validIndex(index))
+##              this.$el.find("div").eq(index).click();
+##      };
+##      ListBox.prototype.fixItemWidth = function(div){
+##          $(div).width(this.$el[0].scrollHeight);
+##      };
+##      ListBox.prototype.addItem = function(text,value){
+##          var self = this;
+##          value = value || text;
+##          var $opt = $("<div value=" + value + ">" + text + "</div>").appendTo(this.$el);
+##          $opt.click(function(){
+##              var is_new = !self.getSelectedItems().is(this);
+##              if(is_new){
+##                  self.fixItemWidth(this);
+##                  var index = self.getSelectedIndex();
+##                  self.$el.trigger("beforeChange", [index]);
+##                  if(!self.multi) self.clearSelection();
+##                  $(this).addClass("selected");
+##                  var new_index = self.getSelectedIndex();
+##                  self.$el.trigger("change",[new_index]);
+##              }
+##          });
+##          $opt.hover(function(){
+##              self.fixItemWidth(this);
+##              $(this).addClass('hover');
+##          },function(){
+##              $(this).removeClass('hover');
+##          });
+##      };
+##      ListBox.prototype.clearSelection = function(){
+##          this.getSelectedItems().removeClass('selected');
+##      };
+##      ListBox.prototype.getSelectedItems = function(){
+##          return this.$el.find("div.selected");
+##      };
+##      ListBox.prototype.removeItem = function(index){
+##          this.$el.find("div").eq(index).remove();
+##      };
+##      var md = new Metadata();
+</script>
