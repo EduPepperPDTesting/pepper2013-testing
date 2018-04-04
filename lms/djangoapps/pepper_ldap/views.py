@@ -3,6 +3,8 @@
 import logging
 
 import ldap
+import re
+
 from django import db
 from django.db import transaction
 from django.contrib.auth.models import User
@@ -40,6 +42,31 @@ def load_ldap_settings(ldap_id):
     return settings
 
 
+def check_input(ldap_settings):
+    status = True
+    message = ''
+    if not ldap_settings.name:
+        status = False
+        message = 'You must include the name.'
+
+    if re.match(' ', ldap_settings.name):
+        status = False
+        message = "There can't be any spaces in the name."
+
+    if not re.match('\{email\}', ldap_settings.user_dn):
+        status = False
+        message = 'You must include {email} where it should be inserted in the User DN.'
+
+    if not re.match('\{email\}', ldap_settings.search_filter):
+        status = False
+        message = 'You must include {email} where it should be inserted in the Search Filter.'
+
+    if not ldap_settings.server:
+        status = False
+        message = 'You must include the server.'
+
+    return status, message
+
 @ensure_csrf_cookie
 @user_has_perms('sso', 'administer')
 def ldap_configure(request):
@@ -75,16 +102,27 @@ def ldap_save_config(request):
         ldap_settings.user_dn = request.POST.get('user_dn')
         ldap_settings.search_filter = request.POST.get('search_filter')
         ldap_settings.server = request.POST.get('server')
-        ldap_settings.save()
 
+        status, message = check_input(ldap_settings)
+        if status:
+            ldap_settings.save()
+        else:
+            raise Exception(message)
+
+        has_user_id = False
         local_fields = request.POST.getlist('local_field')
         ldap_fields = request.POST.getlist('ldap_field')
         for key, field in enumerate(local_fields):
+            if field == 'idp_user_id':
+                has_user_id = True
             ldap_mappings = LDAPMappings()
             ldap_mappings.settings = ldap_settings
             ldap_mappings.local_field = field
             ldap_mappings.ldap_field = ldap_fields[key]
             ldap_mappings.save()
+
+        if not has_user_id:
+            raise Exception('User ID is required. Please add one.')
     except Exception as e:
         response = {
             'success': False,

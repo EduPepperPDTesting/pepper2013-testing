@@ -10,42 +10,42 @@ from django.core.urlresolvers import reverse
 ##         select_items += '<option value="' + item['field'] + '">' + item['name'] + '</option>'
 %>
 
-<link rel="stylesheet" href="/static/css/sso.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/ldap_config.css" type="text/css" media="screen" />
 
 <section class="container clearfix ldap-container">
     <!--<div style="text-align:right;padding:20px;">
         <a href="${reverse('sso_idp_metadata_edit')}">IDP Metadata</a>
     </div>-->
-    <div style="font-size:30px;padding-top:20px;">LDAP Configurations</div>
-    <div style="float:left;">
-        <div style="margin:20px 0 5px 0;">LDAP Servers</div>
+    <div class="ldap-header">LDAP Configurations</div>
+    <div class="ldap-left">
+        <div class="ldap-left-header">LDAP Servers</div>
         <div id="entityList" class="listbox"></div>
         <br/>
         <input type="button" name="" value="+" onclick="ldap_add()"/>
         <input type="button" name="" value="-" onclick="ldap_remove()"/>
         <input type="button" name="" value="Save" onclick="ldap_save()"/>
     </div>
-    <form id="form1" style="display:none;width:800px">
+    <form id="form1">
         <div class="section">LDAP Config</div>
         <div class="row">
-            <span class="">Name</span>
-            <input type="text" name="ldap_name" value="" />
+            <label for="ldap_name">Name (no spaces)</label>
+            <input type="text" name="ldap_name" id="ldap_name" value="" />
         </div>
         <div class="row">
-            <span class="">server</span>
-            <input type="text" name="server" value="" />
+            <label for="server">Server</label>
+            <input type="text" name="server" id="server" value="" />
         </div>
         <div class="row">
-            <span class="">User DN</span>
-            <input type="text" name="user_dn" value="" />
+            <label for="user_dn">User DN (put {email} where the email should be inserted)</label>
+            <input type="text" name="user_dn" id="user_dn" value="" />
         </div>
         <div class="row">
-            <span class="">Base DN</span>
-            <input type="text" name="base_dn" value="" />
+            <label for="base_dn">Base DN</label>
+            <input type="text" name="base_dn" id="base_dn" value="" />
         </div>
         <div class="row">
-            <span class="">Search Filter</span>
-            <input type="text" name="search_filter" value="" />
+            <label for="search_filter">Search Filter (put {email} where the email should be inserted)</label>
+            <input type="text" name="search_filter" id="search_filter" value="" />
         </div>
         <div class="section">Mappings</div>
         <div id="divLDAPMapping"></div>
@@ -126,12 +126,12 @@ from django.core.urlresolvers import reverse
         $("input[name='config_id']").val(setting['id']);
 
         $.each(setting['mappings'], function (key, mapping) {
-            var row = '<div style="text-align:left;" class="row">';
-            row += '<span>Name</span> ';
+            var row = '<div class="row mapping">';
+            row += '<label>Name</label> ';
             row += local_field_options(mapping['local_field']);
-            row += '<span style="width:auto">Map To</span> ';
+            row += '<label class="ldap-map">Map To</label> ';
             row += '<input name="ldap_field" type="input" value="' + mapping['ldap_field'] + '"> ';
-            row += '<input style="width:20px;padding:0 5px" value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
+            row += '<input value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
             row += '</div>';
 
             $('#divLDAPMapping').append(row);
@@ -154,8 +154,8 @@ from django.core.urlresolvers import reverse
     }
 
     function ldap_add() {
-        $('#form1').show();
         clear_setting();
+        $('#form1').show();
     }
 
     function ldap_remove() {
@@ -173,12 +173,12 @@ from django.core.urlresolvers import reverse
     }
 
     function ldap_add_field() {
-        var row = '<div style="text-align:left;" class="row">';
-        row += '<span>Name</span> ';
+        var row = '<div class="row mapping">';
+        row += '<label>Name</label> ';
         row += local_field_options();
-        row += '<span style="width:auto">Map To</span> ';
-        row += '<input name="ldap_field" type="input" value=""> ';
-        row += '<input style="width:20px;padding:0 5px" value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
+        row += '<label class="ldap-map">Map To</label> ';
+        row += '<input class="ldap-field"name="ldap_field" type="input" value=""> ';
+        row += '<input value="-" class="btnRemove" type="button" onclick="ldap_remove_field(this)">';
         row += '</div>';
 
         $('#divLDAPMapping').append(row);
@@ -200,7 +200,14 @@ from django.core.urlresolvers import reverse
         });
     }
 
-    get_ldap_settings();
+    $(document).ready(function () {
+        get_ldap_settings();
+        $('#ldap_name').on('keypress', function (e) {
+            if (e.which === 32) {
+                return false;
+            }
+        })
+    });
 
 ##      function Metadata(){
 ##          var self = this;
