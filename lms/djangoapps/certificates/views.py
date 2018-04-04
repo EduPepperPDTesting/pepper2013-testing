@@ -512,11 +512,10 @@ def link_callback(uri, rel):
     Convert HTML URIs to absolute system paths so xhtml2pdf can access those
     resources
     """
-    # use short variable names
-    sUrl = settings.STATIC_URL      # Typically /static/
-    sRoot = settings.STATIC_ROOT    # Typically /home/userX/project_static/
-    mUrl = settings.MEDIA_URL       # Typically /static/media/
-    mRoot = settings.MEDIA_ROOT     # Typically /home/userX/project_static/media/
+    sUrl = settings.STATIC_URL      # /static/
+    sRoot = settings.STATIC_ROOT    
+    mUrl = settings.MEDIA_URL       
+    mRoot = settings.MEDIA_ROOT     
 
     # convert URIs to absolute system paths
     if uri.startswith(mUrl):

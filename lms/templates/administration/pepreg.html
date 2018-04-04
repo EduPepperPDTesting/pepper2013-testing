@@ -2457,8 +2457,10 @@
                     $("#send_certificate_btn").on("click", function() {
                         var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
                         $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
-                            if(!data.success) {
-                                alert("Send failed!" + data.error);
+                            if(data.success) {
+                                alert("Sent successfully!");
+                            } else {
+                                alert("Send failure!" + data.error);
                             }
                         });
                     });
