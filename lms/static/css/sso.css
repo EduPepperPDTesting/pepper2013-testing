@@ -1,7 +1,3 @@
-.ldap-container {
-    padding-bottom: 50px;
-}
-
 #iconarea {
     margin-top: 20px;
 }
@@ -50,7 +46,7 @@
 }
 
 #form1 div.row input {
-    width: 500px;
+    width: 190px;
 }
 
 #form1 div.row input[type=button] {
@@ -75,11 +71,6 @@
 
 #form1 textarea {
     word-break: break-all;
-}
-
-#form1 #divLDAPPlus {
-    margin-left: 145px;
-    padding: 5px 0;
 }
 
 .listbox {
