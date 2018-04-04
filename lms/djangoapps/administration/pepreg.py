@@ -1570,6 +1570,7 @@ def student_list(request):
                                     'student_limit': student_limit, # akogan
                                     'allow_waitlist': training.allow_waitlist,
                                     'has_validated_student': has_validated_student,
+                                    'has_certificate': bool(training.certificate),
                                     }),
                         content_type="application/json")
 

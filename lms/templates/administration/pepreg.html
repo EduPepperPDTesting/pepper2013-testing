@@ -2447,7 +2447,7 @@
                         });
                     });
                 }else{
-                    if(r.has_validated_student) {
+                    if(r.has_validated_student && r.has_certificate) {
                         $("#send_certificate_btn").show();
                         $("#send_certificate_btn").off("click");
                         $("#send_certificate_btn").on("click", function() {
