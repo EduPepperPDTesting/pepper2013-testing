@@ -398,10 +398,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain, allow_waitlist
+                remain, allow_waitlist, "1" if item.certificate else "0"
             ),
             item.subjectother,
         ]
@@ -565,9 +565,13 @@ def get_training_certificates(request):
         return HttpResponse(json.dumps({"Success": False, "info": "No district given"}), content_type="application/json")
     if school_id:
         qs = Q(organization__organizationdistricts__EntityType='School', organization__organizationdistricts__OrganizationEnity=school_id)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
+        if not trainging_certificates:
+            qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+            trainging_certificates = TrainingCertificate.objects.filter(qs)
     else:
         qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
-    trainging_certificates = TrainingCertificate.objects.filter(qs)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
     row = []
     if trainging_certificates:
         for trainging_certificate in trainging_certificates:
