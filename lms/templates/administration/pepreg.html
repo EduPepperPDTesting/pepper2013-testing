@@ -2427,7 +2427,6 @@
 
                 //Last Reminder Email: 08/16/2016
                 if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){
-                    $("#send_certificate_btn").hide()
                     $("#reminder_mail_date").show();
                     //$("#reminder_mail_btn").show();
                     $("#reminder_mail_btn").attr("disabled", false);
@@ -2447,21 +2446,26 @@
                         });
                     });
                 }else{
-                    if(r.has_validated_student) {
-                        $("#send_certificate_btn").show();
-                        $("#send_certificate_btn").off("click");
-                        $("#send_certificate_btn").on("click", function() {
-                            var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
-                            $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
-                                if(!data.success) {
-                                    alert("Send failed!" + data.error);
-                                }
-                            });
-                        })
-                    }
                     $("#reminder_mail_date").hide();
                     // $("#reminder_mail_btn").attr("disabled", true);
                     $("#reminder_mail_btn").hide();
+                }
+
+                if(r.arrive && r.has_validated_student) {
+                    $("#send_certificate_btn").show();
+                    $("#send_certificate_btn").off("click");
+                    $("#send_certificate_btn").on("click", function() {
+                        var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
+                        $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
+                            if(data.success) {
+                                alert("Sent successfully!");
+                            } else {
+                                alert("Send failure!" + data.error);
+                            }
+                        });
+                    });
+                } else {
+                    $("#send_certificate_btn").hide();
                 }
 			
                 var dlg = new Dialog($("#dlg-students"));
@@ -2783,6 +2787,7 @@
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
                 var allow_waitlist = apart[7];
+                var has_certificate = apart[8];
 				if(is_superuser){
 					all_edit = "1";
 					all_delete = "1";
@@ -2940,7 +2945,7 @@
                         $(this).html("");
                     }
 
-                    if (arrive == "1" && status == "Validated") {
+                    if (arrive == "1" && status == "Validated" && has_certificate == "1") {
                         var certificate_link = $("<a target='_blank'>veiw certificate</a>");
                         var certificate_url = "${reverse('download_training_certificate')}?training_id=" + training_id;
                         certificate_link.attr("href", certificate_url);

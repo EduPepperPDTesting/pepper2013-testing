@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import logging
 from certificates.models import GeneratedCertificate
@@ -506,6 +507,32 @@ def download_certificate(request, course_id, completed_time):
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
 
 
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    sUrl = settings.STATIC_URL      # /static/
+    sRoot = settings.STATIC_ROOT    
+    mUrl = settings.MEDIA_URL       
+    mRoot = settings.MEDIA_ROOT     
+
+    # convert URIs to absolute system paths
+    if uri.startswith(mUrl):
+        path = os.path.join(mRoot, uri.replace(mUrl, ""))
+    elif uri.startswith(sUrl):
+        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+    else:
+        return uri  # handle absolute uri (ie: http://some.tld/foo.png)
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+            raise Exception(
+                'media URI must start with %s or %s' % (sUrl, mUrl)
+            )
+    return path
+
+
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -537,7 +564,7 @@ def download_training_certificate(request):
 
     html = render_to_string('download_certificate.html', context_dict)
     result = StringIO.StringIO()
-    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result, encoding="UTF-8")
+    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result, encoding="UTF-8", link_callback=link_callback)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))

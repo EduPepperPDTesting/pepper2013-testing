@@ -229,7 +229,7 @@ div.cke {
     width: 580px;
 }
 .modal-discussion {
-    position:fixed;
+    /*position:fixed;*/
     opacity: 1;
     z-index: 101;
     left: 50%;
@@ -449,7 +449,38 @@ function addNewDiscussion(fid, subject, post){
 		newAnswer();
 	});
 }
-
+function newAnswer() {
+	var answer_num = $('.poll-answer').length;
+	$('.poll-answer').each(function(index) {
+		$(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeAnswer(' + index + ')">');
+	});
+	var entry = '<li class="poll-answer">';
+	entry += '<input class="poll-answer-input" type="text" name="answers[' + answer_num + ']"> <input type="button" class="add operation" value="+">';
+	entry += '</li>';
+	$('#poll-answers').append(entry);
+	$('.poll-answer .add').click(function() {
+		newAnswer();
+	});
+}
+function removeAnswer(index) {
+	$('.poll-answer').each(function(i) {
+		if (i == index) {
+			$(this).remove();
+		} else {
+			var num = 0;
+			if (i < index) {
+				num = i;
+			}
+			if (i > index) {
+				num = i - 1;
+			}
+			$(this).children('.poll-answer-input').attr('name', 'answers[' + num + ']');
+		}
+	});
+	$('.poll-answer .minus').each(function(index) {
+		$(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeAnswer(' + index + ')">');
+	});
+}
 //-----------------------------------------------------------------------getFileName
 function getFileName(file){
 	var strFileName = file.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1");
