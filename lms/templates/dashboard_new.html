@@ -1549,7 +1549,7 @@ $(document).ready(function(){
     });
 });
 function more(b,type){
-        a = "span[grade="+type+"]"
+        a = "span[grade='"+type+"']"
         if ($(b).html() == 'More'){
             $(a).addClass('show')
             $(b).prev().removeClass('icon-more')
