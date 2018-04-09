@@ -12,6 +12,7 @@ in XML.
 
 import json
 import logging
+import re
 
 from lxml import etree
 from pkg_resources import resource_string
@@ -104,7 +105,7 @@ class VideoFields(object):
         scope=Scope.settings,
     )
     html_source = String(
-        help="Paste Video URL in the textbox.",
+        help="Paste Video URL in the textbox or upload a video.",
         display_name="Video Source",
         scope=Scope.settings,
         default=""
@@ -173,6 +174,8 @@ class VideoModule(VideoFields, XModule):
         sources = {get_ext(src): src for src in self.html5_sources}
         if self.html_source:
             sources[get_ext(self.html_source)] = self.html_source
+            source_type, source, iframe = parse_video_url(self.html_source)
+            sources['iframe'] = iframe if source_type == 'youtube' else ''
         sources['main'] = self.source
 
         # for testing Youtube timeout in acceptance tests
@@ -356,9 +359,14 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
 
         html_source = xml.find('html_source')
         if html_source:
+            (source_type, source, iframe) = parse_video_url(html_source)
             field_data['html_source'] = html_source
-            # use path of uploaded videos in content -> files & uploads
-            field_data['source'] = field_data['html_source']
+            
+            if source_type == 'static':
+                # use path of uploaded videos in content -> files & uploads
+                field_data['source'] = source
+            elif source_type == 'youtube':
+                field_data['iframe'] = iframe
 
         track = xml.find('track')
         if track is not None:
@@ -430,3 +438,22 @@ def _create_youtube_string(module):
                      for pair
                      in zip(youtube_speeds, youtube_ids)
                      if pair[1]])
+
+def parse_video_url(url):
+    source_type = ''
+    source = ''
+    iframe = """
+        <iframe width="772" height="434" src="https://www.youtube.com/embed/{0}" frameborder="0" 
+        allow="encrypted-media" allowfullscreen></iframe>
+    """
+    if url.startswith('https://youtu.be/'):
+        source_type = 'youtube'
+        source = re.match(r'^https://youtu\.be/(.*)$', url).group(1)
+        iframe = iframe.format(source)
+    elif url.startswith('/static/'):
+        source_type = 'static'
+        source = url
+    else:
+        pass
+
+    return source_type, source, iframe
