@@ -933,7 +933,7 @@ class CourseEnrollment(models.Model):
     # list of possible values.
     mode = models.CharField(default="honor", max_length=100)
     is_closed = models.BooleanField(default=False)
-    training_list = models.CharField(max_length=200)
+    training_list = models.CharField(max_length=200, default='')
     class Meta:
         unique_together = (('user', 'course_id'),)
         ordering = ('user', 'course_id')
