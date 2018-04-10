@@ -1,5 +1,5 @@
 from mitxmako.shortcuts import render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
@@ -14,6 +14,7 @@ import urllib
 from django.core.paginator import Paginator
 
 from permissions.decorators import user_has_perms
+from permissions.utils import check_user_perms
 from study_time.models import record_time_store
 from reporting.models import reporting_store
 from threading import Thread
@@ -22,7 +23,8 @@ import time
 from pytz import UTC
 from datetime import datetime
 from reporting.school_year import school_year_collection
-from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining,PepRegTraining_Backup,PepRegInstructor_Backup,PepRegStudent_Backup
+from administration.models import PepRegStudent,PepRegInstructor,PepRegTraining,PepRegTraining_Backup,PepRegInstructor_Backup,PepRegStudent_Backup,TrainingCertificate
+from organization.models import OrganizationMetadata
 log = logging.getLogger("tracking")
 
 
@@ -139,42 +141,50 @@ def paging(all, size, page):
     return data
 
 
-@user_has_perms('certificate', 'view')
 def certificate_table(request):
-    data = Certificate.objects.all()
-    if request.GET.get('association_type', None):
-        data = data.filter(Q(association_type=request.GET.get('association_type')))
-    if request.GET.get('certificate_name', None):
-        data = data.filter(Q(certificate_name=request.GET.get('certificate_name')))
-    if request.GET.get('association', None):
-        data = data.filter(Q(association=request.GET.get('association')))
-    
-    page = request.GET.get('page')
-    size = request.GET.get('size')
-    data = paging(data, size, page)
+    if request.GET.get('training'):
+        return training_certificate_table(request)
+    if check_user_perms(request.user, 'certificate', 'view'):
+        data = Certificate.objects.filter(association__gte=0)
+        if request.GET.get('association_type', None):
+            data = data.filter(Q(association_type=request.GET.get('association_type')))
+        if request.GET.get('certificate_name', None):
+            data = data.filter(Q(certificate_name=request.GET.get('certificate_name')))
+        if request.GET.get('association', None):
+            data = data.filter(Q(association=request.GET.get('association')))
+        
+        page = request.GET.get('page')
+        size = request.GET.get('size')
+        data = paging(data, size, page)
 
-    rows = []
-    pagingInfo = {'page': data.number, 'pages': data.paginator.num_pages}
+        rows = []
+        pagingInfo = {'page': data.number, 'pages': data.paginator.num_pages}
 
-    for p in data:
+        for p in data:
 
-        if p.association_type_id != 0:
-            if p.association_type.name == "Author":
-                association = Author.objects.filter(Q(id=p.association))
-            elif p.association_type.name == "District":
-                association = District.objects.filter(Q(id=p.association))
-            elif p.association_type.name == "School":
-                association = School.objects.filter(Q(id=p.association))
-            association_type_name = p.association_type.name
-            association_name = association[0].name     
-        else:
-            association_type_name = ""
-            association_name = ""
-        rows.append({'certificate_name': p.certificate_name,
-                     'association_type': association_type_name,
-                     'association': association_name,
-                     'id': p.id})
-    return HttpResponse(json.dumps({'rows': rows, 'paging': pagingInfo}), content_type="application/json")
+            if p.association_type_id != 0:
+                if p.association_type.name == "Author":
+                    association = Author.objects.filter(Q(id=p.association))
+                elif p.association_type.name == "District":
+                    association = District.objects.filter(Q(id=p.association))
+                elif p.association_type.name == "School":
+                    association = School.objects.filter(Q(id=p.association))
+                association_type_name = p.association_type.name
+                association_name = association[0].name     
+            else:
+                association_type_name = ""
+                association_name = ""
+            rows.append({'certificate_name': p.certificate_name,
+                         'association_type': association_type_name,
+                         'association': association_name,
+                         'id': p.id})
+        return HttpResponse(json.dumps({'rows': rows, 'paging': pagingInfo}), content_type="application/json")
+    else:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '403 Error - Access Denied',
+                         'error_message': 'You do not have access to this are of the site. If you feel this is\
+                                           in error, please contact the site administrator for assistance.'}
+        return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 
 @user_has_perms('certificate', 'view')
@@ -212,7 +222,6 @@ def favorite_filter_delete(request):
 #     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-@user_has_perms('certificate', 'delete')
 def certificate_delete(request):
     ids= request.POST.get('ids').split(',')
     for id in ids:
@@ -220,7 +229,6 @@ def certificate_delete(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-@user_has_perms('certificate', 'edit')
 def certificate_save(request):
     cid = request.POST.get('id')
     readonly = request.POST.get('readonly') == 'true'
@@ -249,7 +257,6 @@ def certificate_save(request):
     return HttpResponse(json.dumps(info), content_type="application/json")
 
 
-@user_has_perms('certificate', 'view')
 def certificate_loadData(request):
     c = Certificate.objects.filter(id=request.POST.get('id'))[0]
     try:
@@ -419,3 +426,56 @@ def backup_training_instructor(year):
         training_backup.all_edit=train.all_edit
         training_backup.all_delete=train.all_delete
         training_backup.save()
+
+
+# training certificate
+
+def training_certificate_table(request):
+    organization_id = request.GET.get('organization_id')
+    data = TrainingCertificate.objects.filter(organization_id=organization_id)
+    page = request.GET.get('page')
+    size = request.GET.get('size')
+    data = paging(data, size, page)
+
+    rows = []
+    pagingInfo = {'page': data.number, 'pages': data.paginator.num_pages}
+
+    for p in data:
+        association_type_name = ""
+        association_name = ""
+        rows.append({'certificate_name': p.certificate.certificate_name,
+                     'association_type': association_type_name,
+                     'association': association_name,
+                     'id': p.certificate.id})
+    return HttpResponse(json.dumps({'rows': rows, 'paging': pagingInfo}), content_type="application/json")
+
+
+def save_training_certificate(request):
+    cid = request.POST.get('id')
+    readonly = request.POST.get('readonly') == 'true'
+    content = urllib.quote(request.POST.get('content').decode('utf8').encode('utf8'))
+    c = Certificate.objects.filter(id=cid)
+    try:
+        if len(c) == 0:
+            certificate = Certificate.objects.create(certificate_name=request.POST.get('name'),
+                                               association_type_id=request.POST.get('association_type'),
+                                               association=request.POST.get('association'),
+                                               certificate_blob=content,
+                                               readonly=readonly)
+            returnID = certificate.id
+            training_certificate = TrainingCertificate(certificate_id=certificate.id, organization_id=request.POST.get('organization_id'))
+            training_certificate.save()
+        else:
+            certificate = Certificate.objects.get(id=cid)
+            certificate.certificate_name = request.POST.get('name')
+            certificate.association_type_id = request.POST.get('association_type')
+            certificate.association = request.POST.get('association')
+            certificate.certificate_blob = request.POST.get('content')
+            certificate.readonly = readonly
+            certificate.save()
+            returnID = certificate.id
+        info = {'success': True, 'msg': 'Save complete.', 'id': returnID}
+    except db.utils.IntegrityError:
+        info = {'success': False, 'msg': 'Certificate name already exists.'}
+
+    return HttpResponse(json.dumps(info), content_type="application/json")

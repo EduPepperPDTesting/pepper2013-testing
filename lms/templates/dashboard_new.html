@@ -17,6 +17,29 @@
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
+.icon-more{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("/static/images/arrows.png")no-repeat 0 0 !important;
+}
+.icon-collapse {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("/static/images/arrows.png")no-repeat 0 -23px !important;
+}
+.show{
+    display:inline !important;
+}
+.hide{
+  display:none;
+}
+.more{
+    float: right !important;
+    position: relative;
+    border: initial !important;
+}
 #image_uploading{display:none;}
  ._del_line{
     text-decoration: none !important;
@@ -776,11 +799,16 @@ a{
             data['add_profile'] = add_profile
                 
             cms_grade = ""
+            num = 0
             for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
                 if cms_grade != tmp1.Grade:
+                    if num > 3:
+                        cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"
+                    num = 0
                     cms_grade = tmp1.Grade
                     cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
-                
+                else:
+                    num = num + 1
                 cms_add = False
                 if tmp1.CmsItem.find("_level_:") > 0:
                     tmp1_level_ids = ""
@@ -808,9 +836,14 @@ a{
                                 	cms_add = True
                         break
                 
+                style_class = ""
+                if num > 3:
+                    style_class = "hide"
                 if cms_add:
-                    cms_items = cms_items + "<span class='organization_cms_icon' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
-                        
+                    cms_items = cms_items + "<span class='organization_cms_icon " + style_class +"' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
+
+            if num > 3:
+                cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"
             data["cms_items"] = cms_items
 %>
 <%namespace name='static' file='static_content.html'/>
@@ -1282,7 +1315,7 @@ $(document).ready(function(){
                 } 
             }
         }
-        console.log("1111111: ",height_max);
+        // console.log("1111111: ",height_max);
         if(height_max > 0){
             var a1 = page_top + height_max;
             var a2 = $(this).height() - a1;
@@ -1386,8 +1419,9 @@ $(document).ready(function(){
                 element_html = '<div class="course-in-progress-row get-more-incompleted">';
             }
             element_html += '<div class="course-in-progress-t">';
-            if(cp.close_course){
-                element_html += '<b>'+cp.name+'</b>|'+cp.number;
+            if(cp.close_course || cp.is_closed){
+                cp.url = cp.url.replace('courseware', 'cabout')
+                element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
             }
             else{
                 element_html += '<a href="'+cp.url+'"><b>'+cp.name+'</b>|'+cp.number+'</a>';
@@ -1480,8 +1514,9 @@ $(document).ready(function(){
             element_html += '</td>';
             element_html += '<td>';
             element_html += '<div class="completed-courses-row-title">';
-            if(cc.close_course){
-                element_html += '<b>'+cc.name+'</b>|'+cc.number;
+            if(cc.close_course || cc.is_closed){
+                cc.url = cc.url.replace('courseware', 'cabout')
+                element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
             }
             else{
                 element_html += '<a href="'+cc.url+'"><b>'+cc.name+'</b>|'+cc.number+'</a>';
@@ -1511,5 +1546,21 @@ $(document).ready(function(){
         }
     });
 });
+function more(b,type){
+        a = "span[grade="+type+"]"
+        if ($(b).html() == 'More'){
+            $(a).addClass('show')
+            $(b).prev().removeClass('icon-more')
+            $(b).prev().addClass('icon-collapse')
+            $(b).html('Collapse')
+            $(b).parent().css('top','150px')
+        }else{
+            $(a).removeClass('show')
+            $(b).html('More')
+            $(b).prev().removeClass('icon-collapse')
+            $(b).prev().addClass('icon-more')
+            $(b).parent().css('top','0px')
+        }
+    }
 </script>
 

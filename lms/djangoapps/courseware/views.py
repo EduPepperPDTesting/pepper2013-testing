@@ -40,7 +40,7 @@ from xmodule.course_module import CourseDescriptor
 import comment_client
 import json
 import pymongo
-log = logging.getLogger("mitx.courseware")
+log = logging.getLogger("tracking")
 template_imports = {'urllib': urllib}
 #log = logging.getLogger("tracking") 
 
@@ -1075,8 +1075,7 @@ def index(request, course_id, chapter=None, section=None,
                 # Let the exception propagate, relying on global config to at
                 # at least return a nice error message
                 log.exception("Error while rendering courseware-error page")
-                raise
-
+                raise          
     return result
 
 

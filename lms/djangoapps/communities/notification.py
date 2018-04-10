@@ -470,3 +470,15 @@ def send_course_notification(request, action_user, course, notification_type, us
               "Receiver First Name": user.first_name,
               "Receiver Last Name": user.last_name}
     _send_notification(action_user, user, notification_type, values)
+
+
+def send_completion_certificate_notification(action_user, receiver, certifiate_url, notification_type):
+    values = {
+        "Sender First Name": action_user.first_name,
+        "Sender Last Name": action_user.last_name,
+        "Receiver First Name": receiver.first_name,
+        "Receiver Last Name": receiver.last_name,
+        "PD certificate URL": "<a target='_blank' href='" + certifiate_url + "'>Download Certificate</a>",
+        "Course Link": "",
+    }
+    _send_notification(action_user, receiver, notification_type, values)

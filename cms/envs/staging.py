@@ -227,3 +227,13 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 STATIC_ROOT = ENV_ROOT / "staticfiles/cms"
 
 MITX_FEATURES['USE_DJANGO_PIPELINE']=True
+
+REPORTINGSTORE = {
+    'OPTIONS': {
+        'db': MONGO3_DB_REPORTING,
+        'host': MONGO3_HOST,
+        'port': MONGO3_PORT,
+        'user': MONGO3_USER,
+        'password': MONGO3_PASSWORD,
+    }
+}

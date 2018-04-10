@@ -9,6 +9,8 @@ from student.models import User, CourseEnrollment
 from courseware.models import StudentModule
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.django import modulestore
+from administration.models import PepRegTraining, PepRegInstructor, PepRegStudent
+from student.models import District, School, State
 log = logging.getLogger("tracking")
 
 def course_from_id(course_id):
@@ -209,8 +211,8 @@ class MongoReportingStore(object):
         except:
             data['school_id'] = ""
         enroll = CourseEnrollment.objects.get(user=user, course_id=course_id)
-        data['is_active'] = enroll.is_active
-        data['created'] = enroll.created.strftime('%Y-%m-%d %H:%M:%S')
+        data['is_active'] = int(enroll.is_active)
+        data['created'] = enroll.created.strftime('%Y-%m-%d')
         return data
 
     def get_user_data(self, user_id):
@@ -260,8 +262,9 @@ class MongoReportingStore(object):
     def get_user_course_date1(self, user_id, course_id):
         course_data = StudentModule.objects.get(student=user_id,course_id=course_id,module_type="course")
         data = course_data.__dict__
-        data['created'] = data['created'].strftime('%Y-%m-%d %H:%M:%S')
-        data['modified'] = data['modified'].strftime('%Y-%m-%d %H:%M:%S')
+        data['state'] = eval(data['state'].replace('false', 'False').replace('true', 'True').replace('null', 'None'))
+        data['created'] = data['created'].strftime('%Y-%m-%d')
+        data['modified'] = data['modified'].strftime('%Y-%m-%d')
         data['c_course_id'] = data['course_id']
         data['c_student_id'] = data['student_id']
         data['module_id'] = data['module_state_key']
@@ -272,12 +275,31 @@ class MongoReportingStore(object):
 
     def get_course_data(self, course_id):
         course_data = course_from_id(course_id)
-        data = {'course_number': course_data.display_coursenumber,
-                'course_name': course_data.display_name,
-                'organization': course_data.display_organization,
-                'start_date': course_data.start,
-                'end_date': course_data.end,
-                'course_run': course_data.org}
+        data = {}
+        try:
+            data["course_number"] = str(course_data.display_coursenumber)
+        except:
+            data["course_number"] = ""
+        try:
+            data["course_name"] = course_data.display_name
+        except:
+            data["course_name"] = ""
+        try:
+            data["organization"] = str(course_data.display_organization)
+        except:
+            data["organization"] = ""
+        try:
+            data["start_date"] = course_data.start.strftime('%Y-%m-%d')
+        except:
+            data["start_date"] = ""
+        try:
+            data["end_date"] = course_data.end.strftime('%Y-%m-%d')
+        except:
+            data["end_date"] = ""
+        try:
+            data["course_run"] = course_data.org
+        except:
+            data["course_run"] = ""
         return data
 
 
@@ -303,131 +325,16 @@ def reporting_store(view=None):
         return StudentCourseenrollment(**options)
     elif view == 'CoursewareStudentmodule':
         return CoursewareStudentmodule(**options)
+    elif view == 'UserCourseProgress':
+        return UserCourseProgress(**options)
+    elif view == 'ModuleStore':
+        return ModuleStore(**options)
+    elif view == 'PepregTraining':
+        return PepregTraining(**options)
+    elif view == 'PepregStudent':
+        return PepregStudent(**options)    
     else:
         return MongoReportingStore(**options)
-
-class NewUserView(MongoReportingStore):
-    def _insert_user_view(self, data):
-        self.set_collection("UserView")
-        return self.collection.insert(data)
-
-    def _update_user_view(self, user_id, data):
-        self.set_collection("UserView")
-        db_filter = {'school_year': 'current','user_id':int(user_id)}
-        return self.collection.update(db_filter,data,True)
-
-    def update_user_view(self, user):
-        data = self.get_user_data(user.id)
-        data = {"$set":data}
-        self._update_user_view(user.id, data)
-
-    def insert_user_view(self, user):
-        collection = "new_user_info"
-        self.del_collection(collection)
-        self.set_collection(collection)
-        data = self.get_user_data(user.id)
-        self.collection.insert(data)
-        query = eval(RunConfig[collection]["query"].replace('\n', '').replace('\r', '').replace(',,', ','))
-        result = self.get_aggregate(collection,query)
-        for tmp in result['result']:
-            self._insert_user_view(tmp)
-
-    def delete_user_view(self, ids):
-        collection = "new_user_info"
-        for tmp in ids:
-            self.remove_data({"user_id":int(tmp),"school_year":"current"},"UserView")
-            self.remove_data({"user_id":int(tmp)},RunConfig[collection]["origin_collection"])
-        
-    def insert_user_course(self, user, course_id):
-        collection = "new_student_courseenrollment"
-        data = self.get_user_course_data(user.id, course_id)
-        self.set_collection(RunConfig[collection]['origin_collection'])
-        self.collection.remove({"user_id":int(user.id),"course_id":course_id})
-        self.collection.insert(data)
-        data = {"$inc":{"current_course":1}}
-        self._update_user_view(user.id, data)
-
-    def delete_user_course(self, user, course_id):
-        collection = "new_student_courseenrollment"
-        self.remove_data({"user_id":int(user.id),"course_id":course_id},RunConfig[collection]["origin_collection"])
-        data = {"$inc":{"current_course":-1}}
-        self._update_user_view(user.id, data)
-
-    def update_user_complete_course(self, user, course_id):
-        collection = "new_courseware_studentmodule"
-        data = self.get_user_course_date1(user.id, course_id)
-        self.set_collection(RunConfig[collection]['origin_collection'])
-        self.collection.insert(data)
-        data = {"$inc":{"complete_course":1,"current_course":-1}}
-        self._update_user_view(user.id, data)
-
-    def update_user_course_external_time(self, user_id, course_id, time, type='adjustment_time'):
-        collection = "new_external_time"
-        if type == "adjustment_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
-            self.set_collection(RunConfig[collection]['origin_collection1'])
-            self.collection.update({'user_id': int(user_id),'course_id': course_id,'type': 'external'},{'$inc': {'time': time}},True)
-            data = {'$inc': {'total_time': time,'external_time': time}}
-            self._update_user_view(int(user_id), data)
-        elif type == "external_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id),'course_id': course_id},{'$inc': {'r_time': time}},True)
-            data = {'$inc': {'total_time': time,'external_time': time}}
-            self._update_user_view(int(user_id), data)
-
-    def update_user_course_pd_time(self, user_id, credit):
-        collection = "new_pd_time"
-        time = 3600 * int(credit)
-        self.set_collection(RunConfig[collection]['origin_collection'])
-        self.collection.update({'user_id': int(user_id)}, {'$inc': {'credit': time}}, True)
-        data = {'$inc': {'total_time': time, 'pd_time': time}}
-        self._update_user_view(int(user_id), data)
-
-    def update_user_course_portfolio_time(self, user_id, time, type='adjustment_time'):
-        collection = "new_portfolio_time"
-        if type == "adjustment_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
-            self.set_collection(RunConfig[collection]['origin_collection1'])
-            self.collection.update({'user_id': int(user_id), 'type': 'portfolio'}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time,'portfolio_time': time, 'collaboration_time': time}}
-            self._update_user_view(int(user_id),data)
-        elif type == "portfolio_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}},True)
-            data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
-            self._update_user_view(int(user_id), data)
-
-    def update_user_course_discussion_time(self, user_id, course_id, time, type='adjustment_time'):
-        collection = "new_discussion_time"
-        if type == "adjustment_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
-            self.set_collection(RunConfig[collection]['origin_collection1'])
-            self.collection.update({'user_id': int(user_id), 'course_id': course_id, 'type': 'discussion'}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
-            self._update_user_view(int(user_id),data)
-        elif type == "discussion_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id)}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
-            self._update_user_view(int(user_id), data)
-
-    def update_user_course_course_time(self, user_id, course_id, time, type='adjustment_time'):
-        collection = "new_course_time"
-        if type == "adjustment_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
-            self.set_collection(RunConfig[collection]['origin_collection1'])
-            self.collection.update({'user_id': int(user_id), 'course_id': course_id, 'type': 'courseware'}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time, 'course_time': time}}
-            self._update_user_view(int(user_id),data)
-        elif type == "course_time":
-            self.set_collection(RunConfig[collection]['origin_collection'])
-            self.collection.update({'user_id': int(user_id), 'course_id': course_id}, {'$inc': {'time': time}}, True)
-            data = {'$inc': {'total_time': time, 'course_time': time}}
-            self._update_user_view(int(user_id), data)
 
 class UserInfo(MongoReportingStore):
         
@@ -532,7 +439,7 @@ class PortfolioTime(MongoReportingStore):
             elif tmp == "UserCourseView":
                 data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
-                self.collection.update(db_filter, data)
+                self.collection.update(db_filter, data, multi=True)
 
 class ExternalTime(MongoReportingStore):
 
@@ -588,14 +495,20 @@ class AdjustmentTime(MongoReportingStore):
             elif tmp == "UserCourseView":
                 if type == 'portfolio':
                     data = {'$inc': {'total_time': time, 'portfolio_time': time, 'collaboration_time': time}}
+                    db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                    self.collection.update(db_filter, data, multi=True)
                 elif type == 'discussion':
                     data = {'$inc': {'total_time': time, 'discussion_time': time, 'collaboration_time': time}}
+                    db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
+                    self.collection.update(db_filter, data)
                 elif type == 'external':
                     data = {'$inc': {'total_time': time, 'external_time': time}}
+                    db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
+                    self.collection.update(db_filter, data)
                 elif type == 'courseware':
                     data = {'$inc': {'total_time': time, 'course_time': time}}
-                db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
-                self.collection.update(db_filter, data)
+                    db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
+                    self.collection.update(db_filter, data)
 
 class PdTime(MongoReportingStore):
 
@@ -613,7 +526,9 @@ class PdTime(MongoReportingStore):
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
                 self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
-                continue
+                data = {'$inc': {'total_time': time, 'pd_time': time}}
+                db_filter = {'school_year': 'current', 'user_id': int(user_id)}
+                self.collection.update(db_filter, data, multi=True)
 
 class StudentCourseenrollment(MongoReportingStore):
 
@@ -645,11 +560,12 @@ class StudentCourseenrollment(MongoReportingStore):
     def get_insert_data(self, user_id, course_id):
         user_data = self.get_user_data(user_id)
         course_data = self.get_course_data(course_id)
-        user_course_data = get_user_course_data(user_id, course_id)
-        data = data.update(course_data)
+        user_course_data = self.get_user_course_data(user_id, course_id)
+        user_data.update(course_data)
+        data = {}
         data["enrollment_date"] = user_course_data['created']
         data["complete_date"] = ""
-        data["portfolio_url"] = "/courses/" + course_id + "portfolio/about_me/" + user_id
+        data["portfolio_url"] = "/courses/" + course_id + "portfolio/about_me/" + str(user_id)
         data["course_time"] = 0
         data["external_time"] = 0
         data["discussion_time"] = 0
@@ -661,36 +577,320 @@ class StudentCourseenrollment(MongoReportingStore):
         data["user_id"] = user_id
         data["course_id"] = course_id
         data["school_year"] = "current"
+        data.update(user_data)
         return data
 
 class CoursewareStudentmodule(MongoReportingStore):
 
-    def report_update_data(self, user_id, course_id):
+    def report_update_data(self, user_id, course_id, is_complete):
         affected_collection = ['courseware_studentmodule', 'UserView', 'UserCourseView']
         for tmp in affected_collection:
             self.set_collection(tmp)
             if tmp == "courseware_studentmodule":
                 data = self.get_user_course_date1(user_id, course_id)
-                db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                db_filter = {'student_id': int(user_id), 'course_id': course_id, 'module_type':"course"}
                 self.collection.update(db_filter, data, True)
             elif tmp == "UserView":
-                data = {'$inc': {'complete_course': 1, 'current_course': -1}}
+                if is_complete:
+                    data = {'$inc': {'complete_course': 1, 'current_course': -1}}
+                else:
+                    data = {'$inc': {'complete_course': -1, 'current_course': 1}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
                 self.collection.update(db_filter, data)
             elif tmp == "UserCourseView":
-                continue
+                if is_complete:
+                    course_data = self.get_user_course_date1(user_id, course_id)
+                    data = {"$set":{"complete_date":course_data['state']['complete_date'][0:10]}}
+                else:
+                    data = {"$set":{"complete_date":""}}
+                db_filter = {'user_id': int(user_id), 'course_id': course_id, 'school_year': 'current'}
+                self.collection.update(db_filter, data)
 
-class Modulestore(MongoReportingStore):
-    pass
+    def report_insert_data(self, course_data): 
+        affected_collection = ['courseware_studentmodule', 'problem_point']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "courseware_studentmodule":
+                data = self.format_insert_data(course_data)
+                self.collection.insert(data)
+            if tmp == "problempoint":
+                data = self.get_point_data(course_data)
+                self.collection.insert(data)
+
+    def format_insert_data(self, course_data):
+        data = course_data.__dict__
+        data['state'] = eval(data['state'].replace('false', 'False').replace('true', 'True').replace('null', 'None'))
+        data['created'] = data['created'].strftime('%Y-%m-%d')
+        data['modified'] = data['modified'].strftime('%Y-%m-%d')
+        data['module_id'] = data['module_state_key']
+        data.pop('_state')
+        data.pop('module_state_key')
+        data.pop('id')
+        data.pop('_student_cache')
+        return data
+
+    def get_point_data(self, course_data):
+        course_data = course_data.__dict__
+        data = {}
+        data['module_id'] = course_data['module_state_key']
+        data['user_id'] = course_data['student_id']
+        data['course_id'] = course_data['course_id']
+        if course_data['grade']:
+            data['point'] = course_data['grade']
+        else:
+            data['point'] = 0
+        return data
+
+    def report_update_point_data(self, user_id, location, course_id):
+        affected_collection = ['problem_point']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "problem_point":
+                course_data = StudentModule.objects.get(student=user_id, course_id=course_id, module_state_key=location)
+                data = self.get_point_data(course_data)
+                db_filter = {'user_id': int(user_id), 'module_id': location}
+                self.collection.update(db_filter, data, True)
+
+class ModuleStore(MongoReportingStore):
+
+    def report_update_data(self, course_id):
+        affected_collection = ['modulestore', 'UserCourseView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "modulestore":
+                data = self.get_insert_data(course_id)
+                data.pop('_id')
+                db_filter = {'course_id': course_id, '_id.category':'course'}
+                self.collection.update(db_filter, data)
+                data1 = {'$set': self.get_course_data(course_id)}
+                db_filter1 = {'q_course_id': course_id}
+                self.collection.update(db_filter1, data1, multi=True)
+            if tmp == "UserCourseView":
+                data = {'$set' : self.get_course_data(course_id)}
+                db_filter = {'course_id': course_id}
+                self.collection.update(db_filter, data, True, multi=True)
+
+    #  creata_course,   '_id.category':'course'
+    def report_insert_data(self, course_id):
+        affected_collection = ['modulestore']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "modulestore":
+                course_data = self.get_insert_data(course_id)
+                self.collection.insert(course_data)
+
+    # publish_draft, '_id.category':'problem,combinedopenended'
+    def report_update_problem(self, location, is_publish=True):
+        affected_collection = 'modulestore'
+        course_data, graded = self.get_course_data_by_location(location)
+        arr = location.split('/')
+        vertical_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in vertical_data:
+            if len(tmp['definition']['children']) > 0:
+                for tmp1 in tmp['definition']['children']:
+                    arr1 = tmp1.split('/')
+                    unit_data = modulestore().collection.find({'_id.category':arr1[4], '_id.org':arr1[2], '_id.name':arr1[5], '_id.course': arr1[3]})
+                    for tmp2 in unit_data:
+                        if tmp2['_id']['category'] == 'problem' or tmp2['_id']['category'] == "combinedopenended":
+                            self.set_collection(affected_collection)
+                            module_id = tmp2['_id']['tag'] + '://' + tmp2['_id']['org']  + '/' + tmp2['_id']['course']  + '/' + tmp2['_id']['category']  + '/' + tmp2['_id']['name']
+                            db_filter = {'module_id': module_id}
+                            if is_publish and graded:
+                                course_data['module_id'] = module_id
+                                tmp2.pop('_id')
+                                course_data.update(tmp2)
+                                data = {'$set' : course_data}
+                                self.collection.update(db_filter, data, True)
+                            else:
+                                self.collection.remove(db_filter)
+
+    # sequential mark graded
+    def report_update_assignment_problem(self, location, graderType):
+        arr = location.split('/')
+        sequential_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in sequential_data:
+            if len(tmp['definition']['children']) > 0:
+                for tmp1 in tmp['definition']['children']:
+                    if graderType != "Not Graded":
+                        self.report_update_problem(tmp1)
+                    else:
+                        self.report_update_problem(tmp1, False)
+
+    def get_parent_location(self, location, category):
+        data = modulestore().collection.find({'_id.category':category, 'definition.children':{'$in':[location]}})
+        parent_location = ""
+        for tmp in data:
+            parent_location = tmp['_id']['tag'] + '://' + tmp['_id']['org']  + '/' + tmp['_id']['course']  + '/' + tmp['_id']['category']  + '/' + tmp['_id']['name']
+        return parent_location
+
+    def get_course_data_by_location(self, location):
+        result = {}
+        graded = False
+        sequential_location = self.get_parent_location(location, 'sequential')
+        arr = sequential_location.split('/')
+        sequential_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in sequential_data:
+            result['vertical_num'] = tmp['definition']['children'].index(location) + 1
+            try:
+                result['sequential_name'] = tmp['metadata']['display_name']
+            except:
+                result['sequential_name'] = ""
+            try:
+                graded = tmp['metadata']['graded']
+            except:
+                graded = False
+
+        chapter_location = self.get_parent_location(sequential_location, 'chapter')
+        course_location = self.get_parent_location(chapter_location, 'course')
+        arr = course_location.split('/')
+        course_data = modulestore().collection.find({'_id.category':arr[4], '_id.org':arr[2], '_id.name':arr[5], '_id.course': arr[3]})
+        for tmp in course_data:
+            result['q_course_id'] = '/'.join([tmp['_id']['org'], tmp['_id']['course'], tmp['_id']['name']])
+            try:
+                result['organization'] = tmp['metadata']['display_organization']
+            except:
+                result['organization'] = ""
+            try:
+                result['end_date'] = tmp['metadata']['end'][0:10]
+            except:
+                result['end_date'] = ""
+            try:    
+                result['start_date'] = tmp['metadata']['start'][0:10]
+            except:
+                result['start_date'] = ""
+            try:    
+                result['course_name'] = tmp['metadata']['display_name']
+            except:
+                result['course_name'] = ""
+            try:    
+                result['course_number'] = tmp['metadata']['display_coursenumber']
+            except:
+                result['course_number'] = ""
+        return result, graded
+
+    def get_insert_data(self, course_id):
+        org, course, name = course_id.split('/');
+        course_date = modulestore().collection.find({'_id.category':'course', '_id.org':org, '_id.name':name, '_id.course': course})
+        result = {}
+        for tmp in course_date:
+            result.update(tmp)
+        result['course_id'] = course_id
+        return result
 
 class PepregStudent(MongoReportingStore):
-    pass
+
+    def report_update_data(self, training_id, user_id, is_delete=False):
+        affected_collection = ['pepreg_student', 'PepRegStudentView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == 'pepreg_student':
+                if user_id:
+                    if is_delete:
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id)}
+                        self.collection.remove(db_filter)
+                    else:
+                        data = self.get_training_student_data(training_id, user_id)
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id)}
+                        self.collection.update(db_filter, data, True)
+                else:
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.remove(db_filter)
+            if tmp == 'PepRegStudentView':
+                if user_id:
+                    if is_delete:
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id), 'school_year': 'current'}
+                        self.collection.remove(db_filter)
+                    else:
+                        data = self.get_training_student_data(training_id, user_id)
+                        data['school_year'] = 'current'
+                        data['key'] = 'current_' + str(training_id)
+                        if data['instructor_id'] != 'NULL':
+                            data['instructor_status'] = 'Yes'
+                        else:
+                            data['instructor_status'] = 'No'
+                        db_filter = {'training_id': int(training_id), 'student_id': int(user_id), 'school_year': 'current'}
+                        self.collection.update(db_filter, data, True)
+                else:
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.remove(db_filter)
+
+    def get_training_student_data(self, training_id, user_id):
+        result = {}
+        student_data = PepRegStudent.objects.get(training_id=training_id, student=user_id)
+        result['training_id'] = int(training_id)
+        result['student_id'] = int(user_id)
+        result['student_status'] = student_data.student_status
+        result['student_credit'] = student_data.student_credit
+        if PepRegInstructor.objects.filter(training_id=training_id, instructor_id=user_id).exists():
+            result['instructor_id'] = user_id
+        else:
+            result['instructor_id'] = 'NULL'
+        return result
 
 class PepregTraining(MongoReportingStore):
-    pass
 
-class ProblemPoint(MongoReportingStore):
-    pass
+    def report_update_data(self, training_id, is_delete=False):
+        affected_collection = ['pepreg_training', 'PepRegTrainingView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == 'pepreg_training':
+                if is_delete:
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.remove(db_filter)
+                else:
+                    data = self.get_training_data(training_id)
+                    db_filter = {'training_id': int(training_id)}
+                    self.collection.update(db_filter, data, True)
+            if tmp == 'PepRegTrainingView':
+                if is_delete:
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.remove(db_filter)
+                else:
+                    data = self.get_training_data(training_id)
+                    data['school_year'] = 'current'
+                    data['key'] = 'current_' + str(data['training_id'])
+                    db_filter = {'training_id': int(training_id), 'school_year': 'current'}
+                    self.collection.update(db_filter, data, True)
+
+    def get_training_data(self, training_id):
+        result = {}
+        training_data = PepRegTraining.objects.get(id=training_id)
+        result['training_id'] = int(training_id)
+        result['type'] = training_data.type
+        result['district_id'] = training_data.district_id
+        result['description'] = training_data.description
+        result['subject'] = training_data.subject
+        result['name'] = training_data.name
+        result['pepper_course'] = training_data.pepper_course
+        result['training_date'] = training_data.training_date.strftime('%Y-%m-%d')
+        result['training_time_start'] = training_data.training_time_start.strftime('%H:%M:%S')
+        result['training_time_end'] = training_data.training_time_end.strftime('%H:%M:%S')
+        result['geo_location'] = training_data.geo_location
+        result['classroom'] = training_data.classroom
+        result['credits'] = training_data.credits
+        result['attendancel_id'] = training_data.attendancel_id
+        result['allow_registration'] = training_data.allow_registration
+        result['allow_attendance'] = training_data.allow_attendance
+        result['allow_validation'] = training_data.allow_validation
+        result['max_registration'] = training_data.max_registration
+        result['user_create_id'] = training_data.user_create_id
+        result['date_create'] = training_data.date_create.strftime('%Y-%m-%d')
+        result['state_id'] = training_data.district.state.id
+        result['district'] = training_data.district.name
+        result['school'] = School.objects.get(id=training_data.school_id).name
+        return result
 
 class UserCourseProgress(MongoReportingStore):
-    pass
+
+    def report_update_data(self, user_id, course_id, progress):
+        affected_collection = ['user_course_progress', 'UserCourseView']
+        for tmp in affected_collection:
+            self.set_collection(tmp)
+            if tmp == "user_course_progress":
+                data = {'$set': {'progress': progress*100}}
+                db_filter = {'user_id': int(user_id), 'course_id': course_id}
+                self.collection.update(db_filter, data, True)
+            if tmp == "UserCourseView":
+                data = {'$set': {'progress': progress*100}}
+                db_filter = {'user_id': int(user_id), 'course_id': course_id, 'school_year': 'current'}
+                self.collection.update(db_filter, data)

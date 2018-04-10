@@ -31,6 +31,9 @@ from .access import has_access
 from xmodule.x_module import XModuleDescriptor
 from xblock.plugin import PluginMissingError
 from xblock.runtime import Mixologist
+from reporting.models import reporting_store
+import logging
+log = logging.getLogger('tracking')
 import re
 
 __all__ = ['OPEN_ENDED_COMPONENT_TYPES',
@@ -372,6 +375,8 @@ def assignment_type_update(request, org, course, category, name):
         rsp = CourseGradingModel.update_section_grader_type(
                     location, request.POST
         )
+        rs = reporting_store('ModuleStore')
+        rs.report_update_assignment_problem(location.url(), request.POST['graderType'])
     return JsonResponse(rsp)
 
 
@@ -409,7 +414,8 @@ def publish_draft(request):
             item,
             lambda i: modulestore().publish(i.location, request.user.id)
     )
-
+    rs = reporting_store('ModuleStore')
+    rs.report_update_problem(location)
     return HttpResponse()
 
 
@@ -425,7 +431,8 @@ def unpublish_unit(request):
 
     item = modulestore().get_item(location)
     _xmodule_recurse(item, lambda i: modulestore().unpublish(i.location))
-
+    rs = reporting_store('ModuleStore')
+    rs.report_update_problem(location, False)
     return HttpResponse()
 
 

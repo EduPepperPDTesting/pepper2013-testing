@@ -7,6 +7,8 @@ import json
 
 from playbook.models import Play, Category, PlaybookTags
 
+import logging
+log = logging.getLogger("tracking")
 
 @login_required
 def playbook(request):

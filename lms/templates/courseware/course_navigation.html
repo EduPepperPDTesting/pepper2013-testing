@@ -64,8 +64,10 @@ def url_class(tab):
   return s
 %>
 <%! from courseware.tabs import get_course_tabs %>
+<%! from student.models import CourseEnrollment %>
 <%! from django.utils.translation import ugettext as _ %>
 <%! from courseware.courses import course_author_image_url %>
+<% is_closed = CourseEnrollment.get_closed(request.user, course.id) %>
 <style>
   /*nav.course-material ol.course-tabs li a.live_hangout{color:#8C9641;}*/
 </style>
@@ -74,7 +76,7 @@ def url_class(tab):
   <div class="inner-wrapper">
     <ol class="course-tabs">
       % for tab in get_course_tabs(user, course, active_page):
-          % if (portfolio_user == user and request.GET.get('pf_id') == None or portfolio_user == None and request.GET.get('pf_id') == None or portfolio_user.id == user.id) and not course.close_course:
+          % if (portfolio_user == user and request.GET.get('pf_id') == None or portfolio_user == None and request.GET.get('pf_id') == None or portfolio_user.id == user.id) and not course.close_course and not is_closed:
               <!--20151124 use new parameter "hide_discussions" to judge whether show "Discussion" in course navigation-->
               <!--begin-->
               <li>

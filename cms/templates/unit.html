@@ -7,6 +7,81 @@
 
 <%block name="jsextra">
   <script type='text/javascript'>
+  function showUploadVideoModal(e, editor) {
+    e.preventDefault();
+    $('.upload-video').show();
+    $('.upload-video .video-input').bind('change', startUploadVideo);
+    editor.attr('uploading', 'true');
+    editor.hide();
+  }
+  function hideUploadVideoModal(e) {
+    $('.upload-video').hide();
+    var editor = $('.component-editor[uploading=true]');
+    $('.upload-video .video-input').unbind('change', startUploadVideo);
+    editor.removeAttr('uploading');
+    editor.show();
+    resetModal();
+  }
+  function resetModal() {
+    $('.upload-video h1').html(gettext('Upload a Video'));
+    $('.upload-video .choose-file-button').html(gettext('Choose a Video')).show();
+    $('.upload-video .progress-bar').addClass('loaded').hide();
+    $('.upload-video .file-name').html('');
+    $('.upload-video .embeddable-xml-input').val('');
+    $('.upload-video .embeddable').hide();
+    $('.upload-video .video-input').wrap('<form></form>');
+    $('.upload-video .video-input').parent()[0].reset();
+    $('.upload-video .video-input').unwrap();
+  }
+  function startUploadVideo(e) {
+    var files = $('.upload-video .video-input').get(0).files;
+    if (files.length === 0)
+        return;
+
+    $('.upload-video h1').html(gettext('Uploading…'));
+    $('.upload-video .file-name').html(files[0].name);
+    $('.upload-video .video-chooser').ajaxSubmit({
+        beforeSend: resetUploadBar,
+        uploadProgress: showUploadFeedback,
+        complete: displayFinishedVideoUpload
+    });
+    $('.upload-video .choose-file-button').hide();
+    $('.upload-video .progress-bar').removeClass('loaded').show();
+  }
+  function displayFinishedVideoUpload(xhr) {
+    if (xhr.status == 200) {
+        markVideoLoaded();
+    }
+
+    var resp = JSON.parse(xhr.responseText);
+    $('.upload-video .embeddable-xml-input').val(resp.portable_url);
+    $('.upload-video .embeddable').show();
+    $('.upload-video .file-name').hide();
+    $('.upload-video .progress-fill').html(resp.msg);
+    $('.upload-video .choose-file-button').html(gettext('Choose Another Video')).show();
+    $('.upload-video .progress-fill').width('100%');
+
+    var editor = $('.component-editor[uploading=true]');
+    editor.find('#settings-tab ul li:nth-child(8) input').val(resp.portable_url);
+    editor.find('#settings-tab ul li:nth-child(8) input').change();
+  }
+  function resetUploadBar() {
+    var percentVal = '0%';
+    $('.upload-video .progress-fill').width(percentVal);
+    $('.upload-video .progress-fill').html(percentVal);
+  }
+  function showUploadFeedback(event, position, total, percentComplete) {
+    var percentVal = percentComplete + '%';
+    $('.upload-video .progress-fill').width(percentVal);
+    $('.upload-video .progress-fill').html(percentVal);
+  }
+  function showVideoSelectionMenu(e) {
+    e.preventDefault();
+    $('.upload-video .video-input').click();
+  }
+  function markVideoLoaded() {
+    $('.upload-video .progress-bar').addClass('loaded');
+}
   $(document).ready(function() {
     new CMS.Views.UnitEdit({
       el: $('.main-wrapper'),
@@ -29,8 +104,26 @@
     });
 
     var unit_location_analytics = '${unit_location}';
-  </script>
 
+    $('.edit-button').live('click', function () {
+      var self = this;
+      var video_descriptor = $(this).parents('.component').find('.xmodule_edit');
+      video_descriptor.find('#settings-tab ul li:gt(7)').hide();
+      video_descriptor.find('#settings-tab ul li:nth-child(8) input').css('width', '30%')
+      if (!video_descriptor.find('#settings-tab ul li:nth-child(8) input').next().is('.browse')) {
+        video_descriptor.find('#settings-tab ul li:nth-child(8) input').after('<button type="button" class="browse">Browse</button>');
+        $('button[class=browse]').live('click', function(e) {
+          showUploadVideoModal(e, $(self).parents('.component').find('.component-editor'));
+        });
+      }
+      video_descriptor.parents('.component').find('.save-button, cancel-button').click(function() {
+        $('button[class=browse]').die('click');
+      });
+    });
+    $('.upload-video .close-button').bind('click', hideUploadVideoModal);
+    $('.upload-video .choose-file-button').bind('click', showVideoSelectionMenu);
+    
+  </script>
 </%block>
 <%block name="content">
   <div class="main-wrapper edit-state-${unit_state}" data-id="${unit_location}">
@@ -202,4 +295,29 @@
     </div>
   </div>
 
+  <div class="upload-video modal">
+    <a class="close-button"><span class="close-icon"></span></a>
+    <div class="modal-body">
+      <h1>Upload a Video</h1>
+      <p class="file-name"></a>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="embeddable">
+        <label>URL:</label>
+        <input type="text" class="embeddable-xml-input" value='' readonly>
+      </div>
+      <form class="video-chooser" action="${reverse('upload_asset', kwargs={
+                                                                            'org': context_course.location.org,
+                                                                            'course': context_course.location.course,
+                                                                            'coursename': context_course.location.name
+                                                                          })}"
+                                method="post" enctype="multipart/form-data">
+        <a href="#" class="choose-file-button">Choose File</a>
+        <input type="file" class="video-input" name="file">
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-cover"></div>
 </%block>

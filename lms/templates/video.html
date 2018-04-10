@@ -42,7 +42,9 @@
     tabindex="-1"
 >
     <div class="focus_grabber first"></div>
-
+    % if sources.get('iframe'):
+    ${sources.get('iframe')}
+    % else:
     <div class="tc-wrapper">
         <article class="video-wrapper">
             <div class="video-player-pre"></div>
@@ -87,6 +89,7 @@
 
         <ol class="subtitles" tabindex="0" title="Captions"><li></li></ol>
     </div>
+    % endif
 
     <div class="focus_grabber last"></div>
 <ul class="wrapper-downloads">

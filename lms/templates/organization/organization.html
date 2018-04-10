@@ -1263,7 +1263,7 @@
                                   "certificate_name":{"display":"Certificate Name","sort":"+","show":1}
                                   },
                                   "urls":{
-                                  "data":"/configuration/certificate/table"
+                                  "data":"/configuration/certificate/table?training=1"
                                   },
                                   "paging":{
                                   "size":100
@@ -1280,7 +1280,7 @@
                         <!-- % if check_user_perms(request.user, 'certificate', 'edit'): -->
                         <div class="certificate_editor_tools_bar">
                             <div class="certificate_filter_btn">
-                                <a href="javascript:void(0);" onclick="certificate_editor_save()"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
+                                <a href="javascript:void(0);"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
                             </div>
                             <div class="certificate_filter_btn">
                                 <a href="javascript:void(0);" onclick="certificate_editor_copy()"><div class="imgBtn imgBtn_copy"></div><div>Copy</div></a>
@@ -2684,7 +2684,17 @@
                                     if (r.allow_pd_planner == '1') {
                                         $('#allow_pd_planner').prop("checked",true);
                                         $('#pd').show();
+                                    } else {
+                                        $('#allow_pd_planner').prop("checked",false);
+                                        $('#pd').hide();
                                     }
+
+                                    updateCertificateTable(org_current_id);
+                                    $(".certificate_editor_tools_bar .imgBtn_save").off('click');
+                                    $(".certificate_editor_tools_bar .imgBtn_save").click(function() {
+                                        certificate_editor_save(org_current_id);
+                                    });
+                                    certificate_editor_init();
 								}
 							}else{
 								alert("error: " + r.Error);
@@ -5985,10 +5995,10 @@
                     ["", ""],
                     ["firstname", "firstname"],
                     ["lastname", "lastname"],
-                    ["coursename", "coursename"],
-                    ["coursenumber", "coursenumber"],
-                    ["date", "date"],
-                    ["hours", "hours"]
+                    ["trainingname", "trainingname"],
+                    ["trainingdate", "trainingdate"],
+                    ["trainingcredits", "trainingcredits"],
+                    ["subject", "subject"]
                 ];
                 config.tokenStart = '{';
                 config.tokenEnd = '}';
@@ -6125,6 +6135,12 @@
         }
     }
 
+    //
+    function certificate_editor_init() {
+        pd_ceditor.init();
+        displayFilter();
+    }
+
     //-----Editor Tool buttons-----------
     function certificate_editor_cancel(){
         pd_ceditor.cancel(function(){
@@ -6133,8 +6149,11 @@
             $('.pd_editor_view_btn').click();
         });
     }
-    function certificate_editor_save(){
-        pd_ceditor.save();
+    function certificate_editor_save(organization_id){
+        // negative integer mark ths certificate being created for training
+        // -2 unpublish, -1 publish
+        pd_ceditor.association = pd_ceditor.isPublish ? -1 : -2;
+        pd_ceditor.save_training_certificate(organization_id);
     }
     function certificate_editor_copy(){
         pd_ceditor.copy();
@@ -6156,6 +6175,7 @@
         new Dialog($('#dialog')).showButtons("Unpublish Certificate","<p>Are you sure you want to Unpublish?</p><br/>",['Yes','No'],function(choice){
             if(choice==0){
                 pd_ceditor.unPublish();
+                pd_ceditor.association = -2;
                 this.hide();
             }
             else{this.hide();}
@@ -6223,6 +6243,27 @@
         });
         $('#tblCertificate table').trigger("update");
 
+    }
+
+    function updateCertificateTable(organization_id) {
+        $('#tblCertificate').find(".body").empty();
+        var setting = {
+                        "fields":{
+                            "certificate_name":{"display":"Certificate Name","sort":"+","show":1}
+                        },
+                        "urls":{
+                            "data":"/configuration/certificate/table?training=1&organization_id=" + organization_id
+                        },
+                        "paging":{
+                            "size":100
+                        },
+                        "field_row_identifier":"id"
+                    }
+        var $setting = $("<textarea class='setting'></textarea>").appendTo($('#tblCertificate'));
+        $('#tblCertificate').find("textarea.setting").text(JSON.stringify(setting));
+        $('#tblCertificate')[0].control.parseSetting();
+        $('#tblCertificate')[0].control.createTable();
+        $('#tblCertificate')[0].control.loadData(1);
     }
 
 </script>

@@ -329,7 +329,7 @@ a{
     color: #ccc;font-size:13px;
 }
 .community-left .unjoined-active{
-    width:85%;margin:10px;padding: 1px 0 1px 0;color:#2CBAEC;border:0px solid;
+    width:85%;margin-left:10px;padding: 10px 0 10px 0;color:#2CBAEC;border-bottom:1px solid #ccc;
 }
 .community-left .unjoined-active a{
     font-size:13px;
@@ -1559,13 +1559,17 @@ a{
 
             this.hide();
             if(ans){
-                console.log("delete community");
-                /*
-                $.post("${reverse('community_leave',args=[community_id])}",{user_ids:user_id},function(r){
-                    if(r.success)
-                        window.location.replace("${reverse('maincommunity', args=[community_id])}");
+                $.post("${reverse('subcommunity_delete_new',args=[community_id])}",{},function(r){
+                    if(r.success){
+                        window.location.replace("${reverse('maincommunity', args=[main_community.id])}");
+                    }
+                    else{
+                        var dlg = new Dialog($("#dlg-warning"));
+                        var dailogTitle = "Warning";
+                        var dailogText = "Problem Deleting Community: " + r.error + ".";
+                        dlg.show(dailogTitle, dailogText);
+                    }
                 });
-                */
             }
         });
     }
