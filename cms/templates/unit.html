@@ -50,7 +50,7 @@
   }
   function displayFinishedVideoUpload(xhr) {
     if (xhr.status == 200) {
-        markAsLoaded();
+        markVideoLoaded();
     }
 
     var resp = JSON.parse(xhr.responseText);
@@ -79,6 +79,9 @@
     e.preventDefault();
     $('.upload-video .video-input').click();
   }
+  function markVideoLoaded() {
+    $('.upload-video .progress-bar').addClass('loaded');
+}
   $(document).ready(function() {
     new CMS.Views.UnitEdit({
       el: $('.main-wrapper'),
