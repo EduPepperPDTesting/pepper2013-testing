@@ -137,9 +137,9 @@
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4{ float: left;margin-left: 10px;background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_4 span{position: relative; left: -10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7{ float: left;margin-left: 10px;background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7 span{position: relative; left: -10px; color:#FFFFFF !important;}
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
@@ -825,15 +825,15 @@
 			$(".alert").each(function(){
 				if($(this).hasClass("completeSlot")){
 					var tmp_span = $(this).find("span:eq(0)");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 15){
-						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
 				    var tmp_span = $(this).find("span");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 10){
-						$(this).text(tmp1.substr(0,10) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,10) + "...");
 					}
 				}
 			});
