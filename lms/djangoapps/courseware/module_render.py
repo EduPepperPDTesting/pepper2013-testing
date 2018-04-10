@@ -29,7 +29,7 @@ from xmodule.remindstore import myactivitystore
 
 import static_replace
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
-from student.models import unique_id_for_user
+from student.models import unique_id_for_user, CourseEnrollment
 
 from courseware.access import has_access
 from courseware.masquerade import setup_masquerade
@@ -51,6 +51,8 @@ from django.utils.timezone import UTC
 # True North Logic integration
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
 from reporting.models import reporting_store
+
+from administration.models import PepRegStudent
 
 # log = logging.getLogger(__name__)
 log = logging.getLogger("tracking")
