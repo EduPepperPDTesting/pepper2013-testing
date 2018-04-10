@@ -1,5 +1,5 @@
 from django.db import models
-from student.models import District, School, State, CourseEnrollment
+from student.models import District, School, State
 from django.contrib.auth.models import User
 from student.models import UserProfile
 from django.conf import settings
@@ -252,7 +252,7 @@ class PepRegStudent(models.Model):
     class Meta:
         db_table = 'pepreg_student'
     training = models.ForeignKey(PepRegTraining)
-    course = models.ForeignKey(CourseEnrollment, default=0)
+    course = models.ForeignKey(student.CourseEnrollment, default=0)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
     student_credit = models.FloatField(blank=False, default=0)
