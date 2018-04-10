@@ -933,7 +933,7 @@ class CourseEnrollment(models.Model):
     # list of possible values.
     mode = models.CharField(default="honor", max_length=100)
     is_closed = models.BooleanField(default=False)
-
+    training_list = models.CharField(max_length=200)
     class Meta:
         unique_together = (('user', 'course_id'),)
         ordering = ('user', 'course_id')
@@ -944,7 +944,7 @@ class CourseEnrollment(models.Model):
         ).format(self.user, self.course_id, self.created, self.is_active)
 
     @classmethod
-    def create_enrollment(cls, user, course_id, mode="honor", is_active=False):
+    def create_enrollment(cls, user, course_id, training_id, mode="honor", is_active=False):
         """
         Create an enrollment for a user in a class. By default *this enrollment
         is not active*. This is useful for when an enrollment needs to go
@@ -990,10 +990,20 @@ class CourseEnrollment(models.Model):
             enrollment.is_active = is_active
             enrollment.save()
 
+        if _ == True:
+            training_string = CourseEnrollment.objects.get(user=user, course_id=course_id).training_list
+
+            training_list = training_string.split(',')
+            if training_id != '' and training_id not in training_list:
+                training_list.append(training_id)
+                training_string = ''.join(training_list)
+                enrollment.training_list = training_string
+                enrollment.save()
+
         return enrollment
 
     @classmethod
-    def enroll(cls, user, course_id, mode="honor"):
+    def enroll(cls, user, course_id, training_id='', mode="honor"):
         """
         Enroll a user in a course. This saves immediately.
 
@@ -1013,7 +1023,7 @@ class CourseEnrollment(models.Model):
         It is expected that this method is called from a method which has already
         verified the user authentication and access.
         """
-        return cls.create_enrollment(user, course_id, mode, is_active=True)
+        return cls.create_enrollment(user, course_id, mode, training_id, is_active=True)
 
     @classmethod
     def enroll_by_email(cls, email, course_id, mode="honor", ignore_errors=True):

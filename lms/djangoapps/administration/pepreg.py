@@ -2,7 +2,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, PepRegInstructorCourses
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -507,6 +507,7 @@ def save_training(request):
 
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
+            course_instructors = list()
             for emails in request.POST.get("instructor_emails", "").split(","):
                 tmp1 = emails.split("::");
                 email = tmp1[0];
@@ -522,6 +523,15 @@ def save_training(request):
                     pi.all_edit = all_edit;
                     pi.all_delete = all_delete;
                     pi.save()
+
+                    if training.pepper_course:
+                        _, InstructorAdded = PepRegInstructorCourses.objects.get_or_create(instructor = pi.instructor, course_id = training.pepper_course, training = training)
+                        course_instructors.append(pi.instructor)
+
+            if training.pepper_course:
+                for pep_course in PepRegInstructorCourses.objects.filter(course_id = training.pepper_course):
+                    if pep_course.training == training and pep_course.instructor not in course_instructors:
+                        pep_course.delete()
 
     except Exception as e:
         db.transaction.rollback()
@@ -540,6 +550,7 @@ def delete_training(request):
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         TrainingUsers.objects.filter(training=training).delete()
+        PepRegInstructorCourses.objects.filter(training=training).delete()
         training.delete()
 
         ma_db = myactivitystore()
@@ -1303,7 +1314,7 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                CourseEnrollment.enroll(student_user, training.pepper_course)
+                CourseEnrollment.enroll(student_user, training.pepper_course, training_id)
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 

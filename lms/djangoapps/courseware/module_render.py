@@ -667,6 +667,19 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 domain = tnl_domain_from_user(student)
                                 tnl_instance = TNLInstance(domain)
                                 tnl_instance.register_completion(student, course_id, percent)
+
+                            # Update student status for related training to Attend
+                            enrollment = CourseEnrollment.objects.get(course_id=course_id, user = request.user.id)
+                            training_list = enrollment.training_string.split(',')
+
+                            for training_id in training_list:
+                                student_enrolled = PepRegStudent.objects.get(training__id = training_id, student=request.user.id)
+                                student_status = student_enrolled.student_status
+
+                                if student_status == 'Registered':
+                                    student_enrolled.student_status = 'Attended'
+                                    student_enrolled.save()
+
                         else:
                             course_instance.complete_course = False
                             course_instance.complete_date = None
