@@ -29,6 +29,8 @@ from django.forms import ModelForm, forms
 import comment_client as cc
 from pytz import UTC
 
+from administration.models import PepRegStudent
+
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -933,7 +935,7 @@ class CourseEnrollment(models.Model):
     # list of possible values.
     mode = models.CharField(default="honor", max_length=100)
     is_closed = models.BooleanField(default=False)
-    training_list = models.CharField(max_length=200, default='')
+    #training_list = models.CharField(max_length=200, default='')
     class Meta:
         unique_together = (('user', 'course_id'),)
         ordering = ('user', 'course_id')
@@ -991,14 +993,18 @@ class CourseEnrollment(models.Model):
             enrollment.save()
 
         if _ == True:
-            training_string = CourseEnrollment.objects.get(user=user, course_id=course_id).training_list
+            # training_string = CourseEnrollment.objects.get(user=user, course_id=course_id).training_list
+            #
+            # training_list = training_string.split(',')
+            # if training_id != '' and training_id not in training_list:
+            #     training_list.append(training_id)
+            #     training_string = ''.join(training_list)
+            #     enrollment.training_list = training_string
+            #     enrollment.save()
 
-            training_list = training_string.split(',')
-            if training_id != '' and training_id not in training_list:
-                training_list.append(training_id)
-                training_string = ''.join(training_list)
-                enrollment.training_list = training_string
-                enrollment.save()
+            training = PepRegStudent.objects.get(training_id=training_id, student=user)
+            training.course = enrollment
+            training.save()
 
         return enrollment
 

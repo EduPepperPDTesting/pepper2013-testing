@@ -680,16 +680,23 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 tnl_instance.register_completion(student, course_id, percent)
 
                             # Update student status for related training to Attend
-                            enrollment = CourseEnrollment.objects.get(course_id=course_id, user = request.user.id)
-                            training_list = enrollment.training_string.split(',')
-
-                            for training_id in training_list:
-                                student_enrolled = PepRegStudent.objects.get(training__id = training_id, student=request.user.id)
-                                student_status = student_enrolled.student_status
-
-                                if student_status == 'Registered':
-                                    student_enrolled.student_status = 'Attended'
-                                    student_enrolled.save()
+                            #------------------------------------------------------
+                            # enrollment = CourseEnrollment.objects.get(course_id=course_id, user = request.user.id)
+                            # training_list = enrollment.training_string.split(',')
+                            #
+                            # for training_id in training_list:
+                            #     student_enrolled = PepRegStudent.objects.get(training__id = training_id, student=request.user.id)
+                            #     student_status = student_enrolled.student_status
+                            #
+                            #     if student_status == 'Registered':
+                            #         student_enrolled.student_status = 'Attended'
+                            #         student_enrolled.save()
+                            #------------------------------------------------------
+                            training = PepRegStudent.objects.get(course__id=course_id, student=request.user.id)
+                            student_status = training.student_status
+                            if student_status == 'Registered':
+                                training.student_status = 'Attended'
+                                training.save()
 
                         else:
                             course_instance.complete_course = False
