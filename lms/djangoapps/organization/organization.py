@@ -1713,6 +1713,14 @@ def org_upload(request):
         file_type = request.POST.get("file_type", "")
         oid = request.POST.get("oid", "")
 
+        path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
+        if not os.path.exists(path):
+            os.mkdir(path)
+
         if file_type and oid:
             organization = OrganizationMetadata.objects.get(id=oid)
 
@@ -1734,13 +1742,41 @@ def org_upload(request):
             elif file_type == "register_main_logo":
                 imgx = request.FILES.get("organizational_base_register_main_logo_curr", None)
 
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
-            if not os.path.exists(path):
-                os.mkdir(path)
+            elif file_type == "common_logo":
+                imgx = request.FILES.get("commonlogofile", None)
+                ext = '.png'
+                destination = open(path + file_type + ext, 'wb+')
+                for chunk in imgx.chunks():
+                    destination.write(chunk)
+                destination.close()
+                org_dashboard = OrganizationDashboard()
+                for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Profile Logo"):
+                    org_dashboard = tmp1
+                    break
 
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
-            if not os.path.exists(path):
-                os.mkdir(path)
+                org_dashboard.organization = organization
+                org_dashboard.itemType = "Profile Logo"
+                org_dashboard.itemValue = file_type + ext
+                org_dashboard.save()
+
+                data = {'Success': True, 'name': file_type + ext}
+                return render_json_response(data)
+
+            elif file_type == "stype_profile_logo":
+                uploadname = request.POST.get("uploadname", "")
+                stype = request.POST.get("stype", "")
+                imgx = request.FILES.get(uploadname, None)
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/' + stype + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                if imgx:
+                    # ext = os.path.splitext(imgx.name)[1]
+                    destination = open(path + uploadname + '.png', 'wb+')
+                    for chunk in imgx.chunks():
+                        destination.write(chunk)
+                    destination.close()
+                data = {'Success': True, 'name': uploadname + '.png'}
+                return render_json_response(data)
 
             if imgx:
                 ext = os.path.splitext(imgx.name)[1]
