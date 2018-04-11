@@ -452,6 +452,10 @@ def parse_video_url(url):
     elif url.startswith('/static/'):
         source_type = 'static'
         source = url
+    elif re.match(r'^https://www.youtube.com', url):
+        source_type = 'youtube'
+        source = urlparse.parse_qs(urlparse.urlparse(url).query).get('v')[0]
+        iframe = iframe.format(source)
     else:
         pass
 
