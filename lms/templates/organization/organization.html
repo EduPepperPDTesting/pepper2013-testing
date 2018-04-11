@@ -37,6 +37,7 @@
 
 
 <style>
+	.profilephoto{display:inline-flex;}
 	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
@@ -553,9 +554,11 @@
             <table id="organization-state-table" class="organization-table">
                 <thead>
                     <tr>
-                        <th width="200">Entity type</th>
-                        <th width="400">Entity</th>
+                        <th width="120">Entity type</th>
+                        <th width="300">Entity</th>
                         <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
+                        <th width="400">Entity Logos</th>
+                        <th width="200">Entity Logo URL</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -747,7 +750,7 @@
                     <!-- <input type="text" id="organizational_base_organization_recommended_courses_curr" /> -->
                 </td>
             </tr>
-            <tr class="organization_pd_dashboard_set" id="profile_logo_tr">
+            <!-- <tr class="organization_pd_dashboard_set" id="profile_logo_tr">
                 <td class="org_td1">Profile Logo (270 &times; 200 px): </td>
                 <td id="organizational_base_profile_logo_p"></td>
                 <td></td>
@@ -763,7 +766,7 @@
                 	<input type="text" id="organizational_base_organization_profile_logo_url" />
                     <input type="text" id="organizational_base_organization_profile_logo_curr_url" />
                 </td>
-            </tr>
+            </tr> -->
             <tr class="organization_pd_dashboard_set">
                 <td class="org_td1">Motto: </td>
                 <td colspan="2">
@@ -2223,17 +2226,17 @@
 									
 									organizationAddFileImg("organizational_base_organization_logo", r.organization_logo);
 									organizationAddFileImg("organizational_base_home_logo", r.logo);
-									organizationAddFileImg("organizational_base_profile_logo", r['Profile Logo']);
-									organizationAddFileImg("organizational_base_profile_logo_curr", r['Profile Logo Curriculumn']);
+									// organizationAddFileImg("organizational_base_profile_logo", r['Profile Logo']);
+									// organizationAddFileImg("organizational_base_profile_logo_curr", r['Profile Logo Curriculumn']);
 									organizationAddFileImg("organizational_base_register_main_logo_curr", r['Register Main Logo']);
 									organizationAddFileImg("organizational_base_register_logo_curr", r['Register Logo']);
 									organizationAddFileImgInit("organizational_base_home_logo");
-									organizationAddFileImgInit("organizational_base_profile_logo");
-									organizationAddFileImgInit("organizational_base_profile_logo_curr");
+									// organizationAddFileImgInit("organizational_base_profile_logo");
+									// organizationAddFileImgInit("organizational_base_profile_logo_curr");
 									organizationAddFileImgInit("organizational_base_organization_logo");
 									organizationAddFileImgInit("organizational_base_register_main_logo_curr");
 									organizationAddFileImgInit("organizational_base_register_logo_curr");
-									
+
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
@@ -2247,13 +2250,31 @@
 
 									//----------Course Assignment
 									initAssignmentQualifications(r['Course Assignment']);
-									
+
 									//----------Entlty type
-									if(r.sid_did != ""){
-										var sid_did_list = r.sid_did.split(":");
-										for(var j in sid_did_list){
-											var tmpsd = sid_did_list[j].split(",");
-											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3]);
+									if (r.common_logo_button == 'false'){
+										$("input[name='Commonlogo']").prop('checked',false)
+										$("input[name='profileurl']").val("")
+										ProfileAddFileImgInit('commonlogofile')
+										$('#commonlogofile').next().empty()
+										if(r.sid_did != ""){
+											var sid_did_list = r.sid_did.split("||");
+											for(var j in sid_did_list){
+												var tmpsd = sid_did_list[j].split(",");
+												organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
+												ProfileAddFileImg('orgentity'+tmpsd[1], 'orgentity'+tmpsd[1]+ '.png',  tmpsd[0])
+											}
+										}
+									}else{
+										$("input[name='Commonlogo']").prop('checked',true)
+										$("input[name='profileurl']").val(r["Profile Logo Url"])
+										ProfileAddFileImg('commonlogofile',r["Profile Logo"])
+										if(r.sid_did != ""){
+											var sid_did_list = r.sid_did.split("||");
+											for(var j in sid_did_list){
+												var tmpsd = sid_did_list[j].split(",");
+												organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
+											}
 										}
 									}
 									if($(".organization-state-select").length > 0){
@@ -2408,8 +2429,8 @@
 										$("input[name='organizational_dashboard_remove_all_menu']").prop("checked", false);
 									}
 									$("#organizational_base_organization_logo_url").val(r["Organization Logo Url"]);
-									$("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
-									$("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
+									// $("#organizational_base_organization_profile_logo_url").val(r["Profile Logo Url"]);
+									// $("#organizational_base_organization_profile_logo_curr_url").val(r["Profile Logo Url Curriculumn"]);
 									// $("#organizational_base_organization_my_trending_topics_curr").val(r["my_trending_topics"]);
 									// $("#organizational_base_organization_my_communities_curr").val(r["my_communities"]);
 									// $("#organizational_base_organization_my_learning_plan_curr").val(r["my_learning_plan"]);
@@ -2787,7 +2808,24 @@
 		$("#" + eid + "_p").empty();
 		$("#" + eid + "_p").append('<input type="file" id="' + eid + '" name="' + eid + '">');
 	}	
+
+	function ProfileAddFileImgInit(id){
+		$("#" + id).val('')
+	}
+
+	function ProfileAddFileImg(id, name, stype=""){
+		$("#" + id).next().empty();
+		if (stype == ""){
+			var src = "/static/uploads/organization/" + org_current_id + "/" + name;
+		}else{
+			var src = "/static/uploads/organization/" + org_current_id + "/" + stype + "/" + name ;
+		}
+		$("#" + id).next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+	}
 	
+	function noimage(a){
+		$(a).parent().parent().empty();
+	}	
 	//-----------------------------------------------------------------------organizationAddFileImg
 	function organizationAddFileImg(eid, name, type='org'){
 		if (type == 'org'){
@@ -2819,7 +2857,7 @@
 	}
 	
 	//-----------------------------------------------------------------------organizationAddDistricts
-	function organizationAddDistricts(add_type, add_txt, add_id, did){
+	function organizationAddDistricts(add_type, add_txt, add_id, did, profileurl){
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
@@ -2827,9 +2865,12 @@
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
 		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
+		row += "<td><input type='file' class='uploadprofile' name='orgentity" + add_id + "' stype='" + add_type + "' id='orgentity" + add_id + "'><div class='profilephoto'></div></td>";
+		row += "<td><input type='text' value='"+ profileurl +"'></td>";
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
-		
+		$table_location = $('#organization-state-table')
+		$table_location.find('tbody tr td:nth-child(5)').css("text-align",'center');
 		//-----------------------------------------edit
 		$(".organization-state-edit").unbind("click").click(function(e){
 			e.preventDefault();
@@ -2949,6 +2990,66 @@
 					loadwin.hide();
 				}
 			})
+		}
+	}
+
+	//-----------------------------------------------------------------------uploadprofile
+	function UploadProfile(type = ""){
+		if (type == 'Common'){
+			fileElementId = 'commonlogofile'
+			file_type = 'common_logo'
+			var loadwin = new LoadingWin();
+			$.ajaxFileUpload({
+				url: "${reverse('organizational_configuration')}", 
+				secureuri: false,
+				fileElementId: fileElementId,
+				dataType: 'JSON',
+				data: {flag: 'org_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
+				success: function (data, status){
+					var tmp2 = eval("(" + $(data).html() + ")");
+					if(tmp2.Success){
+						ProfileAddFileImgInit(fileElementId);
+						ProfileAddFileImg(fileElementId, tmp2.name);
+					}else{
+						alert("ajaxFileUpload error: " + tmp2.Error);
+					}
+					loadwin.hide();
+				},
+				error: function (data, status, e){
+					alert("ajaxFileUpload error: " + e);
+					loadwin.hide();
+				}
+			})
+		}else{
+			uploads = $(".uploadprofile")
+			for (var i = 0; i < uploads.length; i++){
+				if (uploads[i].value != ""){
+					stype = uploads[i].getAttribute('stype')
+					fileElementId = uploads[i].id
+					file_type = 'stype_profile_logo'
+					$.ajaxFileUpload({
+						url: "${reverse('organizational_configuration')}", 
+						secureuri: false,
+						fileElementId: fileElementId,
+						dataType: 'JSON',
+						data: {flag: 'org_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id,
+							    stype: stype, uploadname: uploads[i].id},
+						success: function (data, status){
+							var tmp2 = eval("(" + $(data).html() + ")");
+							if(tmp2.Success){
+								ProfileAddFileImgInit(fileElementId);
+								ProfileAddFileImg(fileElementId, tmp2.name, stype, fileElementId);
+							}else{
+								alert("ajaxFileUpload error: " + tmp2.Error);
+							}
+						},
+						error: function (data, status, e){
+							alert("ajaxFileUpload error: " + e);
+							loadwin.hide();
+						}
+					})
+				}
+			}
 		}
 	}
 
@@ -3138,6 +3239,7 @@
 			var loadwin = new LoadingWin();
 			var db = "attributes";
 			var column = "";
+			var stype = "";
 			var current_id = org_current_id;
 			if(eid == "organizational_base_top_main_logo"){
 				db = "configuration";
@@ -3150,10 +3252,10 @@
 				column = "MainPageBottomImage";
 			}else if(eid == "organizational_base_home_logo"){
 				column = "LogoHome";
-			}else if(eid == "organizational_base_profile_logo"){
-				column = "LogoProfile";
-			}else if(eid == "organizational_base_profile_logo_curr"){
-				column = "LogoProfileCurr";
+			// }else if(eid == "organizational_base_profile_logo"){
+			// 	column = "LogoProfile";
+			// }else if(eid == "organizational_base_profile_logo_curr"){
+			// 	column = "LogoProfileCurr";
 			}else if(eid == "organizational_base_organization_logo"){
 				column = "OrganizationLogo";
 			}else if(eid == "design_menu_logo"){
@@ -3163,11 +3265,20 @@
 				column = "RegisterMainLogo";
 			}else if (eid == "organizational_base_register_logo_curr"){
 				column = "RegisterLogo";
+			}else if(eid == "commonlogofile"){
+				column = "CommonLogo"
+			}else{
+				stype = $("#"+eid).attr("stype")
+				column = eid
 			}
 			
-			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: current_id, column: column, db: db}, function (r) {	
+			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", stype: stype, oid: current_id, column: column, db: db}, function (r) {	
 				if (r.Success){
-					$("#" + eid + "_p").next().empty();
+					if (column == "CommonLogo" || stype != ""){
+						$("#" + eid).next().empty();
+					}else{
+						$("#" + eid + "_p").next().empty();
+					}
 				}
 				loadwin.hide();
 			});
@@ -4034,8 +4145,8 @@
 		$("#org_btn_cancel_state").hide();
 		
 		organizationAddFileImgInit("organizational_base_home_logo");
-		organizationAddFileImgInit("organizational_base_profile_logo");
-		organizationAddFileImgInit("organizational_base_profile_logo_curr");
+		// organizationAddFileImgInit("organizational_base_profile_logo");
+		// organizationAddFileImgInit("organizational_base_profile_logo_curr");
 		organizationAddFileImgInit("organizational_base_top_main_logo");
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
@@ -4614,8 +4725,19 @@
 		$('#organization-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);		
 		
 		pagerOptions.container = $("#organization-state-pager");
-		$('#organization-state-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);		
-		
+		$('#organization-state-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+		var $table_location = $("#organization-state-table");
+		$table_location.find('thead tr:eq(1) td:eq(3)').css("text-align",'left');
+		$table_location.find('thead tr:eq(1) td:eq(3)').css("font-size",'15px');
+		$table_location.find('thead tr:eq(1) td:eq(3)').html("One Common Logo? <input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px'><div class='profilephoto'></div>");
+		$table_location.find('thead tr:eq(1) td:eq(4)').html("<input type='text' name='profileurl'>");
+		$("input[name='Commonlogo']").click(function(){
+			if ($(this).prop('checked') == true){
+				$(this).next().prop('disabled',false)
+			}else{
+				$(this).next().prop('disabled',true)
+			}
+		})
 		pagerOptions.container = $("#organization-option-pager");
 		$('#organization-option-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 		
@@ -4859,16 +4981,16 @@
 											
 										}
 									});
-									organizationAddDistricts(add_type, add_txt, add_id, "");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "");
 									loadwin.hide();
 								}else if(add_type == "School"){
-									organizationAddDistricts(add_type, add_txt, add_id, "");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "");
 									loadwin.hide();
 								}else if (add_type == "Cohort"){
-									organizationAddDistricts(add_type, add_txt, add_id, "");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "");
 									loadwin.hide();
 								}else{
-									organizationAddDistricts(add_type, add_txt, add_id, "");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "");
 									loadwin.hide();
 								}
 							}
@@ -4984,16 +5106,16 @@
 				loadwin.hide();
 				return;
 			}
-			if($("#organizational_base_profile_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo").val())){				
-				alert("Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
-				loadwin.hide();
-				return;
-			}
-			if($("#organizational_base_profile_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo_curr").val())){				
-				alert("Curriculum Dashboard Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
-				loadwin.hide();
-				return;
-			}
+			// if($("#organizational_base_profile_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo").val())){				
+			// 	alert("Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+			// 	loadwin.hide();
+			// 	return;
+			// }
+			// if($("#organizational_base_profile_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo_curr").val())){				
+			// 	alert("Curriculum Dashboard Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+			// 	loadwin.hide();
+			// 	return;
+			// }
 			if($("#organizational_base_register_logo_curr").val() != "" && !organizationCheckUploadFile($("#organizational_base_register_logo_curr").val())){				
 				alert("Register Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
 				loadwin.hide();
@@ -5004,14 +5126,26 @@
 				loadwin.hide();
 				return;
 			}
-			
+			var common_logo_button = false
+			if ($("input[name='Commonlogo']").prop('checked')){
+				common_logo_button = true
+			}
+			var profileurl = ""
+			if (common_logo_button){
+				profileurl = $("input[name='profileurl']").val();
+			}
 			var sid_did = "";
+			var sid_did_profile = "";
 			$(".organization-state-edit").each(function(){
 				var sid = $(this).attr("sid");
 				var stype = $(this).attr("stype");
 				var did = $(this).attr("did");
-				if(sid_did != "")	sid_did += ":";
-				sid_did += sid + "," + stype + "," + did;
+				if(sid_did != "")	sid_did += "||";
+				if(!common_logo_button){
+					sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().next().next().find('input').val();
+				}else{
+					sid_did += sid + "," + stype + "," + did + ',' + "";
+				}
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
@@ -5249,8 +5383,8 @@
 			var remove_all_menu = ($("input[name='organizational_dashboard_remove_all_menu']").attr("checked")) ? "1" : "0";
 			var is_my_feed_default_curr = $("input[name='organizational_dashboard_feed_default_curr']:checked").val();
 			var org_logo_url = $("#organizational_base_organization_logo_url").val();
-			var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
-			var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
+			// var org_profile_logo_url = $("#organizational_base_organization_profile_logo_url").val();
+			// var org_profile_logo_curr_url = $("#organizational_base_organization_profile_logo_curr_url").val();
 			// var my_trending_topics_curr = $("#organizational_base_organization_my_trending_topics_curr").val();
 			// var my_communities_curr = $("#organizational_base_organization_my_communities_curr").val();
 			// var my_learning_plan_curr = $("#organizational_base_organization_my_learning_plan_curr").val();
@@ -5292,6 +5426,8 @@
             var allow_pd_planner = ($("#allow_pd_planner").attr("checked")) ? "1" : "0";
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
+				common_logo_button: common_logo_button,
+				profileurl: profileurl,
 				register_text_button: register_text_button,
 				sid_did: sid_did,
 				course_assignment_content: course_assignment_content,
@@ -5342,8 +5478,8 @@
 				menu_text_size_me: menu_text_size_me,
 				space_between_items: space_between_items,
 				org_logo_url: org_logo_url,				
-				org_profile_logo_url: org_profile_logo_url,
-				org_profile_logo_curr_url: org_profile_logo_curr_url,
+				// org_profile_logo_url: org_profile_logo_url,
+				// org_profile_logo_curr_url: org_profile_logo_curr_url,
 				my_trending_topics: my_trending_topics,
 				my_communities: my_communities,
 				my_learning_plan: my_learning_plan,
@@ -5368,18 +5504,25 @@
 						
 						}
 					}
+					if ($("input[name='Commonlogo']").prop('checked')){
+						if($('#commonlogofile').val() != ""){
+							UploadProfile('Common')
+						}
+					}else{
+						UploadProfile()
+					}
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}
 					if($("#organizational_base_home_logo").val() != ""){
 						organizationUploadFile("organizational_base_home_logo", "home_logo");
 					}
-					if($("#organizational_base_profile_logo").val() != ""){
-						organizationUploadFile("organizational_base_profile_logo", "profile_logo");
-					}
-					if($("#organizational_base_profile_logo_curr").val() != ""){
-						organizationUploadFile("organizational_base_profile_logo_curr", "profile_logo_curr");
-					}
+					// if($("#organizational_base_profile_logo").val() != ""){
+					// 	organizationUploadFile("organizational_base_profile_logo", "profile_logo");
+					// }
+					// if($("#organizational_base_profile_logo_curr").val() != ""){
+					// 	organizationUploadFile("organizational_base_profile_logo_curr", "profile_logo_curr");
+					// }
 					if($("#organizational_base_register_logo_curr").val() != ""){
 						organizationUploadFile("organizational_base_register_logo_curr", "register_logo");
 					}
@@ -5874,12 +6017,12 @@
 			if(pd_val == "1"){
 				$("#organizational_dashboard_feed_table").show();
 				$("#organizational_dashboard_feed_curr_table").hide();				
-				$("#profile_logo_tr").show();
-				$("#profile_logo_curr_tr").hide();				
+				// $("#profile_logo_tr").show();
+				// $("#profile_logo_curr_tr").hide();				
 				$("textarea[name='organizational_base_motto']").show();
 				$("textarea[name='organizational_base_motto_curr']").hide();				
-				$("#organizational_base_organization_profile_logo_url").show();
-				$("#organizational_base_organization_profile_logo_curr_url").hide();				
+				// $("#organizational_base_organization_profile_logo_url").show();
+				// $("#organizational_base_organization_profile_logo_curr_url").hide();				
 				$("input[name='organizational_dashboard_show_left']").show();
 				$("input[name='organizational_dashboard_show_left_curr']").hide();
 				$("input[name='organizational_dashboard_show_right']").show();
@@ -5889,12 +6032,12 @@
 			}else if(pd_val == "2"){
 				$("#organizational_dashboard_feed_table").hide();
 				$("#organizational_dashboard_feed_curr_table").show();				
-				$("#profile_logo_tr").hide();
-				$("#profile_logo_curr_tr").show();
+				// $("#profile_logo_tr").hide();
+				// $("#profile_logo_curr_tr").show();
 				$("textarea[name='organizational_base_motto']").hide();
 				$("textarea[name='organizational_base_motto_curr']").show();				
-				$("#organizational_base_organization_profile_logo_url").hide();
-				$("#organizational_base_organization_profile_logo_curr_url").show();				
+				// $("#organizational_base_organization_profile_logo_url").hide();
+				// $("#organizational_base_organization_profile_logo_curr_url").show();				
 				$("input[name='organizational_dashboard_show_left']").hide();
 				$("input[name='organizational_dashboard_show_left_curr']").show();
 				$("input[name='organizational_dashboard_show_right']").hide();

@@ -104,7 +104,8 @@
 
     courses_incomplated_top2 = []
     allowedcourse = []
-
+    tmp_profile_logo_url = ""
+    tmp_profile_logo = ""
     if request.user.is_authenticated():            
         try:
             state_id = request.user.profile.district.state.id
@@ -127,24 +128,40 @@
         if (cohort_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
                 organization_obj = tmp1.organization
+                tmp = eval(tmp1.OtherFields)
+                if tmp.has_key('profileurl') and tmp['profileurl'] != "":
+                    tmp_profile_logo_url = tmp['profileurl']
+                    tmp_profile_logo = 'Cohort/orgentity' + str(tmp1.OrganizationEnity) + '.png'
                 OrganizationOK = True
                 break;
 
         if (not(OrganizationOK) and school_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                 organization_obj = tmp1.organization
+                tmp = eval(tmp1.OtherFields)
+                if tmp.has_key('profileurl') and tmp['profileurl'] != "":
+                    tmp_profile_logo_url = tmp['profileurl']
+                    tmp_profile_logo = 'School/orgentity' + str(tmp1.OrganizationEnity) + '.png'
                 OrganizationOK = True
                 break;
 
         if (not(OrganizationOK) and district_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
                 organization_obj = tmp1.organization
+                tmp = eval(tmp1.OtherFields)
+                if tmp.has_key('profileurl') and tmp['profileurl'] != "":
+                    tmp_profile_logo_url = tmp['profileurl']
+                    tmp_profile_logo = 'District/orgentity' + str(tmp1.OrganizationEnity) + '.png'
                 OrganizationOK = True
                 break;
         
         if (not(OrganizationOK) and state_id != -1):
             for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
                 OrganizationOK = True
+                tmp = eval(tmp1.OtherFields)
+                if tmp.has_key('profileurl') and tmp['profileurl'] != "":
+                    tmp_profile_logo_url = tmp['profileurl']
+                    tmp_profile_logo = 'State/orgentity' + str(tmp1.OrganizationEnity) + '.png'
                 organization_obj = tmp1.organization
                 break;
 
@@ -158,30 +175,30 @@
                 data[tmp1.itemType] = tmp1.itemValue
             
             add_profile = ""
-            tmp_profile_logo = ""
-            tmp_profile_logo_url = ""
             if data['Dashboard option etc'] == "1":
-                if data.has_key('Profile Logo') and data['Profile Logo'] != "":
-                    tmp_profile_logo = data['Profile Logo']
-                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
-                        tmp_profile_logo_url = data['Profile Logo Url']
-
+                if data.has_key('Common Logo Button') and data['Common Logo Button'] == "true": 
+                    if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                        tmp_profile_logo = data['Profile Logo']
+                        if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                            tmp_profile_logo_url = data['Profile Logo Url']
+                
                 if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
                     show_right = "display:none;";    
             else:
-                if data.has_key('Profile Logo Curriculumn') and data['Profile Logo Curriculumn'] != "":
-                    tmp_profile_logo = data['Profile Logo Curriculumn']
-                    if data.has_key('Profile Logo Url Curriculumn') and data['Profile Logo Url Curriculumn'] != "":
-                        tmp_profile_logo_url = data['Profile Logo Url Curriculumn']  
+                if data.has_key('Common Logo Button') and data['Common Logo Button'] == "true": 
+                    if data.has_key('Profile Logo') and data['Profile Logo'] != "":
+                        tmp_profile_logo = data['Profile Logo']
+                        if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                            tmp_profile_logo_url = data['Profile Logo Url']  
 
                 if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
                     show_right = "display:none;"; 
-
+            
             if tmp_profile_logo != "":
                 if tmp_profile_logo_url != "":
-                    add_profile = "<a href='" + tmp_profile_logo_url + "'><img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/></a>";
+                    add_profile = "<a href='" + tmp_profile_logo_url + "'><img onerror='noimage(this)' src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/></a>";
                 else:
-                    add_profile = "<img src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/>"; 
+                    add_profile = "<img onerror='noimage(this)' src='/static/uploads/organization/" + str(organization_obj.id) + "/" + tmp_profile_logo + "' style='max-width:230px;max-height:170px;'/>"; 
                          
             data['add_profile'] = add_profile
 
@@ -303,3 +320,9 @@
                 %endif
             </div>
         </div>
+
+<script type="text/javascript">
+    function noimage(a){
+        $(a).parent().empty();
+    }   
+</script>
