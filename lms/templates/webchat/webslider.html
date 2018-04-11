@@ -322,6 +322,7 @@ $(document).ready(function(){
                                         id = userRows[i][1];
                                         netIcon = userRows[i][2];
                                         commIcon = userRows[i][3];
+                                        onlineStatus = userRows[i][4];
                                         //console.log(username+" "+id);
                                         userID = username.replace(/ /g, "_")+','+id;
                                         elExists = !!document.getElementById('ul'+id);
@@ -338,7 +339,9 @@ $(document).ready(function(){
                                         var netIconTag, commIconTag;
                                         if(netIcon!==''){netIconTag = "<a><img class='pep_type_icon' src='" + netIcon + "' alt='In My Network' title='In My Network'></a>"}else{netIconTag = "<div style='display:inline-block;margin-right:15px;'></div>";}
                                         if(commIcon!==''){commIconTag = "<a><img class='pep_type_icon' src='" + commIcon + "' alt='In My Community' title='In My Community'></a>"}else{commIconTag = "";}
-                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'><div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div></td><tr>");//<div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
+                                        if(onlineStatus=='0') onlineStatus="<div class='pep_offline_icon' style='display:inline-block;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:none;'>";
+                                        else onlineStatus="<div class='pep_offline_icon' style='display:none;'><img src='/static/images/Pepptalk/PeppIcon.png' alt='offline'/></div><div class='pep_online_icon' style='display:inline-block;''>";
+                                        $("body #pep_user_list").find("#user_search").append("<tr><td class='"+ userID +"'>" + onlineStatus + "<img src='/static/images/Pepptalk/PeppIconPlus.png' alt='online'/></div><div class='pep_add_im' style='" + addStyle + "'>+</div><div class='pep_remove_im' style='" + removeStyle + "'>&boxh;</div><div id='"+id+"' class='pep_contact_name'>" + username + "</div></td><tr>");//<div class='pep_start_video' style='display: inline-block;'><a><img src='/static/images/Pepptalk/PeppCam.png' alt='im-video'></a></div><div class='pep_contact_info' style='display: inline-block;'><span class='pep_contact_type'>"+netIconTag+commIconTag+"</span></div></td><tr>");
                                     }
 
                                     $("#user_search .pep_add_im").each(function(){
