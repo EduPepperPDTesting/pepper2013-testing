@@ -2254,27 +2254,17 @@
 									//----------Entlty type
 									if (r.common_logo_button == 'false'){
 										$("input[name='Commonlogo']").prop('checked',false)
-										$("input[name='profileurl']").val("")
-										ProfileAddFileImgInit('commonlogofile')
-										$('#commonlogofile').next().empty()
-										if(r.sid_did != ""){
-											var sid_did_list = r.sid_did.split("||");
-											for(var j in sid_did_list){
-												var tmpsd = sid_did_list[j].split(",");
-												organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
-												ProfileAddFileImg('orgentity'+tmpsd[1], 'orgentity'+tmpsd[1]+ '.png',  tmpsd[0])
-											}
-										}
 									}else{
 										$("input[name='Commonlogo']").prop('checked',true)
-										$("input[name='profileurl']").val(r["Profile Logo Url"])
-										ProfileAddFileImg('commonlogofile',r["Profile Logo"])
-										if(r.sid_did != ""){
-											var sid_did_list = r.sid_did.split("||");
-											for(var j in sid_did_list){
-												var tmpsd = sid_did_list[j].split(",");
-												organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
-											}
+									}
+									$("input[name='profileurl']").val(r["Profile Logo Url"])
+									ProfileAddFileImg('commonlogofile',r["Profile Logo"])
+									if(r.sid_did != ""){
+										var sid_did_list = r.sid_did.split("||");
+										for(var j in sid_did_list){
+											var tmpsd = sid_did_list[j].split(",");
+											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
+											ProfileAddFileImg('orgentity'+tmpsd[1], 'orgentity'+tmpsd[1]+ '.png',  tmpsd[0])
 										}
 									}
 									if($(".organization-state-select").length > 0){
@@ -2994,8 +2984,8 @@
 	}
 
 	//-----------------------------------------------------------------------uploadprofile
-	function UploadProfile(type = ""){
-		if (type == 'Common'){
+	function UploadProfile(){
+		if($('#commonlogofile').val() != ""){
 			fileElementId = 'commonlogofile'
 			file_type = 'common_logo'
 			var loadwin = new LoadingWin();
@@ -3004,6 +2994,7 @@
 				secureuri: false,
 				fileElementId: fileElementId,
 				dataType: 'JSON',
+				async : false,
 				data: {flag: 'org_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
 				success: function (data, status){
 					var tmp2 = eval("(" + $(data).html() + ")");
@@ -3020,35 +3011,35 @@
 					loadwin.hide();
 				}
 			})
-		}else{
-			uploads = $(".uploadprofile")
-			for (var i = 0; i < uploads.length; i++){
-				if (uploads[i].value != ""){
-					stype = uploads[i].getAttribute('stype')
-					fileElementId = uploads[i].id
-					file_type = 'stype_profile_logo'
-					$.ajaxFileUpload({
-						url: "${reverse('organizational_configuration')}", 
-						secureuri: false,
-						fileElementId: fileElementId,
-						dataType: 'JSON',
-						data: {flag: 'org_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id,
-							    stype: stype, uploadname: uploads[i].id},
-						success: function (data, status){
-							var tmp2 = eval("(" + $(data).html() + ")");
-							if(tmp2.Success){
-								ProfileAddFileImgInit(fileElementId);
-								ProfileAddFileImg(fileElementId, tmp2.name, stype, fileElementId);
-							}else{
-								alert("ajaxFileUpload error: " + tmp2.Error);
-							}
-						},
-						error: function (data, status, e){
-							alert("ajaxFileUpload error: " + e);
-							loadwin.hide();
+		}
+		uploads = $(".uploadprofile")
+		for (var i = 0; i < uploads.length; i++){
+			if (uploads[i].value != ""){
+				stype = uploads[i].getAttribute('stype')
+				fileElementId = uploads[i].id
+				file_type = 'stype_profile_logo'
+				$.ajaxFileUpload({
+					url: "${reverse('organizational_configuration')}", 
+					secureuri: false,
+					async : false,
+					fileElementId: fileElementId,
+					dataType: 'JSON',
+					data: {flag: 'org_upload', file_type: file_type, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id,
+						    stype: stype, uploadname: uploads[i].id},
+					success: function (data, status){
+						var tmp2 = eval("(" + $(data).html() + ")");
+						if(tmp2.Success){
+							ProfileAddFileImgInit(fileElementId);
+							ProfileAddFileImg(fileElementId, tmp2.name, stype, fileElementId);
+						}else{
+							alert("ajaxFileUpload error: " + tmp2.Error);
 						}
-					})
-				}
+					},
+					error: function (data, status, e){
+						alert("ajaxFileUpload error: " + e);
+						loadwin.hide();
+					}
+				})
 			}
 		}
 	}
@@ -5504,13 +5495,7 @@
 						
 						}
 					}
-					if ($("input[name='Commonlogo']").prop('checked')){
-						if($('#commonlogofile').val() != ""){
-							UploadProfile('Common')
-						}
-					}else{
-						UploadProfile()
-					}
+					UploadProfile()
 					if($("#organizational_base_organization_logo").val() != ""){
 						organizationUploadFile("organizational_base_organization_logo", "organization_logo");
 					}

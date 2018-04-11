@@ -1210,13 +1210,7 @@ def organizational_save_base(request):
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
         allow_pd_planner = request.POST.get("allow_pd_planner", "")
-        if common_logo_button == 'true':
-            profileurl = request.POST.get("profileurl", "")
-        else:
-            profileurl = ""
-            filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(oid) + "/common_logo.png"
-            if os.path.isfile(filename):
-                os.remove(filename)
+        profileurl = request.POST.get("profileurl", "")
         if is_announcement == "1":
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
@@ -1337,10 +1331,6 @@ def organizational_save_base(request):
                         org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "','profileurl':'"+ array1[3] + "'}"
 
                     org_dis.save()
-                    if common_logo_button == 'true':
-                        filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + str(org_metadata.id) + "/" + str(org_dis.EntityType) + "/orgentity" + str(org_dis.OrganizationEnity) +".png"
-                        if os.path.isfile(filename):
-                            os.remove(filename)
 
                     if back_sid_all != "":
                         back_sid_all += ","
