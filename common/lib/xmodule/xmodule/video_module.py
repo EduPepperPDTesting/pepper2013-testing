@@ -13,6 +13,7 @@ in XML.
 import json
 import logging
 import re
+import urlparse
 
 from lxml import etree
 from pkg_resources import resource_string
