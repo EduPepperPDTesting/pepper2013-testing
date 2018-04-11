@@ -5121,10 +5121,8 @@
 			if ($("input[name='Commonlogo']").prop('checked')){
 				common_logo_button = true
 			}
-			var profileurl = ""
-			if (common_logo_button){
-				profileurl = $("input[name='profileurl']").val();
-			}
+			
+			var	profileurl = $("input[name='profileurl']").val();
 			var sid_did = "";
 			var sid_did_profile = "";
 			$(".organization-state-edit").each(function(){
@@ -5132,11 +5130,7 @@
 				var stype = $(this).attr("stype");
 				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += "||";
-				if(!common_logo_button){
-					sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().next().next().find('input').val();
-				}else{
-					sid_did += sid + "," + stype + "," + did + ',' + "";
-				}
+				sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().next().next().find('input').val();
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
