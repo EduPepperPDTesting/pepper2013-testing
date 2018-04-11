@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegInstructorCourses
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -79,6 +79,9 @@ def build_filters(columns, filters):
     """
     kwargs = dict()
     args = None
+    ranges = {"1": "__lt", "2": "__gt", "3": "__lte", "4": "__gte"}
+    kwargs_condition = ''
+
     # Iterate through the filters.
     for column, value in filters.iteritems():
         # For the numerical columns, just filter that column by the passed value.
@@ -87,14 +90,36 @@ def build_filters(columns, filters):
 
             # If the column is an integer value, convert the search term.
             try:
+                if(value.find("^") == 0):
+                    out_value = value[value.find("|") + 1:]
+                    if columns[c][0] == "training_date":
+                        out_value = datetime.strptime(out_value, '%m/%d/%Y').date()
+                    elif columns[c][0].startswith("training_time"):
+                        out_value = datetime.strptime(out_value, '%I:%M %p')
+                    if(value[1] != "0"):
+                        r = value[1]
+                        kwargs_condition = ranges.get(r)
+                        kwargs[columns[c][0] + ranges.get(r)] = out_value
+
+                else:
+                    if columns[c][2] == 'int' and value.isdigit():
+                        out_value = int(value)
+                    else:
+                        out_value = value
+
+                    # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+                    # type of selection to make ([1] - '__iexact').
+                    kwargs[columns[c][0] + columns[c][1]] = out_value
                 out_value = value
             except:
                 raise Exception("c="+str(c))
-            if columns[c][2] == 'int' and value.isdigit():
-                out_value = int(value)
+            # if columns[c][2] == 'int' and value.isdigit():
+            #     out_value = int(value)
+
+            kwargs_condition = columns[c][1] if not kwargs_condition else kwargs_condition
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
             # type of selection to make ([1] - '__iexact').
-            kwargs[columns[c][0] + columns[c][1]] = out_value
+            kwargs[columns[c][0] + kwargs_condition] = out_value
         # If this is a search for all, we need to do an OR search, so we build one with Q objects.
         else:
             args_list = list()
@@ -178,6 +203,7 @@ def rows(request):
         9: ['geo_location', '__iexact', 'str'],
         10: ['credits', '__iexact', 'int'],
         11: ['subjectother', '__iexact', 'str'],
+        12: ['training_time_end', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
@@ -235,6 +261,16 @@ def rows(request):
 
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
         #raise Exception(str(trainings))
+
+        field_type = {
+            "state": 1,
+            "district": 2,
+            "subject": 3,
+            "date": 7,
+            "training time start": 8,
+            "training time end": 12
+        }
+
         for field_item in field_list:
             item_unit = field_item.split("|")
 
@@ -249,17 +285,19 @@ def rows(request):
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
 
-            if item == 'state':
-                filters = {1: search_list[item_order]}
-                #field_name = 'district__state__name__iexact'
-            elif item == 'district':
-                filters = {2: search_list[item_order]}
-                #field_name = 'district__name__iexact'
-            elif item:
-                for key, val in columns.iteritems():
-                    if item == val[0]:
-                        filters = {key: search_list[item_order]}
-                        break
+            filters = {field_type[item]: search_list[item_order]}
+
+            # elif item == 'date':
+            #     #date_indices = [i for i, s in enumerate(field_list) if s == "date" and i != item_order]
+            #     #if(date_indices):
+            #         #if date at i < date current date add date at i to Q condition as date__gte
+            #         #if date at i > date current date add date at i to Q condition as date__lte
+            #     filters = {7: search_list[item_order]}
+            # elif item:
+            #     for key, val in columns.iteritems():
+            #         if item == val[0]:
+            #             filters = {key: search_list[item_order]}
+            #             break
                 #field_name = item + '__in'
 
             args, kwargs = build_filters(columns, filters)
@@ -278,17 +316,21 @@ def rows(request):
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
-                if next_item == 'state':
-                    filters = {1: search_list[next_item_order]}
-                    #next_field_name = 'district__state__name__in'
-                elif next_item == 'district':
-                    filters = {2: search_list[next_item_order]}
-                    #next_field_name = 'district__name__in'
-                elif next_item:
-                    for key, val in columns.iteritems():
-                        if next_item == val[0]:
-                            filters = {key: search_list[next_item_order]}
-                            break
+                filters = {field_type[next_item]: search_list[next_item_order]}
+
+                # if next_item == 'state':
+                #     filters = {1: search_list[next_item_order]}
+                #     #next_field_name = 'district__state__name__in'
+                # elif next_item == 'district':
+                #     filters = {2: search_list[next_item_order]}
+                #     #next_field_name = 'district__name__in'
+                # elif next_item == 'date':
+                #     filters = {7: search_list[next_item_order]}
+                # elif next_item:
+                #     for key, val in columns.iteritems():
+                #         if next_item == val[0]:
+                #             filters = {key: search_list[next_item_order]}
+                #             break
                     #next_field_name = next_item + '__in'
 
                 args, next_kwargs = build_filters(columns, filters)
@@ -338,6 +380,7 @@ def rows(request):
     count = len(trainings_set)
     rows = list()
     for item in trainings_set[start:end]:
+
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
@@ -469,6 +512,7 @@ def save_training(request):
 
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
+            course_instructors = list()
             for emails in request.POST.get("instructor_emails", "").split(","):
                 tmp1 = emails.split("::");
                 email = tmp1[0];
@@ -484,6 +528,15 @@ def save_training(request):
                     pi.all_edit = all_edit;
                     pi.all_delete = all_delete;
                     pi.save()
+
+                    if training.pepper_course:
+                        _, InstructorAdded = PepRegInstructorCourses.objects.get_or_create(instructor = pi.instructor, course_id = training.pepper_course, training = training)
+                        course_instructors.append(pi.instructor)
+
+            if training.pepper_course:
+                for pep_course in PepRegInstructorCourses.objects.filter(course_id = training.pepper_course):
+                    if pep_course.training == training and pep_course.instructor not in course_instructors:
+                        pep_course.delete()
 
     except Exception as e:
         db.transaction.rollback()
@@ -502,6 +555,7 @@ def delete_training(request):
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         TrainingUsers.objects.filter(training=training).delete()
+        PepRegInstructorCourses.objects.filter(training=training).delete()
         training.delete()
         rs = reporting_store('PepregTraining')
         rs.report_update_data(id, True)
@@ -1098,8 +1152,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(isweek and day[0]):
-                thismonth = month
-                thisyear = year
+                thisMonth = month
+                thisYear = year
 
                 if (old_month < month):
                     oldmlsnewm = "true"
@@ -1122,27 +1176,27 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 else:
                     nextMonth = "false"
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
-                        thismonth -= 1
+                        thisMonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
-                    thismonth -= 1
+                    thisMonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
-                        thismonth += 1
+                        thisMonth += 1
                     prevMonth = "false"
 
                 if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
-                    thismonth += 1
+                    thisMonth += 1
 
-                if thismonth == 13:
-                    thismonth = 1
-                    thisyear += 1
-                elif thismonth == 0:
-                    thismonth = 12
-                    thisyear -= 1
+                if thisMonth == 13:
+                    thisMonth = 1
+                    thisYear += 1
+                elif thisMonth == 0:
+                    thisMonth = 12
+                    thisYear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ", " + str(week[0][0]) + ", " + str(year) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})'".format(str(day[0]), str(thisMonth), str(thisYear), nextMonth, prevMonth, str(dateToCompare), str(old_month), oldmlsnewm, oldmgrnewm, str(month), str(week[0][0]), str(year))
             else:
                 clickFunc = ""
 
@@ -1152,17 +1206,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if isday:
                     width_id = "day-view"
 
-                table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                table_tr_content += "<td class='{}' id='{}' style='position: relative; height: 100%;{}'{}>".format(class_name, width_id, cell_border, clickFunc)
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
-
+                    table_tr_content += "<div class='calendarium-relative' {}><span class='calendarium-date'>{}</span>".format(colstyle, str(day[0]))
                     if not isday:
                         #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
                     if isday:
-                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
 
                         for dayHour in dayHours:
 
@@ -1171,7 +1224,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if day[1]:
                                 i = 0
 
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
                                 divAdded = 1
 
                                 for tmp1 in day[1]:
@@ -1224,28 +1277,27 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                     hourAMPM = "PM"
 
                                         if (h <= endHour):
-                                            if(h == startHour):
-                                                unique = " unique " if (h == startHour) else ""
+                                            unique = " unique " if (h == startHour) else ""
                                             t = day[3][i][-2:]
                                             dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                            table_tr_content += "<span class='" + unique + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                            table_tr_content += "<span class='{}{} {} span-{}'>{}</span>".format(unique, t, dh, str(i), tmp1)
 
                                     i += 1
 
                             if ( not divAdded ):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
 
                             table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
-                    table_tr_content += "</div>";
+                    table_tr_content += "</div>"
 
-                table_tr_content += "</td>";
+                table_tr_content += "</td>"
 
-        table_tr_content += "</tr>";
+        table_tr_content += "</tr>"
 
-    return table_tr_content;
+    return table_tr_content
 
 def remove_student(student):
     if student.training.type == "pepper_course":
@@ -1298,7 +1350,7 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                CourseEnrollment.enroll(student_user, training.pepper_course)
+                CourseEnrollment.enroll(student_user, training.pepper_course, training_id)
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
@@ -2315,7 +2367,7 @@ def getfielddata(request):
     if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
         rows = ["State", "District"]
 
-    rows.append("Subject")
+    rows = rows + ["Subject", "Date", "Training Start Time", "Training End Time"]
 
     success = 1
 
@@ -2329,24 +2381,33 @@ def getsearchdata(request):
     data_column = ""
     search_data = request.POST.get('search_data')
 
-    if search_data == "state":
-        data_column = "1"
-        success = 1
-        for item in State.objects.all().order_by("name"):
-            rows.append(item.name)
+    field_type = {
+        "state": [1, State],
+        "district": [2, District],
+        "subject": [3, "Subject"],
+        "date": [7, "Date"],
+        "training time start": [8, "Time"],
+        "training time end": [9, "Time"]
+    }
 
-    elif search_data == "district":
-        data_column = "2"
-        success = 1
-        for item in District.objects.all().order_by("name"):
-            rows.append(item.name)
+    not_query = ["Date", "Time", "Subject"]
+    try:
+        data_column = str(field_type[search_data][0])
+        if field_type[search_data][1] not in not_query:
+            for item in field_type[search_data][1].objects.all().order_by("name"):
+                rows.append(item.name)
+        elif field_type[search_data][1] == "Subject":
+            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
 
-    elif search_data == "subject":
-        data_column = "3"
-        success = 1
-        rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+        if(not rows):
+            rows.append(field_type[search_data][1])
 
-    data = {'success': success, 'rows': rows, 'datacolumn': data_column}
+        success = 1
+    except:
+        data_column = ""
+        success = 0
+
+    data = {'success': success, 'rows': rows, 'data_column': data_column}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 

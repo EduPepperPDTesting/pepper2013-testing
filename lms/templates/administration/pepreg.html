@@ -137,10 +137,10 @@
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_4 span{position: relative; left: -10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7 span{position: relative; left: -10px; color:#FFFFFF !important;}
+	#calendar-month tr td .al_4{background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7{background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important;}
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
@@ -825,15 +825,15 @@
 			$(".alert").each(function(){
 				if($(this).hasClass("completeSlot")){
 					var tmp_span = $(this).find("span:eq(0)");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 15){
-						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
 				    var tmp_span = $(this).find("span");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 10){
-						$(this).text(tmp1.substr(0,10) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,10) + "...");
 					}
 				}
 			});
@@ -2975,6 +2975,7 @@
 
         /* advanced filtering */
         var filters = [];
+        var logic_conditions = ["equal to", "less than", "greater than", "equal to or less than", "equal to or greater than"];
 
         $("#switch_search").click(function(){
             if($("#switch_search").text()=="Advanced Search"){
@@ -3046,31 +3047,50 @@
                     $.ajax({type: "post", url: "${reverse('getsearchdata')}", data: {search_data: val}, success: function(data){
                         console.log("advanced_select data.success: "+data.success);
                         if (data.success) {
+                            var data_rows = ["Date", "Time"];
+
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
-                            $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.datacolumn + "'></select>");
-                            $("#subselect_" + suborder).append("<option value=''>Select</option>");
-                            var optValue;
-                            $.each(data.rows, function(k, v){
-                                if(val == "subject"){
-                                    switch (v){
-                                        case "Assessments and Reporting":
-                                            optValue = "AR";
-                                            break;
-                                        case "Digital Citizenship":
-                                            optValue = "DC";
-                                            break;
-                                        case "English Language Arts":
-                                            optValue = "ELA";
-                                            break;
-                                        default:
-                                            optValue = "";
+
+                            if(data_rows.indexOf(data.rows[0]) == 0){
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
+                                $("#subselect_" + suborder).append("<option value=''>Select</option>");
+                                var optValue;
+                                $.each(data.rows, function(k, v){
+                                    if(val == "subject"){
+                                        var subject_dict = {"Assessments and Reporting": "AR", "Digital Citizenship": "DC", "English Language Arts": "ELA"};
+                                        optValue = (subject_dict[v]) ? subject_dict[v] : "";
+                                        /*switch (v){
+                                            case "Assessments and Reporting":
+                                                optValue = "AR";
+                                                break;
+                                            case "Digital Citizenship":
+                                                optValue = "DC";
+                                                break;
+                                            case "English Language Arts":
+                                                optValue = "ELA";
+                                                break;
+                                            default:
+                                                optValue = "";
+                                        }*/
+                                    }else{
+                                        optValue = v;
                                     }
-                                }else{
-                                    optValue = v;
-                                }
-                                $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
-                            });
+                                    $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
+                                });
+                            }else if(data.rows[0] == "Date"){
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $.each(logic_conditions, function (index, value){
+                                    $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
+                                });
+                            }else if(data.rows[0] == "Time"){
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $.each(logic_conditions, function (index, value){
+                                    $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
+                                });
+                            }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
                         }
@@ -3088,7 +3108,8 @@
 
         $("#advanced_search").on("change", ".subselect", function () {
             var val = $(this).val();
-            var suborder = $(this).attr("name");
+            var field_name = $(this).attr("name");
+            var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
             if(val != ""){
                 reloadTableAdvanced();
@@ -3267,7 +3288,16 @@
                 if(field_type != "") field_list[s] = field_type;
 
                 var search_val = ($("#subselect_" + i).length == 1) ? $("#subselect_" + i).val() : "";
-                if(search_val != "") search_list[s] = search_val;
+                if(search_val != "") {
+                    search_list[s] = search_val;
+
+                    if($("#range_condition_" + i).length > 0){
+                        var range_condition = $("#range_condition_" + i).val();
+                        if(range_condition !== undefined && range_condition != ""){
+                            search_list[s] = "^" + range_condition + "|" + search_list[s];
+                        }
+                    }
+                }
 
                 var cond = ($("#subcondition_" + i).length == 1) ? $("#subcondition_" + i).val(): "";
                 if(cond != "") condition_list[s] = cond;
@@ -3501,7 +3531,7 @@
         $(datepicker_CurrentInput).val("");
         $(datepicker_CurrentInput).change();
     });
-    $('.datePickText,input[name=training_data]').each(function () {
+    $('.datePickText,input[name^=training_data]').each(function () {
         var lock_past = $(this).hasClass("lock_past");
         $(this).datepicker({
             autoSize: true,

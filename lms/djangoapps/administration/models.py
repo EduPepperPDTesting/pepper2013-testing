@@ -252,6 +252,7 @@ class PepRegStudent(models.Model):
     class Meta:
         db_table = 'pepreg_student'
     training = models.ForeignKey(PepRegTraining)
+    course = models.ForeignKey(student.CourseEnrollment, default=0)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
     student_credit = models.FloatField(blank=False, default=0)
@@ -333,3 +334,11 @@ class PepRegStudent_Backup(models.Model):
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
     school_year = models.CharField(blank=False, max_length=255, db_index=False)
+
+class PepRegInstructorCourses(models.Model):
+    class Meta:
+        db_table = 'pepreg_instructor_courses'
+    training = models.ForeignKey(PepRegTraining)
+    instructor = models.ForeignKey(User, related_name='+')
+    course_id = models.CharField(max_length=255, db_index=True)
+    date_create = models.DateField(auto_now_add=True, db_index=False)
