@@ -686,8 +686,8 @@ def modx_dispatch(request, dispatch, location, course_id):
                         course_instance.complete_date = None
                         instance.save()
                     course_instance.save()
-                    rs = reporting_store('CoursewareStudentmodule')
                     if old_complete_course_sign != course_instance.complete_course:
+                        rs = reporting_store('CoursewareStudentmodule')
                         rs.report_update_data(request.user.id, course_id, course_instance.complete_course)
                 else:
                     # Save any fields that have changed to the underlying KeyValueStore
