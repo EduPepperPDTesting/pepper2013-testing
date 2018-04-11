@@ -29,7 +29,7 @@ from xmodule.remindstore import myactivitystore
 
 import static_replace
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
-from student.models import unique_id_for_user, CourseEnrollment
+from student.models import unique_id_for_user
 
 from courseware.access import has_access
 from courseware.masquerade import setup_masquerade

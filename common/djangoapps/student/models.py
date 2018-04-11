@@ -29,8 +29,6 @@ from django.forms import ModelForm, forms
 import comment_client as cc
 from pytz import UTC
 
-from administration.models import PepRegStudent
-
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
