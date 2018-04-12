@@ -302,7 +302,6 @@ var report_view = {
                 var x = $(this).attr('column')
                 var y = $(this).parent().parent().find('td:first').text();
                 get_ajax_get_aggregate(x,y)
-                popWin("detail");
             })
         },
         show_progress: function(obj){
@@ -389,7 +388,8 @@ var report_view = {
     }
 
     function graphable(x){
-        popWin("detail1");
+        loadwin = new LoadingWin();
+        loadwin.show()
         $("#chart").html('')
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
         $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
@@ -406,11 +406,14 @@ var report_view = {
             window.tws = tws
             graph('Line',tws)
             $("#graphable").css('visibility','visible');
+            popWin("detail1");
+            loadwin.hide()
         })
     }
 
     function row_graphable(x){
-        popWin("detail1");
+        loadwin = new LoadingWin();
+        loadwin.show()
         $("#chart").html('')
         filter = x.nextSibling.nodeValue;
         $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
@@ -427,6 +430,8 @@ var report_view = {
             window.tws = tws
             graph('Line',tws)
             $("#graphable").css('visibility','visible');
+            loadwin.hide()
+            popWin("detail1");
         })
     }
 
@@ -486,6 +491,8 @@ var report_view = {
     }
 
     function get_ajax_get_aggregate(x,y){
+        loadwin = new LoadingWin();
+        loadwin.show()
         $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
             var thead = "<tr><th class='ui-state-default'>"+datas.aggregate_name+"</th><th class='ui-state-default'>"+datas.row_header_name+"</th><th class='ui-state-default'>"+datas.column_header_name+"</th></tr>";
             var tbody = ''
@@ -506,7 +513,9 @@ var report_view = {
             $("#aggregate_tbody").html(tbody)
             $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
             report_view.init();
+            loadwin.hide()
             $("#aggregate_table").show()
+            popWin("detail");
         })
     }
 $(document).ready(function () {

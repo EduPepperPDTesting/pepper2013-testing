@@ -698,7 +698,8 @@ def create_report_collection(request, report, selected_view, columns, filters, r
             year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
         collection = get_cache_collection(request, report_id, year)
-        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
+        filters = get_query_filters(filters)
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{filters}', filters).replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
