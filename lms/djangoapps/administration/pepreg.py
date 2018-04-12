@@ -2386,8 +2386,8 @@ def getsearchdata(request):
         "district": [2, District],
         "subject": [3, "Subject"],
         "date": [7, "Date"],
-        "training time start": [8, "Time"],
-        "training time end": [9, "Time"]
+        "training_time_start": [8, "Time"],
+        "training_time_end": [9, "Time"]
     }
 
     not_query = ["Date", "Time", "Subject"]
