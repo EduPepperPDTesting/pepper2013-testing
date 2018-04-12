@@ -2391,8 +2391,10 @@ def getsearchdata(request):
     }
 
     not_query = ["Date", "Time", "Subject"]
+    raise Exception(field_type[search_data][1] + " " + (field_type[search_data][1] in not_query))
     try:
         data_column = str(field_type[search_data][0])
+
         if field_type[search_data][1] not in not_query:
             for item in field_type[search_data][1].objects.all().order_by("name"):
                 rows.append(item.name)

@@ -2989,7 +2989,7 @@
                     console.log("getfielddata: "+data.success);
                     if (data.success) {
                         $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option data-hidden='false' value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                            $("#advanced_select_1").append("<option data-hidden='false' value='"+ v.toLowerCase() +"'>" + ((v.indexOf("Training") != -1) ? v.replace("Training", "").trim() : v) + "</option>");
                         });
                     }
                 });
