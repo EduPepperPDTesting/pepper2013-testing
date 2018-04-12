@@ -2386,12 +2386,12 @@ def getsearchdata(request):
         "district": [2, District],
         "subject": [3, "Subject"],
         "date": [7, "Date"],
-        "training_time_start": [8, "Time"],
-        "training_time_end": [9, "Time"]
+        "training_start_time": [8, "Time"],
+        "training_end_time": [9, "Time"]
     }
 
     not_query = ["Date", "Time", "Subject"]
-    raise Exception(field_type[search_data][1] + " " + str(field_type[search_data][1] in not_query))
+
     try:
         data_column = str(field_type[search_data][0])
 
