@@ -2395,11 +2395,11 @@ def getsearchdata(request):
     try:
         data_column = str(field_type[search_data][0])
 
-        if field_type[search_data][1] not in not_query:
+        if field_type[search_data][1] == "Subject":
+            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+        elif field_type[search_data][1] not in not_query:
             for item in field_type[search_data][1].objects.all().order_by("name"):
                 rows.append(item.name)
-        elif field_type[search_data][1] == "Subject":
-            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
 
         if(not rows):
             rows.append(field_type[search_data][1])

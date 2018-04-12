@@ -3052,7 +3052,7 @@
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
 
-                            if(data_rows.indexOf(data.rows[0]) == 0){
+                            if(data_rows.indexOf(data.rows[0]) == -1){
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
                                 $("#subselect_" + suborder).append("<option value=''>Select</option>");
                                 var optValue;
@@ -3060,19 +3060,6 @@
                                     if(val == "subject"){
                                         var subject_dict = {"Assessments and Reporting": "AR", "Digital Citizenship": "DC", "English Language Arts": "ELA"};
                                         optValue = (subject_dict[v]) ? subject_dict[v] : "";
-                                        /*switch (v){
-                                            case "Assessments and Reporting":
-                                                optValue = "AR";
-                                                break;
-                                            case "Digital Citizenship":
-                                                optValue = "DC";
-                                                break;
-                                            case "English Language Arts":
-                                                optValue = "ELA";
-                                                break;
-                                            default:
-                                                optValue = "";
-                                        }*/
                                     }else{
                                         optValue = v;
                                     }
