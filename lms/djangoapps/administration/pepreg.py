@@ -2391,7 +2391,7 @@ def getsearchdata(request):
     }
 
     not_query = ["Date", "Time", "Subject"]
-    raise Exception(field_type[search_data][1] + " " + (field_type[search_data][1] in not_query))
+    raise Exception(field_type[search_data][1] + " " + str(field_type[search_data][1] in not_query))
     try:
         data_column = str(field_type[search_data][0])
 
