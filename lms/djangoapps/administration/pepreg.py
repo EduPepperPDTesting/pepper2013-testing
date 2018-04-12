@@ -2379,7 +2379,7 @@ def getsearchdata(request):
     success = 0
     rows = list()
     data_column = ""
-    search_data = request.POST.get('search_data')
+    search_data = request.POST.get('search_data').encode("utf-8")
 
     field_type = {
         "state": [1, State],
