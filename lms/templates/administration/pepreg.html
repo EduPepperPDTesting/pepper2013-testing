@@ -2989,7 +2989,7 @@
                     console.log("getfielddata: "+data.success);
                     if (data.success) {
                         $.each(data.rows, function(k, v){
-                            $("#advanced_select_1").append("<option data-hidden='false' value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                            $("#advanced_select_1").append("<option data-hidden='false' value='"+ v.toLowerCase().replace(/\s/g, "_") +"'>" + ((v.indexOf("Training") != -1) ? v.replace("Training", "").trim() : v) + "</option>");
                         });
                     }
                 });
@@ -3050,9 +3050,9 @@
                             var data_rows = ["Date", "Time"];
 
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
-                            $("#advanced_select_" + suborder).next("div").find(".subselect").remove();
+                            $("#advanced_select_" + suborder).next("div").find(".subselect, .time_subselect").remove();
 
-                            if(data_rows.indexOf(data.rows[0]) == 0){
+                            if(data_rows.indexOf(data.rows[0]) == -1){
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
                                 $("#subselect_" + suborder).append("<option value=''>Select</option>");
                                 var optValue;
@@ -3060,33 +3060,20 @@
                                     if(val == "subject"){
                                         var subject_dict = {"Assessments and Reporting": "AR", "Digital Citizenship": "DC", "English Language Arts": "ELA"};
                                         optValue = (subject_dict[v]) ? subject_dict[v] : "";
-                                        /*switch (v){
-                                            case "Assessments and Reporting":
-                                                optValue = "AR";
-                                                break;
-                                            case "Digital Citizenship":
-                                                optValue = "DC";
-                                                break;
-                                            case "English Language Arts":
-                                                optValue = "ELA";
-                                                break;
-                                            default:
-                                                optValue = "";
-                                        }*/
                                     }else{
                                         optValue = v;
                                     }
                                     $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
                             }else if(data.rows[0] == "Date"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                             }else if(data.rows[0] == "Time"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });

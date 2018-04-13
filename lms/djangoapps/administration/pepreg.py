@@ -2379,25 +2379,27 @@ def getsearchdata(request):
     success = 0
     rows = list()
     data_column = ""
-    search_data = request.POST.get('search_data')
+    search_data = request.POST.get('search_data').encode("utf-8")
 
     field_type = {
         "state": [1, State],
         "district": [2, District],
         "subject": [3, "Subject"],
         "date": [7, "Date"],
-        "training time start": [8, "Time"],
-        "training time end": [9, "Time"]
+        "training_start_time": [8, "Time"],
+        "training_end_time": [9, "Time"]
     }
 
     not_query = ["Date", "Time", "Subject"]
+
     try:
         data_column = str(field_type[search_data][0])
-        if field_type[search_data][1] not in not_query:
+
+        if field_type[search_data][1] == "Subject":
+            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+        elif field_type[search_data][1] not in not_query:
             for item in field_type[search_data][1].objects.all().order_by("name"):
                 rows.append(item.name)
-        elif field_type[search_data][1] == "Subject":
-            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
 
         if(not rows):
             rows.append(field_type[search_data][1])
