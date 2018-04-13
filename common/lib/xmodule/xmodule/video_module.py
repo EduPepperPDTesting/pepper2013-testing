@@ -441,6 +441,7 @@ def _create_youtube_string(module):
                      if pair[1]])
 
 def parse_video_url(url):
+    url = url.strip()
     source_type = ''
     source = ''
     iframe = ''
@@ -454,7 +455,7 @@ def parse_video_url(url):
     """
     if url.startswith('https://youtu.be/'):
         source_type = 'embed'
-        source = re.match(r'^(https://)?youtu\.be/(.*)$', url).group(1)
+        source = re.match(r'^(https://)?youtu\.be/(.*)$', url).group(2)
         iframe = youtube_iframe.format(source)
     elif url.startswith('/static/'):
         source_type = 'static'
