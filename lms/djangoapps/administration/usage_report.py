@@ -456,6 +456,9 @@ def save_user_status(request):
 		if is_active == 0:
 			user.profile.subscription_status = "inactive"
 			user.profile.save()
+		elif is_active == 1:
+			user.profile.subscription_status = "registered"
+			user.profile.save()
 		context['success'] = True
 	return HttpResponse(json.dumps(context), content_type="application/json")
 
