@@ -440,6 +440,7 @@ def _create_youtube_string(module):
                      if pair[1]])
 
 def parse_video_url(url):
+    url = url.strip()
     source_type = ''
     source = ''
     iframe = ''
