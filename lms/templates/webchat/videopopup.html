@@ -157,6 +157,9 @@ function initializeSession() {
     });
 }
 $(document).ready(function() {
+    $("body").css("background-image", "url(/static/images/ppd-index-mainlogo.jpg)");
+    $("body").css("background-repeat", "no-repeat");
+    $("body").css("background-position", "center");
     $(".screenshare").click(function() {
         if (!chrome.app.isInstalled) {
             chrome.webstore.install(undefined, function() {
