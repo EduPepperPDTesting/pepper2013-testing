@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegInstructorCourses
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegStudentCourse, PepRegInstructorCourses
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -1319,33 +1319,34 @@ def register_student(request, join, training_id, user_id):
             student_user = request.user
 
         if join:
+            if reach_limit(training):
+                raise Exception("Maximum number of users have registered for this training.")
+
             try:
-                if reach_limit(training):
-                    raise Exception("Maximum number of users have registered for this training.")
+                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+            except:
+                student = PepRegStudent()
+                student.user_create = request.user
+                student.date_create = datetime.now(UTC)
 
-                try:
-                    student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
-                except:
-                    student = PepRegStudent()
-                    student.user_create = request.user
-                    student.date_create = datetime.now(UTC)
+            student.student = student_user
+            student.student_status = "Registered"
+            student.training_id = int(training_id)
+            student.user_modify = request.user
+            student.date_modify = datetime.now(UTC)
+            student.course = enrollment
 
-                student.student = student_user
-                student.student_status = "Registered"
-                student.training_id = int(training_id)
-                student.user_modify = request.user
-                student.date_modify = datetime.now(UTC)
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(int(training_id), student_user.id)
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
+                           "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+                           "URLValues": {"training_id": training.id},
+                           "TokenValues": {"training_id": training.id},
+                           "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
 
-                rs = reporting_store('PepregStudent')
-                rs.report_update_data(int(training_id), student_user.id)
-                ma_db = myactivitystore()
-                my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
-                               "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
-                               "URLValues": {"training_id": training.id},
-                               "TokenValues": {"training_id": training.id},
-                               "LogoValues": {"training_id": training.id}}
-                ma_db.insert_item(my_activity)
-
+            try:
                 if training.type == "pepper_course":
                     cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
                                                                                  course_id=training.pepper_course)
@@ -1354,17 +1355,21 @@ def register_student(request, join, training_id, user_id):
                     enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
 
                     if enrollment:
-                        student.course = enrollment
+                        student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course_id = enrollment.course_id)
 
-                student.save()
-
-                mem = TrainingUsers.objects.filter(user=student_user, training=training)
-
-                if not mem.exists():
-                    tu = TrainingUsers(user=student_user, training=training)
-                    tu.save()
+                        if enrolled:
+                            student_course.user_create = request.user
+                            student_course.date_create = datetime.now(UTC)
             except:
-                raise Exception(str(training_id))
+                raise Exception("training.type")
+
+            student.save()
+
+            mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+            if not mem.exists():
+                tu = TrainingUsers(user=student_user, training=training)
+                tu.save()
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
