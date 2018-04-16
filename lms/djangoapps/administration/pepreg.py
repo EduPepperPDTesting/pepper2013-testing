@@ -1348,27 +1348,24 @@ def register_student(request, join, training_id, user_id):
                            "LogoValues": {"training_id": training.id}}
             ma_db.insert_item(my_activity)
 
-            try:
-                if training.type == "pepper_course":
-                    cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
-                                                                                 course_id=training.pepper_course)
-                    cea.is_active = True
-                    cea.save()
-                    enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
+            if training.type == "pepper_course":
+                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
+                                                                             course_id=training.pepper_course)
+                cea.is_active = True
+                cea.save()
+                enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
 
-                    if enrollment:
-                        student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course_id = enrollment.course_id)
+                if enrollment:
+                    student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course_id = enrollment.course_id)
 
-                        if enrolled:
-                            student_course.user_create = request.user
-                            student_course.date_create = datetime.now(UTC)
-                        else:
-                            student_course.user_modify = request.user
-                            student_course.date_modify = datetime.now(UTC)
+                    if enrolled:
+                        student_course.user_create = request.user
+                        student_course.date_create = datetime.now(UTC)
+                    else:
+                        student_course.user_modify = request.user
+                        student_course.date_modify = datetime.now(UTC)
 
-                        student_course.save()
-            except:
-                raise Exception("pepper_course type")
+                    student_course.save()
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
