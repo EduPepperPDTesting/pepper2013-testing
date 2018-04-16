@@ -169,10 +169,10 @@ $(document).ready(function() {
                 }, function (error, errorCode) {
                     alert('PeppTalk Extension Not Installed.\nError: ' + error);
                 });
-            } else if (!screensharing()) {
+            } else if (!screensharing) {
                 screenshare();
             }
-        } else if (!screensharing()) {
+        } else if (!screensharing) {
             screenshare();
         }
     });
