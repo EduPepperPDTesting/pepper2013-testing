@@ -1334,7 +1334,7 @@ def register_student(request, join, training_id, user_id):
             student.training_id = int(training_id)
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
-            student.save()
+
             rs = reporting_store('PepregStudent')
             rs.report_update_data(int(training_id), student_user.id)
             ma_db = myactivitystore()
@@ -1350,10 +1350,12 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                student_enrolled = CourseEnrollment.enroll(student_user, training.pepper_course)
+                enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
 
-                if student_enrolled:
-                    student.course = training.pepper_course
+                if enrollment:
+                    student.course = enrollment
+
+            student.save()
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
