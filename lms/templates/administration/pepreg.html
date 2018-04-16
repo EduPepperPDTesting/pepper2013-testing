@@ -2290,6 +2290,7 @@
     };
     PepReg.prototype.registerUser = function (training_id, join, cb) {
         var self = this;
+        console.log("training_id="+training_id);
         $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function (r) {
             if (r.success) {
                 cb(join, r.training_id);
