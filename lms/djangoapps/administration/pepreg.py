@@ -1319,49 +1319,52 @@ def register_student(request, join, training_id, user_id):
             student_user = request.user
 
         if join:
-            if reach_limit(training):
-                raise Exception("Maximum number of users have registered for this training.")
-
             try:
-                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+                if reach_limit(training):
+                    raise Exception("Maximum number of users have registered for this training.")
+
+                try:
+                    student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+                except:
+                    student = PepRegStudent()
+                    student.user_create = request.user
+                    student.date_create = datetime.now(UTC)
+
+                student.student = student_user
+                student.student_status = "Registered"
+                student.training_id = int(training_id)
+                student.user_modify = request.user
+                student.date_modify = datetime.now(UTC)
+
+                rs = reporting_store('PepregStudent')
+                rs.report_update_data(int(training_id), student_user.id)
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
+                               "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+                               "URLValues": {"training_id": training.id},
+                               "TokenValues": {"training_id": training.id},
+                               "LogoValues": {"training_id": training.id}}
+                ma_db.insert_item(my_activity)
+
+                if training.type == "pepper_course":
+                    cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
+                                                                                 course_id=training.pepper_course)
+                    cea.is_active = True
+                    cea.save()
+                    enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
+
+                    if enrollment:
+                        student.course = enrollment
+
+                student.save()
+
+                mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+                if not mem.exists():
+                    tu = TrainingUsers(user=student_user, training=training)
+                    tu.save()
             except:
-                student = PepRegStudent()
-                student.user_create = request.user
-                student.date_create = datetime.now(UTC)
-
-            student.student = student_user
-            student.student_status = "Registered"
-            student.training_id = int(training_id)
-            student.user_modify = request.user
-            student.date_modify = datetime.now(UTC)
-
-            rs = reporting_store('PepregStudent')
-            rs.report_update_data(int(training_id), student_user.id)
-            ma_db = myactivitystore()
-            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
-                           "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
-                           "URLValues": {"training_id": training.id},
-                           "TokenValues": {"training_id": training.id},
-                           "LogoValues": {"training_id": training.id}}
-            ma_db.insert_item(my_activity)
-
-            if training.type == "pepper_course":
-                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
-                                                                             course_id=training.pepper_course)
-                cea.is_active = True
-                cea.save()
-                enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
-
-                if enrollment:
-                    student.course = enrollment
-
-            student.save()
-
-            mem = TrainingUsers.objects.filter(user=student_user, training=training)
-
-            if not mem.exists():
-                tu = TrainingUsers(user=student_user, training=training)
-                tu.save()
+                raise Exception(str(training_id))
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
