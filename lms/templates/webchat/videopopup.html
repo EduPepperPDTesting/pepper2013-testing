@@ -161,12 +161,17 @@ $(document).ready(function() {
     $("body").css("background-repeat", "no-repeat");
     $("body").css("background-position", "center");
     $(".screenshare").click(function() {
-        if (!chrome.app.isInstalled) {
-            chrome.webstore.install(undefined, function() {
+        var is_chrome = (typeof window.chrome === "object" && navigator.appVersion.indexOf('Edge') === -1)
+        if (is_chrome) {
+            if (!chrome.app.isInstalled) {
+                chrome.webstore.install(undefined, function () {
+                    screenshare();
+                }, function (error, errorCode) {
+                    alert('PeppTalk Extension Not Installed.\nError: ' + error);
+                });
+            } else if (!screensharing()) {
                 screenshare();
-            }, function(error, errorCode) {
-                alert('PeppTalk Extension Not Installed.\nError: ' + error);
-            });
+            }
         } else if (!screensharing()) {
             screenshare();
         }
