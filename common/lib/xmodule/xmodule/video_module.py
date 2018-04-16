@@ -176,7 +176,7 @@ class VideoModule(VideoFields, XModule):
         if self.html_source:
             sources[get_ext(self.html_source)] = self.html_source
             source_type, source, iframe = parse_video_url(self.html_source)
-            sources['iframe'] = iframe if source_type == 'youtube' else ''
+            sources['iframe'] = iframe if source_type == 'embed' else ''
         sources['main'] = self.source
 
         # for testing Youtube timeout in acceptance tests
@@ -366,7 +366,7 @@ class VideoDescriptor(VideoFields, TabsEditingDescriptor, EmptyDataRawDescriptor
             if source_type == 'static':
                 # use path of uploaded videos in content -> files & uploads
                 field_data['source'] = source
-            elif source_type == 'youtube':
+            elif source_type == 'embed':
                 field_data['iframe'] = iframe
         track = xml.find('track')
         if track is not None:
@@ -440,23 +440,33 @@ def _create_youtube_string(module):
                      if pair[1]])
 
 def parse_video_url(url):
+    url = url.strip()
     source_type = ''
     source = ''
-    iframe = """
+    iframe = ''
+    youtube_iframe = """
         <iframe width="772" height="434" src="https://www.youtube.com/embed/{0}" frameborder="0" 
         allow="encrypted-media" allowfullscreen></iframe>
     """
+    vimeo_iframe = """
+        <iframe src="https://player.vimeo.com/video/{0}?title=0&byline=0&portrait=0" 
+        width="772" height="434" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    """
     if url.startswith('https://youtu.be/'):
-        source_type = 'youtube'
-        source = re.match(r'^https://youtu\.be/(.*)$', url).group(1)
-        iframe = iframe.format(source)
+        source_type = 'embed'
+        source = re.match(r'^(https://)?youtu\.be/(.*)$', url).group(2)
+        iframe = youtube_iframe.format(source)
     elif url.startswith('/static/'):
         source_type = 'static'
         source = url
-    elif re.match(r'^https://www.youtube.com', url):
-        source_type = 'youtube'
+    elif re.match(r'^(https://)?(www.)?youtube.com', url):
+        source_type = 'embed'
         source = urlparse.parse_qs(urlparse.urlparse(url).query).get('v')[0]
-        iframe = iframe.format(source)
+        iframe = youtube_iframe.format(source)
+    elif re.match(r'^(https://)?(www.)?vimeo.com', url):
+        source_type = 'embed'
+        source = re.match(r'^(https://)?(www.)?vimeo.com/(.*)$', url).group(3)
+        iframe = vimeo_iframe.format(source)
     else:
         pass
 
