@@ -1334,7 +1334,6 @@ def register_student(request, join, training_id, user_id):
             student.training_id = int(training_id)
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
-            student.course = enrollment
 
             rs = reporting_store('PepregStudent')
             rs.report_update_data(int(training_id), student_user.id)
@@ -1361,7 +1360,7 @@ def register_student(request, join, training_id, user_id):
                             student_course.user_create = request.user
                             student_course.date_create = datetime.now(UTC)
             except:
-                raise Exception("training.type")
+                raise Exception("pepper_course type")
 
             student.save()
 
