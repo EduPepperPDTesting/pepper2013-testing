@@ -1350,7 +1350,10 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                CourseEnrollment.enroll(student_user, training.pepper_course, training_id)
+                student_enrolled = CourseEnrollment.enroll(student_user, training.pepper_course)
+
+                if student_enrolled:
+                    student.course = training.pepper_course
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
