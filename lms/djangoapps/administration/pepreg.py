@@ -10,8 +10,7 @@ from pytz import UTC
 from django.contrib.auth.models import User
 
 import urllib2
-#from courseware.courses import (get_courses, get_course_with_access,
-                                get_courses_by_university, sort_by_announcement)
+#from courseware.courses import (get_courses, get_course_with_access, get_courses_by_university, sort_by_announcement)
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
