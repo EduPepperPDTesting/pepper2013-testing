@@ -1357,7 +1357,7 @@ def register_student(request, join, training_id, user_id):
 
                 if enrollment:
                     try:
-                        student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course_id = enrollment.id)
+                        student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, student_course_id = enrollment.id)
                     except Exception as e:
                         raise Exception(str(e)+" "+enrollment.id)
 
