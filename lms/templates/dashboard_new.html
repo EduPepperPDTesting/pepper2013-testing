@@ -802,13 +802,11 @@ a{
             num = 0
             for tmp1 in OrganizationCmsitem.objects.filter(organization=organization_obj).order_by('Grade','CmsItem'):
                 if cms_grade != tmp1.Grade:
-                    if num > 3:
+                    if num > 4:
                         cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"
                     num = 0
                     cms_grade = tmp1.Grade
                     cms_items = cms_items + "<div class='organization_cms_grade'>" + cms_grade + "</div>"
-                else:
-                    num = num + 1
                 cms_add = False
                 if tmp1.CmsItem.find("_level_:") > 0:
                     tmp1_level_ids = ""
@@ -840,9 +838,10 @@ a{
                 if num > 3:
                     style_class = "hide"
                 if cms_add:
+                    num = num + 1
                     cms_items = cms_items + "<span class='organization_cms_icon " + style_class +"' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
 
-            if num > 3:
+            if num > 4:
                 cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"            
             data["cms_items"] = cms_items
 %>
