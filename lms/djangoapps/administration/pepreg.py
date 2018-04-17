@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegInstructorCourses
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegStudentCourse, PepRegInstructorCourses
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -1321,20 +1321,23 @@ def register_student(request, join, training_id, user_id):
         if join:
             if reach_limit(training):
                 raise Exception("Maximum number of users have registered for this training.")
-
             try:
-                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
-            except:
-                student = PepRegStudent()
-                student.user_create = request.user
-                student.date_create = datetime.now(UTC)
+                try:
+                    student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+                except:
+                    student = PepRegStudent()
+                    student.user_create = request.user
+                    student.date_create = datetime.now(UTC)
 
-            student.student = student_user
-            student.student_status = "Registered"
-            student.training_id = int(training_id)
-            student.user_modify = request.user
-            student.date_modify = datetime.now(UTC)
-            student.save()
+                student.student = student_user
+                student.student_status = "Registered"
+                student.training_id = int(training_id)
+                student.user_modify = request.user
+                student.date_modify = datetime.now(UTC)
+                student.save()
+            except:
+                raise Exception("training_id="+str(training_id)+" student="+str(student_user))
+
             rs = reporting_store('PepregStudent')
             rs.report_update_data(int(training_id), student_user.id)
             ma_db = myactivitystore()
@@ -1350,7 +1353,22 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                CourseEnrollment.enroll(student_user, training.pepper_course, training_id)
+                enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
+
+                if enrollment:
+                    try:
+                        student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course__course_id = training.pepper_course)
+                    except Exception as e:
+                        raise Exception(e)
+
+                    if enrolled:
+                        student_course.user_create = request.user
+                        student_course.date_create = datetime.now(UTC)
+                    else:
+                        student_course.user_modify = request.user
+                        student_course.date_modify = datetime.now(UTC)
+
+                    student_course.save()
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 

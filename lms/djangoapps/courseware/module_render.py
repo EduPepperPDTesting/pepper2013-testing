@@ -692,11 +692,11 @@ def modx_dispatch(request, dispatch, location, course_id):
                             #         student_enrolled.student_status = 'Attended'
                             #         student_enrolled.save()
                             #------------------------------------------------------
-                            training = PepRegStudent.objects.get(course__course_id=course_id, student=request.user.id)
-                            student_status = training.student_status
+                            student = PepRegStudent.objects.get(course__course_id=course_id, student=request.user.id)
+                            student_status = student.student_status
                             if student_status == 'Registered':
-                                training.student_status = 'Attended'
-                                training.save()
+                                student.student_status = 'Attended'
+                                student.save()
 
                         else:
                             course_instance.complete_course = False

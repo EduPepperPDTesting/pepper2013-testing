@@ -252,10 +252,20 @@ class PepRegStudent(models.Model):
     class Meta:
         db_table = 'pepreg_student'
     training = models.ForeignKey(PepRegTraining)
-    # course = models.ForeignKey(CourseEnrollment, default=0)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
     student_credit = models.FloatField(blank=False, default=0)
+    user_create = models.ForeignKey(User, related_name='+')
+    date_create = models.DateField(auto_now_add=True, db_index=False)
+    user_modify = models.ForeignKey(User, related_name='+')
+    date_modify = models.DateField(auto_now_add=True, db_index=False)
+
+class PepRegStudentCourse(models.Model):
+    class Meta:
+        db_table = 'pepregstudent_course'
+    training = models.ForeignKey(PepRegTraining)
+    course = models.ForeignKey(CourseEnrollment)
+    student = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
