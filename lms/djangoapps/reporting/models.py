@@ -102,6 +102,37 @@ class ReportMatrixColumns(models.Model):
     aggregate_data = models.IntegerField(blank=False, null=False)
     aggregate_type = models.IntegerField(default=0)
 
+def reporting_store(view=None):
+    options = {}
+    options.update(settings.REPORTINGSTORE['OPTIONS'])
+    if view == 'UserInfo':
+        return UserInfo(**options)
+    elif view == 'DiscussionTime':
+        return DiscussionTime(**options)
+    elif view == 'CourseTime':
+        return CourseTime(**options)
+    elif view == 'PortfolioTime':
+        return PortfolioTime(**options)
+    elif view == 'ExternalTime':
+        return ExternalTime(**options)
+    elif view == 'AdjustmentTime':
+        return AdjustmentTime(**options)
+    elif view == 'PdTime':
+        return PdTime(**options)
+    elif view == 'StudentCourseenrollment':
+        return StudentCourseenrollment(**options)
+    elif view == 'CoursewareStudentmodule':
+        return CoursewareStudentmodule(**options)
+    elif view == 'UserCourseProgress':
+        return UserCourseProgress(**options)
+    elif view == 'ModuleStore':
+        return ModuleStore(**options)
+    elif view == 'PepregTraining':
+        return PepregTraining(**options)
+    elif view == 'PepregStudent':
+        return PepregStudent(**options)    
+    else:
+        return MongoReportingStore(**options)
 
 class MongoReportingStore(object):
 
@@ -302,40 +333,6 @@ class MongoReportingStore(object):
             data["course_run"] = ""
         return data
 
-
-
-def reporting_store(view=None):
-    options = {}
-    options.update(settings.REPORTINGSTORE['OPTIONS'])
-    if view == 'UserInfo':
-        return UserInfo(**options)
-    elif view == 'DiscussionTime':
-        return DiscussionTime(**options)
-    elif view == 'CourseTime':
-        return CourseTime(**options)
-    elif view == 'PortfolioTime':
-        return PortfolioTime(**options)
-    elif view == 'ExternalTime':
-        return ExternalTime(**options)
-    elif view == 'AdjustmentTime':
-        return AdjustmentTime(**options)
-    elif view == 'PdTime':
-        return PdTime(**options)
-    elif view == 'StudentCourseenrollment':
-        return StudentCourseenrollment(**options)
-    elif view == 'CoursewareStudentmodule':
-        return CoursewareStudentmodule(**options)
-    elif view == 'UserCourseProgress':
-        return UserCourseProgress(**options)
-    elif view == 'ModuleStore':
-        return ModuleStore(**options)
-    elif view == 'PepregTraining':
-        return PepregTraining(**options)
-    elif view == 'PepregStudent':
-        return PepregStudent(**options)    
-    else:
-        return MongoReportingStore(**options)
-
 class UserInfo(MongoReportingStore):
         
     def report_update_data(self, user_id):
@@ -452,12 +449,13 @@ class ExternalTime(MongoReportingStore):
                 db_filter = {'user_id': int(user_id), 'course_id': course_id}
                 self.collection.update(db_filter, data, True)
             elif tmp == "t_external_time":
-                if external_id:
-                    data = {'$set': {'weight': weight}}
-                    db_filter = {'user_id': user_id, 'course_id': course_id, 'external_id': external_id, 'type': 'combinedopenended'}
+                if time > 0:
+                    data = {'$set': {'weight': weight, 'r_time': time}}
+                    db_filter = {'user_id': int(user_id), 'course_id': course_id, 'external_id': external_id, 'type': 'combinedopenended'}
                     self.collection.update(db_filter, data, True)
                 else:
-                    continue
+                    db_filter = {'external_id': external_id, 'type': 'combinedopenended', 'user_id': int(user_id)}
+                    self.collection.remove(db_filter)
             elif tmp == "UserView":
                 data = {'$inc': {'total_time': time, 'external_time': time}}
                 db_filter = {'school_year': 'current', 'user_id': int(user_id)}
@@ -470,7 +468,7 @@ class ExternalTime(MongoReportingStore):
 class AdjustmentTime(MongoReportingStore):
 
     def report_update_data(self, user_id, course_id, time, type):
-        affected_collection = ['adjustment_time', 'UserView', 'UserCourseView']
+        affected_collection = ['adjustment_time', 'UserView', 'UserCourseView', 'external_time']
         for tmp in affected_collection:
             self.set_collection(tmp)
             if tmp == "adjustment_time":
@@ -508,6 +506,11 @@ class AdjustmentTime(MongoReportingStore):
                 elif type == 'courseware':
                     data = {'$inc': {'total_time': time, 'course_time': time}}
                     db_filter = {'school_year': 'current', 'user_id': int(user_id), 'course_id': course_id}
+                    self.collection.update(db_filter, data)
+            elif tmp == "external_time":
+                if type == 'external':
+                    data = {'$inc': {'r_time': time, 'adjustment_time': time}}
+                    db_filter = {'user_id': int(user_id), 'course_id': course_id}
                     self.collection.update(db_filter, data)
 
 class PdTime(MongoReportingStore):
@@ -654,7 +657,7 @@ class CoursewareStudentmodule(MongoReportingStore):
 class ModuleStore(MongoReportingStore):
 
     def report_update_data(self, course_id):
-        affected_collection = ['modulestore', 'UserCourseView']
+        affected_collection = ['modulestore', 'UserCourseView', 't_external_time']
         for tmp in affected_collection:
             self.set_collection(tmp)
             if tmp == "modulestore":
@@ -669,6 +672,38 @@ class ModuleStore(MongoReportingStore):
                 data = {'$set' : self.get_course_data(course_id)}
                 db_filter = {'course_id': course_id}
                 self.collection.update(db_filter, data, True, multi=True)
+            if tmp == "t_external_time":
+                course_data = self.get_insert_data(course_id)
+                change_data = self.collection.find({'course_id': course_id})
+                user_data = {}
+                for tmp in change_data:
+                    r_time = int(tmp['weight']) * int(course_data['metadata']['external_course_time'])
+                    data = {'$set': {'r_time': r_time}}
+                    db_filter = {'_id': tmp['_id']}
+                    self.collection.update(db_filter, data)
+                    if user_data.has_key(str(tmp['user_id'])):
+                        user_data[str(int(tmp['user_id']))] = user_data[str(int(tmp['user_id']))] + r_time
+                    else:
+                        user_data[str(int(tmp['user_id']))] = r_time
+                for tmp in user_data:
+                    self.set_collection('external_time')
+                    external_time_data = self.collection.find({'course_id': course_id, 'user_id': int(tmp)})
+                    for tmp1 in external_time_data:
+                        if tmp1.has_key('adjustment_time'):
+                            external_time = user_data[tmp] + tmp1['adjustment_time']
+                        else:
+                            external_time = user_data[tmp]
+                        self.collection.update({'_id': tmp1['_id']}, {'$set':{'r_time': int(external_time)}})
+                        self.set_collection('UserView')
+                        userview_data = self.collection.find({'user_id': int(tmp), 'school_year': 'current'})
+                        for m in userview_data:
+                            total_time = int(m['total_time']) - int(m['external_time']) + int(external_time)
+                            self.collection.update({'_id':m['_id']}, {'$set':{'external_time': int(external_time), 'total_time': total_time}})
+                        self.set_collection('UserCourseView')
+                        courseuserview_data = self.collection.find({'user_id': int(tmp), 'course_id': course_id, 'school_year': 'current'})
+                        for n in courseuserview_data:
+                            total_time = int(n['total_time']) - int(n['external_time']) + int(external_time)
+                        self.collection.update({'user_id': int(tmp), 'school_year': 'current'}, {'$set':{'external_time': int(external_time), 'total_time': total_time}})
 
     #  creata_course,   '_id.category':'course'
     def report_insert_data(self, course_id):
@@ -697,10 +732,9 @@ class ModuleStore(MongoReportingStore):
                             db_filter = {'module_id': module_id}
                             if is_publish and graded:
                                 course_data['module_id'] = module_id
-                                tmp2.pop('_id')
                                 course_data.update(tmp2)
                                 data = {'$set' : course_data}
-                                self.collection.update(db_filter, data, True)
+                                self.collection.update(db_filter, course_data, True)
                             else:
                                 self.collection.remove(db_filter)
 

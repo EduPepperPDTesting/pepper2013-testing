@@ -2067,7 +2067,7 @@ def design_dashboard_upload(request):
         if rownum and oid:
             rownum = str(rownum)
             design = Nologindesign.objects.get(id=oid)
-            imgx = request.FILES.get("menu_items_icon_" + rownum, None)
+            imgx = request.FILES.get("design_menu_items_icon_" + rownum, None)
 
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/'
             if not os.path.exists(path):
