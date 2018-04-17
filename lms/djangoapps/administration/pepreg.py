@@ -1299,8 +1299,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
     return table_tr_content
 
-def remove_student(student):
+def remove_student(student, training_id=''):
     if student.training.type == "pepper_course":
+        PepRegStudentCourse.objects.get(training_id=training_id, student=student.student).delete()
         CourseEnrollment.unenroll(student.student, student.training.pepper_course)
         CourseEnrollmentAllowed.objects.filter(email=student.student.email,
                                                course_id=student.training.pepper_course).delete()
@@ -1358,10 +1359,7 @@ def register_student(request, join, training_id, user_id):
                 if enrollment:
                     try:
                         student_course = PepRegStudentCourse.objects.get(training_id=training_id, student=student_user, student_course_id = enrollment.id)
-                    except Exception as e:
-                        raise Exception(str(e)+" "+str(enrollment.id))
-
-                    if not student_course:
+                    except:
                         student_course = PepRegStudentCourse()
                         student_course.training_id = training_id
                         student_course.student = student_user
@@ -1383,7 +1381,7 @@ def register_student(request, join, training_id, user_id):
                 tu.save()
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
-            remove_student(student)
+            remove_student(student, training_id)
             PepRegStudent.objects.filter(training_id=training_id, student=student_user).delete()
             rs = reporting_store('PepregStudent')
             rs.report_update_data(int(training_id), student_user.id, True)

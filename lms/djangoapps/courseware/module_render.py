@@ -52,7 +52,7 @@ from django.utils.timezone import UTC
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
 from reporting.models import reporting_store
 
-from administration.models import PepRegStudent
+from administration.models import PepRegStudent, PepRegStudentCourse
 
 # log = logging.getLogger(__name__)
 log = logging.getLogger("tracking")
@@ -692,11 +692,13 @@ def modx_dispatch(request, dispatch, location, course_id):
                             #         student_enrolled.student_status = 'Attended'
                             #         student_enrolled.save()
                             #------------------------------------------------------
-                            student = PepRegStudent.objects.get(course__course_id=course_id, student=request.user.id)
-                            student_status = student.student_status
-                            if student_status == 'Registered':
+                            try:
+                                training_id = PepRegStudentCourse.objects.get(course__course_id=course_id, student=request.user.id).training_id
+                                student = PepRegStudent.objects.get(training_id = training_id, student=request.user.id, student_status = 'Registered')
                                 student.student_status = 'Attended'
                                 student.save()
+                            except Exception as e:
+                                raise Exception(e)
 
                         else:
                             course_instance.complete_course = False
