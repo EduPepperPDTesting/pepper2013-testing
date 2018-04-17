@@ -1365,7 +1365,7 @@ def register_student(request, join, training_id, user_id):
                         student_course.student = student_user
                         student_course.student_course_id = enrollment.id
                         student_course.course_id = enrollment.id
-                        student_course.course = training.pepper_course
+                        student_course.course = CourseEnrollment
                         student_course.user_create = request.user
                         student_course.date_create = datetime.now(UTC)
 
@@ -1505,11 +1505,11 @@ def waitlist_swap(request):
 
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
-def set_student_attended(request):
+def set_student_attended(request, training_id='', student_id='', yn=''):
     try:
-        training_id = int(request.POST.get("training_id"))
-        student_id = int(request.POST.get("student_id"))
-        yn = request.POST.get("yn", False)
+        training_id = training_id if training_id else int(request.POST.get("training_id"))
+        student_id = student_id if student_id else int(request.POST.get("student_id"))
+        yn = yn if yn else request.POST.get("yn", False)
 
         training = PepRegTraining.objects.get(id=training_id)
         try:

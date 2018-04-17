@@ -54,6 +54,8 @@ from reporting.models import reporting_store
 
 from administration.models import PepRegStudent, PepRegStudentCourse
 
+from administration.pepreg import set_student_attended
+
 # log = logging.getLogger(__name__)
 log = logging.getLogger("tracking")
 
@@ -679,24 +681,9 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 tnl_instance = TNLInstance(domain)
                                 tnl_instance.register_completion(student, course_id, percent)
 
-                            # Update student status for related training to Attend
-                            #------------------------------------------------------
-                            # enrollment = CourseEnrollment.objects.get(course_id=course_id, user = request.user.id)
-                            # training_list = enrollment.training_string.split(',')
-                            #
-                            # for training_id in training_list:
-                            #     student_enrolled = PepRegStudent.objects.get(training__id = training_id, student=request.user.id)
-                            #     student_status = student_enrolled.student_status
-                            #
-                            #     if student_status == 'Registered':
-                            #         student_enrolled.student_status = 'Attended'
-                            #         student_enrolled.save()
-                            #------------------------------------------------------
                             try:
                                 training_id = PepRegStudentCourse.objects.get(course__course_id=course_id, student=request.user.id).training_id
-                                student = PepRegStudent.objects.get(training_id = training_id, student=request.user.id, student_status = 'Registered')
-                                student.student_status = 'Attended'
-                                student.save()
+                                set_student_attended(request, training_id, request.user.id, True)
                             except Exception as e:
                                 raise Exception(e)
 
