@@ -552,7 +552,8 @@ def report_view(request, report_id):
             rs = reporting_store()
             collection = get_cache_collection(request, report_id, school_year)
 
-            stats = int(rs.get_collection_stats(collection)['ok'])
+            # stats = int(rs.get_collection_stats(collection)['ok'])
+            stats = 0
             if(not(stats)):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
@@ -565,10 +566,10 @@ def report_view(request, report_id):
                 for f in report_filters:
                     filters.append(f)
 
-                if selected_view.view.collection == 'AggregateGradesView':
-                    create_report_collection2(request, report, selected_view, columns, filters, report_id)
-                else:
-                    create_report_collection(request, report, selected_view, columns, filters, report_id)
+                # if selected_view.view.collection == 'AggregateGradesView':
+                #     create_report_collection2(request, report, selected_view, columns, filters, report_id)
+                # else:
+                create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             view_id = ReportViews.objects.filter(report=report)[0].view_id;
             pd_planner_id = Views.objects.filter(name='PD Planner')[0].id;
@@ -697,7 +698,8 @@ def create_report_collection(request, report, selected_view, columns, filters, r
             year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
         collection = get_cache_collection(request, report_id, year)
-        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
+        filters = get_query_filters(filters)
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{filters}', filters).replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 

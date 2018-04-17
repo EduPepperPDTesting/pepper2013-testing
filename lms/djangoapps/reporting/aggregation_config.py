@@ -21,7 +21,7 @@ AggregationConfig = {
     },
     "AggregateGradesView": {
         "collection": "student_courseenrollment"
-    },""
+    },
     "AggregateTimerView": {
         "collection": "user_info"
     },
@@ -1766,7 +1766,7 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'enrollment_date': 1, 
         'organization': 1
     }
-}{filter},{
+}{filters},{
     '$out': '{collection}'
     }
 '''
