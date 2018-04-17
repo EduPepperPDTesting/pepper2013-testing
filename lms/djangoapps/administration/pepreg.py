@@ -1364,8 +1364,7 @@ def register_student(request, join, training_id, user_id):
                         student_course.training_id = training_id
                         student_course.student = student_user
                         student_course.student_course_id = enrollment.id
-                        student_course.course_id = enrollment.id
-                        student_course.course = CourseEnrollment
+                        student_course.course = enrollment
                         student_course.user_create = request.user
                         student_course.date_create = datetime.now(UTC)
 
