@@ -1,3 +1,5 @@
+import logging
+import sys
 from courseware.model_data import FieldDataCache,DjangoKeyValueStore
 from xblock.fields import Scope
 from django.conf import settings
@@ -30,7 +32,7 @@ if settings.XQUEUE_INTERFACE.get('basic_auth') is not None:
     requests_auth = HTTPBasicAuth(*settings.XQUEUE_INTERFACE['basic_auth'])
 else:
     requests_auth = None
-
+log = logging.getLogger("tracking")
 xqueue_interface = XQueueInterface(
     settings.XQUEUE_INTERFACE['url'],
     settings.XQUEUE_INTERFACE['django_auth'],

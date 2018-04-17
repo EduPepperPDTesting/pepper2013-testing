@@ -281,11 +281,12 @@ db.external_time.createIndex({
 db.adjustment_time.find({'type':'external'}).forEach(function(ad){
   var cur_item = db.external_time.findOne({'course_id':ad.course_id,'user_id':ad.user_id})
   if(cur_item!=null){
+    cur_item.adjustment_time+=ad.time;
     cur_item.r_time+=ad.time;
     db.external_time.save(cur_item);
   }
   else{
-    db.external_time.save({'_id':{'course_id':ad.course_id,'user_id':ad.user_id},'user_id':ad.user_id,'course_id':ad.course_id,'r_time':ad.time})
+    db.external_time.save({'_id':{'course_id':ad.course_id,'user_id':ad.user_id},'user_id':ad.user_id,'course_id':ad.course_id,'adjustment_time': ad.time,'r_time':ad.time})
   }
 })
 EOF

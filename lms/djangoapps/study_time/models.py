@@ -312,10 +312,10 @@ class MongoRecordTimeStore(object):
         results = self.collection_external.find({'user_id':user_id,'course_id':course_id})
         for data in results:
             weight = int(data['weight'])
-            rs = reporting_store('ExternalTime')
             c = course_from_id(course_id)
             r_time = -weight * int(c.external_course_time)
-            rs.report_update_data(user_id, course_id, r_time)
+            rs = reporting_store('ExternalTime')
+            rs.report_update_data(user_id, course_id, r_time, external_id)
         return self.collection_external.remove(
             {
                 'user_id': user_id,
