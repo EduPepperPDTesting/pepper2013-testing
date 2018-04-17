@@ -264,6 +264,7 @@ class PepRegStudentCourse(models.Model):
     class Meta:
         db_table = 'pepregstudent_course'
     training = models.ForeignKey(PepRegTraining)
+    course_id = models.IntegerField(blank=False, default=0)
     course = models.ForeignKey(CourseEnrollment)
     student = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
