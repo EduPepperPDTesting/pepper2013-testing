@@ -1359,7 +1359,7 @@ def register_student(request, join, training_id, user_id):
                     try:
                         student_course, enrolled = PepRegStudentCourse.objects.get_or_create(training_id=training_id, student=student_user, course__course_id = training.pepper_course)
                     except Exception as e:
-                        raise Exception(e)
+                        raise Exception(str(e)+" "+training.pepper_course)
 
                     if enrolled:
                         student_course.user_create = request.user
