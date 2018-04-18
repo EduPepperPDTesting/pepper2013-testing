@@ -871,17 +871,8 @@
                             $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
                                 console.log("data.name=" + data.name);
                                 console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
-                                if(data.name !== "" && data.name !== "undefined") {
-                                    warningData = data.training_date + " " + data.training_time_start + "|";
-                                    warningData += data.training_date + " " + data.training_time_end + "|";
-                                    warningData += data.name + "|";
-                                    warningData += data.description + "|";
-                                    warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
-                                    warningData += " " + data.geo_location;
-                                    pepreg.warning("Thank you for registering/recording attendance for this training!*" + warningData);
-                                }else{
-                                    pepreg.warning("Thank you for registering/recording attendance for this training!");
-                                }
+                                warningData = (data.name !== "" && data.name !== "undefined") ? buildWarningData(data) : "";
+                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
                             });
                         } else {
                             pepreg.warning("Thank you! You are no longer registered for this training.");
