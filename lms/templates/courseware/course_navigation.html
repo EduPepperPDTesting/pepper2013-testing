@@ -73,7 +73,7 @@ def url_class(tab):
 </style>
 
 <nav class="${active_page} course-material">
-  <div class="inner-wrapper">
+  <div class="inner-wrapper inner-wrapper-course">
     <ol class="course-tabs">
       % for tab in get_course_tabs(user, course, active_page):
           % if (portfolio_user == user and request.GET.get('pf_id') == None or portfolio_user == None and request.GET.get('pf_id') == None or portfolio_user.id == user.id) and not course.close_course and not is_closed:
