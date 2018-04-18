@@ -6,7 +6,7 @@
 <%!
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
-
+    from courseware.courses import course_image_url, get_course_about_section
     # App that handles subdomain specific branding
     import branding
     # app that handles site status messages
@@ -324,9 +324,9 @@
             <script type="text/javascript">                
                 $(document).ready(function(){
                     var tmp1 = "<div style=\"text-align:left; padding:5px 0 5px 22px; font-family:'Open Sans',Verdana,Geneva,sans-serif; \">";
-                    tmp1 += "<span style='color:#3c3c3c; font-weight:bold; font-size:18px;'>${course.display_org_with_default | h}: </span><span style='color:#646464; font-weight:bold;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
+                    tmp1 += "<span style='color:#3c3c3c; font-weight:bold; font-size:18px;'>${get_course_about_section(course, 'university')}: </span><span style='color:#646464; font-weight:bold;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>";
                     tmp1 += "</div>";
-                    $(".inner-wrapper").prepend(tmp1);
+                    $(".inner-wrapper-course").prepend(tmp1);
                     $(".course-tabs").css("paddingTop", "0");
                 });
             </script>

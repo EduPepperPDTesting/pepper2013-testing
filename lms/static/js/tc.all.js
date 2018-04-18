@@ -1,9 +1,3 @@
-/***
- * 小鸟弹出层插件，由漫画Jquery弹出层插件改编而来
- * QQ:9169775
- * 编写时间：2013年3月21号
- * version:1.0
-***/
 function popWin(obj){
 	var _z=9000;//新对象的z-index
 	var _mv=false;//移动标记
@@ -14,8 +8,8 @@ function popWin(obj){
 	var _tit= _obj.find(".tit");
 	var _cls =_obj.find(".close");
 	var docE =document.documentElement;
-	var left=($(document).width()-_obj.width())/2;
-	var top =(docE.clientHeight-_obj.height())/2;
+	var left=(docE.clientWidth -_obj.width())/2 + document.documentElement.scrollLeft;
+	var top =(docE.clientHeight-_obj.height())/2 + document.documentElement.scrollTop;
 	_obj.css({	"left":left,"top":top,"display":"block","z-index":_z-(-1)});
 			
 	_tit.mousedown(function(e){
@@ -34,18 +28,19 @@ function popWin(obj){
 		if(_mv){
 			var x=e.pageX-_x;//移动时根据鼠标位置计算控件左上角的绝对位置
 			if(x<=0){x=0};
-			x=Math.min(docE.clientWidth-_wid,x)-5;
+			x=Math.min(docE.clientWidth+document.documentElement.scrollLeft-_wid,x)-5;
 			var y=e.pageY-_y;
 			if(y<=0){y=0};
-			y=Math.min(docE.clientHeight-_hei,y)-5;
+			y=Math.min(docE.clientHeight+document.documentElement.scrollTop-_hei,y)-5;
 			_obj.css({
 				top:y,left:x
 			});//控件新位置
 		}
 	});
 
-			_cls.live("click",function(){
-		$(this).parent().parent().hide().siblings("#maskLayer").remove();
+	_cls.live("click",function(){
+		$(this).parent().parent().hide();
+		$("#maskLayer").remove()
 	});
 			
 	$('<div id="maskLayer"></div>').appendTo("body").css({

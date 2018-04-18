@@ -771,6 +771,7 @@ def organization_remove_img(request):
         oid = request.POST.get("oid", "")
         column = request.POST.get("column", "")
         db = request.POST.get("db", "")
+        stype = request.POST.get("stype", "")
 
         if column and db:
             if db == "configuration":
@@ -892,6 +893,27 @@ def organization_remove_img(request):
                                 break
                             break
 
+                    elif column == "CommonLogo":
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationDashboard.objects.filter(organization=tmp1, itemType="Profile Logo"):
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
+
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+
+                                data = {'Success': True}
+                                break
+                            break
+
+                    else:
+                        if stype:
+                            filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + stype + "/" + column + ".png"
+                            if os.path.isfile(filename):
+                                os.remove(filename)
+                            data = {'Success': True}
+
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -911,6 +933,8 @@ def organization_get(request):
                 data['find'] = True
                 for tmp in organizations:
                     org = tmp
+
+                    data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
 
                     # --------------OrganizationMetadata
                     data['DistrictType'] = org.DistrictType
@@ -947,11 +971,15 @@ def organization_get(request):
                         break
 
                     # --------------OrganizationDistricts
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organizations, itemType="Common Logo Button"):
+                        data['common_logo_button'] = tmp1.itemValue
+                        break
+                    
                     sid_did = ""
                     org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
                     for tmp1 in org_dir_list:
                         if not sid_did == "":
-                            sid_did += ":"
+                            sid_did += "||"
 
                         tmp1_text = ""
                         if tmp1.EntityType == "State":
@@ -971,7 +999,11 @@ def organization_get(request):
                                 tmp1_text = tmp2.name
                                 break
 
-                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id)
+                        profileurl = ""
+                        profileurl_tmp = eval(tmp1.OtherFields)
+                        if profileurl_tmp.has_key('profileurl'):
+                            profileurl = profileurl_tmp['profileurl']
+                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id) + ',' + str(profileurl)
 
                     data['sid_did'] = sid_did
 
@@ -1151,8 +1183,8 @@ def organizational_save_base(request):
         my_featured_show_curr = request.POST.get("my_featured_show_curr", "")
         is_my_feed_default_curr = request.POST.get("is_my_feed_default_curr", "")
         org_logo_url = request.POST.get("org_logo_url", "")
-        org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
-        org_profile_logo_curr_url = request.POST.get("org_profile_logo_curr_url", "")
+        # org_profile_logo_url = request.POST.get("org_profile_logo_url", "")
+        # org_profile_logo_curr_url = request.POST.get("org_profile_logo_curr_url", "")
         my_trending_topics = request.POST.get("my_trending_topics", "")
         my_communities = request.POST.get("my_communities", "")
         my_learning_plan = request.POST.get("my_learning_plan", "")
@@ -1171,8 +1203,11 @@ def organizational_save_base(request):
         progress_txt_curr = request.POST.get("progress_txt_curr", "")
         resources_txt_curr = request.POST.get("resources_txt_curr", "")
         register_text_button = request.POST.get("register_text_button", "")
+        common_logo_button = request.POST.get("common_logo_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
+        allow_pd_planner = request.POST.get("allow_pd_planner", "")
+        profileurl = request.POST.get("profileurl", "")
         if is_announcement == "1":
             if user_email == "":
                 data = {'Success': False, 'Error': 'The Email does not exist.'}
@@ -1196,6 +1231,14 @@ def organizational_save_base(request):
 
             org_metadata.DistrictType = for_district
             org_metadata.SchoolType = for_school
+
+            # allow pd planner
+            if allow_pd_planner:
+                if allow_pd_planner == "1":
+                    org_metadata.allow_pd_planner = True
+                else:
+                    org_metadata.allow_pd_planner = False
+
             org_metadata.save()
 
             # --------------OrganizationDataitems
@@ -1246,7 +1289,7 @@ def organizational_save_base(request):
 
             # --------------OrganizationDistricts
             if sid_did != "" and request.user.is_superuser:
-                sid_did_list = sid_did.split(":")
+                sid_did_list = sid_did.split("||")
                 org_dir_list = OrganizationDistricts.objects.filter(organization=org_metadata)
 
                 # Delete the deleted records
@@ -1271,8 +1314,10 @@ def organizational_save_base(request):
                     if array1_did != "":
                         for org_dir_list_c in OrganizationDistricts.objects.filter(id=array1_did):
                             org_dis = org_dir_list_c
+                            org_dis.OtherFields = eval(org_dis.OtherFields)
+                            org_dis.OtherFields['profileurl'] = array1[3]
                             if str(org_dis.EntityType) != str(array1[1]) or str(org_dis.OrganizationEnity) != str(array1[0]):
-                                org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "'}"
+                                org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "','profileurl':'"+ array1[3] + "'}"
                             is_new = False
                             break
 
@@ -1280,7 +1325,7 @@ def organizational_save_base(request):
                     org_dis.OrganizationEnity = array1[0]
                     org_dis.organization = org_metadata
                     if is_new:
-                        org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "'}"
+                        org_dis.OtherFields = "{'date':'" + str(datetime.utcnow()) + "','profileurl':'"+ array1[3] + "'}"
 
                     org_dis.save()
 
@@ -1474,10 +1519,11 @@ def organizational_save_base(request):
             org_organizationmenusave(org_metadata, "Remove All Menu", remove_all_menu)
             org_organizationmenusave(org_metadata, "Footer Selected", footer_flag)
             org_organizationmenusave(org_metadata, "Initial Pepper Announcement", is_announcement)
+            org_organizationmenusave(org_metadata, "Common Logo Button", common_logo_button)
 
             org_organizationdashboardsave(org_metadata, "Dashboard option etc", dashboard_option)
-            org_organizationdashboardsave(org_metadata, "Profile Logo Url", org_profile_logo_url)
-            org_organizationdashboardsave(org_metadata, "Profile Logo Url Curriculumn", org_profile_logo_curr_url)
+            org_organizationdashboardsave(org_metadata, "Profile Logo Url", profileurl)
+            # org_organizationdashboardsave(org_metadata, "Profile Logo Url Curriculumn", org_profile_logo_curr_url)
             org_organizationdashboardsave(org_metadata, "My Feed Show", my_feed_show)
             org_organizationdashboardsave(org_metadata, "My Activities Show", my_activities_show)
             org_organizationdashboardsave(org_metadata, "My Report Show", my_report_show)
@@ -1668,6 +1714,14 @@ def org_upload(request):
         file_type = request.POST.get("file_type", "")
         oid = request.POST.get("oid", "")
 
+        path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
+        if not os.path.exists(path):
+            os.mkdir(path)
+
         if file_type and oid:
             organization = OrganizationMetadata.objects.get(id=oid)
 
@@ -1689,13 +1743,41 @@ def org_upload(request):
             elif file_type == "register_main_logo":
                 imgx = request.FILES.get("organizational_base_register_main_logo_curr", None)
 
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/'
-            if not os.path.exists(path):
-                os.mkdir(path)
+            elif file_type == "common_logo":
+                imgx = request.FILES.get("commonlogofile", None)
+                ext = '.png'
+                destination = open(path + file_type + ext, 'wb+')
+                for chunk in imgx.chunks():
+                    destination.write(chunk)
+                destination.close()
+                org_dashboard = OrganizationDashboard()
+                for tmp1 in OrganizationDashboard.objects.filter(organization=organization, itemType="Profile Logo"):
+                    org_dashboard = tmp1
+                    break
 
-            path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
-            if not os.path.exists(path):
-                os.mkdir(path)
+                org_dashboard.organization = organization
+                org_dashboard.itemType = "Profile Logo"
+                org_dashboard.itemValue = file_type + ext
+                org_dashboard.save()
+
+                data = {'Success': True, 'name': file_type + ext}
+                return render_json_response(data)
+
+            elif file_type == "stype_profile_logo":
+                uploadname = request.POST.get("uploadname", "")
+                stype = request.POST.get("stype", "")
+                imgx = request.FILES.get(uploadname, None)
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/' + stype + '/'
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                if imgx:
+                    # ext = os.path.splitext(imgx.name)[1]
+                    destination = open(path + uploadname + '.png', 'wb+')
+                    for chunk in imgx.chunks():
+                        destination.write(chunk)
+                    destination.close()
+                data = {'Success': True, 'name': uploadname + '.png'}
+                return render_json_response(data)
 
             if imgx:
                 ext = os.path.splitext(imgx.name)[1]
@@ -1981,7 +2063,7 @@ def design_dashboard_upload(request):
         if rownum and oid:
             rownum = str(rownum)
             design = Nologindesign.objects.get(id=oid)
-            imgx = request.FILES.get("menu_items_icon_" + rownum, None)
+            imgx = request.FILES.get("design_menu_items_icon_" + rownum, None)
 
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/design/'
             if not os.path.exists(path):

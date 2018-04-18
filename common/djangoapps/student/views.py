@@ -2091,11 +2091,11 @@ def activate_imported_account(post_vars):
                 cea.is_active = True
                 cea.auto_enroll = True
                 cea.save()
-            elif profile.district.state.name != "New Mexico" and cohort != 'MD_ESE01':
-                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
-                cea.is_active = True
-                cea.auto_enroll = True
-                cea.save()
+            # elif profile.district.state.name != "New Mexico" and cohort != 'MD_ESE01':
+            #     cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=profile.user.email)
+            #     cea.is_active = True
+            #     cea.auto_enroll = True
+            #     cea.save()
 
             ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
             for cea in ceas:

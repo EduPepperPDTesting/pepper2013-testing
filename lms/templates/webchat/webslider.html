@@ -248,7 +248,7 @@ $(document).ready(function(){
     $(".pep_contact_block").on("click", ".pep_start_video", function(){
         var uname = $(this).prev().text().replace(" ", "_");
         $("#pep_video_container").load("/videochat/"+uname+" #pep_video_panel");
-        window.open("/webchat/videopopup",'mypopup', 'postwindow');
+        window.open("/webchat/videopopup");
     });
 
     $("#pep_search").on('keyup', function(e){

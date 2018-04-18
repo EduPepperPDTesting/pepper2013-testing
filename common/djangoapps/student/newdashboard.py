@@ -388,6 +388,7 @@ def get_my_course_in_progress(request):
         try:
             c = course_from_id(enrollment.course_id)
             c.student_enrollment_date = enrollment.created
+            c.is_closed = enrollment.is_closed
 
             if enrollment.course_id in allowed:
                 exists = exists - 1
@@ -450,6 +451,7 @@ def get_my_course_in_progress(request):
                     couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
                     couser_dict['close_course'] = course.close_course
+                    couser_dict['is_closed'] = course.is_closed
 
                     course_unfin_list.append(couser_dict)
             else:
@@ -482,6 +484,7 @@ def get_my_course_in_progress(request):
                 couser_dict['url'] = "/courses/" + course.id + "/courseware"
 
                 couser_dict['close_course'] = course.close_course
+                couser_dict['is_closed'] = course.is_closed
 
                 course_unfin_list.append(couser_dict)
                 if k > 1:
@@ -518,6 +521,7 @@ def get_my_course_in_progress(request):
 
                     couser_dict['close_course'] = course.close_course
                     couser_dict['issue_certificate'] = course.issue_certificate
+                    couser_dict['is_closed'] = course.is_closed
 
                     course_unfin_list.append(couser_dict)
             else:
@@ -549,6 +553,7 @@ def get_my_course_in_progress(request):
 
                 couser_dict['close_course'] = course.close_course
                 couser_dict['issue_certificate'] = course.issue_certificate
+                couser_dict['is_closed'] = course.is_closed
 
                 course_unfin_list.append(couser_dict)
                 if k > 0:

@@ -355,10 +355,15 @@ def course_config_advanced_page(request, org, course, name):
 
     course_module = modulestore().get_item(location)
 
+    data = CourseMetadata.fetch(location)
+
+    if data['display_organization'] == 'Smithsonian Science Education Center':
+        data['display_organization']  = 'SSEC'
+
     return render_to_response('settings_advanced.html', {
         'context_course': course_module,
         'course_location': location,
-        'advanced_dict': json.dumps(CourseMetadata.fetch(location)),
+        'advanced_dict': json.dumps(data),
     })
 
 
@@ -512,11 +517,16 @@ def course_advanced_updates(request, org, course, name):
                         # the metadata
                         filter_tabs = False
         try:
-            return JsonResponse(CourseMetadata.update_from_json(
+            if request_body['display_organization'] == 'SSEC':
+                request_body['display_organization'] = 'Smithsonian Science Education Center'
+            Response = CourseMetadata.update_from_json(
                 location,
                 request_body,
                 filter_tabs=filter_tabs
-            ))
+            )
+            if Response['display_organization'] == 'Smithsonian Science Education Center':
+                Response['display_organization'] = 'SSEC'
+            return JsonResponse(Response)
         except (TypeError, ValueError) as err:
             return HttpResponseBadRequest(
                 "Incorrect setting format. " + str(err),

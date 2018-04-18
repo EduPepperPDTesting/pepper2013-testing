@@ -55,26 +55,12 @@
         $.post ("${reverse('get_user_session')}",{"user_id": user_id}, function (data) {
             var session = data.session;
             $.post ("${reverse('get_session_token')}", {"session": session}, function (data){
-                window.open ('/webchat/videopopup?session='+session+'&token='+data.token, 'popup', 'postwindow')
-                link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"', 'popup', 'postwindow')\">Video Chat</a>";
+                window.open ('/webchat/videopopup?session='+session+'&token='+data.token)
+                link = "<a href = '#' onclick=\"window.open ('/webchat/videopopup?session="+session+"&token="+data.token+"')\">Video Chat</a>";
                 sendVideoRequest(request_user_id, link);
             });
         });
         return false;
     });
 
-   /*$("#pep_attachment_form").on("change", "#pep_file_input", function(){
-        console.log("pep_file_input_"+${user_id});
-        if($(this).data("user_id")==${user_id}){
-            $("#input_label_"+${user_id}).css("display", "none");
-            $("#submit_label_"+${user_id}).css("display", "inline-block");
-        }
-    });
-     $("#pep_attachment_form").on("click", "#pep_send_image", function(){
-        console.log("send_image_"+${user_id});
-        if($(this).data("user_id")==${user_id}){
-            $("#submit_label_"+${user_id}).css("display", "none");
-            $("#input_label_"+${user_id}).css("display", "inline-block");
-        }
-    });*/
 </script>

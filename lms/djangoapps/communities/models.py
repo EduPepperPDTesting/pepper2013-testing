@@ -77,7 +77,7 @@ class CommunityNotificationType(models.Model):
         db_table = 'community_notification_type'
     name = models.CharField(blank=True, null=True, max_length=20, db_index=False)
     description = models.TextField(blank=False, max_length=255, db_index=False)
-    group = models.ForeignKey(CommunityNotificationGroup, on_delete=models.PROTECT)
+    group = models.ForeignKey(CommunityNotificationGroup, on_delete=models.CASCADE)
     subject = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     body = models.TextField(blank=True, null=True, db_index=False)
     action = models.CharField(blank=True, null=True, max_length=255, db_index=False)
@@ -88,7 +88,7 @@ class CommunityNotificationConfig(models.Model):
         db_table = 'community_notification_config'
     via_pepper = models.BooleanField(blank=False, default=0)
     via_email = models.BooleanField(blank=False, default=0)
-    type = models.ForeignKey(CommunityNotificationType, on_delete=models.PROTECT)
+    type = models.ForeignKey(CommunityNotificationType, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     frequency = models.CharField(max_length=20, db_index=False, default="")
     self_config = models.BooleanField(blank=False, default=0)

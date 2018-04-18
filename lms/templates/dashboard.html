@@ -1218,12 +1218,13 @@ Add info that you would like to share about yourself here:
         <article class="my-course" style="${border_overide};z-index:8;" >
           <%
             course_target = reverse('courseware', args=[course.id])
+            course_target_close = course_target.replace('courseware','cabout')
           %>
           % if course.id in show_courseware_links_for:
-          %if curr_user == request.user and not course.close_course:
+          %if curr_user == request.user and not course.close_course and not course.is_closed:
             <a href="${course_target}" class="cover">
           %else:
-            <a href="" class="cover" style="cursor:default;" onclick="return false;">
+            <a href="${course_target_close}" class="cover">
           %endif
               <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
             </a>
@@ -1258,10 +1259,10 @@ Add info that you would like to share about yourself here:
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
                 % if course.id in show_courseware_links_for:
-                %if curr_user == request.user and not course.close_course:
+                %if curr_user == request.user and not course.close_course and not course.is_closed:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
-                  <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                  <a href="${course_target_close}" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %endif
                 % else:
                   <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
