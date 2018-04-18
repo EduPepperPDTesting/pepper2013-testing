@@ -3,6 +3,7 @@ from student.models import District, School, State
 from django.contrib.auth.models import User
 from student.models import UserProfile
 from django.conf import settings
+from organization.models import OrganizationMetadata
 import pymongo
 import logging
 log = logging.getLogger("tracking")
@@ -135,6 +136,14 @@ class Certificate(models.Model):
     association = models.IntegerField(blank=False)
 
 
+class TrainingCertificate(models.Model):
+    class Meta:
+        db_table = 'training_certificate'
+
+    certificate = models.OneToOneField('Certificate', on_delete=models.CASCADE)
+    organization = models.ForeignKey(OrganizationMetadata, related_name='certificates', on_delete=models.CASCADE)
+
+
 class HangoutPermissions(models.Model):
     class Meta:
         db_table = 'hangout_permissions'
@@ -226,6 +235,7 @@ class PepRegTraining(models.Model):
     date_modify = models.DateField(auto_now_add=False, db_index=False)
     last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
     school_id = models.IntegerField(blank=False, default=0)
+    certificate = models.ForeignKey(Certificate, null=True, on_delete=models.SET_NULL)
 
 class PepRegInstructor(models.Model):
     class Meta:

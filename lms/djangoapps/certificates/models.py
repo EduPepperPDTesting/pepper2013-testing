@@ -139,3 +139,10 @@ def certificate_status_for_student(student, course_id):
     except GeneratedCertificate.DoesNotExist:
         pass
     return {'status': CertificateStatuses.unavailable}
+
+
+class CertificateImages(models.Model):
+    class Meta:
+        db_table = 'certificate_images'
+
+    image = models.ImageField(upload_to='certificates')
