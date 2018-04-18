@@ -606,7 +606,8 @@ def training_json(request):
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
         "arrive": arrive,
-        "certificate": item.certificate_id
+        "certificate": item.certificate_id,
+        "allow_waitlist": item.allow_waitlist
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -786,6 +787,8 @@ def getCalendarMonth(request):
                     except:
                         status = ""
 
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
@@ -862,6 +865,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                 except:
                     status = ""
+
+                allow_waitlist = "1" if item.allow_waitlist else "0"
                 # if(item.training_date in date_list):
                 #     raise Exception(item.training_date)
 
@@ -981,6 +986,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
                         status = ""
+
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
@@ -1042,10 +1050,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                if (allow_waitlist == "0"):
+                                    occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                else:
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' /> ";
+                                    occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
+
                         elif  (status == "Waitlist" and r_l == "1"):
                             if (catype == "0" or catype == "6"):
-                                occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'><span>" + item.name + "</span>" + itemData + "</label>")
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' checked /> ";
+                                occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
                         else:
                             if (status == "Registered"):
                                 # checked true
