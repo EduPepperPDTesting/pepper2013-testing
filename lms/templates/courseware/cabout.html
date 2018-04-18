@@ -294,9 +294,9 @@ from pytz import UTC
 </section>
 <section id="course_closed" class="modal">
   <div class="inner-wrapper" style="padding-bottom:10px;">
-    <div style="padding:10px 5px 0 5px; margin-bottom:20px; color:black; font-size:20px;line-height:25px">
-      <!-- <img src="/static/images/header-logo.png" class="" alt="" height="30"/> -->
-       ${get_course_about_section(course, 'university')} : ${course.display_number_with_default | h} ${course.display_name_with_default}
+    <div style="padding:10px 20px 0 20px; margin-bottom:20px; color:black; text-align:left;">
+        <span style='color:#3c3c3c; font-weight:bold; font-size:18px;line-height: 20px;'>${get_course_about_section(course, 'university')}: </span>
+        <span style='color:#646464; font-weight:bold;line-height: 20px;font-size: 15px;'>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
     </div>
     <div style="margin-top:0;color:black;padding:0 30px;">
       The course has been closed! Please contact your administrator for futher information.
