@@ -1,14 +1,14 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%!
     from django.core.urlresolvers import reverse
-	from courseware.courses import course_image_url, get_course_about_section
+    from courseware.courses import course_image_url, get_course_about_section
     from courseware.access import has_access
     from certificates.models import CertificateStatuses
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State, District, School, User, UserProfile, GradeLevel, SubjectArea, YearsInEducation
-	from permissions.models import PermGroup
-	from permissions.utils import check_user_perms
+    from permissions.models import PermGroup
+    from permissions.utils import check_user_perms
     from baseinfo.models import Enum
 %>
 <%inherit file="../main.html"/>
