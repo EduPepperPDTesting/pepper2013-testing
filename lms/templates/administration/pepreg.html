@@ -2787,15 +2787,15 @@
 				var all_edit = $(this).find("input[name=all_edit]").val();
 				var all_delete = $(this).find("input[name=all_delete]").val();				
                 var apart = $(this).find("input[name=status]").val().split(",");
-                var arrive = apart[4];
-                var status = apart[5];
-                var allow = apart[6];
-                var attendancel_id = apart[7];
-                var reach_limit = apart[8];
-                var allow_student_attendance = apart[9];
-                var remain = parseInt(apart[10]);
-                var allow_waitlist = apart[11];
-                var has_certificate = apart[12];
+                var arrive = apart[0];
+                var status = apart[1];
+                var allow = apart[2];
+                var attendancel_id = apart[3];
+                var reach_limit = apart[4];
+                var allow_student_attendance = apart[5];
+                var remain = parseInt(apart[6]);
+                var allow_waitlist = apart[7];
+                var has_certificate = apart[8];
 				if(is_superuser){
 					all_edit = "1";
 					all_delete = "1";
