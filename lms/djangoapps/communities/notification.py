@@ -420,20 +420,20 @@ def _send_notification(action_user, receive_user, type_name, values):
             "location": values["Course Link"]
         })
 
-        # Save none instant notification to audit
-        if config and config.via_email:
-            days = {"Daily": 0, "Weekly": 7}
-            if config.frequency != 'Instant':
-                audit = CommunityNotificationAudit()
-                audit.subject = subject
-                audit.body = body
-                audit.receiver = receive_user
-                audit.creator = action_user
-                audit.create_date = datetime.utcnow()
-                audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
-                audit.save()
-            else:
-                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
+    # Save none instant notification to audit
+    if config and config.via_email:
+        days = {"Daily": 0, "Weekly": 7}
+        if config.frequency != 'Instant':
+            audit = CommunityNotificationAudit()
+            audit.subject = subject
+            audit.body = body
+            audit.receiver = receive_user
+            audit.creator = action_user
+            audit.create_date = datetime.utcnow()
+            audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+            audit.save()
+        else:
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
 
 
 def send_course_notification(request, action_user, course, notification_type, user_id):
