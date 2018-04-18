@@ -30,7 +30,7 @@ import uuid
 from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
-from administration.models import Author,CertificateAssociationType,Certificate
+from administration.models import Author,CertificateAssociationType,Certificate,PepRegTraining
 
 import cStringIO as StringIO
 from xhtml2pdf import pisa
