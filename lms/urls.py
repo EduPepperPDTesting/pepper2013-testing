@@ -111,6 +111,9 @@ urlpatterns = (
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     url(r'^pepreg/download_calendar_pdf/$', 'administration.pepreg.download_calendar_pdf', name="pepreg_download_calendar_pdf"),#akogan
+    url(r'^pepreg/get_certificates$', 'administration.pepreg.get_training_certificates', name="get_training_certificates"),
+    url(r'^pepreg/download_training_certificate$', 'certificates.views.download_training_certificate', name="download_training_certificate"),
+    url(r'^pepreg/send_completion_notification', 'administration.pepreg.send_completion_certificate', name="send_completion_certificate"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
     #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),
@@ -284,6 +287,7 @@ urlpatterns = (
     url(r'^configuration/certificate/table$', 'administration.configuration.certificate_table', name="configuration_certificate_table"),
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
+    url(r'^configuration/certificate/save_training_certificate$', 'administration.configuration.save_training_certificate', name="training_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
     url(r'^configuration/end_of_year_roll_over/roll_over$', 'administration.configuration.roll_over', name="configuration_roll_over"),
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
@@ -529,6 +533,7 @@ urlpatterns = (
     # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
     url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
+    url(r'^upload_certificate_image', 'certificates.views.save_upload_images', name="save_certificate_image"),
     url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
     url(r'^course_credits_tcsj$', 'certificates.views.course_credits_tcsj', name="course_credits_tcsj"),

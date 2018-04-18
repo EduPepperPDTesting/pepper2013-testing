@@ -1,8 +1,9 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
@@ -19,6 +20,7 @@ from StringIO import StringIO
 import xlsxwriter
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from training.models import TrainingUsers
+from communities.models import CommunityNotificationType
 from xmodule.modulestore.django import modulestore
 import pymongo
 
@@ -35,6 +37,7 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
                             PendingNameChange, PendingEmailChange, District,
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
+from communities.notification import send_completion_certificate_notification
 
 from io import BytesIO
 
@@ -296,10 +299,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain, allow_waitlist
+                remain, allow_waitlist, "1" if item.certificate else "0"
             ),
             item.subjectother,
         ]
@@ -352,6 +355,7 @@ def save_training(request):
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
+        training.certificate_id = request.POST.get("certificate", None)
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
         training.save()
@@ -446,9 +450,36 @@ def training_json(request):
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
-        "arrive": arrive
+        "arrive": arrive,
+        "certificate": item.certificate_id
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+def get_training_certificates(request):
+    district_id = request.GET.get('district_id', None)
+    school_id = request.GET.get('school_id', None)
+    if not district_id:
+        return HttpResponse(json.dumps({"Success": False, "info": "No district given"}), content_type="application/json")
+    if school_id:
+        qs = Q(organization__organizationdistricts__EntityType='School', organization__organizationdistricts__OrganizationEnity=school_id)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
+        if not trainging_certificates:
+            qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+            trainging_certificates = TrainingCertificate.objects.filter(qs)
+    else:
+        qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
+    row = []
+    if trainging_certificates:
+        for trainging_certificate in trainging_certificates:
+            row.append({
+                "id": trainging_certificate.certificate.id,
+                "name": trainging_certificate.certificate.certificate_name,
+                })
+        return HttpResponse(json.dumps({"Success": True, "certificates": row}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({"Success": False}), content_type="application/json")
 
 
 def getCalendarInfo(request):
@@ -1400,6 +1431,7 @@ def student_list(request):
         students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
+        has_validated_student = False
         rows = []
         for item in students:
             rows.append({
@@ -1411,6 +1443,8 @@ def student_list(request):
                 "student_credit": item.student_credit,
                 "student_id": item.student_id,
             })
+            if item.student_status == "Validated":
+                has_validated_student = True
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -1430,7 +1464,9 @@ def student_list(request):
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
                                     'student_limit': student_limit, # akogan
-                                    'allow_waitlist': training.allow_waitlist
+                                    'allow_waitlist': training.allow_waitlist,
+                                    'has_validated_student': has_validated_student,
+                                    'has_certificate': bool(training.certificate),
                                     }),
                         content_type="application/json")
 
@@ -2156,3 +2192,21 @@ def download_students_pdf(request):
     workbook.close()
     response.write(output.getvalue())
     return response
+
+def send_completion_certificate(request):
+    training_id = request.GET.get('training_id')
+    error = ''
+    students = PepRegStudent.objects.filter(training_id=training_id)
+    for student in students:
+        if student.student_status == 'Validated':
+            try:
+                send_completion_certificate_notification(request.user, student.student,
+                    reverse('download_training_certificate') + '?training_id=' + training_id, 'Send PD Certificate')
+            except CommunityNotificationType.DoesNotExist:
+                error = 'NotificationType Does not Exist'
+                return HttpResponse(json.dumps({'success': False, 'error': error}))
+    if not students:
+        error = 'no validated student'
+        return HttpResponse(json.dumps({'success': False, 'error': error}))
+
+    return HttpResponse(json.dumps({'success': True}))

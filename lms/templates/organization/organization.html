@@ -7,7 +7,8 @@
     from xmodule.modulestore.django import modulestore
     import json
     from student.models import State, District, School, User, UserProfile, GradeLevel, SubjectArea, YearsInEducation
-    from permissions.models import PermGroup
+	from permissions.models import PermGroup
+	from permissions.utils import check_user_perms
     from baseinfo.models import Enum
 %>
 <%inherit file="../main.html"/>
@@ -16,6 +17,7 @@
 <script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/static/js/certificate-editor.js"></script>
@@ -1130,7 +1132,7 @@
 </div>
 
 <!--Course Assignment -->
-<div class="organization_main1 expand_title_parent" style="margin-bottom:20px;">
+<div class="organization_main1 expand_title_parent">
     <div class="expand_title expand_title_collapse" next_sn="4">Course Assignment<div class="icon"></div></div>
     <div class="expand_div">
         <select id="org_assignment_subject_id">
@@ -1178,9 +1180,158 @@
             </div>
         </div>
         <div style="width:100%; text-align:right; height:30px;">
+			<input type="button" next_sn="5" value="Next" class="small_btn expand_title_next" />
             <input type="button" value="Save" class="small_btn org_btn_last_save" />
         </div>
     </div>
+</div>
+
+<!--PD Planner-->
+<div class="organization_main1 expand_title_parent" style="margin-bottom:20px;" id="pd_planner">
+	<div class="expand_title expand_title_collapse" next_sn="5">PD Planner<div class="icon"></div></div>
+	<div class="expand_div">
+		<div style="padding: 1em 7px 7px 7px;">
+			<div style="margin-bottom: 20px;border-bottom: 1px solid rgb(221, 221, 221)">
+				<label onclick="allowPDPlanner()">
+					<input type="checkbox" name="allow_pd_planner" id="allow_pd_planner" />
+					<span style="margin-left:10px;font-weight: bold;">Allow PD Planner</span>
+				</label>
+				<br>
+			</div>
+			<div id="pd" style="display: none">
+				<label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="planner_type" value="0" checked="checked" />Basic</label>
+				<label style="margin-right:20px;font-style: initial;font-weight: bold;"><input type="radio" name="planner_type" value="1" />Advanced (Work Flow) </label>
+				<p style="margin-bottom: 20px;margin-top: 20px;font-weight: bold;">Certificate Configuration</p>
+				<div class="pd">                   
+					<!-- Certificate Filter-->
+					<div class="certificate_filter_div">
+						<form method="" id="filter_form" action="" onsubmit="return false;">
+							<div class="control filter" id="fltCertificate">
+								<div class="certificate_title">FILTER</div>
+								<span class="body" style="display:inline-block;"></span>
+								<textarea class="setting">
+									{
+									"fields":{
+									"certificate_name":{"display":"Certificate Name","type":"text"}
+									},
+									"favorite":{
+									"show":false,
+										"load":"/configuration/favorite_filter_load",
+										"save":"/configuration/favorite_filter_save",
+										"remove":"/configuration/favorite_filter_delete"
+									}
+									}
+								</textarea>
+								<input type="button" name="" value="LOAD"
+										class="load"
+										onclick="filterCertificate()"/>
+							</div>
+							<!-- ADD/DELETE button-->
+							<div>
+								<!-- % if check_user_perms(request.user, 'certificate', 'add'): -->
+								<div class="certificate_filter_btn">
+									<a onclick="pd_addNewCertificate()"><div class="imgBtn imgBtn_add_new"></div><div>Add New</div></a>
+								</div>
+								<!-- % endif -->
+								<!-- % if check_user_perms(request.user, 'certificate', 'delete'): -->
+								<div class="certificate_filter_btn">
+									<a onclick="deleteSelectCertificate()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
+								</div>
+								<!-- % endif -->
+							</div>
+							<div class="control table" id="tblCertificate">
+								<span class="body"></span>
+								<div class="pd_pager">
+									<img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+									<img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+									<span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+									<img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+									<img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+									<select class="pagesize" title="Select page size">
+										<option value="10">10</option>
+										<option value="20">20</option>
+										<option value="30">30</option>
+										<option value="40">40</option>
+									</select>
+									<select class="gotoPage" title="Select page number"></select>
+								</div>
+								<textarea class="setting">
+									{
+									"fields":{
+									"certificate_name":{"display":"Certificate Name","sort":"+","show":1}
+									},
+									"urls":{
+									"data":"/configuration/certificate/table?training=1"
+									},
+									"paging":{
+									"size":100
+									},
+									"field_row_identifier":"id"
+									}
+								</textarea>
+							</div>
+						</form>
+					</div>
+					<!-- Certificate Editor-->
+					<div class="pd_certificate_editor_div" style="display: none">
+						<!-- Editor tools button-->
+						<!-- % if check_user_perms(request.user, 'certificate', 'edit'): -->
+						<div class="certificate_editor_tools_bar">
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
+							</div>
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);" onclick="certificate_editor_copy()"><div class="imgBtn imgBtn_copy"></div><div>Copy</div></a>
+							</div>
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);" onclick="certificate_editor_publish()"><div class="imgBtn imgBtn_publish"></div><div>Publish</div></a>
+								<a href="javascript:void(0);" style="display:none;" onclick="certificate_editor_unpublish()"><div class="imgBtn imgBtn_unpublish"></div><div>Unpublish</div></a>
+							</div>
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);" onclick="certificate_editor_delete()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
+							</div>
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);" onclick="certificate_editor_readOnly(1)"><div class="imgBtn imgBtn_readonly"></div><div>Read Only</div></a>
+								<a href="javascript:void(0);" style="display:none;" onclick="certificate_editor_readOnly(0)"><div class="imgBtn imgBtn_edit"></div><div>Edit</div></a>
+							</div>
+							<div class="certificate_filter_btn">
+								<a href="javascript:void(0);" onclick="certificate_editor_print()"><div class="imgBtn imgBtn_print"></div><div>Print</div></a>
+							</div>
+							<div class="certificate_filter_btn" style="float:right;">
+								<a href="javascript:void(0);" onclick="certificate_editor_cancel()"><div class="imgBtn imgBtn_cancel"></div><div>Cancel</div></a>
+							</div>
+						</div>
+						<!-- % endif -->
+						<div class="certificate_editor_frame">
+							<div class="certificate_tabs_div">
+								<ol class="certificate_tabs">
+									<!-- %if check_user_perms(request.user, 'certificate', ['add', 'edit']): -->
+									<li>
+										<a class="pd_editor_view_btn active" href="javascript:void(0);">Editor</a>
+									</li>
+									<!-- %endif -->
+									<li>
+										<a class="pd_preview_view_btn" href="javascript:void(0);">Preview</a>
+									</li>
+								</ol>
+								<input class="certificate_name" type="text" size="32" name="certificate_name" value="" placeholder="Certificate Name" style="float:right;"/>
+							</div>
+							<div class="pd_editor_view">
+								<textarea id="pd_certificate_editor" class="pd_certificate_editor" cols="10"></textarea>
+							</div>
+							<div class="pd_preview_view" style="display: none;">
+								<iframe class = "preview-frame" id="pd_certificate_preview" name="pd_certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
+							</div>
+						</div>
+					</div>
+					<!-- -->
+				</div>
+			</div>
+			<div style="width:100%; text-align:right; height:30px;">
+				<input type="button" value="Save" class="small_btn org_btn_last_save" />
+			</div>
+		</div>
+	</div>
 </div>
 
 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
@@ -1336,6 +1487,36 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- publish dialog -->
+<div style="position: fixed;" id="publish_dialog" class="modal">
+	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+		<div class="titlebar">
+			<h3 class="dialog-title"></h3>
+			<div class="close-modal" id="dialog_close">✕</div>
+		</div>
+		<center>
+			<div class="control filter" id="fltPublishCertificate">
+				<span class="body" style="display:inline-block;"></span>
+		<textarea class="setting">
+				{
+				"fields":{
+				"association_type":{"display":"Association Type","type":"drop","require":[],"url":"/configuration/drop_association_type","format":"<option value='{id}'>{name}</option>"},
+				"association":{"display":"Association","type":"drop","require":["association_type"],"url":"/configuration/drop_publish_association","format":"<option value='{id}'>{name}</option>"}
+				},
+				"favorite":{
+					"show":false,
+					"load":"/configuration/favorite_filter_load",
+					"save":"/configuration/favorite_filter_save",
+					"remove":"/configuration/favorite_filter_delete"
+				}
+				}
+			</textarea>
+			</div>
+		</center>
+		<div class="content"></div>
+	</div>
 </div>
 
 <div style="" id="cms_dialog" class="modal">
@@ -2478,11 +2659,13 @@
 										$(".expand_title[next_sn='2']").removeAttr("always_on");
 										$(".expand_title[next_sn='3']").removeAttr("always_on");
 										$(".expand_title[next_sn='4']").removeAttr("always_on");
+										$(".expand_title[next_sn='5']").removeAttr("always_on");
 										
 										$(".expand_title_next").show();
 										$(".org_btn_last_save").eq(0).hide();
 										$(".org_btn_last_save").eq(1).hide();
 										$(".org_btn_last_save").eq(2).hide();
+										$(".org_btn_last_save").eq(3).hide();
 										
 										if(!r["Text Color"]){
  											$("input[name='organizational_dashboard_option'][value='0']").attr("checked", "checked");
@@ -2495,12 +2678,28 @@
 										$(".expand_title[next_sn='2']").attr("always_on", "1");
 										$(".expand_title[next_sn='3']").attr("always_on", "1");
 										$(".expand_title[next_sn='4']").attr("always_on", "1");
+										$(".expand_title[next_sn='5']").attr("always_on", "1");
 
 										$(".expand_title_next").hide();									
 										$(".org_btn_last_save").eq(0).show();
 										$(".org_btn_last_save").eq(1).show();
 										$(".org_btn_last_save").eq(2).show();
+										$(".org_btn_last_save").eq(3).show();
 									}
+									if (r.allow_pd_planner == '1') {
+                                        $('#allow_pd_planner').prop("checked",true);
+                                        $('#pd').show();
+                                    } else {
+                                        $('#allow_pd_planner').prop("checked",false);
+                                        $('#pd').hide();
+                                    }
+									
+									updateCertificateTable(org_current_id);
+									$(".certificate_editor_tools_bar .imgBtn_save").off('click');
+                                    $(".certificate_editor_tools_bar .imgBtn_save").click(function() {
+                                        certificate_editor_save(org_current_id);
+                                    });
+                                    certificate_editor_init();
 								}
 							}else{
 								alert("error: " + r.Error);
@@ -3900,6 +4099,17 @@
 			$(this).datepicker();
 		});
 	}
+
+	//-----------------------------------------------------------------------pd planner
+
+    function allowPDPlanner() {
+        var flag = ($("#allow_pd_planner").attr("checked")) ? "1" : "0";
+        if(flag == 1){
+            $("#pd").show();           
+        }else{
+            $("#pd").hide();
+        }
+    }
 	
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------document ready
@@ -5191,6 +5401,7 @@
 			var progress_txt_curr = $("#organizational_dashboard_progress_txt_curr").val();
 			var resources_txt_curr = $("#organizational_dashboard_resources_txt_curr").val();
 			var register_text_button = $("#organizational_base_register_button_text").val();
+			var allow_pd_planner = ($("#allow_pd_planner").attr("checked")) ? "1" : "0";
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, 
 				common_logo_button: common_logo_button,
@@ -5257,7 +5468,8 @@
 				is_Announcement: is_Announcement,
 				user_email: user_email,
 				announcement_content: announcement_content,
-				menu_color: menu_color
+				menu_color: menu_color,
+				allow_pd_planner: allow_pd_planner
 			}, function (r) {
 				if (r.Success){
 					if(r.back_sid_all){
@@ -5866,4 +6078,298 @@
         $(datepicker_CurrentInput).change();
     });											
 	var csrf_token = '${csrf_token}';
+
+
+	// PD Planner - Certificate part
+
+    if (typeof CKEDITOR != 'undefined') {
+        CKEDITOR.replaceAll(function (textarea, config) {
+            if (textarea.className == 'pd_certificate_editor') {
+                // Add token plugin
+
+                config.language = 'en'
+
+                config.filebrowserBrowseUrl = '${reverse('browser_certificate_image')}';
+                config.filebrowserUploadUrl = '${reverse('save_certificate_image')}';
+                config.extraPlugins = 'token,print,certificate_image';
+                config.removeDialogTabs = 'certificate_image:advanced;certificate_image:Link;certificate_image:Upload;link:advanced';
+                config.removePlugins = 'maximize, image';
+                config.width = '100%';
+                config.height = 500;
+                // Configure available tokens
+                config.availableTokens = [
+                    ["", ""],
+                    ["firstname", "firstname"],
+                    ["lastname", "lastname"],
+                    ["trainingname", "trainingname"],
+                    ["trainingdate", "trainingdate"],
+                    ["trainingcredits", "trainingcredits"],
+                    ["subject", "subject"]
+                ];
+                config.tokenStart = '{';
+                config.tokenEnd = '}';
+                config.allowedContent = true;
+                return true;
+            }
+            return false;
+        });
+        CKEDITOR.on( 'dialogDefinition', function( ev ) {
+            // Take the dialog name and its definition from the event data.
+            var dialogName = ev.data.name;
+            var dialogDefinition = ev.data.definition;
+
+            // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+            if ( dialogName == 'link' ) {
+                // Get a reference to the "Target" tab.
+                var targetTab = dialogDefinition.getContents( 'target' );
+
+                // Set the default value for the target.
+                var targetField = targetTab.get( 'linkTargetType' );
+                targetField[ 'default' ] = '_blank';
+            }
+        });
+    }
+    var pd_pagerOptions = {
+        // target the pager markup - see the HTML block below
+        container: $(".pd_pager"),
+
+        // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+        ajaxUrl: null,
+
+        // modify the url after all processing has been applied
+        customAjaxUrl: function(table, url) { return url; },
+
+        // add more ajax settings here
+        // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+        ajaxObject: { dataType: 'json' },
+
+        // process ajax so that the data object is returned along with the total number of rows
+        ajaxProcessing: null,
+
+        // Set this option to false if your table data is preloaded into the table, but you are still using ajax
+        processAjaxOnInit: true,
+
+        // output string - default is '{page}/{totalPages}'
+        // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+        // also {page:input} & {startRow:input} will add a modifiable input in place of the value
+        output: '{startRow:input} to {endRow} ({totalRows})',
+
+        // apply disabled classname (cssDisabled option) to the pager arrows when the rows
+        // are at either extreme is visible; default is true
+        updateArrows: true,
+
+        // starting page of the pager (zero based index)
+        page: 0,
+
+        // Number of visible rows - default is 10
+        size: 10,
+
+        // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
+        //savePages : true,
+
+        // Saves tablesorter paging to custom key if defined.
+        // Key parameter name used by the $.tablesorter.storage function.
+        // Useful if you have multiple tables defined
+        //storageKey:'tablesorter-pager',
+
+        // Reset pager to this page after filtering; set to desired page number (zero-based index),
+        // or false to not change page at filter start
+        pageReset: 0,
+
+        // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+        // table row set to a height to compensate; default is false
+        fixedHeight: true,
+
+        // remove rows from the table to speed up the sort of large tables.
+        // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+        removeRows: false,
+
+        // If true, child rows will be counted towards the pager set size
+        countChildRows: false,
+
+        // css class names of pager arrows
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+        // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+    };
+
+    //-------------init--------------------------
+
+    var pd_ceditor=new CertificateEditor(CKEDITOR.instances.pd_certificate_editor);
+    $(".control.filter").each(function(){new FilterControl(this)});
+    $(".control.table").each(function(){new TableControl(this)});
+    $('#tblCertificate table').tablesorter({ headers: {
+        '.menu-trigger': { sorter: false, parser: false }
+    }}).tablesorterPager(pd_pagerOptions);
+    $('.menu-trigger').hide();
+    function filterCertificate() {
+        var filter=$('#fltCertificate')[0].control.getFilter();
+        $('#tblCertificate')[0].control.updateFilter(filter);
+    }
+
+    //-----filter Tool buttons----------------------
+    function pd_displayCertificate() {
+        $(".pd .certificate_filter_div").hide();
+        $(".pd .pd_certificate_editor_div").show();
+    }
+    function displayFilter() {
+        $(".pd .certificate_filter_div").show();
+        $(".pd .pd_certificate_editor_div").hide();
+    }
+    function pd_addNewCertificate() {
+        pd_displayCertificate();
+        pd_ceditor.init();
+        document.getElementById("pd_planner").scrollIntoView();
+    }
+
+    //iFrame size
+    function iframeLoaded() {
+        var frame = document.getElementById('pd_certificate_preview');
+        if(frame) {
+            // here you can make the height, I delete it first, then I make it again
+            frame.height = "";
+            frame.height = frame.contentWindow.document.body.scrollHeight + "px";
+        }
+    }
+
+    //
+    function certificate_editor_init() {
+        pd_ceditor.init();
+        displayFilter();
+    }
+
+    //-----Editor Tool buttons-----------
+    function certificate_editor_cancel(){
+        pd_ceditor.cancel(function(){
+            displayFilter();
+            filterCertificate();
+            $('.pd_editor_view_btn').click();
+        });
+    }
+    function certificate_editor_save(organization_id){
+        // negative integer mark ths certificate being created for training
+        // -2 unpublish, -1 publish
+        pd_ceditor.association = pd_ceditor.isPublish ? -1 : -2;
+        pd_ceditor.save_training_certificate(organization_id);
+    }
+    function certificate_editor_copy(){
+        pd_ceditor.copy();
+    }
+    function certificate_editor_print(){
+        var data=pd_ceditor.replacePlaceholder(pd_ceditor.CKEDITOR.getData());
+        $("#pd_certificate_preview").contents().find("#content").html(data);
+        window.frames["pd_certificate_preview"].focus();
+        window.frames["pd_certificate_preview"].print();
+    }
+    function certificate_editor_publish(){
+        var filter = {
+            "association_type": 0,
+            "association": -1
+        }
+        pd_ceditor.publish(filter);
+    }
+    function certificate_editor_unpublish(){
+        new Dialog($('#dialog')).showButtons("Unpublish Certificate","<p>Are you sure you want to Unpublish?</p><br/>",['Yes','No'],function(choice){
+            if(choice==0){
+                pd_ceditor.unPublish();
+                pd_ceditor.association = -2;
+                this.hide();
+            }
+            else{this.hide();}
+        })
+
+    }
+    function certificate_editor_readOnly(b){
+        pd_ceditor.setReadOnly(b,true);
+    }
+    function certificate_editor_delete(){
+        pd_ceditor.delete(function(){displayFilter();filterCertificate();});
+    }
+    function deleteSelectCertificate(){
+        var ids=$('#tblCertificate')[0].control.getCheckedValues();
+        if (!ids.length) {
+            new Dialog($('#dialog')).show('Error','You must select at least one certificate.');
+            return;
+        }
+        new Dialog($('#dialog')).showButtons("Warning","<p>Are you sure you want to delete this certificate?</p><br/>",['Yes','No'],function(choice){
+            if (choice==0) {
+                $.post('/configuration/certificate/delete',{ids:ids.join(',')},function(){
+                    for(var i=0;i<ids.length;i++)
+                    {
+                        $('#tblCertificate').find(".check-row[value="+ids[i]+"]").parent().parent().remove();
+                    }
+                    $('#tblCertificate table').trigger("update");
+                });
+                this.hide();
+            } else {
+                this.hide();
+            }
+        })
+    }
+    $('.pd_editor_view_btn').click(function(){
+        pd_ceditor.switchView("Editor");
+        $(this).addClass("active");
+        $('.pd_preview_view_btn').removeClass('active');
+        $('.pd_preview_view').hide();
+        $('.pd_editor_view').show();
+    });
+    $('.pd_preview_view_btn').click(function(){
+        pd_ceditor.switchView('Preview');
+        $(this).addClass('active');
+        $('.pd_editor_view_btn').removeClass('active');
+        $('.pd_preview_view').show();
+        $('.pd_editor_view').hide();
+        var data=pd_ceditor.replacePlaceholder(pd_ceditor.CKEDITOR.getData());
+        $("#pd_certificate_preview").contents().find("#content").html(data);
+        iframeLoaded();
+    });
+    //---------------load certificate------------------
+    $('#tblCertificate')[0].onDataLoaded = function(){
+        $.each(this.control.getFieldCells('certificate_name'),function(i,cell){
+            $(cell).html("<a class='certificate_load_btn' href='javascript:void(0);'><img src='/static/images/icons/magnifier.png'/>&nbsp;&nbsp;</a>"+cell.innerHTML);
+            $(cell).find('.certificate_load_btn').click(function(){
+                pd_displayCertificate();
+                pd_ceditor.loadCertificate($(this).parent().parent().find('.check-row').val());
+                // TODO: See about doing this in a cleaner way.
+                // %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                //     setTimeout(function () {
+                //         $('.pd_preview_view_btn').trigger('click');
+                //     }, 500);
+                // %endif
+            })
+        });
+        $('#tblCertificate table').trigger("update");
+
+    }
+
+    function updateCertificateTable(organization_id) {
+        $('#tblCertificate').find(".body").empty();
+        var setting = {
+                        "fields":{
+                            "certificate_name":{"display":"Certificate Name","sort":"+","show":1}
+                        },
+                        "urls":{
+                            "data":"/configuration/certificate/table?training=1&organization_id=" + organization_id
+                        },
+                        "paging":{
+                            "size":100
+                        },
+                        "field_row_identifier":"id"
+                    }
+        var $setting = $("<textarea class='setting'></textarea>").appendTo($('#tblCertificate'));
+        $('#tblCertificate').find("textarea.setting").text(JSON.stringify(setting));
+        $('#tblCertificate')[0].control.parseSetting();
+        $('#tblCertificate')[0].control.createTable();
+        $('#tblCertificate')[0].control.loadData(1);
+    }
+
 </script>
