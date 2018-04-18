@@ -84,6 +84,9 @@ urlpatterns = (
     url(r'^sso/course_assignments/delete$', 'sso.idp_metadata.course_assignment_delete', name="sso_course_assignment_delete"),
     # === sso end ===
 
+    # === mobild pepreg begin ==
+    url(r'^mpepreg/$', 'mpepreg.views.index', name="mpepreg"),
+
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
 
@@ -579,13 +582,11 @@ urlpatterns = (
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
     url(r'^upload_photo_new$', 'student.newdashboard.upload_photo_new', name="upload_photo_new"),
-
+    
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     url(r'^ssda$', 'student.views.signin_user_ssda', name="signin_user_ssda"),
     url(r'^check_ssda_email$', 'student.views.check_ssda_email', name="check_ssda_email"),
-
-    url(r'^mpepreg$', 'mpepreg.views.main', name="mpepreg"),
 
     url(r'^user_profile$', 'student.newdashboard.user_information', name="user_information"),
     url(r'^user_profile/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),
