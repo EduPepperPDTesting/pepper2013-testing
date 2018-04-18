@@ -864,7 +864,7 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-			    if(!$(this).hasClass("waitlistt")){
+			    if(!$(this).hasClass("waitlist")){
                     pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
                         if (reg) {
                             console.log("trID=" + trID);
