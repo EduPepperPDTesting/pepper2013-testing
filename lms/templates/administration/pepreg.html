@@ -142,9 +142,9 @@
 	#calendar-month tr td .al_7{background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important;}
 
-	#calendar-month tr td .al_5{ background-color:#FF8C00; color:#FFFFFF !important;text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
+	#calendar-month tr td .al_8{ background-color:#FF8C00; color:#FFFFFF !important;text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_8 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_8 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
@@ -864,7 +864,7 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-			    if($(this).not(".waitlist")){
+			    if(!$(this).hasClass("waitlistt")){
                     pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
                         if (reg) {
                             console.log("trID=" + trID);
