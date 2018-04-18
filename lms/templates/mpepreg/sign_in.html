@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />  
+    <meta http-equiv="pragma" content="no-cache" />  
+	<title>Input buttons - jQuery Mobile Demos</title>
+	<!--<link rel="shortcut icon" href="../favicon.ico">-->
+    <link rel="stylesheet" href="/static/mpepreg/css/base.css?r=4">
+	<script type="text/javascript" src="/static/mpepreg/js/jquery-1.8.3.min.js"></script>
+    <script>
+		$(function(){
+			//-----------------------------------------------------
+			/*$('#btn_login').on('touchstart', function (evt) {
+				$("#login-form").submit();
+			});*/
+			alert("#");
+			//-----------------------------------------------------
+			/*$('.sign_checkbox').on('touchstart', function (evt) {
+				var tmp_el = $(this).find("span:first");
+				if(tmp_el.hasClass("")){
+					tmp_el.addClass("_checked");
+				}else{
+					tmp_el.removeClass("_checked");
+				}
+			});*/
+			//-----------------------------------------------------
+			
+           /* var change_psw_press = 0;
+            $('#login-form').on('ajax:success', function(event, json, xhr) {
+                if (json.success) {
+					alert("1");
+
+                } else {
+					alert("0");
+                }
+            });*/
+			
+		});
+		/*function toggleSubmitButton(enable) {
+            var $submitButton = $('form .form-actions #submit');
+            if(enable) {
+                $submitButton.
+                removeClass('is-disabled').
+                removeProp('disabled').
+            } else {
+                $submitButton.
+                addClass('is-disabled').
+                prop('disabled', true).
+                html(gettext('Processing your account information &hellip;'));
+            }
+
+        }*/
+	</script>
+    <style>
+		*{padding:0; margin:0;}
+		.create_pd_body *{ color:#868686;}
+		::-webkit-input-placeholder {color:#CCCCCC;}
+		:-moz-placeholder {color: #CCCCCC;}
+		::-moz-placeholder {color: #CCCCCC;}
+		:-ms-input-placeholder {color: #CCCCCC;}
+		
+		.lpf_checkbox{float:left;displ1ay:table-cell; width:20px; height:20px; border:2px solid #F5821F; background-color:#fff; border-radius:5px;}
+		.lpf_checkbox_s{background:url(/static/mpepreg/images/icon_check.png) no-repeat center center; background-color:#F5821F;}
+		
+		.lpf_switch{display:table-cell; width:68px; height:24px; line-height:24px; border-radius:10px; font-size:1em; border:2px solid #eee;}
+		.lpf_switch_notxt{display:table-cell; width:48px; height:24px; line-height:24px; border-radius:10px; font-size:1em; border:2px solid #eee;}
+		
+		.lpf_switch_on{background-color:#89C252; text-align:center; color:#FFFFFF; font-weight:bold; border-color:#89C252;}
+		.lpf_switch_on span{float:right; margin:1px 1px 0 0; width:22px; height:22px; background-color:#fff; border-radius:10px;}
+		.lpf_switch_off{background-color:#e9e9e9; text-align:center; color:#000; font-weight:bold; border-color:#ddd;}
+		.lpf_switch_off span{float:left; margin:1px 0 0 1px; width:22px; height:22px; background-color:#fff; border-radius:10px;}
+		
+		.lpf_select{display:table-cell; width:100%; height:28px; background-color:#FFFFFF; border:0; outline:none;}
+		
+		body{background-color:#F1EFEA; color:#868686; font-size:100%; min-width:320px; font-family:Helvetica, Arial, sans-serif;}
+		
+		.input_icon{position:absolute; left:15px; width:24px; height:24px; opacity:0.4; }
+		.input_text{position:absolute; left:45px; right:15px; height:24px;}
+		
+		.lpf_easy_input{width:100%; border:0; font-size:1em; outline:none; height:100%;}
+		
+		.icon_email{width:24px; height:24px; background-image:url(/static/mpepreg/images/icon_email.png);}
+		.icon_lock{width:24px; height:24px; background-image:url(/static/mpepreg/images/icon_lock.png);}
+		.icon_search{width:24px; height:24px; background-image:url(/static/mpepreg/images/icon_search.png);}
+		
+		.bg_orange{background-color:#F5821F; color:#FFFFFF}
+		.bg_green{background-color:#89C252; color:#FFFFFF}
+		.br5{border-radius:5px;}
+		.br10{border-radius:10px;}
+		.br20{border-radius:20px;}
+		.color_orange{color:#F5821F;}
+		.color_green{color:#89C252;}
+		
+		.omit{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+		@media screen and (min-width:240px){
+			.sign_in_main .logo_txt{font-size:1em;}
+			.sign_in_main .logo{height:70px; background-image:url(/static/mpepreg/images/header-logo.png);}
+		}
+		@media screen and (min-width:480px){
+			.sign_in_main .logo_txt{font-size:1.15em;}
+			.sign_in_main .logo{height:80px; background-image:url(/static/mpepreg/images/header-logo2.png);}
+		}
+		@media screen and (min-width:640px){
+			.sign_in_main .logo_txt{font-size:1.3em; color:#0000ff}
+			.sign_in_main .logo{height:90px; background-image:url(/static/mpepreg/images/header-logo3.png);}
+		}
+		@media screen and (min-width:800px){
+			.sign_in_main .logo_txt{font-size:1.45em; color:#FFff00}
+			.sign_in_main .logo{height:100px; background-image:url(/static/mpepreg/images/header-logo4.png);}
+		}
+		@media screen and (min-width:1024px){
+			.sign_in_main .logo_txt{font-size:1.6em; color:#00FF00}
+			.sign_in_main .logo{height:110px; background-image:url(/static/mpepreg/images/header-logo5.png);}
+		}
+		
+		.sign_in_main{width1:100%; text-align:center; padding:40px 10px 0 10px}
+		.sign_in_main .logo{ background-repeat:no-repeat; background-position:center top;}
+		.sign_in_main .logo_txt{margin-bottom:5em;}
+		
+		.sign_in_main .form_row{height:24px; background-color:#FFFFFF; border-radius:5px; margin-bottom:15px; padding:12px 0;}
+		.sign_in_main .form_row .input_icon{left:30px !important; }
+		.sign_in_main .form_row .input_text{left:60px !important; right:30px !important; }
+		
+		.sign_in_main ._btn{color:#FFFFFF; font-size:1.2em; line-heig1ht:50px;}
+		.sign_in_main ._btn_green{background-color:#89C252 !important;}
+		
+		.sign_checkbox{float:left; }
+		.sign_checkbox span{float:left;}
+		.sign_checkbox>span:first-child{float:left;width:15px; height:15px; border:1px solid #868686; background-colo1r:#fff; border-radius:2px; margin-right:5px;}
+		.sign_checkbox ._checked{background:url(/static/mpepreg/images/icon_s_check.png) no-repeat center center; background-color:#F5821F;  border:1px solid #F5821F !important;}
+		
+		.sign_in_main .a_row{float:left; text-align1:right; padding:7px 0; width:100%; font-size:1.1em;}
+		.sign_in_main .a_row a{float:right; text-decoration:none; font-si1ze:1.1em; color:#868686;}
+	</style>
+</head>
+<body>
+	<div class="sign_in_main">
+    	<div class="logo"></div>
+        <div class="logo_txt">Next Gen Teaching & Learning Network</div>
+        <!--<span style="display:table-caption; width:400px; background-color:#999999">
+        	asasdfasd asdfasd adsfas asdfasd adsfas as
+        </span>-->
+        <form role="form" id="login-form" method="post" data-remote="true" action="/login_ajax" novalidate>
+        <div class="form_row">
+        	<span class="input_icon icon_email"></span>
+            <span class="input_text"><input type="text" name="user_email" placeholder="username@domain.com" class="lpf_easy_input" /></span>        
+        </div>
+		<div class="form_row">
+        	<span class="input_icon icon_lock"></span>
+            <span class="input_text"><input type="password" name="user_password" placeholder="password" class="lpf_easy_input" /></span>   
+        </div>
+        <div id="btn_login" class="form_row _btn _btn_green">Login</div>
+        </form>
+        <!--<span class="lpf_checkbox"></span><span class="lpf_checkbox lpf_checkbox_s"></span>-->
+        <!--<div class="a_row"><select class="lpf_select"><option value="1">1</option><option value="2">2</option></select></div>
+        <div class="a_row"><span class="lpf_checkbox"></span><span class="lpf_checkbox lpf_checkbox_s"></span></div>
+        <div class="a_row"><span class="lpf_switch lpf_switch_on">On<span></span></span><span class="lpf_switch lpf_switch_off">Off<span></span></span></div>
+        <div class="a_row"><span class="lpf_switch_notxt lpf_switch_on"><span></span></span><span class="lpf_switch_notxt lpf_switch_off"><span></span></span></div>-->
+        <div class="a_row">
+        	<span class="sign_checkbox" style="cursor:pointer;"><span></span><span>Remeber Me</span></span>
+            <a href="#" id="btn_forgot">Forgot Password?</a>
+        </div>
+        <div class="a_row" sty1le="di1splay:table-cell; wid1th:100%; text-ali1gn:right; background-color:#666666; text-align:right">
+        	<a href="#" id="btn_join" style="color:#F5821F; floa1t:right;" >Join Pepper!</a>
+        </div>
+    </div>
+</body>
+</html>
