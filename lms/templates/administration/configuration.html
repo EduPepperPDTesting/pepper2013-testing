@@ -226,8 +226,6 @@
                 config.extraPlugins = 'token,print,certificate_image2';
                 config.removePlugins = 'maximize,image';
                 config.removeDialogTabs = 'certificate_image2:advanced;link:advanced';
-                config.extraPlugins = 'token,print';
-                config.removePlugins = 'maximize';
                 config.width = '100%';
                 config.height = 500;
                 // Configure available tokens
@@ -242,7 +240,7 @@
                 ];
 
                 config.filebrowserUploadUrl = '${reverse('save_certificate_image')}';
-                
+
                 config.tokenStart = '{';
                 config.tokenEnd = '}';
                 config.allowedContent = true;
