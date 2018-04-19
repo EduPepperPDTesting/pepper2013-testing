@@ -140,8 +140,7 @@ $ ->
       converter = Markdown.getMathCompatibleConverter(postProcessor)
 
       ajaxFileUpload = (imageUploadUrl, input, startUploadHandler) ->
-        $("#loading").ajaxStart(-> $(this).show()).ajaxComplete(-> $(this).hide())
-        $("#upload").ajaxStart(-> $(this).hide()).ajaxComplete(-> $(this).show())
+        $("#loading").show()
         files=$('#file-upload')[0].files[0]
         max_filesize = 1*1000*1000
         if files != undefined
@@ -160,7 +159,8 @@ $ ->
           success: (data, status) ->
             fileURL = data['result']['file_url']
             error = data['result']['error']
-            $('#file-upload')[0].files = []
+            $('#file-upload')[0].value = ''
+            $("#loading").hide()
             if error != ''
               alert error
               if startUploadHandler
@@ -171,6 +171,7 @@ $ ->
               $("#imageUrlTxt").attr('value', fileURL)
             $('#file-upload').bind('change').change(startUploadHandler)
           error: (data, status, e) ->
+            $("#loading").hide()
             alert(e)
             if startUploadHandler
               $('#file-upload').unbind('change').change(startUploadHandler)
