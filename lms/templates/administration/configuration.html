@@ -223,6 +223,9 @@
         CKEDITOR.replaceAll(function (textarea, config) {
             if (textarea.className == 'certificate_editor') {
                 // Add token plugin
+                config.extraPlugins = 'token,print,certificate_image2';
+                config.removePlugins = 'maximize,image';
+                config.removeDialogTabs = 'certificate_image2:advanced;link:advanced';
                 config.extraPlugins = 'token,print';
                 config.removePlugins = 'maximize';
                 config.width = '100%';
@@ -237,6 +240,9 @@
                     ["date", "date"],
                     ["hours", "hours"]
                 ];
+
+                config.filebrowserUploadUrl = '${reverse('save_certificate_image')}';
+                
                 config.tokenStart = '{';
                 config.tokenEnd = '}';
                 config.allowedContent = true;
