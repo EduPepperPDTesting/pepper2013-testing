@@ -118,10 +118,14 @@
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	
-	#calendar-month tr td .al_4{ background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_4 span{position: relative; left: -10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
-	#calendar-month tr td .al_7 span{position: relative; left: -10px; color:#FFFFFF !important;}
+	#calendar-month tr td .al_4{background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_4 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7{background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_7 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important;}
+
+	#calendar-month tr td .al_8{ background-color:#FF8C00; color:#FFFFFF !important;text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_8 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_8 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
@@ -130,7 +134,8 @@
 	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
 	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
 	#calendar-panel .calendar_exp .c4{background-color:#595959;}
-	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
+	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}
+    #calendar-panel .calendar_exp .c8{background-color:#FF8C00;}
 	
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
@@ -370,6 +375,7 @@
                 <option value="2">I can register</option>
                 <option value="4">Training not yet open</option>
                 <option value="5">No More Spots!</option>
+                <option value="6">On Waitlist</option>
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
@@ -389,6 +395,7 @@
             <div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">On Waitlist: </span><span class="calendar_exp_color c8"></span></span>
             </div>
         </div>
     </div>
@@ -445,6 +452,7 @@
                 %endif
                 <!--div style="margin-top: 5px;"-->
                     <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+                    <input type="button" name="" value="Send Completion Certificate" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);display: none;" id="send_certificate_btn">
                     <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn">
                     <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);">
                 <!--/div-->
@@ -685,6 +693,15 @@
                             <span class="check-mark"
                                   alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
                         </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Select Certificate</span>
+                            <div id="show_certificates" style="display: inline-block;">
+                                <input type="checkbox" name="allow_certificate">
+                                <select name="certificate"></select>
+                            </div>
+                            <span id="no_certificates" style="display: none">No Certificates for the Organization.</span>    
+                            <span class="check-mark" alt="A certificate can be selected for this event that has been configured by the administrator in the organization configuration screen."></span>   
+                        </div>
                     </div>
                 </div>
             </div>
@@ -790,15 +807,15 @@
 			$(".alert").each(function(){
 				if($(this).hasClass("completeSlot")){
 					var tmp_span = $(this).find("span:eq(0)");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 15){
-						$(tmp_span).text(tmp_span_txt.substr(0,15) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,15) + "...");
 					}
 				}else{
 				    var tmp_span = $(this).find("span");
-					var tmp_span_txt = $(tmp_span).text();
+					var tmp_span_txt = tmp_span.text();
 					if(tmp_span_txt.length > 10){
-						$(this).text(tmp1.substr(0,10) + "...");
+						tmp_span.text(tmp_span_txt.substr(0,10) + "...");
 					}
 				}
 			});
@@ -821,37 +838,49 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
-					if (reg) {
-					    console.log("trID=" + trID);
-					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
-                            console.log("data.name=" + data.name);
-                            console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
-					        if(data.name !== "" && data.name !== "undefined") {
-					            warningData = data.training_date + " " + data.training_time_start + "|";
-                                warningData += data.training_date + " " + data.training_time_end + "|";
-                                warningData += data.name + "|";
-                                warningData += data.description + "|";
-                                warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
-                                warningData += " " + data.geo_location;
-                                pepreg.warning("Thank you for registering/recording attendance for this training!*" + warningData);
-					        }else{
-						        pepreg.warning("Thank you for registering/recording attendance for this training!");
-					        }
-					    });
-					} else {
-						pepreg.warning("Thank you! You are no longer registered for this training.");
-                    }
-                    console.log("calendar_check_would pre -" + $("this").prop("checked"));
-                    $("this").prop("checked", !$("this").prop("checked"));
-                    console.log("calendar_check_would post -" + $("this").prop("checked"));
-                    calendarOpen();
-					pepreg.reloadTable();
-					/*$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
-					calendarOpen();
-					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
-					console.log(regData.trID);*/
-				})
+			    if(!$(this).hasClass("waitlist")){
+                    pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
+                        if (reg) {
+                            console.log("trID=" + trID);
+                            $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
+                                console.log("data.name=" + data.name);
+                                console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
+                                warningData = (data.name !== "" && data.name !== "undefined") ? buildWarningData(data) : "";
+                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                            });
+                        } else {
+                            pepreg.warning("Thank you! You are no longer registered for this training.");
+                        }
+                        console.log("calendar_check_would pre -" + $("this").prop("checked"));
+                        $("this").prop("checked", !$("this").prop("checked"));
+                        console.log("calendar_check_would post -" + $("this").prop("checked"));
+                        calendarOpen();
+                        pepreg.reloadTable();
+                        /*$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+                        calendarOpen();
+                        console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+                        console.log(regData.trID);*/
+                    })
+				}else{
+                    pepreg.waitlistUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
+                        if (reg) {
+                            console.log("trID=" + trID);
+                            $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
+                                console.log("data.name=" + data.name);
+                                console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
+                                warningData = (data.name !== "" && data.name !== "undefined") ? buildWarningData(data) : "";
+                                pepreg.warning("Thank you! You have been added to the waitlist for this training." + warningData);
+                            });
+                        } else {
+                            pepreg.warning("Thank you! You are no longer on the waitlist for this training.");
+                        }
+                        console.log("calendar_check_would pre -" + $("this").prop("checked"));
+                        $("this").prop("checked", !$("this").prop("checked"));
+                        console.log("calendar_check_would post -" + $("this").prop("checked"));
+                        calendarOpen();
+                        pepreg.reloadTable();
+                    })
+				}
 			});
 
 			$(".calendar_check_attended").each(function(){
@@ -925,6 +954,18 @@
 	        if(picker_month == 13){
 	             picker_month = 1;
 	             picker_year = _sys_calendar_year + 1;}  }*/
+
+
+    function buildWarningData(data){
+        warningData = "*" + data.training_date + " " + data.training_time_start + "|";
+        warningData += data.training_date + " " + data.training_time_end + "|";
+        warningData += data.name + "|";
+        warningData += data.description + "|";
+        warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
+        warningData += " " + data.geo_location;
+        return warningData;
+    }
+
 	function setPickerValue(calcDate){
         name = name || true;
         var picker_month = _sys_calendar_month; console.log("picker month-"+picker_month);
@@ -1404,7 +1445,20 @@
 					}
 				});
 			}
-		});
+        });
+
+        $("#district_id, #school_id").change(function(){
+            pepreg.getCertificates();
+        })
+
+        $("input[name=allow_certificate]").change(function() {
+            if($(this).is(':checked')) {
+                $("select[name=certificate]").attr("disabled", false);
+            } else {
+                $("select[name=certificate]").val('0');
+                $("select[name=certificate]").attr("disabled", true);
+            }
+        });
 	});
 
     $('.list-group-item, .forBtnRemoval').click(function(){
@@ -1694,6 +1748,12 @@
             var URLrt = (href_classroom.indexOf("://") == -1) ? "https://" : "";
             classroom = classroom.replace(href_classroom, "<a href = '" + URLrt + href_classroom + "' target='_blank'>" + href_classroom + "</a>");
         }
+        var certificate = ""
+        if(!$form.find("select[name=certificate]").val() || $form.find("select[name=certificate]").val() == '0') {
+            certificate = ""
+        } else {
+            certificate = $form.find("select[name=certificate]").val();
+        }
         var json = {
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
@@ -1719,7 +1779,8 @@
             allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
             allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
             allow_validation: $form.find("input[name=allow_validation]:checked").val(),
-            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val()
+            allow_waitlist: $form.find("input[name=allow_waitlist]:checked").val(),
+            certificate: certificate,
         };
         if (json.subject == "Other") {
             json.subjectother = $form.find("input[name=subject-other]").val();
@@ -1986,6 +2047,12 @@
                 $(this).next("input").hide();
             }
         }).change();
+
+        // certificate
+        if(data.district_id || data.school_id){
+            this.getCertificates(data.district_id, data.school_id, data.certificate);
+        }
+
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
@@ -2353,7 +2420,7 @@
                         $("#dlg-training-info").css("display", "block");
                     });
 				}else{
-                    $("#register_unregister_students").attr("disabled", true);
+                    $("#register_unregister_students").hide();
 				}
 
                 //Last Reminder Email: 08/16/2016
@@ -2378,8 +2445,25 @@
                     });
                 }else{
                     $("#reminder_mail_date").hide();
-                    $("#reminder_mail_btn").attr("disabled", true);
-                    //$("#reminder_mail_btn").hide();
+                    // $("#reminder_mail_btn").attr("disabled", true);
+                    $("#reminder_mail_btn").hide();
+                }
+
+                if(r.arrive && r.has_validated_student) {
+                    $("#send_certificate_btn").show();
+                    $("#send_certificate_btn").off("click");
+                    $("#send_certificate_btn").on("click", function() {
+                        var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
+                        $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
+                            if(data.success) {
+                                alert("Sent successfully!");
+                            } else {
+                                alert("Send failure!" + data.error);
+                            }
+                        });
+                    });
+                } else {
+                    $("#send_certificate_btn").hide();
                 }
 			
                 var dlg = new Dialog($("#dlg-students"));
@@ -2696,6 +2780,7 @@
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
                 var allow_waitlist = apart[7];
+                var has_certificate = apart[8];
 				if(is_superuser){
 					all_edit = "1";
 					all_delete = "1";
@@ -2852,6 +2937,13 @@
                     } else {
                         $(this).html("");
                     }
+
+                    if (arrive == "1" && status == "Validated" && has_certificate == "1") {
+                        var certificate_link = $("<a target='_blank'>veiw certificate</a>");
+                        var certificate_url = "${reverse('download_training_certificate')}?training_id=" + training_id;
+                        certificate_link.attr("href", certificate_url);
+                        $(this).append($("<div></div>").html(certificate_link));
+                    }
                 });
                 $(this).find("td:nth-child(12)").css("white-space", "nowrap");
                 // Training Name
@@ -2888,6 +2980,44 @@
         });
         return ids;
     };
+    PepReg.prototype.getCertificates = function (district_id, school_id, certificate_id) {
+        var $form = $("#dlg-add-training");
+        var certificate_select = $form.find("select[name=certificate]");
+        certificate_select.empty();
+        certificate_select.append($("<option value='0'>Select a certificate</option>"));
+        if(!district_id) {
+            var district_id = $form.find("select[name=district_id]").val();
+        }
+        if(!school_id) {
+            var school_id = $form.find("select[name=school_id]").val() ? $form.find("select[name=school_id]").val() : "";
+        }
+        $.getJSON("${reverse('get_training_certificates')}", {
+            "district_id": district_id,
+            "school_id": school_id
+        }, function(r){
+            if(r.Success) {
+                $.each(r.certificates, function(index, certificate) {
+                    var option = $("<option></option>");
+                    option.val(certificate.id);
+                    option.text(certificate.name);
+                    if(certificate.id == certificate_id) option.attr("selected", true);
+                    certificate_select.append(option);
+                })
+                $form.find("#show_certificates").show();
+                $form.find("#no_certificates").hide();
+            } else {
+                $form.find("#show_certificates").hide();
+                $form.find("#no_certificates").show();
+            }
+        });
+        if(!certificate_id) {
+            $("input[name=allow_certificate]").attr("checked", false);
+            $("select[name=certificate]").attr("disabled", true);
+        } else {
+            $("input[name=allow_certificate]").attr("checked", true);
+            $("select[name=certificate]").attr("disabled", false);
+        }
+    }
     $(document).ready(function () {
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));

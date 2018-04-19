@@ -934,6 +934,8 @@ def organization_get(request):
                 for tmp in organizations:
                     org = tmp
 
+                    data['allow_pd_planner'] = '1' if org.allow_pd_planner else '0'
+
                     # --------------OrganizationMetadata
                     data['DistrictType'] = org.DistrictType
                     data['SchoolType'] = org.SchoolType
@@ -1204,6 +1206,7 @@ def organizational_save_base(request):
         common_logo_button = request.POST.get("common_logo_button", "")
         back_sid_all = ""
         user_email = request.POST.get("user_email", "")
+        allow_pd_planner = request.POST.get("allow_pd_planner", "")
         profileurl = request.POST.get("profileurl", "")
         if is_announcement == "1":
             if user_email == "":
@@ -1228,6 +1231,14 @@ def organizational_save_base(request):
 
             org_metadata.DistrictType = for_district
             org_metadata.SchoolType = for_school
+
+            # allow pd planner
+            if allow_pd_planner:
+                if allow_pd_planner == "1":
+                    org_metadata.allow_pd_planner = True
+                else:
+                    org_metadata.allow_pd_planner = False
+
             org_metadata.save()
 
             # --------------OrganizationDataitems

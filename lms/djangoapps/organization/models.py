@@ -19,6 +19,7 @@ class OrganizationMetadata(models.Model):
     DistrictType = models.CharField(blank=False, max_length=255, db_index=False)
     SchoolType = models.CharField(blank=False, max_length=255, db_index=False)
     url = models.CharField(blank=False, max_length=100, db_index=False)
+    allow_pd_planner = models.BooleanField(null=False, blank=False, default=False)
 
 
 class OrganizationDataitems(models.Model):

@@ -420,20 +420,20 @@ def _send_notification(action_user, receive_user, type_name, values):
             "location": values["Course Link"]
         })
 
-        # Save none instant notification to audit
-        if config and config.via_email:
-            days = {"Daily": 0, "Weekly": 7}
-            if config.frequency != 'Instant':
-                audit = CommunityNotificationAudit()
-                audit.subject = subject
-                audit.body = body
-                audit.receiver = receive_user
-                audit.creator = action_user
-                audit.create_date = datetime.utcnow()
-                audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
-                audit.save()
-            else:
-                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
+    # Save none instant notification to audit
+    if config and config.via_email:
+        days = {"Daily": 0, "Weekly": 7}
+        if config.frequency != 'Instant':
+            audit = CommunityNotificationAudit()
+            audit.subject = subject
+            audit.body = body
+            audit.receiver = receive_user
+            audit.creator = action_user
+            audit.create_date = datetime.utcnow()
+            audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+            audit.save()
+        else:
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
 
 
 def send_course_notification(request, action_user, course, notification_type, user_id):
@@ -447,3 +447,15 @@ def send_course_notification(request, action_user, course, notification_type, us
               "Receiver First Name": user.first_name,
               "Receiver Last Name": user.last_name}
     _send_notification(action_user, user, notification_type, values)
+
+
+def send_completion_certificate_notification(action_user, receiver, certifiate_url, notification_type):
+    values = {
+        "Sender First Name": action_user.first_name,
+        "Sender Last Name": action_user.last_name,
+        "Receiver First Name": receiver.first_name,
+        "Receiver Last Name": receiver.last_name,
+        "PD certificate URL": "<a target='_blank' href='" + certifiate_url + "'>Download Certificate</a>",
+        "Course Link": "",
+    }
+    _send_notification(action_user, receiver, notification_type, values)

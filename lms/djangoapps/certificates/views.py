@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import logging
 from certificates.models import GeneratedCertificate
@@ -25,10 +26,11 @@ from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
 from io import BytesIO
 import urllib
+import uuid
 from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
-from administration.models import Author,CertificateAssociationType,Certificate
+from administration.models import Author,CertificateAssociationType,Certificate,PepRegTraining
 
 import cStringIO as StringIO
 from xhtml2pdf import pisa
@@ -53,6 +55,8 @@ from django.contrib.auth.models import User
 #@date:2016-06-21
 from reporting.models import reporting_store
 #@end
+
+from certificates.models import CertificateImages
 
 logger = logging.getLogger(__name__) 
 
@@ -520,6 +524,67 @@ def download_certificate(request, course_id, completed_time):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
 
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    sUrl = settings.STATIC_URL      # /static/
+    sRoot = settings.STATIC_ROOT    
+    mUrl = settings.MEDIA_URL       
+    mRoot = settings.MEDIA_ROOT     
+
+    # convert URIs to absolute system paths
+    if uri.startswith(mUrl):
+        path = os.path.join(mRoot, uri.replace(mUrl, ""))
+    elif uri.startswith(sUrl):
+        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+    else:
+        return uri  # handle absolute uri (ie: http://some.tld/foo.png)
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+            raise Exception(
+                'media URI must start with %s or %s' % (sUrl, mUrl)
+            )
+    return path
+
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def download_training_certificate(request):
+    training_id = request.GET.get('training_id')
+    user_id = request.user.id
+    first_name = request.user.first_name
+    last_name = request.user.last_name
+    training = PepRegTraining.objects.get(id=training_id)
+
+    blob = urllib.unquote(training.certificate.certificate_blob.decode('utf8').encode('utf8'))
+    output_error = ''
+    try:
+        blob = blob.format(
+            firstname=first_name,
+            lastname=last_name,
+            trainingname=training.name,
+            trainingdate=training.training_date,
+            trainingcredits=training.credits,
+            subject=training.subject)
+    except KeyError, e:
+        output_error = 'The placeholder {0} does not exist.'.format(str(e))
+    # return render_to_response('download_certificate.html', {'content': blob, 'outputError': output_error})
+
+    context_dict = {
+        'content': blob,
+        'outputError': output_error,
+    }
+
+    html = render_to_string('download_certificate.html', context_dict)
+    result = StringIO.StringIO()
+    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result, encoding="UTF-8", link_callback=link_callback)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
+
 #@begin:change the Total Course Time
 #@date:2016-06-21
 def get_total_course_time(user_id, course_id):
@@ -624,4 +689,11 @@ def recorded_time_format(t, is_sign=False):
     return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
 #@end
 
-
+@csrf_exempt
+def save_upload_images(request):
+    image = request.FILES.get('upload')
+    (shotname, extension) = os.path.splitext(image.name)
+    image.name = str(uuid.uuid1()) + extension
+    certificate_image = CertificateImages(image=image)
+    certificate_image.save()
+    return HttpResponse('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction(' + request.GET.get('CKEditorFuncNum') + ', "' + certificate_image.image.url + '", "");</script>')

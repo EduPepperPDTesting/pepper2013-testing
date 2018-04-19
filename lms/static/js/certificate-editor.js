@@ -28,12 +28,15 @@ CertificateEditor.prototype.loadCertificate=function(id){
     this.certificateID=id;
     var self=this;
       $.post("/configuration/certificate/load_data",{id:this.certificateID},function(r){
-         self.certificate_name=r.certificate_name;
-         self.association_type=r.association_type||0;
-         self.association=r.association||0;
-         self.content=r.content;
-         self.CKEDITOR.setData(self.content);
-         self.isPublish=self.association_type==0?false:true;
+        self.certificate_name=r.certificate_name;
+        self.association_type=r.association_type||0;
+        self.association=r.association||0;
+        self.content=r.content;
+        self.CKEDITOR.setData(self.content);
+        self.isPublish=self.association_type==0?false:true;
+        if(r.association == -1) {
+            self.isPublish = true;
+        }
          self.setReadOnly(r.readonly);
          self.setPublishIcon(self.isPublish);
          $(".certificate_name").val(self.certificate_name);
@@ -51,6 +54,28 @@ CertificateEditor.prototype.save=function(callback){
       var self=this;
       var data={id:this.certificateID,name:this.certificate_name,content:this.CKEDITOR.getData(),association_type:this.association_type,association:this.association,readonly:this.isReadOnly};
       $.post("/configuration/certificate/save",data,function(r){
+          if(r.success){
+            self.certificateID=r.id;
+            self.setState();
+            new Dialog($('#dialog')).show('OK',r.msg);
+            CKEDITOR.instances.certificate_editor.resetDirty();
+          }
+          else{new Dialog($('#dialog')).show('Error',r.msg);}
+          (callback && typeof(callback) === "function") && callback();
+          return;
+      });
+    }
+}
+CertificateEditor.prototype.save_training_certificate=function(organization_id, callback){
+    this.certificate_name=$(".certificate_name").val();
+    if(this.certificate_name==""){
+      new Dialog($('#dialog')).show('Error','You need a name for your certificate.');return;
+    }
+    else{
+      var self=this;
+      var data={id:this.certificateID,name:this.certificate_name,content:this.CKEDITOR.getData(),association_type:this.association_type,association:this.association,readonly:this.isReadOnly,organization_id:organization_id};
+      console.log(data)
+      $.post("/configuration/certificate/save_training_certificate",data,function(r){
           if(r.success){
             self.certificateID=r.id;
             self.setState();
