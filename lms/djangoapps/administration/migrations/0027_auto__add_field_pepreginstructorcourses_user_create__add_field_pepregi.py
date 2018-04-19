@@ -10,17 +10,17 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'PepRegInstructorCourses.user_create'
         db.add_column('pepreg_instructor_courses', 'user_create',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default='', related_name='+', to=orm['auth.User']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['auth.User']),
                       keep_default=False)
 
         # Adding field 'PepRegInstructorCourses.date_modify'
         db.add_column('pepreg_instructor_courses', 'date_modify',
-                      self.gf('django.db.models.fields.DateField')(auto_now_add=True, default=datetime.datetime(2018, 4, 19, 0, 0), blank=True),
+                      self.gf('django.db.models.fields.DateField')(auto_now_add=True, null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'PepRegInstructorCourses.user_modify'
         db.add_column('pepreg_instructor_courses', 'user_modify',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default='', related_name='+', to=orm['auth.User']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['auth.User']),
                       keep_default=False)
 
 
@@ -166,12 +166,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'PepRegInstructorCourses', 'db_table': "'pepreg_instructor_courses'"},
             'course_id': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'date_create': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'date_modify': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_modify': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'instructor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
             'training': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.PepRegTraining']"}),
-            'user_create': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
-            'user_modify': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"})
+            'user_create': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'user_modify': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['auth.User']"})
         },
         'administration.pepregstudent': {
             'Meta': {'object_name': 'PepRegStudent', 'db_table': "'pepreg_student'"},
