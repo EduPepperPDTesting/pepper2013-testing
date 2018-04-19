@@ -1,6 +1,8 @@
 <%! from django.utils.translation import ugettext as _ %>
 
-<%inherit file="main.html" />
+<!-- <!%inherit file="main_without_header.html" /> -->
+<%inherit file="main_without_header.html" />
+<!-- inherit main_without_header.html for temp,shoule delete it -->
 
 <%namespace name='static' file='static_content.html'/>
 <%! from django.core.urlresolvers import reverse %>
@@ -713,4 +715,3 @@
     }
   });
 </script>
-

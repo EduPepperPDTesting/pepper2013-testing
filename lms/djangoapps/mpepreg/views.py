@@ -3,13 +3,16 @@ import json
 
 # from datetime import datetime, timedelta, date
 # from pytz import UTC
-# from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 # from django.http import HttpResponseForbidden
 # import urllib2
 # from courseware.courses import (get_courses, get_course_with_access,
 #                                 get_courses_by_university, sort_by_announcement)
 # from django.utils import timezone
-# from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404, HttpResponseRedirect
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.decorators import user_passes_test
 # from permissions.utils import check_access_level, check_user_perms
 # from StringIO import StringIO
@@ -25,8 +28,8 @@ import json
 import logging
 log = logging.getLogger('tracking')
 
-# -------------------------------------------------------------------main
-def index(request):
+# -------------------------------------------------------------------login
+def login(request):
     tmp = "mpepreg/sign_in.html"
     try:
         courses = {}
@@ -34,3 +37,11 @@ def index(request):
         courses = {}
 
     return render_to_response(tmp, {"courses": courses})
+
+
+# -------------------------------------------------------------------mpepreg
+def mpepreg(request):
+    if request.user.is_authenticated():
+        return render_to_response("mpepreg/mpepreg.html")
+    else:
+        return HttpResponseRedirect(reverse('mpepreg_login'))
