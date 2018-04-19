@@ -26,89 +26,8 @@
 	<script type="text/javascript" src="/static/mpepreg/js/jquery.min.js"></script>
     <script>
 		$(function(){
-			$("#email").val("edutest11@edu.com");
-			$("#password").val("Edutest11~");
 			
-			//-----------------------------------------------------
-			$('#btn_login').on('touchstart', function (evt) {
-				 toggleSubmitButton(false);
-				$("#login-form").submit();
-			});
-			
-			if (localStorage.mpepperpd_login_email){
-                $("#email").val(localStorage.mpepperpd_login_email);
-            }
-            toggleSubmitButton(true);
-			
-			$("#login-form").submit(function(){
-				$.ajax({type: "POST", url: "/login_ajax", data: $(this).serialize(),
-		　　       	success:function(json){
-						if (json.success) {
-							if ($('#sign_remeber_me').find("span:first").hasClass("_checked")){
-								localStorage.mpepperpd_login_email = $("#email").val();
-							}
-							location.href = "${reverse('mpepreg')}";
-							/*if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
-								var next = urlParams['next'];
-								if (next.substring(0,1) != '/') {
-									next = '/' + next;
-								}
-								location.href = next;
-							} else if (urlParams['next'] !== undefined && !isExternal(urlParams['next'])) {
-								location.href = urlParams['next'];
-							}  else {
-								location.href = "${reverse('mpepreg')}";
-							}*/
-						} else {
-							if(json.user_email && json.user_email !== undefined){
-								toggleSubmitButton(true);
-		
-								$("#id_new_password1").val("");
-								$("#id_new_password2").val("");
-								$("#id_old_password").val("");
-								$(".check-error-p1").html("");
-								$(".check-error-p2").html("");
-								$(".check-success").html("");
-								$(".login-failed").html("");
-								$("#id_new_password1").attr("user_email",json.user_email);
-		
-								change_psw_press = 0;
-								$("#btn_change_password").removeClass("btn-change-password-lock");
-								dialog_change_psw = new Dialog($('#dialog_change_password'));
-								dialog_change_psw.show();
-								$(".password-change-date-error").html(json.value);
-							}
-							else{
-								toggleSubmitButton(true);
-								$('.message.submission-error').addClass('is-shown').focus();
-								$('.message.submission-error .message-copy').html(json.value);
-							}
-						}
-		　　       	} 
-	　　      	}); 
-			});
-			
-			//-----------------------------------------------------
-			$('.sign_checkbox').on('touchstart', function (evt) {
-				var tmp_el = $(this).find("span:first");
-				if(tmp_el.hasClass("")){
-					tmp_el.addClass("_checked");
-				}else{
-					tmp_el.removeClass("_checked");
-				}
-			});
 		});
-		
-		//-----------------------------------------------------toggleSubmitButton
-		function toggleSubmitButton(enable) {
-            if(enable) {
-				$("#btn_login").removeClass('is-disabled');
-				$("#btn_login").html("Login");
-            } else {
-				$("#btn_login").addClass('is-disabled');
-				$("#btn_login").html('In the processing...');
-            }
-        }
 	</script>
     <style>
 		*{padding:0; margin:0;}
@@ -195,29 +114,47 @@
 	</style>
 </head>
 <body>
-	<div class="sign_in_main">
-    	<div class="logo"></div>
-        <div class="logo_txt">Next Gen Teaching & Learning Network</div>
-        
-        <form role="form" id="login-form" method="post" data-remote="true" action="/login_ajax" novalidate>
-            <div class="form_row">
-                <span class="input_icon icon_email"></span>
-                <span class="input_text"><input type="email" id="email" name="email" placeholder="username@domain.com" class="lpf_easy_input" /></span>        
-            </div>
-            <div class="form_row">
-                <span class="input_icon icon_lock"></span>
-                <span class="input_text"><input type="password" id="password" name="password" placeholder="password" class="lpf_easy_input" /></span>   
-            </div>
-            <div id="btn_login" class="form_row _btn _btn_green is-disabled">Login</div>
-            <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-        </form>
-       
-        <div class="a_row">
-        	<span id="sign_remeber_me" class="sign_checkbox"><span></span><span>Remeber Me</span></span>
-            <a href="#" id="btn_forgot">Forgot Password?</a>
+	<div class="head">
+        <span class="_icon_btn _icon_menu head_left1" id="btn_head_menu"></span>
+        <span class="head_title">Pepper PD Planner</span>
+        <span class="_icon_btn _icon_new head_right2" id="btn_head_new"></span>
+        <span class="_icon_btn _icon_write head_right1" id="btn_head_write"></span>
+    </div>
+    <div class="head_tool">
+    	<div class="search_row">
+        	<span class="input_icon icon_search"></span>
+            <span class="input_text"><input type="search" name="user_password" placeholder="Search" class="lpf_easy_input" /></span>        </div>
+</div>
+    <div class="pd_data_table">
+    	<div class="pd_row">
+        	<span class="pd_row_left">
+            	<span class="pd_name">tests tests tests tests tests tests tests tests tests tests</span>
+                <span class="pd_datatime">04/30/2018 8:</span>
+            </span>
+            <span class="pd_row_right"></span>
         </div>
-        <div class="a_row">
-        	<a href="#" id="btn_join" style="color:#F5821F; floa1t:right;" >Join Pepper!</a>
+        <div class="pd_tool">
+            <span class="btn_pd btn_pd_green">Register</span>
+        	<span class="btn_pd btn_pd_orange">Location</span>
+        </div>            
+    	<div class="pd_row">
+        	<span class="pd_row_left">
+            	<span class="pd_name">tests111</span>
+                <span class="pd_datatime">04/30/2018 8:</span>
+            </span>
+            <span class="pd_row_right"></span>
+        </div>
+        <div class="pd_tool">
+            <span class="btn_pd btn_pd_green_hollow">Register</span>
+        	<span class="btn_pd btn_pd_orange">Location</span>
+        </div>
+    </div>
+    
+    <div id="location_win" class="model_mask">
+    	<div class="mask_div"></div>
+    	<div class="location_select">
+        	<div>www.sohu.com1</div>
+            <div>Hillsborough Township USA Township USA</div>
         </div>
     </div>
 </body>

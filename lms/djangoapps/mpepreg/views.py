@@ -26,7 +26,17 @@ import logging
 log = logging.getLogger('tracking')
 
 # -------------------------------------------------------------------main
-def index(request):
+def login(request):
+    tmp = "mpepreg/sign_in.html"
+    try:
+        courses = {}
+    except:
+        courses = {}
+
+    return render_to_response(tmp, {"courses": courses})
+
+
+def mpepreg(request):
     tmp = "mpepreg/sign_in.html"
     try:
         courses = {}

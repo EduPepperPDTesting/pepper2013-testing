@@ -85,7 +85,8 @@ urlpatterns = (
     # === sso end ===
 
     # === mobild pepreg begin ==
-    url(r'^mpepreg/$', 'mpepreg.views.index', name="mpepreg"),
+    url(r'^mpepreg/Login$', 'mpepreg.views.login', name="mpepreg_login"),
+    url(r'^mpepreg/$', 'mpepreg.views.mpepreg', name="mpepreg"),
 
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
