@@ -9,7 +9,7 @@ import json
 # from courseware.courses import (get_courses, get_course_with_access,
 #                                 get_courses_by_university, sort_by_announcement)
 # from django.utils import timezone
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.decorators import user_passes_test
 # from permissions.utils import check_access_level, check_user_perms
 # from StringIO import StringIO
