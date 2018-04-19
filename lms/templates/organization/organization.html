@@ -4720,7 +4720,7 @@
 		var $table_location = $("#organization-state-table");
 		$table_location.find('thead tr:eq(1) td:eq(2)').css("text-align",'left');
 		$table_location.find('thead tr:eq(1) td:eq(2)').css("font-size",'15px');
-		$table_location.find('thead tr:eq(1) td:eq(2)').html("One Common Logo? <input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px'><div class='profilephoto'></div>");
+		$table_location.find('thead tr:eq(1) td:eq(2)').html("<div style='float: left;'>One Common Logo? </span><input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px;display: block;'></div><div class='profilephoto'></div>");
 		$table_location.find('thead tr:eq(1) td:eq(3)').html("<input type='text' name='profileurl'>");
 		$("input[name='Commonlogo']").click(function(){
 			if ($(this).prop('checked') == true){
