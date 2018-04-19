@@ -37,7 +37,8 @@
 
 
 <style>
-	.profilephoto{display:inline-flex;}
+	.uploadprofile{float:left;}
+	.profilephoto{display:inline-flex;float:right;}
 	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
@@ -556,9 +557,9 @@
                     <tr>
                         <th width="120">Entity type</th>
                         <th width="300">Entity</th>
-                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
                         <th width="400">Entity Logos</th>
                         <th width="200">Entity Logo URL</th>
+                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -2804,13 +2805,18 @@
 	}
 
 	function ProfileAddFileImg(id, name, stype=""){
-		$("#" + id).next().empty();
 		if (stype == ""){
 			var src = "/static/uploads/organization/" + org_current_id + "/" + name;
 		}else{
 			var src = "/static/uploads/organization/" + org_current_id + "/" + stype + "/" + name ;
 		}
-		$("#" + id).next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		if (id =='commonlogofile'){
+			$("#" + id).parent().next().empty();
+			$("#" + id).parent().next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		}else{
+			$("#" + id).next().empty();
+			$("#" + id).next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		}
 	}
 	
 	function noimage(a){
@@ -2851,12 +2857,13 @@
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
+		
+		row += "<td><input type='file' class='uploadprofile' name='orgentity" + add_id + "' stype='" + add_type + "' id='orgentity" + add_id + "'><div class='profilephoto'></div></td>";
+		row += "<td><input type='text' value='"+ profileurl +"'></td>";
 		row += '<td class="check-column">';
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
 		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
-		row += "<td><input type='file' class='uploadprofile' name='orgentity" + add_id + "' stype='" + add_type + "' id='orgentity" + add_id + "'><div class='profilephoto'></div></td>";
-		row += "<td><input type='text' value='"+ profileurl +"'></td>";
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
 		$table_location = $('#organization-state-table')
@@ -4718,10 +4725,10 @@
 		pagerOptions.container = $("#organization-state-pager");
 		$('#organization-state-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 		var $table_location = $("#organization-state-table");
-		$table_location.find('thead tr:eq(1) td:eq(3)').css("text-align",'left');
-		$table_location.find('thead tr:eq(1) td:eq(3)').css("font-size",'15px');
-		$table_location.find('thead tr:eq(1) td:eq(3)').html("One Common Logo? <input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px'><div class='profilephoto'></div>");
-		$table_location.find('thead tr:eq(1) td:eq(4)').html("<input type='text' name='profileurl'>");
+		$table_location.find('thead tr:eq(1) td:eq(2)').css("text-align",'left');
+		$table_location.find('thead tr:eq(1) td:eq(2)').css("font-size",'15px');
+		$table_location.find('thead tr:eq(1) td:eq(2)').html("<div style='float: left;'>One Common Logo? </span><input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px;display: block;'></div><div class='profilephoto'></div>");
+		$table_location.find('thead tr:eq(1) td:eq(3)').html("<input type='text' name='profileurl'>");
 		$("input[name='Commonlogo']").click(function(){
 			if ($(this).prop('checked') == true){
 				$(this).next().prop('disabled',false)
@@ -5130,7 +5137,7 @@
 				var stype = $(this).attr("stype");
 				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += "||";
-				sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().next().next().find('input').val();
+				sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().prev().find('input').val();
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
