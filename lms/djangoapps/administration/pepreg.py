@@ -529,12 +529,19 @@ def save_training(request):
                     pi.save()
 
                     if training.pepper_course:
-                        _, InstructorAdded = PepRegInstructorCourses.objects.get_or_create(instructor = pi.instructor, course_id = training.pepper_course, training = training)
+                        instructorObject, instructorAdded = PepRegInstructorCourses.objects.get_or_create(instructor = pi.instructor, course_id = training.pepper_course, training = training)
                         course_instructors.append(pi.instructor)
 
+                        if instructorAdded:
+                            instructorObject.date_create = datetime.now(UTC)
+                            instructorObject.user_create = request.user
+
+                        instructorObject.date_modify = datetime.now(UTC)
+                        instructorObject.user_modify = request.user
+
             if training.pepper_course:
-                for pep_course in PepRegInstructorCourses.objects.filter(course_id = training.pepper_course):
-                    if pep_course.training == training and pep_course.instructor not in course_instructors:
+                for pep_course in PepRegInstructorCourses.objects.filter(course_id = training.pepper_course, training = training):
+                    if pep_course.instructor not in course_instructors:
                         pep_course.delete()
 
     except Exception as e:
@@ -1717,7 +1724,7 @@ def delete_student(request):
         id = int(request.POST.get("id"))
         user = PepRegStudent.objects.get(id=id).student
         training_id = PepRegStudent.objects.get(id=id).training_id
-        remove_student(PepRegStudent.objects.get(id=id))
+        remove_student(PepRegStudent.objects.get(id=id), training_id)
         TrainingUsers.objects.filter(user=user).delete()
         PepRegStudent.objects.filter(id=id).delete()
 
