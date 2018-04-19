@@ -198,18 +198,8 @@ navbar_show_extended=True
 %>
 
 <body class="<%block name='bodyclass'/>">
-
-<div style="height: 100px;"></div>
   
-<!--@begin:Main module page, change the bottom margin in the body text-->
-<!--@date:2013-11-02-->
-  % if organization_active and org_data["Is New Menu"] == "1":
     <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
-  % elif new_nologin_flag == "1":
-    <section class="content-wrapper content-wrapper-fixed" style="padding-bottom: 0;">
-  % else:
-    <section class="content-wrapper" style="padding-bottom: 0;">
-  % endif
     ${self.body()}
     <%block name="bodyextra"/>
   </section>
