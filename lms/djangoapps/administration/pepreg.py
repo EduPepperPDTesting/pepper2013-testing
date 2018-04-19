@@ -299,7 +299,7 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value='%s,%s,%s,%s,%s,%s,%s,%s,%s' name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
                 remain, allow_waitlist, "1" if item.certificate else "0"
@@ -451,7 +451,8 @@ def training_json(request):
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
         "arrive": arrive,
-        "certificate": item.certificate_id
+        "certificate": item.certificate_id,
+        "allow_waitlist": item.allow_waitlist
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -633,11 +634,13 @@ def getCalendarMonth(request):
                     except:
                         status = ""
 
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or catype == "3")) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
-                    if ((arrive == "0" and ((allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (_catype == "0" or _catype == "3")) or (status != "Registered" and (_catype == "0" or _catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (_catype == "0" or _catype == "2")) or ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or _catype == "3"))))):
+                    if ((arrive == "0" and ((allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Waitlist" and r_l == "1" and (_catype == "0" or _catype == "6"))) or (not (status == "" and r_l == "1") and ((status == "Registered" and (_catype == "0" or _catype == "3")) or (status != "Registered" and (_catype == "0" or _catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (_catype == "0" or _catype == "2")) or ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or _catype == "3"))))):
                         training_list.append(item.id)
 
         try:
@@ -709,6 +712,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                 except:
                     status = ""
+
+                allow_waitlist = "1" if item.allow_waitlist else "0"
                 # if(item.training_date in date_list):
                 #     raise Exception(item.training_date)
 
@@ -717,7 +722,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #raise Exception("arrive-"+arrive+" allow-"+allow+" r_l-"+r_l+" status-"+status+" full-"+str(arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))))
-                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
+                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Waitlist" and r_l == "1" and (catype == "0" or catype == "6"))) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
                     classroom = item.classroom if item.classroom.find("<a href") == -1 else "Online"
@@ -828,13 +833,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
                         status = ""
+
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
                     itemData = ""
 
                     if isday:
-                        if ((arrive == "0" and allow == "0" and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or status == "Registered" or (catype == "0" or catype == "2"))) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and ((catype == "0" or catype == "1") or (catype == "0" or catype == "3")))) and not (arrive == "1" and status == "" and allow == "1"):
+                        if ((arrive == "0" and allow == "0" and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and r_l == "1" and (((status == "" and (catype == "0" or catype == "5")) or (status == "Waitlist" and (catype == "0" or catype == "6"))) or status == "Registered" or (catype == "0" or catype == "2"))) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and ((catype == "0" or catype == "1") or (catype == "0" or catype == "3")))) and not (arrive == "1" and status == "" and allow == "1"):
                             #raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
                             trainingStartMinutes = int(trainingStartTime[-5:-3])
                             if(trainingStartMinutes)<30:
@@ -891,7 +899,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                if (allow_waitlist == "0"):
+                                    occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                else:
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' /> ";
+                                    occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
+
+                        elif  (status == "Waitlist" and r_l == "1"):
+                            if (catype == "0" or catype == "6"):
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' checked /> ";
+                                occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
                         else:
                             if (status == "Registered"):
                                 # checked true
