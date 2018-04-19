@@ -25,7 +25,7 @@ import json
 import logging
 log = logging.getLogger('tracking')
 
-# -------------------------------------------------------------------main
+# -------------------------------------------------------------------login
 def login(request):
     tmp = "mpepreg/sign_in.html"
     try:
@@ -36,11 +36,8 @@ def login(request):
     return render_to_response(tmp, {"courses": courses})
 
 
+# -------------------------------------------------------------------mpepreg
+@login_required
 def mpepreg(request):
-    tmp = "mpepreg/sign_in.html"
-    try:
-        courses = {}
-    except:
-        courses = {}
-
+    tmp = "mpepreg/mpepreg.html"
     return render_to_response(tmp, {"courses": courses})
