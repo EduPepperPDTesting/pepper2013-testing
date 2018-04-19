@@ -8,7 +8,7 @@
 :-ms-input-placeholder {color: #CCCCCC;}
 
 .lpf_checkbox{float:left;displ1ay:table-cell; width:20px; height:20px; border:2px solid #F5821F; background-color:#fff; border-radius:5px;}
-.lpf_checkbox_s{background:url(../images/icon_check.png) no-repeat center center; background-color:#F5821F;}
+.lpf_checkbox_s{background:url(../images/icon_s_check.png) no-repeat center center; background-color:#F5821F;}
 
 .lpf_switch{display:table-cell; width:68px; height:24px; line-height:24px; border-radius:10px; font-size:1em; border:2px solid #eee;}
 .lpf_switch_notxt{display:table-cell; width:48px; height:24px; line-height:24px; border-radius:10px; font-size:1em; border:2px solid #eee;}

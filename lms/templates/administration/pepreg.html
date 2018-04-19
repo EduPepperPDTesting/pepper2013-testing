@@ -142,6 +142,10 @@
 	#calendar-month tr td .al_7{background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important;}
 
+	#calendar-month tr td .al_8{ background-color:#FF8C00; color:#FFFFFF !important;text-shadow: 0 0px !important;}
+	#calendar-month tr td .al_8 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_8 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
+
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
 	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
 	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
@@ -149,7 +153,8 @@
 	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
 	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
 	#calendar-panel .calendar_exp .c4{background-color:#595959;}
-	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
+	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}
+    #calendar-panel .calendar_exp .c8{background-color:#FF8C00;}
 	
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
@@ -394,6 +399,7 @@
                 <option value="2">I can register</option>
                 <option value="4">Training not yet open</option>
                 <option value="5">No More Spots!</option>
+                <option value="6">On Waitlist</option>
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
@@ -413,6 +419,7 @@
             <div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">On Waitlist: </span><span class="calendar_exp_color c8"></span></span>
             </div>
         </div>
     </div>
@@ -857,37 +864,49 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
 			    $("#calendar_alert_title").hide();
-                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
-					if (reg) {
-					    console.log("trID=" + trID);
-					    $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
-                            console.log("data.name=" + data.name);
-                            console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
-					        if(data.name !== "" && data.name !== "undefined") {
-					            warningData = data.training_date + " " + data.training_time_start + "|";
-                                warningData += data.training_date + " " + data.training_time_end + "|";
-                                warningData += data.name + "|";
-                                warningData += data.description + "|";
-                                warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
-                                warningData += " " + data.geo_location;
-                                pepreg.warning("Thank you for registering/recording attendance for this training!*" + warningData);
-					        }else{
-						        pepreg.warning("Thank you for registering/recording attendance for this training!");
-					        }
-					    });
-					} else {
-						pepreg.warning("Thank you! You are no longer registered for this training.");
-                    }
-                    console.log("calendar_check_would pre -" + $("this").prop("checked"));
-                    $("this").prop("checked", !$("this").prop("checked"));
-                    console.log("calendar_check_would post -" + $("this").prop("checked"));
-                    calendarOpen();
-					pepreg.reloadTable();
-					/*$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
-					calendarOpen();
-					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
-					console.log(regData.trID);*/
-				})
+			    if(!$(this).hasClass("waitlist")){
+                    pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
+                        if (reg) {
+                            console.log("trID=" + trID);
+                            $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
+                                console.log("data.name=" + data.name);
+                                console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
+                                warningData = (data.name !== "" && data.name !== "undefined") ? buildWarningData(data) : "";
+                                pepreg.warning("Thank you for registering/recording attendance for this training!" + warningData);
+                            });
+                        } else {
+                            pepreg.warning("Thank you! You are no longer registered for this training.");
+                        }
+                        console.log("calendar_check_would pre -" + $("this").prop("checked"));
+                        $("this").prop("checked", !$("this").prop("checked"));
+                        console.log("calendar_check_would post -" + $("this").prop("checked"));
+                        calendarOpen();
+                        pepreg.reloadTable();
+                        /*$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+                        calendarOpen();
+                        console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+                        console.log(regData.trID);*/
+                    })
+				}else{
+                    pepreg.waitlistUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID) {
+                        if (reg) {
+                            console.log("trID=" + trID);
+                            $.get("${reverse('pepreg_training_json')}", {id: trID}, function (data) {
+                                console.log("data.name=" + data.name);
+                                console.log('if: ' + (data.name !== "") + ' ' + (data.name !== "undefined"));
+                                warningData = (data.name !== "" && data.name !== "undefined") ? buildWarningData(data) : "";
+                                pepreg.warning("Thank you! You have been added to the waitlist for this training." + warningData);
+                            });
+                        } else {
+                            pepreg.warning("Thank you! You are no longer on the waitlist for this training.");
+                        }
+                        console.log("calendar_check_would pre -" + $("this").prop("checked"));
+                        $("this").prop("checked", !$("this").prop("checked"));
+                        console.log("calendar_check_would post -" + $("this").prop("checked"));
+                        calendarOpen();
+                        pepreg.reloadTable();
+                    })
+				}
 			});
 
 			$(".calendar_check_attended").each(function(){
@@ -964,6 +983,18 @@
 	        if(picker_month == 13){
 	             picker_month = 1;
 	             picker_year = _sys_calendar_year + 1;}  }*/
+
+
+    function buildWarningData(data){
+        warningData = "*" + data.training_date + " " + data.training_time_start + "|";
+        warningData += data.training_date + " " + data.training_time_end + "|";
+        warningData += data.name + "|";
+        warningData += data.description + "|";
+        warningData += ( data.classroom.indexOf("<a href") > -1 )? data.classroom.substring(data.description.indexOf("href = '") + 12, data.classroom.indexOf("' target")): data.classroom;
+        warningData += " " + data.geo_location;
+        return warningData;
+    }
+
 	function setPickerValue(calcDate){
         name = name || true;
         var picker_month = _sys_calendar_month; console.log("picker month-"+picker_month);
