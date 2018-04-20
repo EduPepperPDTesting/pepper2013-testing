@@ -132,18 +132,19 @@ def run_registration_email(task):
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
         log.info("Registration email sent using data: %s" % task.data)
 
-        remove_task(task)
         profile.save()
 
     except Exception as e:
         db.transaction.rollback()
         log.debug("Email error: %s" % e)
         log.debug("Failed data: %s" % task.data)
-        remove_task(task)
         subject = "Failed " + task.job.function + " task."
         body = "There was an error finishing a task in your job. Details:\n\nError: " + e + "\n\nTask Data: " + task.data
         body += "\n\nThe task was removed from the queue. Correct the error and resubmit this specific task.\n\nThank you!"
         send_html_mail(subject,body,settings.SUPPORT_EMAIL, [task.job.user.email])
+        
+    finally:
+        remove_task(task)
 
 def render_from_string(template_string, dictionary, context=None, namespace='main'):
     context_instance = Context(dictionary)
