@@ -55,6 +55,7 @@ import logging
 from reporting.models import reporting_store
 from operator import itemgetter
 
+
 @login_required
 def index(request):
     # courses = get_courses(request.user, request.META.get('HTTP_HOST'))
@@ -2465,7 +2466,7 @@ def send_completion_certificate(request):
         if student.student_status == 'Validated':
             try:
                 send_completion_certificate_notification(request.user, student.student,
-                    reverse('download_training_certificate') + '?training_id=' + training_id, 'Send PD Certificate')
+                    request.build_absolute_uri(reverse('download_training_certificate') + '?training_id=' + training_id), 'Send PD Certificate')
             except CommunityNotificationType.DoesNotExist:
                 error = 'NotificationType Does not Exist'
                 return HttpResponse(json.dumps({'success': False, 'error': error}))
