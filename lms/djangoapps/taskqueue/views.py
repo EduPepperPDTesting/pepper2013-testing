@@ -36,9 +36,13 @@ def pop_queue(request):
         tasks = Tasks.objects.all()
     log.info("Starting task pop job.")
     for task in tasks:
-        job = task.job
-        if job.function == "email":
-            run_registration_email(task)
+        try:
+            job = task.job
+            if job.function == "email":
+                run_registration_email(task)
+        except Exception as e:
+            log.debug("A task uncovered an error: %s" % e)
+
     return HttpResponse(json.dumps({"pop": "done"}), content_type="application/json")
 
 
@@ -142,7 +146,7 @@ def run_registration_email(task):
         body = "There was an error finishing a task in your job. Details:\n\nError: " + e + "\n\nTask Data: " + task.data
         body += "\n\nThe task was removed from the queue. Correct the error and resubmit this specific task.\n\nThank you!"
         send_html_mail(subject,body,settings.SUPPORT_EMAIL, [task.job.user.email])
-        
+
     finally:
         remove_task(task)
 
