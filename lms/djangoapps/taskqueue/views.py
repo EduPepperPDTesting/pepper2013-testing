@@ -143,7 +143,9 @@ def run_registration_email(task):
         log.debug("Email error: %s" % e)
         log.debug("Failed data: %s" % task.data)
         subject = "Failed " + task.job.function + " task."
+        user_id = email_data['ids']
         body = "There was an error finishing a task in your job. Details:<br><br>Error: %s" % e
+        body += "<br><br> Failed User ID: %s" % user_id
         body += "<br><br>The task was removed from the queue. Correct the error and resubmit this specific task.<br><br>Thank you!<br><br>"
         body += "More detailed data: <br><br> %s " % email_data
         send_html_mail(subject,body,settings.SUPPORT_EMAIL, [task.job.user.email])
