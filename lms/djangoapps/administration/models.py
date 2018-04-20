@@ -353,3 +353,6 @@ class PepRegInstructorCourses(models.Model):
     instructor = models.ForeignKey(User, related_name='+')
     course_id = models.CharField(max_length=255, db_index=True)
     date_create = models.DateField(auto_now_add=True, db_index=False)
+    user_create = models.ForeignKey(User, related_name='+', null=True)
+    date_modify = models.DateField(auto_now_add=True, db_index=False, null=True)
+    user_modify = models.ForeignKey(User, related_name='+', null=True)
