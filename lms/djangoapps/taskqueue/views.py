@@ -81,7 +81,7 @@ def remove_task(task):
         update_job(task.job)
     except Exception as e:
         db.transaction.rollback()
-        log.error("Couldn't delete task. %s" % e.message)
+        log.error("Couldn't delete task. %s" % e)
 
 
 def update_job(job):
@@ -110,7 +110,6 @@ def job_status(request):
 def run_registration_email(task):
     log.debug("Sending TaskQueue task email.")
     email_data = json.loads(task.data)
-    email_sent = False
     try:
         user_id = email_data['ids']
         user = User.objects.get(id=user_id)
@@ -131,7 +130,6 @@ def run_registration_email(task):
             body = render_to_string('emails/activation_email.txt', props)
 
         send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
-        email_sent = True
         log.info("Registration email sent using data: %s" % task.data)
 
         remove_task(task)
@@ -143,7 +141,7 @@ def run_registration_email(task):
         log.debug("Failed data: %s" % task.data)
         remove_task(task)
         subject = "Failed " + task.job.function + " task."
-        body = "There was an error finishing a task in your job. Details:\n\nError: " + e + "\n\nTask Data: " + task.data + "\n\nEmail Sent: " + str(email_sent)
+        body = "There was an error finishing a task in your job. Details:\n\nError: " + e + "\n\nTask Data: " + task.data
         body += "\n\nThe task was removed from the queue. Correct the error and resubmit this specific task.\n\nThank you!"
         send_html_mail(subject,body,settings.SUPPORT_EMAIL, [task.job.user.email])
 
