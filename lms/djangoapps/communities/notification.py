@@ -483,7 +483,7 @@ def send_completion_certificate_notification(action_user, receiver, certifiate_u
     
     def replace_values(body, values):
         return re.sub("{([\w ]*?)}", lambda x: values.get(x.group(1)), body)
-    
+
     notification_type = CommunityNotificationType.objects.get(name=notification_type_name)
     config = CommunityNotificationConfig.objects.filter(user=receiver, type=notification_type)
 
@@ -495,7 +495,7 @@ def send_completion_certificate_notification(action_user, receiver, certifiate_u
 
     if config and config.via_pepper:
         save_interactive_info({
-            "user_id": str(receive_user.id),
+            "user_id": str(receiver.id),
             "interviewer_id": action_user.id,
             "interviewer_name": action_user.username,
             "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
@@ -510,10 +510,10 @@ def send_completion_certificate_notification(action_user, receiver, certifiate_u
             audit = CommunityNotificationAudit()
             audit.subject = subject
             audit.body = body
-            audit.receiver = receive_user
+            audit.receiver = receiver
             audit.creator = action_user
             audit.create_date = datetime.utcnow()
             audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
             audit.save()
         else:
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [action_user.email])
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [receiver.email])
