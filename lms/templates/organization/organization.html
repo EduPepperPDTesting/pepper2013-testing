@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
+	#organization-state-table tr td:nth-child(4){text-align: center;}
 	.uploadprofile{float:left;}
 	.profilephoto{display:inline-flex;float:right;}
 	.access{ margin-left: 30px; }
@@ -546,7 +547,7 @@
         <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
 
-        <div style="width:500px; margin-top:10px;">
+        <div style="margin-top:10px;">
             <table id="organization-state-table" class="organization-table">
                 <thead>
                     <tr>
@@ -575,11 +576,11 @@
                     </select>
                 </div>
                 <input type="button" id="organization-state-remove" value="REMOVE SELECTED" class="small_btn" />
+		        <div style="text-align:right; height:30px;display:inline;float: right;">
+		            <input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
+		            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+		        </div>
             </div>
-        </div>
-        <div style="width:100%; text-align:right; height:30px;">
-            <input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
-            <input type="button" value="Save" class="small_btn org_btn_last_save" />
         </div>
     </div>
 </div>
