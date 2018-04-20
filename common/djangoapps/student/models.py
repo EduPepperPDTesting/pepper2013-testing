@@ -921,7 +921,7 @@ class CourseEnrollment(models.Model):
     checking course dates, user permissions, etc.) This logic is currently
     scattered across our views.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     course_id = models.CharField(max_length=255, db_index=True)
     created = models.DateTimeField(auto_now_add=True, null=True, db_index=True)
 
