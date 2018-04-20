@@ -481,6 +481,9 @@ def send_completion_certificate_notification(action_user, receiver, certifiate_u
         "PD certificate URL": "<a target='_blank' href='" + certifiate_url + "'>Download Certificate</a>",
     }
     
+    def replace_values(body, values):
+        return re.sub("{([\w ]*?)}", lambda x: values.get(x.group(1)), body)
+    
     notification_type = CommunityNotificationType.objects.get(name=notification_type_name)
     config = CommunityNotificationConfig.objects.filter(user=receiver, type=notification_type)
 
