@@ -179,8 +179,12 @@
                 if data.has_key('Common Logo Button') and data['Common Logo Button'] == "true": 
                     if data.has_key('Profile Logo') and data['Profile Logo'] != "":
                         tmp_profile_logo = data['Profile Logo']
-                        if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
-                            tmp_profile_logo_url = data['Profile Logo Url']
+                    else:
+                        tmp_profile_logo = ""
+                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url']
+                    else:
+                        tmp_profile_logo_url = ""
                 
                 if data.has_key('Show Right DB') and data['Show Right DB'] == "0":
                     show_right = "display:none;";    
@@ -188,8 +192,12 @@
                 if data.has_key('Common Logo Button') and data['Common Logo Button'] == "true": 
                     if data.has_key('Profile Logo') and data['Profile Logo'] != "":
                         tmp_profile_logo = data['Profile Logo']
-                        if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
-                            tmp_profile_logo_url = data['Profile Logo Url']  
+                    else:
+                        tmp_profile_logo = ""
+                    if data.has_key('Profile Logo Url') and data['Profile Logo Url'] != "":
+                        tmp_profile_logo_url = data['Profile Logo Url']
+                    else:
+                        tmp_profile_logo_url = "" 
 
                 if data.has_key('Show Right DB Curriculumn') and data['Show Right DB Curriculumn'] == "0":
                     show_right = "display:none;"; 
