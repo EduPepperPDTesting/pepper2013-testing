@@ -42,6 +42,7 @@ def pop_queue(request):
                 run_registration_email(task)
         except Exception as e:
             log.debug("A task uncovered an error: %s" % e)
+            remove_task(task)
 
     return HttpResponse(json.dumps({"pop": "done"}), content_type="application/json")
 
@@ -137,6 +138,7 @@ def run_registration_email(task):
         log.info("Registration email sent using data: %s" % task.data)
 
         profile.save()
+        remove_task (task)
 
     except Exception as e:
         db.transaction.rollback()
@@ -149,8 +151,6 @@ def run_registration_email(task):
         body += "<br><br>The task was removed from the queue. Correct the error and resubmit this specific task.<br><br>Thank you!<br><br>"
         body += "More detailed data: <br><br> %s " % email_data
         send_html_mail(subject,body,settings.SUPPORT_EMAIL, [task.job.user.email])
-
-    finally:
         remove_task(task)
 
 def render_from_string(template_string, dictionary, context=None, namespace='main'):
