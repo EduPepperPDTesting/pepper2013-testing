@@ -449,13 +449,48 @@ def send_course_notification(request, action_user, course, notification_type, us
     _send_notification(action_user, user, notification_type, values)
 
 
-def send_completion_certificate_notification(action_user, receiver, certifiate_url, notification_type):
+def send_completion_certificate_notification(action_user, receiver, certifiate_url, notification_type_name='Send PD Certificate'):
     values = {
         "Sender First Name": action_user.first_name,
         "Sender Last Name": action_user.last_name,
         "Receiver First Name": receiver.first_name,
         "Receiver Last Name": receiver.last_name,
         "PD certificate URL": "<a target='_blank' href='" + certifiate_url + "'>Download Certificate</a>",
-        "Course Link": "",
     }
-    _send_notification(action_user, receiver, notification_type, values)
+    
+    def replace_values(body, values):
+        return re.sub("{([\w ]*?)}", lambda x: values.get(x.group(1)), body)
+
+    notification_type = CommunityNotificationType.objects.get(name=notification_type_name)
+    config = CommunityNotificationConfig.objects.filter(user=receiver, type=notification_type)
+
+    if config.exists():
+        config = config[0]
+
+    body = replace_values(notification_type.body or "", values)
+    subject = replace_values(notification_type.subject or "", values)
+
+    if config and config.via_pepper:
+        save_interactive_info({
+            "user_id": str(receiver.id),
+            "interviewer_id": action_user.id,
+            "interviewer_name": action_user.username,
+            "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
+            "ttt": notification_type.name,
+            "body": body,
+            "subject": subject,
+        })
+
+    if config and config.via_email:
+        days = {"Daily": 0, "Weekly": 7}
+        if config.frequency != 'Instant':
+            audit = CommunityNotificationAudit()
+            audit.subject = subject
+            audit.body = body
+            audit.receiver = receiver
+            audit.creator = action_user
+            audit.create_date = datetime.utcnow()
+            audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+            audit.save()
+        else:
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [receiver.email])
