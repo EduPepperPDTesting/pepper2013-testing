@@ -3142,6 +3142,7 @@
 
         $("#advanced_search").on("change", ".subselect .time_subselect .td-select", function () {
             var val = $(this).val();
+            console.log("time_subselect val="+val);
             var field_name = $(this).attr("name");
             var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
