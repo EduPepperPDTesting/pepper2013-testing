@@ -3111,19 +3111,19 @@
                                     $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
                             }else if(data.rows[0] == "Date"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search datePickText time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true' style='width: 105px; margin-left: 2px; text-align: center;'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='" + suborder + "' value='' class='search datePickText time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true' style='width: 105px; margin-left: 2px; text-align: center;'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
-                                $("input[name='training_data|"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ console.log(suborder); $("#subselect_" + suborder).change();}}});
+                                $("input[name='"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ console.log(suborder); $("#subselect_" + suborder).change();}}});
                             }else if(data.rows[0] == "Time"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 105px;margin-left:2px;position: relative;bottom: 1px;text-align: center;'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 105px;margin-left:2px;position: relative;bottom: 1px;text-align: center;'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
-                                 $("input[name='time_data|"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
+                                 $("input[name='"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
@@ -3143,17 +3143,17 @@
         $("#advanced_search").on("change", ".subselect, .time_subselect, .td-select", function () {
             var val = $(this).val();
             console.log("time_subselect val="+val);
-            var field_name = $(this).attr("name");
-            var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
+            var suborder = $(this).attr("name");
+            //var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
             if(val != ""){
                 reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0){
-                    $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
+                if($("#addNext[id = 'addNext_" + suborder + "']").length == 0){
+                    $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext_" + suborder + "' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                 }
             }else if(val == ""){
-                $("#addNext[name='" + suborder + "']").remove();
+                $("#addNext[id = 'addNext_" + suborder + "']").remove();
                 $("#subcondition_" + suborder).remove();
 
                 removeNextFilter(suborder);
