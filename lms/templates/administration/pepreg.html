@@ -3142,21 +3142,17 @@
         });
 
         $("#advanced_search").on("change", ".subselect, .time_subselect, .td-select", function () {
-            var val = $(this).val();
-            console.log("time_subselect val="+val);
-            if(!$(this).hasClass('td-select')){
-                var suborder = $(this).attr("name");
-                var fieldID = $(this).attr("id");
-            }else{
-                var suborder = $(".timeID").attr("name");
-                var fieldID = $(".timeID").attr("id");
-                $(".timeID").removeClass("timeID");
-            }
+
+            var thisEl = ($(this).hasClass('td-select')) ? $(".timeID") : $(this);
+            var val = thisEl.val();
+            var suborder = thisEl.attr("name");
+            var fieldID = thisEl.attr("id");
+            $(".timeID").removeClass("timeID");
 
             //var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
             if(fieldID.indexOf('subselect') == 0){
-                if(val != "" or $(this).hasClass('td-select')){
+                if(val != ""){
                     reloadTableAdvanced();
 
                     if($("#addNext[id = 'addNext_" + suborder + "']").length == 0){
