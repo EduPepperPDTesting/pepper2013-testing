@@ -3140,7 +3140,7 @@
             }
         });
 
-        $("#advanced_search").on("change", ".subselect .time_subselect .td-select", function () {
+        $("#advanced_search").on("change", ".subselect, .time_subselect, .td-select", function () {
             var val = $(this).val();
             console.log("time_subselect val="+val);
             var field_name = $(this).attr("name");
