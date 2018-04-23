@@ -3116,13 +3116,14 @@
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
-                                $('input[name=training_data'+ suborder + ']').datepicker();
+                                $('input[name=training_data|'+ suborder + ']').datepicker();
                             }else if(data.rows[0] == "Time"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
+                                 $('input[name=time_data|'+ suborder + ']').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
