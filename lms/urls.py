@@ -91,6 +91,7 @@ urlpatterns = (
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
 
+    url(r'^pepreg/get_login_status$', 'administration.pepreg.get_login_status', name='pepreg_login_status'),
     url(r'^pepreg/rows$', 'administration.pepreg.rows', name="pepreg_rows"),
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
