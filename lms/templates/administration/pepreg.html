@@ -3111,15 +3111,15 @@
                                     $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
                             }else if(data.rows[0] == "Date"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search datePickText time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search datePickText time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true' style="width: 105px; margin-left: 2px; text-align: center;/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                 $("input[name='training_data|"+ suborder + "']").datepicker();
                             }else if(data.rows[0] == "Time"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 70px;margin-left:2px;position: relative; bottom: 1px;'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 80px;margin-left:2px;position: relative;bottom: 1px;text-align: center;'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
@@ -3140,7 +3140,7 @@
             }
         });
 
-        $("#advanced_search").on("change", ".subselect", function () {
+        $("#advanced_search").on("change", ".subselect .time_subselect", function () {
             var val = $(this).val();
             var field_name = $(this).attr("name");
             var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
