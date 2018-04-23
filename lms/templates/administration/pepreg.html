@@ -3116,9 +3116,9 @@
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
-                                $("input[name='training_data|"+ suborder + "']").datepicker();
+                                $("input[name='training_data|"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ $(this).change();}}});
                             }else if(data.rows[0] == "Time"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 80px;margin-left:2px;position: relative;bottom: 1px;text-align: center;'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='time_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect' style='width: 105px;margin-left:2px;position: relative;bottom: 1px;text-align: center;'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
@@ -3140,7 +3140,7 @@
             }
         });
 
-        $("#advanced_search").on("change", ".subselect .time_subselect", function () {
+        $("#advanced_search").on("change", ".subselect .time_subselect .td-select", function () {
             var val = $(this).val();
             var field_name = $(this).attr("name");
             var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
@@ -3618,6 +3618,11 @@
     $('#complete-email').autocomplete({
         source: function (request, response) {
             $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
+        }
+    });
+    $(document).on('mouseup', '.td-select', function(){
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").length == 0){
+            $(".td-select").last().trigger("change");
         }
     });
 </script>
