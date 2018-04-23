@@ -3141,16 +3141,13 @@
             }
         });
 
-        $("#advanced_search").on("change", ".subselect, .time_subselect, .td-select", function () {
+        $("#advanced_search").on("change", ".subselect, .time_subselect, .timeID", function () {
 
-            var thisEl = ($(this).hasClass('td-select')) ? $(".timeID") : $(this);
             var val = thisEl.val();
             console.log("subselect val="+val);
             var suborder = thisEl.attr("name");
             var fieldID = thisEl.attr("id");
             $(".timeID").removeClass("timeID");
-
-            //var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
 
             if(fieldID.indexOf('subselect') == 0){
                 if(val != ""){
@@ -3630,8 +3627,8 @@
         }
     });
     $(document).on('mouseup', '.td-select', function(){
-        if($(".advanced_select").length > 0 && $("#dlg-add-training").length == 0){
-            $(".td-select").last().trigger("change");
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").length > 0){
+            $(".timeID").trigger("change");
         }
     });
 </script>
