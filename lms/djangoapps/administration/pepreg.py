@@ -2458,6 +2458,7 @@ def getsearchdata(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
+@login_required
 def send_completion_certificate(request):
     training_id = request.GET.get('training_id')
     error = ''
@@ -2475,3 +2476,9 @@ def send_completion_certificate(request):
         return HttpResponse(json.dumps({'success': False, 'error': error}))
 
     return HttpResponse(json.dumps({'success': True}))
+
+def get_login_status(request):
+    if request.user.is_authenticated():
+        return HttpResponse(json.dumps({'is_authenticated': True}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'is_authenticated': False}), content_type="application/json")
