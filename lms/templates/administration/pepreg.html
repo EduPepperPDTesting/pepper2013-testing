@@ -3143,10 +3143,10 @@
 
         $("#advanced_search").on("change", ".subselect, .time_subselect, .timeID", function () {
 
-            var val = thisEl.val();
+            var val = $(this).val();
             console.log("subselect val="+val);
-            var suborder = thisEl.attr("name");
-            var fieldID = thisEl.attr("id");
+            var suborder = $(this).attr("name");
+            var fieldID = $(this).attr("id");
             $(".timeID").removeClass("timeID");
 
             if(fieldID.indexOf('subselect') == 0){
