@@ -2863,7 +2863,7 @@
                             var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
                             var remove_from_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span>';
                             $(this).html("<div>Maximum number of users have registered for this training.</div>");
-                            if(status == "" && allow_waitlist == "1"){
+                            if(status == "" && allow && allow_waitlist == "1" && remain > 0){
                                 $(this).append('<div>' + add_to_wl + '</div>');
                             }else if(status == "Waitlist"){
                                 $(this).append('<div>' + remove_from_wl + '</div>');
