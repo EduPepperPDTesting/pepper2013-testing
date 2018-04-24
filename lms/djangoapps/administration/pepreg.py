@@ -1061,7 +1061,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if (catype == "0" or catype == "5"):
                                 if (allow_waitlist == "0"):
                                     occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
-                                elif (remain > 0):
+                                elif (remain == 0):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' /> ";
                                     occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
 
