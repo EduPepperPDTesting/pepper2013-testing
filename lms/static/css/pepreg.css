@@ -608,7 +608,7 @@ table.students td{
 
 .addNext {
     position: relative;
-    font-size: 2em;
+    font-size: 2em !important;
     text-decoration: none;
 }
 
