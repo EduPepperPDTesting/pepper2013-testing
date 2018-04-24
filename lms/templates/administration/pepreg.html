@@ -3623,6 +3623,11 @@
                 $('.columnSelector').hide();
             }
         }
+
+        var el=e.target;
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)") && $('.td-clock').length==1 && el.className!='td-clock' && $(el).closest('.td-clock').length==0){
+            $(".timeID").trigger("change");
+        }
     });
     $('#complete-email').autocomplete({
         source: function (request, response) {
@@ -3630,11 +3635,6 @@
         }
     });
     $(document).on('mouseup', '.td-select', function(){
-        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
-            $(".timeID").trigger("change");
-        }
-    });
-    $(document).on('blur', '.td-clock', function(){
         if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
             $(".timeID").trigger("change");
         }
