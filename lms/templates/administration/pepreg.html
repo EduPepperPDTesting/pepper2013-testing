@@ -3153,11 +3153,11 @@
                 if(val != ""){
                     reloadTableAdvanced();
 
-                    if($("#addNext[id = 'addNext_" + suborder + "']").length == 0){
+                    if($("#addNext_" + suborder).length == 0){
                         $("#advanced_select_" + suborder).next("div").append("<a href='#' class='addNext' id='addNext_" + suborder + "' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
                     }
                 }else if(val == ""){
-                    $("#addNext[id = 'addNext_" + suborder + "']").remove();
+                    $("$("#addNext_" + suborder).remove();
                     $("#subcondition_" + suborder).remove();
 
                     removeNextFilter(suborder);
@@ -3167,7 +3167,7 @@
             }
         });
 
-        $("#advanced_search").on("click", "#addNext", function () {
+        $("#advanced_search").on("click", ".addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name"));
             var nextOrder = suborder + 1;
