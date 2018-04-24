@@ -34,7 +34,9 @@
 <link rel="stylesheet" href="/static/css/sp_link_create.css" type="text/css" media="screen" />
 
 <style>
-	.profilephoto{display:inline-flex;}
+	#organization-state-table tr td:nth-child(4){text-align: center;}
+	.uploadprofile{float:left;}
+	.profilephoto{display:inline-flex;float:right;}
 	.access{ margin-left: 30px; }
 	.certificate_editor_div1{width: 1000px;}
 	#design_dashboard_space_between{width: 60px;text-align: center;}
@@ -77,8 +79,8 @@
 	.design_dashboard_menu_div, .organizational_dashboard_menu_div{float:left; width:1100px; margin-left:50px;}	
 	
 	.design_dashboard_menu_body1,.design_dashboard_menu_head1,.organizational_dashboard_menu_head1,.organizational_dashboard_menu_body1{float:left; clear:both;}
-	.organizational_dashboard_menu_head1,.design_dashboard_menu_head1,.organizational_dashboard_menu_body2{float:left; clear:both;}
-	.organizational_dashboard_menu_head1,.design_dashboard_menu_head1 span{float:left; height:45px !important; line-height:45px !important; font-weight:bold; }
+	.organizational_dashboard_menu_head1, .design_dashboard_menu_head1,.organizational_dashboard_menu_body2{float:left; clear:both;}
+	.organizational_dashboard_menu_head1 span, .design_dashboard_menu_head1 span{float:left; height:45px !important; line-height:45px !important; font-weight:bold; }
 	.organizational_dashboard_menu_head1,.design_dashboard_menu_head1 .organizational_dashboard_menu_row{float:left; width:100%; clear:both}
 	
 	.organizational_dashboard_menu_body1 span{float:left; height:40px; line-height:40px; }
@@ -545,15 +547,15 @@
         <input type="button" id="org_btn_cancel_state" value="CANCEL" class="small_btn" style="margin:0 0 0 10px !important;" />
         <input type="button" id="org_btn_reset_state" value="RESET" class="small_btn" style="margin:0 0 0 10px !important;" />
 
-        <div style="width:500px; margin-top:10px;">
+        <div style="margin-top:10px;">
             <table id="organization-state-table" class="organization-table">
                 <thead>
                     <tr>
                         <th width="120">Entity type</th>
                         <th width="300">Entity</th>
-                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
                         <th width="400">Entity Logos</th>
                         <th width="200">Entity Logo URL</th>
+                        <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="organization-state-select-all"></th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -574,11 +576,11 @@
                     </select>
                 </div>
                 <input type="button" id="organization-state-remove" value="REMOVE SELECTED" class="small_btn" />
+		        <div style="text-align:right; height:30px;display:inline;float: right;">
+		            <input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
+		            <input type="button" value="Save" class="small_btn org_btn_last_save" />
+		        </div>
             </div>
-        </div>
-        <div style="width:100%; text-align:right; height:30px;">
-            <input type="button" next_sn="2" value="Next" class="small_btn expand_title_next" />
-            <input type="button" value="Save" class="small_btn org_btn_last_save" />
         </div>
     </div>
 </div>
@@ -2737,6 +2739,7 @@
 					});
 				}
 				$('#organization-table').trigger('update');
+				$('#organization-table').trigger('pageAndSize', [1, 10]);
 			}
 		});
 	}	
@@ -2798,13 +2801,18 @@
 	}
 
 	function ProfileAddFileImg(id, name, stype=""){
-		$("#" + id).next().empty();
 		if (stype == ""){
 			var src = "/static/uploads/organization/" + org_current_id + "/" + name;
 		}else{
 			var src = "/static/uploads/organization/" + org_current_id + "/" + stype + "/" + name ;
 		}
-		$("#" + id).next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		if (id =='commonlogofile'){
+			$("#" + id).parent().next().empty();
+			$("#" + id).parent().next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		}else{
+			$("#" + id).next().empty();
+			$("#" + id).next().append('<a href="' + src + '" target="_blank"><img onerror="noimage(this)" src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="javascript:void(0)" class="org_logo_remmove" onclick="org_logo_remmove(\'' + id + '\')"></a>');
+		}
 	}
 	
 	function noimage(a){
@@ -2845,12 +2853,13 @@
 		var row = '<tr class="data">';
 		row += '<td>' + add_type + '</td>';
 		row += '<td>' + add_txt + '</td>';
+		
+		row += "<td><input type='file' class='uploadprofile' name='orgentity" + add_id + "' stype='" + add_type + "' id='orgentity" + add_id + "'><div class='profilephoto'></div></td>";
+		row += "<td><input type='text' value='"+ profileurl +"'></td>";
 		row += '<td class="check-column">';
 		row += '<input type="checkbox" class="organization-state-select">&nbsp;';
 		row += '<a href="javascript:void(0)" sid="' + add_id + '" stype="' + add_type + '" did="' + did + '" class="permission-edit organization-state-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
 		row += '</td>';
-		row += "<td><input type='file' class='uploadprofile' name='orgentity" + add_id + "' stype='" + add_type + "' id='orgentity" + add_id + "'><div class='profilephoto'></div></td>";
-		row += "<td><input type='text' value='"+ profileurl +"'></td>";
 		row += '</tr> ';
 		$('#organization-state-table tbody').append(row);
 		$table_location = $('#organization-state-table')
@@ -2868,7 +2877,6 @@
 			if(stype == "State"){
 				$("#org_state_select").val(sid);
 				$("#org_state_select").change();
-
 			}else if (stype == "Cohort"){
 				$("#org_cohort_select").val(sid);
 				$("#org_cohort_select").change();
@@ -4712,10 +4720,10 @@
 		pagerOptions.container = $("#organization-state-pager");
 		$('#organization-state-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 		var $table_location = $("#organization-state-table");
-		$table_location.find('thead tr:eq(1) td:eq(3)').css("text-align",'left');
-		$table_location.find('thead tr:eq(1) td:eq(3)').css("font-size",'15px');
-		$table_location.find('thead tr:eq(1) td:eq(3)').html("One Common Logo? <input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='width:150px'><div class='profilephoto'></div>");
-		$table_location.find('thead tr:eq(1) td:eq(4)').html("<input type='text' name='profileurl'>");
+		$table_location.find('thead tr:eq(1) td:eq(2)').css("text-align",'left');
+		$table_location.find('thead tr:eq(1) td:eq(2)').css("font-size",'15px');
+		$table_location.find('thead tr:eq(1) td:eq(2)').html("<div style='float: left;'>One Common Logo? </span><input name='Commonlogo' type='checkbox'><input disabled type='file' id='commonlogofile' name='commonlogofile' style='display: block;'></div><div class='profilephoto'></div>");
+		$table_location.find('thead tr:eq(1) td:eq(3)').html("<input type='text' name='profileurl'>");
 		$("input[name='Commonlogo']").click(function(){
 			if ($(this).prop('checked') == true){
 				$(this).next().prop('disabled',false)
@@ -4997,6 +5005,7 @@
 			$("#org_state_select").val("");
 			$("#org_district_select").val("");
 			$("#org_school_select").val("");
+			$("#org_cohort_select").val("");
 			org_district_select_add("");
 		});	
 		
@@ -5123,7 +5132,7 @@
 				var stype = $(this).attr("stype");
 				var did = $(this).attr("did");
 				if(sid_did != "")	sid_did += "||";
-				sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().next().next().find('input').val();
+				sid_did += sid + "," + stype + "," + did + ',' + $(this).parent().prev().find('input').val();
 			});
 			
 			var for_district = $("#organizational_base_for_district").val();
