@@ -2300,6 +2300,7 @@
         return false;
     };
 	PepReg.prototype.openCalendar = function () {
+        this.checkLoginStatus();
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_old_month = _sys_calendar_month;
