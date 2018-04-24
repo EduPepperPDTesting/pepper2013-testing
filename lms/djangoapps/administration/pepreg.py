@@ -242,8 +242,7 @@ def rows(request):
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
-        remain = item.max_registration - PepRegStudent.objects.filter(
-            training=item).count() if item.max_registration > 0 else -1
+        remain = item.max_registration - PepRegStudent.objects.filter(training=item).exclude(student_status = "Waitlist").count() if item.max_registration > 0 else -1
 
         allow_waitlist = "1" if item.allow_waitlist else "0"
 
@@ -824,6 +823,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"
                     allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                    remain = item.max_registration - PepRegStudent.objects.filter(training=item).exclude(student_status = "Waitlist").count() if item.max_registration > 0 else -1
                     attendancel_id = item.attendancel_id
 
                     status = ""
@@ -901,7 +901,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if (catype == "0" or catype == "5"):
                                 if (allow_waitlist == "0"):
                                     occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
-                                else:
+                                elif (remain > -1):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' /> ";
                                     occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
 
