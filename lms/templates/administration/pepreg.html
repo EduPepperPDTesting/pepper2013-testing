@@ -3630,7 +3630,12 @@
         }
     });
     $(document).on('mouseup', '.td-select', function(){
-        if($(".advanced_select").length > 0 && $("#dlg-add-training").length > 0){
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
+            $(".timeID").trigger("change");
+        }
+    });
+    $(document).on('blur', '.td-clock', function(){
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
             $(".timeID").trigger("change");
         }
     });
