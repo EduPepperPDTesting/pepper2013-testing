@@ -3098,6 +3098,8 @@
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect, .time_subselect").remove();
 
+                            if($("#subcondition_" + suborder) == 0 && $("addNext_" + suborder) == 1) $("addNext_" + suborder).remove();
+
                             if(data_rows.indexOf(data.rows[0]) == -1){
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
                                 $("#subselect_" + suborder).append("<option value=''>Select</option>");
