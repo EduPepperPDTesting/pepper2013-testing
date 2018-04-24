@@ -3625,7 +3625,7 @@
         }
 
         var el=e.target;
-        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)") && $('.td-clock').length==1 && el.className!='td-clock' && $(el).closest('.td-clock').length==0){
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)") && $('.td-clock').is(":visible") && el.className!='td-clock' && $(el).closest('.td-clock').length==0){
             $(".timeID").trigger("change");
         }
     });
