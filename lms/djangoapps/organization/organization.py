@@ -2612,25 +2612,25 @@ def organization_list_filter(request):
 
             if (cohort_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
-                    rows.append(tmp1.organization)
+                    org_list.append(tmp1.organization)
                     OrganizationOK = True
                     break;
 
             if (not(OrganizationOK) and school_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
-                    rows.append(tmp1.organization)
+                    org_list.append(tmp1.organization)
                     OrganizationOK = True
                     break;
 
             if (not(OrganizationOK) and district_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
-                    rows.append(tmp1.organization)
+                    org_list.append(tmp1.organization)
                     OrganizationOK = True
                     break;
             
             if (not(OrganizationOK) and state_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
-                    rows.append(tmp1.organization)
+                    org_list.append(tmp1.organization)
                     OrganizationOK = True
                     break;
 
