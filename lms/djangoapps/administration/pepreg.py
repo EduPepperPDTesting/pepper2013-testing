@@ -2476,9 +2476,3 @@ def send_completion_certificate(request):
         return HttpResponse(json.dumps({'success': False, 'error': error}))
 
     return HttpResponse(json.dumps({'success': True}))
-
-def get_login_status(request):
-    if request.user.is_authenticated():
-        return HttpResponse(json.dumps({'is_authenticated': True}), content_type="application/json")
-    else:
-        return HttpResponse(json.dumps({'is_authenticated': False}), content_type="application/json")
