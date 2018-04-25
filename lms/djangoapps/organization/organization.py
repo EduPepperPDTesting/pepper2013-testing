@@ -2592,21 +2592,22 @@ def organization_list_filter(request):
         email = request.GET.get('email', '')
         org_list = []
         if email != "":
+            user = User.objects.get(email=email)
             OrganizationOK = False
             try:
-                state_id = request.user.profile.district.state.id
+                state_id = user.profile.district.state.id
             except:
                 state_id = -1
             try:
-                district_id = request.user.profile.district.id
+                district_id = user.profile.district.id
             except:
                 district_id = -1
             try:
-                school_id = request.user.profile.school.id
+                school_id = user.profile.school.id
             except:
                 school_id = -1
             try:
-                cohort_id = request.user.profile.cohort.id
+                cohort_id = user.profile.cohort.id
             except:
                 cohort_id = -1
 
