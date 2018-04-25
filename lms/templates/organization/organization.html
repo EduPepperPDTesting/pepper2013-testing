@@ -2288,7 +2288,7 @@
 										var sid_did_list = r.sid_did.split("||");
 										for(var j in sid_did_list){
 											var tmpsd = sid_did_list[j].split(",");
-											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4]);
+											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1], tmpsd[3], tmpsd[4], tmpsd[5]);
 											ProfileAddFileImg('orgentity'+tmpsd[1], 'orgentity'+tmpsd[1]+ '.png',  tmpsd[0])
 										}
 									}
