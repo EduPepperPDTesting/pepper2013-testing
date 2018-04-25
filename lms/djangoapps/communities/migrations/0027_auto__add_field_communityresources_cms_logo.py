@@ -65,7 +65,6 @@ class Migration(SchemaMigration):
             'hangout': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'logo': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['file_uploader.FileUploads']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
-            'main_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'max_length': '11'}),
             'motto': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -172,14 +171,9 @@ class Migration(SchemaMigration):
         'communities.communityusers': {
             'Meta': {'object_name': 'CommunityUsers', 'db_table': "'community_users'"},
             'community': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityCommunities']"}),
-            'community_default': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'community_delete': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'community_edit': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'facilitator': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_access': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'receive_email': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'communityuser'", 'on_delete': 'models.PROTECT', 'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'})
         },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
