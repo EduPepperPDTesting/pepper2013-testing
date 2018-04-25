@@ -65,6 +65,9 @@ def main(request):
         elif get_flag == "organization_initial_superuser_eamil":
             return organization_initial_superuser_eamil(request)
 
+        elif get_flag == "organization_list_filter":
+            return organization_list_filter(request)
+
     elif post_flag:
         if post_flag == "organization_add":
             return organization_add(request)
@@ -985,25 +988,29 @@ def organization_get(request):
                         if tmp1.EntityType == "State":
                             for tmp2 in State.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = 'None'
                                 break
                         elif tmp1.EntityType == "District":
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = tmp2.state.name + ' (State)'
                                 break
                         elif tmp1.EntityType == "Cohort":
                             for tmp2 in Cohort.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.code
+                                parent = 'None'
                                 break
                         else:
                             for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = tmp2.district.name + ' (District)'
                                 break
 
                         profileurl = ""
                         profileurl_tmp = eval(tmp1.OtherFields)
                         if profileurl_tmp.has_key('profileurl'):
                             profileurl = profileurl_tmp['profileurl']
-                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id) + ',' + str(profileurl)
+                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id) + ',' + str(profileurl) + ',' + parent
 
                     data['sid_did'] = sid_did
 
@@ -2568,3 +2575,87 @@ def course_assign(qualifications, data):
             "TokenValues": {"course_id": tmp2['course_id']}, 
             "LogoValues": {"course_id": tmp2['course_id']}}
             ma_db.insert_item(my_activity)
+
+@login_required
+def organization_list_filter(request):
+    if request.user.is_superuser == 1:
+        state = request.GET.get('state', '')
+        district = request.GET.get('district', '')
+        school = request.GET.get('school', '')
+        cohort = request.GET.get('cohort', '')
+        email = request.GET.get('email', '')
+        org_list = []
+        if email != "":
+            user = User.objects.get(email=email)
+            OrganizationOK = False
+            try:
+                state_id = user.profile.district.state.id
+            except:
+                state_id = -1
+            try:
+                district_id = user.profile.district.id
+            except:
+                district_id = -1
+            try:
+                school_id = user.profile.school.id
+            except:
+                school_id = -1
+            try:
+                cohort_id = user.profile.cohort.id
+            except:
+                cohort_id = -1
+
+            if (cohort_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and school_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and district_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+            
+            if (not(OrganizationOK) and state_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+        if cohort != "":
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(cohort), EntityType="Cohort"):
+                org_list.append(tmp1.organization)
+                break;
+
+        if school != "":
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(school), EntityType="School"):
+                org_list.append(tmp1.organization)
+                break;
+        else:
+            if district != "":
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(district), EntityType="District"):
+                    org_list.append(tmp1.organization)
+                    break;
+            else: 
+                if state != "":
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(state), EntityType="State"):
+                        org_list.append(tmp1.organization)
+                        break;
+
+        if email == "" and cohort  == "" and state == "":
+            org_list = OrganizationMetadata.objects.all()
+
+        rows = []
+        for org in org_list:
+            rows.append({'id': org.id, 'OrganizationName': org.OrganizationName})
+
+        return render_json_response({'success': True, 'rows': rows, 'is_superuser': request.user.is_superuser})
+    else:
+        return render_json_response({'success': False})
