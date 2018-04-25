@@ -2592,7 +2592,11 @@ def organization_list_filter(request):
         email = request.GET.get('email', '')
         org_list = []
         if email != "":
-            user = User.objects.get(email=email)
+            try:
+                user = User.objects.get(email=email)
+            except:
+                rows = []
+                return render_json_response({'success': True, 'rows': rows, 'is_superuser': request.user.is_superuser})
             OrganizationOK = False
             try:
                 state_id = user.profile.district.state.id
