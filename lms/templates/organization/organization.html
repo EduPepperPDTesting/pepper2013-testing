@@ -5649,6 +5649,10 @@
 				$("#org_school_filter").prop("disabled",false)
 				$("#email-filter").val('')
 				$("#email-filter").prop("disabled",false)
+				$("#email-filter").css("color","black");
+				$("#org_state_filter").css("color","black");
+				$("#org_district_filter").css("color","black");
+				$("#org_school_filter").css("color","black");
 			}else{
 				$("#org_state_filter").prop("disabled",true)
 				$("#org_state_filter").val("");
@@ -5657,21 +5661,37 @@
 				$("#org_school_filter").prop("disabled",true)
 				$("#email-filter").val('')
 				$("#email-filter").prop("disabled",true)
+				$("#email-filter").css("color","grey");
+				$("#org_state_filter").css("color","grey");
+				$("#org_district_filter").css("color","grey");
+				$("#org_school_filter").css("color","grey");
 			}
         });
         $("#org_cohort_filter").change()
         $("#email-filter").keyup(function () {
         	if ($(this).val() != ""){
+        		$("#org_school_filter").prop("disabled",true)
+        		$("#org_district_filter").prop("disabled",true)
         		$("#org_state_filter").prop("disabled",true)
 				$("#org_state_filter").val("");
 				org_district_select_add_filter("");
 				$("#org_cohort_filter").prop("disabled",true)
 				$("#org_cohort_filter").val("")
+				$("#org_cohort_filter").css("color","grey");
+				$("#org_state_filter").css("color","grey");
+				$("#org_district_filter").css("color","grey");
+				$("#org_school_filter").css("color","grey");
         	}else{
+        		$("#org_school_filter").prop("disabled",false)
+        		$("#org_district_filter").prop("disabled",false)
         		$("#org_state_filter").prop("disabled",false)
 				$("#org_state_filter").val("");
 				org_district_select_add_filter("");
 				$("#org_cohort_filter").prop("disabled",false)
+				$("#org_cohort_filter").css("color","black");
+				$("#org_state_filter").css("color","black");
+				$("#org_district_filter").css("color","black");
+				$("#org_school_filter").css("color","black");
         	}
         })
 		//--------------------------org_btn_add_state
