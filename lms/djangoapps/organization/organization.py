@@ -996,7 +996,7 @@ def organization_get(request):
                         elif tmp1.EntityType == "District":
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
-                                parent = tmp2.state.name + '(State)'
+                                parent = tmp2.state.name + ' (State)'
                                 break
                         elif tmp1.EntityType == "Cohort":
                             for tmp2 in Cohort.objects.filter(id=tmp1.OrganizationEnity):
@@ -1006,7 +1006,7 @@ def organization_get(request):
                         else:
                             for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
-                                parent = tmp2.district.name + '(District)'
+                                parent = tmp2.district.name + ' (District)'
                                 break
 
                         profileurl = ""
@@ -2592,6 +2592,7 @@ def organization_list_filter(request):
         email = request.GET.get('email', '')
         org_list = []
         if email != "":
+            OrganizationOK = False
             try:
                 state_id = request.user.profile.district.state.id
             except:
@@ -2612,21 +2613,25 @@ def organization_list_filter(request):
             if (cohort_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
                     rows.append(tmp1.organization)
+                    OrganizationOK = True
                     break;
 
             if (not(OrganizationOK) and school_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
                     rows.append(tmp1.organization)
+                    OrganizationOK = True
                     break;
 
             if (not(OrganizationOK) and district_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
                     rows.append(tmp1.organization)
+                    OrganizationOK = True
                     break;
             
             if (not(OrganizationOK) and state_id != -1):
                 for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
                     rows.append(tmp1.organization)
+                    OrganizationOK = True
                     break;
 
         if cohort != "":
@@ -2648,6 +2653,9 @@ def organization_list_filter(request):
                     for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(state), EntityType="State"):
                         org_list.append(tmp1.organization)
                         break;
+
+        if email == "" and cohort  == "" and state == "":
+            org_list = OrganizationMetadata.objects.all()
 
         rows = []
         for org in org_list:

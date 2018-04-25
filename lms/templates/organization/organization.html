@@ -37,6 +37,7 @@
 
 
 <style>
+	.organization_main2{width: 1180px;padding: 10px;border: 1px solid #999;margin: 0 auto 0 auto;}
 	.org_filter{width:200px;}
 	#email-filter{height:27px;width:200px;}
 	#filter_button{margin: 0;width: 200px;height: 27px;}
@@ -56,7 +57,7 @@
 	.organization_main{margin: 0 auto 30px auto; width: 1180px; padding: 10px;}
 	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #999; padding: 10px;}
 	.check-column {width: 60px !important;}
-	.organization-table {width: 100%; border: 1px solid #555; table-layout:fixed; word-break: break-all; white-space:nowrap;}
+	.organization-table {width: 100%; border: 1px solid #555; table-layout:fixed; word-break: break-all;}
 	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px; font-size:14px;}
 	.organization-table tr {border-bottom: 1px solid #555;}
 	.organization-table td {border-right: 1px solid #555; padding: 4px; text-align: left; overflow:hidden}
@@ -210,7 +211,7 @@
 
 <!--Main Page Configuration-->
 % if request.user.is_superuser:
-<div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
+<div class="organization_main2">
     <div class="expand_title expand_title_collapse" always_on="1">Main Page Configuration<div class="icon"></div></div>
     <div class="expand_div">
     	<div style="padding: 1em 7px 7px 7px;">        	      
@@ -4180,6 +4181,7 @@
 			$.get("${reverse('organizational_configuration')}", {flag: "organization_list_filter", state: state, district: district, 
 			school: school, cohort: cohort, email: email}, function (r) {
 				if (r.success) {
+					$(".organization_main1").hide();
 					$('#organization-table tbody .data').remove();
 					$('.organization-select-all:checked').prop({checked: false});
 					if(r.rows.length > 0){
@@ -5744,16 +5746,16 @@
 											
 										}
 									});
-									organizationAddDistricts(add_type, add_txt, add_id, "", "", $("#org_state_select option:selected").text() + "(State)");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "", $("#org_state_select option:selected").text() + " (State)");
 									loadwin.hide();
 								}else if(add_type == "School"){
-									organizationAddDistricts(add_type, add_txt, add_id, "", "", add_txt = $("#org_district_select option:selected").text() + "(District)");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "", add_txt = $("#org_district_select option:selected").text() + " (District)");
 									loadwin.hide();
 								}else if (add_type == "Cohort"){
-									organizationAddDistricts(add_type, add_txt, add_id, "", "", "(None)");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "", "None");
 									loadwin.hide();
 								}else{
-									organizationAddDistricts(add_type, add_txt, add_id, "", "", "(None)");
+									organizationAddDistricts(add_type, add_txt, add_id, "", "", "None");
 									loadwin.hide();
 								}
 							}
