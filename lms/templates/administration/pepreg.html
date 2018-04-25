@@ -2300,6 +2300,7 @@
         return false;
     };
 	PepReg.prototype.openCalendar = function () {
+        this.checkLoginStatus();
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_old_month = _sys_calendar_month;
@@ -2862,7 +2863,7 @@
                             var add_to_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_add_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Add to waitlist</span>';
                             var remove_from_wl = '<input type="checkbox" style="position:absolute;" id="waitlist_remove_' + training_id + '"><span style="display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;">Remove from waitlist</span>';
                             $(this).html("<div>Maximum number of users have registered for this training.</div>");
-                            if(status == "" && allow_waitlist == "1"){
+                            if(status == "" && allow && allow_waitlist == "1" && remain > -1){
                                 $(this).append('<div>' + add_to_wl + '</div>');
                             }else if(status == "Waitlist"){
                                 $(this).append('<div>' + remove_from_wl + '</div>');
@@ -3097,6 +3098,8 @@
                             $("#advanced_select_" + suborder).data('oldvalue', $("#advanced_select_" + suborder).val());
                             $("#advanced_select_" + suborder).next("div").find(".subselect, .time_subselect").remove();
 
+                            if(($("#subcondition_" + 1).length == 0 && $("#addNext_" + 1).length == 1)) $("#addNext_" + suborder).remove();
+
                             if(data_rows.indexOf(data.rows[0]) == -1){
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='subselect_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subselect' data-column='" + data.data_column + "'></select>");
                                 $("#subselect_" + suborder).append("<option value=''>Select</option>");
@@ -3111,17 +3114,20 @@
                                     $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
                             }else if(data.rows[0] == "Date"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text'  id='subselect_" + suborder + "' name='training_data|" + suborder + "' value='' class='search time_subselect' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='" + suborder + "' value='' class='search datePickText time_subselect adv_date' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
+                                $("input[name='"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ console.log(suborder); $("#subselect_" + suborder).change();}}});
                             }else if(data.rows[0] == "Time"){
-                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='training_data|" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'><option value=''>Select</option></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect adv_time'/>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
+                                 $("input[name='"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
+                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).addClass("timeID");});
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
@@ -3138,28 +3144,33 @@
             }
         });
 
-        $("#advanced_search").on("change", ".subselect", function () {
+        $("#advanced_search").on("change", ".subselect, .time_subselect, .timeID", function () {
+
             var val = $(this).val();
-            var field_name = $(this).attr("name");
-            var suborder = (field_name.indexOf('training_data') == 0) ? field_name : field_name.substr(field_name.indexOf('|') + 1);
+            console.log("subselect val="+val);
+            var suborder = $(this).attr("name");
+            var fieldID = $(this).attr("id");
+            $(".timeID").removeClass("timeID");
 
-            if(val != ""){
-                reloadTableAdvanced();
+            if(fieldID.indexOf('subselect') == 0){
+                if(val != ""){
+                    reloadTableAdvanced();
 
-                if($("#addNext[name = '" + suborder + "']").length == 0){
-                    $("#advanced_select_" + suborder).next("div").append("<a href='#' id='addNext' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
+                    if($("#addNext_" + suborder).length == 0){
+                        $("#advanced_select_" + suborder).next("div").append("<a href='#' class='addNext' id='addNext_" + suborder + "' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
+                    }
+                }else if(val == ""){
+                    $("#addNext_" + suborder).remove();
+                    $("#subcondition_" + suborder).remove();
+
+                    removeNextFilter(suborder);
+
+                    reloadTableAdvanced();
                 }
-            }else if(val == ""){
-                $("#addNext[name='" + suborder + "']").remove();
-                $("#subcondition_" + suborder).remove();
-
-                removeNextFilter(suborder);
-
-                reloadTableAdvanced();
             }
         });
 
-        $("#advanced_search").on("click", "#addNext", function () {
+        $("#advanced_search").on("click", ".addNext", function () {
             var addNext = $(this).text();
             var suborder = parseInt($(this).attr("name"));
             var nextOrder = suborder + 1;
@@ -3612,10 +3623,20 @@
                 $('.columnSelector').hide();
             }
         }
+
+        var el=e.target;
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)") && $('.td-clock').is(":visible") && el.className!='td-clock' && $(el).closest('.td-clock').length==0){
+            $(".timeID").trigger("change");
+        }
     });
     $('#complete-email').autocomplete({
         source: function (request, response) {
             $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
+        }
+    });
+    $(document).on('mouseup', '.td-select', function(){
+        if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
+            $(".timeID").trigger("change");
         }
     });
 </script>
