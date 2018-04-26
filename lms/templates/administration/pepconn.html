@@ -1200,7 +1200,7 @@ function editUserData(id){
         }
         $.post('${reverse("pepconn_get_schools_by_district")}', {
             id:user_id,
-            district_id = $("#userDistrictValue").val()
+            district_id:$("#userDistrictValue").val()
         }, function (r) {
             $("#userSchoolValue").empty().append(r.code);
         });
