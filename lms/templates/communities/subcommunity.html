@@ -1,0 +1,2328 @@
+<%!
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member, is_private
+from file_uploader.utils import get_file_url
+from django.utils import timezone
+from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation, UserProfile, User
+import datetime
+%>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%block name="title"><title>community</title></%block>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
+<script src="/static/js/datetime/moment.js"></script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+
+<!--autocomplete-->
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+
+<!--cropper-->
+<link rel="stylesheet" href="/static/css/amazeui.cropper.css">
+<link rel="stylesheet" href="/static/css/custom_up_img.css">
+<script src="/static/js/amazeui.min.js" charset="utf-8"></script>
+<script src="/static/js/cropper.min.js" charset="utf-8"></script>
+<script src="/static/js/custom_up_img2.js" charset="utf-8"></script>
+
+<style type="text/css" media="screen">
+/*-----------create or edit community window-----------*/
+/*-----------autocomplete-----------*/
+.ui-autocomplete .ui-state-focus,
+.acSelect {
+    padding:0;
+    background: #0000d4;
+    color: white;
+    font-weight:normal;
+}
+.ui-autocomplete {z-index: 100000 !important;}
+/*-----------akogan-----------*/
+.label{color: #000000 !important;}
+.switch i{ bottom: 15px !important;}
+.step-page .move{right: 25px !important;}
+.step-content{ width: 720px !important;}
+
+.form-row span{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row label{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row span.label{font: 12px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row select{color: #222;}
+.form-row input{color: #222 !important;}
+.form-row textarea{color: #222 !important;}
+
+h1, h2, section.outside-app h1, h3, h4, h5, h6{
+/*font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;*/
+font: normal 1.2em/1.2em;
+}
+
+#dlg-warning{height: 210px;}
+
+/*-----------old create community -----------*/
+.community-error-box {
+    border-color: red !important;
+}
+#community-courses,#community-resources {
+    clear: both;
+    display: block;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+#community-courses input, #community-resources input {
+    /*display: block;
+    float: left;*/
+    margin: 0 20px 2px 0;
+}
+#community-resources .community-resource{
+    margin-bottom:25px !important;
+    /*border-bottom:1px solid;*/
+}
+#community-courses select {
+    display: block;
+    float: left;
+    margin: 0 20px 20px 0;
+    font-weight:bold;
+    font-style:italic;
+}
+#community-resources .add, #community-courses .add {
+    padding: 0 6px;
+    color:#fff !important;
+}
+#community-resources .minus, #community-courses .minus {
+    padding: 0 8px;
+    color:#fff !important;
+}
+.community-course, .community-resource, #community-state {
+    clear: both;
+}
+.resource-logo-label{
+    font-size:13px;
+    font-weight:bold;
+    font-style:italic;
+}
+.community-logo-thumb {
+    /*float: left;*/
+    width: 120px;
+    margin-right: 10px;
+}
+.community-resource-logo-thumb {
+    width: 120px;
+}
+.icon-edit:before {font-family:FontAwesome; }
+.icon-remove:before {font-family:FontAwesome;   }
+.icon-remove{
+    cursor:pointer;
+}
+#community-logo .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: 1.25em;
+        left: 115px;
+    }
+.community-resource-logo-wrap .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: -4px;
+        left: 115px;
+    }
+
+#community-logo {
+        display: block;
+        /*float: left;*/
+        margin: 0 0px 12px 0;
+        text-align: left;
+        /*position: relative;*/
+    }
+/*-----------create community form-----------*/
+#community-name input{
+    padding:5px 12px;
+    width:500px;
+    margin-top:5px;
+}
+
+#community-motto input{
+    padding:5px 12px;
+    max-width:650px !important;
+    width:650px;
+    margin-top:5px;
+}
+#community-private input{
+    margin-left:5px;
+    margin-top:0px;
+}
+
+.select-lock{
+    color:#ccc !important;
+    border-color:#ccc;
+}
+
+.select-lock option{
+    color:#ccc;
+}
+
+/*----------------------------------community page common----------------------------------*/
+a{
+    text-decoration:none !important;
+    cursor: pointer;
+}
+.overflow-text{
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.overflow-text-wrap{
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+.border-zero{
+    border:0 !important;
+}
+.modal{
+    /*padding: 0 0 8px 0;*/
+    padding:0px;
+    border-radius:5px;
+}
+/*--------------community all--------------*/
+.content-wrapper-community{
+    margin-top:0px;
+    background-color:#e7e7e8;
+    padding-bottom: 20px;
+}
+.sub-title{
+    background-color: #2CBAEC;
+    color:#fff;
+    font-size: 15px;
+    width: 100%;
+    padding:10px 0 10px 0;
+    text-align: center;
+    position: relative;
+}
+
+.con-main-all{
+    width:680px;
+    margin-left:27px;
+    float:left;
+    
+    /*height:500px;*/
+    border: 0px solid;
+}
+/*--------------community left--------------*/
+.community-left{
+    width: 250px;
+    float:left;
+    background-color: #fff;
+    padding-bottom: 35px;
+}
+.sub-community-info{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid;
+    color:#aaa;
+    font-size:13px;
+}
+.sub-community-info .main-name{
+    display:inline-block;
+    max-width:105px;
+}
+.sub-community-info .main-name a{
+    color:#aaa;
+    font-size:13px;
+}
+.sub-community-info .name-divide{
+    display:inline-block;
+    width:6px;
+    text-align:center;
+}
+.sub-community-info .sub-name{
+    display:inline-block;
+    font-weight:bold;
+    max-width:105px;
+}
+.facilitator-info{
+    width:226px;margin-left:13px;margin-top:12px;border:0px solid #f00;
+}
+.subcommunities, .trending{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.sub-title .btn-addsub{
+    color:#fff;
+    font-size: 28px;
+    position: absolute;
+    cursor: pointer;
+    top:-4px;
+    left:171px;
+}
+.community-left .user-photo{
+    width:60px;height:60px;float:left;margin-right:10px;border:0px solid;
+}
+.community-left .user-photo img{
+    width:60px;height:60px;border-radius:50px;
+}
+.community-left .user-info{
+    width:100px;margin-top:15px;float:left;border:0px solid;
+}
+.community-left .user-name{
+    font-size:14px;font-weight:bold;padding-bottom:2px;
+}
+.community-left .btn-facilitator{
+    cursor:pointer;float:left;border:0px solid #f00;margin-top:2px;
+}
+.community-left .facilitator-triangle{
+    float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #2CBAEC;border-right: 5px solid transparent;border-left: 5px solid transparent;
+}
+.community-left .facilitator-menu{
+    float:left;width:175px;margin-top:0px;display:none;
+}
+.community-left .f-menu-triangle{
+    float:left;
+    margin:2px 0 0 13px;
+    width:0;
+    height:0;
+    border-bottom:6px solid #535456;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+}
+.community-left .f-lines{
+    width:175px;background-color:#535456;margin-top:8px;
+}
+.community-left .f-rights-line{
+    margin-left:15px;margin-right:15px;color:#a4a4a5;padding:10px 0 10px 0;border-bottom:1px solid #a4a4a5;font-size:13px;cursor:pointer;
+}
+.community-left .f-rights-line:last-child{
+    border:0;padding-bottom:12px;
+}
+.community-left .f-rights-line:hover{
+   color:#e2e2e2;
+}
+.community-left .f-rights-line a{
+    color:#a4a4a5;font-size:13px
+}
+.community-left .f-rights-line a:hover{
+    color:#e2e2e2;
+}
+.community-left .user-email{
+    float:left;margin:15px 0 0 5px;border:0px solid;cursor:pointer;
+}
+.community-left .sub-community-titles{
+    width:224px;border:1px solid #ccc;height:160px;overflow-y:auto;
+}
+.community-left .subcommunity-more{
+    display:none;
+}
+.community-left .unjoined{
+    width:90%;font-size:13px;margin-left:10px;padding: 10px 0 10px 0;color:#ccc;border-bottom:1px solid #ccc;
+}
+.community-left .unjoined a{
+    color: #ccc;font-size:13px;
+}
+.community-left .unjoined-active{
+    width:85%;margin-left:10px;padding: 10px 0 10px 0;color:#2CBAEC;border-bottom:1px solid #ccc;
+}
+.community-left .unjoined-active a{
+    font-size:13px;
+    /*font-weight:bold;*/
+    color:#2CBAEC;
+}
+.community-left .joined{
+    width:90%;font-size:13px;margin-left:10px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
+}
+.community-left .joined a{
+    font-weight:bold;
+}
+.community-left .joined-title{
+   display:table-cell;padding:1px 5px 1px 0;max-width:126px;color:#ccc;border:0px solid;
+}
+.community-left .joined-title a{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .joined-title-active{
+    display:table-cell;padding:1px 5px 1px 0;max-width:160px;color:#2CBAEC;
+}
+.community-left .joined-title-active a{
+    font-size:13px;
+    color:#2CBAEC;
+}
+.community-left .joined-now-no-newdis{
+    font-size:13px;
+    font-weight:bold;
+    color:#2CBAEC;
+}
+.community-left .joined-now-no-newdis a{
+    font-size:13px;
+    color:#2CBAEC;
+}
+.community-left .joined-no-newdis{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .joined-no-newdis a{
+    font-size:13px;
+    color:#ccc;
+}
+.community-left .discussion-count{
+    padding:1px 5px 1px 5px;background-color:#F58221;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+}
+.community-left .discussion-count-unactive{
+    padding:1px 5px 1px 5px;border-radius:6px;font-size:12px;color:#fff;max-width: 22px;
+    background-color:#ccc;
+}
+.community-left .seemore-sc{
+    width:212px;padding:0 10px 0 0;text-align:right;border:0px solid;
+}
+.community-left .btn-seemore-sc,.community-left .btn-seemore-t{
+   font-size:13px;color:#999;cursor: pointer; 
+}
+.community-left .trendings{
+    width:224px;border:1px solid #ccc;height:330px;overflow-y:auto;
+}
+.community-left .every-discussion{
+    width:85%;margin:10px;padding-bottom:10px;border-bottom:1px solid #ccc;
+}
+.community-left .discussion-subject{
+    font-size: 13px;
+    color:#000;
+}
+.community-left .discussion-date .posted{
+    font-size: 13px;color:#F58221;font-style:italic;
+}
+.community-left .discussion-date .td-postdate{
+    font-size: 13px;font-style:italic;
+}
+.community-left .seemore-t{
+    width:212px;padding:0px 10px 0 0;text-align:right;border:0px solid;
+}
+/*--------------community right--------------*/
+.community-right{
+    width: 250px;
+    margin-left:27px;
+    float:left;
+    background-color: #fff;
+    /*height:632px;*/
+    padding-bottom: 35px;
+    
+    border: 0px solid;
+}
+.communitystatus{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.resources{
+    width:226px;margin-left:13px;margin-top:20px;border:0px solid #f00;
+}
+.community-left .community-status{
+    width:224px;padding-bottom:13px;border:1px solid #ccc;
+}
+.community-left .dis-count{
+    width:85%;font-size:14px;margin:15px 10px 2px 15px;border:0px solid;
+}
+.community-left .members{
+    width:85%;font-size:14px;margin:2px 10px 2px 15px;border:0px solid;
+}
+.community-left .dis-count span{
+    font-size:14px;color:#F58221;font-weight:bold;
+}
+.community-left .members span{
+    font-size:14px;color:#F58221;font-weight:bold;
+}
+.community-left .members a{
+    font-size:14px;color:#89C153;
+}
+.community-left .my-communities-all{
+    width:85%;font-size:14px;margin:4px 10px 2px 15px;border:0px solid;
+}
+.community-left .my-communities-triangle{
+    float:left;margin:7px 0 0 3px;width:0;height:0;border-top:5px solid #000;border-right: 5px solid transparent;border-left: 5px solid transparent;
+}
+.community-left .my-communities{
+    overflow-y:auto;
+    height:140px;
+    border:0px solid;
+}
+.community-left .every-community{
+    width:90%;margin-left:18px;padding:10px 0 10px 0;border-bottom:1px solid #ccc;
+}
+.community-left .every-community a{
+    color: #000;cursor: pointer;font-size:13px;
+}
+.community-left .every-community-more{
+    display:none;
+}
+.community-left .mycommunities-seemore{
+    width:90%;margin-left:8px;padding:0px 0 5px 0;text-align:right;border:0px solid;
+}
+.community-left .mycommunities-seemore .btn-seemore-mc{
+    padding:3px 0 5px 0;color:#999;font-size:13px; cursor: pointer;
+}
+
+/*------------resources------------*/
+.community-right .community-resources{
+    width:224px;border:1px solid #ccc;overflow-y:auto;min-height:1px;max-height:800px;
+}
+.community-right .community-resources-all{
+    width:224px;border:1px solid #ccc;overflow-y:auto;height:800px;display:none;
+}
+.community-right .every-resource{
+    width:80%;margin-left:20px;padding:18px 0 18px 0;border-bottom:1px solid #ccc;
+}
+/*
+.community-right .community-resources a{
+    font-size:13px;color:#000;
+}
+*/
+.community-right .every-resource-more{
+    display:none;
+}
+.community-right .resources-seemore{
+    width:200px;padding:0px 0 20px 0;text-align:right;margin:auto;border:0px solid;
+}
+.community-right .resources-seemore .btn-seemore-r{
+    font-size:13px;color:#999;cursor: pointer;
+}
+
+.community-resource-tab {
+    display: block;
+    clear: both;
+    margin:auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 0 solid #f0870c;
+    height: 150px;
+    width: 200px;
+    font-size:13px;
+    
+    box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+.community-resource-tab img {
+    display: block;
+    width: 200px;
+
+    border-radius: 6px;
+}
+.community-resource-tab a {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 60px;
+    background: #f0870c;
+    color: #fff !important;
+    font-size: 14px;
+    border-radius: 0 0 6px 6px;
+}
+.community-resource-tab div {
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    width: 200px;
+    text-align: center;
+}
+/*--------------community middle top--------------*/
+.con-main-all .con-main-info-outer{
+    width:630px;margin:auto;margin-top:25px;border-bottom:1px solid #ccc;padding-bottom:20px;
+}
+.con-main-all .con-main-info-subject{
+    width:340px;font-size:19px;font-weight:bold;color:#2CBAEC;padding:5px 0 5px 0;
+}
+.con-main-all .con-main-info-motto{
+    width:340px;font-size:13px;line-height:18px;height:92px;
+}
+.con-main-all #btn-join, .con-main-all #btn-leave{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;cursor:pointer;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
+}
+.con-main-all #btn-join:hover{
+    background-color:#8acc4a;
+}
+
+.con-main-all #btn-leave:hover{
+    background-color:#F5821F;
+}
+.con-main-all #btn-leave-facilitator{
+    color:#fff;font-size:14px;background-color:#89c252;border-radius:7px;
+    display:inline-block;
+    width:90px;
+    padding:5px 0 5px 0;
+    text-align:center;
+}
+.con-main-all .top-chat-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-like-ico{
+    padding-right:2px;height:20px;float:right;padding-top:2px;border:0px solid;
+}
+.con-main-all .top-activeusers-ico{
+    padding:2px 3px 0 0;height:20px;float:right;border:0px solid;
+}
+.con-main-all .top-chat-count,.top-like-count{
+    padding-right:8px;
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
+}
+
+.con-main-all .top-activeusers-count{
+    padding-top:3px;
+    height:17px;
+    float:right;
+    color:#2CBAEC;font-weight:bold;
+    font-size:13px;
+    border:0px solid;
+}
+/*--------------email facilitator--------------*/
+.email-facilitator{
+    position:absolute;
+    left:0px;
+    top:0px;
+    padding:20px 10px 10px 10px;
+    border:1px solid #ccc;
+    background-color:#fff;
+    display:none;  
+}
+.email-facilitator-title{
+    font-size:15px;
+}
+.email-facilitator-message{
+    margin-top:5px;width:350px;font-size:15px;height:38px;
+}
+.email-facilitator-send-btn{
+    padding:3px 15px 3px 15px;
+    background-color:#2CBAEC;
+    color:#fff;
+    border:1px solid #45719E;
+    font-size:15px;
+    cursor:pointer;
+}
+.email-facilitator-error{
+  margin-top:5px;font-size:15px;text-align:center;display:none;  
+}
+.email-facilitator-send-btn:hover{
+    background-color:#2ec3f8;
+}
+.email-facilitator-close-btn{
+    position:absolute;
+    left:350px;
+    top:5px;
+    font-size:14px;
+    cursor:pointer;
+}
+/*--------------community members window--------------*/
+.circle:hover {
+    cursor: pointer;
+}
+.sidebar-section {
+    margin: 0 0 20px 0;
+}
+.members-container{
+    text-align:left;
+}
+.members-name {
+    display: inline-block;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    overflow-y: hidden;
+}
+.members-image {
+    margin-top: -20px;
+    position: relative;
+    right: 3px;
+    bottom: 7px;
+    width: 10px;
+}
+
+.modal-members ,.modal-members-sendmessage{
+    position: absolute;
+    width:680px !important;
+    opacity: 1;
+    z-index: 101;
+    left: 50%;
+    margin-left: -349px !important;
+    top: 120px;
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+}
+.coursesdropdata{
+    display:none
+}
+</style>
+<style>
+.modal-stepform {
+    display: block;
+    opacity: 1;
+    z-index: 999;
+    left: 50%;
+    background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);
+    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+    width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;
+}
+.modal-stepform .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+    z-index: 3;
+    color: #333;
+}
+.modal-stepform .content {
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px 20px;
+    line-height: 20px;
+}
+.step-page{
+    background:#fff;
+    position:absolute;
+    height:100%;
+    text-align:left;
+}
+.step-content{
+    padding:10px 25px;
+    width:630px;
+    position:relative;
+}
+.switch{
+    width:20px;
+    height:100%;
+    float:right;
+    vertical-align:bottom;
+    text-align:left;
+    cursor:pointer;
+}
+.switch i{
+    width:20px;
+    position:absolute;
+    bottom:5px;
+    font-style:normal;
+    text-align:center;
+    font-weight:bold;
+    color:#fff;
+}
+.step-page span.label{
+    width:100px;
+    text-align:right;
+    display:inline-block;
+    font-size:12px;
+}
+.step-page div.form-row{
+    margin-top:10px;
+    position:relative;
+}
+.step-page input[type=checkbox],
+.step-page input[type=radio],
+.step-page input[type=text],
+.step-page select{
+    vertical-align:middle;
+    max-width:500px;
+}
+.step-page h5{
+    font-size:14px;
+    color:#999;
+    margin-bottom:15px;
+}
+.step-page h4{
+    margin-bottom:15px;
+}
+.step-page .move{
+    position:absolute;
+    bottom:20px;
+    right:30px;
+}
+.step-page .prev{
+    background-image: url(/static/images/common_control/left_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .next{
+    background-image: url(/static/images/common_control/right_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .finish{
+    background-image: url(/static/images/common_control/finish.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.icon-edit{
+    color:#8DBF42 !important;
+}
+.icon-remove{
+    color:#F18101 !important;
+    margin-left:10px;
+}
+</style>
+
+<%
+    district_id = district
+    state_id = state
+    state_name = ''
+    if state_id:
+        for item in State.objects.filter(id=state_id):
+            state_name = item.name
+            break
+    community_id = community.id
+%>
+<!--Hide info and html-->
+%for course_option in courses_drop:
+    <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}">${course_option['name']}</div>
+%endfor
+<div class="sidebar-section" style="display:none">
+    <h2>Members</h2>
+    <div id="members_container" class="">
+    <table class="members-container" cellspacing="" cellpadding="" border="0">
+        <% active_users_count = 0 %>
+        %for u in users:
+            <%
+            use = u.user
+            utc_month=datetime.datetime.utcnow().strftime("%m")
+            utc_day=datetime.datetime.utcnow().strftime("%d")
+            utc_h=datetime.datetime.utcnow().strftime("%H")
+            utc_m=datetime.datetime.utcnow().strftime("%M")
+            d_min = 60*int(utc_h) + int(utc_m)
+            if use.profile.last_activity:
+                usr=use.profile.last_activity
+                u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+                close = int(d_min) - int(u_min) < 1
+                active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+            else:
+                active_recent = False   
+            %>
+            <tr><td>
+            %if not active_recent:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %else:
+                <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+            %endif
+            <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+            <span class="members-name">${use.first_name} ${use.last_name}</span></a>
+            %if active_recent:
+                <% active_users_count += 1 %>
+                <img src ="/static/images/online-3.png" data-skypename='${use.profile.skype_username}' data-fname='${use.first_name}' data-lname="${use.last_name}" data-username='${use.username}' data-email='${use.email}' data-id='${use.id}' width="" class="members-image circle"></img>
+            %endif
+            </td></tr>
+        %endfor
+    </table>
+    </div>
+</div>
+
+<!--Html page-->
+<section class="content-wrapper-community">
+    <div class="" style="margin:0 auto;width:1240px;padding-top:20px;">
+        <!--width 250 + 30 + 680 + 30 + 250 = 1240-->
+        <!--community-left-->
+        <div class="community-left">
+            <div class="sub-community-info">
+                <div class="main-name overflow-text">
+                    <a href="/maincommunity/${main_community.id}">${main_community.name}</a>
+                </div>
+                <div class="name-divide overflow-text">/</div>
+                <div class="sub-name overflow-text">${community.name}</div>
+            </div>
+            <div class="facilitator-info">
+                %if facilitator_d:
+                <div class="user-photo">
+                    <img src="${reverse('user_photo', args=[facilitator_d.user.id])}"/>
+                </div>
+                <div class="user-info">
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
+                    <div class="user-name overflow-text">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
+                    <div class="btn-facilitator">
+                        <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
+                        <div class="facilitator-triangle"></div>
+                        <div class="facilitator-menu">
+                        <div class="f-menu-triangle"></div>
+                            <div class="f-lines">
+                                %if ruser_info['edit'] or user_super:
+                                <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
+                                %endif
+                                %if ruser_info['delete'] or user_super:
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
+                                %endif
+                                %if ruser_info['default'] or user_super:
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}?main_id=${main_community.id}">Manage Users</a></div>
+                                %endif
+                            </div>
+                        </div>
+                    </div> 
+                    %else:
+                    <div class="user-name overflow-text" style="margin-top:8px;">${facilitator_d.user.first_name} ${facilitator_d.user.last_name}</div>
+                    %endif
+                </div>
+                <div class="user-email user-email-btn">
+                    <img src="/static/images/community_new/facilitator-mail-50.png" width="30"/>
+                </div>
+                %else:
+                <div class="user-photo">
+                    <img src="${reverse('user_photo', args=[0])}"/>
+                </div>
+                <div class="user-info">
+                    %if user_super or ruser_info['edit'] or ruser_info['delete']:
+                    <div class="btn-facilitator" style="margin-top:8px;">
+                        <div style="font-size:14px;color:#2CBAEC;float:left;">Facilitator</div>
+                        <div class="facilitator-triangle"></div>
+                        <div class="facilitator-menu">
+                        <div class="f-menu-triangle"></div>
+                            <div class="f-lines">
+                                %if ruser_info['edit'] or user_super:
+                                <div class="f-rights-line" onclick="return pepreg.editSubTraining(${community_id});">Edit Community</div>
+                                %endif
+                                %if ruser_info['delete'] or user_super:
+                                <div class="f-rights-line" onclick="deleteCommunity();">Delete Community</div>
+                                %endif
+                                %if ruser_info['default'] or user_super:
+                                <div class="f-rights-line"><a href="${reverse('community_mange_member',args=[community_id])}?main_id=${main_community.id}">Manage Users</a></div>
+                                %endif
+                            </div>
+                        </div>
+                    </div> 
+                    %endif
+                </div>
+                %endif
+                <div style="clear:both;"></div>
+            </div>
+            <div class="communitystatus">
+                <div class="sub-title">Community Status</div>
+                <div class="community-status">
+                    <div class="dis-count">Discussions:&nbsp;<span>${discussions_count}</span></div>
+                    <div class="members">Members:&nbsp;<span>${users.count()}</span>&nbsp;<a id="members_view_all">[view]</a></div>
+                    <div class="my-communities-all">
+                        %if subcommunities_list:
+                        <div style="font-size:14px;float:left;">Subommunities</div><div class="my-communities-triangle"></div>
+                        %else:
+                        <div style="height:16px;"></div>
+                        %endif
+                        <div style="clear:both;"></div>
+                        <div class="my-communities">
+                            %for k, sc in enumerate(subcommunities_list):
+                                %if sc['member']:
+                                    %if k + 1 == len(subcommunities_list):
+                                    <div class="joined border-zero" >
+                                    %else:
+                                    <div class="joined" >
+                                    %endif
+                                        %if sc['id'] == community_id:
+                                            <div class="overflow-text joined-now-no-newdis"><a style="cursor:auto;">${sc['name']}</a></div>
+                                        %else:
+                                            %if sc['count_new']:
+                                            <div class="overflow-text joined-title"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                            <div style="display:table-cell"><div class="discussion-count-unactive overflow-text">${sc['count_new']}</div></div>
+                                            %else:
+                                            <div class="joined-no-newdis overflow-text"><a href="/subcommunity/${sc['id']}">${sc['name']}</a></div>
+                                            %endif
+                                        %endif
+                                    </div>
+                                %else:
+                                    %if sc['id'] == community_id:
+                                        %if k + 1 == len(subcommunities_list):
+                                        <div class="unjoined-active overflow-text border-zero">
+                                        %else:
+                                        <div class="unjoined-active overflow-text">
+                                        %endif
+                                            <a style="cursor:auto;">${sc['name']}</a>
+                                        </div> 
+                                    %else:
+                                        %if k + 1 == len(subcommunities_list):
+                                        <div class="unjoined overflow-text border-zero">
+                                        %else:
+                                        <div class="unjoined overflow-text">
+                                        %endif
+                                        <a href="/subcommunity/${sc['id']}">${sc['name']}</a>
+                                    </div> 
+                                    %endif
+                                %endif
+                            %endfor 
+                            %if sc_count > sc_show_count and sc_count > 0 and sc_show_count > 0:
+                                <div class="mycommunities-seemore">
+                                    <span class="btn-seemore-mc">See More</span>
+                                </div>
+                            %endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="trending">
+                <div class="sub-title">Trending</div>
+                <div class="trendings">
+                    %for k, td in enumerate(td_list):
+                        <% 
+                            t_subject_show = td['subject']
+                            if not t_subject_show:
+                                t_subject_show = "[image/video]"
+                        %>
+                        %if k + 1 == len(td_list):
+                        <div class="every-discussion border-zero">
+                        %else:
+                        <div class="every-discussion">
+                        %endif
+                            <a href="/subcommunity/${td['hyperlink']}">
+                            <div class="discussion-subject overflow-text">${t_subject_show}</div>
+                            <div class="discussion-date">
+                                <span class="posted">Posted: </span><span class="td-postdate" postdate="${td['date_create']}"></span>
+                            </div>
+                            </a>
+                        </div>   
+                    %endfor
+                    %if discussions_count > td_show_count and discussions_count > 0 and td_show_count > 0:
+                    <div class="seemore-t">
+                        <span class="btn-seemore-t">See More</span>
+                    </div>
+                    %endif
+                </div>
+            </div>
+        </div>
+
+        <!--Main content-->
+        <div class="con-main-all" style="background-color:#fff;">
+            <div class="" style="position:relative;left:0px;top:0px;">
+                <div class="email-facilitator">
+                    <div class="email-facilitator-title">Email Facilitator</div>
+                    <textarea id="ask_expert_message" class="email-facilitator-message" placeholder="Ask a question of your community facilitator." rows="3"></textarea>
+                    <div class="email-facilitator-error"></div>
+                    <div style="margin-top:10px;text-align:right;"><span class="email-facilitator-send-btn">Send</span></div>
+                    <div class="email-facilitator-close-btn">✕</div>
+                </div>
+            </div>
+            <div class="con-main-all-top" style="border:0px solid #f00;">
+                <div class="con-main-info-outer">
+                    <table class="con-main-info" width="100%" height="130" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                            <td width="115" style="vertical-align:middle;">
+                                <img src="${get_file_url(community.logo)}" alt="Community Logo" width="100" />
+                            </td>
+                            <td width="340" style="vertical-align:middle;">
+                                <div class="con-main-info-subject overflow-text">${community.name}</div>
+                                <div class="con-main-info-motto overflow-text-wrap">${community.motto}</div>
+                            </td>
+                            <td>
+                                <div style="height:102px;">
+                                    <div class="top-activeusers-count">${d_top5_view_count}</div>
+                                    <div class="top-activeusers-ico">
+                                        <span class='icon-aw icon-eye-open'></span>
+                                    </div>
+                                    <div class="top-like-count">${likes_count}</div>
+                                    <div class="top-like-ico">
+                                        <span class='icon-aw icon-thumbs-up'></span>
+                                    </div>
+                                    <div class="top-chat-count">${d_and_r_count}</div>
+                                    <div class="top-chat-ico">
+                                        <span class='icon-aw icon-comments'></span>
+                                    </div>  
+                                </div>
+                                <div style="text-align:right;">
+                                    %if ruser_info['is_member']:
+                                        %if not ruser_info['facilitator']:
+                                            <span id="btn-leave" onclick="leaveCommunity()">Member</span>
+                                        %else:
+                                            <span id="btn-leave-facilitator">Member</span>
+                                        %endif
+                                    %else:
+                                        %if not community.private and is_main_member:
+                                            <span id="btn-join" onclick="joinMe()">Join</span>
+                                        %endif
+                                    %endif
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <%include file="community_new_center.html" /> 
+        </div>
+        
+        <!--community-right-->
+        <div class="community-right">
+            <div class="resources">
+                <div class="sub-title">Resources</div>
+                <div class="community-resources">
+                    <% 
+                        resource_show_count = 4
+                        course_count = 0 
+                    %>
+                    %for i, cc in enumerate(courses):
+                        <%
+                            if i > 3:
+                                break
+                            endif
+                        %>
+                        <%  course_count = i + 1 %>
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
+                    <% resource_count = resource_show_count - course_count %>
+                    %for k, resource in enumerate(resources_list):
+                        <%
+                            if k > resource_count - 1:
+                                break
+                            endif
+                        %>
+                        <div class="community-resource-tab">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
+                        </div>
+                    %endfor
+                    %if re_count + courses.count() > resource_show_count > 0:
+                        <div class="resources-seemore">
+                            <span class="btn-seemore-r">See More</span>
+                        </div>
+                    %endif
+                </div>
+                <div class="community-resources-all">
+                    %for i,cc in enumerate(courses):
+                        <% c=course_from_id(cc.course) %>
+                        <%include file="../course_community.html" args="course=c" />
+                    %endfor
+                    %for k, resource in enumerate(resources_list):
+                        <div class="community-resource-tab">
+                            <img src="${resource['logo']}" alt="${resource['name']}" />
+                            <a href="${resource['link']}" target="_blank">
+                                <div>
+                                    ${resource['name']}
+                                </div>
+                            </a>
+                        </div>
+                    %endfor
+                </div>
+            </div>
+        </div>
+
+        <div style="clear:both;"></div>
+    </div>
+</section>
+
+<!--Windows modal-->
+<div id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div id="dlg-members" class="modal modal-members">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar" style="text-align:center;">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="online_dialog" class="modal modal-members-sendmessage">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+        <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+        <div style="display:inline-block;vertical-align:top;">
+            <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
+            <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
+        </div>
+        <br><br>
+        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+            <div class="message_board_btn" id="message_board_data" data-fullname="" data-name="${user.username}" data-id="${user.user_id}" onclick="imessage_click(this);">
+                <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                <div id="" style="display:none;"></div>
+            </div>
+        </a>
+    </div>
+  </div>
+</div>
+<div id="dlg-warning" class="modal bootstrap-iso" style="width:500px;margin-left:-250px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+    </div>
+</div>
+<div id="dlg-upload_picture" class="modal bootstrap-iso" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div style="padding:10px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;">
+            <div class="am-modal-dialog up-frame-parent up-frame-radius">
+                <div class="am-modal-bd  up-frame-body">
+                    <div class="am-g am-fl">
+                        <div class="am-form-group am-form-file">
+                            <input type="file" id="inputImage">
+                        </div>
+                    </div>
+                    <div class="am-g am-fl" >
+                        <div class="up-pre-before up-frame-radius">
+                            <img alt="" src="" id="image" >
+                        </div>
+                        <div class="up-pre-after up-frame-radius">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="up-control-btns" style='float:left;margin-left: 20px;margin-top:5px;'>
+                <button class="am-icon-rotate-left"  onclick="rotateimgleft()">turnleft</button>
+                <button class="am-icon-rotate-right" onclick="rotateimgright()">turnright</button>
+                <button class="am-icon-check" id="up-btn-ok">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div  id="dlg-add-training" class=" modal bootstrap-iso" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <!-- <div class="titlebar">
+        <h3 class="dialog-title">Add Training</h3>
+        <div class="close-modal" id="dialog_close">✕</div>
+        </div> -->
+        <input type="hidden" name="id" value=""/>
+        <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
+            <div class="" style="width:100%;height:100%;overflow:hidden;">
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Subcommunity: Step 1 of 5</h5>
+                        <h4>General Information</h4>
+                        <div class="form-row">
+                            <label id="community-name">
+                                <span>Name:</span></br>
+                                <input type="text" name="name" value="" placeholder="The name of the subcommunity">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label id="community-motto">
+                                <span>Description (Motto):</span></br>
+                                <input type="text" name="motto" value="" placeholder="A description or motto for this Subcommunity">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label id="community-logo">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <div id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value=""></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Subcommunity: Step 2 of 5</h5>
+                        <h4>Organization Information</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            %if request.user.is_superuser:
+                                <label id="community-state"><span>Select State:</span></br>
+                                    <select id="state-dropdown" name="state-dropdown"></select>
+                                </label>
+                            %else:
+                                <label id="community-state"><span>Select State:</span>
+                                    <select id="state-dropdown" name="state-dropdown"></select>
+                                </label>
+                            %endif
+                        </div>
+                        <div class="form-row" style="font-size:12px;margin-top:50px;">
+                            %if request.user.is_superuser:
+                                <label id="community-district"><span>Select District:</span></br>
+                                    <select id="district-dropdown" name="district-dropdown" style="min-width:100px;"></select>
+                                </label>
+                            %else:
+                                <label id="community-district"><span>Select District:</span>
+                                    <select id="district-dropdown" name="district-dropdown" style="min-width:100px;"></select>
+                                </label>
+                            %endif
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Subcommunity: Step 3 of 5</h5>
+                        <h4>Add Courses</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <label><span>courses:</span></label></br>
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-courses">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Subcommunity: Step 4 of 5</h5>
+                        <h4>Add resources</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <label><span>Resources:</span></label></br>
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-resources">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Subcommunity: Step 5 of 5</h5>
+                        <h4>Add/Remove Facilitators</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
+                                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                    <thead>
+                                        <tr>
+                                            <th width="30"></th>
+                                            <th width="70" style="text-align:center;">Default</th>
+                                            <th align="center">Email</th>
+                                            <th width="90" style="text-align:center;">Edit</th>
+                                            <th width="90" style="text-align:center;">Delete</th>
+                                            <th width="130" style="text-align:center;">Receive Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="community_facilitators_list">
+                                        <!--
+                                        <tr>
+                                            <td></td>
+                                            <td style='text-align:center;'><input name='default' type='radio' value='' /></td>
+                                            <td>edutest11@hotmail.com</td>
+                                            <td style='text-align:center;'><input name='edit' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='receive' type='checkbox' value='' /></td>
+                                        </tr>
+                                        -->
+                                    </tbody>    
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-row" style="font-size:14px;">
+                            <i>Select a <b>Subcommunity Facilitator</b> by searching email (start typing and select email of
+                                <b>Facilitator</b>):</i>
+                            <div style="margin:5px 0 5px 0;">
+                                <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
+                                <input type="button" name="" value="Add" class="btn-add-facilitator" style="color:#fff !important;"/>
+                            </div>
+                            <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //email facilitator
+    $(".user-email-btn").click(function(){
+        $(".email-facilitator-error").hide();
+        $(".email-facilitator").fadeToggle("fast");
+    });
+    $(".email-facilitator-close-btn").click(function(){
+        $(this).parent().fadeOut("fast");
+    });
+    $(".email-facilitator-send-btn").click(function(){
+        var community_id = "${community_id}";
+        var subject = "${community.name} Community Question from ${request.user.first_name} ${request.user.last_name}";
+        var message = $(".email-facilitator-message").val().trim();
+        if(message ==  ""){
+            return;
+        } 
+        
+        $.post("${reverse('community_email_facilitator')}", {'community_id': community_id, 'subject': subject, 'message': message}, function(data){
+                $(".email-facilitator-error").text(data.result);
+                $(".email-facilitator-error").show();
+                $(".email-facilitator-message").val("");
+        }); 
+    });
+
+    //menu facilitator
+    $(".btn-facilitator").click(function(){
+        $(".facilitator-menu").toggle("fast");
+    });
+    $(".btn-facilitator").mouseleave(function(){
+        $(".facilitator-menu").hide("fast");
+    });
+    
+    //coummunity status view
+    $("#members_view_all").click(function(e){
+        e.preventDefault();
+        var members_dialog = new Dialog($('#dlg-members'));
+        members_dialog.show('Members', $("#members_container").html());
+        $(".circle").click(function(event){
+            event.preventDefault();
+            scroll(0,0);
+            $(".hangout-span").hide();
+            $("#hangout_span_"+$(this).data('id')).show();
+            $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
+            $("#skype-online-name").text("");
+            $("#skype-name-exists").text("Begin a call with: ");
+            $("#skype-name-exists-toggle").show();
+            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("data-id"));
+            $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
+            $("#message_board_data").attr("data-name", $(this).attr("data-username"));
+            $("#message_board_data").attr("data-id", $(this).attr("data-id"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }            main_dlg=new Dialog($('#online_dialog'));
+            main_dlg.show("Error", "");
+            return false;
+        });
+    })
+
+    $("#btn-leave").mouseenter(function(){
+        $(this).html("Leave");
+    });
+    $("#btn-leave").mouseleave(function(){
+        $(this).html("Member");
+    });
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        var maincommunity_id = ${main_community.id};
+        $.post("${reverse('community_join', args=[community_id])}",{user_ids: user_id, maincommunity_id: maincommunity_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+
+    function leaveCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('community_leave',args=[community_id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                       window.location.replace("${reverse('subcommunity', args=[community_id])}");
+                       //window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       //return redirect(reverse('dashboard'));
+                });
+            }
+        });
+    }
+
+    //members modal send web inner message btn
+    function imessage_click(obj){
+        var userInfo=[];
+        userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
+        message_board(userInfo);
+    }
+
+    //resources see more btn
+    $(".btn-seemore-r").click(function(){
+        $(".community-resources").hide();
+        $(".community-resources-all").show();
+    });
+
+    //my status get subcommunities
+    function get_subcommunities_ajax(community_id){
+        var updata = {'community_id': community_id};
+        $.post("${reverse('get_subcommunities')}", updata, function (d) {
+            if(d.success){
+                var html = '';
+
+                for(var i=0;i<d.subcommunities.length;i++){
+                    if(d.subcommunities[i].member){
+                        if(i+1==d.subcommunities.length){
+                            html += '<div class="joined border-zero">';
+                        }
+                        else{
+                            html += '<div class="joined">';
+                        }
+                        if(d.subcommunities[i].id==${community_id}){
+                            html += '<div class="overflow-text joined-now-no-newdis">';
+                            html += '<a style="cursor:auto;">'+d.subcommunities[i].name+'</a></div>';
+                        }
+                        else{
+                            if(d.subcommunities[i].count_new){
+                                html += '<div class="overflow-text joined-title">';
+                                html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a></div>';
+                                html += '<div style="display:table-cell">';
+                                html += '<div class="discussion-count-unactive overflow-text">'+d.subcommunities[i].count_new+'</div></div>';
+                            }
+                            else{
+                                html += '<div class="joined-no-newdis overflow-text">'; 
+                                html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
+                                html += '</div>';
+                            }
+                        }
+                         html += '</div>'; 
+                    }
+                    else{
+                        if(d.subcommunities[i].id==${community_id}){
+                            if(i+1==d.subcommunities.length){
+                                html += '<div class="unjoined-active overflow-text border-zero">'; 
+                            }
+                            else{
+                                html += '<div class="unjoined-active overflow-text">'; 
+                            }
+                            html += '<a style="cursor:auto;">'+d.subcommunities[i].name+'</a>';
+                        }
+                        else{
+                            if(i+1==d.subcommunities.length){
+                                html += '<div class="unjoined overflow-text border-zero">'; 
+                            }
+                            else{
+                                html += '<div class="unjoined overflow-text">'; 
+                            }
+                            html += '<a href="/subcommunity/'+d.subcommunities[i].id+'">'+d.subcommunities[i].name+'</a>';
+                        }
+                        html += '</div>';  
+                    }
+                }
+                $('.my-communities').html(html);
+            }
+        });
+    }
+    //my status subcommunities see more btn
+    $(".btn-seemore-mc").click(function(){
+        $(this).hide();
+        get_subcommunities_ajax(${main_community.id});
+    });
+
+
+    //get trending
+    function get_trending_ajax(community_id){
+        var updata = {'community_id': community_id};
+        $.post("${reverse('get_trending')}", updata, function (d) {
+            if(d.success){
+                var html = '';
+                for(var i=0;i<d.trending.length;i++){
+                    if(i+1==d.trending.length){
+                        html += '<div class="every-discussion border-zero">';
+                    }
+                    else{
+                        html += '<div class="every-discussion">';
+                    }
+                    html += '<a href="/maincommunity/'+d.trending[i].hyperlink+'">';
+                    html += '<div class="discussion-subject overflow-text">'+d.trending[i].subject+'</div>';
+                    html += '<div class="discussion-date">';
+                    html += '<span class="posted">Posted: </span>';
+                    html += '<span class="td-postdate">'+time_to_local(d.trending[i].date_create)+'</span>';
+                    html += '</div></a></div>';
+                }
+                $('.trendings').html(html);
+            }
+        });
+    }
+    //trending see more btn
+    $(".btn-seemore-t").click(function(){
+        $(this).hide();
+        get_trending_ajax(${community_id});
+    });
+
+    function deleteCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Delete Community", "Are you sure delete this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('subcommunity_delete_new',args=[community_id])}",{},function(r){
+                    if(r.success){
+                        window.location.replace("${reverse('maincommunity', args=[main_community.id])}");
+                    }
+                    else{
+                        var dlg = new Dialog($("#dlg-warning"));
+                        var dailogTitle = "Warning";
+                        var dailogText = "Problem Deleting Community: " + r.error + ".";
+                        dlg.show(dailogTitle, dailogText);
+                    }
+                });
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+    function newCourse() {
+        var course_num = $('.community-course').length;
+        $('.community-course').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+        var entry = '<div class="community-course"><select name="course[' + course_num + ']"><option value="">Select a Course</option>';
+        %for course_option in courses_drop:
+            entry += '<option value="${course_option['id']}">${course_option['number']} | ${course_option['name'].replace("'", r"\'")}</option>';
+        %endfor
+        entry += '</select><input type="button" class="add operation" value="+" onclick="newCourse()"></div>';
+        $('#community-courses').append(entry);
+    }
+
+    function removeCourse(index) {
+        $('.community-course').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('select').attr('name', 'course[' + num + ']');
+            }
+        });
+        $('.community-course .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+    }
+
+    function newResource() {
+        var resource_num = $('.community-resource').length;
+        $('.community-resource').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
+        var entry = '<div class="community-resource">';
+        entry += '<input class="resource-name" type="text" name="resource_name[' + resource_num + ']" value="" placeholder="Resource name">';
+        entry += '<input class="resource-link" type="text" name="resource_link[' + resource_num + ']" value="" placeholder="Resource link">';
+        entry += '<input type="button" class="add operation" value="+" onclick="newResource()">';
+        entry += '<div><div class="resource-logo-label">Logo:</div><input class="resource-logo typelogo" type="file" name="resource_logo[' + resource_num + ']" id="resource_logo[' + resource_num + ']"></div>';
+        $('#community-resources').append(entry);
+    }
+
+    function removeResource(index) {
+        $('.community-resource').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('.resource-link').attr('name', 'resource_link[' + num + ']');
+                $(this).children('.resource-name').attr('name', 'resource_name[' + num + ']');
+                //$(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('id', 'resource_logo[' + num + ']');
+            }
+        });
+        $('.community-resource .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
+    }
+</script>
+<script type="text/javascript">
+    function PepReg($content) {
+        var self = this;
+        this.$content = $content;
+        //this.initContent();
+        this.formdata = '';
+        this.community_id = '';
+        this.courses_drop = new Array();
+        $('.coursesdropdata').each(function(){
+            var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
+            self.courses_drop.push(course_option);
+        });
+    }
+
+    PepReg.prototype.editSubTraining = function (id) {
+        var self = this;
+        $.post("${reverse('get_edit_community')}", {id: id}, function (d) {
+            
+            self.initForm(d, function (data) {
+                if (einfo = self.validateAllPage(data)) {
+                    self.warning(einfo.error[1], self.dlgForm);
+                    self.steps.switchTo(einfo.id);
+                    return;
+                } 
+                self.createFormdata(data);
+                
+                $.ajax({
+                    url: "${reverse('community_edit_process_new')}",
+                    type: 'POST',
+                    success: function(r){
+                        console.log("ajax ok");
+                        //$("#dlg-add-training").hide();
+                        //$(".lean-overlay").hide();
+                        window.location.href = "/subcommunity/" + r.community_id;
+                    },
+                    error: function(r){},
+                    // Form data
+                    data: self.formdata,
+                    //Options to tell JQuery not to process data or worry about content-type
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        });
+    };
+
+    PepReg.prototype.initForm = function (data, finishCallback) {
+        var self = this;
+        var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
+        dlg.show();
+        var steps = this.steps = new StepsForm($("#dlg-add-training"),
+                ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262"]); //"#F18200"
+        // ************* add dlg close button to each step
+        $("#dlg-add-training").find(".close-modal").remove();
+        $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(0)")).click(function () {//style='right:-50px;'
+            dlg.hide();
+        });
+
+        $('.community-error-box').removeClass('community-error-box');
+        // ************* before switch to another page
+        steps.onBeforeSwitch = function (curr, dest) {
+            var $content = this.getContent(curr);
+            
+            var data = self.getInput();
+            if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
+                return self.warning(error[1], self.dlgForm);
+            }
+            //akogan
+            if ( dest > -1 ){
+                $(".step-page .close-modal").remove();
+                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                    dlg.hide();
+                });
+            }
+            return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
+        };
+        // ************* when finish form
+        steps.onFinish = function () {
+            console.log("finish==============");
+            finishCallback && finishCallback(self.getInput());
+        };
+        // ************* unlock all pages when editing
+        if (data) {
+            steps.unlockAll();
+            self.fillData(data);
+        } else {
+            self.clearData();
+        }
+         
+        // ************* btn upload Picture
+        $("#edit_photo").click(function(){
+            self.upload_picture("", self.dlgForm);
+        });
+        
+        // ************* input facilitators
+        $(".btn-add-facilitator").unbind("click").bind("click", function () {
+            var email = $("#complete-email").val();
+            $.get("${reverse('subcommunity_user_email_valid')}", {email: email, main_id: '${main_community.id}'}, function (result) {
+                if (result.success){
+                    self.addFacilitator(email);
+                    $("#complete-email").val("");
+                } 
+                else{
+                    self.warning(result.info, self.dlgForm);
+                }
+            });
+        });
+
+        $('#community-logo .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
+            var content = '<span>Logo </span><span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br><span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span><input type="hidden" name="logo" id="logo">';
+            //$('#community-logo').replaceWith(content);
+            $('#community-logo').html(content);
+            $("#edit_photo").click(function(){
+                self.upload_picture("", self.dlgForm);
+            });
+        });
+
+        $('.community-resource .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
+            var name = $(this).siblings('.community-resource-logo').attr('name');
+            var content = '<input class="resource-logo typelogo" type="file" name="' + name + '" id="' + name + '">';
+            $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+        });
+        return steps;
+    };
+
+    PepReg.prototype.repeatFacilitator = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
+            var email = $(this).find("td").eq(2).text();
+            ar.push(email);
+        });
+        return ar;
+    };
+
+    PepReg.prototype.addFacilitator = function (email) {
+        if(email){
+            var curr = this.repeatFacilitator();
+            if(curr.indexOf(email) < 0){
+                var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
+                var data_have = $("#community_facilitators_list").find("tr").html();
+                if(!data_have){
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value='0' checked='checked' /></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                }
+                else{
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value=''/></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value=''/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value=''/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value=''/></td>");
+                }
+                var tmp_td2 = $("<td>" + email + "</td>");
+                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
+                $("#community_facilitators_list").append(tmp_tr);
+
+                tmp_tr.find("a").click(function(e){
+                    e.preventDefault();
+                    $(this).parent().parent().remove();
+                });
+
+                tmp_tr.find("input[name=default]").click(function(){
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                    $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                    $(this).attr("value","0");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
+                });
+            }
+        }
+    }
+    PepReg.prototype.getFacilitators = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
+            var defalut = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+            var email = $(this).find("td").eq(2).text();
+            var can_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            var can_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
+            var can_receive = ($(this).find("input").eq(3).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete + "::" + can_receive);
+        });
+        return ar;
+    };
+
+    PepReg.prototype.getCourses = function () {
+        //get courses exclude repeat
+        var courses = [];       
+        $("#community-courses").find("select").each(function () {
+            var course_id = $(this).val();
+            if(course_id){
+                courses.push(course_id); 
+            }
+        });
+        if(courses){
+            var result = [], hash = {};
+            for (var i = 0, elem; (elem = courses[i]) != null; i++){
+                if (!hash[elem]){
+                    result.push(elem);
+                    hash[elem] = true;
+                }
+            }
+            courses = result;
+        }
+        return courses;
+    };
+    PepReg.prototype.getResource_names = function () {
+        var resource_names = [];       
+        $("#community-resources").find(".resource-name").each(function () {
+            var name = $(this).val();
+            resource_names.push(name); 
+        });
+        return resource_names;
+    };
+
+    PepReg.prototype.getResource_links = function () {
+        var getResource_links = [];       
+        $("#community-resources").find(".resource-link").each(function () {
+            var link = $(this).val();
+            getResource_links.push(link); 
+        });
+        return getResource_links;
+    };
+
+    PepReg.prototype.getInput = function () {
+        var $form = $("#dlg-add-training");
+        var json = {
+            community_id: '${community_id}',
+            main_community_id: '${main_community.id}',
+            name: $form.find("input[name=name]").val(),
+            motto: $form.find("input[name=motto]").val(),
+            logo: $form.find("input[name=logo]").val(),
+            private: ($form.find("input[name=private]").is(":checked")) ? "1" : "0",
+            state: $form.find("select[name=state-dropdown]").val(),
+            district: $form.find("select[name=district-dropdown]").val(),
+            courses: this.getCourses().join(","),
+            resource_names: this.getResource_names().join(","),
+            resource_links: this.getResource_links().join(","),
+            facilitators: this.getFacilitators().join(",")
+        };
+        return json;
+    };
+    
+    PepReg.prototype.createFormdata = function (data, main_community_id) {
+        var self = this;
+        var jsondata = data;
+        self.formdata = null;
+        self.formdata = new FormData();
+        for(var k in jsondata){
+            if(main_community_id && main_community_id !== undefined && k=="community_id"){
+                self.formdata.append(k, 'new');
+                self.formdata.append('main_community_id', main_community_id);
+            }
+            else{
+                self.formdata.append(k, jsondata[k]);
+            }
+        }
+        
+        $("#community-resources").find(".typelogo").each(function (i) {
+            var id = $(this).attr("id");
+            var name = $(this).attr("name");
+            var type = $(this).attr("type");
+            
+            if(type == 'file'){
+                var fileObj = document.getElementById(id).files[0];
+                if(fileObj){
+                    self.formdata.append(name, fileObj);
+                } 
+                else{
+                    self.formdata.append(name, '');
+                }
+            }
+            else{
+                self.formdata.append(name, $(this).val());
+            }
+        });
+    };
+
+    PepReg.prototype.fillData = function (data) {
+        var self = this;
+        data = data || {};
+        var $form = $("#dlg-add-training");
+        //------------step1------------
+        //name
+        $form.find("input[name=name]").val(data.name);
+        //motto
+        $form.find("input[name=motto]").val(data.motto);
+        //logo
+        var logo_html = '';
+        if(data.logo){
+            logo_html = '<span style="display:block;margin-bottom:2px;">Logo: </span>';
+            logo_html += '<img class="community-logo-thumb" src="' + data.logo + '"><input type="hidden" name="logo" value="' + data.logo + '">';
+            logo_html += '<a href="#" class="remove"></a>';
+        }
+        else{
+            logo_html = '<span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br>';
+            logo_html += '<span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span>';
+            logo_html += '<input type="hidden" name="logo" id="logo">';
+        }
+        $("#community-logo").html(logo_html);
+        //private group
+        if(data.private){
+            $form.find("input[name=private]").prop('checked', true);
+        }
+        else{
+            $form.find("input[name=private]").prop('checked', false);
+        }
+
+        //------------step2------------
+        //state
+        if(data.state){
+            $("#state-dropdown option[value='" + data.state + "']").attr("selected" ,true);
+            if(data.district){
+                $("#state-dropdown").trigger('change',data.district);
+            }
+            else{
+                $("#state-dropdown").trigger('change','');
+            }
+        }
+        else{
+            //$("#state-dropdown option[value='']").attr("selected" ,true);
+        }
+
+        //------------step3------------
+        //courses
+        var courses_html = '';
+        for(var i=0;i<data.courses.length;i++){
+            courses_html += '<div class="community-course">'
+            courses_html += '<select name="course[' + i + ']">';
+            courses_html += '<option value="">Select a Course</option>';
+            for(var j=0;j<this.courses_drop.length;j++){
+                if(this.courses_drop[j].id == data.courses[i]){
+                   courses_html += '<option value="'+this.courses_drop[j].id+'" selected="selected">'+this.courses_drop[j].number+' | '+this.courses_drop[j].name+'</option>';   
+                }
+                else{
+                    courses_html += '<option value="'+this.courses_drop[j].id+'">'+this.courses_drop[j].number+' | '+this.courses_drop[j].name+'</option>';   
+                }
+            }
+            courses_html += '</select>';
+            courses_html += '<input type="button" class="add operation" value="+" onclick="newCourse()">';
+            courses_html += '</div>'
+        }
+        $("#community-courses").html(courses_html);
+
+        //------------step4------------
+        //resources
+        var r_html = '';
+        for(var i=0;i<data.resources.length;i++){
+            r_html += '<div class="community-resource">';
+            r_html += '<input class="resource-name" type="text" name="resource_name['+i+']" value="'+data.resources[i].name+'" placeholder="Resource name">';
+            r_html += '<input class="resource-link" type="text" name="resource_link['+i+']" value="'+data.resources[i].link+'" placeholder="Resource link">';
+            r_html += '<input type="button" class="add operation" value="+" onclick="newResource()"/>';
+            r_html += '<div>';
+            r_html += '<div class="resource-logo-label">Logo:</div>';
+            if(data.resources[i].logo){
+                r_html += '<div class="community-resource-logo-wrap" style="position:relative;">';
+                r_html += '<img src="'+data.resources[i].logo+'" class="community-resource-logo-thumb">';
+                r_html += '<input class="community-resource-logo typelogo" type="hidden" name="resource_logo['+i+']" value="'+data.resources[i].logo_id+'" id="resource_logo['+i+']">';
+                r_html += '<a href="#" class="remove"></a>'; 
+                r_html += '</div>';
+            }
+            else{
+               r_html += '<input class="resource-logo typelogo" type="file" name="resource_logo['+i+']" id="resource_logo['+i+']">'; 
+            }
+            r_html += '</div>';
+            r_html += '</div>';
+        }
+        $("#community-resources").html(r_html);
+        
+        //------------step5------------
+        //facilitators
+        $("#community_facilitators_list").html("");
+        for(var i=0;i<data.facilitators.length;i++){
+            var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
+            var tmp_td1, tmp_td3, tmp_td4, tmp_td5 = '';
+            var input_lock = '';
+            if(data.facilitators[i].default){
+                input_lock = 'disabled';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value='0' checked='checked'/></td>");
+            }
+            else{
+                input_lock = '';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value=''/></td>");
+            }
+
+            if(data.facilitators[i].edit){
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].delete){
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].receive){
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+            var tmp_td2 = $("<td>" + data.facilitators[i].email + "</td>");
+            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
+            $("#community_facilitators_list").append(tmp_tr);
+
+            tmp_tr.find("a").click(function(e){
+                e.preventDefault();
+                $(this).parent().parent().remove();
+            });
+
+            tmp_tr.find("input[name=default]").click(function(){
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                $(this).attr("value","0");
+                $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
+            });
+        }
+    };
+
+    PepReg.prototype.clearData = function () {
+        var empty = {'name': '', 
+                     'motto': '', 
+                     'logo': '', 
+                     'private': false, 
+                     'state': '', 
+                     'district': '',
+                     'courses': [''],
+                     'resources': [{'name': '', 'link': '', 'logo': ''}],
+                     'facilitators': []};
+        this.fillData(empty);
+    };
+
+    PepReg.prototype.validatePage = function (page, data) {
+        $('.community-error-box').removeClass('community-error-box');
+        
+        if (page == 0) {
+            if (!data.name) {
+                $('#community-name input').addClass('community-error-box');
+                return ["name", "Subcommunity Name is required."];
+            }
+            else if(!/[A-Za-z]/.test(data.name)){
+                $('#community-name input').addClass('community-error-box');
+                return ["name", "Subcommunity Name format wrong."];
+            }
+        }
+        else if (page == 1) {
+        } 
+        else if (page == 2) {
+        } 
+        else if (page == 3) {
+        }  
+        else if(page == 4){
+            var facilitator = $("#community_facilitators_list").find("tr").html();
+            if(!facilitator){
+               return ["facilitator", "You must add at least one facilitator."];
+            }
+            else{
+                var facilitators_info = this.getFacilitators();
+                var default_sum = 0;
+                var edit_sum = 0;
+                for(var i=0;i<facilitators_info.length;i++){
+                    var check_info = facilitators_info[i].split("::");
+                    var default_f = parseInt(check_info[1]);
+                    var can_edit = parseInt(check_info[2]);
+                    default_sum += default_f;
+                    edit_sum += can_edit;
+                }
+                if(default_sum == 0){
+                    return ["facilitator", "Community need a default facilitator."];
+                }
+                else if(edit_sum == 0){
+                    return ["facilitator", "At least one facilitator need edit privilege."];
+                }
+            }
+        }
+    };
+
+    PepReg.prototype.validateAllPage = function (data) {
+        var self = this;
+        var r = null;
+        $("#dlg-add-training").find(".step-page").each(function (i) {
+            if (error = self.validatePage(i, data)) {
+                r = {id: i, error: error};
+            }
+        });
+        return r;
+    };
+
+    PepReg.prototype.warning = function (s, dlgFlyOn) {
+        var self = this;
+        if (dlgFlyOn){
+            dlgFlyOn.hideOverlay();
+        }
+        var dlg = new Dialog($("#dlg-warning"));
+        if(s && s.indexOf("Thank you")===0){
+            dailogTitle = "Confirmation";
+        }else{
+            dailogTitle = "Warning";
+        }
+        dlg.show(dailogTitle, s);
+        dlg.lift(100);
+        $("#dlg-warning").bind("hide", function () {
+            $(this).unbind('hide');
+            if (dlgFlyOn){
+                dlgFlyOn.showOverlay();
+            }
+        });
+    };
+
+    PepReg.prototype.upload_picture = function (s, dlgFlyOn) {
+        $(".lean-overlay").remove();
+        var self = this;
+        if (dlgFlyOn){
+            dlgFlyOn.hideOverlay();
+        }
+        var dlg = new Dialog($("#dlg-upload_picture"));
+        dailogTitle = "Add Profile Picture";
+        dlg.show(dailogTitle, s);
+        dlg.lift(100);
+        $("#dlg-upload_picture").bind("hide", function () {
+            $(this).unbind('hide');
+            if (dlgFlyOn){
+                dlgFlyOn.showOverlay();
+            }
+        });
+    };
+
+    $("#up-btn-ok").click(function(){
+        $("#dlg-upload_picture").hide();
+        $(".lean-overlay").remove();
+    });
+</script>
+<script type="text/javascript">
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        var displayDate = ""
+
+        if(isToday(time)) {
+            displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //** init controller
+        //window.pepreg = new PepReg($(".expand_div").eq(0));
+        window.pepreg = new PepReg();
+
+        //Format Trending posted date
+        $(".td-postdate").each(function(){
+            var postdate = $(this).attr('postdate');
+            if(postdate){
+                $(this).html(time_to_local(postdate));
+            }
+        });
+
+        %if user_super:
+            var access_level = 'System';
+        %else:
+            var access_level = 'Notsystem';
+        %endif
+
+        var state_id = "${state_id}";
+        var district_id = "${district_id}";
+        var state_name = "${state_name}"
+        $.get('${reverse('pepper_utilities_drop_states')}', {'access_level': access_level},function (data) {
+            // Build the options.
+            var options = '<option value=""></option>';
+            $.each(data, function (index, object) {
+                options += '<option value="' + object.id+ '"';
+                if (object.id == state_id) {
+                    options += ' selected';
+                }
+                options += '>' + object.name + '</option>';
+            });
+            // Add them to the state dropdown.
+            $('#state-dropdown').append(options);
+            if(state_id){
+                if(!$("#state-dropdown option[value='" + state_id + "']").val()){
+                    options = "<option value ='" + state_id + "'>" + state_name + "</option>";
+                    $('#state-dropdown').append(options);
+                }
+            }
+
+            $("#state-dropdown").change(function (e,d_id) {
+                if ($(this).val()) {
+                    // Clear the current district and school options since the state changed.
+                    $('#district-dropdown option').remove();
+                    // Get the allowed Districts
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
+                        var content = '<option value=""></option>';
+                        $.each(data, function (index, object) {
+                            content += '<option value="' + object.id + '"';
+                            if(d_id){
+                               if (object.id == d_id) {
+                                    content += ' selected';
+                                } 
+                            }
+                            else{
+                                if (object.id == district_id) {
+                                    content += ' selected';
+                                }
+                            }
+                            
+                            content += '>' + object.name + '</option>';
+                        });
+                        // Add it to the form.
+                        $('#district-dropdown').append(content);
+                    });
+                }
+                else{
+                    $('#district-dropdown').html('<option value=""></option>');
+                }
+            });
+            if (state_id) {
+                $("#state-dropdown").trigger('change');
+            }
+        });
+
+        $('#complete-email').autocomplete({
+            source: function (request, response) {
+                $.getJSON('/subcommunity/user/email-completion', {q: $('#complete-email').val(), main_id: '${main_community.id}'}, response);
+            }
+        });
+
+        /*------community page------*/
+        //send message close btn in navigation
+        $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+
+        
+        $(window).on('beforeunload',function(){
+            console.log("window_close");
+            $.post("${reverse('save_last_subaccess_time')}",{community_id:${community_id}},function(r){
+                if(r.success)
+                    console.log("window_click_end");
+            });
+            //return'Your own message goes here...';
+        });
+        
+        
+        /*
+        var window_click = 0;
+        $(window).click(function(){
+            if(!window_click){
+                window_click = 1;
+                console.log("window_click");
+            }
+        });
+        //$(window).trigger("click");
+        */
+    });
+</script>
