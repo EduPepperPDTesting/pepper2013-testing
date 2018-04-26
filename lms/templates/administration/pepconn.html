@@ -1201,7 +1201,7 @@ function editUserData(id){
 
         $.post('${reverse("pepconn_get_schools_by_district")}', {
             id:user_id,
-            district_id:$("#userDistrictValue").val()
+            district:$("#userDistrictValue").val()
         }, function (r) {
             $("#userSchoolValue").empty().append(r.code);
         });
@@ -1214,7 +1214,7 @@ function editUserData(id){
             });
             $.post('${reverse("pepconn_get_schools_by_district")}', {
                 id:user_id,
-                district_id:dist_id
+                district:dist_id
             }, function (r) {
                 $("#userSchoolValue").empty().append(r.code);
             });
