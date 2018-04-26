@@ -521,7 +521,8 @@ def get_schools_by_district(request):
                     code += "<option value = '"+str(school.id)+"'>" + str(school.name)+"</option>"
             except:
                 code += "<option value = '"+str(school.id)+"'>" + str(school.name)+"</option>"
-
+    except:
+        None
     j = json.dumps({'code':code})
     return HttpResponse(j, content_type="application/json")
 
@@ -556,7 +557,7 @@ def user_get_info(request):
                     except:
                         code += "<option value = '"+str(item.id)+"' data-district='-1'>"+str(item.code)+"</option>"
 
-        code += "</select><br><br>TEST"
+        code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
             try:
