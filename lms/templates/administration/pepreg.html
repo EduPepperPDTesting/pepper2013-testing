@@ -3193,7 +3193,7 @@
                                         break;
                                     }
                                 }
-                                $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                                $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase().replace(/\s/g, "_") +"'>" + ((v.indexOf("Training") != -1) ? v.replace("Training", "").trim() : v) + "</option>");
                             });
                         }
                     });
