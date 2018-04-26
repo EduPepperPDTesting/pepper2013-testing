@@ -1198,6 +1198,7 @@ function editUserData(id){
         if($("#userCohortValue option:selected" ).attr("data-district") != id){
             $("#userSchoolValue").val("");
         }
+
         $.post('${reverse("pepconn_get_schools_by_district")}', {
             id:user_id,
             district_id:$("#userDistrictValue").val()
@@ -1213,7 +1214,7 @@ function editUserData(id){
             });
             $.post('${reverse("pepconn_get_schools_by_district")}', {
                 id:user_id,
-                district_id = dist_id
+                district_id:dist_id
             }, function (r) {
                 $("#userSchoolValue").empty().append(r.code);
             });
