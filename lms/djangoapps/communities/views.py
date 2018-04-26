@@ -442,7 +442,9 @@ def get_trending(community_id):
     c = CommunityCommunities.objects.get(id=community_id)
     posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:5]
     for tv in trending_views:
-        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+        tt = CommunityDiscussions.objects.filter(id=tv['identifier'])
+        if tt:
+            trending.append(tt[0])
     for post in posts:
         #@begin:Add special text if post has no text
         #@date:2017-06-16
