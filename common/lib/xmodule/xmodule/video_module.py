@@ -440,6 +440,10 @@ def _create_youtube_string(module):
                      if pair[1]])
 
 def parse_video_url(url, start_time=0.0, end_time=0.0):
+    if not start_time:
+        start_time = 0.0
+    if not end_time:
+        end_time = 0.0
     url = url.strip()
     source_type = ''
     source = ''
