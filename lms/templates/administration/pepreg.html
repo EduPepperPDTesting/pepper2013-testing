@@ -1947,7 +1947,6 @@
     };
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
-        self.checkLoginStatus();
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
         dlg.show();
         var steps = this.steps = new StepsForm($("#dlg-add-training"),
@@ -1959,7 +1958,6 @@
         });
         // ************* before switch to another page
         steps.onBeforeSwitch = function (curr, dest) {
-            self.checkLoginStatus();
             var $content = this.getContent(curr);
             var data = self.getInput();
             if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
@@ -1991,7 +1989,6 @@
         };
         // ************* when finish form
         steps.onFinish = function () {
-            self.checkLoginStatus();
             finishCallback && finishCallback(self.getInput());
         };
         // ************* unlock all pages when editing
@@ -2206,7 +2203,6 @@
         this.fillData(empty);
     };
     PepReg.prototype.deleteTraining = function (id) {
-        this.checkLoginStatus();
         var self = this;
         new Dialog("#dlg-warning").showYesNo("Confirm", "Are you sure you want to delete the training?", function (r) {
             this.hide();
@@ -2300,7 +2296,6 @@
         return false;
     };
 	PepReg.prototype.openCalendar = function () {
-        this.checkLoginStatus();
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_old_month = _sys_calendar_month;
@@ -2350,7 +2345,6 @@
         });
     };
     PepReg.prototype.setStudentAttended = function (student_id, training_id, yn, cb) {
-        this.checkLoginStatus();
         var self = this;
         $.post("${reverse('pepreg_set_student_attended')}", {
             student_id: student_id,
@@ -2363,7 +2357,6 @@
         });
     };
     PepReg.prototype.setStudentValidated = function (student_id, training_id, yn, cb) {
-        this.checkLoginStatus();
         var self = this;
         $.post("${reverse('pepreg_set_student_validated')}", {
             student_id: student_id,
@@ -2376,7 +2369,6 @@
         });
     };
     PepReg.prototype.deleteStudent = function (id, cb) {
-        this.checkLoginStatus();
         var self = this;
         $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
             if (r.success) {
@@ -2441,7 +2433,6 @@
     };
     PepReg.prototype.showStudents = function (training_id, google_save) {
         var self = this;
-        self.checkLoginStatus();
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
             console.log('r.success '+r.success)
             if (r.success) {
@@ -2495,12 +2486,6 @@
                     $("#send_certificate_btn").show();
                     $("#send_certificate_btn").off("click");
                     $("#send_certificate_btn").on("click", function() {
-                        $.get("${reverse('pepreg_login_status')}", function(r) {
-                            if(!r.is_authenticated) {
-                                alert("Send failure! Please login.");
-                                window.location.href = "${reverse('pepreg')}";
-                            }
-                        });
                         var send_url = "${reverse('send_completion_certificate')}?training_id=" + r.training_id;
                         $.get("${reverse('send_completion_certificate')}", {training_id: r.training_id}, function(data) {
                             if(data.success) {
@@ -3421,14 +3406,8 @@
             $("select[name=certificate]").attr("disabled", false);
         }
     }
-    PepReg.prototype.checkLoginStatus = function() {
-        $.get("${reverse('pepreg_login_status')}", function(r) {
-            if(!r.is_authenticated) {
-                window.location.href = "${reverse('pepreg')}";
-            }
-        });
-    }
     $(document).ready(function () {
+        checkLoginstatus();
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
@@ -3565,6 +3544,24 @@
         _calendar_picker_day = _sys_calendar_day;
         setPickerValue();
         calendarOpen(false)
+    }
+
+    function getCookie(cname){
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i].trim();
+            if (c.indexOf(name)==0) { return c.substring(name.length,c.length); }
+        }
+        return "";
+    }
+
+    function checkLoginstatus() {
+        setInterval(function() {
+            if(getCookie("edxloggedin") !== 'true') {
+                window.location.href = "${reverse('pepreg')}";
+            }
+        }, 1000);
     }
 </script>
 
