@@ -10,13 +10,22 @@
     from baseinfo.models import Enum
     from communities.models import CommunityCommunities, CommunityUsers
     from communities.views import user_in_community, community_in_state, community_in_district
-
+    from file_uploader.utils import get_file_url
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title"><title>Communities</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+
+<!--autocomplete-->
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/bootstrap-iso.css"/>
+<link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 
 <style type="text/css" media="screen">
 a.district-button, a.school-button, a.user-button {
@@ -231,25 +240,26 @@ div.expand_div{
 }
 .community-all{
     width:640px;
-    background-color:#e4e4e4;
     margin:auto;
     margin-top:15px;
     margin-bottom:15px;
 }
 .community-all-title{
     width:100%;
-    height:30px;
+    height:31px;
     background-color:#535456;
-    color:#fff;
-    font-size:17px;
     text-align:center;
     padding-top:10px;
 }
+.community-content{
+    background-color:#e4e4e4;
+    margin-top:5px;
+}
 .communities-column{
-    width:193px;
+    width:301px;
     float:left;
     background-color:#fff;
-    margin-left:15px;
+    margin-left:13px;
     margin-top:15px;
     margin-bottom:15px;
 }
@@ -258,7 +268,7 @@ div.expand_div{
     width:100%;
     height:30px;
     color:#fff;
-    font-size:14px;
+    font-size:15px;
     padding-top:10px;
     text-align:center;
 }
@@ -267,6 +277,42 @@ div.expand_div{
     height:500px;
     overflow-y:auto;
 }
+.my-communities-all a{
+    cursor:pointer;
+    color:#000;
+}
+/*
+.my-communities-all a:hover{
+    color:#434343;
+}
+*/
+.community-tab{
+    height:120px;width:270px;padding-top:15px;margin:auto;border-bottom:1px solid #ccc;
+}
+
+.my-communities-all :last-child .community-tab{
+    border-bottom:0px !important;
+}
+.community-tab-text{
+    float:left;width:125px;text-align:center;padding-left:5px;
+}
+.community-tab-text-title{
+    height:56px;width:130px;font-size:15px;line-height:18px;font-weight:bold;overflow:hidden;
+}
+.community-tab-text-title-cell{
+    display:table-cell;height:56px;width:130px;vertical-align:middle;text-align:center;
+}
+.community-tab-text-content{
+    height:48px;width:130px;font-size:12px;overflow:hidden;
+}
+.community-tab-image-con{
+    float:left;height:104px;width:130px;margin-left:8px;overflow:hidden;
+}
+.community-tab-image{
+   display:table-cell;vertical-align:middle;text-align:center;height:104px;width:130px; 
+}
+
+
 
 .communities-text{
     width:130px;
@@ -284,7 +330,169 @@ div.expand_div{
 .communities-text:last-child{
     border-bottom:0px !important;
 }
+/*-----------create or edit community window-----------*/
+/*-----------autocomplete-----------*/
+.ui-autocomplete .ui-state-focus,
+.acSelect {
+    padding:0;
+    background: #0000d4;
+    color: white;
+    font-weight:normal;
+}
+.ui-autocomplete {z-index: 100000 !important;}
+
+/*-----------akogan-----------*/
+.label{color: #000000 !important;}
+.switch i{ bottom: 15px !important;}
+.step-page .move{right: 25px !important;}
+.step-content{ width: 720px !important;}
+
+.form-row span{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row label{font: normal 16px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row span.label{font: 12px "Open Sans",Verdana,Geneva,sans-serif !important; color: #3c3c3c !important;padding-right: 0px !important}
+.form-row select{color: #222;}
+.form-row input{color: #222 !important;}
+.form-row textarea{color: #222 !important;}
+
+h1, h2, section.outside-app h1, h3, h4, h5, h6{font: normal 1.2em/1.2em Georgia,Cambria,"Times New Roman",Times,serif !important;}
+
+#dlg-warning{height: 210px;}
+
+/*-----------old create community -----------*/
+.community-error-box {
+    border-color: red !important;
+}
+#community-courses,#community-resources {
+    clear: both;
+    display: block;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+#community-courses input, #community-resources input {
+    /*display: block;
+    float: left;*/
+    margin: 0 20px 2px 0;
+}
+#community-resources .community-resource{
+    margin-bottom:25px !important;
+    /*border-bottom:1px solid;*/
+}
+#community-courses select {
+    display: block;
+    float: left;
+    margin: 0 20px 20px 0;
+    font-weight:bold;
+    font-style:italic;
+}
+#community-resources .add, #community-courses .add {
+    padding: 0 6px;
+    color:#fff !important;
+}
+#community-resources .minus, #community-courses .minus {
+    padding: 0 8px;
+    color:#fff !important;
+}
+.community-course, .community-resource, #community-state {
+    clear: both;
+}
+.resource-logo-label{
+    font-size:13px;
+    font-weight:bold;
+    font-style:italic;
+}
+.community-logo-thumb {
+    /*float: left;*/
+    width: 120px;
+    margin-right: 10px;
+}
+.community-resource-logo-thumb {
+    width: 120px;
+}
+.icon-edit:before {font-family:FontAwesome; }
+.icon-remove:before {font-family:FontAwesome;   }
+.icon-remove{
+    cursor:pointer;
+}
+#community-logo .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: 1.25em;
+        left: 115px;
+    }
+.community-resource-logo-wrap .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: -4px;
+        left: 115px;
+    }
+
+#community-logo {
+        display: block;
+        /*float: left;*/
+        margin: 0 0px 12px 0;
+        text-align: left;
+        /*position: relative;*/
+    }
+/*-----------create community form-----------*/
+#community-name input{
+    padding:5px 12px;
+    width:500px;
+    margin-top:5px;
+}
+
+#community-motto input{
+    padding:5px 12px;
+    max-width:650px !important;
+    width:650px;
+    margin-top:5px;
+}
+#community-private input{
+    margin-left:5px;
+    margin-top:0px;
+}
+
+.select-lock{
+    color:#ccc !important;
+    border-color:#ccc;
+}
+
+.select-lock option{
+    color:#ccc;
+}
+
+/*-----------Search box-----------*/
+div.mul-drop-button-box{
+    text-align:left;
+}
+.check-all-label{
+    display:none !important;
+}
+.list-scroll td{
+    text-align:left;
+}
+.list-scroll input{
+   display:none;
+}
+.mul-drop-button-box .item{
+    cursor:pointer !important;
+}
 </style>
+<link rel="stylesheet" href="/static/css/amazeui.cropper.css">
+<link rel="stylesheet" href="/static/css/custom_up_img.css">
+<script src="/static/js/amazeui.min.js" charset="utf-8"></script>
+<script src="/static/js/cropper.min.js" charset="utf-8"></script>
+<script src="/static/js/custom_up_img2.js" charset="utf-8"></script>
 <script>
     function fsubmit(){
         var communities = [];
@@ -296,6 +504,12 @@ div.expand_div{
         return false;
     }
 </script>
+<%
+    district_id = ''
+    state_id = ''
+    state_name = ''
+    community_id = 'new'
+%>
 <span id="organization_obj" o_name="communities"></span>
 <section class="content-wide" style="margin-top:0px;background-color:#e7e7e8;">
     <section class="communities-new" style="margin:0 auto;width:1240px;padding-top:14px;">
@@ -316,6 +530,7 @@ div.expand_div{
                     build and enhance your community of practice
                 </div>
             </div>
+            <!--
             <div class="community-find">
                 <div style="padding-top:22px;padding-left:30px;">
                     <form method="" id="community_list_form" action="">
@@ -331,57 +546,98 @@ div.expand_div{
                         </div>
                         <a href="#" class="btnx" onClick="fsubmit();" style="padding:0px 30px 0px 30px;font-size:14px;">Find</a>
                         %if request.user.is_superuser:
-                            <div style="padding-left:10px;color:#666;display:inline-block;">
-                                <span><a href="${reverse('community_add')}" style="font-size:14px;text-decoration:none;">Create a New Community</a></span>
+                            <div style="padding-left:10px;display:inline-block;">
+                                <a href="#" style="font-size:14px;color:#0A4965;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
                             </div>
                         %endif
                     </form>
                 </div>
             </div>
+            -->
             <div class="community-all">
                 <div class="community-all-title">
-                    Pepper Communities
+                    <div style="color:#fff;font-size:17px;float:left;padding-left:25px;">Pepper Communities</div>
+                    %if request.user.is_superuser:
+                        <div style="padding-left:10px;display:inline-block;">
+                            <a href="#" style="font-size:14px;color:#2CBAEC;text-decoration:none;" onclick="return pepreg.addTraining();">Create a New Community</a>
+                        </div>
+                    %endif
+                    <div style="float:right;margin-top:-4px;">
+                        <select name="subject_id" name="" autocomplate="off" class="mu" label="Search">
+                            %for community in communities:
+                                <option value="${community['id']}">${community['name']}</option>
+                            %endfor
+                        </select>
+                    </div>
                 </div>
                 <div class="community-content">
                     <div class="my-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#28bcec;">My Communities</div>
+                        <div class="my-communities-title" style="background-color:#f8801f;">My Communities</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if user_in_community(community['id'], request.user.id):
-                                    <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
-                            %endfor
+                            %endfor                         
                         </div>
                     </div>
 
                     <div class="public-communities communities-column">
-                        <div class="my-communities-title" style="background-color:#f8801f;">Public Communities</div>
+                        <div class="my-communities-title" style="background-color:#89c651;">Join a Community</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if community['private'] == 0:
-                                    <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
-                                    </div>
+                                    <a href="${reverse('maincommunity', args=[community['id']])}">
+                                        <div class="community-tab">
+                                            <div class="community-tab-text">
+                                                <div class="community-tab-text-title">
+                                                    <div class="community-tab-text-title-cell">
+                                                        ${community['name']}
+                                                    </div>
+                                                </div>
+                                                <div class="community-tab-text-content">${community['motto']}</div>
+                                            </div>
+                                            <div class="community-tab-image-con">
+                                                <div class="community-tab-image">
+                                                    <img src="${community['logo']}" height="90"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 %endif
                             %endfor
                         </div>
                     </div>
-
+                    <!--
                     <div class="my-district-communities communities-column">
                         <div class="my-communities-title" style="background-color:#89c651;">My District Communities</div>
                         <div class="my-communities-all">
                             %for community in communities:
                                 %if community_in_district(community['id'], request.user.id):
                                     <div class="communities-text">
-                                        <a href="${reverse('community_view', args=[community['id']])}">${community['name']}</a>
+                                        <a href="${reverse('maincommunity', args=[community['id']])}">${community['name']}</a>
                                     </div>
                                 %endif
                             %endfor
                         </div>
                     </div>
-
+                    -->
                     <div style="clear:both;"></div>
                 </div>
             </div>
@@ -394,6 +650,886 @@ div.expand_div{
         <div style="clear:both;"></div>
     </section>
 </section>
+%for course_option in courses_drop:
+    <div class="coursesdropdata" cid="${course_option['id']}" cnumber="${course_option['number']}" style="display:none">${course_option['name']}</div>
+%endfor
+<div class="modal bootstrap-iso" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+    </div>
+</div>
+<div class="modal bootstrap-iso" id="dlg-upload_picture" style="width:600px;margin-left:-300px;border-radius:0;height:520px;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div style="padding:10px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;">
+            <div class="am-modal-dialog up-frame-parent up-frame-radius">
+                <div class="am-modal-bd  up-frame-body">
+                    <div class="am-g am-fl">
+                        <div class="am-form-group am-form-file">
+                            <input type="file" id="inputImage">
+                        </div>
+                    </div>
+                    <div class="am-g am-fl" >
+                        <div class="up-pre-before up-frame-radius">
+                            <img alt="" src="" id="image" >
+                        </div>
+                        <div class="up-pre-after up-frame-radius">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="up-control-btns" style='float:left;margin-left: 20px;margin-top:5px;'>
+                <button class="am-icon-rotate-left"  onclick="rotateimgleft()">turnleft</button>
+                <button class="am-icon-rotate-right" onclick="rotateimgright()">turnright</button>
+                <button class="am-icon-check" id="up-btn-ok">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class=" modal bootstrap-iso" id="dlg-add-training" style="width:800px;margin-left:-400px; position: absolute; top: 120px; height:500px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <!-- <div class="titlebar">
+        <h3 class="dialog-title">Add Training</h3>
+        <div class="close-modal" id="dialog_close">✕</div>
+        </div> -->
+        <input type="hidden" name="id" value=""/>
+        <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
+            <div class="" style="width:100%;height:100%;overflow:hidden;">
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Community: Step 1 of 5</h5>
+                        <h4>General Information</h4>
+                        <div class="form-row">
+                            <label id="community-name">
+                                <span>Name:</span></br>
+                                <input type="text" name="name" value="" placeholder="The name of the community">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label id="community-motto">
+                                <span>Description (Motto):</span></br>
+                                <input type="text" name="motto" value="" placeholder="A description or motto for this community">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label id="community-logo">
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <div id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value=""></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Community: Step 2 of 5</h5>
+                        <h4>Organization Information</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            %if request.user.is_superuser:
+                                <label id="community-state"><span>Select State:</span></br>
+                                    <select id="state-dropdown" name="state-dropdown"></select>
+                                </label>
+                            %else:
+                                <label id="community-state"><span>Select State:</span>
+                                    <select id="state-dropdown" name="state-dropdown"></select>
+                                </label>
+                            %endif
+                        </div>
+                        <div class="form-row" style="font-size:12px;margin-top:50px;">
+                            %if request.user.is_superuser:
+                                <label id="community-district"><span>Select District:</span></br>
+                                    <select id="district-dropdown" name="district-dropdown" style="min-width:100px;"></select>
+                                </label>
+                            %else:
+                                <label id="community-district"><span>Select District:</span>
+                                    <select id="district-dropdown" name="district-dropdown" style="min-width:100px;"></select>
+                                </label>
+                            %endif
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Community: Step 3 of 5</h5>
+                        <h4>Add Courses</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <label><span>courses:</span></label></br>
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-courses">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Community: Step 4 of 5</h5>
+                        <h4>Add resources</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <label><span>Resources:</span></label></br>
+                            <div style="overflow-y:auto;height:320px;">
+                                <div id="community-resources">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Community: Step 5 of 5</h5>
+                        <h4>Add/Remove Facilitators</h4>
+                        <div class="form-row" style="font-size:14px;">
+                            <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;">
+                                <table width="100%" cellspacing="" cellpadding="" border="0">
+                                    <thead>
+                                        <tr>
+                                            <th width="30"></th>
+                                            <th width="70" style="text-align:center;">Default</th>
+                                            <th align="center">Email</th>
+                                            <th width="90" style="text-align:center;">Edit</th>
+                                            <th width="90" style="text-align:center;">Delete</th>
+                                            <th width="130" style="text-align:center;">Receive Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="community_facilitators_list">
+                                        <!--
+                                        <tr>
+                                            <td></td>
+                                            <td style='text-align:center;'><input name='default' type='radio' value='' /></td>
+                                            <td>edutest11@hotmail.com</td>
+                                            <td style='text-align:center;'><input name='edit' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='delete' type='checkbox' value='' /></td>
+                                            <td style='text-align:center;'><input name='receive' type='checkbox' value='' /></td>
+                                        </tr>
+                                        -->
+                                    </tbody> 
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-row" style="font-size:14px;">
+                            <i>Select a <b>Community Facilitator</b> by searching email (start typing and select email of
+                                <b>Facilitator</b>):</i>
+                            <div style="margin:5px 0 5px 0;">
+                                <input type="text" name="member" id="complete-email" autocomplete="off" style="width:200px;">
+                                <input type="button" name="" value="Add" class="btn-add-facilitator" style="color:#fff !important;"/>
+                            </div>
+                            <i>You may add more <b>Facilitators</b> after selecting the first one.</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function newCourse() {
+        var course_num = $('.community-course').length;
+        $('.community-course').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+        var entry = '<div class="community-course"><select name="course[' + course_num + ']"><option value="">Select a Course</option>';
+        %for course_option in courses_drop:
+            entry += '<option value="${course_option['id']}">${course_option['number']} | ${course_option['name'].replace("'", r"\'")}</option>';
+        %endfor
+        entry += '</select><input type="button" class="add operation" value="+" onclick="newCourse()"></div>';
+        $('#community-courses').append(entry);
+    }
 
+    function removeCourse(index) {
+        $('.community-course').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('select').attr('name', 'course[' + num + ']');
+            }
+        });
+        $('.community-course .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+    }
 
+    function newResource() {
+        var resource_num = $('.community-resource').length;
+        $('.community-resource').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
+        var entry = '<div class="community-resource">';
+        entry += '<input class="resource-name" type="text" name="resource_name[' + resource_num + ']" value="" placeholder="Resource name">';
+        entry += '<input class="resource-link" type="text" name="resource_link[' + resource_num + ']" value="" placeholder="Resource link">';
+        entry += '<input type="button" class="add operation" value="+" onclick="newResource()">';
+        entry += '<div><div class="resource-logo-label">Logo:</div><input class="resource-logo typelogo" type="file" name="resource_logo[' + resource_num + ']" id="resource_logo[' + resource_num + ']"></div>';
+        $('#community-resources').append(entry);
+    }
+
+    function removeResource(index) {
+        $('.community-resource').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('.resource-link').attr('name', 'resource_link[' + num + ']');
+                $(this).children('.resource-name').attr('name', 'resource_name[' + num + ']');
+                //$(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+                $(this).find('.resource-logo').attr('id', 'resource_logo[' + num + ']');
+            }
+        });
+        $('.community-resource .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
+    }
+</script>
+<script type="text/javascript" src="/static/js/multi-sele-dropdown/multi-sele-dropdown.js"></script>
+<link rel="stylesheet" href="/static/js/multi-sele-dropdown/css/default.css" type="text/css" media="screen" />
+<script type="text/javascript">
+    function PepReg($content) {
+        var self = this;
+        this.$content = $content;
+        //this.initContent();
+        this.formdata = '';
+        this.community_id = '';
+        this.courses_drop = new Array();
+        $('.coursesdropdata').each(function(){
+            var course_option = {"id": $(this).attr('cid'), "number": $(this).attr('cnumber'), "name": $(this).html()};
+            self.courses_drop.push(course_option);
+        });
+    }
+
+    PepReg.prototype.addTraining = function () {
+        var self = this;
+        var community_data = '';
+        var steps = self.initForm(community_data, function (data) {          
+            //submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            self.createFormdata(data);
+            /*
+            $.post("${reverse('community_edit_process_new')}", data, function (r) {
+                if (r.success) {
+                    $("#dlg-add-training").hide();
+                    $(".lean-overlay").hide();
+                    //self.reloadTable();
+                }
+            });
+            */
+            $.ajax({
+                url: "${reverse('community_edit_process_new')}",
+                type: 'POST',
+                success: function(r){
+                    console.log("ok");
+                    //$("#dlg-add-training").hide();
+                    //$(".lean-overlay").hide();
+                    window.location.href = "/newcommunities";
+                },
+                error: function(r){},
+                // Form data
+                data: self.formdata,
+                //Options to tell JQuery not to process data or worry about content-type
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        return false;
+    };
+
+    PepReg.prototype.initForm = function (data, finishCallback) {
+        var self = this;
+        var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
+        dlg.show();
+        var steps = this.steps = new StepsForm($("#dlg-add-training"),
+                ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262"]); //"#F18200"
+        // ************* add dlg close button to each step
+        $("#dlg-add-training").find(".close-modal").remove();
+        $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(0)")).click(function () {//style='right:-50px;'
+            dlg.hide();
+        });
+
+        $('.community-error-box').removeClass('community-error-box');
+        // ************* before switch to another page
+        steps.onBeforeSwitch = function (curr, dest) {
+            var $content = this.getContent(curr);
+            
+            var data = self.getInput();
+            if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
+                return self.warning(error[1], self.dlgForm);
+            }
+            //akogan
+            if ( dest > -1 ){
+                $(".step-page .close-modal").remove();
+                $("<div class='close-modal'>✕</div>").appendTo($("#dlg-add-training").find(".step-content:eq(" + dest + ")")).click(function () {
+                    dlg.hide();
+                });
+            }
+            return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
+        };
+        // ************* when finish form
+        steps.onFinish = function () {
+            console.log("finish==============");
+            finishCallback && finishCallback(self.getInput());
+        };
+        // ************* unlock all pages when editing
+        if (data) {
+            steps.unlockAll();
+            self.fillData(data);
+        } else {
+            self.clearData();
+        }
+         
+        // ************* btn upload Picture
+        $("#edit_photo").click(function(){
+            self.upload_picture("", self.dlgForm);
+        });
+        
+        // ************* input facilitators
+        $(".btn-add-facilitator").unbind("click").bind("click", function () {
+            var email = $("#complete-email").val();
+            $.get("${reverse('community_user_email_valid')}", {email: email}, function (result) {
+                if (result.success){
+                    self.addFacilitator(email);
+                    $("#complete-email").val("");
+                } 
+                else{
+                    self.warning(result.info, self.dlgForm);
+                }
+            });
+        });
+
+        $('#community-logo .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
+            var content = '<span>Logo </span><span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br><span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span><input type="hidden" name="logo" id="logo">';
+            //$('#community-logo').replaceWith(content);
+            $('#community-logo').html(content);
+            $("#edit_photo").click(function(){
+                self.upload_picture("", self.dlgForm);
+            });
+        });
+
+        $('.community-resource .remove').unbind("click").bind("click", function (e) {
+            e.preventDefault();
+            var name = $(this).siblings('.community-resource-logo').attr('name');
+            var content = '<input class="resource-logo typelogo" type="file" name="' + name + '" id="' + name + '">';
+            $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+        });
+        return steps;
+    };
+
+    PepReg.prototype.repeatFacilitator = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
+            var email = $(this).find("td").eq(2).text();
+            ar.push(email);
+        });
+        return ar;
+    };
+
+    PepReg.prototype.addFacilitator = function (email) {
+        if(email){
+            var curr = this.repeatFacilitator();
+            if(curr.indexOf(email) < 0){
+                var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
+                var data_have = $("#community_facilitators_list").find("tr").html();
+                if(!data_have){
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value='0' checked='checked' /></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value='' checked='checked' disabled='disabled'/></td>");
+                }
+                else{
+                    var tmp_td1 = $("<td style='text-align:center;'><input name='default' type='radio' value=''/></td>");
+                    var tmp_td3 = $("<td style='text-align:center;'><input name='edit' type='checkbox' value=''/></td>");
+                    var tmp_td4 = $("<td style='text-align:center;'><input name='delete' type='checkbox' value=''/></td>");
+                    var tmp_td5 = $("<td style='text-align:center;'><input name='receive' type='checkbox' value=''/></td>");
+                }
+                var tmp_td2 = $("<td>" + email + "</td>");
+                tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
+                $("#community_facilitators_list").append(tmp_tr);
+
+                tmp_tr.find("a").click(function(e){
+                    e.preventDefault();
+                    $(this).parent().parent().remove();
+                });
+
+                tmp_tr.find("input[name=default]").click(function(){
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                    $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                    $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                    $(this).attr("value","0");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                    $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
+                });
+            }
+        }
+    }
+    PepReg.prototype.getFacilitators = function () {
+        var ar = [];       
+        $("#community_facilitators_list").find("tr").each(function () {
+            var defalut = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+            var email = $(this).find("td").eq(2).text();
+            var can_edit = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            var can_delete = ($(this).find("input").eq(2).is(":checked")) ? "1" : "0";
+            var can_receive = ($(this).find("input").eq(3).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + defalut + "::" + can_edit + "::" + can_delete + "::" + can_receive);
+        });
+        return ar;
+    };
+
+    PepReg.prototype.getCourses = function () {
+        //get courses exclude repeat
+        var courses = [];       
+        $("#community-courses").find("select").each(function () {
+            var course_id = $(this).val();
+            if(course_id){
+                courses.push(course_id); 
+            }
+        });
+        if(courses){
+            var result = [], hash = {};
+            for (var i = 0, elem; (elem = courses[i]) != null; i++){
+                if (!hash[elem]){
+                    result.push(elem);
+                    hash[elem] = true;
+                }
+            }
+            courses = result;
+        }
+        return courses;
+    };
+    PepReg.prototype.getResource_names = function () {
+        var resource_names = [];       
+        $("#community-resources").find(".resource-name").each(function () {
+            var name = $(this).val();
+            resource_names.push(name); 
+        });
+        return resource_names;
+    };
+
+    PepReg.prototype.getResource_links = function () {
+        var getResource_links = [];       
+        $("#community-resources").find(".resource-link").each(function () {
+            var link = $(this).val();
+            getResource_links.push(link); 
+        });
+        return getResource_links;
+    };
+
+    PepReg.prototype.getInput = function () {
+        var $form = $("#dlg-add-training");
+        var json = {
+            community_id: '${community_id}',
+            name: $form.find("input[name=name]").val(),
+            motto: $form.find("input[name=motto]").val(),
+            logo: $form.find("input[name=logo]").val(),
+            private: ($form.find("input[name=private]").is(":checked")) ? "1" : "0",
+            state: $form.find("select[name=state-dropdown]").val(),
+            district: $form.find("select[name=district-dropdown]").val(),
+            courses: this.getCourses().join(","),
+            resource_names: this.getResource_names().join(","),
+            resource_links: this.getResource_links().join(","),
+            facilitators: this.getFacilitators().join(",")
+        };
+        return json;
+    };
+    
+    PepReg.prototype.createFormdata = function (data, main_community_id) {
+        var self = this;
+        var jsondata = data;
+        self.formdata = null;
+        self.formdata = new FormData();
+        for(var k in jsondata){
+            if(main_community_id && main_community_id !== undefined && k=="community_id"){
+                self.formdata.append(k, 'new');
+                self.formdata.append('main_community_id', main_community_id);
+            }
+            else{
+                self.formdata.append(k, jsondata[k]);
+            }
+        }
+        
+        $("#community-resources").find(".typelogo").each(function (i) {
+            var id = $(this).attr("id");
+            var name = $(this).attr("name");
+            var type = $(this).attr("type");
+            
+            if(type == 'file'){
+                var fileObj = document.getElementById(id).files[0];
+                if(fileObj){
+                    self.formdata.append(name, fileObj);
+                } 
+                else{
+                    self.formdata.append(name, '');
+                }
+            }
+            else{
+                self.formdata.append(name, $(this).val());
+            }
+        });
+    };
+
+    PepReg.prototype.fillData = function (data) {
+        var self = this;
+        data = data || {};
+        var $form = $("#dlg-add-training");
+        //------------step1------------
+        //name
+        $form.find("input[name=name]").val(data.name);
+        //motto
+        $form.find("input[name=motto]").val(data.motto);
+        //logo
+        var logo_html = '';
+        if(data.logo){
+            logo_html = '<span style="display:block;margin-bottom:2px;">Logo: </span>';
+            logo_html += '<img class="community-logo-thumb" src="' + data.logo + '"><input type="hidden" name="logo" value="' + data.logo + '">';
+            logo_html += '<a href="#" class="remove"></a>';
+        }
+        else{
+            logo_html = '<span class="about-field" style="color:#999 !important;font-size:80% !important;">(380px X 260px or larger for best results)</span>:</br>';
+            logo_html += '<span class="edit-name" id="edit_photo" style="cursor:pointer;color:#1d9dd9 !important;">Select Picture</span>';
+            logo_html += '<input type="hidden" name="logo" id="logo">';
+        }
+        $("#community-logo").html(logo_html);
+        //private group
+        if(data.private){
+            $form.find("input[name=private]").prop('checked', true);
+        }
+        else{
+            $form.find("input[name=private]").prop('checked', false);
+        }
+
+        //------------step2------------
+        //state
+        if(data.state){
+            $("#state-dropdown option[value='" + data.state + "']").attr("selected" ,true);
+            if(data.district){
+                $("#state-dropdown").trigger('change',data.district);
+            }
+            else{
+                $("#state-dropdown").trigger('change','');
+            }
+        }
+        else{
+            //$("#state-dropdown option[value='']").attr("selected" ,true);
+        }
+
+        //------------step3------------
+        //courses
+        var courses_html = '';
+        for(var i=0;i<data.courses.length;i++){
+            courses_html += '<div class="community-course">'
+            courses_html += '<select name="course[' + i + ']">';
+            courses_html += '<option value="">Select a Course</option>';
+            for(var j=0;j<this.courses_drop.length;j++){
+                if(this.courses_drop[j].id == data.courses[i]){
+                   courses_html += '<option value="'+this.courses_drop[j].id+'" selected="selected">'+this.courses_drop[j].number+' | '+this.courses_drop[j].name+'</option>';   
+                }
+                else{
+                    courses_html += '<option value="'+this.courses_drop[j].id+'">'+this.courses_drop[j].number+' | '+this.courses_drop[j].name+'</option>';   
+                }
+            }
+            courses_html += '</select>';
+            courses_html += '<input type="button" class="add operation" value="+" onclick="newCourse()">';
+            courses_html += '</div>'
+        }
+        $("#community-courses").html(courses_html);
+
+        //------------step4------------
+        //resources
+        var r_html = '';
+        for(var i=0;i<data.resources.length;i++){
+            r_html += '<div class="community-resource">';
+            r_html += '<input class="resource-name" type="text" name="resource_name['+i+']" value="'+data.resources[i].name+'" placeholder="Resource name">';
+            r_html += '<input class="resource-link" type="text" name="resource_link['+i+']" value="'+data.resources[i].link+'" placeholder="Resource link">';
+            r_html += '<input type="button" class="add operation" value="+" onclick="newResource()"/>';
+            r_html += '<div>';
+            r_html += '<div class="resource-logo-label">Logo:</div>';
+            if(data.resources[i].logo){
+                r_html += '<div class="community-resource-logo-wrap" style="position:relative;">';
+                r_html += '<img src="'+data.resources[i].logo+'" class="community-resource-logo-thumb">';
+                r_html += '<input class="community-resource-logo typelogo" type="hidden" name="resource_logo['+i+']" value="'+data.resources[i].logo_id+'" id="resource_logo['+i+']">';
+                r_html += '<a href="#" class="remove"></a>'; 
+                r_html += '</div>';
+            }
+            else{
+               r_html += '<input class="resource-logo typelogo" type="file" name="resource_logo['+i+']" id="resource_logo['+i+']">'; 
+            }
+            r_html += '</div>';
+            r_html += '</div>';
+        }
+        $("#community-resources").html(r_html);
+        
+        //------------step5------------
+        //facilitators
+        $("#community_facilitators_list").html("");
+        for(var i=0;i<data.facilitators.length;i++){
+            var tmp_tr = $("<tr><td><a class='icon icon-remove'></a></td></tr>");
+            var tmp_td1, tmp_td3, tmp_td4, tmp_td5 = '';
+            var input_lock = '';
+            if(data.facilitators[i].default){
+                input_lock = 'disabled';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value='0' checked='checked'/></td>");
+            }
+            else{
+                input_lock = '';
+                tmp_td1 = $("<td style='text-align:center'><input name='default' type='radio' value=''/></td>");
+            }
+
+            if(data.facilitators[i].edit){
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td3 = $("<td style='text-align:center'><input name='edit' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].delete){
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td4 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+
+            if(data.facilitators[i].receive){
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' checked='checked' "+ input_lock +"/></td>");
+            }
+            else{
+                tmp_td5 = $("<td style='text-align:center'><input name='delete' type='checkbox' value='' "+ input_lock +"/></td>");
+            }
+            var tmp_td2 = $("<td>" + data.facilitators[i].email + "</td>");
+            tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3).append(tmp_td4).append(tmp_td5);
+            $("#community_facilitators_list").append(tmp_tr);
+
+            tmp_tr.find("a").click(function(e){
+                e.preventDefault();
+                $(this).parent().parent().remove();
+            });
+
+            tmp_tr.find("input[name=default]").click(function(){
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("disabled");
+                $(this).parent().parent().parent().find("input[value=0]").parent().parent().find("input[type=checkbox]").removeAttr("checked");
+                $(this).parent().parent().parent().find("input[value=0]").attr("value","");
+                $(this).attr("value","0");
+                $(this).parent().parent().find("input[type=checkbox]").attr("disabled","disabled");
+                $(this).parent().parent().find("input[type=checkbox]").attr("checked","checked");
+            });
+        }
+    };
+
+    PepReg.prototype.clearData = function () {
+        var empty = {'name': '', 
+                     'motto': '', 
+                     'logo': '', 
+                     'private': false, 
+                     'state': '', 
+                     'district': '',
+                     'courses': [''],
+                     'resources': [{'name': '', 'link': '', 'logo': ''}],
+                     'facilitators': []};
+        this.fillData(empty);
+    };
+
+    PepReg.prototype.validatePage = function (page, data) {
+        $('.community-error-box').removeClass('community-error-box');
+        
+        if (page == 0) {
+            if (!data.name) {
+                $('#community-name input').addClass('community-error-box');
+                return ["name", "Community Name is required."];
+            }
+            else if(!/[A-Za-z]/.test(data.name)){
+                $('#community-name input').addClass('community-error-box');
+                return ["name", "Community Name format wrong."];
+            }
+        }
+        else if (page == 1) {
+        } 
+        else if (page == 2) {
+        } 
+        else if (page == 3) {
+        }  
+        else if(page == 4){
+            var facilitator = $("#community_facilitators_list").find("tr").html();
+            if(!facilitator){
+               return ["facilitator", "You must add at least one facilitator."];
+            }
+            else{
+                var facilitators_info = this.getFacilitators();
+                var default_sum = 0;
+                var edit_sum = 0;
+                for(var i=0;i<facilitators_info.length;i++){
+                    var check_info = facilitators_info[i].split("::");
+                    var default_f = parseInt(check_info[1]);
+                    var can_edit = parseInt(check_info[2]);
+                    default_sum += default_f;
+                    edit_sum += can_edit;
+                }
+                if(default_sum == 0){
+                    return ["facilitator", "Community need a default facilitator."];
+                }
+                else if(edit_sum == 0){
+                    return ["facilitator", "At least one facilitator need edit privilege."];
+                }
+            }
+        }
+    };
+
+    PepReg.prototype.validateAllPage = function (data) {
+        var self = this;
+        var r = null;
+        $("#dlg-add-training").find(".step-page").each(function (i) {
+            if (error = self.validatePage(i, data)) {
+                r = {id: i, error: error};
+            }
+        });
+        return r;
+    };
+
+    PepReg.prototype.warning = function (s, dlgFlyOn) {
+        var self = this;
+        if (dlgFlyOn){
+            dlgFlyOn.hideOverlay();
+        }
+        var dlg = new Dialog($("#dlg-warning"));
+        if(s && s.indexOf("Thank you")===0){
+            dailogTitle = "Confirmation";
+        }else{
+            dailogTitle = "Warning";
+        }
+        dlg.show(dailogTitle, s);
+        dlg.lift(100);
+        $("#dlg-warning").bind("hide", function () {
+            $(this).unbind('hide');
+            if (dlgFlyOn){
+                dlgFlyOn.showOverlay();
+            }
+        });
+    };
+
+    PepReg.prototype.upload_picture = function (s, dlgFlyOn) {
+        $(".lean-overlay").remove();
+        var self = this;
+        if (dlgFlyOn){
+            dlgFlyOn.hideOverlay();
+        }
+        var dlg = new Dialog($("#dlg-upload_picture"));
+        dailogTitle = "Add Profile Picture";
+        dlg.show(dailogTitle, s);
+        dlg.lift(100);
+        $("#dlg-upload_picture").bind("hide", function () {
+            $(this).unbind('hide');
+            if (dlgFlyOn){
+                dlgFlyOn.showOverlay();
+            }
+        });
+    };
+
+    $("#up-btn-ok").click(function(){
+        $("#dlg-upload_picture").hide();
+        $(".lean-overlay").remove();
+    });
+
+    $(document).ready(function () {
+        //** init controller
+        //window.pepreg = new PepReg($(".expand_div").eq(0));
+        window.pepreg = new PepReg();
+
+        %if user_super:
+            var access_level = 'System';
+        %else:
+            var access_level = 'Notsystem';
+        %endif
+
+        var state_id = "${state_id}";
+        var district_id = "${district_id}";
+        var state_name = "${state_name}"
+        $.get('${reverse('pepper_utilities_drop_states')}', {'access_level': access_level},function (data) {
+            // Build the options.
+            var options = '<option value=""></option>';
+            $.each(data, function (index, object) {
+                options += '<option value="' + object.id+ '"';
+                if (object.id == state_id) {
+                    options += ' selected';
+                }
+                options += '>' + object.name + '</option>';
+            });
+            // Add them to the state dropdown.
+            $('#state-dropdown').append(options);
+            if(state_id){
+                if(!$("#state-dropdown option[value='" + state_id + "']").val()){
+                    options = "<option value ='" + state_id + "'>" + state_name + "</option>";
+                    $('#state-dropdown').append(options);
+                }
+            }
+
+            $("#state-dropdown").change(function (e,d_id) {
+                if ($(this).val()) {
+                    // Clear the current district and school options since the state changed.
+                    $('#district-dropdown option').remove();
+                    // Get the allowed Districts
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
+                        var content = '<option value=""></option>';
+                        $.each(data, function (index, object) {
+                            content += '<option value="' + object.id + '"';
+                            if(d_id){
+                               if (object.id == d_id) {
+                                    content += ' selected';
+                                } 
+                            }
+                            else{
+                                if (object.id == district_id) {
+                                    content += ' selected';
+                                }
+                            }
+                            
+                            content += '>' + object.name + '</option>';
+                        });
+                        // Add it to the form.
+                        $('#district-dropdown').append(content);
+                    });
+                }
+                else{
+                    $('#district-dropdown').html('<option value=""></option>');
+                }
+            });
+            if (state_id) {
+                $("#state-dropdown").trigger('change');
+            }
+        });
+
+        $('#complete-email').autocomplete({
+            source: function (request, response) {
+                $.getJSON('/community/user/email-completion', {q: $('#complete-email').val()}, response);
+            }
+        });
+
+        $(".mu").multi_sele_dropdown();
+
+        $(document).on('click', '.mul-drop-button-box .item', function () {
+            var cid = $(this).children().attr("value");
+            console.log(cid);
+            window.location.href="/maincommunity/"+cid;
+        });
+    });
+</script>
 

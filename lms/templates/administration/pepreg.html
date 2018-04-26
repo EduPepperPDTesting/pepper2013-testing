@@ -3019,6 +3019,7 @@
         }
     }
     $(document).ready(function () {
+        checkLoginstatus();
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
@@ -3155,6 +3156,24 @@
         _calendar_picker_day = _sys_calendar_day;
         setPickerValue();
         calendarOpen(false)
+    }
+
+    function getCookie(cname){
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i].trim();
+            if (c.indexOf(name)==0) { return c.substring(name.length,c.length); }
+        }
+        return "";
+    }
+
+    function checkLoginstatus() {
+        setInterval(function() {
+            if(getCookie("edxloggedin") !== 'true') {
+                window.location.href = "${reverse('pepreg')}";
+            }
+        }, 1000);
     }
 </script>
 

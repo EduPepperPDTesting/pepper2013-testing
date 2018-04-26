@@ -2,7 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from student.models import District, State
 from file_uploader.models import FileUploads
-
+from django.conf import settings
+import pymongo
+from collections import OrderedDict
+from bson import ObjectId
+import logging
+log = logging.getLogger("tracking")
 
 class CommunityCommunities(models.Model):
     class Meta:
@@ -15,14 +20,20 @@ class CommunityCommunities(models.Model):
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
     discussion_priority = models.BooleanField(blank=False, default=0)
+    main_id = models.IntegerField(blank=False, max_length=11, default=0)
 
 
 class CommunityUsers(models.Model):
     class Meta:
         db_table = 'community_users'
     community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='communityuser')
     facilitator = models.BooleanField(blank=False, default=0)
+    community_edit = models.BooleanField(blank=False, default=0)
+    community_delete = models.BooleanField(blank=False, default=0)
+    community_default = models.BooleanField(blank=False, default=0)
+    receive_email = models.BooleanField(blank=False, default=0)
+    last_access = models.DateTimeField(null=True)
 
 
 class CommunityCourses(models.Model):
@@ -119,6 +130,7 @@ class CommunityPosts(models.Model):
     top = models.BooleanField(blank=False, default=0)
     # @end
 
+
 class CommunityPostsImages(models.Model):
     class Meta:
         db_table = 'community_posts_images'
@@ -144,3 +156,153 @@ class CommunityLikes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey(CommunityComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+
+class MongoBaseStore(object):
+    def __init__(self, host, db, port, collection="",
+                 default_class=None, user=None, password=None, mongo_options=None, **kwargs):
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+            host=host, port=port, tz_aware=True, **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        self.collection.safe = True
+
+    def get_item(self, cond):
+        return self.collection.find_one(cond)
+
+    def insert(self, item):
+        return self.collection.insert(item)
+
+    def find(self, cond):
+        return self.collection.find(cond)
+
+    def find_size_sort(self, cond, page, size, sort_field, sort_desc):
+        return self.collection.find(cond).limit(size).skip(page).sort(sort_field, sort_desc)
+
+    def find_one(self, cond):
+        return self.collection.find_one(cond)
+
+    def aggregate(self, cond):
+        return self.collection.aggregate(cond)
+
+    def update(self, cond, item, upsert=False, multi=True):
+        self.collection.update(cond, item, upsert=upsert, multi=multi)
+
+    def remove(self, cond):
+        self.collection.remove(cond)
+
+    def del_collection(self):
+        self.collection.drop()
+
+
+class CommunityDiscussionsStore(MongoBaseStore):
+    def __init__(self, host, db, port,
+                 user=None, password=None, mongo_options=None, **kwargs):
+        # super(MongoBaseStore, self).__init__(**kwargs)
+        MongoBaseStore.__init__(self, host, db, collection="community_discussions", port=port, **kwargs)
+
+    def get_community_discussions(self, community_id, page=0, size=0):
+        return self.collection.find({"community_id": community_id, "db_table": "community_discussions"}).limit(size).skip(page).sort("date_create", -1)
+
+    def get_community_discussions_cond(self, cond, page=0, size=0):
+        return self.collection.find(cond).limit(size).skip(page).sort([("pin", -1), ("date_create", -1)])
+
+    def get_community_discussions_id(self):    
+        max_id = 0
+        for itemx in self.collection.find({"db_table": "community_discussions"}).limit(1).sort("did", -1):
+            max_id = int(itemx['did']) + 1
+        return max_id
+
+    # For old discussion
+    def get_did_by_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": int_mysqlid})
+
+        try:
+            discussion_id = ObjectId(discussion['_id'])
+        except:
+            pass
+
+        return discussion_id
+
+    # For old post
+    def get_did_by_post_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": int_mysqlid, "subject": ""})
+
+        try:
+            discussion_id = ObjectId(discussion['_id'])
+        except:
+            pass
+
+        return discussion_id
+
+    # For old post comment
+    def get_did_by_postcomment_mysqlid(self, mysql_id):
+        discussion_id = '0'
+
+        try:
+            int_mysqlid = int(mysql_id)
+        except:
+            return discussion_id
+        discussion = self.collection.find_one({"db_table": "community_discussion_replies", "mysql_id": int_mysqlid, "post_reply": "1"})
+
+        try:
+            discussion_id = discussion['discussion_id']
+        except:
+            pass
+
+        return discussion_id
+
+    def get_community_discussions_subject(self, discussion_id):
+        subject = 'No subject'
+        discussion = self.collection.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+        '''
+        if len(str(discussion_id)) < 15:
+            discussion = self.collection.find_one({"db_table": "community_discussions", "mysql_id": discussion_id})
+        else:
+            discussion = self.collection.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+        '''
+        try:
+            subject = discussion['subject']
+        except:
+            pass
+        return subject
+
+    # def get_community_discussion_replies(self, cond, page=0, size=10):
+    #     return self.collection.find(cond).limit(size).skip(page).sort("date_create", 1)
+
+    # def get_community_discussion_replies(self, discussion_id):
+    #     return self.collection.find({"discussion_id": discussion_id, "db_table": "community_discussion_replies"}).sort("date_create", 1)
+
+    # def get_community_discussion_replies_next(self, parent_id):
+    #     return self.collection.find({"community_id": ObjectId(parent_id), "db_table": "community_discussion_replies_next"}).sort("date_create", 1)
+
+    # def get_poll(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll"})
+
+    # def get_poll_ansers(self, identifier):
+    #     return self.collection.find({"identifier": identifier, "db_table": "poll_answers"})
+
+
+def community_discussions_store():
+    options = {}
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
+    return CommunityDiscussionsStore(**options)

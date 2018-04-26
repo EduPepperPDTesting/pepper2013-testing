@@ -15,7 +15,7 @@ import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts, community_discussions_store
 # from .models import CommunityPostTops
 from administration.pepconn import get_post_array
 from operator import itemgetter
@@ -28,9 +28,14 @@ from view_counter.models import view_counter_store
 from polls.models import poll_store
 from polls.views import poll_data
 from notification import send_notification
-# from student.views import course_from_id
+from student.views import course_from_id
 from courseware.courses import get_course_by_id
 from xmodule.remindstore import myactivitystore
+from file_uploader.utils import get_file_url, get_file_name
+from pepper_utilities.utils import render_json_response
+from django.utils.timezone import UTC
+from bson import ObjectId
+from datetime import timedelta
 
 log = logging.getLogger("tracking")
 
@@ -50,7 +55,8 @@ def community_ngss(request):
 @login_required
 def community_manage_member(request, community_id):
     community = CommunityCommunities.objects.get(id=community_id)
-    return render_to_response('communities/manage_members.html', {"community": community})
+    main_community_id = request.GET.get("main_id", "")
+    return render_to_response('communities/manage_members.html', {"community": community, "main_community_id": main_community_id})
 
 
 def build_sorts(columns, sorts):
@@ -148,27 +154,43 @@ def get_add_user_rows(request, community_id):
     if filters.get('8'):
         filters['all'] = filters['8']
         del filters['8']
-    
+
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
-    # If the were filers passed in, get the arguments to filter by and add them to the query.
-    if len(filters):
-        args, kwargs = build_filters(columns, filters)
-        # If there was a search for all, add the Q arguments.
-        if args:
-            users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+    main_community_id = request.GET.get("main_id", "")
+    if not main_community_id:
+        # If the were filers passed in, get the arguments to filter by and add them to the query.
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            # If there was a search for all, add the Q arguments.
+            if args:
+                users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+        # If there are no filters, just select all.
         else:
-            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
-    # If there are no filters, just select all.
+            users = UserProfile.objects.prefetch_related().all().order_by(*order)
     else:
-        users = UserProfile.objects.prefetch_related().all().order_by(*order)
+        # If the were filers passed in, get the arguments to filter by and add them to the query.
+        if len(filters):
+            args, kwargs = build_filters(columns, filters)
+            kwargs.update({'user__communityuser__community': main_community_id})
+            # If there was a search for all, add the Q arguments.
+            if args:
+                users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+            else:
+                users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+        # If there are no filters, just select all.
+        else:
+            kwargs = {'user__communityuser__community': main_community_id}
+            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
 
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
     # users = users.exclude(activate_date__isnull=True)
-    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported')|Q(subscription_status='unregistered'))
+    users = users.filter(Q(subscription_status = 'registered')|Q(subscription_status='imported'))
     if not request.user.is_superuser:
         users = users.filter(user__profile__district=request.user.profile.district)
 
@@ -319,6 +341,7 @@ def community_join(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
     manage = request.POST.get("manage", "")
+    maincommunity_id = request.POST.get("maincommunity_id", "")
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -331,21 +354,35 @@ def community_join(request, community_id):
                 cu = CommunityUsers()
                 cu.user = user
                 cu.community = community
+                # save last access time
+                cu.last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
                 cu.save()
-                
+
                 if manage == "1":
                     ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
-                    "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id":community.id}, 
-                    "LogoValues": {"community_id": community.id}}    
-                    ma_db.insert_item(my_activity)                    
+                    if not maincommunity_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
+                    ma_db.insert_item(my_activity)
                 else:
                     ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-                    "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id":community.id}, 
-                    "LogoValues": {"community_id": community.id}}
+                    if not maincommunity_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
                     ma_db.insert_item(my_activity)
 
         except Exception as e:
@@ -353,14 +390,20 @@ def community_join(request, community_id):
 
     if manage == "1":
         ma_db = myactivitystore()
-        my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-        "URLValues": {"community_id": community.id},
-        "TokenValues": {"community_id":community.id, "user_ids": request.POST.get("user_ids", "")}, 
-        "LogoValues": {"community_id": community.id}}
+        if not maincommunity_id:
+            my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
+        else:
+            my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
         ma_db.insert_item(my_activity)
 
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
-        
+
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
@@ -368,6 +411,9 @@ def community_join(request, community_id):
 def community_leave(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
+    sub_communities = ''
+    if community.main_id == 0:
+        sub_communities = CommunityCommunities.objects.filter(main_id=community.id)
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -375,8 +421,14 @@ def community_leave(request, community_id):
         try:
             user = User.objects.get(id=int(user_id))
             users.append(user)
+            # Leave main community
             mems = CommunityUsers.objects.filter(user=user, community=community)
             mems.delete()
+
+            # Leave sub community
+            for sc in sub_communities:
+                sub_mems = CommunityUsers.objects.filter(user=user, community=sc)
+                sub_mems.delete()
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
     send_notification(request.user, community.id, members_del=users, domain_name=domain_name)
@@ -390,10 +442,7 @@ def get_trending(community_id):
     c = CommunityCommunities.objects.get(id=community_id)
     posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:5]
     for tv in trending_views:
-        try:
-            trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
-        except Exception as e:
-            None
+        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
     for post in posts:
         #@begin:Add special text if post has no text
         #@date:2017-06-16
@@ -424,7 +473,7 @@ def community(request, community_id):
     start = (page - 1) * 5
 
     community = CommunityCommunities.objects.get(id=community_id)
-    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
+    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community, community_default=True)
     users = CommunityUsers.objects.filter(community=community,user__profile__subscription_status='Registered')
     discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
@@ -552,45 +601,115 @@ def discussion(request, discussion_id):
 def discussion_add(request):
     domain_name = request.META['HTTP_HOST']
     error = ''
-
+    back_data = {}
     try:
-        community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
-        discussion = CommunityDiscussions()
-        discussion.community = community
-        discussion.user = request.user
-        discussion.post = request.POST.get('post')
-        discussion.subject = request.POST.get('subject')
-        discussion.save()
+        fid = request.POST.get("fid", "")
+        if not fid:
+            community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+            # discussion = CommunityDiscussions()
+            # discussion.community = community
+            # discussion.user = request.user
+            # discussion.post = request.POST.get('post')
+            # discussion.subject = request.POST.get('subject')
+            # discussion.save()
+
+        mongo3_store = community_discussions_store()
+        if fid:
+            disc_id = fid
+            my_discussion_post = {
+                "subject": request.POST.get('subject'),
+                "post": request.POST.get('post')
+            }
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(fid)}, {"$set": my_discussion_post})
+        else:
+            tmp_datetime = datetime.datetime.now(UTC())
+            my_discussion_post = {
+                # "mysql_id": discussion.id,
+                "community_id": long(request.POST.get('community_id')),
+                "subject": request.POST.get('subject'),
+                "post": request.POST.get('post'),
+                "user": long(request.user.id),
+                "date_create": tmp_datetime,
+                "view_counter": 0,
+                "db_table": "community_discussions"
+            }
+            disc_id = str(mongo3_store.insert(my_discussion_post))
+
+            back_data['_id'] = disc_id
+            back_data['community_id'] = long(request.POST.get('community_id'))
+            back_data['user'] = request.user.id
+            back_data['subject'] = request.POST.get('subject')
+            back_data['post'] = request.POST.get('post')
+            back_data['first_name'] = request.user.first_name
+            back_data['last_name'] = request.user.last_name
+            back_data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+            back_data['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_datetime)
+            back_data['pin'] = ""
+            back_data['like_size'] = ""
+            back_data['like_first'] = ""
+            back_data['like_last'] = ""
+            back_data['is_liked'] = ""
+            back_data['first_name'] = request.user.first_name
+            back_data["total"] = 0
+            back_data["Success"] = True
+
         if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
             try:
                 attachment = FileUploads()
                 attachment.type = 'discussion_attachment'
-                attachment.sub_type = discussion.id
+                # attachment.sub_type = discussion.id
+                attachment.sub_type = disc_id
                 attachment.upload = request.FILES.get('attachment')
                 attachment.save()
+
+                back_data['attachment'] = str(attachment.id)
+                tmp_file = FileUploads.objects.get(id=attachment.id)
+                back_data['attachment_name'] = get_file_name(tmp_file)
+                back_data['attachment_url'] = get_file_url(tmp_file)
             except:
                 attachment = None
+                back_data['attachment'] = ""
+                back_data['attachment_name'] = ""
+                back_data['attachment_url'] = ""
         else:
             attachment = None
+            back_data['attachment'] = ""
+            back_data['attachment_name'] = ""
+            back_data['attachment_url'] = ""
+
+        # if not fid:
+        #     if attachment:
+        #         discussion.attachment = attachment
+        #         discussion.save()
+
         if attachment:
-            discussion.attachment = attachment
-            discussion.save()
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc_id)}, {"$set": {"attachment": attachment.id}})
+
         success = True
+        if not fid:
+            rs = myactivitystore()
+            main_community_id = request.POST.get("main_community_id", "")
+            if not main_community_id:
+                my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                "URLValues": {"discussion_id": disc_id},
+                "TokenValues": {"discussion_id": disc_id, "community_id": community.id},
+                "LogoValues": {"discussion_id": disc_id, "community_id": community.id}}
+            else:
+                my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                "URLValues": {"discussion_id": disc_id},
+                "TokenValues": {"discussion_id": disc_id, "community_id": community.id},
+                "LogoValues": {"discussion_id": disc_id, "community_id": community.id}}
+            rs.insert_item(my_activity)
 
-        rs = myactivitystore()
-        my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-        "URLValues": {"discussion_id": discussion.id},
-        "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-        "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
-        rs.insert_item(my_activity)
+            # discussion_id = disc_id
+            send_notification(request.user, community.id, discussions_new=[disc_id], domain_name=domain_name)
 
-        discussion_id = discussion.id
-        send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
         error = e
         success = False
-        discussion_id = None
-    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': discussion_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+        # discussion_id = None
+    return HttpResponse(json.dumps({'Success': success, 'back_data': back_data, 'DiscussionID': disc_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+
 
 
 @login_required
@@ -681,7 +800,7 @@ def communities(request):
     :return: The Communities page.
     """
     community_list = list()
-    filter_dict = dict()
+    filter_dict = {'main_id': 0}
 
     # If this is a regular user, we only want to show public communities and private communities to which they belong.
     if not request.user.is_superuser:
@@ -689,7 +808,7 @@ def communities(request):
         filter_dict.update({'private': False})
 
         # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
+        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True, community__main_id=0)
         for item in items:
             community_list.append({'id': item.community.id,
                                    'name': item.community.name,
@@ -707,40 +826,6 @@ def communities(request):
     data = {'communities': sorted(community_list, key=itemgetter('name'))}
     return render_to_response('communities/communities.html', data)
 
-@login_required
-def newcommunities(request):
-    """
-    Returns the newcommunities page.
-    :param request: Request object.
-    :return: The NewCommunities page.
-    """
-    community_list = list()
-    filter_dict = dict()
-
-    # If this is a regular user, we only want to show public communities and private communities to which they belong.
-    if not request.user.is_superuser:
-        # Filter the normal query to only show public communities.
-        filter_dict.update({'private': False})
-
-        # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
-        for item in items:
-            community_list.append({'id': item.community.id,
-                                   'name': item.community.name,
-                                   'logo': item.community.logo.upload.url if item.community.logo else '',
-                                   'private': item.community.private})
-    # Query for the communities this user is allowed to see.
-    items = CommunityCommunities.objects.filter(**filter_dict)
-    for item in items:
-        community_list.append({'id': item.id,
-                               'name': item.name,
-                               'logo': item.logo.upload.url if item.logo else '',
-                               'private': item.private})
-
-    # Set up the data to send to the communities template, with the communities sorted by name.
-    data = {'communities': sorted(community_list, key=itemgetter('name'))}
-    return render_to_response('communities/communities_new.html', data)
-
 
 @login_required
 def community_delete(request, community_id):
@@ -748,13 +833,11 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-        try:
-            discussions = CommunityDiscussions.objects.filter(community=community)
-            ma_db = myactivitystore()
-            ma_db.set_item_community(cid, cname, discussions)
-        except Exception as e:
-            None
-        
+
+        discussions = CommunityDiscussions.objects.filter(community=community)
+        ma_db = myactivitystore()
+        ma_db.set_item_community(cid, cname, discussions)
+
         community.delete()
 
         return redirect(reverse('communities'))
@@ -846,7 +929,6 @@ def community_edit(request, community_id='new'):
     # If neither of the other tests worked, the user isn't allowed to do this.
     return HttpResponseForbidden()
 
-
 @login_required
 @ensure_csrf_cookie
 def community_edit_process(request):
@@ -905,7 +987,7 @@ def community_edit_process(request):
             except Exception as e:
                 logo = None
                 log.warning('Error uploading logo: {0}'.format(e))
-            
+
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
         priority_id = request.POST.get('priority_id',0)
@@ -946,6 +1028,10 @@ def community_edit_process(request):
                 old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
                 for f in old_facilitator:
                     f.facilitator = False
+                    f.community_default = False
+                    f.community_edit = False
+                    f.community_delete = False
+                    f.receive_email = False
                     f.save()
             except:
                 pass
@@ -959,6 +1045,10 @@ def community_edit_process(request):
                 community_user.user = user_object
             # Set the facilitator flag to true.
             community_user.facilitator = True
+            community_user.community_default = True
+            community_user.community_edit = True
+            community_user.community_delete = True
+            community_user.receive_email = True
             community_user.save()
             if old_facilitator:
                 if old_facilitator[0].user_id != community_user.user_id:
@@ -1547,3 +1637,1873 @@ def top_post(request):
     post.save()
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 #@end
+
+
+# -------------------------------------------------------------------new community begin aaa
+@login_required
+def newcommunities(request):
+    """
+    Returns the newcommunities page.
+    :param request: Request object.
+    :return: The NewCommunities page.
+    """
+    user = request.user
+    community_list = list()
+    filter_dict = {'main_id': 0}
+
+    # If this is a regular user, we only want to show public communities and private communities to which they belong.
+    if not user.is_superuser:
+        # Filter the normal query to only show public communities.
+        filter_dict.update({'private': False})
+
+        # Do a separate filter to grab private communities this user belongs to.
+        items = CommunityUsers.objects.select_related().filter(user=user, community__private=True, community__main_id=0)
+        for item in items:
+            community_list.append({'id': item.community.id,
+                                   'name': item.community.name,
+                                   'motto': item.community.motto,
+                                   'logo': item.community.logo.upload.url if item.community.logo else '',
+                                   'private': item.community.private})
+    # Query for the communities this user is allowed to see.
+    items = CommunityCommunities.objects.filter(**filter_dict)
+    for item in items:
+        community_list.append({'id': item.id,
+                               'name': item.name,
+                               'motto': item.motto,
+                               'logo': item.logo.upload.url if item.logo else '',
+                               'private': item.private})
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(user)
+
+    user_super = ''
+    if request.user.is_superuser:
+        user_super = "super"
+    community_other_info = {'user_super': user_super}
+
+    # Set up the data to send to the communities template, with the communities sorted by id.
+    data = {'communities': sorted(community_list, key=itemgetter('id'), reverse=True),
+            'courses_drop': courses_drop}
+    data.update(community_other_info)
+
+    return render_to_response('communities/communities_new.html', data)
+
+@login_required
+def maincommunity(request, community_id):
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    if community.main_id != 0:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper.'}
+        return render_to_response('error.html', error_context)
+
+    communityID = community.id
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, communityID)
+    data = {'courses_drop': courses_drop}
+
+    # Get default facilitator
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    mongo3_store = community_discussions_store()
+    # Get discussions count for Community Status
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
+    # Get all discussion and all reply count
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
+    d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
+    # Get all likes count
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = discussion_top5.count()
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
+
+    '''
+    Get Trending discussions for init show
+    '''
+    td_show_count = 5
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
+
+    '''
+    Get Subcommunities for init show
+    '''
+    sc_show_count = 3
+    # default_last_access when last_access is null
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=communityID).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.select_related().filter(main_id=communityID).count()
+    for k, item in enumerate(subcommunities):
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = default_last_access
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    # Get  Community users for Community Status
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    '''
+    Get My Main Communities for init show
+    '''
+    mc_show_count = 2
+    my_communities_list = list()
+    items = CommunityUsers.objects.select_related().filter(user=user, community__main_id=0).order_by('community__name')[0:mc_show_count]
+    mc_count = CommunityUsers.objects.filter(user=user, community__main_id=0).count()
+    for k, item in enumerate(items):
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+
+    '''
+    Get Courses and Resources for init show
+    '''
+    courses = CommunityCourses.objects.select_related().filter(community=community)
+
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
+    resources_list = list()
+    for k, r in enumerate(resources):
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'facilitator_d': facilitator_default[0] if facilitator_default else '',
+                      'ruser_info': ruser_info,
+                      'td_show_count': td_show_count,
+                      'discussions_count': discussions_count,
+                      'td_list': td_list,
+                      'sc_show_count': sc_show_count,
+                      'sc_count': sc_count,
+                      'subcommunities_list': subcommunities_list,
+                      'users': users,
+                      'mc_show_count': mc_show_count,
+                      'mc_count': mc_count,
+                      'my_communities_list': my_communities_list,
+                      're_count': re_count,
+                      'resources_list': resources_list,
+                      'd_and_r_count': d_and_r_count,
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses,
+                      'main_community_id': ''
+                      }
+    data.update(community_info)
+
+    return render_to_response('communities/community_new.html', data)
+
+@login_required
+def subcommunity(request, community_id):
+    # Get community info
+    community = CommunityCommunities.objects.get(id=community_id)
+    if community.main_id == 0:
+        error_context = {'window_title': '403 Error - Access Denied',
+                         'error_title': '',
+                         'error_message': 'You do not have access to this view in Pepper.'}
+        return render_to_response('error.html', error_context)
+
+    communityID = community.id
+    user = request.user
+    data = dict()
+
+    # Get dropdown data for create and edit community
+    courses_drop = list()
+    courses_drop = get_dropdown_data(request.user, communityID)
+    data = {'courses_drop': courses_drop}
+
+    # Get default facilitator
+    facilitator_default = CommunityUsers.objects.select_related().filter(facilitator=True, community_default=True, community=community)
+
+    # Get maincommunity
+    main_community = CommunityCommunities.objects.get(id=community.main_id)
+
+    # Wether is the member of main community
+    is_main_member = False
+    main_community_user = CommunityUsers.objects.select_related().filter(community=main_community, user=request.user)
+    if main_community_user:
+        is_main_member = True
+
+    # Get request user info of the community
+    ruser_info = {'facilitator': False, 'edit': False, 'delete': False, 'default': False, 'is_member': False}
+    ruser_in_commumity = CommunityUsers.objects.select_related().filter(community=community, user__profile__subscription_status='Registered', user=request.user)
+    if ruser_in_commumity:
+        ruser_info['facilitator'] = ruser_in_commumity[0].facilitator
+        ruser_info['edit'] = ruser_in_commumity[0].community_edit
+        ruser_info['delete'] = ruser_in_commumity[0].community_delete
+        ruser_info['default'] = ruser_in_commumity[0].community_default
+        ruser_info['is_member'] = True
+
+        # Save last access time
+        ruser_in_commumity[0].last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
+        ruser_in_commumity[0].save()
+
+    user_super = ""
+    if request.user.is_superuser:
+        user_super = "super"
+
+    mongo3_store = community_discussions_store()
+    # Get discussions count for Community Status
+    discussion_cond = {"community_id": communityID, "db_table": "community_discussions"}
+    discussions_count = mongo3_store.find(discussion_cond).count()
+    # Get all discussion and all reply count
+    replies_level1_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies"}).count()
+    replies_level2_count = mongo3_store.find({"community_id": communityID, "db_table": "community_discussion_replies_next"}).count()
+    d_and_r_count = discussions_count + replies_level1_count + replies_level2_count
+    # Get all likes count
+    likes_count = mongo3_store.find({"community_id": communityID, "db_table": "community_like"}).count()
+    # Get discussion view count
+    discussion_top5 = mongo3_store.get_community_discussions_cond(discussion_cond, 0, 5)
+    d_top5_view_count = discussion_top5.count()
+    for dt in discussion_top5:
+        d_top5_view_count += dt['view_counter']
+
+    '''
+    Get Trending discussions for init show
+    '''
+    td_show_count = 5
+    trending_cond = discussion_cond
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, td_show_count, "view_counter", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        hyperlink = str(communityID) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
+
+    '''
+    Get Subcommunities for init show
+    '''
+    sc_show_count = 3
+    # default_last_access when last_access is null
+    default_last_access = datetime.datetime(2018, 1, 1, 0, 0, 0)
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=community.main_id).order_by('name')[0:sc_show_count]
+    sc_count = CommunityCommunities.objects.filter(main_id=community.main_id).count()
+    for k, item in enumerate(subcommunities):
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = default_last_access
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}}
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+
+    # Get community users for Community Status
+    users = CommunityUsers.objects.filter(community=community, user__profile__subscription_status='Registered')
+
+    '''
+    Get My Main Communities for init show
+    '''
+    mc_show_count = 2
+    my_communities_list = list()
+    items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=user).order_by('community__name')[0:mc_show_count]
+    mc_count = CommunityUsers.objects.filter(~Q(community__main_id=0), user=user).count()
+    for k, item in enumerate(items):
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+
+    '''
+    Get Courses and Resources for init show
+    '''
+    courses = CommunityCourses.objects.select_related().filter(community=community)
+
+    resources = CommunityResources.objects.select_related().filter(community=community)
+    re_count = resources.count()
+    resources_list = list()
+    for k, r in enumerate(resources):
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})
+
+    # Update all community info
+    community_other_info = {'state': community.state.id if community.state else '',
+                            'district': community.district.id if community.district else '',
+                            'user_super': user_super}
+    data.update(community_other_info)
+
+    community_info = {'community': community,
+                      'main_community': main_community,
+                      'is_main_member': is_main_member,
+                      'facilitator_d': facilitator_default[0] if facilitator_default else '',
+                      'ruser_info': ruser_info,
+                      'td_show_count': td_show_count,
+                      'discussions_count': discussions_count,
+                      'td_list': td_list,
+                      'sc_show_count': sc_show_count,
+                      'sc_count': sc_count,
+                      'subcommunities_list': subcommunities_list,
+                      'users': users,
+                      'mc_show_count': mc_show_count,
+                      'mc_count': mc_count,
+                      'my_communities_list': my_communities_list,
+                      're_count': re_count,
+                      'resources_list': resources_list,
+                      'd_and_r_count': d_and_r_count,
+                      'likes_count': likes_count,
+                      'd_top5_view_count': d_top5_view_count,
+                      'courses': courses,
+                      'main_community_id': main_community.id
+                      }
+    data.update(community_info)
+
+    return render_to_response('communities/subcommunity.html', data)
+
+def get_dropdown_data(user, community_id=''):
+    # Step4, get courses list.
+    # Get allowedcourses of the user(inlude enrolled courses and courses allowed to enroll), exclude invalid courses.
+    courses_drop_full = list()
+    courses_drop = list()
+    if user.is_superuser:
+        courses_drop_full = get_courses(user)
+    else:
+        allowedcourses_id = list(CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).order_by('-id').values_list('course_id', flat=True))
+        communitycourses_id = ''
+        if community_id:
+            communitycourses_id = list(CommunityCourses.objects.filter(community=community_id).values_list('course', flat=True))
+        if communitycourses_id:
+            for cid in allowedcourses_id:
+                if cid in communitycourses_id:
+                    communitycourses_id.remove(cid)
+                    break
+            allowedcourses_id.extend(communitycourses_id)
+
+        for course_id in allowedcourses_id:
+            try:
+                # Exclude invalid courses.
+                c = course_from_id(course_id)
+                courses_drop_full.append(c)
+            except:
+                pass
+
+    for course in courses_drop_full:
+        courses_drop.append({'id': course.id,
+                             'number': course.display_number_with_default,
+                             'name': get_course_about_section(course, 'title'),
+                             'logo': course_image_url(course)})
+    return courses_drop
+
+@login_required
+def email_facilitator(request):
+    community_id = request.POST.get('community_id', '')
+    subject = request.POST.get('subject', '')
+    message = request.POST.get('message', '')
+    facilitator_receive_email = CommunityUsers.objects.select_related().filter(facilitator=True, receive_email=True, community=community_id)
+    email_list = list()
+    for f in facilitator_receive_email:
+        email_list.append(f.user.email)
+
+    result = "Mail sent successfully!"
+    mail_success = True
+    for email in email_list:
+        try:
+            send_mail(subject, message, request.user.email, [email], fail_silently=False)
+        except Exception as e:
+            mail_success = False
+            result = "There was a problem sending the message."
+
+    return HttpResponse(json.dumps({'success': mail_success, 'result': result}), content_type='application/json')
+
+@login_required
+def get_edit_community(request):
+    data = dict()
+    community_id = request.POST.get("id")
+    if community_id != 'new' and is_facilitator_edit(request.user, community_id):
+        # Grab the data from the DB.
+        community_object = CommunityCommunities.objects.get(id=community_id)
+        courses = CommunityCourses.objects.filter(community=community_object)
+        resources = CommunityResources.objects.filter(community=community_object)
+        facilitators = CommunityUsers.objects.filter(community=community_object, facilitator=True)
+
+        # Build the lists of facilitators.
+        facilitator_list = list()
+        for f in facilitators:
+            facilitator_list.append({'email': f.user.email,
+                                     'default': f.community_default,
+                                     'edit': f.community_edit,
+                                     'delete': f.community_delete,
+                                     'receive': f.receive_email
+                                     })
+
+        # Build the lists of courses.
+        course_list = list()
+        for course in courses:
+            course_list.append(course.course)
+        if not len(course_list):
+            course_list.append('')
+
+        # Build the lists of resources.
+        resource_list = list()
+        for resource in resources:
+            resource_simple = {'name': resource.name, 'link': resource.link, 'logo': get_file_url(resource.logo)}
+            if resource.logo:
+                resource_simple.update({'logo_id': resource.logo.id})
+            else:
+                resource_simple.update({'logo_id': ''})
+            resource_list.append(resource_simple)
+        if not len(resource_list):
+            resource_list.append({'name': '', 'link': '', 'logo': '', 'logo_id': ''})
+
+        # Put together the data to send to the template.
+        community_info = {'community_id': community_object.id,
+                          'name': community_object.name,
+                          'motto': community_object.motto,
+                          'logo': community_object.logo.upload.url if community_object.logo else '',
+                          'facilitators': facilitator_list,
+                          'state': community_object.state.id if community_object.state else '',
+                          'district': community_object.district.id if community_object.district else '',
+                          'private': community_object.private,
+                          'courses': course_list,
+                          'resources': resource_list}
+    return HttpResponse(json.dumps(community_info), content_type="application/json")
+
+@login_required
+@ensure_csrf_cookie
+def community_edit_process_new(request):
+    """
+    Processes the form data from the community add/edit form.
+    :param request: Request object.
+    :return: JSON response.
+    """
+    try:
+        # Get all of the form data.
+        domain_name = request.META['HTTP_HOST']
+        community_id = request.POST.get('community_id', '')
+        name = request.POST.get('name', '')
+        motto = request.POST.get('motto', '')
+        log.debug("community_id==========")
+        log.debug(community_id)
+
+        try:
+            district_id = request.POST.get('district', False)
+            if district_id:
+                district = District.objects.get(id=int(district_id))
+            else:
+                district = None
+        except:
+            district = None
+        try:
+            state_id = request.POST.get('state', False)
+            if state_id:
+                state = State.objects.get(id=int(state_id))
+            else:
+                state = None
+        except:
+            state = None
+
+        # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
+        logo_img = request.POST.get('logo', '')
+        if logo_img[:-3] == 'jpg':
+            logo = None
+        else:
+            try:
+                logo = FileUploads()
+                logo.type = 'community_logos'
+                logo.sub_type = community_id
+                logo_img = logo_img.split(',')[1]
+                imgData = base64.b64decode(logo_img)
+                now = int(time.time())
+                path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/img_out_community'+ community_id + str(now) +'.jpg'
+                img_file = open(path, 'wb')
+                img_file.write(imgData)
+                img_file.close()
+                im = Image.open(path)
+                x, y = im.size
+                p = Image.new('RGBA', im.size, (255, 255, 255))
+                p.paste(im, (0, 0, x, y), im)
+                p.save(path)
+                location_path = '/static/uploads/img_out_community' + community_id + str(now) +'.jpg'
+                logo.upload = str(location_path)
+                logo.save()
+            except Exception as e:
+                logo = None
+                log.warning('Error uploading logo: {0}'.format(e))
+
+        facilitator_list = get_post_facilitators(request)
+
+        private = request.POST.get('private', 0)
+        priority_id = 0
+
+        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
+        courses = get_post_dict(request, 'courses')
+        resource_names = get_post_dict(request, 'resource_names')
+        resource_links = get_post_dict(request, 'resource_links')
+
+        '''
+        If this is a new community, create a new entry, otherwise, load from the DB.
+        '''
+        community_object = ''
+        if community_id == 'new':
+            community_object = CommunityCommunities()
+        else:
+            community_object = CommunityCommunities.objects.get(id=community_id)
+
+        # Set all the community values and save to the DB.
+        community_object.name = name
+        community_object.motto = motto
+        if logo:
+            community_object.logo = logo
+        community_object.hangout = ""
+        community_object.private = int(private)
+        community_object.district = district
+        community_object.state = state
+        community_object.discussion_priority = int(priority_id)
+
+        # Sub community, Save main community id to sub community
+        main_community_id = request.POST.get('main_community_id', '')
+        if main_community_id:
+            try:
+                main_community = CommunityCommunities.objects.get(id=main_community_id)
+                community_object.main_id = int(main_community_id)
+            except Exception as e:
+                pass
+        # Save the community
+        community_object.save()
+
+        # Facilitators
+        old_facilitators = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+        for f in old_facilitators:
+            f.facilitator = False
+            f.community_default = False
+            f.community_edit = False
+            f.community_delete = False
+            f.receive_email = False
+            f.save()
+
+        new_facilitators_list = list() # facilitator not in this community
+        # Load the main user object for the facilitator user.
+        for f in facilitator_list:
+            user_object = False
+            try:
+                user_object = User.objects.get(email=f['email'])
+                f_default = f['default']
+                f_edit = f['edit']
+                f_delete = f['delete']
+                f_receive = f['receive']
+                try:
+                    community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+                except:
+                    community_user = CommunityUsers()
+                    community_user.community = community_object
+                    community_user.user = user_object
+                    community_user.last_access = datetime.datetime.now(UTC()) + timedelta(seconds=60*30)
+                    new_facilitators_list.append(community_user.user.id)
+                # Set the facilitator flag to true.
+                community_user.facilitator = True
+                community_user.community_default = f_default
+                community_user.community_edit = f_edit
+                community_user.community_delete = f_delete
+                community_user.receive_email = f_receive
+                community_user.save()
+            except Exception as e:
+                log.warning('Invalid email for facilitator: {0}'.format(e))
+
+        # My activity of add new facilitator(user not in this community) to this community
+        ma_db = myactivitystore()
+        for userid in new_facilitators_list:
+            if not main_community_id:
+                my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": userid, 
+                "URLValues": {"community_id": community_object.id},
+                "TokenValues": {"community_id": community_object.id},
+                "LogoValues": {"community_id": community_object.id}}
+            else:
+                my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": userid, 
+                "URLValues": {"community_id": community_object.id},
+                "TokenValues": {"community_id": community_object.id},
+                "LogoValues": {"community_id": community_object.id}}
+            ma_db.insert_item(my_activity)
+
+        # Init lists for notification
+        courses_add = []
+        courses_cur = dict((x.course, get_course_by_id(x.course)) for x in CommunityCourses.objects.filter(community=community_object))
+        resources_add = []
+        resources_cur = dict((x.link, x) for x in CommunityResources.objects.filter(community=community_object))
+
+        # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
+        CommunityCourses.objects.filter(community=community_object).delete()
+        # Go through the courses and add them to the DB.
+        for key, course in courses.iteritems():
+            # We only want to save an entry if there's something in it.
+            if course:
+
+                # Assign properties
+                course_object = CommunityCourses()
+                course_object.community = community_object
+                course_object.course = course
+                course_object.save()
+
+                # Record notification about modify courses
+                if courses_cur.get(course):
+                    del courses_cur[course]
+                else:
+                    courses_add.append(get_course_by_id(course_object.course))
+
+        # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
+        CommunityResources.objects.filter(community=community_object).delete()
+        # Go through the resource links, with the index so we can directly access the names and logos.
+        for key, resource_link in resource_links.iteritems():
+            # We only want to save an entry if there's something in it.
+            if resource_link:
+                log.debug(resource_link)
+                # Assign properties
+                resource_object = CommunityResources()
+                resource_object.community = community_object
+                resource_object.link = resource_link
+                resource_object.name = resource_names[key]
+
+                # The logo needs special handling since we might need to upload the file. First we try the entry in the
+                # FILES and try to upload it.
+                postget = request.POST.get('resource_logo[{0}]'.format(key))
+                logo = None
+                if postget:
+                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                    logo = FileUploads.objects.get(id=file_id)
+                else:
+                    if postget == None:
+                        log.debug("---logo")
+                        try:
+                            logo = FileUploads()
+                            logo.type = 'community_resource_logos'
+                            logo.sub_type = community_id
+                            logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                            logo.save()
+                        except Exception as e:
+                            logo = None
+                            log.warning('Error uploading resource_logo: {0}'.format(e))
+
+                if logo:
+                    resource_object.logo = logo
+
+                resource_object.save()
+                # Record notification about modify resources
+                if resources_cur.get(resource_link):
+                    del resources_cur[resource_link]
+                else:
+                    resources_add.append(resource_object)
+
+        send_notification(request.user,
+                          community_object.id,
+                          courses_add=courses_add,
+                          courses_del=courses_cur.values(),
+                          resources_add=resources_add,
+                          resources_del=resources_cur.values(),
+                          domain_name=domain_name)
+
+        log.debug("fin=======================")
+        return HttpResponse(json.dumps({'Success': 'True', 'community_id': community_object.id}), content_type='application/json')
+    except Exception as e:
+        data = {'error_title': 'Problem Saving Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Saving Community'}
+        return render_to_response('error.html', data)
+
+def get_post_dict(request, name):
+    output = dict()
+    value_str = request.POST.get(name, '')
+    if value_str:
+        value_list = value_str.split(',')
+        for k, v in enumerate(value_list):
+            output.update({str(k): v})
+    return output
+
+def get_post_facilitators(request):
+    output = list()
+    facilitators = request.POST.get('facilitators', '')
+    if facilitators:
+        facilitators_list = facilitators.split(',')
+        for f in facilitators_list:
+            f_info_list = f.split('::')
+            f_info = dict()
+            f_info['email'] = f_info_list[0]
+            if f_info_list[1] == '1':
+                f_info['default'] = True
+            else:
+                f_info['default'] = False
+
+            if f_info_list[2] == '1':
+                f_info['edit'] = True
+            else:
+                f_info['edit'] = False
+
+            if f_info_list[3] == '1':
+                f_info['delete'] = True
+            else:
+                f_info['delete'] = False
+
+            if f_info_list[4] == '1':
+                f_info['receive'] = True
+            else:
+                f_info['receive'] = False
+            output.append(f_info)
+    return output
+
+def is_facilitator_edit(user, community_id):
+    return True
+
+@login_required
+@ensure_csrf_cookie
+def save_last_subaccess_time(request):
+    community_id = request.POST.get("community_id", 0)
+    community_user = CommunityUsers.objects.filter(user=request.user, community=community_id)
+    if community_user:
+        community_user[0].last_access = datetime.datetime.now(UTC())
+        community_user[0].save()
+    return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+
+def community_user_email_completion(request):
+    r = list()
+    user_district = request.user.profile.district
+    lookup = request.GET.get('q', False)
+    if lookup:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
+        if not request.user.is_superuser:
+            kwargs.update({'profile__district': user_district})
+
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
+    return render_json_response(r)
+
+def community_user_email_valid(request):
+    exists = False
+    email_can_input = False
+    check_result = {'success': True, 'info': ''}
+
+    lookup = request.GET.get('email', False)
+    if lookup:
+        user_add = User.objects.filter(email=lookup)
+        exists = user_add.exists()
+        if exists:
+            if request.user.is_superuser or user_add[0].profile.district == request.user.profile.district:
+                email_can_input = True
+
+    if not exists:
+        check_result['success'] = False
+        check_result['info'] = 'User not exists.'
+    elif not email_can_input:
+        check_result['success'] = False
+        check_result['info'] = 'The user you are trying to add is not in your district.'
+
+    return render_json_response(check_result)
+
+def subcommunity_user_email_completion(request):
+    r = list()
+    user_district = request.user.profile.district
+    lookup = request.GET.get('q', False)
+    main_community_id = request.GET.get('main_id', 0)
+    if lookup and main_community_id:
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered', 'communityuser__community': main_community_id}
+
+        data = User.objects.filter(**kwargs)
+        for item in data:
+            r.append(item.email)
+    return render_json_response(r)
+
+def subcommunity_user_email_valid(request):
+    exists = False
+    email_can_input = False
+    check_result = {'success': True, 'info': ''}
+
+    lookup = request.GET.get('email', False)
+    main_community_id = request.GET.get('main_id', 0)
+    if lookup and main_community_id:
+        user_add = User.objects.filter(email=lookup)
+        exists = user_add.exists()
+        if exists:
+            main_community_user = CommunityUsers.objects.filter(user=user_add[0], community=main_community_id)
+            if user_add[0].is_superuser or main_community_user:
+                email_can_input = True
+
+    if not exists:
+        check_result['success'] = False
+        check_result['info'] = 'User not exists.'
+    elif not email_can_input:
+        check_result['success'] = False
+        check_result['info'] = 'The user you are trying to add is not the member of this community.'
+
+    return render_json_response(check_result)
+
+def communities_search_community_completion(request):
+    cinfo = list()
+    lookup = request.POST.get('q', False)
+    if lookup:
+        kwargs = {'name__istartswith': lookup, 'main_id': 0}
+
+        data = CommunityCommunities.objects.filter(**kwargs).order_by('-id')
+        for item in data:
+            cinfo.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps({"success": True, "cinfo": cinfo}), content_type="application/json")
+
+@login_required
+@ensure_csrf_cookie
+def get_resources_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    # Get Resources
+    resources_list = list()
+    resources = CommunityResources.objects.select_related().filter(community=int(community_id))
+    for k, r in enumerate(resources):
+        resources_list.append({'name': r.name, 'link': r.link, 'logo': get_file_url(r.logo)})   
+    return HttpResponse(json.dumps({'success': True, 'resources': resources_list}), content_type='application/json')
+
+@login_required
+@ensure_csrf_cookie
+def get_mycommunities_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    # Get My Communities
+    get_sub = request.POST.get('get_sub', False)
+    users = CommunityUsers.objects.filter(community=int(community_id), user__profile__subscription_status='Registered')
+    my_communities_list = list()
+    items = ''
+    if get_sub:
+        items = CommunityUsers.objects.select_related().filter(~Q(community__main_id=0),user=request.user).order_by('community__name')
+    else:
+        items = CommunityUsers.objects.select_related().filter(user=request.user, community__main_id=0).order_by('community__name')
+
+    for item in items:
+        my_communities_list.append({'id': item.community.id, 'name': item.community.name})
+    return HttpResponse(json.dumps({'success': True, 'my_communities': my_communities_list}), content_type='application/json')
+
+@login_required
+@ensure_csrf_cookie
+def get_subcommunities_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    # Get Subommunities
+    mongo3_store = community_discussions_store()
+    subcommunities_list = list()
+    subcommunities = CommunityCommunities.objects.select_related().filter(main_id=int(community_id)).order_by('name')
+    sc_count = subcommunities.count()
+    for k, item in enumerate(subcommunities):
+        my_subcommunity = CommunityUsers.objects.select_related().filter(community=item, user=request.user)
+        if my_subcommunity:
+            last_access_time = my_subcommunity[0].last_access
+            if not last_access_time:
+                last_access_time = datetime.datetime(2018, 1, 1, 0, 0, 0)
+            filter_cond = {"community_id": item.id, "db_table": "community_discussions", "date_create":{'$gt':last_access_time}} #133->item.id
+            count_new = mongo3_store.find(filter_cond).count()
+            if count_new > 99:
+                count_new = '99+'
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': True, 'count_new': count_new})
+        else:
+            subcommunities_list.append({'id': item.id, 'name': item.name, 'member': False})
+    return HttpResponse(json.dumps({'success': True, 'subcommunities': subcommunities_list}), content_type='application/json')
+
+@login_required
+@ensure_csrf_cookie
+def get_trending_discussions_process(request):
+    community_id = request.POST.get('community_id', 0)
+    if not community_id.isdigit():
+        return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+
+    mongo3_store = community_discussions_store()
+    trending_cond = {"community_id": int(community_id), "db_table": "community_discussions"}
+    trending_discussions = mongo3_store.find_size_sort(trending_cond, 0, 0, "view_counter", -1)
+    td_list = list()
+    for td in trending_discussions:
+        date_create_str = td['date_create'].strftime('%Y-%m-%d %H:%M:%S')
+        hyperlink = str(community_id) + "?v=1&d=" + str(ObjectId(td['_id']))
+        td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
+    return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
+
+@login_required
+def subcommunity_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cmain_id = community.main_id
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
+
+        # Delete subcommunity
+        community.delete()
+
+        mongo3_store = community_discussions_store()
+
+        # Get subcommunity discussion save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the subcommunity
+        mongo3_store.remove({'community_id': cid})
+
+        # Save info for my activity after delete the subcommunity
+        ma_db = myactivitystore()
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
+
+@login_required
+def community_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
+
+        subcommunities = CommunityCommunities.objects.filter(main_id=cid)
+        mongo3_store = community_discussions_store()
+        ma_db = myactivitystore()
+
+        for sc in subcommunities:
+            scid = sc.id
+            scname = sc.name
+            sclogo_url = get_file_url(sc.logo)
+
+            # Delete subcommunity
+            sc.delete()
+
+            sc_discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': scid})
+
+            # Get subcommunity discussion save info
+            sc_discussion_list = list()
+            for d in sc_discussions_mongo3:
+                sc_discussion_list.append({'cid': scid, 'did': str(d['_id']), 'dname': d['subject']})
+
+            # Delete discussions and all comments of the subcommunity
+            mongo3_store.remove({"community_id": scid})
+
+            # Save info for my activity after delete the subcommunity
+            ma_db.new_set_item_subcommunity(scid, scname, sclogo_url, sc_discussion_list)
+
+        # Delete community
+        community.delete()
+        # Get community discussion save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the community
+        mongo3_store.remove({"community_id": cid})
+
+        # Save info for my activity after delete the community
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
+
+# -------------------------------------------------------------------new_discussion_process
+def new_discussion_process(request):
+    get_flag = request.GET.get("flag")
+    post_flag = request.POST.get("flag")
+
+    if get_flag:
+        if get_flag == "organization_list":
+            return organization_list(request)
+
+    elif post_flag:
+        if post_flag == "get_discussions":
+            return new_process_get_discussions(request)
+
+        elif post_flag == "get_discussion_reply":
+            return new_process_get_discussion_reply(request)
+
+        elif post_flag == "discussions_pin_change":
+            return new_process_discussions_pin_change(request)
+
+        elif post_flag == "discussions_like":
+            return new_process_discussions_like(request)
+
+        elif post_flag == "submit_comment":
+            return new_process_submit_comment(request)
+
+        elif post_flag == "community_upload":
+            return new_process_community_upload(request)
+
+        elif post_flag == "discussions_delete":
+            return new_process_discussions_delete(request)
+
+
+# -------------------------------------------------------------------new_process_get_discussions
+@login_required
+def new_process_get_discussions(request):
+    try:
+        hyperlink_v = request.POST.get('hyperlink_v', '')
+        hyperlink_d = request.POST.get('hyperlink_d', '')
+        hyperlink_c = request.POST.get('hyperlink_c', '')
+        hyperlink_nc = request.POST.get('hyperlink_nc', '')
+        community_id = int(request.POST.get('community_id', 0))
+        discussion_id = request.POST.get('discussion_id', '')
+        size = int(request.POST.get('size', 0))
+        reply_size = int(request.POST.get('reply_size', 0))
+        mongo3_store = community_discussions_store()
+        data = {'Success': False}
+        total = mongo3_store.get_community_discussions(community_id, 0, 0).count()
+
+        hyperlink_find_sql = ""
+        if hyperlink_d:
+            hy_tmp1_view = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(hyperlink_d)})
+            if hy_tmp1_view is not None:
+                hy_total = mongo3_store.find_size_sort({"db_table": "community_discussions", "community_id": community_id, "date_create": {"$gte": hy_tmp1_view['date_create']}}, 0, 0, "date_create", -1).count()
+                if hy_total > size:
+                    hyperlink_find_sql = {"date_create": {"$gte": hy_tmp1_view['date_create']}, "community_id": community_id, "db_table": "community_discussions"}
+
+        if hyperlink_find_sql != "":
+            find_sql = hyperlink_find_sql
+            size = 0
+        else:
+            if discussion_id:
+                tmp_find_el = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(discussion_id)})
+                find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "community_id": community_id, "db_table": "community_discussions"}
+                # find_sql = {"_id": {"$lt": ObjectId(discussion_id)}, "community_id": community_id, "db_table": "community_discussions"}
+            else:
+                find_sql = {"community_id": community_id, "db_table": "community_discussions"}
+
+        discussions_json = []
+        poll_connect = poll_store()
+        for disc in mongo3_store.get_community_discussions_cond(find_sql, 0, size):
+            mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(disc['_id'])}, {"$inc": {"view_counter": 1}})
+
+            user = User.objects.get(id=disc['user'])
+            discussions_json_1 = {}
+            discussions_json_1['child'] = []
+
+            has_poll = poll_connect.poll_exists('discussion', str(disc['_id']))
+            if has_poll:
+                tmp_data = poll_data('discussion', str(disc['_id']), request.user.id)
+                discussions_json_1['poll_str'] = str(tmp_data)
+                discussions_json_1['poll_question'] = tmp_data['question']
+                discussions_json_1['poll_answers'] = tmp_data['answers']
+                iterator = range(0, len(tmp_data['answers']))
+                discussions_json_1['poll_answers_list'] = []
+                for i in iterator:
+                    tmp_answer = {}
+                    tmp_answer['i'] = str(i)
+                    tmp_answer['answers'] = tmp_data['answers'][str(i)]
+                    tmp_answer['width'] = tmp_data['votes'][str(i)]['percent'] * 2
+                    tmp_answer['percent'] = tmp_data['votes'][str(i)]['percent']
+                    discussions_json_1['poll_answers_list'].append(tmp_answer)
+                    # discussions_json_1['poll_expiration'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=tmp_data['expiration'])
+
+                discussions_json_1['poll_expired'] = tmp_data['expired']
+                discussions_json_1['poll_user_answered'] = tmp_data['user_answered']
+                discussions_json_1['poll_votes'] = json.dumps(tmp_data['votes'])
+                discussions_json_1['poll_type'] = tmp_data['poll_type']
+                discussions_json_1['poll_id'] = str(tmp_data['poll_id'])
+
+            discussions_json_1['has_poll'] = has_poll
+
+            total_2 = mongo3_store.find({"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}).count(True)
+
+            find_sql2 = {"discussion_id": ObjectId(disc['_id']), "db_table": "community_discussion_replies"}
+            size2 = reply_size
+            if str(disc['_id']) == hyperlink_d:
+                if hyperlink_c:
+                    hy_tmp1_view2 = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(hyperlink_c)})
+                    if hy_tmp1_view2 is not None:
+                        hy_total2 = mongo3_store.find_size_sort({"db_table": "community_discussion_replies", "discussion_id": ObjectId(hyperlink_d), "date_create": {"$gte": hy_tmp1_view2['date_create']}}, 0, 0, "date_create", -1).count()
+
+                        if hy_total2 > reply_size:
+                            find_sql2 = {"date_create": {"$gte": hy_tmp1_view2['date_create']}, "discussion_id": ObjectId(hyperlink_d), "db_table": "community_discussion_replies"}
+                            size2 = 0
+
+            for itemx_1 in mongo3_store.find_size_sort(find_sql2, 0, size2, "date_create", -1):
+                mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(itemx_1['_id'])}, {"$inc": {"view_counter": 1}})
+
+                user_1 = User.objects.get(id=itemx_1['user'])
+                discussions_json_2 = {}
+                discussions_json_2['child'] = []
+
+                tmp_reply_next = ""
+                total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
+
+                find_sql3 = {"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}
+                size3 = reply_size
+                if str(itemx_1['_id']) == hyperlink_c:
+                    if hyperlink_nc:
+                        hy_tmp1_view3 = mongo3_store.find_one({"db_table": "community_discussion_replies_next", "_id": ObjectId(hyperlink_nc)})
+                        if hy_tmp1_view3 is not None:
+                            hy_total3 = mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(hyperlink_c), "date_create": {"$gte": hy_tmp1_view3['date_create']}}, 0, 0, "date_create", -1).count()
+
+                            if hy_total3 > reply_size:
+                                find_sql3 = {"date_create": {"$gte": hy_tmp1_view3['date_create']}, "replies_id": ObjectId(hyperlink_c), "db_table": "community_discussion_replies_next"}
+                                size3 = 0
+
+                for itemx_2 in mongo3_store.find_size_sort(find_sql3, 0, size3, "date_create", -1):
+                    mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(itemx_2['_id'])}, {"$inc": {"view_counter": 1}})
+
+                    user_2 = User.objects.get(id=itemx_2['user'])
+                    discussions_json_3 = {}
+
+                    attachment_next_reply = ""
+                    attachment_next_reply_url = ""
+                    attachment_next_reply_name = ""
+                    if 'attachment' in itemx_2:
+                        attachment_next_reply = str(itemx_2['attachment'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment'])
+                            attachment_next_reply_name = get_file_name(tmp_file)
+                            attachment_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    attachment_pict_next_reply = ""
+                    attachment_pict_next_reply_url = ""
+                    attachment_pict_next_reply_name = ""
+                    if 'attachment_pict' in itemx_2:
+                        attachment_pict_next_reply = str(itemx_2['attachment_pict'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment_pict'])
+                            attachment_pict_next_reply_name = get_file_name(tmp_file)
+                            attachment_pict_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    like_reply_next_size = ""
+                    like_reply_next_data = new_process_get_like_info(itemx_2['_id'], request.user.id)
+                    is_reply_next_liked = like_reply_next_data['is_liked']
+                    if like_reply_next_data['Success']:
+                        like_reply_next_size = str(like_reply_next_data['like_size'])
+
+                    discussions_json_3['_id'] = str(itemx_2['_id'])
+                    discussions_json_3['community_id'] = str(itemx_2['community_id'])
+                    discussions_json_3['user'] = itemx_2['user']
+                    discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
+                    discussions_json_3['post'] = itemx_2['post']
+                    discussions_json_3['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_2['date_create'])
+                    discussions_json_3['like_reply_next_size'] = like_reply_next_size
+                    discussions_json_3['is_reply_next_liked'] = is_reply_next_liked
+                    discussions_json_3['first_name'] = user_2.first_name
+                    discussions_json_3['last_name'] = user_2.last_name
+                    discussions_json_3['attachment'] = attachment_next_reply
+                    discussions_json_3['attachment_name'] = attachment_next_reply_name
+                    discussions_json_3['attachment_url'] = attachment_next_reply_url
+                    discussions_json_3['attachment_pict'] = attachment_pict_next_reply
+                    discussions_json_3['attachment_pict_name'] = attachment_pict_next_reply_name
+                    discussions_json_3['attachment_pict_url'] = attachment_pict_next_reply_url
+
+                    discussions_json_2['child'].append(discussions_json_3)
+
+                attachment_reply = ""
+                attachment_reply_url = ""
+                attachment_reply_name = ""
+                if 'attachment' in itemx_1:
+                    attachment_reply = str(itemx_1['attachment'])
+                    try:
+                        tmp_file = FileUploads.objects.get(id=itemx_1['attachment'])
+                        attachment_reply_name = get_file_name(tmp_file)
+                        attachment_reply_url = get_file_url(tmp_file)
+                    except Exception as e1:
+                        pass
+
+                attachment_pict_reply = ""
+                attachment_pict_reply_url = ""
+                attachment_pict_reply_name = ""
+                if 'attachment_pict' in itemx_1:
+                    attachment_pict_reply = str(itemx_1['attachment_pict'])
+                    try:
+                        tmp_file = FileUploads.objects.get(id=itemx_1['attachment_pict'])
+                        attachment_pict_reply_name = get_file_name(tmp_file)
+                        attachment_pict_reply_url = get_file_url(tmp_file)
+                    except Exception as e1:
+                        pass
+
+                like_reply_size = ""
+                like_reply_data = new_process_get_like_info(itemx_1['_id'], request.user.id)
+                is_reply_liked = like_reply_data['is_liked']
+                if like_reply_data['Success']:
+                    like_reply_size = str(like_reply_data['like_size'])
+
+                discussions_json_2['_id'] = str(itemx_1['_id'])
+                discussions_json_2['community_id'] = str(itemx_1['community_id'])
+                discussions_json_2['user'] = itemx_1['user']
+                discussions_json_2['user_photo'] = reverse('user_photo', args=[str(itemx_1['user'])])
+                discussions_json_2['post'] = itemx_1['post']
+                discussions_json_2['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_1['date_create'])
+                discussions_json_2['like_reply_size'] = like_reply_size
+                discussions_json_2['is_reply_liked'] = is_reply_liked
+                discussions_json_2['first_name'] = user_1.first_name
+                discussions_json_2['last_name'] = user_1.last_name
+                discussions_json_2['attachment'] = attachment_reply
+                discussions_json_2['attachment_name'] = attachment_reply_name
+                discussions_json_2['attachment_url'] = attachment_reply_url
+                discussions_json_2['attachment_pict'] = attachment_pict_reply
+                discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
+                discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
+                discussions_json_2['total'] = total_3
+
+                discussions_json_1['child'].append(discussions_json_2)
+
+            attachment = ""
+            attachment_url = ""
+            attachment_name = ""
+            if 'attachment' in disc:
+                attachment = str(disc['attachment'])
+                try:
+                    tmp_file = FileUploads.objects.get(id=disc['attachment'])
+                    attachment_name = get_file_name(tmp_file)
+                    attachment_url = get_file_url(tmp_file)
+                except Exception as e1:
+                    pass
+
+            attachment_pict = ""
+            attachment_pict_url = ""
+            attachment_pict_name = ""
+            if 'attachment_pict' in disc:
+                attachment_pict = str(disc['attachment_pict'])
+                try:
+                    tmp_file = FileUploads.objects.get(id=disc['attachment'])
+                    attachment_pict_name = get_file_name(tmp_file)
+                    attachment_pict_url = get_file_url(tmp_file)
+                except Exception as e1:
+                    pass
+
+            pin = ""
+            if 'pin' in disc:
+                pin = str(disc['pin'])
+
+            like_size = ""
+            like_first = ""
+            like_last = ""
+            like_data = new_process_get_like_info(disc['_id'], request.user.id)
+            is_liked = like_data['is_liked']
+            if like_data['Success']:
+                like_size = str(like_data['like_size'])
+                like_first = like_data['like_first']
+                like_last = like_data['like_last']
+
+            discussions_json_1['_id'] = str(disc['_id'])
+            discussions_json_1['community_id'] = str(disc['community_id'])
+            discussions_json_1['user'] = disc['user']
+            discussions_json_1['user_photo'] = reverse('user_photo', args=[str(disc['user'])])
+            discussions_json_1['subject'] = disc['subject']
+            discussions_json_1['post'] = disc['post']
+            discussions_json_1['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc['date_create'])
+            discussions_json_1['pin'] = pin
+            discussions_json_1['like_size'] = like_size
+            discussions_json_1['like_first'] = like_first
+            discussions_json_1['like_last'] = like_last
+            discussions_json_1['is_liked'] = is_liked
+            discussions_json_1['first_name'] = user.first_name
+            discussions_json_1['attachment'] = attachment
+            discussions_json_1['attachment_name'] = attachment_name
+            discussions_json_1['attachment_url'] = attachment_url
+            discussions_json_1['attachment_pict'] = attachment_pict
+            discussions_json_1['attachment_pict_name'] = attachment_pict_name
+            discussions_json_1['attachment_pict_url'] = attachment_pict_url
+            discussions_json_1['total'] = total_2
+
+            discussions_json.append(discussions_json_1)
+
+        data['Success'] = True
+        data['total'] = total
+        data['discussions_json'] = discussions_json
+        data['community'] = request.POST.get('community_id')
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+
+# -------------------------------------------------------------------new_process_get_discussion_reply
+@login_required
+def new_process_get_discussion_reply(request):
+    try:
+        # id = 0
+        size = int(request.POST.get('size', 10))
+        comment_id = request.POST.get('comment_id', '')
+        pid = request.POST.get('pid', '')
+        level = request.POST.get('level', '')
+        if level and pid:
+            mongo3_store = community_discussions_store()
+            data = {'Success': False}
+
+            if level == "1":
+                total = mongo3_store.find({"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}).count(True)
+            else:
+                total = mongo3_store.find({"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}).count(True)
+
+            discussions_json = []
+            if level == "1":
+                if comment_id:
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+                else:
+                    find_sql = {"discussion_id": ObjectId(pid), "db_table": "community_discussion_replies"}
+
+                for itemx_1 in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+                    user_1 = User.objects.get(id=itemx_1['user'])
+                    discussions_json_2 = {}
+                    discussions_json_2['child'] = []
+
+                    tmp_reply_next = ""
+
+                    total_3 = mongo3_store.find({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}).count(True)
+
+                    for itemx_2 in mongo3_store.find_size_sort({"replies_id": ObjectId(itemx_1['_id']), "db_table": "community_discussion_replies_next"}, 0, size, "date_create", -1):
+                        user_2 = User.objects.get(id=itemx_2['user'])
+                        discussions_json_3 = {}
+
+                        attachment_next_reply = ""
+                        attachment_next_reply_url = ""
+                        attachment_next_reply_name = ""
+                        if 'attachment' in itemx_2:
+                            attachment_next_reply = str(itemx_2['attachment'])
+                            try:
+                                tmp_file = FileUploads.objects.get(id=itemx_2['attachment'])
+                                attachment_next_reply_name = get_file_name(tmp_file)
+                                attachment_next_reply_url = get_file_url(tmp_file)
+                            except Exception as e1:
+                                pass
+
+                        attachment_pict_next_reply = ""
+                        attachment_pict_next_reply_url = ""
+                        attachment_pict_next_reply_name = ""
+                        if 'attachment_pict' in itemx_2:
+                            attachment_pict_next_reply = str(itemx_2['attachment_pict'])
+                            try:
+                                tmp_file = FileUploads.objects.get(id=itemx_2['attachment_pict'])
+                                attachment_pict_next_reply_name = get_file_name(tmp_file)
+                                attachment_pict_next_reply_url = get_file_url(tmp_file)
+                            except Exception as e1:
+                                pass
+
+                        like_reply_next_size = ""
+                        like_reply_next_data = new_process_get_like_info(itemx_2['_id'], request.user.id)
+                        is_reply_next_liked = like_reply_next_data['is_liked']
+                        if like_reply_next_data['Success']:
+                            like_reply_next_size = str(like_reply_next_data['like_size'])
+
+                        discussions_json_3['_id'] = str(itemx_2['_id'])
+                        discussions_json_3['community_id'] = str(itemx_2['community_id'])
+                        discussions_json_3['user'] = itemx_2['user']
+                        discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
+                        discussions_json_3['post'] = itemx_2['post']
+                        discussions_json_3['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_2['date_create'])
+                        discussions_json_3['like_reply_next_size'] = like_reply_next_size
+                        discussions_json_3['is_reply_next_liked'] = is_reply_next_liked
+                        discussions_json_3['first_name'] = user_2.first_name
+                        discussions_json_3['last_name'] = user_2.last_name
+                        discussions_json_3['attachment'] = attachment_next_reply
+                        discussions_json_3['attachment_name'] = attachment_next_reply_name
+                        discussions_json_3['attachment_url'] = attachment_next_reply_url
+                        discussions_json_3['attachment_pict'] = attachment_pict_next_reply
+                        discussions_json_3['attachment_pict_name'] = attachment_pict_next_reply_name
+                        discussions_json_3['attachment_pict_url'] = attachment_pict_next_reply_url
+
+                        discussions_json_2['child'].append(discussions_json_3)
+
+                    attachment_reply = ""
+                    attachment_reply_url = ""
+                    attachment_reply_name = ""
+                    if 'attachment' in itemx_1:
+                        attachment_reply = str(itemx_1['attachment'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_1['attachment'])
+                            attachment_reply_name = get_file_name(tmp_file)
+                            attachment_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    attachment_pict_reply = ""
+                    attachment_pict_reply_url = ""
+                    attachment_pict_reply_name = ""
+                    if 'attachment_pict' in itemx_1:
+                        attachment_pict_reply = str(itemx_1['attachment_pict'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_1['attachment_pict'])
+                            attachment_pict_reply_name = get_file_name(tmp_file)
+                            attachment_pict_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    like_reply_size = ""
+                    like_reply_data = new_process_get_like_info(itemx_1['_id'], request.user.id)
+                    is_reply_liked = like_reply_data['is_liked']
+                    if like_reply_data['Success']:
+                        like_reply_size = str(like_reply_data['like_size'])
+
+                    discussions_json_2['_id'] = str(itemx_1['_id'])
+                    discussions_json_2['community_id'] = str(itemx_1['community_id'])
+                    discussions_json_2['user'] = itemx_1['user']
+                    discussions_json_2['user_photo'] = reverse('user_photo', args=[str(itemx_1['user'])])
+                    discussions_json_2['post'] = itemx_1['post']
+                    discussions_json_2['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_1['date_create'])
+                    discussions_json_2['like_reply_size'] = like_reply_size
+                    discussions_json_2['is_reply_liked'] = is_reply_liked
+                    discussions_json_2['first_name'] = user_1.first_name
+                    discussions_json_2['last_name'] = user_1.last_name
+                    discussions_json_2['attachment'] = attachment_reply
+                    discussions_json_2['attachment_name'] = attachment_reply_name
+                    discussions_json_2['attachment_url'] = attachment_reply_url
+                    discussions_json_2['attachment_pict'] = attachment_pict_reply
+                    discussions_json_2['attachment_pict_name'] = attachment_pict_reply_name
+                    discussions_json_2['attachment_pict_url'] = attachment_pict_reply_url
+                    discussions_json_2['total'] = total_3
+
+                    discussions_json.append(discussions_json_2)
+            else:
+                if comment_id:
+                    tmp_find_el = mongo3_store.find_one({"db_table": "community_discussion_replies_next", "_id": ObjectId(comment_id)})
+                    find_sql = {"date_create": {"$lt": tmp_find_el['date_create']}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                    # find_sql = {"_id": {"$lt": ObjectId(comment_id)}, "replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+                else:
+                    find_sql = {"replies_id": ObjectId(pid), "db_table": "community_discussion_replies_next"}
+
+                for itemx_2 in mongo3_store.find_size_sort(find_sql, 0, size, "date_create", -1):
+                    user_2 = User.objects.get(id=itemx_2['user'])
+                    discussions_json_3 = {}
+
+                    attachment_next_reply = ""
+                    attachment_next_reply_url = ""
+                    attachment_next_reply_name = ""
+                    if 'attachment' in itemx_2:
+                        attachment_next_reply = str(itemx_2['attachment'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment'])
+                            attachment_next_reply_name = get_file_name(tmp_file)
+                            attachment_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    attachment_pict_next_reply = ""
+                    attachment_pict_next_reply_url = ""
+                    attachment_pict_next_reply_name = ""
+                    if 'attachment_pict' in itemx_2:
+                        attachment_pict_next_reply = str(itemx_2['attachment_pict'])
+                        try:
+                            tmp_file = FileUploads.objects.get(id=itemx_2['attachment_pict'])
+                            attachment_pict_next_reply_name = get_file_name(tmp_file)
+                            attachment_pict_next_reply_url = get_file_url(tmp_file)
+                        except Exception as e1:
+                            pass
+
+                    like_reply_next_size = ""
+                    like_reply_next_data = new_process_get_like_info(itemx_2['_id'], request.user.id)
+                    is_reply_next_liked = like_reply_next_data['is_liked']
+                    if like_reply_next_data['Success']:
+                        like_reply_next_size = str(like_reply_next_data['like_size'])
+
+                    discussions_json_3['_id'] = str(itemx_2['_id'])
+                    discussions_json_3['community_id'] = str(itemx_2['community_id'])
+                    discussions_json_3['user'] = itemx_2['user']
+                    discussions_json_3['user_photo'] = reverse('user_photo', args=[str(itemx_2['user'])])
+                    discussions_json_3['post'] = itemx_2['post']
+                    discussions_json_3['date_create'] = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=itemx_2['date_create'])
+                    discussions_json_3['like_reply_next_size'] = like_reply_next_size
+                    discussions_json_3['is_reply_next_liked'] = is_reply_next_liked
+                    discussions_json_3['first_name'] = user_2.first_name
+                    discussions_json_3['last_name'] = user_2.last_name
+                    discussions_json_3['attachment'] = attachment_next_reply
+                    discussions_json_3['attachment_name'] = attachment_next_reply_name
+                    discussions_json_3['attachment_url'] = attachment_next_reply_url
+                    discussions_json_3['attachment_pict'] = attachment_pict_next_reply
+                    discussions_json_3['attachment_pict_name'] = attachment_pict_next_reply_name
+                    discussions_json_3['attachment_pict_url'] = attachment_pict_next_reply_url
+
+                    discussions_json.append(discussions_json_3)
+
+            data['Success'] = True
+            data['total'] = total
+            data['discussions_json'] = discussions_json
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)
+
+
+# -------------------------------------------------------------------new_process_discussions_pin_change
+@login_required
+def new_process_discussions_pin_change(request):
+    did = request.POST.get("discussion_id", "")
+    pin_flag = request.POST.get("pin_flag", "")
+    mongo3_store = community_discussions_store()
+    data = {'Success': False}
+
+    if did and pin_flag:
+        if pin_flag == "pin":
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$set": {"pin": 1}})
+        else:
+            tmp_list = mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$unset": {"pin": ""}})
+
+        data = {'Success': True}
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_discussions_like
+@login_required
+def new_process_discussions_like(request):
+    community_id = request.POST.get("community_id", "")
+    did = request.POST.get("did", "")
+    cid = request.POST.get("comment_id", "")
+    mongo3_store = community_discussions_store()
+    data = {'Success': False}
+
+    if did and community_id:
+        result = mongo3_store.find_one({"db_table": "community_like", "did": ObjectId(did), "user": request.user.id})
+        if not result:
+            itemx = {"db_table": "community_like", "did": ObjectId(did), "user": request.user.id, "community_id": long(community_id), "date_create": datetime.datetime.now(UTC())}
+            mongo3_store.insert(itemx)
+        else:
+            mongo3_store.remove({"db_table": "community_like", "did": ObjectId(did), "user": request.user.id})
+
+        data = new_process_get_like_info(did, request.user.id)
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_get_like_info
+def new_process_get_like_info(did, uid):
+    mongo3_store = community_discussions_store()
+    data = {'Success': False, 'like_size': 0}
+    # ObjectId(parent_id)
+    result_list = mongo3_store.find_size_sort({"db_table": "community_like", "did": ObjectId(did)}, 0, 0, "date_create", -1)
+    like_size = mongo3_store.find({"db_table": "community_like", "did": ObjectId(did)}).count()
+
+    for itemx in result_list:
+        itemx_user = User.objects.get(id=itemx['user'])
+        data = {'Success': True, 'like_size': like_size, 'like_first': itemx_user.first_name, 'like_last': itemx_user.last_name}
+        break
+
+    result = mongo3_store.find_one({"db_table": "community_like", "did": ObjectId(did), "user": uid})
+    if result:
+        data['is_liked'] = "1"
+    else:
+        data['is_liked'] = "0"
+
+    return data
+
+
+# -------------------------------------------------------------------new_process_submit_comment
+@login_required
+def new_process_submit_comment(request):
+    try:
+        domain_name = request.META['HTTP_HOST']
+        disc_id = request.POST.get("disc_id", "")
+        did = request.POST.get("did", "")
+        fid = request.POST.get("fid", "")
+        fid_level = request.POST.get("fid_level", "")
+        fid_attr_isdel = request.POST.get("fid_attr_isdel", "")
+        fid_pict_isdel = request.POST.get("fid_pict_isdel", "")
+        community_id = request.POST.get("community_id", "")
+        content = request.POST.get("content", "")
+        level = request.POST.get("level", "")
+        main_community_id = request.POST.get("main_community_id", "")
+        data = {'Success': False, 'did': did, 'content': content, 'level': level}
+        mongo3_store = community_discussions_store()
+        new_json = {}
+
+        if did and level and community_id:
+            tmp_date_create = datetime.datetime.now(UTC())
+            attachment_id = ""
+            attachment_url = ""
+            attachment_name = ""
+            attachment_pict_id = ""
+            attachment_pict_url = ""
+            attachment_pict_name = ""
+
+            if level == "1":
+                my_discussion_post = {
+                    "community_id": long(community_id),
+                    "discussion_id": ObjectId(did),
+                    "post": content,
+                    "user": request.user.id,
+                    "date_create": tmp_date_create,
+                    "view_counter": 0,
+                    "db_table": "community_discussion_replies"
+                }
+                replies_id = mongo3_store.insert(my_discussion_post)
+
+                rs = myactivitystore()
+                if not main_community_id:
+                    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                    "URLValues": {"discussion_id": str(replies_id)},
+                    "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
+                    "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
+                else:
+                    my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                    "URLValues": {"discussion_id": str(replies_id)},
+                    "TokenValues": {"reply_id":str(replies_id), "discussion_id": str(did), "community_id": long(community_id)},
+                    "LogoValues": {"discussion_id": str(replies_id), "community_id": int(community_id)}}
+                rs.insert_item(my_activity)
+
+                if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
+                    try:
+                        attachment = FileUploads()
+                        attachment.type = 'discussion_attachment'
+                        attachment.sub_type = did
+                        attachment.upload = request.FILES.get('upload_attr')
+                        attachment.save()
+
+                        attachment_id = str(attachment.id)
+                        attachment_url = get_file_url(attachment)
+                        attachment_name = get_file_name(attachment)
+                    except:
+                        attachment = None
+                else:
+                    attachment = None
+
+                if request.FILES.get('upload_pict') is not None and request.FILES.get('upload_pict').size:
+                    try:
+                        attachment_pict = FileUploads()
+                        attachment_pict.type = 'discussion_attachment'
+                        attachment_pict.sub_type = did
+                        attachment_pict.upload = request.FILES.get('upload_pict')
+                        attachment_pict.save()
+
+                        attachment_pict_id = str(attachment_pict.id)
+                        attachment_pict_url = get_file_url(attachment_pict)
+                        attachment_pict_name = get_file_name(attachment_pict)
+                    except:
+                        attachment_pict = None
+                else:
+                    attachment_pict = None
+
+                if attachment:
+                    mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
+
+                if attachment_pict:
+                    mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(replies_id)}, {"$set": {"attachment_pict": attachment_pict.id}})
+
+                mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
+
+                data['_id'] = str(replies_id)
+                data['pid'] = did
+                data['post'] = content
+                data['first_name'] = request.user.first_name
+                data['last_name'] = request.user.last_name
+                data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+                data['is_reply_liked'] = ""
+                data['like_reply_size'] = "0"
+            else:
+                if fid and fid_level:
+                    if fid_level == "2":
+                        mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"post": content}})
+
+                        if fid_attr_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$unset": {"attachment": ""}})
+
+                        if fid_pict_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$unset": {"attachment_pict": ""}})
+
+                    elif fid_level == "3":
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"post": content}})
+
+                        if fid_attr_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$unset": {"attachment": ""}})
+
+                        if fid_pict_isdel == "1":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$unset": {"attachment_pict": ""}})
+                else:
+                    my_discussion_post = {
+                        "discussion_id": ObjectId(disc_id),
+                        "community_id": long(community_id),
+                        "replies_id": ObjectId(did),
+                        "post": content,
+                        "user": request.user.id,
+                        "date_create": tmp_date_create,
+                        "view_counter": 0,
+                        "db_table": "community_discussion_replies_next"
+                    }
+                    replies_id = mongo3_store.insert(my_discussion_post)
+
+                    rs = myactivitystore()
+                    if not main_community_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                        "URLValues": {"discussion_id": str(disc_id)},
+                        "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
+                        "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_replydiscussion2", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id,
+                        "URLValues": {"discussion_id": str(disc_id)},
+                        "TokenValues": {"reply2_id": str(replies_id), "reply_id": str(did), "discussion_id": str(disc_id), "community_id": long(community_id)},
+                        "LogoValues": {"discussion_id": str(disc_id), "community_id": long(community_id)}}
+                    rs.insert_item(my_activity)
+
+                if request.FILES.get('upload_attr') is not None and request.FILES.get('upload_attr').size:
+                    try:
+                        attachment = FileUploads()
+                        attachment.type = 'discussion_attachment'
+                        attachment.sub_type = did
+                        attachment.upload = request.FILES.get('upload_attr')
+                        attachment.save()
+
+                        attachment_id = str(attachment.id)
+                        attachment_url = get_file_url(attachment)
+                        attachment_name = get_file_name(attachment)
+                    except:
+                        attachment = None
+                else:
+                    attachment = None
+
+                if attachment:
+                    if fid and fid_level:
+                        if fid_level == "2":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"attachment": attachment.id}})
+                        elif fid_level == "3":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"attachment": attachment.id}})
+                    else:
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment": attachment.id}})
+
+                if request.FILES.get('upload_pict') is not None and request.FILES.get('upload_pict').size:
+                    try:
+                        attachment_pict = FileUploads()
+                        attachment_pict.type = 'discussion_attachment'
+                        attachment_pict.sub_type = did
+                        attachment_pict.upload = request.FILES.get('upload_pict')
+                        attachment_pict.save()
+
+                        attachment_pict_id = str(attachment_pict.id)
+                        attachment_pict_url = get_file_url(attachment_pict)
+                        attachment_pict_name = get_file_name(attachment_pict)
+                    except:
+                        attachment_pict = None
+                else:
+                    attachment_pict = None
+
+                if attachment_pict:
+                    if fid and fid_level:
+                        if fid_level == "2":
+                            mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(fid)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                        elif fid_level == "3":
+                            mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(fid)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                    else:
+                        mongo3_store.update({"db_table": "community_discussion_replies_next", "_id": ObjectId(replies_id)}, {"$set": {"attachment_pict": attachment_pict.id}})
+                if fid and fid_level:
+                    pass
+                else:
+                    mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": tmp_date_create}})
+
+                    data['_id'] = str(replies_id)
+                    data['pid'] = did
+                    data['post'] = content
+                    data['first_name'] = request.user.first_name
+                    data['last_name'] = request.user.last_name
+                    data['user_photo'] = reverse('user_photo', args=[str(request.user.id)])
+                    data['is_reply_next_liked'] = ""
+                    data['like_reply_next_size'] = "0"
+
+            data["attachment"] = attachment_id
+            data["attachment_url"] = attachment_url
+            data["attachment_name"] = attachment_name
+            data["attachment_pict"] = attachment_pict_id
+            data["attachment_pict_url"] = attachment_pict_url
+            data["attachment_pict_name"] = attachment_pict_name
+            data["Success"] = True
+            send_notification(request.user, community_id, discussions_reply=[str(did)], domain_name=domain_name)
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+# -------------------------------------------------------------------new_process_discussions_delete
+@login_required
+def new_process_discussions_delete(request):
+    try:
+        domain_name = request.META['HTTP_HOST']
+        did = request.POST.get("discussion_id", "")  # parent_id
+        cid = request.POST.get("comment_id", "")
+        typex = request.POST.get("type", "")
+        data = {'Success': False}
+        # log.debug("================")
+        if did and typex:
+            mongo3_store = community_discussions_store()
+            if typex == "main":
+                discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                send_notification(request.user, discussion['community_id'], discussions_delete=[str(did)], domain_name=domain_name)
+                mongo3_store.remove({"db_table": "community_discussion_replies_next", "discussion_id": ObjectId(did)})
+                mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
+                mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
+
+                ma_db = myactivitystore()
+                ma_db.new_set_item_community_discussion(discussion['community_id'], str(discussion['_id']), discussion['subject'])
+
+                poll_connect = poll_store()
+                if poll_connect.poll_exists('discussion', did):
+                    poll_connect.delete_poll('discussion', did)
+
+            elif typex == "reply" and cid:
+                level = request.POST.get("level", "")
+                discussion = ""
+                if level == "2":
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                else:
+                    reply1 = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(did)})
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": reply1['discussion_id']})
+                send_notification(request.user, discussion['community_id'], replies_delete=[str(did)], domain_name=domain_name)
+
+                if level == "2":
+                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
+                    mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})
+
+                    have_reply = True
+                    for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)}, 0, 0, "date_create", -1):
+                        mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$set": {"date_reply": itemx['date_create']}})
+                        have_reply = False
+                        break
+                    if have_reply:
+                        mongo3_store.update({"db_table": "community_discussions", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
+
+                elif level == "3":
+                    mongo3_store.remove({"db_table": "community_discussion_replies_next", "_id": ObjectId(cid)})
+                    
+                    have_reply = True
+                    for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(did)}, 0, 0, "date_create", -1):
+                        mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": itemx['date_create']}})
+                        have_reply = False
+                        break
+                    if have_reply:
+                        mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
+            data = {'Success': True}
+
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return render_json_response(data)

@@ -842,7 +842,7 @@ a{
                     cms_items = cms_items + "<span class='organization_cms_icon " + style_class +"' grade='" + cms_grade + "'><a target='_blank'  href='" + tmp1.Url + "'><img src='/static/uploads/organization/cms/" + str(organization_obj.id) + "/" + tmp1.Icon + "' width='150' height='194' /></a></span>"
 
             if num > 4:
-                cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"            
+                cms_items = cms_items + "<span class='organization_cms_icon more'><a class='icon-more'></a><a href='javascript:void(0)' onclick='more(this,\""+cms_grade+"\")'>More</a></span>"
             data["cms_items"] = cms_items
 %>
 <%namespace name='static' file='static_content.html'/>
@@ -1205,41 +1205,39 @@ $(document).ready(function(){
     }
     function my_activity_create_ico(data){
         //switch_ActivityType
-        switch(data.g_type)
-        {
-            case 'Community':
-                data.html_ico = '<a href="'+data.URL+'">'
-                data.html_ico += '<div class="ma-community-ico">';
-                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logoUrl+')">';
-                data.html_ico += '<div style="height:41px;"></div>';
-                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.logoName+'</span>';
-                data.html_ico += '</div>';
-                data.html_ico += '</div>';
-                data.html_ico += '</a>';
-                break;
-            case 'Courses':
-                data.html_ico = '<a href="'+data.URL+'">';
-                data.html_ico += '<div class="ma-course-course-card">';
-                data.html_ico += '<div>';
-                data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.logoUrl+'" alt="Cover Image">';
-                data.html_ico += '</div>';
-                data.html_ico += '<div class="ma-course-course-title">';
-                data.html_ico += '<div class="ma-course-card-link">'+data.logoName+'</div>';
-                data.html_ico += '</div>';
-                data.html_ico += '</div>';
-                data.html_ico += '</a>';
-                break;
-            default:
-                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
-                data.html_ico += '<tr>';
-                if(data.g_type == 'MyFeed'){
-                    data.html_ico += '<td align="center"><img class="ma_mf_btn" src="'+data.logoUrl+'"></img></td>';
-                }
-                else{
-                    data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
-                }
-                data.html_ico += '</tr>';
-                data.html_ico += '</table>';
+        if(data.g_type == 'Community' || data.g_type == 'Subcommunity'){
+            data.html_ico = '<a href="'+data.URL+'">'
+            data.html_ico += '<div class="ma-community-ico">';
+            data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logoUrl+')">';
+            data.html_ico += '<div style="height:41px;"></div>';
+            data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.logoName+'</span>';
+            data.html_ico += '</div>';
+            data.html_ico += '</div>';
+            data.html_ico += '</a>';
+        }
+        else if(data.g_type == 'Courses'){
+            data.html_ico = '<a href="'+data.URL+'">';
+            data.html_ico += '<div class="ma-course-course-card">';
+            data.html_ico += '<div>';
+            data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.logoUrl+'" alt="Cover Image">';
+            data.html_ico += '</div>';
+            data.html_ico += '<div class="ma-course-course-title">';
+            data.html_ico += '<div class="ma-course-card-link">'+data.logoName+'</div>';
+            data.html_ico += '</div>';
+            data.html_ico += '</div>';
+            data.html_ico += '</a>';
+        }
+        else{
+            data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
+            data.html_ico += '<tr>';
+            if(data.g_type == 'MyFeed'){
+                data.html_ico += '<td align="center"><img class="ma_mf_btn" src="'+data.logoUrl+'"></img></td>';
+            }
+            else{
+                data.html_ico += '<td align="center"><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
+            }
+            data.html_ico += '</tr>';
+            data.html_ico += '</table>';
         }
     }
 
@@ -1316,7 +1314,7 @@ $(document).ready(function(){
                 } 
             }
         }
-
+        // console.log("1111111: ",height_max);
         if(height_max > 0){
             var a1 = page_top + height_max;
             var a2 = $(this).height() - a1;
@@ -1548,7 +1546,7 @@ $(document).ready(function(){
     });
 });
 function more(b,type){
-        a = "span[grade='"+type+"']"
+        a = "span[grade="+type+"]"
         if ($(b).html() == 'More'){
             $(a).addClass('show')
             $(b).prev().removeClass('icon-more')
