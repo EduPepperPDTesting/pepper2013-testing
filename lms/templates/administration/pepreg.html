@@ -121,22 +121,22 @@
     .directions-control.directions-control-inputs {left: 5px !important; top: 5px !important;}
     .ui-autocomplete {z-index: 100000 !important;}
 	.ui-button-icon-primary{left:-1px !important; top:-1px !important;}
-	
+
 	#calendar-month{margin-top: 0 !important;}
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;text-overflow:ellipsis !important;}
-	
+
 	#calendar-month tr td .al_3{ background-color:#22b14c; text-shadow: 0 0px !important; color:#FFFFFF !important}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
 	#calendar-month tr td .al_6{ background-color:#ffc90e; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
-	
+
 	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF !important; width:80px; text-align:left;}
-	
+
 	#calendar-month tr td .al_4{background-color:#595959; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_4 span{position: relative; left: -10px; float: left; margin-left: 10px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
 	#calendar-month tr td .al_7{background-color:#fa0000; width:95px; color:#FFFFFF !important; text-shadow: 0 0px !important;}
@@ -155,7 +155,7 @@
 	#calendar-panel .calendar_exp .c4{background-color:#595959;}
 	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}
     #calendar-panel .calendar_exp .c8{background-color:#FF8C00;}
-	
+
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
@@ -414,7 +414,7 @@
           	<div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">I can register: </span><span class="calendar_exp_color c3"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">I am registered: </span><span class="calendar_exp_color c2"></span></span>
-                <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
+                <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>
             </div>
             <div class = "training_legend">
                 <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
@@ -722,7 +722,7 @@
                                 <input type="checkbox" name="allow_certificate">
                                 <select name="certificate"></select>
                             </div>
-                            <span id="no_certificates" style="display: none">No Certificates for the Organization.</span>    
+                            <span id="no_certificates" style="display: none">No Certificates for the Organization.</span>
                             <span class="check-mark"
                                   alt="A certificate can be selected for this event that has been configured by the administrator in the organization configuration screen."></span>
 
@@ -2498,7 +2498,7 @@
                 } else {
                     $("#send_certificate_btn").hide();
                 }
-			
+
                 var dlg = new Dialog($("#dlg-students"));
                 dlg.show("Student Information for " + r.training_name);
                 $tbody = $("#dlg-students").find("tbody").empty();
@@ -2808,7 +2808,7 @@
                     return; // continue
                 var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
 				var all_edit = $(this).find("input[name=all_edit]").val();
-				var all_delete = $(this).find("input[name=all_delete]").val();				
+				var all_delete = $(this).find("input[name=all_delete]").val();
                 var apart = $(this).find("input[name=status]").val().split(",");
                 var arrive = apart[0];
                 var status = apart[1];
@@ -2823,7 +2823,7 @@
 					all_edit = "1";
 					all_delete = "1";
 				}
-				
+
                 if (is_row_admin) {
 					if(all_edit == "1"){
 						$("<a href='' class='icon icon-edit' a='"+all_edit+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
@@ -2913,7 +2913,7 @@
                     } else if (arrive == "1" && allow_student_attendance == "1") {
                         var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
                         $check.prop('checked', status == "Attended" || status == "Validated");
-                        
+
 						if (attendancel_id.length) {
                             $check.change(function () {
                                 if (this.checked) {
@@ -2999,7 +2999,7 @@
                 // instructors
                 $(this).find("td:nth-child(13)").each(function () {
                   $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
-                });  
+                });
             });
         });
 
@@ -3187,13 +3187,14 @@
                                 var disp = "block";
                                 var hidden = 'false';
                                 for(var i = 1; i <= suborder; i++){
-                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase()){
+                                    console.log(v+" "+v.toLowerCase().replace(/\s/g, "_")+" "+(i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val()))+" "+($("#advanced_select_" + i).val() == v.toLowerCase().replace(/\s/g, "_")));
+                                    if((i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val())) && $("#subcondition_" + i).val() == 'and' && $("#advanced_select_" + i).val() == v.toLowerCase().replace(/\s/g, "_")){
                                         disp = "none";
                                         hidden = 'true';
                                         break;
                                     }
                                 }
-                                $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase() +"'>" + v + "</option>");
+                                $("#advanced_select_" + nextOrder).append("<option data-hidden='" + hidden + "'  style='display: " + disp + ";' value='"+ v.toLowerCase().replace(/\s/g, "_") +"'>" + ((v.indexOf("Training") != -1) ? v.replace("Training", "").trim() : v) + "</option>");
                             });
                         }
                     });
@@ -3600,10 +3601,10 @@
             minDate: lock_past ? 0 : new Date("1999-9-9")
         });
     });
-	
+
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-	
-    $(document).ready(function () {		
+
+    $(document).ready(function () {
 		//---------------------------------------
         $('.columnSelectorButton').click(function (e) {
             if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
