@@ -3123,7 +3123,7 @@
                     var options_array = [];
                     for(var i = 1; i <= $(".advanced_select").length; i++){
                         console.log(v+" "+v.toLowerCase().replace(/\s/g, "_")+" "+(i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val()))+" "+($("#advanced_select_" + i).val() == v.toLowerCase().replace(/\s/g, "_")));
-                        if(($("#advanced_select_" + i).val() == last_option) && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val()))){
+                        if(options_array.indexOf($("#advanced_select_" + i).val()) == -1 && (i == 1 || $("#subcondition_" + (i - 1)).val() == 'and' || ($("#subcondition_" + (i - 1)).val() == 'or' && $("#advanced_select_" + (i - 1)).val() == $("#advanced_select_" + i).val()))){
                             options_array.push($("#advanced_select_" + i).val());
                         }
                     }
