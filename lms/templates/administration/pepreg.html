@@ -3158,7 +3158,7 @@
                     reloadTableAdvanced();
 
                     if($("#addNext_" + suborder).length == 0){
-                        $("#advanced_select_" + suborder).next("div").append("<a href='#' class='addNext' id='addNext_" + suborder + "' name='"+ suborder +"' style='position: relative; top: 3px !important;'> + </a>");
+                        $("#advanced_select_" + suborder).next("div").append("<a href='#' class='addNext addItem' id='addNext_" + suborder + "' name='"+ suborder +"'> + </a>");
                     }
                 }else if(val == ""){
                     $("#addNext_" + suborder).remove();
@@ -3172,12 +3172,12 @@
         });
 
         $("#advanced_search").on("click", ".addNext", function () {
-            var addNext = $(this).text();
+            var addNext = $(this).hasClass("addItem");
             var suborder = parseInt($(this).attr("name"));
             var nextOrder = suborder + 1;
             filters = $.tablesorter.getFilters($("#data-table"));
-            if(addNext == " + "){
-                $(this).text(" - ").css({"position": "relative", "top": "5px", "left": "-5px", "font-size": "3em", "height": "10px", "line-height": ".4em"});
+            if(addNext){
+                $(this).addClass('removeItem').removeClass('addItem').text(" - ");
                 $("#advanced_select_" + suborder).next("div").append("<select id='subcondition_" + suborder + "' name='" + suborder + "' autocomplete='off' class='subcondition' style='position: relative; left: -10px;'></select>");
                 if($("#advanced_select_" + suborder + " option[data-hidden='false']").length > 1){
                     $("#subcondition_" + suborder).append("<option value='and'>AND</option>");
@@ -3217,7 +3217,7 @@
                 }
 
             }else{
-                $(this).text(" + ").css({"position": "relative", "top": "3px", "left": "-3px", "font-size": "2em", "height": "", "line-height": ""});
+                $(this).addClass('addItem').removeClass('removeItem').text(" + ");
                 $("#subcondition_" + suborder).remove();
 
                 removeNextFilter(suborder);
