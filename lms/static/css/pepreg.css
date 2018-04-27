@@ -608,19 +608,20 @@ table.students td{
 
 .addNext {
     position: relative;
-    top: 5px;
     left: -5px;
-    text-decoration: none;
+    text-decoration: none !important;
 }
 
 .addItem {
+    top: 5px;
     font-size: 2em !important;
 }
 
 .removeItem {
-    font-size: 3em !important;;
+    top: 6px;
+    font-size: 3em !important;
     height: 10px;
-    line-height: .4em;
+    line-height: .4em !important;
 }
 
 .adv_date{
