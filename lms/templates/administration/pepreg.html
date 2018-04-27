@@ -3129,7 +3129,7 @@
                     }
                     for(var n = 1; n <= $(".advanced_select").length; n++){
                         $("#advanced_select_"+n).find("option").each(function () {
-                            if($(this).attr("data-hidden") == "true" and options_array.indexOf($(this).val()) == -1){
+                            if($(this).attr("data-hidden") == "true" && options_array.indexOf($(this).val()) == -1){
                                 $(this).attr("data-hidden", "false").css("display", "block");
                             }
                         });
