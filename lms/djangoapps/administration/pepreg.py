@@ -93,9 +93,9 @@ def build_filters(columns, filters):
                 if(value.find("^") == 0):
                     out_value = value[value.find("|") + 1:]
                     if columns[c][0] == "training_date":
-                        out_value = datetime.strptime(out_value, '%m/%d/%Y').date()
+                        out_value = datetime.strptime(out_value, '%m/%d/%Y').strftime('%Y-%m-%d')
                     elif columns[c][0].startswith("training_time"):
-                        out_value = datetime.strptime(out_value, '%I:%M %p')
+                        out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
                     if(value[1] != "0"):
                         r = value[1]
                         kwargs_condition = ranges.get(r)
@@ -267,15 +267,15 @@ def rows(request):
             "district": 2,
             "subject": 3,
             "date": 7,
-            "training time start": 8,
-            "training time end": 12
+            "training_start_time": 8,
+            "training_end_time": 12
         }
 
+        item_order = -1
         for field_item in field_list:
-            item_unit = field_item.split("|")
+            item_order += 1
+            item = field_item.encode("utf-8")
 
-            item = item_unit[0].encode("utf-8")
-            item_order = int(item_unit[1])
             #if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
             try:
                 condition = conditions[item_order].encode("utf-8")
