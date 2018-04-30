@@ -116,7 +116,7 @@ def build_filters(columns, filters):
                     kwargs[columns[c][0] + columns[c][1]] = out_value
                 out_value = value
             except ValueError as e:
-                raise log.Exception(e)
+                raise Exception(e)
             #raise Exception("c="+str(c))
             # if columns[c][2] == 'int' and value.isdigit():
             #     out_value = int(value)
