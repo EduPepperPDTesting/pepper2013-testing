@@ -3105,7 +3105,7 @@
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                 $("input[name='"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ console.log(suborder); $("#subselect_" + suborder).change();}}});
-                                $("input[name='"+ suborder + "']").on("click", function(){$(this).css("top": "3px");}
+                                $("input[name='"+ suborder + "']").on("click", function(){$(this).css("top", "3px");}
                             }else if(data.rows[0] == "Time"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect adv_time'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
@@ -3113,7 +3113,7 @@
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                  $("input[name='"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).css("bottom": "1.5px");.addClass("timeID");});
+                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).css("bottom", "1.5px");.addClass("timeID");});
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
