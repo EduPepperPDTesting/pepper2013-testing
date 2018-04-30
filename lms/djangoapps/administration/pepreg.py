@@ -79,8 +79,6 @@ def build_filters(columns, filters):
     """
     kwargs = dict()
     args = None
-    ranges = {"1": "__lt", "2": "__gt", "3": "__lte", "4": "__gte"}
-    kwargs_condition = ''
 
     # Iterate through the filters.
     for column, value in filters.iteritems():
@@ -91,6 +89,8 @@ def build_filters(columns, filters):
             # If the column is an integer value, convert the search term.
             try:
                 if(c in [7, 8, 12]):
+                    ranges = {0: "__iexact", 1: "__lt", 2: "__gt", 3: "__lte", 4: "__gte"}
+                    kwargs_condition = ''
                     out_value = value[value.find("|") + 1:]
                     if columns[c][0] == "training_date":
                         #date_in = str(out_value)
@@ -100,10 +100,8 @@ def build_filters(columns, filters):
                         #time_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
                         #raise ValueError(time_in + " time out: " + str(out_value))
-                    if(value[1] != "0"):
-                        r = value[1]
-                        kwargs_condition = ranges.get(r)
-                        kwargs[columns[c][0] + ranges.get(r)] = out_value
+
+                    kwargs_condition = ranges[int(value[1])]
 
                 else:
                     if columns[c][2] == 'int' and value.isdigit():
@@ -113,9 +111,9 @@ def build_filters(columns, filters):
 
                     # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
                     # type of selection to make ([1] - '__iexact').
-                    kwargs[columns[c][0] + columns[c][1]] = out_value
+                    # kwargs[columns[c][0] + columns[c][1]] = out_value
                 out_value = value
-            except ValueError as e:
+            except Exception as e:
                 raise Exception(e)
             #raise Exception("c="+str(c))
             # if columns[c][2] == 'int' and value.isdigit():
