@@ -3175,7 +3175,7 @@
         $("#advanced_search").on("change", ".range_condition", function () {
             var suborder = $(this).attr("name");
             if($("#subselect_" + suborder) !== "") reloadTableAdvanced();
-        }
+        });
 
         $("#advanced_search").on("click", ".addNext", function () {
             var addNext = $(this).hasClass("addItem");
