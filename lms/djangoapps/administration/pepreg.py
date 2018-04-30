@@ -93,13 +93,13 @@ def build_filters(columns, filters):
                 if(c in [7, 8, 12]):
                     out_value = value[value.find("|") + 1:]
                     if columns[c][0] == "training_date":
-                        date_in = str(out_value)
+                        #date_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%m/%d/%Y').strftime('%Y-%m-%d')
-                        raise ValueError(date_in + "date out: " + str(out_value))
+                        #raise ValueError(date_in + "date out: " + str(out_value))
                     elif columns[c][0].startswith("training_time"):
-                        time_in = str(out_value)
+                        #time_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
-                        raise ValueError(time_in + " time out: " + str(out_value))
+                        #raise ValueError(time_in + " time out: " + str(out_value))
                     if(value[1] != "0"):
                         r = value[1]
                         kwargs_condition = ranges.get(r)
