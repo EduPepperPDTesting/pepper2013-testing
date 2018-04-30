@@ -296,6 +296,7 @@ urlpatterns = (
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
+    url(r'^pepconn/school_by_district$', 'administration.pepconn.get_schools_by_district', name="pepconn_get_schools_by_district"),
 
     url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
     url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),

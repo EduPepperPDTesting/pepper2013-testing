@@ -1175,6 +1175,7 @@ function submitCohortEdit(){
     });
 }
 function editUserData(id){
+    user_id = id;
     $.post('${reverse("pepconn_user_get_info")}', {
         id: id
     }, function (r) {
@@ -1197,24 +1198,26 @@ function editUserData(id){
         if($("#userCohortValue option:selected" ).attr("data-district") != id){
             $("#userSchoolValue").val("");
         }
+
+        $.post('${reverse("pepconn_get_schools_by_district")}', {
+            id:user_id,
+            district:$("#userDistrictValue").val()
+        }, function (r) {
+            $("#userSchoolValue").empty().append(r.code);
+        });
         $("#userDistrictValue").change(function(){
-            id=$(this).val();
+            dist_id = $(this).val();
             $("#userCohortValue > option").each(function() {
-                if($(this).attr("data-district") != id){
+                if($(this).attr("data-district") != dist_id){
                     $(this).hide();
                 } else $(this).show();
             });
-            $("#userSchoolValue > option").each(function() {
-                if($(this).attr("data-district") != id){
-                    $(this).hide();
-                }else $(this).show();
+            $.post('${reverse("pepconn_get_schools_by_district")}', {
+                id:user_id,
+                district:dist_id
+            }, function (r) {
+                $("#userSchoolValue").empty().append(r.code);
             });
-            if($("#userSchoolValue option:selected" ).attr("data-district") != id){
-                $("#userSchoolValue").val("");
-            }
-            if($("#userCohortValue option:selected" ).attr("data-district") != id){
-                $("#userSchoolValue").val("");
-            }
         });
     });
 }

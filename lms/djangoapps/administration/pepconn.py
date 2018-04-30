@@ -504,6 +504,26 @@ def cohort_get_info(request):
     return HttpResponse(j, content_type="application/json")
 
 
+def get_schools_by_district(request):
+    user_id = request.POST.get('id')
+    profile = UserProfile.objects.prefetch_related().get(id=user_id)
+    code = ""
+    try:
+        d_id = request.POST.get('district')
+        district = District.objects.get(id=d_id)
+        for school in School.objects.filter(district_id=district.id):
+            try:
+                if profile.school_id == school.id:
+                    code += "<option value = '"+str(school.id)+"' selected>" + str(school.name)+"</option>"
+                else:
+                    code += "<option value = '"+str(school.id)+"'>" + str(school.name)+"</option>"
+            except:
+                code += "<option value = '"+str(school.id)+"'>" + str(school.name)+"</option>"
+    except:
+        None
+    j = json.dumps({'code':code})
+    return HttpResponse(j, content_type="application/json")
+
 def user_get_info(request):
     user_id = request.POST.get('id')
     profile = UserProfile.objects.prefetch_related().get(id=user_id)
@@ -535,7 +555,7 @@ def user_get_info(request):
                     except:
                         code += "<option value = '"+str(item.id)+"' data-district='-1'>"+str(item.code)+"</option>"
 
-        code += "</select><br><br>TEST"
+        code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
             try:
