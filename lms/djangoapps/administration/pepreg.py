@@ -87,10 +87,10 @@ def build_filters(columns, filters):
         # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
             c = int(column)
-            raise Exception("column value %s %s" % (column, value))
+
             # If the column is an integer value, convert the search term.
             try:
-                if(value.find("^") == 0):
+                if(c in [7, 8, 12]):
                     out_value = value[value.find("|") + 1:]
                     if columns[c][0] == "training_date":
                         date_in = str(out_value)
@@ -275,9 +275,8 @@ def rows(request):
             "training_end_time": 12
         }
 
-        item_order = -1
-        for field_item in field_list:
-            item_order += 1
+        for item_order, field_item in enumerate(field_list):
+
             item = field_item.encode("utf-8")
 
             #if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
