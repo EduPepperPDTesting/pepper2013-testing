@@ -93,9 +93,13 @@ def build_filters(columns, filters):
                 if(value.find("^") == 0):
                     out_value = value[value.find("|") + 1:]
                     if columns[c][0] == "training_date":
+                        date_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%m/%d/%Y').strftime('%Y-%m-%d')
+                        raise Exception(date_in + "date out: " + str(out_value))
                     elif columns[c][0].startswith("training_time"):
+                        time_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
+                        raise Exception(time_in + " time out: " + str(out_value))
                     if(value[1] != "0"):
                         r = value[1]
                         kwargs_condition = ranges.get(r)
