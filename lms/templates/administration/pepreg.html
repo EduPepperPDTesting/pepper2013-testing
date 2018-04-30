@@ -3155,7 +3155,6 @@
             console.log("subselect val="+val);
             var suborder = $(this).attr("name");
             var fieldID = $(this).attr("id");
-            $(".timeID").removeClass("timeID");
 
             if(fieldID.indexOf('subselect') == 0){
                 if(val != ""){
@@ -3650,6 +3649,7 @@
         var el=e.target;
         if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)") && $('.td-clock').is(":visible") && el.className!='td-clock' && $(el).closest('.td-clock').length==0){
             $(".timeID").trigger("change");
+            $(".timeID").removeClass("timeID");
         }
     });
     $('#complete-email').autocomplete({
@@ -3660,6 +3660,7 @@
     $(document).on('mouseup', '.td-select', function(){
         if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
             $(".timeID").trigger("change");
+            $(".timeID").removeClass("timeID");
         }
     });
 </script>
