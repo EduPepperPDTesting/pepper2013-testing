@@ -3113,7 +3113,7 @@
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                  $("input[name='"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).css("bottom", "1.5px");.addClass("timeID");});
+                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).css("bottom", "1.5px").addClass("timeID");});
                             }
                         }else{
                             $("#advanced_select_" + suborder).val($("#advanced_select_" + suborder).data('oldvalue'));
