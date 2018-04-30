@@ -95,11 +95,11 @@ def build_filters(columns, filters):
                     if columns[c][0] == "training_date":
                         date_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%m/%d/%Y').strftime('%Y-%m-%d')
-                        raise Exception(date_in + "date out: " + str(out_value))
+                        raise ValueError(date_in + "date out: " + str(out_value))
                     elif columns[c][0].startswith("training_time"):
                         time_in = str(out_value)
                         out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
-                        raise Exception(time_in + " time out: " + str(out_value))
+                        raise ValueError(time_in + " time out: " + str(out_value))
                     if(value[1] != "0"):
                         r = value[1]
                         kwargs_condition = ranges.get(r)
@@ -115,8 +115,9 @@ def build_filters(columns, filters):
                     # type of selection to make ([1] - '__iexact').
                     kwargs[columns[c][0] + columns[c][1]] = out_value
                 out_value = value
-            except:
-                raise Exception("c="+str(c))
+            except ValueError as e:
+                raise log.Exception(e)
+            #raise Exception("c="+str(c))
             # if columns[c][2] == 'int' and value.isdigit():
             #     out_value = int(value)
 
