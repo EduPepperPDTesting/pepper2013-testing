@@ -101,7 +101,7 @@ def build_filters(columns, filters):
                         out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
                         #raise ValueError(time_in + " time out: " + str(out_value))
 
-                    kwargs_condition = ranges[int(value[1])]
+                    kwargs_condition = ranges[int(value[0])]
 
                 else:
                     if columns[c][2] == 'int' and value.isdigit():
