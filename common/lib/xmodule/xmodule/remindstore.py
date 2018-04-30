@@ -11,9 +11,11 @@ import datetime
 from importlib import import_module
 from django.conf import settings
 from xmodule.modulestore.exceptions import ItemNotFoundError
-log = logging.getLogger(__name__)
+#log = logging.getLogger(__name__)
 from bson import ObjectId
 from django.contrib.auth.models import User
+
+log = logging.getLogger("tracking")
 
 # TODO (cpennington): This code currently operates under the assumption that
 # there is only one revision for each item. Once we start versioning inside the CMS,
@@ -278,7 +280,7 @@ class MongoMyActivityStore(object):
         #community discussion
         self.collection.update({'EventType':'community_creatediscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
         self.collection.update({'EventType':'community_replydiscussion','LogoValues.community_id':community_id},{'$set':{'LogoValues.logoName':community_name}}, multi=True)
-  
+
         for d in discussions:
             self.collection.update(
                 {'EventType':'community_creatediscussion','URLValues.discussion_id':d.id},
@@ -324,6 +326,28 @@ class MongoMyActivityStore(object):
             year_end = str(d2['ActivityDateTime'])[0:4]
             break
         return int(year_start), int(year_end)
+
+    def new_set_item_community_discussion(self, community_id, discussion_id, discussion_name):
+        self.collection.update(
+            {'TokenValues.discussion_id': discussion_id, 'TokenValues.community_id': community_id},
+            {'$set': {'LogoValues': {'community_id': community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+
+    def new_set_item_subcommunity(self, community_id, community_name, community_logo, discussion_list):
+        # save info to the subcommunity
+        self.collection.update(
+            {'TokenValues.community_id': community_id},
+            {'$set': {'LogoValues': {
+                                    'community_id': community_id, 
+                                    'community_name': community_name, 
+                                    'logoName': community_name,
+                                    'logoUrl': community_logo}}}, multi=True)
+
+        # save discussion_name to each discussion
+        for d in discussion_list:
+            self.collection.update(
+            {'TokenValues.discussion_id': d['did'], 'TokenValues.community_id': d['cid']},
+            {'$set': {'LogoValues.discussion_id': d['did'],
+                      'LogoValues.discussion_name': d['dname']}}, multi=True)
 
 class MongoMyActivityStaticStore(object):
 
