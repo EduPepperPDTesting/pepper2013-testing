@@ -3100,7 +3100,7 @@
                                 });
                             }else if(data.rows[0] == "Date"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='" + suborder + "' value='' class='search datePickText time_subselect adv_date' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='range_condition time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
@@ -3108,7 +3108,7 @@
                                 $("input[name='"+ suborder + "']").on("click", function(){$(this).css("top", "3px");});
                             }else if(data.rows[0] == "Time"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect adv_time'/>");
-                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='time_subselect'></select>");
+                                $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='range_condition time_subselect'></select>");
                                 $.each(logic_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
