@@ -112,7 +112,7 @@ def build_filters(columns, filters):
                     # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
                     # type of selection to make ([1] - '__iexact').
                     # kwargs[columns[c][0] + columns[c][1]] = out_value
-                out_value = value
+                #out_value = value
             except Exception as e:
                 raise Exception(e)
             #raise Exception("c="+str(c))
