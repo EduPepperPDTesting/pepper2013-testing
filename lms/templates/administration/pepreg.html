@@ -3006,7 +3006,9 @@
 
         /* advanced filtering */
         var filters = [];
-        var logic_conditions = ["equal to", "less than", "greater than", "equal to or less than", "equal to or greater than"];
+        //var logic_conditions = ["equal to", "less than", "greater than", "equal to or less than", "equal to or greater than"];
+        var date_conditions = ["on", "before", "after", "on or before", "on or after"];
+        var time_conditions = ["at", "before", "past", "at or before", "at or past"];
 
         $("#switch_search").click(function(){
             if($("#switch_search").text()=="Advanced Search"){
@@ -3108,7 +3110,7 @@
                             }else if(data.rows[0] == "Date"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='" + suborder + "' value='' class='search datePickText time_subselect adv_date' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true' style='left: 5px; margin-right: 5px;'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='range_condition time_subselect'></select>");
-                                $.each(logic_conditions, function (index, value){
+                                $.each(date_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                 $("input[name='"+ suborder + "']").datepicker({onSelect: function(d,i){if(d !== i.lastVal){ console.log(suborder); $("#subselect_" + suborder).change();}}});
@@ -3116,7 +3118,7 @@
                             }else if(data.rows[0] == "Time"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='' id='subselect_" + suborder + "' name='" + suborder + "' value=''  data-column='" + data.data_column + "' placeholder='Select Time' class='timePickText time_subselect adv_time' style='left: 5px; margin-right: 5px;'/>");
                                 $("#advanced_select_" + suborder).next("div").prepend("<select id='range_condition_" + suborder + "' name='" + suborder + "' class='range_condition time_subselect'></select>");
-                                $.each(logic_conditions, function (index, value){
+                                $.each(time_conditions, function (index, value){
                                     $("#range_condition_" + suborder).append("<option value='" + index + "'>" + value + "</option>")
                                 });
                                  $("input[name='"+ suborder + "']").timeDropper({readonly: true, format: 'h:mm A', meridians: true});
