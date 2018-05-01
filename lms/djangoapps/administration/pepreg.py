@@ -79,7 +79,7 @@ def build_filters(columns, filters):
     """
     kwargs = dict()
     args = None
-
+    kwargs_condition = ''
     # Iterate through the filters.
     for column, value in filters.iteritems():
         # For the numerical columns, just filter that column by the passed value.
@@ -2443,7 +2443,18 @@ def getsearchdata(request):
         data_column = str(field_type[search_data][0])
 
         if field_type[search_data][1] == "Subject":
-            rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
+            rows = [{"AR": "Assessments and Reporting"},
+                    {"DC": "Digital Citizenship"},
+                    {"ELA": "English Language Arts"},
+                    {"ELL": "English Language Learners"},
+                    {"MA": "Mathematics"},
+                    {"PEP": "Pepper"},
+                    {"POW": "Pepper's Online Workshops!"},
+                    {"SC": "Science"},
+                    {"SE": "Special Education"},
+                    {"TECH": "Technology"},
+                    {"WR": "Writing and Poetry"},
+                    {"Other": "Other"}]
         elif field_type[search_data][1] not in not_query:
             for item in field_type[search_data][1].objects.all().order_by("name"):
                 rows.append(item.name)

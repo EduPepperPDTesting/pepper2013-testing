@@ -3091,8 +3091,17 @@
                                 var optValue;
                                 $.each(data.rows, function(k, v){
                                     if(val == "subject"){
-                                        var subject_dict = {"Assessments and Reporting": "AR", "Digital Citizenship": "DC", "English Language Arts": "ELA"};
-                                        optValue = (subject_dict[v]) ? subject_dict[v] : "";
+                                        $.each(this, function (key, name) {
+                                            optValue = key;
+                                            if(key != 'Other')
+                                                v = name;
+                                            }
+                                            if(key == 'Other'){
+                                                %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False).order_by("subjectother"):
+                                                   var v = ${item.subjectother};
+                                                %endfor
+                                            }
+                                        });
                                     }else{
                                         optValue = v;
                                     }
@@ -3661,7 +3670,6 @@
         if($(".advanced_select").length > 0 && $("#dlg-add-training").is(":not(:visible)")){
             $(".timeID").trigger("change");
             $(".timeID").removeClass("timeID");
-            $(".td-fadein").removeClass("td-show td-fadein").addClass(td-fadeout);
         }
     });
 </script>
