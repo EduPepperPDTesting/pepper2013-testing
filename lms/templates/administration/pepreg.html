@@ -3092,20 +3092,18 @@
                                 $.each(data.rows, function(k, v){
                                     if(val == "subject"){
                                         $.each(this, function (key, name) {
-                                            optValue = key;
-                                            if(key != 'Other')
-                                                v = name;
+                                            if(key != 'Other'){
+                                                $("#subselect_" + suborder).append("<option value='"+ key +"'>" + name + "</option>");
                                             }
                                             if(key == 'Other'){
                                                 %for item in PepRegTraining.objects.exclude(~Q(district__name = request.user.profile.district.name) | Q(subjectother__exact='')).filter(subjectother__isnull=False).order_by("subjectother"):
-                                                   var v = ${item.subjectother};
+                                                    $("#subselect_" + suborder).append("<option value='${item.subjectother}'>${item.subjectother}</option>");
                                                 %endfor
                                             }
                                         });
                                     }else{
-                                        optValue = v;
+                                        $("#subselect_" + suborder).append("<option value='"+ v +"'>" + v + "</option>");
                                     }
-                                    $("#subselect_" + suborder).append("<option value='"+ optValue +"'>" + v + "</option>");
                                 });
                             }else if(data.rows[0] == "Date"){
                                 $("#advanced_select_" + suborder).next("div").prepend("<input type='text' id='subselect_" + suborder + "' name='" + suborder + "' value='' class='search datePickText time_subselect adv_date' data-column='" + data.data_column + "' placeholder='Select Date' readonly='true'/>");
