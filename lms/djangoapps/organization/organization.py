@@ -2455,8 +2455,6 @@ def organization_course_list(request):
                     if subject_id != 'all' and subject_id not in course.display_subject:
                         pass
                     else:
-                        log.debug(course.display_subject)
-                        log.debug(course.display_organization)
                         if author_id != 'all' and author_id != course.display_organization:
                             pass
                         else:

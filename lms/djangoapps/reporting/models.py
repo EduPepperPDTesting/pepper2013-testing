@@ -4,8 +4,14 @@ from django.conf import settings
 import pymongo
 import logging
 import json
+from xmodule.course_module import CourseDescriptor
+from xmodule.modulestore.django import modulestore
 log = logging.getLogger("tracking")
 
+def course_from_id(course_id):
+    """Return the CourseDescriptor corresponding to this course_id"""
+    course_loc = CourseDescriptor.id_to_location(course_id)
+    return modulestore().get_instance(course_id, course_loc)
 
 class Categories(models.Model):
     class Meta:
