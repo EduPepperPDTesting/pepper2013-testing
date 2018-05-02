@@ -360,10 +360,16 @@ def community_join(request, community_id):
 
                 if manage == "1":
                     ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
-                    "URLValues": {"community_id": community.id},
-                    "TokenValues": {"community_id": community.id},
-                    "LogoValues": {"community_id": community.id}}
+                    if not maincommunity_id:
+                        my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
+                    else:
+                        my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                        "URLValues": {"community_id": community.id},
+                        "TokenValues": {"community_id": community.id},
+                        "LogoValues": {"community_id": community.id}}
                     ma_db.insert_item(my_activity)
                 else:
                     ma_db = myactivitystore()
@@ -384,10 +390,16 @@ def community_join(request, community_id):
 
     if manage == "1":
         ma_db = myactivitystore()
-        my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
-        "URLValues": {"community_id": community.id},
-        "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
-        "LogoValues": {"community_id": community.id}}
+        if not maincommunity_id:
+            my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
+        else:
+            my_activity = {"GroupType": "Subcommunity", "EventType": "subcommunity_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"community_id": community.id},
+            "TokenValues": {"community_id": community.id, "user_ids": request.POST.get("user_ids", "")}, 
+            "LogoValues": {"community_id": community.id}}
         ma_db.insert_item(my_activity)
 
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
@@ -430,7 +442,9 @@ def get_trending(community_id):
     c = CommunityCommunities.objects.get(id=community_id)
     posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:5]
     for tv in trending_views:
-        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+        tt = CommunityDiscussions.objects.filter(id=tv['identifier'])
+        if tt:
+            trending.append(tt[0])
     for post in posts:
         #@begin:Add special text if post has no text
         #@date:2017-06-16
@@ -2540,6 +2554,87 @@ def get_trending_discussions_process(request):
         td_list.append({"subject": td['subject'], "date_create": date_create_str, "hyperlink": hyperlink})
     return HttpResponse(json.dumps({'success': True, 'trending': td_list}), content_type='application/json')
 
+@login_required
+def subcommunity_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cmain_id = community.main_id
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
+
+        # Delete subcommunity
+        community.delete()
+
+        mongo3_store = community_discussions_store()
+
+        # Get subcommunity discussion save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the subcommunity
+        mongo3_store.remove({'community_id': cid})
+
+        # Save info for my activity after delete the subcommunity
+        ma_db = myactivitystore()
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
+
+@login_required
+def community_delete_new(request, community_id):
+    try:
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cname = community.name
+        clogo_url = get_file_url(community.logo)
+
+        subcommunities = CommunityCommunities.objects.filter(main_id=cid)
+        mongo3_store = community_discussions_store()
+        ma_db = myactivitystore()
+
+        for sc in subcommunities:
+            scid = sc.id
+            scname = sc.name
+            sclogo_url = get_file_url(sc.logo)
+
+            # Delete subcommunity
+            sc.delete()
+
+            sc_discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': scid})
+
+            # Get subcommunity discussion save info
+            sc_discussion_list = list()
+            for d in sc_discussions_mongo3:
+                sc_discussion_list.append({'cid': scid, 'did': str(d['_id']), 'dname': d['subject']})
+
+            # Delete discussions and all comments of the subcommunity
+            mongo3_store.remove({"community_id": scid})
+
+            # Save info for my activity after delete the subcommunity
+            ma_db.new_set_item_subcommunity(scid, scname, sclogo_url, sc_discussion_list)
+
+        # Delete community
+        community.delete()
+        # Get community discussion save info
+        discussion_list = list()
+        discussions_mongo3 = mongo3_store.find({'db_table': 'community_discussions', 'community_id': cid})
+        for d in discussions_mongo3:
+            discussion_list.append({'cid': cid, 'did': str(d['_id']), 'dname': d['subject']})
+
+        # Delete discussions and all comments of the community
+        mongo3_store.remove({"community_id": cid})
+
+        # Save info for my activity after delete the community
+        ma_db.new_set_item_subcommunity(cid, cname, clogo_url, discussion_list)
+
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type='application/json')
 
 # -------------------------------------------------------------------new_discussion_process
 def new_discussion_process(request):
@@ -3369,14 +3464,23 @@ def new_process_discussions_delete(request):
                 mongo3_store.remove({"db_table": "community_discussion_replies", "discussion_id": ObjectId(did)})
                 mongo3_store.remove({"db_table": "community_discussions", "_id": ObjectId(did)})
 
+                ma_db = myactivitystore()
+                ma_db.new_set_item_community_discussion(discussion['community_id'], str(discussion['_id']), discussion['subject'])
+
                 poll_connect = poll_store()
                 if poll_connect.poll_exists('discussion', did):
                     poll_connect.delete_poll('discussion', did)
 
             elif typex == "reply" and cid:
                 level = request.POST.get("level", "")
-                discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                discussion = ""
+                if level == "2":
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": ObjectId(did)})
+                else:
+                    reply1 = mongo3_store.find_one({"db_table": "community_discussion_replies", "_id": ObjectId(did)})
+                    discussion = mongo3_store.find_one({"db_table": "community_discussions", "_id": reply1['discussion_id']})
                 send_notification(request.user, discussion['community_id'], replies_delete=[str(did)], domain_name=domain_name)
+
                 if level == "2":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(cid)})
                     mongo3_store.remove({"db_table": "community_discussion_replies", "_id": ObjectId(cid)})
@@ -3391,7 +3495,7 @@ def new_process_discussions_delete(request):
 
                 elif level == "3":
                     mongo3_store.remove({"db_table": "community_discussion_replies_next", "_id": ObjectId(cid)})
-
+                    
                     have_reply = True
                     for itemx in mongo3_store.find_size_sort({"db_table": "community_discussion_replies_next", "replies_id": ObjectId(did)}, 0, 0, "date_create", -1):
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$set": {"date_reply": itemx['date_create']}})
@@ -3399,7 +3503,6 @@ def new_process_discussions_delete(request):
                         break
                     if have_reply:
                         mongo3_store.update({"db_table": "community_discussion_replies", "_id": ObjectId(did)}, {"$unset": {"date_reply": ""}})
-
             data = {'Success': True}
 
     except Exception as e:

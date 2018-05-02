@@ -647,7 +647,6 @@ AggregationConfig["AggregateGradesView"]["query"] = '''{user_domain}{
 #  aggregate timer -------------------------------------------------------------------------------
 
 AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
-
     "$lookup": {
         "from": "UserView",
         "localField": "user_id",
@@ -843,195 +842,195 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
 
 #get_create_column_Headers-------------------------------------------------------------------------------
 get_create_column_headers = '''
-    {
-        "$group":{
-            "_id":{"column_headers":"$column_headers"},
-            "total":{"$sum":1}
-        }
-    },
-    {
-        "$out":"collection_column_header"
+{
+    "$group":{
+        "_id":{"column_headers":"$column_headers"},
+        "total":{"$sum":1}
     }
+},
+{
+    "$out":"collection_column_header"
+}
 '''
 
 get_create_row_headers = '''
-    {
-        "$group":{
-            "_id":{"row_headers":"$row_headers"},
-            "total":{"$sum":1}
-        }
-    },
-    {
-        "$out":"collection_row_header"
+{
+    "$group":{
+        "_id":{"row_headers":"$row_headers"},
+        "total":{"$sum":1}
     }
+},
+{
+    "$out":"collection_row_header"
+}
 '''
 
 #aggregategrades for all field-------------------------------------------------------------------------------------------
 AggregationConfig["AggregateGradesView"]["allfieldquery"]='''{
-        '$match': {
-            'is_active': 1
-        }
-    },
-    {
-        '$lookup': {
-            'foreignField': 'user_id',
-            'as': 'user_info',
-            'from': 'user_info',
-            'localField': 'user_id'
-        }
-    }, {
-        '$project': {
-        'school_id': '$user_info.school_id',
-        'state': {'$arrayElemAt': ['$user_info.state', 0]},
+    '$match': {
+        'is_active': 1
+    }
+},
+{
+    '$lookup': {
+        'foreignField': 'user_id',
+        'as': 'user_info',
+        'from': 'user_info',
+        'localField': 'user_id'
+    }
+}, {
+    '$project': {
+    'school_id': '$user_info.school_id',
+    'state': {'$arrayElemAt': ['$user_info.state', 0]},
+    'user_id': 1,
+    'school': {'$arrayElemAt': ['$user_info.school', 0]},
+    'district': {'$arrayElemAt': ['$user_info.district', 0]},
+    'course_id': 1,
+    'state_id': '$user_info.state_id',
+    'user_name': {'$arrayElemAt': ['$user_info.username', 0]},
+    'email': {'$arrayElemAt': ['$user_info.email', 0]},
+    'district_id': '$user_info.district_id'
+    }
+}, {
+    '$lookup': {
+        'foreignField': 'q_course_id',
+        'as': 'question_info',
+        'from': 'modulestore', 
+        'localField': 'course_id'
+    }
+}, {
+    '$unwind': '$question_info'
+}, {
+    '$project': {
+        'school': 1,
         'user_id': 1,
-        'school': {'$arrayElemAt': ['$user_info.school', 0]},
-        'district': {'$arrayElemAt': ['$user_info.district', 0]},
-        'course_id': 1,
-        'state_id': '$user_info.state_id',
-        'user_name': {'$arrayElemAt': ['$user_info.username', 0]},
-        'email': {'$arrayElemAt': ['$user_info.email', 0]},
-        'district_id': '$user_info.district_id'
-        }
-    }, {
-        '$lookup': {
-            'foreignField': 'q_course_id',
-            'as': 'question_info',
-            'from': 'modulestore', 
-            'localField': 'course_id'
-        }
-    }, {
-        '$unwind': '$question_info'
-    }, {
-        '$project': {
-            'school': 1,
-            'user_id': 1,
-            'district': 1,
-            'course_run': '$question_info._id.org',
-            'end': '$question_info.end_date',
-            'module_id': '$question_info.module_id',
-            'sequential_name': '$question_info.sequential_name',
-            'start': '$question_info.start_date',
-            'state': 1,
-            'vertical_num': '$question_info.vertical_num',
-            'course_number': '$question_info.course_number',
-            'organization': '$question_info.organization',
-            'course_id': '$question_info.q_course_id',
-            'course_name': '$question_info.course_name',
-            '_id': 0,
-            'user_name': 1,
-            'email': 1,
-            'display_name': '$question_info.metadata.display_name'
-        }
-    }, {
-        '$lookup': {
-            'foreignField': 'module_id',
-            'as': 'problem_point',
-            'from': 'problem_point',
-            'localField': 'module_id'
-        }
-    }, {
-        '$project': {
-            'point': {
-                '$sum': {
-                    '$map': {
-                        'input': '$problem_point',
-                        'as': 'item',
-                        'in': {
-                            '$cond': [{'$eq': ['$$item.user_id', '$user_id']}, '$$item.point', 0]}
-                            }
+        'district': 1,
+        'course_run': '$question_info._id.org',
+        'end': '$question_info.end_date',
+        'module_id': '$question_info.module_id',
+        'sequential_name': '$question_info.sequential_name',
+        'start': '$question_info.start_date',
+        'state': 1,
+        'vertical_num': '$question_info.vertical_num',
+        'course_number': '$question_info.course_number',
+        'organization': '$question_info.organization',
+        'course_id': '$question_info.q_course_id',
+        'course_name': '$question_info.course_name',
+        '_id': 0,
+        'user_name': 1,
+        'email': 1,
+        'display_name': '$question_info.metadata.display_name'
+    }
+}, {
+    '$lookup': {
+        'foreignField': 'module_id',
+        'as': 'problem_point',
+        'from': 'problem_point',
+        'localField': 'module_id'
+    }
+}, {
+    '$project': {
+        'point': {
+            '$sum': {
+                '$map': {
+                    'input': '$problem_point',
+                    'as': 'item',
+                    'in': {
+                        '$cond': [{'$eq': ['$$item.user_id', '$user_id']}, '$$item.point', 0]}
                         }
-                    },
-            'vertical_num': 1,
-            'end': 1,
-            'display_name': 1,
-            'school': 1,
-            'course_name': 1,
-            'district': 1,
-            'course_run': 1,
-            'sequential_name': 1,
-            'start': 1,
-            'state': 1,
-            'course_number': 1,
-            'organization': 1,
-            'user_name': 1,
-            'email': 1
-        }
-    }, {
-        '$project': {
-            'point': 1,
-            'vertical_num': 1,
-            'course_name': 1,
-            'display_name': 1,
-            'school': 1,
-            'end': 1,
-            'district': 1,
-            'course_run': 1,
-            'sequential_name': 1,
-            'start': 1,
-            'state': 1,
-            'course_number': 1,
-            'organization': 1,
-            'user_name': 1,
-            'email': 1
-        }
-    }, {
-        '$group': {
-            'school': {'$push': '$school'},
-            'course_name': {'$push': '$course_name'},
-            'district': {'$push': '$district'},
-            'course_run': {'$push': '$course_run'},
-            'point': {'$push': '$point'},
-            'state': {'$push': '$state'},
-            'end': {'$push': '$end'},
-            'start': {'$push': '$start'},
-            'sequential_name': {'$push': '$sequential_name'},
-            'vertical_num': {'$push': '$vertical_num'},
-            'course_number': {'$push': '$course_number'},
-            'organization': {'$push': '$organization'},
-            '_id': {
-                'point': '$point',
-                'vertical_num': '$vertical_num',
-                'end': '$end',
-                'display_name': '$display_name',
-                'school': '$school',
-                'course_name': '$course_name',
-                'district': '$district',
-                'course_run': '$course_run',
-                'sequential_name': '$sequential_name',
-                'start': '$start',
-                'state': '$state',
-                'course_number': '$course_number',
-                'organization': '$organization',
-                'user_name': '$user_name',
-                'email': '$email'
+                    }
                 },
-            'user_name': {'$push': '$user_name'},
-            'email': {'$push': '$email'},
-            'display_name': {'$push': '$display_name'
-            }
+        'vertical_num': 1,
+        'end': 1,
+        'display_name': 1,
+        'school': 1,
+        'course_name': 1,
+        'district': 1,
+        'course_run': 1,
+        'sequential_name': 1,
+        'start': 1,
+        'state': 1,
+        'course_number': 1,
+        'organization': 1,
+        'user_name': 1,
+        'email': 1
+    }
+}, {
+    '$project': {
+        'point': 1,
+        'vertical_num': 1,
+        'course_name': 1,
+        'display_name': 1,
+        'school': 1,
+        'end': 1,
+        'district': 1,
+        'course_run': 1,
+        'sequential_name': 1,
+        'start': 1,
+        'state': 1,
+        'course_number': 1,
+        'organization': 1,
+        'user_name': 1,
+        'email': 1
+    }
+}, {
+    '$group': {
+        'school': {'$push': '$school'},
+        'course_name': {'$push': '$course_name'},
+        'district': {'$push': '$district'},
+        'course_run': {'$push': '$course_run'},
+        'point': {'$push': '$point'},
+        'state': {'$push': '$state'},
+        'end': {'$push': '$end'},
+        'start': {'$push': '$start'},
+        'sequential_name': {'$push': '$sequential_name'},
+        'vertical_num': {'$push': '$vertical_num'},
+        'course_number': {'$push': '$course_number'},
+        'organization': {'$push': '$organization'},
+        '_id': {
+            'point': '$point',
+            'vertical_num': '$vertical_num',
+            'end': '$end',
+            'display_name': '$display_name',
+            'school': '$school',
+            'course_name': '$course_name',
+            'district': '$district',
+            'course_run': '$course_run',
+            'sequential_name': '$sequential_name',
+            'start': '$start',
+            'state': '$state',
+            'course_number': '$course_number',
+            'organization': '$organization',
+            'user_name': '$user_name',
+            'email': '$email'
+            },
+        'user_name': {'$push': '$user_name'},
+        'email': {'$push': '$email'},
+        'display_name': {'$push': '$display_name'
         }
-    }, {
-        '$project': {
-            'point': {'$arrayElemAt': ['$point', 0]},
-            'vertical_num': {'$arrayElemAt': ['$vertical_num', 0]},
-            'course_name': {'$arrayElemAt': ['$course_name', 0]},
-            'display_name': {'$arrayElemAt': ['$display_name', 0]},
-            'school': {'$arrayElemAt': ['$school', 0]},
-            'end': {'$arrayElemAt': ['$end', 0]},
-            'district': {'$arrayElemAt': ['$district', 0]},
-            'course_run': {'$arrayElemAt': ['$course_run', 0]},
-            'sequential_name': {'$arrayElemAt': ['$sequential_name', 0]},
-            'start': {'$arrayElemAt': ['$start', 0]},
-            'state': {'$arrayElemAt': ['$state', 0]},
-            'course_number': {'$arrayElemAt': ['$course_number', 0]},
-            'organization': {'$arrayElemAt': ['$organization', 0]},
-            'user_name': {'$arrayElemAt': ['$user_name', 0]},
-            'email': {'$arrayElemAt': ['$email', 0]
-            }
+    }
+}, {
+    '$project': {
+        'point': {'$arrayElemAt': ['$point', 0]},
+        'vertical_num': {'$arrayElemAt': ['$vertical_num', 0]},
+        'course_name': {'$arrayElemAt': ['$course_name', 0]},
+        'display_name': {'$arrayElemAt': ['$display_name', 0]},
+        'school': {'$arrayElemAt': ['$school', 0]},
+        'end': {'$arrayElemAt': ['$end', 0]},
+        'district': {'$arrayElemAt': ['$district', 0]},
+        'course_run': {'$arrayElemAt': ['$course_run', 0]},
+        'sequential_name': {'$arrayElemAt': ['$sequential_name', 0]},
+        'start': {'$arrayElemAt': ['$start', 0]},
+        'state': {'$arrayElemAt': ['$state', 0]},
+        'course_number': {'$arrayElemAt': ['$course_number', 0]},
+        'organization': {'$arrayElemAt': ['$organization', 0]},
+        'user_name': {'$arrayElemAt': ['$user_name', 0]},
+        'email': {'$arrayElemAt': ['$email', 0]
         }
-    }, {
-        '$out': '{collection}'
-        }
+    }
+}, {
+    '$out': '{collection}'
+    }
 '''
 #aggregatetimer for all field-------------------------------------------------------------------------------------------
 AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
@@ -1093,12 +1092,13 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
                     'input': '$user_view',
                     'as': 'item',
                     'in': {
-                        '$cond': [{'$eq': {school_year}}, '$$item.discussion_time', 0]}
+                        '$cond': [{'$eq': {school_year}}, '$$item.discussion_time', 0]
                     }
                 }
             }
         }
-    }, {
+    }
+}, {
         '$project': {
             'total_time': {'$add': ['$course_time', '$external_time', '$discussion_time', '$portfolio_time', '$pd_time']},
             'user_id': 1,
@@ -1109,7 +1109,7 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
             'discussion_time': 1,
             'collaboration_time': {'$add': ['$discussion_time', '$portfolio_time']}
         }
-    }, {
+}, {
         '$group': {
             'total_time': {'$sum': '$total_time'},
             'discussion_time': { '$sum': '$discussion_time'},
@@ -1119,299 +1119,300 @@ AggregationConfig["AggregateTimerView"]["allfieldquery"]='''{
             'portfolio_time': {'$sum': '$portfolio_time'},
             '_id': 'null',
             'collaboration_time': {'$sum': '$collaboration_time'}
-            }
-        }, {
-            '$project': {
-                'total_time': 1,
-                'course_time': 1,
-                'pd_time': 1,
-                'portfolio_time': 1,
-                'collaboration_time': 1,
-                'external_time': 1,
-                'discussion_time': 1
-                }
-            }, {
-            '$group': {
-                'total_time': {'$push': '$total_time'},
-                'discussion_time': {'$push': '$discussion_time'},
-                'external_time': {'$push': '$external_time'},
-                'course_time': {'$push': '$course_time'},
-                'pd_time': {'$push': '$pd_time'},
-                'portfolio_time': {'$push': '$portfolio_time'},
-                '_id': {
-                    'total_time': '$total_time',
-                    'course_time': '$course_time',
-                    'pd_time': '$pd_time',
-                    'portfolio_time': '$portfolio_time',
-                    'collaboration_time': '$collaboration_time',
-                    'external_time': '$external_time',
-                    'discussion_time': '$discussion_time'
-                },
-                'collaboration_time': {'$push': '$collaboration_time'}
-            }
-        }, {
-            '$project': {
-                'total_time': {'$arrayElemAt': ['$total_time', 0]},
-                'course_time': {'$arrayElemAt': ['$course_time', 0]},
-                'pd_time': {'$arrayElemAt': ['$pd_time', 0]},
-                'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]},
-                'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]},
-                'external_time': {'$arrayElemAt': ['$external_time', 0]},
-                'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]}
-            }
-        },
-    {
-        '$out': '{collection}'
+        }
+}, {
+        '$project': {
+            'total_time': 1,
+            'course_time': 1,
+            'pd_time': 1,
+            'portfolio_time': 1,
+            'collaboration_time': 1,
+            'external_time': 1,
+            'discussion_time': 1
+        }
+}, {
+        '$group': {
+            'total_time': {'$push': '$total_time'},
+            'discussion_time': {'$push': '$discussion_time'},
+            'external_time': {'$push': '$external_time'},
+            'course_time': {'$push': '$course_time'},
+            'pd_time': {'$push': '$pd_time'},
+            'portfolio_time': {'$push': '$portfolio_time'},
+            '_id': {
+                'total_time': '$total_time',
+                'course_time': '$course_time',
+                'pd_time': '$pd_time',
+                'portfolio_time': '$portfolio_time',
+                'collaboration_time': '$collaboration_time',
+                'external_time': '$external_time',
+                'discussion_time': '$discussion_time'
+            },
+            'collaboration_time': {'$push': '$collaboration_time'}
+        }
+}, {
+    '$project': {
+        'total_time': {'$arrayElemAt': ['$total_time', 0]},
+        'course_time': {'$arrayElemAt': ['$course_time', 0]},
+        'pd_time': {'$arrayElemAt': ['$pd_time', 0]},
+        'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]},
+        'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]},
+        'external_time': {'$arrayElemAt': ['$external_time', 0]},
+        'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]}
     }
+},{
+    '$out': '{collection}'
+}
 '''
 #course for all field-------------------------------------------------------------------------------------------
 AggregationConfig["CourseView"]["allfieldquery"] = '''{
     '$match': {'is_active': 1}
-    }, {
-        '$lookup': {
-            'foreignField': 'user_id',
-            'as': 'user_info',
-            'from': 'user_info',
-            'localField': 'user_id'}
-        }, {
-            '$project': {
-                'course_id': 1,
-                'state_id': '$user_info.state_id',
-                'distric_id': '$user_info.distric_id',
-                'user_id': 1,
-                'school_id': '$user_info.school_id'
+}, {
+    '$lookup': {
+        'foreignField': 'user_id',
+        'as': 'user_info',
+        'from': 'user_info',
+        'localField': 'user_id'
+    }
+}, {
+    '$project': {
+        'course_id': 1,
+        'state_id': '$user_info.state_id',
+        'distric_id': '$user_info.distric_id',
+        'user_id': 1,
+        'school_id': '$user_info.school_id'
+    }
+}, {
+    '$lookup': {
+        'foreignField': 'course_id',
+        'as': 'course_info',
+        'from': 'modulestore',
+        'localField': 'course_id'
+    }
+}, {
+    '$lookup': {
+        'foreignField': 'c_student_id',
+        'as': 'studentmodule',
+        'from': 'courseware_studentmodule',
+        'localField': 'user_id'
+    }
+}, {
+    '$lookup': {
+        'foreignField': 'user_id',
+        'as': 'user_course_view',
+        'from': 'UserCourseView',
+        'localField': 'user_id'
+    }
+}, {
+    '$project': {
+        'end_date': '$course_info.metadata.end',
+        'complete_course': {
+            '$sum': {
+                '$map': {
+                    'input': '$studentmodule',
+                    'as': 'item',
+                    'in': {
+                        '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
+                        {'$eq': ['$$item.state.complete_course', True]}]}, 1, 0]
+                    }
                 }
-            }, {
-            '$lookup': {
-                'foreignField': 'course_id',
-                'as': 'course_info',
-                'from': 'modulestore',
-                'localField': 'course_id'
             }
-        }, {
-            '$lookup': {
-            'foreignField': 'c_student_id',
-            'as': 'studentmodule',
-            'from': 'courseware_studentmodule',
-            'localField': 'user_id'
+        }, 
+        'external_time': {
+            '$sum': {
+                '$map': {
+                    'input': '$user_course_view',
+                    'as': 'item',
+                    'in': {
+                        '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
+                         {'$eq': {school_year}}]}, '$$item.external_time', 0]}
+                    }
+                }
+        },
+        'course_id': 1,
+        'discussion_time': {
+            '$sum': {
+                '$map': {
+                    'input': '$user_course_view',
+                    'as': 'item',
+                    'in': {
+                        '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
+                        {'$eq': {school_year}}]},'$$item.discussion_time', 0]
+                    }
+                }
             }
-        }, {
-            '$lookup': {
-                'foreignField': 'user_id',
-                'as': 'user_course_view',
-                'from': 'UserCourseView',
-                'localField': 'user_id'
+        },
+        'course_name': '$course_info.metadata.display_name',
+        'course_time': {
+            '$sum': {
+                '$map': {
+                    'input': '$user_course_view',
+                    'as': 'item',
+                    'in': {
+                        '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
+                        {'$eq': {school_year}}]},
+                        '$$item.course_time', 0]
+                    }
+                }
             }
-        }, {
-            '$project': {
-                'end_date': '$course_info.metadata.end',
-                'complete_course': {
-                    '$sum': {
-                        '$map': {
-                            'input': '$studentmodule',
-                            'as': 'item',
-                            'in': {
-                                '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                {'$eq': ['$$item.state.complete_course', True]}]}, 1, 0]
-                                }
-                            }
-                        }
-                    }, 
-                    'external_time': {
-                        '$sum': {
-                            '$map': {
-                                'input': '$user_course_view',
-                                'as': 'item',
-                                'in': {
-                                    '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                     {'$eq': {school_year}}]}, '$$item.external_time', 0]}
-                                    }
-                                }
-                            },
-                    'course_id': 1,
-                    'discussion_time': {
-                        '$sum': {
-                            '$map': {
-                                'input': '$user_course_view',
-                                'as': 'item',
-                                'in': {
-                                    '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                    {'$eq': {school_year}}]},'$$item.discussion_time', 0]
-                                }
-                            }
-                        }
-                    },
-                    'course_name': '$course_info.metadata.display_name',
-                    'course_time': {
-                        '$sum': {
-                            '$map': {
-                                'input': '$user_course_view',
-                                'as': 'item',
-                                'in': {
-                                    '$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                    {'$eq': {school_year}}]},
-                                    '$$item.course_time', 0]
-                                }
-                            }
-                        }
-                    },
-                    'course_run': '$course_info._id.org',
-                    'portfolio_time': {
-                        '$sum': {
-                            '$map': {
-                                'input': '$user_course_view',
-                                'as': 'item',
-                                'in': {'$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
-                                {'$eq': {school_year}}]},
-                                '$$item.portfolio_time', 0]
-                                }
-                            }
-                        }
-                    }, 
-                    'course_number': '$course_info.metadata.display_coursenumber',
-                    'organization': '$course_info.metadata.display_organization',
-                    'start_date': '$course_info.metadata.start'
+        },
+        'course_run': '$course_info._id.org',
+        'portfolio_time': {
+            '$sum': {
+                '$map': {
+                    'input': '$user_course_view',
+                    'as': 'item',
+                    'in': {'$cond': [{'$and': [{'$eq': ['$$item.course_id', '$course_id']},
+                    {'$eq': {school_year}}]},
+                    '$$item.portfolio_time', 0]
                     }
-                }, {
-                '$project': {
-                    'total_time': {'$add': ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']},
-                    'course_time': 1,
-                    'collaboration_time': {'$add': ['$discussion_time', '$portfolio_time']},
-                    'complete_course': 1,
-                    'external_time': 1,
-                    'course_id': 1,
-                    'discussion_time': 1,
-                    'course_name': 1,
-                    'end_date': 1,
-                    'course_run': 1,
-                    'portfolio_time': 1,
-                    'course_number': 1,
-                    'organization': 1,
-                    'start_date': 1
-                    }
-                }, {
-                    '$group': {
-                        'total_time': {'$sum': '$total_time'},
-                        'end_date': {
-                            '$push': {'$arrayElemAt': ['$end_date', 0]}
-                            },
-                        'collaboration_time': {'$sum': '$collaboration_time'},
-                        'complete_course': {'$sum': '$complete_course'},
-                        'external_time': {'$sum': '$external_time'},
-                        'discussion_time': {'$sum': '$discussion_time'},
-                        'course_name': {
-                            '$push': {'$arrayElemAt': ['$course_name', 0]}
-                            },
-                        'course_time': {'$sum': '$course_time'},
-                        'course_run': {
-                            '$push': {'$arrayElemAt': ['$course_run', 0]}
-                        },
-                        'portfolio_time': {'$sum': '$portfolio_time'},
-                        'course_number': {
-                            '$push': {'$arrayElemAt': ['$course_number', 0]}
-                            },
-                        'enrolled_course_num': {'$sum': 1},
-                        'organization': {
-                            '$push': {'$arrayElemAt': ['$organization', 0]}
-                            },
-                        '_id': '$course_id',
-                        'start_date': {
-                            '$push': {'$arrayElemAt': ['$start_date', 0]}
-                        }
-                    }
-                }, {
-                    '$project': {
-                        'total_time': 1,
-                        'course_time': 1,
-                        'collaboration_time': 1,
-                        'complete_course': 1,
-                        'external_time': 1,
-                        'discussion_time': 1,
-                        'course_name': {'$arrayElemAt': ['$course_name', 0]},
-                        'end_date':
-                            {'$substr': [{'$cond': [{'$eq': ['$end_date', []]}, '', {'$arrayElemAt': ['$end_date', 0]}]}, 0, 10]},
-                        'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
-                        'portfolio_time': 1,
-                        'avg_course_time': {
-                            '$ceil': {'$divide': ['$course_time', '$enrolled_course_num']}
-                            }, 
-                        'course_number': {'$arrayElemAt': ['$course_number', 0]},
-                        'enrolled_course_num': 1, 
-                        'organization': {'$arrayElemAt': ['$organization', 0]},
-                        'start_date': {'$substr': [{'$arrayElemAt': ['$start_date', 0]}, 0, 10]}
-                        }
-                    }, {
-                        '$project': {
-                            'total_time': 1,
-                            'course_time': 1,
-                            'collaboration_time': 1,
-                            'complete_course': {'$substr': ['$complete_course', 0, -1]},
-                            'external_time': 1, 
-                            'discussion_time': 1, 
-                            'course_name': 1, 
-                            'end_date': 1, 
-                            'course_run': 1, 
-                            'portfolio_time': 1, 
-                            'avg_course_time': 1, 
-                            'course_number': 1, 
-                            'enrolled_course_num': {'$substr': ['$enrolled_course_num', 0, -1]}, 
-                            'organization': 1, 'start_date': 1}
-                        }, {
-                            '$group': {
-                                'total_time': {'$push': '$total_time'},
-                                 '_id': {
-                                    'total_time': '$total_time',
-                                    'end_date': '$end_date', 
-                                    'collaboration_time': '$collaboration_time', 
-                                    'complete_course': '$complete_course', 
-                                    'external_time': '$external_time', 
-                                    'discussion_time': '$discussion_time', 
-                                    'course_name': '$course_name', 
-                                    'course_time': '$course_time', 
-                                    'course_run': '$course_run', 
-                                    'portfolio_time': '$portfolio_time', 
-                                    'avg_course_time': '$avg_course_time', 
-                                    'course_number': '$course_number', 
-                                    'enrolled_course_num': '$enrolled_course_num', 
-                                    'organization': '$organization', 
-                                    'start_date': '$start_date'
-                                },
-                            'course_name': {'$push': '$course_name'}, 
-                            'end_date': {'$push': '$end_date'},
-                            'course_time': {'$push': '$course_time'}, 
-                            'course_run': {'$push': '$course_run'}, 
-                            'portfolio_time': {'$push': '$portfolio_time'}, 
-                            'collaboration_time': {'$push': '$collaboration_time'}, 
-                            'complete_course': {'$push': '$complete_course'}, 
-                            'avg_course_time': {'$push': '$avg_course_time'}, 
-                            'course_number': {'$push': '$course_number'}, 
-                            'external_time': {'$push': '$external_time'}, 
-                            'enrolled_course_num': {'$push': '$enrolled_course_num'}, 
-                            'organization': {'$push': '$organization'}, 
-                            'discussion_time': {'$push': '$discussion_time'}, 
-                            'start_date': {'$push': '$start_date'}
-                            }
-                        }, {
-                            '$project': {
-                                'total_time': {'$arrayElemAt': ['$total_time', 0]},
-                                'course_time': {'$arrayElemAt': ['$course_time', 0]}, 
-                                'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]}, 
-                                'complete_course': {'$arrayElemAt': ['$complete_course', 0]}, 
-                                'external_time': {'$arrayElemAt': ['$external_time', 0]}, 
-                                'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]}, 
-                                'course_name': {'$arrayElemAt': ['$course_name', 0]}, 
-                                'end_date': {'$arrayElemAt': ['$end_date', 0]}, 
-                                'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
-                                'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]}, 
-                                'avg_course_time': {'$arrayElemAt': ['$avg_course_time', 0]}, 
-                                'course_number': {'$arrayElemAt': ['$course_number', 0]}, 
-                                'enrolled_course_num': {'$arrayElemAt': ['$enrolled_course_num', 0]}, 
-                                'organization': {'$arrayElemAt': ['$organization', 0]}, 
-                                'start_date': {'$arrayElemAt': ['$start_date', 0]}
-                            }
-                        }, {
-                            '$out': '{collection}'
-                            }
+                }
+            }
+        }, 
+        'course_number': '$course_info.metadata.display_coursenumber',
+        'organization': '$course_info.metadata.display_organization',
+        'start_date': '$course_info.metadata.start'
+    }
+}, {
+    '$project': {
+        'total_time': {'$add': ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']},
+        'course_time': 1,
+        'collaboration_time': {'$add': ['$discussion_time', '$portfolio_time']},
+        'complete_course': 1,
+        'external_time': 1,
+        'course_id': 1,
+        'discussion_time': 1,
+        'course_name': 1,
+        'end_date': 1,
+        'course_run': 1,
+        'portfolio_time': 1,
+        'course_number': 1,
+        'organization': 1,
+        'start_date': 1
+    }
+}, {
+    '$group': {
+        'total_time': {'$sum': '$total_time'},
+        'end_date': {
+            '$push': {'$arrayElemAt': ['$end_date', 0]}
+        },
+        'collaboration_time': {'$sum': '$collaboration_time'},
+        'complete_course': {'$sum': '$complete_course'},
+        'external_time': {'$sum': '$external_time'},
+        'discussion_time': {'$sum': '$discussion_time'},
+        'course_name': {
+            '$push': {'$arrayElemAt': ['$course_name', 0]}
+        },
+        'course_time': {'$sum': '$course_time'},
+        'course_run': {
+            '$push': {'$arrayElemAt': ['$course_run', 0]}
+        },
+        'portfolio_time': {'$sum': '$portfolio_time'},
+        'course_number': {
+            '$push': {'$arrayElemAt': ['$course_number', 0]}
+            },
+        'enrolled_course_num': {'$sum': 1},
+        'organization': {
+            '$push': {'$arrayElemAt': ['$organization', 0]}
+            },
+        '_id': '$course_id',
+        'start_date': {
+            '$push': {'$arrayElemAt': ['$start_date', 0]}
+        }
+    }
+}, {
+    '$project': {
+        'total_time': 1,
+        'course_time': 1,
+        'collaboration_time': 1,
+        'complete_course': 1,
+        'external_time': 1,
+        'discussion_time': 1,
+        'course_name': {'$arrayElemAt': ['$course_name', 0]},
+        'end_date':
+            {'$substr': [{'$cond': [{'$eq': ['$end_date', []]}, '', {'$arrayElemAt': ['$end_date', 0]}]}, 0, 10]},
+        'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
+        'portfolio_time': 1,
+        'avg_course_time': {
+            '$ceil': {'$divide': ['$course_time', '$enrolled_course_num']}
+            }, 
+        'course_number': {'$arrayElemAt': ['$course_number', 0]},
+        'enrolled_course_num': 1, 
+        'organization': {'$arrayElemAt': ['$organization', 0]},
+        'start_date': {'$substr': [{'$arrayElemAt': ['$start_date', 0]}, 0, 10]}
+    }
+}, {
+    '$project': {
+        'total_time': 1,
+        'course_time': 1,
+        'collaboration_time': 1,
+        'complete_course': {'$substr': ['$complete_course', 0, -1]},
+        'external_time': 1, 
+        'discussion_time': 1, 
+        'course_name': 1, 
+        'end_date': 1, 
+        'course_run': 1, 
+        'portfolio_time': 1, 
+        'avg_course_time': 1, 
+        'course_number': 1, 
+        'enrolled_course_num': {'$substr': ['$enrolled_course_num', 0, -1]}, 
+        'organization': 1, 'start_date': 1
+    }
+}, {
+    '$group': {
+        'total_time': {'$push': '$total_time'},
+         '_id': {
+            'total_time': '$total_time',
+            'end_date': '$end_date', 
+            'collaboration_time': '$collaboration_time', 
+            'complete_course': '$complete_course', 
+            'external_time': '$external_time', 
+            'discussion_time': '$discussion_time', 
+            'course_name': '$course_name', 
+            'course_time': '$course_time', 
+            'course_run': '$course_run', 
+            'portfolio_time': '$portfolio_time', 
+            'avg_course_time': '$avg_course_time', 
+            'course_number': '$course_number', 
+            'enrolled_course_num': '$enrolled_course_num', 
+            'organization': '$organization', 
+            'start_date': '$start_date'
+        },
+    'course_name': {'$push': '$course_name'}, 
+    'end_date': {'$push': '$end_date'},
+    'course_time': {'$push': '$course_time'}, 
+    'course_run': {'$push': '$course_run'}, 
+    'portfolio_time': {'$push': '$portfolio_time'}, 
+    'collaboration_time': {'$push': '$collaboration_time'}, 
+    'complete_course': {'$push': '$complete_course'}, 
+    'avg_course_time': {'$push': '$avg_course_time'}, 
+    'course_number': {'$push': '$course_number'}, 
+    'external_time': {'$push': '$external_time'}, 
+    'enrolled_course_num': {'$push': '$enrolled_course_num'}, 
+    'organization': {'$push': '$organization'}, 
+    'discussion_time': {'$push': '$discussion_time'}, 
+    'start_date': {'$push': '$start_date'}
+    }
+}, {
+    '$project': {
+        'total_time': {'$arrayElemAt': ['$total_time', 0]},
+        'course_time': {'$arrayElemAt': ['$course_time', 0]}, 
+        'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]}, 
+        'complete_course': {'$arrayElemAt': ['$complete_course', 0]}, 
+        'external_time': {'$arrayElemAt': ['$external_time', 0]}, 
+        'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]}, 
+        'course_name': {'$arrayElemAt': ['$course_name', 0]}, 
+        'end_date': {'$arrayElemAt': ['$end_date', 0]}, 
+        'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
+        'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]}, 
+        'avg_course_time': {'$arrayElemAt': ['$avg_course_time', 0]}, 
+        'course_number': {'$arrayElemAt': ['$course_number', 0]}, 
+        'enrolled_course_num': {'$arrayElemAt': ['$enrolled_course_num', 0]}, 
+        'organization': {'$arrayElemAt': ['$organization', 0]}, 
+        'start_date': {'$arrayElemAt': ['$start_date', 0]}
+    }
+}{filters}, {
+    '$out': '{collection}'
+    }
 '''
 #course assignments for all field-------------------------------------------------------------------------------------------
 AggregationConfig["CourseAssignmentsView"]["allfieldquery"] = '''{
@@ -1426,20 +1427,9 @@ AggregationConfig["CourseAssignmentsView"]["allfieldquery"] = '''{
         'course_name': 1,
         'weight': {'$ifNull': ['$metadata.weight', 1]}, 
         'course_run': '$_id.org', 'sequential_name': 1, 
-        'course_number': 1, 'organization': 1, 'start_date': 1
-    }
-}, {
-    '$project': {
-        'sequential_name': 1,
-        'organization': 1,
-        'course_name': 1,
-        'weight': 1,
-        'end_date': 1,
-        'course_run': 1,
-        'vertical_num': 1,
         'course_number': 1,
-        'start_date': 1,
-        'display_name': 1
+        'organization': 1,
+        'start_date': 1
     }
 }, {
     '$group': {
@@ -1479,7 +1469,7 @@ AggregationConfig["CourseAssignmentsView"]["allfieldquery"] = '''{
         'start_date': {'$arrayElemAt': ['$start_date', 0]},
         'display_name': {'$arrayElemAt': ['$display_name', 0]}
     }
-}, {
+}{filters}, {
     '$out': '{collection}'
     }
 '''
@@ -1535,10 +1525,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'state_id': 1,
         'attendancel_id': 1,
         'type': 1,
-        'school_id': {'$ifNull': [{'$arrayElemAt': ['$user_info.school_id', 0]}, '1']},
-        'first_name':{'$arrayElemAt': ['$user_info.first_name', 0]},
-        'last_name':{'$arrayElemAt': ['$user_info.last_name', 0]},
-        'username':{'$arrayElemAt': ['$user_info.username', 0]}
+        'school_id': {'$ifNull': [{'$arrayElemAt': ['$user_info.school_id', 0]}, '1']}
     }
 }, {
     '$project': {
@@ -1568,10 +1555,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'school': 1,
         'user_school': 1,
         'name': 1,
-        'training_id': 1,
-        'first_name': 1,
-        'last_name': 1,
-        'username': 1
+        'training_id': 1
     }
 }, {
     '$group': {
@@ -1602,9 +1586,6 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'user_school': {'$push': '$user_school'}, 
         'student_credit': {'$push': '$student_credit'},
         'training_id': {'$push': '$training_id'},
-        'first_name': {'$push': '$first_name'},
-        'last_name': {'$push': '$last_name'},
-        'username': {'$push': '$username'},
         '_id': {
             'training_time_end': '$training_time_end',
             'user_create_id': '$user_create_id',
@@ -1632,10 +1613,7 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
             'school': '$school', 
             'user_school': '$user_school',
             'student_credit': '$student_credit',
-            'training_id': '$training_id',
-            'first_name': '$first_name',
-            'last_name': '$last_name',
-            'username': '$username'
+            'training_id': '$training_id'
         }
     }
 }, {
@@ -1666,12 +1644,9 @@ AggregationConfig["PDPlannerView"]["allfieldquery"] = '''{school_year}{
         'school': {'$arrayElemAt': ['$school', 0]}, 
         'user_school': {'$arrayElemAt': ['$user_school', 0]}, 
         'name': {'$substr': [{'$arrayElemAt': ['$name', 0]} , 0, -1] },
-        'training_id': {'$arrayElemAt': ['$training_id', 0]},
-        'first_name': {'$arrayElemAt': ['$first_name', 0]},
-        'last_name': {'$arrayElemAt': ['$last_name', 0]},
-        'username': {'$arrayElemAt': ['$username', 0]}
+        'training_id': {'$arrayElemAt': ['$training_id', 0]}
     }
-}, {
+}{filters}, {
     '$out': '{collection}'
     }
 '''
@@ -1723,95 +1698,7 @@ AggregationConfig["UserView"]["allfieldquery"] = '''{school_year}{
         'user_name': 1, 
         'email': 1
     }
-}, {
-    '$project': {
-        'total_time': 1,
-        'first_name': 1,
-        'discussion_time': 1,
-        'district': 1,
-        'course_time': 1,
-        'activate_date': 1,
-        'portfolio_time': 1,
-        'pd_time': 1,
-        'school': 1,
-        'collaboration_time': 1,
-        'complete_course': {'$substr': ['$complete_course', 0, -1]}, 
-        'state': 1,
-        'cohort': 1,
-        'last_name': 1,
-        'external_time': 1,
-        'subscription_status': 1,
-        'current_course': {'$substr': ['$current_course', 0, -1]},
-        'user_name': 1,
-        'email': 1
-    }
-}, {
-    '$group': {
-        'total_time': {'$push': '$total_time'},
-        'first_name': {'$push': '$first_name'},
-        'last_name': {'$push': '$last_name'},
-        'course_time': {'$push': '$course_time'},
-        'district': {'$push': '$district'},
-        'activate_date': {'$push': '$activate_date'},
-        '_id': {
-            'total_time': '$total_time',
-            'first_name': '$first_name',
-            'last_name': '$last_name',
-            'district': '$district',
-            'course_time': '$course_time',
-            'activate_date': '$activate_date',
-            'portfolio_time': '$portfolio_time',
-            'pd_time': '$pd_time',
-            'school': '$school',
-            'discussion_time': '$discussion_time',
-            'current_course': '$current_course', 
-            'complete_course': '$complete_course',
-            'state': '$state',
-            'cohort': '$cohort',
-            'external_time': '$external_time',
-            'subscription_status': '$subscription_status',
-            'collaboration_time': '$collaboration_time',
-            'user_name': '$user_name',
-            'email': '$email'
-        },
-        'portfolio_time': {'$push': '$portfolio_time'},
-        'pd_time': {'$push': '$pd_time'},
-        'school': {'$push': '$school'},
-        'collaboration_time': {'$push': '$collaboration_time'},
-        'current_course': {'$push': '$current_course'},
-        'complete_course': {'$push': '$complete_course'},
-        'state': {'$push': '$state'},
-        'cohort': {'$push': '$cohort'},
-        'external_time': {'$push': '$external_time'},
-        'subscription_status': {'$push': '$subscription_status'}, 
-        'discussion_time': {'$push': '$discussion_time'},
-        'user_name': {'$push': '$user_name'},
-        'email': {'$push': '$email'}
-    }
-}, {
-    '$project': {
-        'total_time': {'$arrayElemAt': ['$total_time', 0]},
-        'first_name': {'$arrayElemAt': ['$first_name', 0]},
-        'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]},
-        'district': {'$arrayElemAt': ['$district', 0]},
-        'course_time': {'$arrayElemAt': ['$course_time', 0]},
-        'activate_date': {'$arrayElemAt': ['$activate_date', 0]},
-        'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]},
-        'pd_time': {'$arrayElemAt': ['$pd_time', 0]},
-        'school': {'$arrayElemAt': ['$school', 0]},
-        'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]},
-        'complete_course': {'$arrayElemAt': ['$complete_course', 0]},
-        'state': {'$arrayElemAt': ['$state', 0]},
-        'cohort': {'$arrayElemAt': ['$cohort', 0]},
-        'last_name': {'$arrayElemAt': ['$last_name', 0]}, 
-        'external_time': {'$arrayElemAt': ['$external_time', 0]},
-        'subscription_status': {'$arrayElemAt': ['$subscription_status', 0]},
-        'current_course': {'$arrayElemAt': ['$current_course', 0]},
-        'user_name': {'$arrayElemAt': ['$user_name', 0]},
-        'email': {'$arrayElemAt': ['$email', 0]
-        }
-    }
-}, {
+}{filters},{
     '$out': '{collection}'
     }
 '''
@@ -1879,148 +1766,35 @@ AggregationConfig["UserCourseView"]["allfieldquery"] = '''{school_year}{
         'enrollment_date': 1, 
         'organization': 1
     }
-}, {
-    '$project': {
-        'last_name': 1,
-        'external_time': 1,
-        'first_name': 1,
-        'course_name': 1,
-        'end_date': 1,
-        'district': 1,
-        'course_run': 1,
-        'portfolio_time': 1,
-        'portfolio_url': 1,
-        'state': 1, 
-        'cohort': 1,
-        'course_number': 1, 
-        'subscription_status': 1, 
-        'progress': {'$substr': ['$progress', 0, -1]}, 
-        'user_name': 1, 
-        'email': 1, 
-        'total_time': 1, 
-        'course_time': 1, 
-        'pd_time': 1, 
-        'collaboration_time': 1, 
-        'complete_date': 1, 
-        'discussion_time': 1, 
-        'school': 1, 
-        'start_date': 1, 
-        'enrollment_date': 1, 
-        'organization': 1
-    }
-}, {
-    '$group': {
-        'last_name': {'$push': '$last_name'},
-        'external_time': {'$push': '$external_time'},
-        'first_name': {'$push': '$first_name'},
-        'course_name': {'$push': '$course_name'},
-        'course_time': {'$push': '$course_time'}, 
-        'district': {'$push': '$district'},
-        'course_run': {'$push': '$course_run'},
-        'portfolio_time': {'$push': '$portfolio_time'},
-        'portfolio_url': {'$push': '$portfolio_url'},
-        'state': {'$push': '$state'},
-        'cohort': {'$push': '$cohort'},
-        'course_number': {'$push': '$course_number'},
-        'subscription_status': {'$push': '$subscription_status'},
-        'progress': {'$push': '$progress'},
-        'user_name': {'$push': '$user_name'},
-        'email': {'$push': '$email'},
-        'total_time': {'$push': '$total_time'},
-        'end_date': {'$push': '$end_date'},
-        'pd_time': {'$push': '$pd_time'}, 
-        'collaboration_time': {'$push': '$collaboration_time'},
-        'complete_date': {'$push': '$complete_date'},
-        'discussion_time': {'$push': '$discussion_time'},
-        'school': {'$push': '$school'},
-        'start_date': {'$push': '$start_date'},
-        'enrollment_date': {'$push': '$enrollment_date'},
-        'organization': {'$push': '$organization'},
-        '_id': {'last_name': '$last_name',
-        'external_time': '$external_time',
-        'first_name': '$first_name',
-        'course_name': '$course_name', 
-        'course_time': '$course_time', 
-        'district': '$district', 
-        'course_run': '$course_run', 
-        'portfolio_time': '$portfolio_time', 
-        'portfolio_url': '$portfolio_url', 
-        'state': '$state', 
-        'course_number': '$course_number', 
-        'subscription_status': '$subscription_status', 
-        'progress': '$progress',
-        'user_name': '$user_name', 
-        'email': '$email',
-        'total_time': '$total_time', 
-        'end_date': '$end_date', 
-        'pd_time': '$pd_time', 
-        'collaboration_time': '$collaboration_time', 
-        'complete_date': '$complete_date', 
-        'discussion_time': '$discussion_time', 
-        'school': '$school', 
-        'start_date': '$start_date', 
-        'enrollment_date': '$enrollment_date', 
-        'organization': '$organization'
-        }
-    }
-}, {
-    '$project': {
-        'last_name': {'$arrayElemAt': ['$last_name', 0]},
-        'external_time': {'$arrayElemAt': ['$external_time', 0]},
-        'first_name': {'$arrayElemAt': ['$first_name', 0]}, 
-        'course_name': {'$arrayElemAt': ['$course_name', 0]}, 
-        'end_date': {'$arrayElemAt': ['$end_date', 0]}, 
-        'district': {'$arrayElemAt': ['$district', 0]}, 
-        'course_run': {'$arrayElemAt': ['$course_run', 0]}, 
-        'portfolio_time': {'$arrayElemAt': ['$portfolio_time', 0]}, 
-        'portfolio_url': {'$arrayElemAt': ['$portfolio_url', 0]}, 
-        'state': {'$arrayElemAt': ['$state', 0]}, 
-        'cohort': {'$arrayElemAt': ['$cohort', 0]}, 
-        'course_number': {'$arrayElemAt': ['$course_number', 0]}, 
-        'subscription_status': {'$arrayElemAt': ['$subscription_status', 0]}, 
-        'progress': {'$arrayElemAt': ['$progress', 0]}, 
-        'user_name': {'$arrayElemAt': ['$user_name', 0]}, 
-        'email': {'$arrayElemAt': ['$email', 0]}, 
-        'total_time': {'$arrayElemAt': ['$total_time', 0]}, 
-        'course_time': {'$arrayElemAt': ['$course_time', 0]}, 
-        'pd_time': {'$arrayElemAt': ['$pd_time', 0]}, 
-        'collaboration_time': {'$arrayElemAt': ['$collaboration_time', 0]}, 
-        'complete_date': {'$arrayElemAt': ['$complete_date', 0]}, 
-        'discussion_time': {'$arrayElemAt': ['$discussion_time', 0]}, 
-        'school': {'$arrayElemAt': ['$school', 0]}, 
-        'start_date': {'$arrayElemAt': ['$start_date', 0]}, 
-        'enrollment_date': {'$arrayElemAt': ['$enrollment_date', 0]}, 
-        'organization': {'$arrayElemAt': ['$organization', 0]}
-    }
-}, {
+}{filters},{
     '$out': '{collection}'
     }
 '''
 # ----------------------------------------------------------------------------------------------------------------------------
 get_create_int_column_headers = '''
-    {
-        "$group":{
-            "_id":{"column_headers":"$column_headers"},
-            "count":{"$sum":1},
-            "total":{"$sum":"${aggregate_data}"}
-        }
-    },
-    {
-        "$out":"collection_column_header"
+{
+    "$group":{
+        "_id":{"column_headers":"$column_headers"},
+        "count":{"$sum":1},
+        "total":{"$sum":"${aggregate_data}"}
     }
+},
+{
+    "$out":"collection_column_header"
+}
 '''
 
 get_create_int_row_headers = '''
-    {
-        "$group":{
-            "_id":{"row_headers":"$row_headers"},
-            "count":{"$sum":1},
-            "total":{"$sum":"${aggregate_data}"}
-        }
-    },
-    {
-        "$out":"collection_row_header"
+{
+    "$group":{
+        "_id":{"row_headers":"$row_headers"},
+        "count":{"$sum":1},
+        "total":{"$sum":"${aggregate_data}"}
     }
+},
+{
+    "$out":"collection_row_header"
+}
 '''
 # -----------------------------------------------------------------------------------------------------------------------------
 get_create_collection_tmp = '''{

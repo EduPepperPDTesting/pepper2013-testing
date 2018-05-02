@@ -1460,13 +1460,19 @@ a{
 
             this.hide();
             if(ans){
-                console.log("delete community");
-                /*
-                $.post("${reverse('community_leave',args=[community_id])}",{user_ids:user_id},function(r){
-                    if(r.success)
-                        window.location.replace("${reverse('maincommunity', args=[community_id])}");
+                console.log("delete maincommunity");
+                console.log("${community_id}")
+                $.post("${reverse('community_delete_new',args=[community_id])}",{},function(r){
+                    if(r.success){
+                        window.location.replace("${reverse('newcommunities')}");
+                    }
+                    else{
+                        var dlg = new Dialog($("#dlg-warning"));
+                        var dailogTitle = "Warning";
+                        var dailogText = "Problem Deleting Community: " + r.error + ".";
+                        dlg.show(dailogTitle, dailogText);
+                    }
                 });
-                */
             }
         });
     }

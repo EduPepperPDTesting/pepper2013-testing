@@ -25,9 +25,17 @@
 <link rel="stylesheet" href="/static/js/morris.js-0.5.1/morris.css">
 
 <style>
-#detail{position:absolute;border:1px solid #ccc;background:#efefef; display:none;}
-#detail .tit{ background:#ddd; display:block; height:33px; cursor:move;}
-#detail .tit i{ float:right; line-height:33px; padding:0 8px;cursor:default;}
+    #aggregate_tbody > tr:nth-child(even) > td {background-color: rgb(242, 245, 247);} 
+    #aggregate_tbody > tr:nth-child(odd) > td {background-color: rgb(215, 235, 249);}
+    #aggregate_tbody{
+        overflow: hidden;  
+        white-space: nowrap;  
+        text-overflow: ellipsis; 
+        font-size:16px;  
+    }
+    #detail{position:absolute;border:1px solid #ccc;background:#efefef; display:none;}
+    #detail .tit{ background:#ddd; display:block; height:33px; cursor:move;}
+    #detail .tit i{ float:right; line-height:33px; padding:0 8px;cursor:default;}
     .lean-overlay .loading {
         width: 128px;
         height: 128px;
@@ -140,17 +148,34 @@
     </div>
 <!-- aggregate table -->
 <div id="detail">
-<div class="tit"><i class="close">close</i></div>
+    <div class="tit"><i class="close">close</i></div>
     <div id="aggregate_table">
         <div class="table">
             <div class="body table_scroll">
-                <table id='aggregate' class="tblReport1 tblReport tablesorter" style='margin:0'>
-                    <thead id="aggregate_thead">
-                    </thead>
+                <table id='aggregate' class="tablesorter" style='margin:0'>
+                    <thead id="aggregate_thead"></thead>
                     <tbody id="aggregate_tbody"></tbody>
                 </table>
             </div>
         </div>
+        <span class="footer">
+            <div id="aggregate-pager">
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="aggregatefirst" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="aggregateprev" alt="Prev" />
+                <span class="aggregatepagedisplay"></span>
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="aggregatenext" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="aggregatelast" alt="Last" />
+                <select class="aggregatepagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+            </div>
+        </span>
+    </div>
+</div>
+
     </div>
 </div>
 <!-- chart -->
@@ -184,28 +209,28 @@
 </div>
 
 <script type="text/javascript">
-$.extend($.tablesorter.themes.jui, {
-        // change default jQuery uitheme icons - find the full list of icons at
-        // http://jqueryui.com/themeroller/ (hover over them for their name)
-        table        : 'ui-widget ui-widget-content ui-corner-all', // table classes
-        caption      : 'ui-widget-content',
-        // header class names
-        header       : 'ui-widget-header  ui-state-default', // header classes
-        sortNone     : '',
-        sortAsc      : '',
-        sortDesc     : '',
-        active       : 'ui-state-active', // applied when column is sorted
-        hover        : 'ui-state-hover',  // hover class
-        // icon class names
-        icons        : 'ui-icon', // icon class added to the <i> in the header
-        iconSortNone : 'ui-icon-carat-2-n-s', // class name added to icon when column is not sorted
-        iconSortAsc  : 'ui-icon-carat-1-n', // class name added to icon when column has ascending sort
-        iconSortDesc : 'ui-icon-carat-1-s', // class name added to icon when column has descending sort
-        filterRow    : '',
-        footerRow    : '',
-        footerCells  : '',
-        even         : 'ui-widget-content', // even row zebra striping
-        odd          : 'ui-state-default'   // odd row zebra striping
+    $.extend($.tablesorter.themes.jui, {
+            // change default jQuery uitheme icons - find the full list of icons at
+            // http://jqueryui.com/themeroller/ (hover over them for their name)
+            table        : 'ui-widget ui-widget-content ui-corner-all', // table classes
+            caption      : 'ui-widget-content',
+            // header class names
+            header       : 'ui-widget-header  ui-state-default', // header classes
+            sortNone     : '',
+            sortAsc      : '',
+            sortDesc     : '',
+            active       : 'ui-state-active', // applied when column is sorted
+            hover        : 'ui-state-hover',  // hover class
+            // icon class names
+            icons        : 'ui-icon', // icon class added to the <i> in the header
+            iconSortNone : 'ui-icon-carat-2-n-s', // class name added to icon when column is not sorted
+            iconSortAsc  : 'ui-icon-carat-1-n', // class name added to icon when column has ascending sort
+            iconSortDesc : 'ui-icon-carat-1-s', // class name added to icon when column has descending sort
+            filterRow    : '',
+            footerRow    : '',
+            footerCells  : '',
+            even         : 'ui-widget-content', // even row zebra striping
+            odd          : 'ui-state-default'   // odd row zebra striping
     });
     var pagerOptions = {
         container: $(".pager"),
@@ -222,7 +247,16 @@ $.extend($.tablesorter.themes.jui, {
         processAjaxOnInit: true,
         page: 0,
         size: 10,
-        savePages: false
+        savePages: false,
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
     };
     var tablesorterOptions = {
         debug: false,
@@ -241,7 +275,42 @@ $.extend($.tablesorter.themes.jui, {
         }
     };
 
-function safeJSON(j){
+    var aggregate_pagerOptions = {
+        container: $('#aggregate-pager'),
+        // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+        output: '{startRow} - {endRow} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        page: 0,
+        size: 10,
+        ajaxUrl: null,
+        customAjaxUrl: function(table, url) { return url; },
+        ajaxObject: { dataType: 'json' },
+        ajaxProcessing: function(data){
+            console.log(data)
+        },
+        processAjaxOnInit: true,
+        pageReset: 0,
+        countChildRows: false,
+        cssNext: '.aggregatenext', // next page arrow
+        cssPrev: '.aggregateprev', // previous page arrow
+        cssFirst: '.aggregatefirst', // go to first page arrow
+        cssLast: '.aggregatelast', // go to last page arrow
+        cssGoto: '.aggregategotoPage', // select dropdown to allow choosing a page
+        cssPageDisplay: '.aggregatepagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.aggregatepagesize', // page size selector - select dropdown that sets the "size" option
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+    };
+    var aggregate_tablesorterOptions = {
+        debug: false,
+        headerTemplate : '{content} {icon}',
+        theme: 'jui',
+        widthFixed: true,
+        widgets: ["zebra"],
+        widgetOptions: {}
+    };
+    function safeJSON(j){
         j.csrfmiddlewaretoken="${csrf_token}";
         return j;
     }
@@ -264,7 +333,7 @@ function safeJSON(j){
         }
     };
 
-var report_view = {
+    var report_view = {
         timeID:null,
         dialog:null,
         init:function(){
@@ -302,7 +371,6 @@ var report_view = {
                 var x = $(this).attr('column')
                 var y = $(this).parent().parent().find('td:first').text();
                 get_ajax_get_aggregate(x,y)
-                popWin("detail");
             })
         },
         show_progress: function(obj){
@@ -389,7 +457,8 @@ var report_view = {
     }
 
     function graphable(x){
-        popWin("detail1");
+        loadwin = new LoadingWin();
+        loadwin.show()
         $("#chart").html('')
         var filter =  x.parentElement.parentElement.parentElement.getAttribute('data-column');
         $.get("${reverse('reporting_get_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}","filter":filter}, function(datas){
@@ -406,11 +475,14 @@ var report_view = {
             window.tws = tws
             graph('Line',tws)
             $("#graphable").css('visibility','visible');
+            popWin("detail1");
+            loadwin.hide()
         })
     }
 
     function row_graphable(x){
-        popWin("detail1");
+        loadwin = new LoadingWin();
+        loadwin.show()
         $("#chart").html('')
         filter = x.nextSibling.nodeValue;
         $.get("${reverse('reporting_get_row_graphable')}", {"report_id": "${report.id}","school_year":"${school_year}",'filter':filter}, function(datas){
@@ -427,6 +499,8 @@ var report_view = {
             window.tws = tws
             graph('Line',tws)
             $("#graphable").css('visibility','visible');
+            loadwin.hide()
+            popWin("detail1");
         })
     }
 
@@ -486,6 +560,8 @@ var report_view = {
     }
 
     function get_ajax_get_aggregate(x,y){
+        loadwin = new LoadingWin();
+        loadwin.show()
         $.get("${reverse('reporting_get_aggregate')}", {"report_id": "${report.id}","school_year":"${school_year}","row_header":y,"column_header":x}, function(datas){
             var thead = "<tr><th class='ui-state-default'>"+datas.aggregate_name+"</th><th class='ui-state-default'>"+datas.row_header_name+"</th><th class='ui-state-default'>"+datas.column_header_name+"</th></tr>";
             var tbody = ''
@@ -503,14 +579,16 @@ var report_view = {
             }
 
             $("#aggregate_thead").html(thead)
+            $("#aggregate_tbody").empty()
+            $("#aggregate").trigger('update')
             $("#aggregate_tbody").html(tbody)
-            $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-            report_view.init();
+            $("#aggregate").trigger('update')
+            loadwin.hide()
             $("#aggregate_table").show()
+            popWin("detail");
         })
     }
 $(document).ready(function () {
-
     loadwin = new LoadingWin();
     $.get("${reverse('reporting_get_column_headers')}", {"report_id": "${report.id}","school_year":"${school_year}"}, function(datas){
         column_header = datas.column_header;
@@ -538,8 +616,8 @@ $(document).ready(function () {
         
         $("#talbe_column").html(html)
         $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        $("#aggregate").tablesorter(aggregate_tablesorterOptions).tablesorterPager(aggregate_pagerOptions);
         report_view.init();
-
 
         $("#graph ul li").click(function(){
             var shape = $(this).html();
@@ -563,7 +641,4 @@ $(document).ready(function () {
         })
     });
 })
-
-
-
 </script>

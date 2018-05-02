@@ -91,6 +91,10 @@ urlpatterns = (
     url(r'^ldap/save_config$', 'pepper_ldap.views.ldap_save_config', name='ldap_save_config'),
     # === sso end ===
 
+    # === mobild pepreg begin ==
+    url(r'^mpepreg/Login$', 'mpepreg.views.login', name="mpepreg_login"),
+    url(r'^mpepreg/$', 'mpepreg.views.mpepreg', name="mpepreg"),
+
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
 
@@ -112,6 +116,9 @@ urlpatterns = (
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     url(r'^pepreg/download_calendar_pdf/$', 'administration.pepreg.download_calendar_pdf', name="pepreg_download_calendar_pdf"),#akogan
+    url(r'^pepreg/get_certificates$', 'administration.pepreg.get_training_certificates', name="get_training_certificates"),
+    url(r'^pepreg/download_training_certificate$', 'certificates.views.download_training_certificate', name="download_training_certificate"),
+    url(r'^pepreg/send_completion_notification', 'administration.pepreg.send_completion_certificate', name="send_completion_certificate"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
     #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),
@@ -295,6 +302,7 @@ urlpatterns = (
     url(r'^configuration/certificate/table$', 'administration.configuration.certificate_table', name="configuration_certificate_table"),
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
+    url(r'^configuration/certificate/save_training_certificate$', 'administration.configuration.save_training_certificate', name="training_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
     url(r'^configuration/end_of_year_roll_over/roll_over$', 'administration.configuration.roll_over', name="configuration_roll_over"),
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
@@ -303,6 +311,7 @@ urlpatterns = (
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
+    url(r'^pepconn/school_by_district$', 'administration.pepconn.get_schools_by_district', name="pepconn_get_schools_by_district"),
 
     url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
     url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
@@ -310,6 +319,8 @@ urlpatterns = (
     url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
+
+    url(r'^full_text_search/$', 'full_text_search.views.main', name="fulltextsearch"),
 
     url(r'^header-footer/header$', 'header_footer.service.header_return', name="header_footer_header"),
     url(r'^header-footer/footer$', 'header_footer.service.footer_return', name="header_footer_footer"),
@@ -500,6 +511,8 @@ urlpatterns = (
     url(r'^community/get_subcommunities', 'communities.views.get_subcommunities_process', name='get_subcommunities'),
     url(r'^community/get_trending', 'communities.views.get_trending_discussions_process', name='get_trending'),
     url(r'^communities/search/community-completion', 'communities.views.communities_search_community_completion', name='communities_search_community_completion'),
+    url(r'^subcommunity/(?P<community_id>[a-zA-Z0-9_]+)/delete_new$', 'communities.views.subcommunity_delete_new', name='subcommunity_delete_new'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/delete_new$', 'communities.views.community_delete_new', name='community_delete_new'),
 
     url(r'^ccommunities/$', 'communities.views.new_discussion_process', name='new_discussion_process'),
 

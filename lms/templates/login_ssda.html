@@ -1,6 +1,8 @@
 <%! from django.utils.translation import ugettext as _ %>
 
-<%inherit file="main.html" />
+<!-- <!%inherit file="main_without_header.html" /> -->
+<%inherit file="main_without_header.html" />
+<!-- inherit main_without_header.html for temp,shoule delete it -->
 
 <%namespace name='static' file='static_content.html'/>
 <%! from django.core.urlresolvers import reverse %>
@@ -140,6 +142,21 @@
     border-radius: 3px;
     box-shadow: inset 0 1px 0 0 #666;
     */
+}
+.read-more-dialog {
+    padding: 10px 30px 30px 30px;
+    width:900px;
+    height: 630px;
+    background-color: white;
+    display: none;
+}
+.read-more-wrapper {
+    padding: 40px 20px 20px 20px;
+    border: 1px solid #000000;
+    float: right;
+}
+.read-more-wrapper p {
+    color: #000000;
 }
 </style>
 <!--@end-->
@@ -483,7 +500,7 @@
     <div style="line-height:30px;margin:30px 0 10px 0;" class="clearfix">
       <img src="/static/images/ssda-banner.jpg" class="" alt="" width="20%"/>
       <div style="width:70%;float:right;font-size:20px;margin-right:5%;">
-        <p style="font-weight:bold;">Welcome to the SSDA Membership Portal! All of the great resources from SSDA at your fingertips.</p>
+        <p style="font-weight:bold;">Welcome to the SSDA Membership Portal! All of the great resources from SSDA at your fingertips. <a href="#read-more-dialog" rel="leanModal">Read More!</a></p>
         <p>Debra Pearson, Executive Director</p>
       </div>
     </div>
@@ -592,15 +609,23 @@
                     <button name="submit" type="submit" id="submit" class="action action-primary action-update"></button>
                 </div>
 
-                <input id="button-next" type="button" name="" value="Next" style="background-color:#DFEDD6;background-image:none;border-top-color:#555;box-shadow:none;"/>
+                <input id="button-next" type="button" name="" value="Next" style="background-color:#DFEDD6;background-image:none;border-top-color:#555;box-shadow:none;display: inline;margin-right: 20px;"/><span style="line-height:20px;margin-bottom:20px;font-size:16px;font-style:italic;">Trouble logging in? <a href="Mailto:corrie@ssda.org">Email Us</a>.</span>
 
                 <div class="ssda-check-failed" style="line-height:20px;margin-bottom:20px;font-size:16px;font-style:italic;">
-                  Account not found: Please check the email address. If your are not yet a SSDA member, and, would like more information, please click here:
-                  <a href="http://www.ssda.org/o/ssda/page/membership--3">SSDA Membership</a>.
+                    <i>Account not found: Please check the email address.</i><br><br>
+                    <span><i><b>If you are not yet a SSDA</b> member, and, would like more information, please click here:</i> <a href="http://www.ssda.org/o/ssda/page/membership--3">SSDA Membership</a>.</span>
                 </div>
                 <input id="button-back" type="button" name="" value="Back" style="background-color:#DFEDD6;background-image:none;border-top-color:#555;box-shadow:none;" class="ssda-check-failed"/>
                 
             </form>
+        </section>
+
+        <section style="float: right;width: 30%;margin-top: 45px;">
+            <div style="font-weight: bold;white-space: nowrap;line-height: 1.5em">
+                Not a member? <a target="_blank" href="http://www.ssda.org/o/ssda/page/membership--3">Click here</a> 
+                <br>
+                for SSDA Membership and Benefits.
+            </div>
         </section>
 
         <aside role="complementary">
@@ -648,6 +673,25 @@
   </div>
 </div>
 
+<div id="read-more-dialog" class="read-more-dialog" style="">
+    <div style="float: right;margin: 2px">
+        <a href="#" class="close-modal" title="Close">
+        <div class="inner">
+            <p>&#10005;</p>
+        </div>
+    </a>
+    </div>
+    <div class="read-more-wrapper">
+        <div style="font-weight: bold;font-size: 1.2em;margin-bottom: 20px;">Welcome to SSDA Members' Portal!</div>
+        <p>SSDA is pleased to present a new, easy-to-use web portal for members, hosted by <b>Pepper</b>. Here members can quickly access a variety of resources related to SSDA – such as archived webinars to event handouts – as well as resources that can help make your everyday job better. Need a sample safety plan or sample job description for extra duty assignments? How about resources for your teachers and classified staff?  Find those and much more, right at your fingertips!</p>
+        <p>The new SSDA Members' Only Portal also features online communities where members can ask each other questions for quick answers and guidance.</p>
+        <p>Through the portal, members can sign up for Public Consulting Group's (PCG) suite of online professional learning products and services for educators. <i><b>In fact, PCG is generously offering several modules for free to all SSDA members who join our Members' Only Portal!</i></b></p>
+        <p>If you are an SSDA member, log in below. And if you are not yet an SSDA member and want to know how you can gain access to all these resources, click below for a membership application. </p>
+        <p>Enjoy SSDA's Members' Portal and if you have any questions or ideas for resources you would like to see us add to the site, please email me at <a href="mailto:debra@ssda.org" style="text-decoration: underline;">debra@ssda.org</a> .</p>
+        <p>Debra Pearson, SSDA<br>Executive Director</p>
+    </div>
+</div>
+
 <script type="text/javascript">
   var dlg = new Dialog($('#dialog'));
   var $submitButton = $('form .form-actions #submit');
@@ -672,11 +716,13 @@
            *   return false;
            * });*/
         }else if(r.status == "is ssda"){
+          $("#email").val($("#email-check").val())
           $(".ssda-check-success").show();
           $submitButton.removeClass("is-disabled").removeProp('disabled');
           $submitButton.html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
         }
         $(self).hide();
+        $(self).next().hide();
         $email.closest("fieldset").hide();
       }else{
         dlg.show("Warning", "Error occured")
@@ -689,6 +735,7 @@
     $(this).hide();
     $(".ssda-check-failed").hide();
     $("#button-next").show();
+    $("#button-next").next().show();
     $email.closest("fieldset").show();
   });
 
@@ -700,4 +747,3 @@
     }
   });
 </script>
-

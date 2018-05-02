@@ -17,6 +17,7 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 import opentok
+import datetime
 
 @login_required
 def getvideoframe(request, uname):
@@ -125,12 +126,31 @@ def get_all_ptusers(request):
 
                 #row.append(checkInCommunities(request.user, user))
                 row.append('')
+                if is_online(user):
+                    row.append('1')
+                else:
+                    row.append('0')
                 rows.append(row)
 
     if not rows:
         return HttpResponse(json.dumps({'success': 0}), content_type="application/json")
     else:
         return HttpResponse(json.dumps({'success': 1, 'rows': rows}), content_type="application/json")
+
+def is_online(user):
+    utc_month = datetime.datetime.utcnow().strftime("%m")
+    utc_day = datetime.datetime.utcnow().strftime("%d")
+    utc_h = datetime.datetime.utcnow().strftime("%H")
+    utc_m = datetime.datetime.utcnow().strftime("%M")
+    d_min = 60*int(utc_h) + int(utc_m)
+    if user.profile.last_activity:
+        usr = user.profile.last_activity
+        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+        close = int(d_min) - int(u_min) < 1
+        return usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+    else:
+        return False
+
 
 @login_required
 def get_network(request):

@@ -566,7 +566,7 @@ def report_view(request, report_id):
                 for f in report_filters:
                     filters.append(f)
 
-                if selected_view.view.collection == 'AggregateGradesView':
+                if selected_view.view.collection == 'AggregateGradesView' and request.user.is_superuser:
                     create_report_collection2(request, report, selected_view, columns, filters, report_id)
                 else:
                     create_report_collection(request, report, selected_view, columns, filters, report_id)
@@ -698,7 +698,8 @@ def create_report_collection(request, report, selected_view, columns, filters, r
             year = str(year).replace("-","_")
         school_year = get_all_query_school_year(request,report)
         collection = get_cache_collection(request, report_id, year)
-        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
+        filters = get_query_filters(filters)
+        aggregate_query = eval(aggregate_config['allfieldquery'].replace(',,', ',').replace('{filters}', filters).replace('{school_year}', school_year).replace('{collection}',collection).replace('\n', '').replace('\r', ''))
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
@@ -785,7 +786,9 @@ def get_query_user_domain(user):
     :param user: The user object.
     :return: Mongo query
     """
+    log.debug('123123')
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
+    log.debug(domain)
     if check_user_perms(user, 'reporting', ['view', 'administer']):
         level = check_access_level(user, 'reporting', ['view', 'administer'])
         if level == 'System':

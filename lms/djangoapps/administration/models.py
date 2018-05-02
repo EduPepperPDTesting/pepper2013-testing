@@ -1,8 +1,9 @@
 from django.db import models
-from student.models import District, School, State
+from student.models import District, School, State, CourseEnrollment
 from django.contrib.auth.models import User
 from student.models import UserProfile
 from django.conf import settings
+from organization.models import OrganizationMetadata
 import pymongo
 import logging
 log = logging.getLogger("tracking")
@@ -135,6 +136,14 @@ class Certificate(models.Model):
     association = models.IntegerField(blank=False)
 
 
+class TrainingCertificate(models.Model):
+    class Meta:
+        db_table = 'training_certificate'
+
+    certificate = models.OneToOneField('Certificate', on_delete=models.CASCADE)
+    organization = models.ForeignKey(OrganizationMetadata, related_name='certificates', on_delete=models.CASCADE)
+
+
 class HangoutPermissions(models.Model):
     class Meta:
         db_table = 'hangout_permissions'
@@ -226,6 +235,7 @@ class PepRegTraining(models.Model):
     date_modify = models.DateField(auto_now_add=False, db_index=False)
     last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
     school_id = models.IntegerField(blank=False, default=0)
+    certificate = models.ForeignKey(Certificate, null=True, on_delete=models.SET_NULL)
 
 class PepRegInstructor(models.Model):
     class Meta:
@@ -245,6 +255,18 @@ class PepRegStudent(models.Model):
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
     student_credit = models.FloatField(blank=False, default=0)
+    user_create = models.ForeignKey(User, related_name='+')
+    date_create = models.DateField(auto_now_add=True, db_index=False)
+    user_modify = models.ForeignKey(User, related_name='+')
+    date_modify = models.DateField(auto_now_add=True, db_index=False)
+
+class PepRegStudentCourse(models.Model):
+    class Meta:
+        db_table = 'pepregstudent_course'
+    training = models.ForeignKey(PepRegTraining)
+    student_course_id = models.IntegerField(blank=False, default=0)
+    course = models.ForeignKey(CourseEnrollment)
+    student = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
@@ -323,3 +345,14 @@ class PepRegStudent_Backup(models.Model):
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
     school_year = models.CharField(blank=False, max_length=255, db_index=False)
+
+class PepRegInstructorCourses(models.Model):
+    class Meta:
+        db_table = 'pepreg_instructor_courses'
+    training = models.ForeignKey(PepRegTraining)
+    instructor = models.ForeignKey(User, related_name='+')
+    course_id = models.CharField(max_length=255, db_index=True)
+    date_create = models.DateField(auto_now_add=True, db_index=False)
+    user_create = models.ForeignKey(User, related_name='+', null=True)
+    date_modify = models.DateField(auto_now_add=True, db_index=False, null=True)
+    user_modify = models.ForeignKey(User, related_name='+', null=True)

@@ -1,16 +1,16 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 import json
-from models import PepRegTraining, PepRegInstructor, PepRegStudent
+from models import PepRegTraining, PepRegInstructor, PepRegStudent, TrainingCertificate, PepRegStudentCourse, PepRegInstructorCourses
 from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
 
 import urllib2
-from courseware.courses import (get_courses, get_course_with_access,
-                                get_courses_by_university, sort_by_announcement)
+#from courseware.courses import (get_courses, get_course_with_access, get_courses_by_university, sort_by_announcement)
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -19,6 +19,7 @@ from StringIO import StringIO
 import xlsxwriter
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from training.models import TrainingUsers
+from communities.models import CommunityNotificationType
 from xmodule.modulestore.django import modulestore
 import pymongo
 
@@ -38,6 +39,7 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
                             PendingNameChange, PendingEmailChange, District,
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
+from communities.notification import send_completion_certificate_notification
 
 from io import BytesIO
 
@@ -52,6 +54,7 @@ from xmodule.remindstore import myactivitystore
 import logging
 from reporting.models import reporting_store
 from operator import itemgetter
+
 
 @login_required
 def index(request):
@@ -76,6 +79,7 @@ def build_filters(columns, filters):
     """
     kwargs = dict()
     args = None
+    kwargs_condition = ''
     # Iterate through the filters.
     for column, value in filters.iteritems():
         # For the numerical columns, just filter that column by the passed value.
@@ -84,14 +88,41 @@ def build_filters(columns, filters):
 
             # If the column is an integer value, convert the search term.
             try:
-                out_value = value
-            except:
-                raise Exception("c="+str(c))
-            if columns[c][2] == 'int' and value.isdigit():
-                out_value = int(value)
+                if(c in [7, 8, 12]):
+                    ranges = {0: "__iexact", 1: "__lt", 2: "__gt", 3: "__lte", 4: "__gte"}
+                    kwargs_condition = ''
+                    out_value = value[value.find("|") + 1:]
+                    if columns[c][0] == "training_date":
+                        #date_in = str(out_value)
+                        out_value = datetime.strptime(out_value, '%m/%d/%Y').strftime('%Y-%m-%d')
+                        #raise ValueError(date_in + "date out: " + str(out_value))
+                    elif columns[c][0].startswith("training_time"):
+                        #time_in = str(out_value)
+                        out_value = datetime.strptime(out_value, '%I:%M %p').strftime('%H:%M:%S')
+                        #raise ValueError(time_in + " time out: " + str(out_value))
+
+                    kwargs_condition = ranges[int(value[0])]
+
+                else:
+                    if columns[c][2] == 'int' and value.isdigit():
+                        out_value = int(value)
+                    else:
+                        out_value = value
+
+                    # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+                    # type of selection to make ([1] - '__iexact').
+                    # kwargs[columns[c][0] + columns[c][1]] = out_value
+                #out_value = value
+            except Exception as e:
+                raise Exception(e)
+            #raise Exception("c="+str(c))
+            # if columns[c][2] == 'int' and value.isdigit():
+            #     out_value = int(value)
+
+            kwargs_condition = columns[c][1] if not kwargs_condition else kwargs_condition
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
             # type of selection to make ([1] - '__iexact').
-            kwargs[columns[c][0] + columns[c][1]] = out_value
+            kwargs[columns[c][0] + kwargs_condition] = out_value
         # If this is a search for all, we need to do an OR search, so we build one with Q objects.
         else:
             args_list = list()
@@ -175,6 +206,7 @@ def rows(request):
         9: ['geo_location', '__iexact', 'str'],
         10: ['credits', '__iexact', 'int'],
         11: ['subjectother', '__iexact', 'str'],
+        12: ['training_time_end', '__iexact', 'str'],
     }
 
     sorts = get_post_array(request.GET, 'col')
@@ -232,11 +264,20 @@ def rows(request):
 
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
         #raise Exception(str(trainings))
-        for field_item in field_list:
-            item_unit = field_item.split("|")
 
-            item = item_unit[0].encode("utf-8")
-            item_order = int(item_unit[1])
+        field_type = {
+            "state": 1,
+            "district": 2,
+            "subject": 3,
+            "date": 7,
+            "training_start_time": 8,
+            "training_end_time": 12
+        }
+
+        for item_order, field_item in enumerate(field_list):
+
+            item = field_item.encode("utf-8")
+
             #if item_order == 1: raise Exception(str(field_list) + " --- " + str(search_list) + " --- " +  str(conditions))
             try:
                 condition = conditions[item_order].encode("utf-8")
@@ -246,17 +287,19 @@ def rows(request):
             prev_item_order = item_order - 1
             next_item_order = item_order + 1
 
-            if item == 'state':
-                filters = {1: search_list[item_order]}
-                #field_name = 'district__state__name__iexact'
-            elif item == 'district':
-                filters = {2: search_list[item_order]}
-                #field_name = 'district__name__iexact'
-            elif item:
-                for key, val in columns.iteritems():
-                    if item == val[0]:
-                        filters = {key: search_list[item_order]}
-                        break
+            filters = {field_type[item]: search_list[item_order]}
+
+            # elif item == 'date':
+            #     #date_indices = [i for i, s in enumerate(field_list) if s == "date" and i != item_order]
+            #     #if(date_indices):
+            #         #if date at i < date current date add date at i to Q condition as date__gte
+            #         #if date at i > date current date add date at i to Q condition as date__lte
+            #     filters = {7: search_list[item_order]}
+            # elif item:
+            #     for key, val in columns.iteritems():
+            #         if item == val[0]:
+            #             filters = {key: search_list[item_order]}
+            #             break
                 #field_name = item + '__in'
 
             args, kwargs = build_filters(columns, filters)
@@ -275,17 +318,21 @@ def rows(request):
                 next_item_unit = field_list[next_item_order].split("|")
                 next_item = next_item_unit[0]
 
-                if next_item == 'state':
-                    filters = {1: search_list[next_item_order]}
-                    #next_field_name = 'district__state__name__in'
-                elif next_item == 'district':
-                    filters = {2: search_list[next_item_order]}
-                    #next_field_name = 'district__name__in'
-                elif next_item:
-                    for key, val in columns.iteritems():
-                        if next_item == val[0]:
-                            filters = {key: search_list[next_item_order]}
-                            break
+                filters = {field_type[next_item]: search_list[next_item_order]}
+
+                # if next_item == 'state':
+                #     filters = {1: search_list[next_item_order]}
+                #     #next_field_name = 'district__state__name__in'
+                # elif next_item == 'district':
+                #     filters = {2: search_list[next_item_order]}
+                #     #next_field_name = 'district__name__in'
+                # elif next_item == 'date':
+                #     filters = {7: search_list[next_item_order]}
+                # elif next_item:
+                #     for key, val in columns.iteritems():
+                #         if next_item == val[0]:
+                #             filters = {key: search_list[next_item_order]}
+                #             break
                     #next_field_name = next_item + '__in'
 
                 args, next_kwargs = build_filters(columns, filters)
@@ -335,11 +382,11 @@ def rows(request):
     count = len(trainings_set)
     rows = list()
     for item in trainings_set[start:end]:
+
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
-        remain = item.max_registration - PepRegStudent.objects.filter(
-            training=item).count() if item.max_registration > 0 else -1
+        remain = item.max_registration - PepRegStudent.objects.filter(training=item).exclude(student_status = "Waitlist").count() if item.max_registration > 0 else -1
 
         allow_waitlist = "1" if item.allow_waitlist else "0"
 
@@ -395,10 +442,10 @@ def rows(request):
             <input type=hidden value=%s name=managing> \
             <input type=hidden value=%s name=all_edit> \
             <input type=hidden value=%s name=all_delete> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s,%s name=status>" % (
+            <input type=hidden value='%s,%s,%s,%s,%s,%s,%s,%s,%s' name=status>" % (
                 item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
-                remain, allow_waitlist
+                remain, allow_waitlist, "1" if item.certificate else "0"
             ),
             item.subjectother,
         ]
@@ -450,10 +497,12 @@ def save_training(request):
         training.allow_attendance = request.POST.get("allow_attendance", False)
         training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
+        training.certificate_id = request.POST.get("certificate", None)
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
         training.save()
-
+        rs = reporting_store('PepregTraining')
+        rs.report_update_data(training.id)
         if not id:
             ma_db = myactivitystore()
             my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_createTraining", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
@@ -464,6 +513,7 @@ def save_training(request):
 
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
+            course_instructors = list()
             for emails in request.POST.get("instructor_emails", "").split(","):
                 tmp1 = emails.split("::");
                 email = tmp1[0];
@@ -479,6 +529,22 @@ def save_training(request):
                     pi.all_edit = all_edit;
                     pi.all_delete = all_delete;
                     pi.save()
+
+                    if training.pepper_course:
+                        instructorObject, instructorAdded = PepRegInstructorCourses.objects.get_or_create(instructor = pi.instructor, course_id = training.pepper_course, training = training)
+                        course_instructors.append(pi.instructor)
+
+                        if instructorAdded:
+                            instructorObject.date_create = datetime.now(UTC)
+                            instructorObject.user_create = request.user
+
+                        instructorObject.date_modify = datetime.now(UTC)
+                        instructorObject.user_modify = request.user
+
+            if training.pepper_course:
+                for pep_course in PepRegInstructorCourses.objects.filter(course_id = training.pepper_course, training = training):
+                    if pep_course.instructor not in course_instructors:
+                        pep_course.delete()
 
     except Exception as e:
         db.transaction.rollback()
@@ -497,8 +563,12 @@ def delete_training(request):
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         TrainingUsers.objects.filter(training=training).delete()
+        PepRegInstructorCourses.objects.filter(training=training).delete()
         training.delete()
-
+        rs = reporting_store('PepregTraining')
+        rs.report_update_data(id, True)
+        rs = reporting_store('PepregStudent')
+        rs.report_update_data(id, "", True)
         ma_db = myactivitystore()
         ma_db.set_item_pd(tid, tname, str(tdate))
 
@@ -544,9 +614,37 @@ def training_json(request):
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
-        "arrive": arrive
+        "arrive": arrive,
+        "certificate": item.certificate_id,
+        "allow_waitlist": item.allow_waitlist
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+def get_training_certificates(request):
+    district_id = request.GET.get('district_id', None)
+    school_id = request.GET.get('school_id', None)
+    if not district_id:
+        return HttpResponse(json.dumps({"Success": False, "info": "No district given"}), content_type="application/json")
+    if school_id:
+        qs = Q(organization__organizationdistricts__EntityType='School', organization__organizationdistricts__OrganizationEnity=school_id)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
+        if not trainging_certificates:
+            qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+            trainging_certificates = TrainingCertificate.objects.filter(qs)
+    else:
+        qs = Q(organization__organizationdistricts__EntityType='District', organization__organizationdistricts__OrganizationEnity=district_id)
+        trainging_certificates = TrainingCertificate.objects.filter(qs)
+    row = []
+    if trainging_certificates:
+        for trainging_certificate in trainging_certificates:
+            row.append({
+                "id": trainging_certificate.certificate.id,
+                "name": trainging_certificate.certificate.certificate_name,
+                })
+        return HttpResponse(json.dumps({"Success": True, "certificates": row}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({"Success": False}), content_type="application/json")
 
 
 def getCalendarInfo(request):
@@ -698,11 +796,13 @@ def getCalendarMonth(request):
                     except:
                         status = ""
 
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     # commented out/modified by akogan 6/19/17 - per bug report: time slot not displayed if instructor records attendance
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((_catype == "0" or _catype == "2") or (status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Registered" and (_catype == "0" or _catype == "3"))))) or (arrive == "1" and allow_student_attendance == "1" and ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1") or (_catype == "0" or _catype == "3")))):
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
                     #if ((arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (_catype == "0" or _catype == "5")) or ((status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or catype == "3")) or (status == "Registered" and (_catype == "0" or _catype == "2"))))):
-                    if ((arrive == "0" and ((allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (_catype == "0" or _catype == "3")) or (status != "Registered" and (_catype == "0" or _catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (_catype == "0" or _catype == "2")) or ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or _catype == "3"))))):
+                    if ((arrive == "0" and ((allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and (((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or (status == "Waitlist" and r_l == "1" and (_catype == "0" or _catype == "6"))) or (not (status == "" and r_l == "1") and ((status == "Registered" and (_catype == "0" or _catype == "3")) or (status != "Registered" and (_catype == "0" or _catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (_catype == "0" or _catype == "2")) or ((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1" or _catype == "3"))))):
                         training_list.append(item.id)
 
         try:
@@ -774,6 +874,8 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                         status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                 except:
                     status = ""
+
+                allow_waitlist = "1" if item.allow_waitlist else "0"
                 # if(item.training_date in date_list):
                 #     raise Exception(item.training_date)
 
@@ -782,7 +884,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not ((status == "" and allow == "1") or allow_student_attendance == "0") and ((allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1")) or (catype == "0" or catype == "3"))) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #if ((arrive == "0" and (allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1") and (catype == "0" or catype == "5")) or ((status == "Registered" and (catype == "0" or catype == "3")) or (catype == "0" or catype == "2"))))) or (arrive == "1" and not (status == "" and allow == "1") and (((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3")) or (status == "Registered" and (catype == "0" or catype == "2"))))):
                 #raise Exception("arrive-"+arrive+" allow-"+allow+" r_l-"+r_l+" status-"+status+" full-"+str(arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))))
-                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
+                if ((arrive == "0" and ((allow == "0" and (catype == "0" or catype == "4")) or (allow == "1" and (((status == "" and r_l == "1" and (catype == "0" or catype == "5")) or (status == "Waitlist" and r_l == "1" and (catype == "0" or catype == "6"))) or (not (status == "" and r_l == "1") and ((status == "Registered" and (catype == "0" or catype == "3")) or (status != "Registered" and (catype == "0" or catype == "2")))))))) or (arrive == "1" and not (status == "" and allow == "1") and ((status == "Registered" and (catype == "0" or catype == "2")) or ((status == "Attended" or status == "Validated") and (catype == "0" or catype == "1" or catype == "3"))))):
                     training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
                     classroom = item.classroom if item.classroom.find("<a href") == -1 else "Online"
@@ -884,6 +986,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"
                     allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                    remain = item.max_registration - PepRegStudent.objects.filter(training=item).exclude(student_status = "Waitlist").count() if item.max_registration > 0 else -1
                     attendancel_id = item.attendancel_id
 
                     status = ""
@@ -893,6 +996,9 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
                         status = ""
+
+                    allow_waitlist = "1" if item.allow_waitlist else "0"
+
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
@@ -954,7 +1060,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                if (allow_waitlist == "0"):
+                                    occurrences.append("<label class='alert short_name al_7' titlex='" + titlex + "'><span>" + item.name + "</span>"+itemData+"</label>")
+                                elif (remain > -1):
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' /> ";
+                                    occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
+
+                        elif  (status == "Waitlist" and r_l == "1"):
+                            if (catype == "0" or catype == "6"):
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_would waitlist' training_id='" + str(item.id) + "' checked /> ";
+                                occurrences.append("<label class='alert short_name al_8' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>" + itemData + "</label>")
                         else:
                             if (status == "Registered"):
                                 # checked true
@@ -1063,8 +1178,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(isweek and day[0]):
-                thismonth = month
-                thisyear = year
+                thisMonth = month
+                thisYear = year
 
                 if (old_month < month):
                     oldmlsnewm = "true"
@@ -1087,27 +1202,27 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 else:
                     nextMonth = "false"
                     if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
-                        thismonth -= 1
+                        thisMonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
-                    thismonth -= 1
+                    thisMonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
-                        thismonth += 1
+                        thisMonth += 1
                     prevMonth = "false"
 
                 if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
-                    thismonth += 1
+                    thisMonth += 1
 
-                if thismonth == 13:
-                    thismonth = 1
-                    thisyear += 1
-                elif thismonth == 0:
-                    thismonth = 12
-                    thisyear -= 1
+                if thisMonth == 13:
+                    thisMonth = 1
+                    thisYear += 1
+                elif thisMonth == 0:
+                    thisMonth = 12
+                    thisYear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ", " + str(week[0][0]) + ", " + str(year) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})'".format(str(day[0]), str(thisMonth), str(thisYear), nextMonth, prevMonth, str(dateToCompare), str(old_month), oldmlsnewm, oldmgrnewm, str(month), str(week[0][0]), str(year))
             else:
                 clickFunc = ""
 
@@ -1117,17 +1232,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if isday:
                     width_id = "day-view"
 
-                table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                table_tr_content += "<td class='{}' id='{}' style='position: relative; height: 100%;{}'{}>".format(class_name, width_id, cell_border, clickFunc)
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
-
+                    table_tr_content += "<div class='calendarium-relative' {}><span class='calendarium-date'>{}</span>".format(colstyle, str(day[0]))
                     if not isday:
                         #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
                     if isday:
-                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
 
                         for dayHour in dayHours:
 
@@ -1136,7 +1250,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if day[1]:
                                 i = 0
 
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
                                 divAdded = 1
 
                                 for tmp1 in day[1]:
@@ -1189,31 +1303,31 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                                                     hourAMPM = "PM"
 
                                         if (h <= endHour):
-                                            if(h == startHour):
-                                                unique = " unique " if (h == startHour) else ""
+                                            unique = " unique " if (h == startHour) else ""
                                             t = day[3][i][-2:]
                                             dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                            table_tr_content += "<span class='" + unique + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                            table_tr_content += "<span class='{}{} {} span-{}'>{}</span>".format(unique, t, dh, str(i), tmp1)
 
                                     i += 1
 
                             if ( not divAdded ):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
 
                             table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
-                    table_tr_content += "</div>";
+                    table_tr_content += "</div>"
 
-                table_tr_content += "</td>";
+                table_tr_content += "</td>"
 
-        table_tr_content += "</tr>";
+        table_tr_content += "</tr>"
 
-    return table_tr_content;
+    return table_tr_content
 
-def remove_student(student):
+def remove_student(student, training_id=''):
     if student.training.type == "pepper_course":
+        PepRegStudentCourse.objects.get(training_id=training_id, student=student.student).delete()
         CourseEnrollment.unenroll(student.student, student.training.pepper_course)
         CourseEnrollmentAllowed.objects.filter(email=student.student.email,
                                                course_id=student.training.pepper_course).delete()
@@ -1234,21 +1348,25 @@ def register_student(request, join, training_id, user_id):
         if join:
             if reach_limit(training):
                 raise Exception("Maximum number of users have registered for this training.")
-
             try:
-                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+                try:
+                    student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+                except:
+                    student = PepRegStudent()
+                    student.user_create = request.user
+                    student.date_create = datetime.now(UTC)
+
+                student.student = student_user
+                student.student_status = "Registered"
+                student.training_id = int(training_id)
+                student.user_modify = request.user
+                student.date_modify = datetime.now(UTC)
+                student.save()
             except:
-                student = PepRegStudent()
-                student.user_create = request.user
-                student.date_create = datetime.now(UTC)
+                raise Exception("training_id="+str(training_id)+" student="+str(student_user))
 
-            student.student = student_user
-            student.student_status = "Registered"
-            student.training_id = int(training_id)
-            student.user_modify = request.user
-            student.date_modify = datetime.now(UTC)
-            student.save()
-
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(int(training_id), student_user.id)
             ma_db = myactivitystore()
             my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration",
                            "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
@@ -1262,7 +1380,24 @@ def register_student(request, join, training_id, user_id):
                                                                              course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
-                CourseEnrollment.enroll(student_user, training.pepper_course)
+                enrollment = CourseEnrollment.enroll(student_user, training.pepper_course)
+
+                if enrollment:
+                    try:
+                        student_course = PepRegStudentCourse.objects.get(training_id=training_id, student=student_user, student_course_id = enrollment.id)
+                    except:
+                        student_course = PepRegStudentCourse()
+                        student_course.training_id = training_id
+                        student_course.student = student_user
+                        student_course.student_course_id = enrollment.id
+                        student_course.course = enrollment
+                        student_course.user_create = request.user
+                        student_course.date_create = datetime.now(UTC)
+
+                    student_course.user_modify = request.user
+                    student_course.date_modify = datetime.now(UTC)
+
+                    student_course.save()
 
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
@@ -1271,9 +1406,10 @@ def register_student(request, join, training_id, user_id):
                 tu.save()
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
-            remove_student(student)
+            remove_student(student, training_id)
             PepRegStudent.objects.filter(training_id=training_id, student=student_user).delete()
-
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(int(training_id), student_user.id, True)
             # akogan
             mem = TrainingUsers.objects.filter(user=student_user, training=training)
 
@@ -1394,11 +1530,11 @@ def waitlist_swap(request):
 
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
-def set_student_attended(request):
+def set_student_attended(request, training_id='', student_id='', yn=''):
     try:
-        training_id = int(request.POST.get("training_id"))
-        student_id = int(request.POST.get("student_id"))
-        yn = request.POST.get("yn", False)
+        training_id = training_id if training_id else int(request.POST.get("training_id"))
+        student_id = student_id if student_id else int(request.POST.get("student_id"))
+        yn = yn if yn else request.POST.get("yn", False)
 
         training = PepRegTraining.objects.get(id=training_id)
         try:
@@ -1436,8 +1572,12 @@ def set_student_attended(request):
                     "student_credit": student.student_credit,
                     "student_id": student.student_id,
                     }
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(training_id, student_id)
         else:
             data = None
+            rs = reporting_store('PepregStudent')
+            rs.report_update_data(training_id, student_id, True)
 
     except Exception as e:
         db.transaction.rollback()
@@ -1470,7 +1610,8 @@ def set_student_validated(request):
             student.save()
             rs = reporting_store('PdTime')
             rs.report_update_data(student_id, int(-training.credits))
-
+        rs = reporting_store('PepregStudent')
+        rs.report_update_data(training_id, student_id)
 
         data = {"id": student.id,
                 "email": student.student.email,
@@ -1497,6 +1638,7 @@ def student_list(request):
         students = PepRegStudent.objects.filter(training_id=training_id).order_by('date_modify')
         arrive = datetime.now(UTC).date() >= training.training_date
         student_limit = reach_limit(training) # akogan
+        has_validated_student = False
         rows = []
         for item in students:
             rows.append({
@@ -1508,6 +1650,8 @@ def student_list(request):
                 "student_credit": item.student_credit,
                 "student_id": item.student_id,
             })
+            if item.student_status == "Validated":
+                has_validated_student = True
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -1527,7 +1671,9 @@ def student_list(request):
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive,
                                     'student_limit': student_limit, # akogan
-                                    'allow_waitlist': training.allow_waitlist
+                                    'allow_waitlist': training.allow_waitlist,
+                                    'has_validated_student': has_validated_student,
+                                    'has_certificate': bool(training.certificate),
                                     }),
                         content_type="application/json")
 
@@ -1552,7 +1698,8 @@ def get_courses_drop(state_name, district_code):
     }
 
 
-    courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
+    # courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
+    courses = modulestore().collection.find({'_id.category': 'course'}).sort("metadata.display_name", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(courses), 0)
     return courses
 
@@ -1580,7 +1727,7 @@ def delete_student(request):
         id = int(request.POST.get("id"))
         user = PepRegStudent.objects.get(id=id).student
         training_id = PepRegStudent.objects.get(id=id).training_id
-        remove_student(PepRegStudent.objects.get(id=id))
+        remove_student(PepRegStudent.objects.get(id=id), training_id)
         TrainingUsers.objects.filter(user=user).delete()
         PepRegStudent.objects.filter(id=id).delete()
 
@@ -2267,7 +2414,7 @@ def getfielddata(request):
     if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
         rows = ["State", "District"]
 
-    rows.append("Subject")
+    rows = rows + ["Subject", "Date", "Training Start Time", "Training End Time"]
 
     success = 1
 
@@ -2279,25 +2426,66 @@ def getsearchdata(request):
     success = 0
     rows = list()
     data_column = ""
-    search_data = request.POST.get('search_data')
+    search_data = request.POST.get('search_data').encode("utf-8")
 
-    if search_data == "state":
-        data_column = "1"
+    field_type = {
+        "state": [1, State],
+        "district": [2, District],
+        "subject": [3, "Subject"],
+        "date": [7, "Date"],
+        "training_start_time": [8, "Time"],
+        "training_end_time": [9, "Time"]
+    }
+
+    not_query = ["Date", "Time", "Subject"]
+
+    try:
+        data_column = str(field_type[search_data][0])
+
+        if field_type[search_data][1] == "Subject":
+            rows = [{"AR": "Assessments and Reporting"},
+                    {"DC": "Digital Citizenship"},
+                    {"ELA": "English Language Arts"},
+                    {"ELL": "English Language Learners"},
+                    {"MA": "Mathematics"},
+                    {"PEP": "Pepper"},
+                    {"POW": "Pepper's Online Workshops!"},
+                    {"SC": "Science"},
+                    {"SE": "Special Education"},
+                    {"TECH": "Technology"},
+                    {"WR": "Writing and Poetry"},
+                    {"Other": "Other"}]
+        elif field_type[search_data][1] not in not_query:
+            for item in field_type[search_data][1].objects.all().order_by("name"):
+                rows.append(item.name)
+
+        if(not rows):
+            rows.append(field_type[search_data][1])
+
         success = 1
-        for item in State.objects.all().order_by("name"):
-            rows.append(item.name)
+    except:
+        data_column = ""
+        success = 0
 
-    elif search_data == "district":
-        data_column = "2"
-        success = 1
-        for item in District.objects.all().order_by("name"):
-            rows.append(item.name)
-
-    elif search_data == "subject":
-        data_column = "3"
-        success = 1
-        rows = ["Assessments and Reporting", "Digital Citizenship", "English Language Arts"]
-
-    data = {'success': success, 'rows': rows, 'datacolumn': data_column}
+    data = {'success': success, 'rows': rows, 'data_column': data_column}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+@login_required
+def send_completion_certificate(request):
+    training_id = request.GET.get('training_id')
+    error = ''
+    students = PepRegStudent.objects.filter(training_id=training_id)
+    for student in students:
+        if student.student_status == 'Validated':
+            try:
+                send_completion_certificate_notification(request.user, student.student,
+                    request.build_absolute_uri(reverse('download_training_certificate') + '?training_id=' + training_id), 'Send PD Certificate')
+            except CommunityNotificationType.DoesNotExist:
+                error = 'NotificationType Does not Exist'
+                return HttpResponse(json.dumps({'success': False, 'error': error}))
+    if not students:
+        error = 'no validated student'
+        return HttpResponse(json.dumps({'success': False, 'error': error}))
+
+    return HttpResponse(json.dumps({'success': True}))

@@ -66,6 +66,28 @@ CertificateEditor.prototype.save=function(callback){
       });
     }
 }
+CertificateEditor.prototype.save_training_certificate=function(organization_id, callback){
+    this.certificate_name=$(".certificate_name").val();
+    if(this.certificate_name==""){
+      new Dialog($('#dialog')).show('Error','You need a name for your certificate.');return;
+    }
+    else{
+      var self=this;
+      var data={id:this.certificateID,name:this.certificate_name,content:this.CKEDITOR.getData(),association_type:this.association_type,association:this.association,readonly:this.isReadOnly,organization_id:organization_id};
+      console.log(data)
+      $.post("/configuration/certificate/save_training_certificate",data,function(r){
+          if(r.success){
+            self.certificateID=r.id;
+            self.setState();
+            new Dialog($('#dialog')).show('OK',r.msg);
+            CKEDITOR.instances.certificate_editor.resetDirty();
+          }
+          else{new Dialog($('#dialog')).show('Error',r.msg);}
+          (callback && typeof(callback) === "function") && callback();
+          return;
+      });
+    }
+}
 CertificateEditor.prototype.copy=function(){
  var self=this;
  if(this.isStateChange()){

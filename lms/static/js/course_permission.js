@@ -203,6 +203,7 @@ CoursePermission.prototype.loadCourseTable = function(){
          var g_toggle1 = $("<div class='toggle access'/>").appendTo( $(this).find("thead tr td:eq(4)")).toggleSwitch();
          var g_toggle2 = $("<div class='toggle enroll'/>").appendTo( $(this).find("thead tr td:eq(5)")).toggleSwitch();
          var g_toggle3 = $("<div class='toggle closed'/>").appendTo( $(this).find("thead tr td:eq(6)")).toggleSwitch();
+         $(this).find("thead tr td:eq(6)").css('display','none')
         g_toggle2.change(function(){
             var v = this.val();
             if(v == 1) g_toggle1.val(1, true)
@@ -232,6 +233,7 @@ CoursePermission.prototype.loadCourseTable = function(){
             var toggle1 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(6)).toggleSwitch();
             var toggle2 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(7)).toggleSwitch();
             var toggle3 = $("<div class='toggle'/>").appendTo($(this).find("td").eq(8)).toggleSwitch();
+            $(this).find("td").eq(8).css('display','none')
             toggle2.change(function(){
                 g_toggle2.val(0, false);
                 var v = this.val();

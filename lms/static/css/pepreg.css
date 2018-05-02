@@ -606,8 +606,34 @@ table.students td{
     font-size:20px !important;
 }
 
-#addNext {
+.addNext {
     position: relative;
-    font-size: 2em;
-    text-decoration: none;
+    left: -5px;
+    text-decoration: none !important;
+}
+
+.addItem {
+    top: 5px;
+    font-size: 2em !important;
+}
+
+.removeItem {
+    top: 6px;
+    font-size: 3em !important;
+    height: 10px;
+    line-height: .4em !important;
+}
+
+.adv_date{
+    width: 105px;
+    margin-left: 2px;
+    text-align: center;
+}
+
+.adv_time{
+    width: 105px;
+    margin-left:2px;
+    position: relative;
+    bottom: 1px;
+    text-align: center;
 }

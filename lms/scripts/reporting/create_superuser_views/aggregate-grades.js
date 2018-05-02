@@ -30,9 +30,15 @@ db.student_courseenrollment.aggregate({
         school: {
             $arrayElemAt: ['$user_info.school', 0]
         },
-        state_id: '$user_info.state_id',
-        district_id: '$user_info.district_id',
-        school_id: '$user_info.school_id'
+        state_id: {
+            $arrayElemAt: ['$user_info.state_id', 0]
+        },
+        district_id: {
+            $arrayElemAt: ['$user_info.district_id', 0]
+        },
+        school_id: {
+            $arrayElemAt: ['$user_info.school_id', 0]
+        }
     }
 }, {
     $lookup: {
@@ -52,6 +58,9 @@ db.student_courseenrollment.aggregate({
         state: 1,
         district: 1,
         school: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         course_id: '$question_info.q_course_id',
         course_number: '$question_info.course_number',
         course_name: '$question_info.course_name',
@@ -78,6 +87,9 @@ db.student_courseenrollment.aggregate({
         state: 1,
         district: 1,
         school: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         course_number: 1,
         course_name: 1,
         course_run: 1,

@@ -62,8 +62,14 @@
 <div class="data_import_bottom" style="text-align:left;">
     <div class="main data_import_content">
         <div id="back">
-            <a href="${reverse('community_view', args=[community.id])}" class="up_page"></a>&nbsp;
-            <a href="${reverse('community_view', args=[community.id])}">
+            %if not main_community_id:
+                <a href="/maincommunity/${community.id}" class="up_page"></a>&nbsp;
+                <a href="/maincommunity/${community.id}">
+            %else:
+                <a href="/subcommunity/${community.id}" class="up_page"></a>&nbsp;
+                <a href="/subcommunity/${community.id}">
+                    
+            %endif
                 Back to the <span class="italic">${community.name}</span> community
             </a>
         </div>
@@ -405,7 +411,8 @@
         function add_selected_users(){
             var ids=tabAdd.getSelectedIds();
             if(ids.length){
-                $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(","), manage:"1"},function(){
+                var maincommunity_id = "${main_community_id}";
+                $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(","), manage:"1", maincommunity_id: maincommunity_id},function(){
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
                     new Dialog($('#dialog')).show("Success", "Selected users added successfully to the community.");

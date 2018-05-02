@@ -18,8 +18,8 @@ from django.db import DatabaseError
 from xblock.runtime import KeyValueStore
 from xblock.exceptions import KeyValueMultiSaveError, InvalidScopeError
 from xblock.fields import Scope
-
-log = logging.getLogger(__name__)
+from reporting.models import reporting_store
+log = logging.getLogger('tracking')
 
 
 class InvalidWriteError(Exception):
@@ -236,6 +236,9 @@ class FieldDataCache(object):
                     'module_type': key.block_scope_id.category,
                 },
             )
+            if (key.block_scope_id.category == 'problem' or key.block_scope_id.category == 'combinedopenended') and _ :
+                rs = reporting_store('CoursewareStudentmodule')
+                rs.report_insert_data(field_object)
         elif key.scope == Scope.user_state_summary:
             field_object, _ = XModuleUserStateSummaryField.objects.get_or_create(
                 field_name=key.field_name,

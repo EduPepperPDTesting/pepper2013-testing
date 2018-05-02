@@ -868,6 +868,7 @@ f.close()
               <li data-value="Oklahoma SDE">Oklahoma SDE</li>
               <li data-value="PCG Education">PCG Education</li>
               <li data-value="SEADAE">SEADAE</li>
+              <li data-value="Smithsonian Science Education Center">Smithsonian Science Education Center</li>
               <li data-value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</li>
               <li data-value="WestEd">WestEd</li>                  
             </ul>
@@ -958,6 +959,7 @@ f.close()
                 <option value="Oklahoma SDE">Oklahoma SDE</option>
                 <option value="PCG Education">PCG Education</option>
                 <option value="SEADAE">SEADAE</option>
+                <option value="Smithsonian Science Education Center">Smithsonian Science Education Center</option>
                 <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
                 <option value="WestEd">WestEd</option>            
               </select>
@@ -994,7 +996,7 @@ f.close()
                   <th class="">Course Name</th>
                   <th class="">Access</th>
                   <th class="">Enrollment</th>
-                  <th class="">Close</th>
+                  <th style='display:none' class="">Close</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -1173,6 +1175,7 @@ function submitCohortEdit(){
     });
 }
 function editUserData(id){
+    user_id = id;
     $.post('${reverse("pepconn_user_get_info")}', {
         id: id
     }, function (r) {
@@ -1195,24 +1198,26 @@ function editUserData(id){
         if($("#userCohortValue option:selected" ).attr("data-district") != id){
             $("#userSchoolValue").val("");
         }
+
+        $.post('${reverse("pepconn_get_schools_by_district")}', {
+            id:user_id,
+            district:$("#userDistrictValue").val()
+        }, function (r) {
+            $("#userSchoolValue").empty().append(r.code);
+        });
         $("#userDistrictValue").change(function(){
-            id=$(this).val();
+            dist_id = $(this).val();
             $("#userCohortValue > option").each(function() {
-                if($(this).attr("data-district") != id){
+                if($(this).attr("data-district") != dist_id){
                     $(this).hide();
                 } else $(this).show();
             });
-            $("#userSchoolValue > option").each(function() {
-                if($(this).attr("data-district") != id){
-                    $(this).hide();
-                }else $(this).show();
+            $.post('${reverse("pepconn_get_schools_by_district")}', {
+                id:user_id,
+                district:dist_id
+            }, function (r) {
+                $("#userSchoolValue").empty().append(r.code);
             });
-            if($("#userSchoolValue option:selected" ).attr("data-district") != id){
-                $("#userSchoolValue").val("");
-            }
-            if($("#userCohortValue option:selected" ).attr("data-district") != id){
-                $("#userSchoolValue").val("");
-            }
         });
     });
 }
