@@ -1546,6 +1546,108 @@
 	</div>
 </div>
 
+<div id="training_certificate_template" style="display: none;">
+    <style type="text/css">@page {{
+        background-image: url(https://s3.amazonaws.com/pepperpd/static/new_cert_bg-4.jpg);
+        background-position:70px 70px; }}
+    </style>
+    <table align="center" border="0" cellpadding="40" cellspacing="0" height="850" width="1100">
+        <tbody>
+            <tr>
+                <td>
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td style="padding-top:10px;" width="33%"><span style="font-size:28px;font-family:verdana,geneva,sans-serif;color:#1BA1DE;">CERTIFICATE <span style="font-size:20px;"><em>of</em></span></span><br />
+                            <span style="font-size:9px;font-family:verdana,geneva,sans-serif;color:#1BA1DE;">&nbsp;</span><br />
+                            <span style="font-size:28px;font-family:verdana,geneva,sans-serif;color:#1BA1DE;">ACHIEVEMENT</span></td>
+                            <td width="33%"><img alt="" src="https://s3.amazonaws.com/pepperpd/static/pepper_logo_CCRN.png" style="height:104px; width:275px" /></td>
+                            <td width="34%"><img align="right" src="https://s3.amazonaws.com/pepperpd/static/PCG_Education_1385X419.png" style="height:77px; width:255px;" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td width="250"><img alt="" src="https://s3.amazonaws.com/pepperpd/static/jack2.png" style="height:150px; width:250px" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="70%">
+                            <p><span style="color:#808080; font-family:verdana,geneva,sans-serif; font-size:18px;">This is to certify that</span></p>
+
+                            <p>&nbsp;</p>
+
+                            <p><span style="color:#000000; font-family:Arial; font-size:44px; font-weight:bold;">{firstname}&nbsp; {lastname} </span></p>
+
+                            <p>&nbsp;</p>
+
+                            <p><span style="color:#808080; font-family:verdana,geneva,sans-serif; font-size:18px">successfully completed</span></p>
+
+                            <p>&nbsp;</p>
+
+                            <p><span style="color:#AA2969; font-family:Arial; font-size:24px; font-weight:bold;">{trainingname}&nbsp;</span></p>
+
+                            <p>&nbsp;</p>
+
+                            <p><span style="color:#808080; font-family:verdana,geneva,sans-serif; font-size:18px">a course of study offered by <strong>PCG Education</strong>, a partner in <strong>Pepper</strong>, an online professional learning community.</span></p>
+
+                            <p>&nbsp;</p>
+
+                            <p>&nbsp;</p>
+
+                            <p>&nbsp;</p>
+                            </td>
+                            <td width="30%">&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td valign="middle" width="39%"><span style="font-size:12px;font-family:verdana,geneva,sans-serif;color:#808080;">VERIFIED CERTIFICATE:</span><br />
+                            <span style="font-size:12px;font-family:verdana,geneva,sans-serif;color:#000000;"><strong>Issued {trainingdate}</strong></span></td>
+                            <td style="padding-left: 10px;" valign="middle" width="17%"><span style="color:#808080;font-size:12px;font-family:verdana,geneva,sans-serif">Estimated Effort:</span><br />
+                            <span style="color:#000000;font-size:12px;font-family:verdana,geneva,sans-serif"><strong>{trainingcredits}</strong></span></td>
+                            <td style="padding-left: 10px;" valign="middle" width="17%"><span style="color:#808080;font-size:12px;font-family:verdana,geneva,sans-serif">Recorded Course Time:</span><br />
+                            <span style="color:#000000;font-size:12px;font-family:verdana,geneva,sans-serif"><strong>{trainingcredits}</strong></span></td>
+                            <td align="right" width="27%">
+                            <p><img src="https://s3.amazonaws.com/pepperpd/static/PCG_Education_1385X419.png" style="height:61px; width:200px" /></p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
 <div style="" id="cms_dialog" class="modal">
 
 </div>
@@ -7003,7 +7105,17 @@
     }
     function pd_addNewCertificate() {
         pd_displayCertificate();
-        pd_ceditor.init();
+        pd_ceditor.isPublish=false; 
+        pd_ceditor.currView='Editor'; 
+        pd_ceditor.certificateID=0;
+        pd_ceditor.association_type=0;
+        pd_ceditor.association=0;
+        pd_ceditor.certificate_name="";
+        $(".certificate_name").val('');
+        pd_ceditor.setReadOnly(false);
+        pd_ceditor.setPublishIcon(pd_ceditor.isPublish);
+        pd_ceditor.content = $("#training_certificate_template").html();
+        pd_ceditor.CKEDITOR.setData(pd_ceditor.content);
         document.getElementById("pd_planner").scrollIntoView();
     }
 
