@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CommunityResources.cms_logo'
-        db.add_column('community_resources', 'cms_logo',
-                      self.gf('django.db.models.fields.CharField')(max_length=255, null=True),
+        # Adding field 'CommunityUsers.community_default'
+        db.add_column('community_users', 'community_default',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'CommunityResources.cms_logo'
-        db.delete_column('community_resources', 'cms_logo')
+        # Deleting field 'CommunityUsers.community_default'
+        db.delete_column('community_users', 'community_default')
 
 
     models = {
@@ -161,7 +161,6 @@ class Migration(SchemaMigration):
         },
         'communities.communityresources': {
             'Meta': {'object_name': 'CommunityResources', 'db_table': "'community_resources'"},
-            'cms_logo': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True'}),
             'community': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityCommunities']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'link': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
@@ -171,6 +170,9 @@ class Migration(SchemaMigration):
         'communities.communityusers': {
             'Meta': {'object_name': 'CommunityUsers', 'db_table': "'community_users'"},
             'community': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityCommunities']"}),
+            'community_default': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'community_delete': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'community_edit': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'facilitator': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'})

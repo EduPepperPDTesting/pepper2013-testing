@@ -239,6 +239,9 @@ CertificateEditor.prototype.replacePlaceholder=function(str){
   placeholderSet.date="January 16, 2015";
   placeholderSet.hours="10 hours";
   placeholderSet.recordedhours="2 hours 10 Min";
+  placeholderSet.trainingname="PD Training";
+  placeholderSet.trainingdate="January 16, 2015";
+  placeholderSet.trainingcredits="10 hours";
   for(var p in placeholderSet)str=str.replaceAll('{'+p+'}',placeholderSet[p]);
   return str;
 }

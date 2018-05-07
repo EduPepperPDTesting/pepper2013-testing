@@ -30,6 +30,7 @@ from courseware.courses import get_courses, get_course_about_section
 from django.core.validators import validate_email
 from pepper_utilities.utils import render_json_response
 from xmodule.remindstore import myactivitystore
+from reporting.models import course_from_id
 
 
 # -------------------------------------------------------------------main
@@ -64,6 +65,9 @@ def main(request):
 
         elif get_flag == "organization_initial_superuser_eamil":
             return organization_initial_superuser_eamil(request)
+
+        elif get_flag == "organization_list_filter":
+            return organization_list_filter(request)
 
     elif post_flag:
         if post_flag == "organization_add":
@@ -985,25 +989,29 @@ def organization_get(request):
                         if tmp1.EntityType == "State":
                             for tmp2 in State.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = 'None'
                                 break
                         elif tmp1.EntityType == "District":
                             for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = tmp2.state.name + ' (State)'
                                 break
                         elif tmp1.EntityType == "Cohort":
                             for tmp2 in Cohort.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.code
+                                parent = 'None'
                                 break
                         else:
                             for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
                                 tmp1_text = tmp2.name
+                                parent = tmp2.district.name + ' (District)'
                                 break
 
                         profileurl = ""
                         profileurl_tmp = eval(tmp1.OtherFields)
                         if profileurl_tmp.has_key('profileurl'):
                             profileurl = profileurl_tmp['profileurl']
-                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id) + ',' + str(profileurl)
+                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text + "," + str(tmp1.id) + ',' + str(profileurl) + ',' + parent
 
                     data['sid_did'] = sid_did
 
@@ -2313,111 +2321,147 @@ def organization_get_info(request):
 @login_required
 def organization_course_list(request):
     subject_id = request.POST.get('subject_id', 'all')
-    grade_id = request.POST.get('grade_id', 'all')
+    # grade_id = request.POST.get('grade_id', 'all')
     author_id = request.POST.get('author_id', 'all')
-    district = request.POST.get('district', '')
-    state = request.POST.get('state', '')
-    collection = request.POST.get('collection', '')
-    credit = request.POST.get('credit', '')
-    is_new = request.POST.get('is_new', '')
-    district_id = request.POST.get('district', '')
-    state_id = request.POST.get('state', '')
-    all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
-    is_member = {'state': False, 'district': False}
+    # district = request.POST.get('district', '')
+    # state = request.POST.get('state', '')
+    # collection = request.POST.get('collection', '')
+    # credit = request.POST.get('credit', '')
+    # is_new = request.POST.get('is_new', '')
+    # district_id = request.POST.get('district', '')
+    # state_id = request.POST.get('state', '')
+    # all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    # is_member = {'state': False, 'district': False}
 
-    filter_dic = {'_id.category': 'course'}
-    if subject_id != 'all':
-        filter_dic['metadata.display_subject'] = {"$regex": subject_id, "$options": "-i"}
+    # filter_dic = {'_id.category': 'course'}
+    # if subject_id != 'all':
+    #     filter_dic['metadata.display_subject'] = {"$regex": subject_id, "$options": "-i"}
 
-    if grade_id != 'all':
-        if grade_id == '6-8' or grade_id == '9-12':
-            filter_dic['metadata.display_grades'] = {'$in': [grade_id, '6-12']}
+    # if grade_id != 'all':
+    #     if grade_id == '6-8' or grade_id == '9-12':
+    #         filter_dic['metadata.display_grades'] = {'$in': [grade_id, '6-12']}
+    #     else:
+    #         filter_dic['metadata.display_grades'] = grade_id
+
+    # if author_id != 'all':
+    #     filter_dic['metadata.display_organization'] = author_id
+
+    # if district_id != '' and district_id != '__NONE__':
+    #     if district in all_district:
+    #         is_member['district'] = True
+    #         filter_dic['metadata.display_district'] = {'$in': [district, 'All']}
+    #     else:
+    #         filter_dic['metadata.display_district'] = district
+    # elif state_id != '' and state_id != '__NONE__':
+    #     if state in all_state:
+    #         is_member['state'] = True
+    #         filter_dic['metadata.display_state'] = {'$in': [state, 'All']}
+    #     else:
+    #         filter_dic['metadata.display_state'] = state
+
+    # if collection != '':
+    #     filter_dic['metadata.content_collections'] = {'$in': [collection, 'All']}
+
+    # if credit != '':
+    #     filter_dic['metadata.display_credit'] = True
+
+    # items = modulestore().collection.find(filter_dic).sort("metadata.display_subject.0", pymongo.ASCENDING)
+    # courses = modulestore()._load_items(list(items), 0)
+
+    # subject_index = [-1, -1, -1, -1, -1]
+    # curr_subject = ["", "", "", "", ""]
+    # g_courses = [[], [], [], [], []]
+    # # end
+
+    # more_subjects_courses = [[], [], [], [], []]
+
+    # for course in courses:
+    #     if is_new == '' or course.is_newish:
+    #         course_filter(course, subject_index, curr_subject, g_courses, grade_id, more_subjects_courses)
+
+    # if subject_id == 'all':
+    #     for i in range(0, len(more_subjects_courses)):
+    #         if len(more_subjects_courses[i]) > 0:
+    #             g_courses[i].append(more_subjects_courses[i])
+    # else:
+    #     for i in range(0, len(more_subjects_courses)):
+    #         if len(more_subjects_courses[i]) > 0:
+    #             if len(g_courses[i]) > 0:
+    #                 for n in range(0, len(more_subjects_courses[i])):
+    #                     g_courses[i][0].append(more_subjects_courses[i][n])
+
+    # for gc in g_courses:
+    #     for sc in gc:
+    #         sc.sort(key=lambda x: x.display_coursenumber)
+
+    # rows_course = []
+    # duplicate = []
+    # for course in g_courses[4]:
+    #     for c in course:
+    #         if not c.close_course or c.close_course and c.keep_in_directory:
+    #             if c.id not in duplicate:
+    #                 rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    #                 duplicate.append(c.id)
+    # for course in g_courses[0]:
+    #     for c in course:
+    #         if not c.close_course or c.close_course and c.keep_in_directory:
+    #             if c.id not in duplicate:
+    #                 rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    #                 duplicate.append(c.id)
+    # for course in g_courses[1]:
+    #     for c in course:
+    #         if not c.close_course or c.close_course and c.keep_in_directory:
+    #             if c.id not in duplicate:
+    #                 rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    #                 duplicate.append(c.id)
+    # for course in g_courses[2]:
+    #     for c in course:
+    #         if not c.close_course or c.close_course and c.keep_in_directory:
+    #             if c.id not in duplicate:
+    #                 rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    #                 duplicate.append(c.id)
+    # for course in g_courses[3]:
+    #     for c in course:
+    #         if not c.close_course or c.close_course and c.keep_in_directory:
+    #             if c.id not in duplicate:
+    #                 rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
+    #                 duplicate.append(c.id)
+    if request.user.is_superuser:
+        filters = {'_id.category':'course'}
+        if subject_id == 'all':
+            subject_filter = {}
         else:
-            filter_dic['metadata.display_grades'] = grade_id
-
-    if author_id != 'all':
-        filter_dic['metadata.display_organization'] = author_id
-
-    if district_id != '' and district_id != '__NONE__':
-        if district in all_district:
-            is_member['district'] = True
-            filter_dic['metadata.display_district'] = {'$in': [district, 'All']}
+            subject_filter = {'$or':[{'metadata.display_subject':'all'},{'metadata.display_subject':{'$exists':False}},{'metadata.display_subject': subject_id}]}
+        if author_id == 'all':
+            author_filter = {}
         else:
-            filter_dic['metadata.display_district'] = district
-    elif state_id != '' and state_id != '__NONE__':
-        if state in all_state:
-            is_member['state'] = True
-            filter_dic['metadata.display_state'] = {'$in': [state, 'All']}
-        else:
-            filter_dic['metadata.display_state'] = state
+            author_filter = {'metadata.display_organization': author_id}
+        rows_course = []
+        filters.update(subject_filter)
+        filters.update(author_filter)
+        items = modulestore().collection.find(filters).sort("metadata.display_subject.0", pymongo.ASCENDING)
+        courses = modulestore()._load_items(list(items), 0)
 
-    if collection != '':
-        filter_dic['metadata.content_collections'] = {'$in': [collection, 'All']}
-
-    if credit != '':
-        filter_dic['metadata.display_credit'] = True
-
-    items = modulestore().collection.find(filter_dic).sort("metadata.display_subject.0", pymongo.ASCENDING)
-    courses = modulestore()._load_items(list(items), 0)
-
-    subject_index = [-1, -1, -1, -1, -1]
-    curr_subject = ["", "", "", "", ""]
-    g_courses = [[], [], [], [], []]
-    # end
-
-    more_subjects_courses = [[], [], [], [], []]
-
-    for course in courses:
-        if is_new == '' or course.is_newish:
-            course_filter(course, subject_index, curr_subject, g_courses, grade_id, more_subjects_courses)
-
-    if subject_id == 'all':
-        for i in range(0, len(more_subjects_courses)):
-            if len(more_subjects_courses[i]) > 0:
-                g_courses[i].append(more_subjects_courses[i])
+        for course in courses:
+            if (not course.close_course )or (course.close_course and course.keep_in_directory):
+                rows_course.append({'id': course.id, 'title': get_course_about_section(course, 'title'), 'course_number': course.display_number_with_default})
+        
     else:
-        for i in range(0, len(more_subjects_courses)):
-            if len(more_subjects_courses[i]) > 0:
-                if len(g_courses[i]) > 0:
-                    for n in range(0, len(more_subjects_courses[i])):
-                        g_courses[i][0].append(more_subjects_courses[i][n])
-
-    for gc in g_courses:
-        for sc in gc:
-            sc.sort(key=lambda x: x.display_coursenumber)
-
-    rows_course = []
-    duplicate = []
-    for course in g_courses[4]:
-        for c in course:
-            if not c.close_course or c.close_course and c.keep_in_directory:
-                if c.id not in duplicate:
-                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
-                    duplicate.append(c.id)
-    for course in g_courses[0]:
-        for c in course:
-            if not c.close_course or c.close_course and c.keep_in_directory:
-                if c.id not in duplicate:
-                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
-                    duplicate.append(c.id)
-    for course in g_courses[1]:
-        for c in course:
-            if not c.close_course or c.close_course and c.keep_in_directory:
-                if c.id not in duplicate:
-                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
-                    duplicate.append(c.id)
-    for course in g_courses[2]:
-        for c in course:
-            if not c.close_course or c.close_course and c.keep_in_directory:
-                if c.id not in duplicate:
-                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
-                    duplicate.append(c.id)
-    for course in g_courses[3]:
-        for c in course:
-            if not c.close_course or c.close_course and c.keep_in_directory:
-                if c.id not in duplicate:
-                    rows_course.append({'id': c.id, 'title': get_course_about_section(c, 'title'), 'course_number': c.display_number_with_default})
-                    duplicate.append(c.id)
+        rows_course = []
+        courses = CourseEnrollmentAllowed.objects.filter(email=request.user.email)
+        for tmp in courses:
+            try:
+                course = course_from_id(tmp.course_id)
+                if (not course.close_course )or (course.close_course and course.keep_in_directory):
+                    if subject_id != 'all' and subject_id not in course.display_subject:
+                        pass
+                    else:
+                        if author_id != 'all' and author_id != course.display_organization:
+                            pass
+                        else:
+                            rows_course.append({'id': course.id, 'title': get_course_about_section(course, 'title'), 'course_number': course.display_number_with_default})
+            except:
+                pass
 
     data = {'Success': True, "courses": rows_course, "subject_id": subject_id}
 
@@ -2568,3 +2612,91 @@ def course_assign(qualifications, data):
             "TokenValues": {"course_id": tmp2['course_id']}, 
             "LogoValues": {"course_id": tmp2['course_id']}}
             ma_db.insert_item(my_activity)
+
+@login_required
+def organization_list_filter(request):
+    if request.user.is_superuser == 1:
+        state = request.GET.get('state', '')
+        district = request.GET.get('district', '')
+        school = request.GET.get('school', '')
+        cohort = request.GET.get('cohort', '')
+        email = request.GET.get('email', '')
+        org_list = []
+        if email != "":
+            try:
+                user = User.objects.get(email=email)
+            except:
+                rows = []
+                return render_json_response({'success': True, 'rows': rows, 'is_superuser': request.user.is_superuser})
+            OrganizationOK = False
+            try:
+                state_id = user.profile.district.state.id
+            except:
+                state_id = -1
+            try:
+                district_id = user.profile.district.id
+            except:
+                district_id = -1
+            try:
+                school_id = user.profile.school.id
+            except:
+                school_id = -1
+            try:
+                cohort_id = user.profile.cohort.id
+            except:
+                cohort_id = -1
+
+            if (cohort_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=cohort_id, EntityType="Cohort"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and school_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=school_id, EntityType="School"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+            if (not(OrganizationOK) and district_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district_id, EntityType="District"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+            
+            if (not(OrganizationOK) and state_id != -1):
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state_id, EntityType="State"):
+                    org_list.append(tmp1.organization)
+                    OrganizationOK = True
+                    break;
+
+        if cohort != "":
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(cohort), EntityType="Cohort"):
+                org_list.append(tmp1.organization)
+                break;
+
+        if school != "":
+            for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(school), EntityType="School"):
+                org_list.append(tmp1.organization)
+                break;
+        else:
+            if district != "":
+                for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(district), EntityType="District"):
+                    org_list.append(tmp1.organization)
+                    break;
+            else: 
+                if state != "":
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=int(state), EntityType="State"):
+                        org_list.append(tmp1.organization)
+                        break;
+
+        if email == "" and cohort  == "" and state == "":
+            org_list = OrganizationMetadata.objects.all()
+
+        rows = []
+        for org in org_list:
+            rows.append({'id': org.id, 'OrganizationName': org.OrganizationName})
+
+        return render_json_response({'success': True, 'rows': rows, 'is_superuser': request.user.is_superuser})
+    else:
+        return render_json_response({'success': False})
