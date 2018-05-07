@@ -842,19 +842,11 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     itemData = ""
 
                     if isday:
-                        if ((arrive == "0" and allow == "0" and (catype == "0" or catype == "4")) or (arrive == "0" and allow == "1" and r_l == "1" and (((status == "" and (catype == "0" or catype == "5")) or (status == "Waitlist" and (catype == "0" or catype == "6"))) or status == "Registered" or (catype == "0" or catype == "2"))) or (arrive == "1" and status == "Registered" and (catype == "0" or catype == "2")) or (arrive == "1" and (status == "Attended" or status == "Validated") and ((catype == "0" or catype == "1") or (catype == "0" or catype == "3")))) and not (arrive == "1" and status == "" and allow == "1"):
-                            #raise Exception("trainingStartTime="+str(trainingStartTime)+" name="+str(item.name))
-                            trainingStartMinutes = int(trainingStartTime[-5:-3])
-                            if(trainingStartMinutes)<30:
-                                trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
-                            else:
-                                trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
+                        startHourMinutes = "00" if(int(trainingStartTime[-5:-3])<30) else "30"
+                        trainingStartHour = trainingStartTime[0:-5] + startHourMinutes + trainingStartTime[-3:]
 
-                            trainingEndMinutes = int(trainingEndTime[-5:-3])
-                            if (trainingEndMinutes) < 30:
-                                trainingEndHour = trainingEndTime[0:-5] + "00" + trainingEndTime[-3:]
-                            else:
-                                trainingEndHour = trainingEndTime[0:-5] + "30" + trainingEndTime[-3:]
+                        endHourMinutes =  "00" if(int(trainingEndTime[-5:-3])<30) else "30"
+                        trainingEndHour = trainingEndTime[0:-5] + endHourMinutes + trainingEndTime[-3:]
 
                             trainingStartHours.append(trainingStartHour)
                             trainingEndHours.append(trainingEndHour)
@@ -1021,28 +1013,17 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 thismonth = month
                 thisyear = year
 
-                if (old_month < month):
-                    oldmlsnewm = "true"
-                else:
-                    oldmlsnewm = "false"
+                oldmlsnewm = "true" if (old_month < month) else "false"
 
-                if (old_month > month):
-                    oldmgrnewm = "true"
-                else:
-                    oldmgrnewm = "false"
+                oldmgrnewm = "true" if (old_month > month) else "false"
 
                 dateToCompare = 32
-                if (type(week[6][0]) is not datetime):
-                    dateToCompare = week[6][0]
-                else:
-                    dateToCompare = week[6][0].day
+                dateToCompare = week[6][0] if (type(week[6][0]) is not datetime) else week[6][0].day
 
-                if(go_forth == 1 and isweek and week[0][0] > day[0]):
-                    nextMonth = "true"
-                else:
-                    nextMonth = "false"
-                    if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
-                        thismonth -= 1
+                nextMonth = "true" if(go_forth == 1 and isweek and week[0][0] > day[0]) else "false"
+
+                if(go_forth == 1 and isweek and old_month < month and week[0][0] <= day[0] and dateToCompare < week[0][0]):
+                    thisMonth -= 1
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
@@ -1062,7 +1043,7 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                     thismonth = 12
                     thisyear -= 1
 
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + str(thismonth) + ", " + str(thisyear) + ", " + nextMonth + ", " + prevMonth + ", " + str(dateToCompare) + ", " + str(old_month) + ", " + oldmlsnewm + ", " + oldmgrnewm + ", " + str(month) + ", " + str(week[0][0]) + ", " + str(year) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})'".format(str(day[0]), str(thisMonth), str(thisYear), nextMonth, prevMonth, str(dateToCompare), str(old_month), oldmlsnewm, oldmgrnewm, str(month), str(week[0][0]), str(year))
             else:
                 clickFunc = ""
 
@@ -1072,17 +1053,16 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 if isday:
                     width_id = "day-view"
 
-                table_tr_content += "<td class='" + class_name + "' id='" + width_id + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
+                table_tr_content += "<td class='{}' id='{}' style='position: relative; height: 100%;{}'{}>".format(class_name, width_id, cell_border, clickFunc)
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
-
+                    table_tr_content += "<div class='calendarium-relative' {}><span class='calendarium-date'>{}</span>".format(colstyle, str(day[0]))
                     if not isday:
                         #sortedDay = sorted(day, key=lambda day: str(day[3]) + str(day[4]))
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
                     if isday:
-                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>"
 
                         for dayHour in dayHours:
 
@@ -1091,81 +1071,79 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                             if day[1]:
                                 i = 0
 
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
                                 divAdded = 1
 
                                 for tmp1 in day[1]:
 
-                                    if(day[4][i] != "" and (day[3][i] != day[4][i])):
-                                        h = 0
-                                        endHour = 0
-                                        startHour = int(day[3][i][:day[3][i].index(":")])
-                                        startHourAMPM = day[3][i][-2:]
-                                        #raise Exception("day[1] length ="+ str(len(day[1])) + " day[3] length ="+ str(len(day[3])) + " startHour=" + str(startHour) + " startHourAMPM=" + str(startHourAMPM))
-                                        if ((startHourAMPM == "AM" and (startHour < 7 or startHour == 12)) or (startHourAMPM == "PM" and startHour > 8)):
-                                            if (startHourAMPM == "PM" and startHour == 12):
-                                                startHour = 0
-                                            else:
-                                                startHour = 7
+                                    try:
+                                        if(day[4][i] != "" and (day[3][i] != day[4][i])):
+                                            h = 0
+                                            endHour = 0
+                                            startHour = int(day[3][i][:day[3][i].index(":")])
+                                            startHourAMPM = day[3][i][-2:]
 
-                                        if((startHourAMPM == "PM" and startHour <= 8) or (startHourAMPM == "AM" and startHour >= 7)):
-                                            endHour = int(day[4][i][:day[4][i].index(":")])
-                                            endHourAMPM = day[4][i][-2:]
+                                            if (not ((startHourAMPM == "AM" and startHour >= 7) or (startHourAMPM == "PM" and startHour <=8))):
+                                                startHour = 0 if (startHourAMPM == "PM" and startHour == 12) else 7
 
-                                            h = startHour
-                                            hourAMPM = startHourAMPM
+                                            if((startHourAMPM == "PM" and startHour <= 8) or (startHourAMPM == "AM" and startHour >= 7)):
+                                                endHour = int(day[4][i][:day[4][i].index(":")])
+                                                endHourAMPM = day[4][i][-2:]
 
-                                            if(startHourAMPM == "AM" and endHourAMPM == "PM" and endHour != 12):
-                                                endHourLast = endHour if(endHour <= 8) else 8
-                                                endHour = 12
-                                            elif(endHourAMPM == "PM" and ((endHour == 8 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 8 and endHour != 12))):
-                                                endHour = 8
-                                                endHourLast = endHour
-                                            else:
-                                                #endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
-                                                endHourLast = endHour
+                                                h = startHour
+                                                hourAMPM = startHourAMPM
 
-                                            while(h <= endHour):
+                                                if(startHourAMPM == "AM" and endHourAMPM == "PM" and endHour != 12):
+                                                    endHourLast = endHour if(endHour <= 8) else 8
+                                                    endHour = 12
+                                                elif(endHourAMPM == "PM" and ((endHour == 8 and int(day[4][i][day[4][i].index(":")+1:day[4][i].index(" ")]) >= 0) or (endHour > 8 and endHour != 12))):
+                                                    endHour = 8
+                                                    endHourLast = endHour
+                                                else:
+                                                    #endHour = endHour if(endHourAMPM == "AM" or (endHourAMPM == "PM" and (endHour == 12 or endHour <= 6))) else 6
+                                                    endHourLast = endHour
 
-                                                strHour = str(h) if(h > 0) else "12"
+                                                while(h <= endHour):
 
-                                                fullHour = strHour + ":00 " + hourAMPM
-                                                midHour = strHour + ":30 " + hourAMPM
+                                                    strHour = str(h) if(h > 0) else "12"
 
-                                                firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
-                                                if ((fullHour == dayHour and firstHalfHour) or (midHour == dayHour and not firstHalfHour)): break
+                                                    fullHour = strHour + ":00 " + hourAMPM
+                                                    midHour = strHour + ":30 " + hourAMPM
 
-                                                h += 1
-                                                if(h == endHour and endHour != endHourLast):
-                                                    h = 1
-                                                    endHour = endHourLast
-                                                    hourAMPM = "PM"
-                                                elif(h == 12 and endHourAMPM == "PM"):
-                                                    hourAMPM = "PM"
+                                                    firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
+                                                    if ((fullHour == dayHour and firstHalfHour) or (midHour == dayHour and not firstHalfHour)): break
 
-                                        if (h <= endHour):
-                                            if(h == startHour):
+                                                    h += 1
+                                                    if(h == endHour and endHour != endHourLast):
+                                                        h = 1
+                                                        endHour = endHourLast
+                                                        hourAMPM = "PM"
+                                                    elif(h == 12 and endHourAMPM == "PM"):
+                                                        hourAMPM = "PM"
+
+                                            if (h <= endHour):
                                                 unique = " unique " if (h == startHour) else ""
-                                            t = day[3][i][-2:]
-                                            dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                            table_tr_content += "<span class='" + unique + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
-
+                                                t = day[3][i][-2:]
+                                                dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
+                                                table_tr_content += "<span class='{}{} {} span-{}'>{}</span>".format(unique, t, dh, str(i), tmp1)
+                                    except:
+                                        raise Exception(str(i) + " " + day[3][i] + " " + day[4][i])
                                     i += 1
 
                             if ( not divAdded ):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='{}'>&nbsp;".format(dayHour)
 
                             table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
-                    table_tr_content += "</div>";
+                    table_tr_content += "</div>"
 
-                table_tr_content += "</td>";
+                table_tr_content += "</td>"
 
-        table_tr_content += "</tr>";
+        table_tr_content += "</tr>"
 
-    return table_tr_content;
+    return table_tr_content
 
 def remove_student(student):
     if student.training.type == "pepper_course":
