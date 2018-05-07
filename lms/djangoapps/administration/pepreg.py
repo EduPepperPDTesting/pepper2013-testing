@@ -848,10 +848,10 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                         endHourMinutes =  "00" if(int(trainingEndTime[-5:-3])<30) else "30"
                         trainingEndHour = trainingEndTime[0:-5] + endHourMinutes + trainingEndTime[-3:]
 
-                            trainingStartHours.append(trainingStartHour)
-                            trainingEndHours.append(trainingEndHour)
+                        trainingStartHours.append(trainingStartHour)
+                        trainingEndHours.append(trainingEndHour)
 
-                            itemData = "<br/><div>" + str(item.training_date)
+                        itemData = "<br/><div>" + str(item.training_date)
                     else:
                         trainingStartHours.append(trainingStartTime[0:-6])
                         trainingEndHours.append(trainingEndTime[0:-6])
