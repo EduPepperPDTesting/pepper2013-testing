@@ -1010,8 +1010,8 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
                 class_name = "calendarium-day";
 
             if(isweek and day[0]):
-                thismonth = month
-                thisyear = year
+                thisMonth = month
+                thisYear = year
 
                 oldmlsnewm = "true" if (old_month < month) else "false"
 
@@ -1027,21 +1027,21 @@ def build_screen_rows(request, year, month, catype, all_occurrences, current_day
 
                 if (go_back == 1 and isweek and dateToCompare < day[0]):
                     prevMonth = "true"
-                    thismonth -= 1
+                    thisMonth -= 1
                 else:
                     if(go_back == 1 and isweek and old_month > month and week[0][0] >= day[0] and dateToCompare < week[0][0]):
-                        thismonth += 1
+                        thisMonth += 1
                     prevMonth = "false"
 
                 if (go_forth == 0 and go_back == 0 and week[0][0] > day[0]):
-                    thismonth += 1
+                    thisMonth += 1
 
-                if thismonth == 13:
-                    thismonth = 1
-                    thisyear += 1
-                elif thismonth == 0:
-                    thismonth = 12
-                    thisyear -= 1
+                if thisMonth == 13:
+                    thisMonth = 1
+                    thisYear += 1
+                elif thisMonth == 0:
+                    thisMonth = 12
+                    thisYear -= 1
 
                 clickFunc = " onclick='pickDayOnClick(event, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})'".format(str(day[0]), str(thisMonth), str(thisYear), nextMonth, prevMonth, str(dateToCompare), str(old_month), oldmlsnewm, oldmgrnewm, str(month), str(week[0][0]), str(year))
             else:
