@@ -92,6 +92,27 @@
     % endif
     
     <div class="focus_grabber last"></div>
+
+    <div class="wrapper-downloads">
+        % if transcript:
+        <div style="padding-top: 10px;">
+            <a target="_blank" href="${transcript}"><i style="font-style: italic;">Download a transcript</i></a>
+        </div>
+        % endif
+    
+        % if credit_url:
+            <div style="float: right;clear: both;">
+                <p style="margin-bottom: 0;"><i style="font-style: italic;">Credit: </i><a target="_blank" href="${credit_url}"><i style="font-style: italic;">${credit_text}</i></a></p>
+            </div>
+        % endif
+    
+        % if external_link_to_video:
+            <div style="float: right;clear: right;">
+                <p>External Link to Video: <a target="_blank" href="${external_link_to_video}">${external_link_display_text}</a></p>
+            </div>
+        % endif
+    </div>
+    
 <ul class="wrapper-downloads">
 % if sources.get('main'):
     <li class="video-sources">

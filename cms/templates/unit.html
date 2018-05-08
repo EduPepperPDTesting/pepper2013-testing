@@ -7,10 +7,14 @@
 
 <%block name="jsextra">
   <script type='text/javascript'>
-    function showUploadVideoModal(e, editor) {
+    function showUploadVideoModal(e, editor, btn) {
       e.preventDefault();
+      if(btn.hasClass('transcript')) {
+        $('.upload-video h1').html('Upload a File');
+        $('.upload-video .choose-file-button').html(gettext('Choose a File'));
+      }
       $('.upload-video').show();
-      $('.upload-video .video-input').bind('change', startUploadVideo);
+      $('.upload-video .video-input').bind('change', {'btn': btn}, startUploadVideo);
       editor.attr('uploading', 'true');
       editor.hide();
     }
@@ -43,12 +47,14 @@
       $('.upload-video .video-chooser').ajaxSubmit({
           beforeSend: resetUploadBar,
           uploadProgress: showUploadFeedback,
-          complete: displayFinishedVideoUpload
+          complete: function(xhr) {
+            displayFinishedVideoUpload(xhr, e.data.btn);
+          }
       });
       $('.upload-video .choose-file-button').hide();
       $('.upload-video .progress-bar').removeClass('loaded').show();
     }
-    function displayFinishedVideoUpload(xhr) {
+    function displayFinishedVideoUpload(xhr, btn) {
       if (xhr.status == 200) {
           markVideoLoaded();
       }
@@ -58,12 +64,16 @@
       $('.upload-video .embeddable').show();
       $('.upload-video .file-name').hide();
       $('.upload-video .progress-fill').html(resp.msg);
-      $('.upload-video .choose-file-button').html(gettext('Choose Another Video')).show();
+      if(btn.hasClass('transcript')) {
+        $('.upload-video .choose-file-button').html(gettext('Choose Another File')).show();
+      } else {
+        $('.upload-video .choose-file-button').html(gettext('Choose Another Video')).show();
+      }
       $('.upload-video .progress-fill').width('100%');
 
       var editor = $('.component-editor[uploading=true]');
-      editor.find('#settings-tab ul li:nth-child(8) input').val(resp.portable_url);
-      editor.find('#settings-tab ul li:nth-child(8) input').change();
+      btn.prev('input').val(resp.portable_url);
+      btn.prev('input').change();
     }
     function resetUploadBar() {
       var percentVal = '0%';
@@ -107,13 +117,15 @@
 
     $('.edit-button').live('click', function () {
       var self = this;
+      if($(this).parents('.component-actions').nextAll('section').attr('data-type') !== 'Video') return false;
       var video_descriptor = $(this).parents('.component').find('.xmodule_edit');
-      video_descriptor.find('#settings-tab ul li:gt(7)').hide();
-      video_descriptor.find('#settings-tab ul li:nth-child(8) input').css('width', '30%')
-      if (!video_descriptor.find('#settings-tab ul li:nth-child(8) input').next().is('.browse')) {
-        video_descriptor.find('#settings-tab ul li:nth-child(8) input').after('<button type="button" class="browse">Browse</button>');
-        $('button[class=browse]').live('click', function(e) {
-          showUploadVideoModal(e, $(self).parents('.component').find('.component-editor'));
+      video_descriptor.find('#settings-tab ul li:gt(8)').hide();
+      video_descriptor.find('#settings-tab ul li:nth-child(2) input, #settings-tab ul li:nth-child(5) input').css('width', '30%')
+      if (!video_descriptor.find('#settings-tab ul li:nth-child(2) input, #settings-tab ul li:nth-child(5) input').next().is('.browse')) {
+        video_descriptor.find('#settings-tab ul li:nth-child(2) input').after('<button type="button" class="browse">Browse</button>');
+        video_descriptor.find('#settings-tab ul li:nth-child(5) input').after('<button type="button" class="browse transcript">Browse</button>');
+        $('button[class*=browse]').live('click', function(e) {
+          showUploadVideoModal(e, $(self).parents('.component').find('.component-editor'), $(this));
         });
       }
       video_descriptor.parents('.component').find('.save-button, cancel-button').click(function() {
@@ -315,7 +327,7 @@
                                                                             'coursename': context_course.location.name
                                                                           })}"
                                 method="post" enctype="multipart/form-data">
-        <a href="#" class="choose-file-button">Choose File</a>
+        <a href="#" class="choose-file-button">Choose a Video</a>
         <input type="file" class="video-input" name="file">
       </form>
     </div>

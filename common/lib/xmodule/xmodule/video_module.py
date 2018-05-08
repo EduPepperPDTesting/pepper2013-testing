@@ -41,9 +41,9 @@ log = logging.getLogger(__name__)
 class VideoFields(object):
     """Fields for `VideoModule` and `VideoDescriptor`."""
     display_name = String(
-        display_name="Display Name", help="Display name for this module.",
+        display_name="        Display Name", help="Display name for this module.",
         default="Video",
-        scope=Scope.settings
+        scope=Scope.settings,
     )
     position = Integer(
         help="Current position in the video",
@@ -84,13 +84,13 @@ class VideoFields(object):
     )
     start_time = Float(
         help="Start time for the video.",
-        display_name="Start Time",
+        display_name="      Start Time",
         scope=Scope.settings,
         default=0.0
     )
     end_time = Float(
         help="End time for the video.",
-        display_name="End Time",
+        display_name="     End Time",
         scope=Scope.settings,
         default=0.0
     )
@@ -107,7 +107,7 @@ class VideoFields(object):
     )
     html_source = String(
         help="Paste Video URL in the textbox or upload a video.",
-        display_name="Video Source",
+        display_name="       Video Source",
         scope=Scope.settings,
         default=""
     )
@@ -120,6 +120,36 @@ class VideoFields(object):
     sub = String(
         help="The name of the timed transcript track (for non-Youtube videos).",
         display_name="HTML5 Timed Transcript",
+        scope=Scope.settings,
+        default=""
+    )
+    transcript = String(
+        help="Upload a transcript of the video. This will show up as a downloadable link under the video. Word or PDF files only.",
+        display_name="    Transcript",
+        scope=Scope.settings,
+        default=""
+    )
+    credit_text = String(
+        help="Optional field if Credit needs to be displayed.",
+        display_name="   Display Text for Credit",
+        scope=Scope.settings,
+        default=""
+    )
+    credit_url = String(
+        help=" Optional field for Credit link.",
+        display_name="  Credit URL",
+        scope=Scope.settings,
+        default=""
+    )
+    external_link_to_video = String(
+        help="Optional field for External Link.",
+        display_name="  External Link to Video",
+        scope=Scope.settings,
+        default=""
+    )
+    external_link_display_text = String(
+        help="Optional field if the external link to video needs to be displayed.",
+        display_name="  Display Text for External Link to Video",
         scope=Scope.settings,
         default=""
     )
@@ -203,7 +233,12 @@ class VideoModule(VideoFields, XModule):
             # TODO: Later on the value 1500 should be taken from some global
             # configuration setting field.
             'yt_test_timeout': 1500,
-            'yt_test_url': yt_test_url
+            'yt_test_url': yt_test_url,
+            'transcript': self.transcript,
+            'credit_text': self.credit_text,
+            'credit_url': self.credit_url,
+            'external_link_to_video': self.external_link_to_video,
+            'external_link_display_text': self.external_link_display_text,
         })
 
 
